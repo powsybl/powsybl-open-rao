@@ -28,7 +28,6 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -58,12 +57,6 @@ public class RaoUtilTest {
         raoParameters = new RaoParameters();
     }
 
-    private void addPtdfParameters(List<String> boundaries) {
-        if (boundaries != null) {
-            raoParameters.setPtdfBoundariesFromCountryCodes(boundaries);
-        }
-    }
-
     private void addGlskProvider() {
         ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
             .getZonalGlsks(network);
@@ -89,7 +82,6 @@ public class RaoUtilTest {
     @Test
     public void createRelativeOptimizerMegawatt() {
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        addPtdfParameters(null);
         SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
@@ -101,7 +93,6 @@ public class RaoUtilTest {
     @Test
     public void createRelativeOptimizerAmpere() {
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        addPtdfParameters(null);
         SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
 
@@ -180,7 +171,7 @@ public class RaoUtilTest {
 
     @Test (expected = FaraoException.class)
     public void testExceptionForGlskOnRelativeMargin() {
-        addPtdfParameters(new ArrayList<>(Arrays.asList("FR-ES", "ES-PT")));
+        raoParameters.setPtdfBoundariesFromCountryCodes(new ArrayList<>(Arrays.asList("FR-ES", "ES-PT")));
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
@@ -195,7 +186,6 @@ public class RaoUtilTest {
     @Test(expected = FaraoException.class)
     public void testExceptionForNullBoundariesOnRelativeMargin() {
         addGlskProvider();
-        addPtdfParameters(null);
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
@@ -203,14 +193,14 @@ public class RaoUtilTest {
     @Test(expected = FaraoException.class)
     public void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
-        addPtdfParameters(new ArrayList<>());
+        raoParameters.setPtdfBoundariesFromCountryCodes(new ArrayList<>());
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test
     public void testCreateSystematicSensitivityInterfaceOnRelativeMargin() {
-        addPtdfParameters(new ArrayList<>(Arrays.asList("FR-BE", "BE-NL", "FR-DE", "DE-NL")));
+        raoParameters.setPtdfBoundariesFromCountryCodes(new ArrayList<>(Arrays.asList("FR-BE", "BE-NL", "FR-DE", "DE-NL")));
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoData =  new RaoData(
