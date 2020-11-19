@@ -97,7 +97,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         network.getVariantManager().cloneVariant(PREVENTIVE_STATE, CURATIVE_STATE);
         network.getVariantManager().setWorkingVariant(CURATIVE_STATE);
         // For now only one curative computation at a time
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_STATE, 1)) {
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_STATE, parameters.getPerimetersInParallel())) {
             stateTree.getOptimizedStates().forEach(optimizedState -> {
                 if (!optimizedState.equals(raoInput.getCrac().getPreventiveState())) {
                     networkPool.submit(() -> {

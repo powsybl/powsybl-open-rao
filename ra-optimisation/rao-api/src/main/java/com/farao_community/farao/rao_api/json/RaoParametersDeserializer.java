@@ -129,6 +129,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setPtdfSumLowerBound(parser.getDoubleValue());
                     break;
+                case "perimeters-in-parallel":
+                    parser.nextToken();
+                    parameters.setPerimetersInParallel(parser.getIntValue());
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
