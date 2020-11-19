@@ -7,6 +7,7 @@
   "sensitivity-fallback-over-cost" : 0.0,
   "rao-with-loop-flow-limitation" : false,
   "loop-flow-approximation" : "FIXED_PTDF",
+  "loop-flow-acceptable-augmentation" : 0.0,
   "loop-flow-constraint-adjustment-coefficient" : 0.0,
   "mnec-acceptable-margin-diminution" : 50.0,
   "mnec-violation-cost" : 10.0,

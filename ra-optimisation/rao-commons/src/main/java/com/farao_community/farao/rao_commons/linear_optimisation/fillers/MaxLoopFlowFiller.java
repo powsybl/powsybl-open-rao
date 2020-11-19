@@ -31,7 +31,6 @@ import java.util.Objects;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MaxLoopFlowFiller implements ProblemFiller {
-
     private double loopFlowConstraintAdjustmentCoefficient;
     private double loopFlowViolationCost;
     private RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
@@ -80,6 +79,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         for (Cnec cnec : raoData.getLoopflowCnecs()) {
             //get and update MapLoopFlowLimit with loopflowConstraintAdjustmentCoefficient
             double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
+
             if (maxLoopFlowLimit == Double.POSITIVE_INFINITY) {
                 continue;
             }

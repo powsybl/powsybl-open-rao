@@ -55,6 +55,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setPstSensitivityThreshold(0.2);
         parameters.setFallbackOverCost(10);
         parameters.setRaoWithLoopFlowLimitation(true);
+        parameters.setLoopFlowAcceptableAugmentation(20.);
         parameters.setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST);
         parameters.setLoopFlowConstraintAdjustmentCoefficient(0.5);
         List<String> countries = new ArrayList<>();
