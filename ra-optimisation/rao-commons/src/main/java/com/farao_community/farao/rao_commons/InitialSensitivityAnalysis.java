@@ -60,7 +60,7 @@ public class InitialSensitivityAnalysis {
         SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit());
         raoData.setSystematicSensitivityResult(sensitivityResult);
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            fillAbsolutePtdfSums(raoData, raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries(), sensitivityResult);
+            fillAbsolutePtdfSums(raoData, raoParameters.getPtdfBoundaries(), sensitivityResult);
         }
     }
 
