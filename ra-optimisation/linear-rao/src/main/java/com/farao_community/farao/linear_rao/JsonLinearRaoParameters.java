@@ -31,8 +31,11 @@ public class JsonLinearRaoParameters implements JsonRaoParameters.ExtensionSeria
 
     @Override
     public LinearRaoParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        LinearRaoParameters linearRaoParameters = new LinearRaoParameters();
+        return deserializeAndUpdate(jsonParser, deserializationContext, new LinearRaoParameters());
+    }
 
+    @Override
+    public LinearRaoParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, LinearRaoParameters linearRaoParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "security-analysis-without-rao":
