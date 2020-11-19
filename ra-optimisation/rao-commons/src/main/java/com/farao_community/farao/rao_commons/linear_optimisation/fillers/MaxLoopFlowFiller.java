@@ -31,8 +31,7 @@ import java.util.Objects;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MaxLoopFlowFiller implements ProblemFiller {
-
-    private double loopFlowAcceptableAugmentation;
+    
     private double loopFlowConstraintAdjustmentCoefficient;
     private double loopFlowViolationCost;
     private RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
