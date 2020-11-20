@@ -71,7 +71,6 @@ public final class RaoData {
         this.referenceProgram = referenceProgram;
         this.glsk = glsk;
         this.loopflowCountries = loopflowCountries;
-
         cracResultManager = new CracResultManager(this);
         addRaoDataVariantManager(cracVariantId);
 

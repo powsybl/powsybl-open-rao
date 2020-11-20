@@ -44,6 +44,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
 
         double loopFlowConstraintAdjustmentCoefficient = 5.;
+        double loopFlowAcceptableAugmentation = 13.;
         double loopFlowViolationCost = 10.;
 
         MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(loopFlowConstraintAdjustmentCoefficient, loopFlowViolationCost, RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF);
