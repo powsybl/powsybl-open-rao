@@ -241,10 +241,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     private void deleteCurativeVariants(Crac crac, String preventivePostOptimVariantId, Map<State, RaoResult> curativeRaoResults) {
-        curativeRaoResults.values().stream().map(RaoResult::getPostOptimVariantId).forEach(variantId -> {
-            if (!variantId.equals(preventivePostOptimVariantId)) {
-                crac.getExtension(ResultVariantManager.class).deleteVariant(variantId);
-            }
-        });
+        curativeRaoResults.values().stream()
+            .map(RaoResult::getPostOptimVariantId)
+            .filter(variantId -> !variantId.equals(preventivePostOptimVariantId))
+            .forEach(variantId -> crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
     }
 }
