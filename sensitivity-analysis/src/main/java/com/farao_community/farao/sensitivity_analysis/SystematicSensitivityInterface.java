@@ -144,6 +144,7 @@ public final class SystematicSensitivityInterface {
             return result;
 
         } catch (SensitivityAnalysisException e) {
+            LOGGER.debug(e.getCause().getMessage());
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
