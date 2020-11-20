@@ -76,6 +76,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
     public static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
     public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
+    public static final double DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION = 0.0;
     public static final LoopFlowApproximationLevel DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL = LoopFlowApproximationLevel.FIXED_PTDF;
     public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
@@ -95,11 +96,12 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
     private double fallbackOverCost = DEFAULT_FALLBACK_OVER_COST;
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
+    private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
     private LoopFlowApproximationLevel loopFlowApproximationLevel = DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL;
     private double loopFlowConstraintAdjustmentCoefficient = DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
     private double loopFlowViolationCost = DEFAULT_LOOP_FLOW_VIOLATION_COST;
     private Set<Country> loopflowCountries = new HashSet<>(); //Empty by default
-    private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
+    private double loopFlowAcceptableAugmentation = DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION; // always in MW
     private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
     private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
@@ -171,6 +173,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public RaoParameters setLoopFlowApproximationLevel(LoopFlowApproximationLevel loopFlowApproximation) {
         this.loopFlowApproximationLevel = loopFlowApproximation;
         return this;
+    }
+
+    public double getLoopFlowAcceptableAugmentation() {
+        return loopFlowAcceptableAugmentation;
+    }
+
+    public void setLoopFlowAcceptableAugmentation(double loopFlowAcceptableAugmentation) {
+        this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
     }
 
     public double getLoopFlowConstraintAdjustmentCoefficient() {
@@ -344,6 +354,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", DEFAULT_PST_SENSITIVITY_THRESHOLD));
                 parameters.setFallbackOverCost(config.getDoubleProperty("sensitivity-fallback-over-cost", DEFAULT_FALLBACK_OVER_COST));
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
+                parameters.setLoopFlowAcceptableAugmentation(config.getDoubleProperty("loop-flow-acceptable-augmentation", DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION));
                 parameters.setLoopFlowApproximationLevel(config.getEnumProperty("loop-flow-approximation", LoopFlowApproximationLevel.class, DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL));
                 parameters.setLoopFlowConstraintAdjustmentCoefficient(config.getDoubleProperty("loop-flow-constraint-adjustment-coefficient", DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
                 parameters.setLoopFlowViolationCost(config.getDoubleProperty("loop-flow-violation-cost", DEFAULT_LOOP_FLOW_VIOLATION_COST));

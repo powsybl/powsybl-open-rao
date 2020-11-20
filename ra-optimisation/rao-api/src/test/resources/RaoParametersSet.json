@@ -6,6 +6,7 @@
   "pst-sensitivity-threshold" : 0.2,
   "sensitivity-fallback-over-cost" : 10.0,
   "rao-with-loop-flow-limitation" : true,
+  "loop-flow-acceptable-augmentation" : 20.0,
   "loop-flow-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
   "loop-flow-constraint-adjustment-coefficient" : 0.5,
   "loop-flow-violation-cost" : 0.0,
