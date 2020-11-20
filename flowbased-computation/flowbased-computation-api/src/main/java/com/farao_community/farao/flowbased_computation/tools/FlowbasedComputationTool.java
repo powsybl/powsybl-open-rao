@@ -48,6 +48,7 @@ public class FlowbasedComputationTool implements Tool {
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String CRAC_FILE_OPTION = "crac-file";
     private static final String GLSK_FILE_OPTION = "glsk-file";
+    private static final String DEFINE_ALIASES = "define-aliases";
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String INSTANT = "instant";
@@ -110,6 +111,9 @@ public class FlowbasedComputationTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
+                options.addOption(Option.builder().longOpt(DEFINE_ALIASES)
+                    .desc("try to fix import if crac and network data slightly differ")
+                    .build());
                 options.addOption(Option
                         .builder()
                         .longOpt(INSTANT)
@@ -152,8 +156,10 @@ public class FlowbasedComputationTool implements Tool {
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
         Crac crac = CracImporters.importCrac(cracFile);
-        UcteAliasesCreation.createAliases(network);
-        RaoInputHelper.cleanCrac(crac, network);
+        if (line.hasOption(DEFINE_ALIASES)) {
+            UcteAliasesCreation.createAliases(network);
+            RaoInputHelper.cleanCrac(crac, network);
+        }
         crac.synchronize(network);
         ZonalData<LinearGlsk> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
