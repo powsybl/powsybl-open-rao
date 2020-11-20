@@ -15,14 +15,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
@@ -37,8 +36,8 @@ public class JsonImport implements CracImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonImport.class);
 
     @Override
-    public Crac importCrac(InputStream inputStream, Optional<DateTime> timeStampFilter) {
-        if (timeStampFilter.isPresent()) {
+    public Crac importCrac(InputStream inputStream, OffsetDateTime timeStampFilter) {
+        if (timeStampFilter != null) {
             LOGGER.warn("Timestamp filtering is not implemented for json importer. The timestamp will be ignored.");
         }
         try {
