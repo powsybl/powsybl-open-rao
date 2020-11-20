@@ -34,10 +34,10 @@ public final class CracImporters {
 
     public static void cracAliasesUtil(Crac crac, Network network) {
         crac.getCnecs().forEach(cnec -> {
-        String cnecId = cnec.getNetworkElement().getId();
-        Optional<Identifiable<?>> correspondingElement = network.getIdentifiables().stream().filter(identifiable -> matchesOne(identifiable, cnecId)).findAny();
+            String cnecId = cnec.getNetworkElement().getId();
+            Optional<Identifiable<?>> correspondingElement = network.getIdentifiables().stream().filter(identifiable -> matchesOne(identifiable, cnecId)).findAny();
             correspondingElement.ifPresent(identifiable -> identifiable.addAlias(cnecId));
-    });
+        });
     }
 
     private static boolean matchesOne(Identifiable identifiable, String cnecId) {
