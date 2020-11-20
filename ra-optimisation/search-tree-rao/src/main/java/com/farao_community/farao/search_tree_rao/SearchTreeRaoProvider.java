@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -96,6 +97,12 @@ public class SearchTreeRaoProvider implements RaoProvider {
         network.getVariantManager().setWorkingVariant(PREVENTIVE_STATE);
         network.getVariantManager().cloneVariant(PREVENTIVE_STATE, CURATIVE_STATE);
         network.getVariantManager().setWorkingVariant(CURATIVE_STATE);
+        Map<String, String> initialVariantIdPerOptimizedStateId = new ConcurrentHashMap<>();
+        stateTree.getOptimizedStates().forEach(optimizedState -> {
+            if (!optimizedState.equals(raoInput.getCrac().getPreventiveState())) {
+                initialVariantIdPerOptimizedStateId.put(optimizedState.getId(), preventiveRaoData.getCracVariantManager().cloneWorkingVariant());
+            }
+        });
         // For now only one curative computation at a time
         try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_STATE, parameters.getPerimetersInParallel())) {
             stateTree.getOptimizedStates().forEach(optimizedState -> {
@@ -105,18 +112,20 @@ public class SearchTreeRaoProvider implements RaoProvider {
                             LOGGER.info("Optimizing curative state {}.", optimizedState.getId());
                             Network networkClone = networkPool.getAvailableNetwork();
                             RaoData curativeRaoData = new RaoData(
-                                networkClone,
-                                raoInput.getCrac(),
-                                optimizedState,
-                                stateTree.getPerimeter(optimizedState),
-                                raoInput.getReferenceProgram(),
-                                raoInput.getGlskProvider(),
-                                preventiveRaoResult.getPostOptimVariantId(),
-                                parameters.getLoopflowCountries());
+                                    networkClone,
+                                    raoInput.getCrac(),
+                                    optimizedState,
+                                    stateTree.getPerimeter(optimizedState),
+                                    raoInput.getReferenceProgram(),
+                                    raoInput.getGlskProvider(),
+                                    initialVariantIdPerOptimizedStateId.get(optimizedState.getId()),
+                                    parameters.getLoopflowCountries());
                             RaoResult curativeResult = new SearchTree().run(curativeRaoData, parameters).join();
                             curativeResults.put(optimizedState, curativeResult);
                             networkPool.releaseUsedNetwork(networkClone);
+                            LOGGER.info("Curative state {} has been optimized.", optimizedState.getId());
                         } catch (InterruptedException | NotImplementedException | FaraoException e) {
+                            LOGGER.error("Curative state {} could not be optimized.", optimizedState.getId());
                             Thread.currentThread().interrupt();
                         }
                     });
