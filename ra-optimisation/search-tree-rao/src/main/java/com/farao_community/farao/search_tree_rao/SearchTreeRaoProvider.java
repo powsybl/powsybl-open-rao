@@ -210,6 +210,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 targetResult.setMaxThresholdInMW(optimizedCnecResult.getMaxThresholdInMW());
                 targetResult.setMinThresholdInA(optimizedCnecResult.getMinThresholdInA());
                 targetResult.setMinThresholdInMW(optimizedCnecResult.getMinThresholdInMW());
+                targetResult.setAbsolutePtdfSum(optimizedCnecResult.getAbsolutePtdfSum());
             }
         });
     }
