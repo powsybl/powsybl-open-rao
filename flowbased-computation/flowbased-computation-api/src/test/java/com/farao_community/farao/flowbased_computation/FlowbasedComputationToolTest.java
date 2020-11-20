@@ -31,6 +31,7 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
     // --case-file flowbased-computation/flowbased-computation-api/src/test/resources/testCase.xiidm
     // --crac-file flowbased-computation/flowbased-computation-api/src/test/resources/fakeCrac.json
     // --glsk-file flowbased-computation/flowbased-computation-api/src/test/resources/GlskCountry.xml
+    // --define-aliases
     // --instant 2018-08-28T22:00:00Z
     // --output-file /tmp/outputflowbased
 
