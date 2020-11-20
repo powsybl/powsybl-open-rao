@@ -11,13 +11,11 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import org.joda.time.DateTime;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -32,14 +30,10 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(Path cracPath) {
-        return importCrac(cracPath, Optional.empty());
+        return importCrac(cracPath, null);
     }
 
-    public static Crac importCrac(Path cracPath, Instant instant) {
-        return importCrac(cracPath, convertToDatetime(instant));
-    }
-
-    public static Crac importCrac(Path cracPath, Optional<DateTime> timeStampFilter) {
+    public static Crac importCrac(Path cracPath, OffsetDateTime timeStampFilter) {
         try (InputStream is = new FileInputStream(cracPath.toFile())) {
             return importCrac(cracPath.getFileName().toString(), is, timeStampFilter);
         } catch (FileNotFoundException e) {
@@ -57,14 +51,10 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(String fileName, InputStream inputStream) {
-        return importCrac(fileName, inputStream, Optional.empty());
+        return importCrac(fileName, inputStream, null);
     }
 
-    public static Crac importCrac(String fileName, InputStream inputStream, Instant instant) {
-        return importCrac(fileName, inputStream, convertToDatetime(instant));
-    }
-
-    public static Crac importCrac(String fileName, InputStream inputStream, Optional<DateTime> timeStampFilter) {
+    public static Crac importCrac(String fileName, InputStream inputStream, OffsetDateTime timeStampFilter) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
@@ -92,15 +82,6 @@ public final class CracImporters {
 
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-    }
-
-    private static Optional<DateTime> convertToDatetime(Instant instant) {
-        if (instant == null) {
-            return Optional.empty();
-        } else {
-            org.joda.time.Instant jodaInstant = new org.joda.time.Instant(instant.toEpochMilli());
-            return Optional.of(jodaInstant.toDateTime());
         }
     }
 }

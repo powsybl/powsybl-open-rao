@@ -71,6 +71,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setRaoWithLoopFlowLimitation(parser.getBooleanValue());
                     break;
+                case "loop-flow-acceptable-augmentation":
+                    parser.nextToken();
+                    parameters.setLoopFlowAcceptableAugmentation(parser.getDoubleValue());
+                    break;
                 case "loop-flow-approximation":
                     parameters.setLoopFlowApproximationLevel(stringToLoopFlowApproximationLevel(parser.nextTextValue()));
                     break;
