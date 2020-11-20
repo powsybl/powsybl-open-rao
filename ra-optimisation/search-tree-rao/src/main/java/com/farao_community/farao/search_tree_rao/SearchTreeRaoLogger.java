@@ -71,13 +71,15 @@ final class SearchTreeRaoLogger {
             double cnecMargin = computeCnecMargin(cnec, variantId, unit, relativePositiveMargins);
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
-            SearchTree.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {}",
+            String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format("(PTDF %f)", cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum()) : "";
+            SearchTree.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {} {}",
                     i + 1,
                     cnecNetworkElementName,
                     cnecStateId,
                     isRelativeMargin,
                     margin,
-                    unit);
+                    unit,
+                    ptdfIfRelative);
         }
     }
 
