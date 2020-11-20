@@ -91,7 +91,6 @@ public class SearchTreeRaoProviderTest {
 
     @Test
     public void mergeRaoResults() {
-
         RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
         preventiveRaoResult.setPreOptimVariantId(initialVariantId);
         preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
@@ -139,5 +138,25 @@ public class SearchTreeRaoProviderTest {
             Map.of(curativeState, curativeRaoResult));
 
         assertEquals(RaoResult.Status.FAILURE, mergedRaoResult.getStatus());
+    }
+
+    @Test
+    public void mergeRaoResultsWithNoOptimizationInCurative() {
+
+        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        preventiveRaoResult.setPreOptimVariantId(initialVariantId);
+        preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
+
+        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        curativeRaoResult.setPreOptimVariantId(postOptimPrevVariantId);
+        curativeRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
+
+        StateTree stateTree = mockedStateTree(crac);
+
+        State curativeState = crac.getState("Contingency FR1 FR3", "curative");
+        new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
+            Map.of(curativeState, curativeRaoResult));
+
+        assertNotNull(crac.getExtension(CracResultExtension.class).getVariant(postOptimPrevVariantId));
     }
 }
