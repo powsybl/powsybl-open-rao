@@ -35,8 +35,11 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
 
     @Override
     public SearchTreeRaoParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        return deserializeAndUpdate(jsonParser, deserializationContext, new SearchTreeRaoParameters());
+    }
 
+    @Override
+    public SearchTreeRaoParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, SearchTreeRaoParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case "stop-criterion":
