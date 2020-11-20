@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api.json;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -19,10 +20,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -53,7 +55,8 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setPstSensitivityThreshold(0.2);
         parameters.setFallbackOverCost(10);
         parameters.setRaoWithLoopFlowLimitation(true);
-        parameters.setLoopFlowApproximation(false);
+        parameters.setLoopFlowAcceptableAugmentation(20.);
+        parameters.setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST);
         parameters.setLoopFlowConstraintAdjustmentCoefficient(0.5);
         List<String> countries = new ArrayList<>();
         countries.add("BE");
@@ -63,6 +66,8 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setMnecAcceptableMarginDiminution(30);
         parameters.setMnecConstraintAdjustmentCoefficient(3);
         parameters.setNegativeMarginObjectiveCoefficient(100);
+        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR-ES", "ES-PT"));
+        parameters.setPtdfBoundariesFromCountryCodes(stringBoundaries);
         parameters.setPtdfSumLowerBound(0.05);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
@@ -82,15 +87,14 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         assertNotNull(parameters.getExtensionByName("dummy-extension"));
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void readError() throws IOException {
-        try {
-            JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersError.json"));
-            fail();
-        } catch (AssertionError e) {
-            // should throw
-            assertTrue(e.getMessage().contains("Unexpected field"));
-        }
+        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersError.json"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void loopFlowApproximationLevelError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithLoopFlowError.json"));
     }
 
     static class DummyExtension extends AbstractExtension<RaoParameters> {
@@ -134,5 +138,4 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
             return DummyExtension.class;
         }
     }
-
 }

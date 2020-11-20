@@ -6,16 +6,16 @@
  */
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,7 +36,7 @@ public final class RaoData {
     private final State optimizedState;
     private final Set<State> perimeter;
     private final ReferenceProgram referenceProgram;
-    private final GlskProvider glskProvider;
+    private final ZonalData<LinearGlsk> glsk;
     private final CracResultManager cracResultManager;
     private final Set<Country> loopflowCountries;
 
@@ -55,11 +55,11 @@ public final class RaoData {
      * @param optimizedState:    State in which the remedial actions are optimized
      * @param perimeter:         set of State for which the Cnecs are monitored
      * @param referenceProgram:  ReferenceProgram object (needed only for loopflows and relative margin)
-     * @param glskProvider:      GLSK provider (needed only for loopflows)
+     * @param glsk:      GLSK provider (needed only for loopflows)
      * @param cracVariantId:     Existing variant of the CRAC on which RaoData will be based
      * @param loopflowCountries: countries for which we wish to check loopflows
      */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, GlskProvider glskProvider, String cracVariantId, Set<Country> loopflowCountries) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, String cracVariantId, Set<Country> loopflowCountries) {
         Objects.requireNonNull(network, "Unable to build RAO data without network.");
         Objects.requireNonNull(crac, "Unable to build RAO data without CRAC.");
         Objects.requireNonNull(optimizedState, "Unable to build RAO data without optimized state.");
@@ -69,9 +69,8 @@ public final class RaoData {
         this.optimizedState = optimizedState;
         this.perimeter = perimeter;
         this.referenceProgram = referenceProgram;
-        this.glskProvider = glskProvider;
+        this.glsk = glsk;
         this.loopflowCountries = loopflowCountries;
-
         cracResultManager = new CracResultManager(this);
         addRaoDataVariantManager(cracVariantId);
 
@@ -128,8 +127,8 @@ public final class RaoData {
         return referenceProgram;
     }
 
-    public GlskProvider getGlskProvider() {
-        return glskProvider;
+    public ZonalData<LinearGlsk> getGlskProvider() {
+        return glsk;
     }
 
     public Set<Country> getLoopflowCountries() {
@@ -153,11 +152,13 @@ public final class RaoData {
     private void computeLoopflowCnecs() {
         //TODO: when we start computing loopflows for N-1 cnecs, adapt this part of code
         if (!loopflowCountries.isEmpty()) {
-            loopflowCnecs = crac.getCnecs(crac.getPreventiveState()).stream()
+            loopflowCnecs = perimeterCnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty())
                 .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, loopflowCountries))
                 .collect(Collectors.toSet());
         } else {
-            loopflowCnecs = crac.getCnecs().stream()
+            loopflowCnecs = perimeterCnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty())
                 .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)))
                 .collect(Collectors.toSet());
         }

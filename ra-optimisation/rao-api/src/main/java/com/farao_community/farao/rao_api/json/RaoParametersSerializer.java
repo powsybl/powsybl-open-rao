@@ -35,7 +35,8 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeNumberField("pst-sensitivity-threshold", parameters.getPstSensitivityThreshold());
         jsonGenerator.writeNumberField("sensitivity-fallback-over-cost", parameters.getFallbackOverCost());
         jsonGenerator.writeBooleanField("rao-with-loop-flow-limitation", parameters.isRaoWithLoopFlowLimitation());
-        jsonGenerator.writeBooleanField("loop-flow-approximation", parameters.isLoopFlowApproximation());
+        jsonGenerator.writeNumberField("loop-flow-acceptable-augmentation", parameters.getLoopFlowAcceptableAugmentation());
+        jsonGenerator.writeObjectField("loop-flow-approximation", parameters.getLoopFlowApproximationLevel());
         jsonGenerator.writeNumberField("loop-flow-constraint-adjustment-coefficient", parameters.getLoopFlowConstraintAdjustmentCoefficient());
         jsonGenerator.writeNumberField("loop-flow-violation-cost", parameters.getLoopFlowViolationCost());
         jsonGenerator.writeFieldName("loop-flow-countries");
@@ -52,6 +53,11 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeNumberField("mnec-violation-cost", parameters.getMnecViolationCost());
         jsonGenerator.writeNumberField("mnec-constraint-adjustment-coefficient", parameters.getMnecConstraintAdjustmentCoefficient());
         jsonGenerator.writeNumberField("negative-margin-objective-coefficient", parameters.getNegativeMarginObjectiveCoefficient());
+        jsonGenerator.writeArrayFieldStart("ptdf-boundaries");
+        for (String countryPair : parameters.getPtdfBoundariesAsString()) {
+            jsonGenerator.writeString(countryPair);
+        }
+        jsonGenerator.writeEndArray();
         jsonGenerator.writeNumberField("ptdf-sum-lower-bound", parameters.getPtdfSumLowerBound());
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityAnalysisParameters.serialize(parameters.getDefaultSensitivityAnalysisParameters(), jsonGenerator, serializerProvider);

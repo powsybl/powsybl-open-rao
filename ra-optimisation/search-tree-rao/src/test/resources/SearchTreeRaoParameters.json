@@ -6,7 +6,8 @@
   "pst-sensitivity-threshold" : 0.0,
   "sensitivity-fallback-over-cost" : 0.0,
   "rao-with-loop-flow-limitation" : false,
-  "loop-flow-approximation" : true,
+  "loop-flow-acceptable-augmentation" : 0.0,
+  "loop-flow-approximation" : "FIXED_PTDF",
   "loop-flow-constraint-adjustment-coefficient" : 0.0,
   "loop-flow-violation-cost" : 0.0,
   "loop-flow-countries" : [ ],
@@ -14,6 +15,7 @@
   "mnec-violation-cost" : 10.0,
   "mnec-constraint-adjustment-coefficient" : 0.0,
   "negative-margin-objective-coefficient" : 1000.0,
+  "ptdf-boundaries" : [ ],
   "ptdf-sum-lower-bound" : 0.01,
   "sensitivity-parameters" : {
     "version" : "1.0",

@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -34,13 +35,13 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
     private static final String SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE = "A contingency with the same ID (%s) but a different network elements already exists.";
 
-    private Set<NetworkElement> networkElements;
-    private Set<Instant> instants;
-    private Set<Contingency> contingencies;
-    private Set<State> states;
-    private Set<Cnec> cnecs;
-    private Set<RangeAction> rangeActions;
-    private Set<NetworkAction> networkActions;
+    private Map<String, NetworkElement> networkElements;
+    private Map<String, Instant> instants;
+    private Map<String, Contingency> contingencies;
+    private Map<String, State> states;
+    private Map<String, Cnec> cnecs;
+    private Map<String, RangeAction> rangeActions;
+    private Map<String, NetworkAction> networkActions;
     private boolean isSynchronized;
     private DateTime networkDate;
 
@@ -55,15 +56,23 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
                        @JsonProperty("rangeActions") Set<RangeAction> rangeActions,
                        @JsonProperty("networkActions") Set<NetworkAction> networkActions) {
         super(id, name);
-        this.networkElements = networkElements;
-        this.instants = instants;
-        this.states = states;
-        this.cnecs = cnecs;
-        this.contingencies = contingencies;
-        this.rangeActions = rangeActions;
-        this.networkActions = networkActions;
+        this.networkElements = turnIntoMap(networkElements);
+        this.instants = turnIntoMap(instants);
+        this.states = turnIntoMapForState(states);
+        this.cnecs = turnIntoMap(cnecs);
+        this.contingencies = turnIntoMap(contingencies);
+        this.rangeActions = turnIntoMap(rangeActions);
+        this.networkActions = turnIntoMap(networkActions);
         this.isSynchronized = false;
         this.networkDate = null;
+    }
+
+    private <T extends Identifiable> Map<String, T> turnIntoMap(Set<T> initialSet) {
+        return initialSet.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
+    }
+
+    private Map<String, State> turnIntoMapForState(Set<State> initialSet) {
+        return initialSet.stream().collect(Collectors.toMap(State::getId, Function.identity()));
     }
 
     public SimpleCrac(String id, String name) {
@@ -90,7 +99,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public final Set<NetworkElement> getNetworkElements() {
-        return networkElements;
+        return new HashSet<>(networkElements.values());
     }
 
     public NetworkElement addNetworkElement(String networkElementId) {
@@ -119,12 +128,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         } else if (!cracNetworkElement.getName().equals(networkElementName)) {
             throw new FaraoException(format(SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE, networkElementId));
         }
-        networkElements.add(cracNetworkElement);
+        networkElements.put(networkElementId, cracNetworkElement);
         return cracNetworkElement;
     }
 
     public final NetworkElement getNetworkElement(String id) {
-        return networkElements.stream().filter(networkElement -> networkElement.getId().equals(id)).findFirst().orElse(null);
+        return networkElements.getOrDefault(id, null);
     }
 
     @Override
@@ -134,15 +143,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public final Set<Instant> getInstants() {
-        return instants;
+        return new HashSet(instants.values());
     }
 
     @Override
     public Instant getInstant(String id) {
-        return instants.stream()
-            .filter(instant -> instant.getId().equals(id))
-            .findFirst()
-            .orElse(null);
+        return instants.get(id);
     }
 
     public Instant addInstant(String id, int seconds) {
@@ -158,28 +164,30 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     private void checkAndAddInstant(Instant instant) {
         // If no strictly equal elements are present in the Crac
-        if (instants.stream().noneMatch(cracInstant -> cracInstant.equals(instant))) {
+        if (instants.values().stream().noneMatch(cracInstant -> cracInstant.equals(instant))) {
             // If an element with the same ID is present
-            if (instants.stream().anyMatch(cracInstant -> cracInstant.getId().equals(instant.getId()))) {
+            if (instants.values().stream().anyMatch(cracInstant -> cracInstant.getId().equals(instant.getId()))) {
                 throw new FaraoException("An instant with the same ID but different seconds already exists.");
-            } else if (instants.stream().anyMatch(cracInstant -> cracInstant.getSeconds() == instant.getSeconds())) {
+            } else if (instants.values().stream().anyMatch(cracInstant -> cracInstant.getSeconds() == instant.getSeconds())) {
                 throw new FaraoException("An instant with the same seconds but different ID already exists.");
             }
-            instants.add(instant);
+            instants.put(instant.getId(), instant);
         }
     }
 
     @Override
     public Set<Contingency> getContingencies() {
-        return contingencies;
+        return new HashSet(contingencies.values());
     }
 
     @Override
     public Contingency getContingency(String id) {
-        return contingencies.stream()
-            .filter(contingency -> contingency.getId().equals(id))
-            .findFirst()
-            .orElse(null);
+        return contingencies.get(id);
+    }
+
+    @Override
+    public void removeContingency(String id) {
+        contingencies.remove(id);
     }
 
     @Override
@@ -200,9 +208,9 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void addContingency(Contingency contingency) {
         // If no strictly equal elements are present in the Crac
-        if (contingencies.stream().noneMatch(cracContingency -> cracContingency.equals(contingency))) {
+        if (contingencies.values().stream().noneMatch(cracContingency -> cracContingency.equals(contingency))) {
             // If an element with the same ID is present
-            if (contingencies.stream().anyMatch(cracContingency -> cracContingency.getId().equals(contingency.getId()))) {
+            if (contingencies.values().stream().anyMatch(cracContingency -> cracContingency.getId().equals(contingency.getId()))) {
                 throw new FaraoException(format(SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE, contingency.getId()));
             }
             /*
@@ -217,63 +225,68 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             for (NetworkElement networkElement : contingency.getNetworkElements()) {
                 networkElementsFromInternalSet.add(addNetworkElement(networkElement.getId(), networkElement.getName()));
             }
-            contingencies.add(new ComplexContingency(contingency.getId(), contingency.getName(), networkElementsFromInternalSet));
+            contingencies.put(contingency.getId(), new ComplexContingency(contingency.getId(), contingency.getName(), networkElementsFromInternalSet));
         }
     }
 
     public final Set<State> getStates() {
-        return states;
+        return new HashSet(states.values());
     }
 
     public final State getState(String id) {
-        return states.stream().filter(state -> state.getId().equals(id)).findFirst().orElse(null);
+        return states.get(id);
     }
 
     @Override
     @JsonIgnore
     public State getPreventiveState() {
-        return states.stream().filter(state -> !state.getContingency().isPresent()).findFirst().orElse(null);
+        return states.values().stream().filter(state -> !state.getContingency().isPresent()).findAny().orElse(null);
     }
 
     @Override
     public SortedSet<State> getStates(Contingency contingency) {
-        return states.stream()
+        return states.values().stream()
             .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
             .collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Override
     public Set<State> getStates(Instant instant) {
-        return states.stream()
+        return states.values().stream()
             .filter(state -> state.getInstant().getId().equals(instant.getId()))
             .collect(Collectors.toSet());
     }
 
     @Override
     public State getState(Contingency contingency, Instant instant) {
-        return states.stream()
+        return states.values().stream()
             .filter(state -> state.getContingency().isPresent() && state.getInstant().getId().equals(instant.getId()))
             .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
-            .findFirst()
+            .findAny()
             .orElse(null);
+    }
+
+    @Override
+    public void removeState(String id) {
+        states.remove(id);
     }
 
     public State addState(Contingency contingency, Instant instant) {
         State state;
         if (contingency != null) {
-            if (contingencies.contains(contingency) && instants.contains(instant)) {
+            if (contingencies.containsKey(contingency.getId()) && instants.containsKey(instant.getId())) {
                 state = new SimpleState(Optional.of(getContingency(contingency.getId())), getInstant(instant.getId()));
             } else {
                 throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, contingency.getId(), instant.getId()));
             }
         } else {
-            if (instants.contains(instant)) {
+            if (instants.containsKey(instant.getId())) {
                 state = new SimpleState(Optional.empty(), getInstant(instant.getId()));
             } else {
                 throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, instant.getId()));
             }
         }
-        states.add(state);
+        states.put(state.getId(), state);
         return state;
     }
 
@@ -292,7 +305,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
                 throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, instantId));
             }
         }
-        states.add(state);
+        states.put(state.getId(), state);
         return state;
     }
 
@@ -310,7 +323,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void addState(State state) {
         // If the two instants are strictly equals no need to add it
-        if (instants.stream().noneMatch(instant ->
+        if (instants.values().stream().noneMatch(instant ->
             instant.getId().equals(state.getInstant().getId()) && instant.getSeconds() == state.getInstant().getSeconds())
         ) {
             // Can thow FaraoException if this instant and already present instants are incompatible
@@ -321,14 +334,15 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         Optional<Contingency> stateContingency = state.getContingency();
         Optional<Contingency> contingency;
         if (stateContingency.isPresent()) {
-            if (contingencies.stream().noneMatch(stateContingency.get()::equals)) {
+            if (contingencies.values().stream().noneMatch(stateContingency.get()::equals)) {
                 addContingency(stateContingency.get());
             }
             contingency = Optional.of(getContingency(stateContingency.get().getId()));
         } else {
             contingency = Optional.empty();
         }
-        states.add(new SimpleState(contingency, instant));
+        State newState = new SimpleState(contingency, instant);
+        states.put(newState.getId(), newState);
     }
 
     @Override
@@ -338,28 +352,33 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Cnec getCnec(String id) {
-        return cnecs.stream().filter(cnec -> cnec.getId().equals(id)).findFirst().orElse(null);
+        return cnecs.get(id);
     }
 
     @JsonSerialize(contentUsing = SimpleCnecSerializer.class)
     @Override
     public Set<Cnec> getCnecs() {
-        return cnecs;
+        return new HashSet<>(cnecs.values());
     }
 
     @Override
     public Set<Cnec> getCnecs(State state) {
-        return cnecs.stream()
+        return cnecs.values().stream()
             .filter(cnec -> cnec.getState().equals(state))
             .collect(Collectors.toSet());
     }
 
+    @Override
+    public void removeCnec(String cnecId) {
+        cnecs.remove(cnecId);
+    }
+
     public Cnec addCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> abstractThresholds, State state) {
-        if (!networkElements.contains(networkElement) || !states.contains(state)) {
+        if (!networkElements.containsKey(networkElement.getId()) || !states.containsKey(state.getId())) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElement.getId(), state.getId()));
         }
         Cnec cnec = new SimpleCnec(id, networkElement, abstractThresholds, state);
-        cnecs.add(cnec);
+        cnecs.put(id, cnec);
         return cnec;
     }
 
@@ -368,7 +387,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
         }
         Cnec cnec = new SimpleCnec(id, name, getNetworkElement(networkElementId), abstractThresholds, getState(stateId), frm, optimized, monitored);
-        cnecs.add(cnec);
+        cnecs.put(id, cnec);
         return cnec;
     }
 
@@ -386,7 +405,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         NetworkElement networkElement = addNetworkElement(cnec.getNetworkElement());
 
         // add cnec
-        cnecs.add(((SimpleCnec) cnec).copy(networkElement, getState(cnec.getState().getId()), ((SimpleCnec) cnec).getFrm(), cnec.isOptimized(), cnec.isMonitored()));
+        cnecs.put(cnec.getId(), ((SimpleCnec) cnec).copy(networkElement, getState(cnec.getState().getId()), ((SimpleCnec) cnec).getFrm(), cnec.isOptimized(), cnec.isMonitored()));
 
         // add extensions
         if (!cnec.getExtensions().isEmpty()) {
@@ -402,53 +421,57 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<RangeAction> getRangeActions() {
-        return rangeActions;
+        return new HashSet<>(rangeActions.values());
     }
 
     @Override
     public Set<NetworkAction> getNetworkActions() {
-        return networkActions;
+        return new HashSet<>(networkActions.values());
     }
 
     public void addNetworkAction(NetworkAction networkAction) {
         networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);
-        networkActions.add(networkAction);
+        networkActions.put(networkAction.getId(), networkAction);
     }
 
     public void addRangeAction(RangeAction rangeAction) {
         rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
-        rangeActions.add(rangeAction);
+        rangeActions.put(rangeAction.getId(), rangeAction);
     }
 
     @Override
     public Set<NetworkAction> getNetworkActions(Network network, State state, UsageMethod usageMethod) {
-        return networkActions.stream()
+        return networkActions.values().stream()
             .filter(networkAction -> networkAction.getUsageMethod(network, state).equals(usageMethod))
             .collect(Collectors.toSet());
     }
 
     @Override
     public NetworkAction getNetworkAction(String id) {
-        return networkActions.stream()
-                .filter(networkAction -> networkAction.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return networkActions.get(id);
+    }
+
+    @Override
+    public void removeNetworkAction(String id) {
+        networkActions.remove(id);
     }
 
     @Override
     public Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod) {
-        return rangeActions.stream()
+        return rangeActions.values().stream()
             .filter(rangeAction -> rangeAction.getUsageMethod(network, state).equals(usageMethod))
             .collect(Collectors.toSet());
     }
 
     @Override
     public RangeAction getRangeAction(String id) {
-        return rangeActions.stream()
-                .filter(rangeAction -> rangeAction.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return rangeActions.get(id);
+    }
+
+    @Override
+    public void removeRangeAction(String id) {
+        rangeActions.remove(id);
     }
 
     @Override
@@ -456,16 +479,16 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         if (isSynchronized) {
             throw new AlreadySynchronizedException(format("Crac %s has already been synchronized", getId()));
         }
-        cnecs.forEach(cnec -> cnec.synchronize(network));
-        rangeActions.forEach(rangeAction -> rangeAction.synchronize(network));
+        cnecs.values().forEach(cnec -> cnec.synchronize(network));
+        rangeActions.values().forEach(rangeAction -> rangeAction.synchronize(network));
         networkDate = network.getCaseDate();
         isSynchronized = true;
     }
 
     @Override
     public void desynchronize() {
-        cnecs.forEach(Synchronizable::desynchronize);
-        rangeActions.forEach(Synchronizable::desynchronize);
+        cnecs.values().forEach(Synchronizable::desynchronize);
+        rangeActions.values().forEach(Synchronizable::desynchronize);
         networkDate = null;
         isSynchronized = false;
     }

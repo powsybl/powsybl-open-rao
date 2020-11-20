@@ -29,7 +29,7 @@ import java.util.Objects;
 public class CracResultManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(CracResultManager.class);
 
-    private RaoData raoData;
+    private final RaoData raoData;
 
     CracResultManager(RaoData raoData) {
         this.raoData = raoData;
@@ -123,7 +123,7 @@ public class CracResultManager {
         });
     }
 
-    public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network) {
+    public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network, double loopFlowAcceptableAugmentation) {
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
 
@@ -131,8 +131,7 @@ public class CracResultManager {
                 double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network));
                 double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
 
-                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow, loopFlowThreshold - cnec.getFrm()));
-                cnecLoopFlowExtension.setLoopflowShift(loopFlowResult.getCommercialFlow(cnec));
+                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow + loopFlowAcceptableAugmentation, loopFlowThreshold - cnec.getFrm()));
             }
         });
     }
@@ -143,6 +142,7 @@ public class CracResultManager {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
                 cnecResult.setLoopflowInMW(loopFlowResult.getLoopFlow(cnec));
                 cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+                cnecResult.setCommercialFlowInMW(loopFlowResult.getCommercialFlow(cnec));
             }
         });
     }
@@ -151,7 +151,7 @@ public class CracResultManager {
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
-                double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnec.getExtension(CnecLoopFlowExtension.class).getLoopflowShift();
+                double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnecResult.getCommercialFlowInMW();
                 cnecResult.setLoopflowInMW(loopFLow);
                 cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
             }
@@ -161,6 +161,13 @@ public class CracResultManager {
     public void fillCnecResultsWithAbsolutePtdfSums(Map<Cnec, Double> ptdfSums) {
         ptdfSums.entrySet().forEach(entry ->
                 entry.getKey().getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(entry.getValue())
+        );
+    }
+
+    public void copyCommercialFlowsBetweenVariants(String originVariant, String destinationVariant) {
+        raoData.getLoopflowCnecs().forEach(cnec ->
+                cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant)
+                        .setCommercialFlowInMW(cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getCommercialFlowInMW())
         );
     }
 }

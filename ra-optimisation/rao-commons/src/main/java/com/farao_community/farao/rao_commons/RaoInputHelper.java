@@ -47,7 +47,7 @@ public final class RaoInputHelper {
                 report.add(String.format("[REMOVED] Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
             }
         });
-        absentFromNetworkCnecs.forEach(cnec -> crac.getCnecs().remove(cnec));
+        absentFromNetworkCnecs.forEach(cnec -> crac.removeCnec(cnec.getId()));
 
         // remove Cnecs that are neither optimized nor monitored
         ArrayList<Cnec> unmonitoredCnecs = new ArrayList<>();
@@ -57,7 +57,7 @@ public final class RaoInputHelper {
                 report.add(String.format("[REMOVED] Cnec %s with network element [%s] is neither optimized nor monitored. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
             }
         });
-        unmonitoredCnecs.forEach(cnec -> crac.getCnecs().remove(cnec));
+        unmonitoredCnecs.forEach(cnec -> crac.removeCnec(cnec.getId()));
 
         // remove RangeAction whose NetworkElement is absent from the network
         ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
@@ -69,7 +69,7 @@ public final class RaoInputHelper {
                 }
             });
         }
-        absentFromNetworkRangeActions.forEach(rangeAction -> crac.getRangeActions().remove(rangeAction));
+        absentFromNetworkRangeActions.forEach(rangeAction -> crac.removeRangeAction(rangeAction.getId()));
 
         // remove NetworkAction whose NetworkElement is absent from the network
         ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
@@ -81,7 +81,7 @@ public final class RaoInputHelper {
                 }
             });
         }
-        absentFromNetworkNetworkActions.forEach(networkAction -> crac.getNetworkActions().remove(networkAction));
+        absentFromNetworkNetworkActions.forEach(networkAction -> crac.removeNetworkAction(networkAction.getId()));
 
         // remove Contingencies whose NetworkElement is absent from the network or does not fit a valid Powsybl Contingency
         Set<Contingency> absentFromNetworkContingencies = new HashSet<>();
@@ -100,12 +100,12 @@ public final class RaoInputHelper {
         absentFromNetworkContingencies.forEach(contingency ->  {
             crac.getStatesFromContingency(contingency.getId()).forEach(state -> {
                 crac.getCnecs(state).forEach(cnec -> {
-                    crac.getCnecs().remove(cnec);
+                    crac.removeCnec(cnec.getId());
                     report.add(String.format("[REMOVED] Cnec %s is removed because its associated contingency [%s] has been removed", cnec.getId(), contingency.getId()));
                 });
-                crac.getStates().remove(state);
+                crac.removeState(state.getId());
             });
-            crac.getContingencies().remove(contingency);
+            crac.removeContingency(contingency.getId());
         });
 
         // remove Remedial Action with an empty list of NetworkElement
@@ -114,7 +114,7 @@ public final class RaoInputHelper {
             report.add(String.format("[REMOVED] Remedial Action %s has no associated action. It is removed from the Crac", na.getId()));
             noValidAction.add(na);
         });
-        noValidAction.forEach(networkAction -> crac.getNetworkActions().remove(networkAction));
+        noValidAction.forEach(networkAction -> crac.removeNetworkAction(networkAction.getId()));
 
         report.forEach(LOGGER::warn);
 

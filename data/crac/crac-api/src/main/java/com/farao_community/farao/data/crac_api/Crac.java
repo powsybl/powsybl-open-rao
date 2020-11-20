@@ -67,6 +67,8 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     Contingency getContingency(String id);
 
+    void removeContingency(String id);
+
     void addContingency(Contingency contingency);
 
     // States management
@@ -116,6 +118,8 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * @return State after a contingency and at a specific instant.
      */
     State getState(Contingency contingency, Instant instant);
+
+    void removeState(String stateId);
 
     /**
      * Unordered set of States defined at the same instant. It will be either the preventive state or
@@ -193,6 +197,13 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
     Cnec getCnec(String cnecId);
 
     /**
+     * Remove a Cnec by its id
+     *
+     * @param cnecId: the Cnec identifier.
+     */
+    void removeCnec(String cnecId);
+
+    /**
      * Gather all the Cnecs of a specified State. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.
      *
@@ -244,6 +255,11 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      */
     RangeAction getRangeAction(String id);
 
+    /**
+     * @param id: id of the RangeAction to remove
+     */
+    void removeRangeAction(String id);
+
     // Network actions management
     /**
      * Gather all the network actions present in the Crac. It returns a set because network
@@ -270,4 +286,9 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * @return null if the NetworkAction does not exist in the Crac, the NetworkAction otherwise
      */
     NetworkAction getNetworkAction(String id);
+
+    /**
+     * @param id: id of the NetworkAction to remove
+     */
+    void removeNetworkAction(String id);
 }
