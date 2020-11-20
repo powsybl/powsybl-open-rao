@@ -11,11 +11,14 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -27,6 +30,25 @@ public final class CracImporters {
         = Suppliers.memoize(() -> new ServiceLoaderCache<>(CracImporter.class).getServices())::get;
 
     private CracImporters() {
+    }
+
+    public static void cracAliasesUtil(Crac crac, Network network) {
+        crac.getCnecs().forEach(cnec -> {
+        String cnecId = cnec.getNetworkElement().getId();
+        Optional<Identifiable<?>> correspondingElement = network.getIdentifiables().stream().filter(identifiable -> matchesOne(identifiable, cnecId)).findAny();
+            correspondingElement.ifPresent(identifiable -> identifiable.addAlias(cnecId));
+    });
+    }
+
+    private static boolean matchesOne(Identifiable identifiable, String cnecId) {
+        if (identifiable.getId().matches(changeCharacters(cnecId))) {
+            return true;
+        }
+        return identifiable.getAliases().stream().anyMatch(alias -> alias.toString().matches(changeCharacters(cnecId)));
+    }
+
+    private static String changeCharacters(String string) {
+        return string.substring(0, 7) + ".*" + string.substring(8, 16) + ".*" + string.substring(17);
     }
 
     public static Crac importCrac(Path cracPath) {

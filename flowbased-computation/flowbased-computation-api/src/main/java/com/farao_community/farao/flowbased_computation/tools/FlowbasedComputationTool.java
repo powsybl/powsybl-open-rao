@@ -158,6 +158,7 @@ public class FlowbasedComputationTool implements Tool {
         Crac crac = CracImporters.importCrac(cracFile);
         if (line.hasOption(DEFINE_ALIASES)) {
             UcteAliasesCreation.createAliases(network);
+            CracImporters.cracAliasesUtil(crac, network);
             RaoInputHelper.cleanCrac(crac, network);
         }
         crac.synchronize(network);
