@@ -53,11 +53,12 @@ public class FlowbasedComputationToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), COMMAND_NAME, 6, 4);
+        assertCommand(tool.getCommand(), COMMAND_NAME, 7, 4);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "crac-file", true, true);
         assertOption(tool.getCommand().getOptions(), "glsk-file", true, true);
         assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
+        assertOption(tool.getCommand().getOptions(), "define-aliases", false, false);
         assertOption(tool.getCommand().getOptions(), "instant", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
 
