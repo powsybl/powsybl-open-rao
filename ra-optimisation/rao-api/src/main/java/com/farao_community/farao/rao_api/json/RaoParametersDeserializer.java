@@ -139,7 +139,11 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     break;
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
+                    if (parameters.getExtensions().isEmpty()) {
+                        extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
+                    } else {
+                        JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters);
+                    }
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + parser.getCurrentName());
