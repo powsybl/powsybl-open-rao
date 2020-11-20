@@ -184,7 +184,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         mergeRaoResultStatus(preventiveRaoResult, curativeRaoResults);
         mergeCnecResults(crac, preventiveRaoResult, curativeRaoResults);
         mergeRemedialActionsResults(crac, preventiveRaoResult, curativeRaoResults);
-        deleteCurativeVariants(crac, curativeRaoResults);
+        deleteCurativeVariants(crac, preventiveRaoResult.getPostOptimVariantId(), curativeRaoResults);
         return preventiveRaoResult;
     }
 
@@ -210,6 +210,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 targetResult.setMaxThresholdInMW(optimizedCnecResult.getMaxThresholdInMW());
                 targetResult.setMinThresholdInA(optimizedCnecResult.getMinThresholdInA());
                 targetResult.setMinThresholdInMW(optimizedCnecResult.getMinThresholdInMW());
+                targetResult.setAbsolutePtdfSum(optimizedCnecResult.getAbsolutePtdfSum());
             }
         });
     }
@@ -240,8 +241,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
         });
     }
 
-    private void deleteCurativeVariants(Crac crac, Map<State, RaoResult> curativeRaoResults) {
-        curativeRaoResults.values().stream().map(RaoResult::getPostOptimVariantId).forEach(variantId ->
-            crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
+    private void deleteCurativeVariants(Crac crac, String preventivePostOptimVariantId, Map<State, RaoResult> curativeRaoResults) {
+        curativeRaoResults.values().stream()
+            .map(RaoResult::getPostOptimVariantId)
+            .filter(variantId -> !variantId.equals(preventivePostOptimVariantId))
+            .forEach(variantId -> crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
     }
 }
