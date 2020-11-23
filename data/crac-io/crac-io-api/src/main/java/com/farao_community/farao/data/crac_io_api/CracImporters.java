@@ -35,12 +35,13 @@ public final class CracImporters {
     }
 
     public static void cracAliasesUtil(Crac crac, Network network) {
-        Set<String> cnecIds = new HashSet<>();
-        crac.getCnecs().forEach(cnec -> cnecIds.add(cnec.getNetworkElement().getId()));
+        Set<String> elementIds = new HashSet<>();
+        crac.getCnecs().forEach(cnec -> elementIds.add(cnec.getNetworkElement().getId()));
+        crac.getContingencies().forEach(contingency -> contingency.getNetworkElements().forEach(networkElement -> elementIds.add(networkElement.getId())));
 
-        cnecIds.forEach(cnecId -> {
-            Optional<Identifiable<?>> correspondingElement = network.getIdentifiables().stream().filter(identifiable -> matchesOne(identifiable, cnecId)).findAny();
-            correspondingElement.ifPresent(identifiable -> identifiable.addAlias(cnecId));
+        elementIds.forEach(elementId -> {
+            Optional<Identifiable<?>> correspondingElement = network.getIdentifiables().stream().filter(identifiable -> matchesOne(identifiable, elementId)).findAny();
+            correspondingElement.ifPresent(identifiable -> identifiable.addAlias(elementId));
         });
     }
 
