@@ -17,8 +17,10 @@ import com.powsybl.iidm.network.Network;
 import java.io.*;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -33,18 +35,20 @@ public final class CracImporters {
     }
 
     public static void cracAliasesUtil(Crac crac, Network network) {
-        crac.getCnecs().forEach(cnec -> {
-            String cnecId = cnec.getNetworkElement().getId();
+        Set<String> cnecIds = new HashSet<>();
+        crac.getCnecs().forEach(cnec -> cnecIds.add(cnec.getNetworkElement().getId()));
+
+        cnecIds.forEach(cnecId -> {
             Optional<Identifiable<?>> correspondingElement = network.getIdentifiables().stream().filter(identifiable -> matchesOne(identifiable, cnecId)).findAny();
             correspondingElement.ifPresent(identifiable -> identifiable.addAlias(cnecId));
         });
     }
 
-    private static boolean matchesOne(Identifiable identifiable, String cnecId) {
+    private static boolean matchesOne(Identifiable<?> identifiable, String cnecId) {
         if (identifiable.getId().matches(changeCharacters(cnecId))) {
             return true;
         }
-        return identifiable.getAliases().stream().anyMatch(alias -> alias.toString().matches(changeCharacters(cnecId)));
+        return identifiable.getAliases().stream().anyMatch(alias -> alias.matches(changeCharacters(cnecId)));
     }
 
     private static String changeCharacters(String string) {
