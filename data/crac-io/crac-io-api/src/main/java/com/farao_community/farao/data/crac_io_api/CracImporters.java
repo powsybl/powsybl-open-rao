@@ -36,36 +36,37 @@ public final class CracImporters {
     }
 
     public static void cracAliasesUtil(Crac crac, Network network) {
+        // List (without duplicates) all the crac elements that need to be found in the network
         Set<String> elementIds = new HashSet<>();
         crac.getCnecs().forEach(cnec -> elementIds.add(cnec.getNetworkElement().getId()));
         crac.getContingencies().forEach(contingency -> contingency.getNetworkElements().forEach(networkElement -> elementIds.add(networkElement.getId())));
 
+        // Try to find a corresponding element in the network, and add elementId as an alias
         elementIds.forEach(elementId -> {
-            Optional<Identifiable<?>> correspondingElement = network.getIdentifiables().stream().filter(identifiable -> matchesOne(identifiable, elementId)).findAny();
+            Optional<Identifiable<?>> correspondingElement = network.getIdentifiables().stream().filter(identifiable -> anyMatch(identifiable, elementId)).findAny();
             correspondingElement.ifPresent(identifiable -> identifiable.addAlias(elementId));
         });
     }
 
-    private static boolean matchesOne(Identifiable<?> identifiable, String cnecId) {
-        if (identifiable.getId().matches(changeCharacters(cnecId))) {
-            return true;
-        }
-        if (identifiable.getAliases().stream().anyMatch(alias -> alias.matches(changeCharacters(cnecId)))) {
-            return true;
-        }
-        if (identifiable.getId().matches(otherWay(cnecId))) {
-            return true;
-        }
-
-        return identifiable.getAliases().stream().anyMatch(alias -> alias.matches(otherWay(cnecId)));
+    private static boolean anyMatch(Identifiable<?> identifiable, String cnecId) {
+        return nameMatches(identifiable, cnecId, false) ||
+            aliasMatches(identifiable, cnecId, false) ||
+            nameMatches(identifiable, cnecId, true) ||
+            aliasMatches(identifiable, cnecId, true);
     }
 
-    private static String changeCharacters(String string) {
-        return Pattern.quote(string.substring(0, 7)) + ".*" + Pattern.quote(string.substring(8, 16)) + ".*" + Pattern.quote(string.substring(17));
+    private static boolean nameMatches(Identifiable<?> identifiable, String cnecId, boolean reverse) {
+        return identifiable.getId().matches(checkWithPattern(cnecId, reverse));
     }
 
-    private static String otherWay(String string) {
-        return Pattern.quote(string.substring(9, 16)) + ".*" + " " + Pattern.quote(string.substring(0, 7)) + ".*" + Pattern.quote(string.substring(17));
+    private static boolean aliasMatches(Identifiable<?> identifiable, String cnecId, boolean reverse) {
+        return identifiable.getAliases().stream().anyMatch(alias -> alias.matches(checkWithPattern(cnecId, reverse)));
+    }
+
+    private static String checkWithPattern(String string, boolean reverse) {
+        int first = reverse ? 9 : 0;
+        int second = reverse ? 0 : 9;
+        return Pattern.quote(string.substring(first, first + 7)) + ".*" + " " + Pattern.quote(string.substring(second, second + 7)) + ".*" + Pattern.quote(string.substring(17)).trim();
     }
 
     public static Crac importCrac(Path cracPath) {
