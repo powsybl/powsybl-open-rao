@@ -49,11 +49,22 @@ public final class CracImporters {
         if (identifiable.getId().matches(changeCharacters(cnecId))) {
             return true;
         }
-        return identifiable.getAliases().stream().anyMatch(alias -> alias.matches(changeCharacters(cnecId)));
+        if (identifiable.getAliases().stream().anyMatch(alias -> alias.matches(changeCharacters(cnecId)))) {
+            return true;
+        }
+        if (identifiable.getId().matches(otherWay(cnecId))) {
+            return true;
+        }
+        
+        return identifiable.getAliases().stream().anyMatch(alias -> alias.matches(otherWay(cnecId)));
     }
 
     private static String changeCharacters(String string) {
         return string.substring(0, 7) + ".*" + string.substring(8, 16) + ".*" + string.substring(17);
+    }
+
+    private static String otherWay(String string) {
+        return string.substring(9, 16) + ".*" + " " + string.substring(0, 7) + ".*" + string.substring(17);
     }
 
     public static Crac importCrac(Path cracPath) {
