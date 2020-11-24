@@ -34,6 +34,6 @@ public class CracAliasesUtilTest {
 
         assertEquals(1, network.getBranch("FFR1AA1G FFR3AA1I 1").getAliases().size());
         assertEquals(2, network.getBranch("DDE1AA1D DDE2AA1E 1").getAliases().size());
-        assertEquals(2, network.getBranch("FFR2AA1H DDE3AA1F 1").getAliases().size());
+        assertEquals(3, network.getBranch("FFR2AA1H DDE3AA1F 1").getAliases().size());
     }
 }

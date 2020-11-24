@@ -19,6 +19,10 @@
     "type" : "NetworkElement",
     "id" : "BBE2AA1  BBE3AA1  1",
     "name" : "BBE2AA1  BBE3AA1  1"
+  }, {
+    "type" : "NetworkElement",
+    "id" : "DDE3AA1  FFR2AA1  HFSK JDV",
+    "name" : "DDE3AA1  FFR2AA1  HFSK JDV"
   } ],
   "instants" : [ {
     "type" : "Instant",
@@ -46,7 +50,12 @@
     "id" : "Contingency FR1 FR3",
     "name" : "Contingency FR1 FR3",
     "networkElements" : [ "FFR3AA1  FFR1AA1  1" ]
-  } ],
+  }, {
+      "type" : "complex-contingency",
+      "id" : "Contingency Interco",
+      "name" : "Contingency Interco",
+      "networkElements" : [ "DDE3AA1  FFR2AA1  HFSK JDV" ]
+    }],
   "states" : [ {
     "type" : "simple-state",
     "id" : "Contingency FR1 FR3-SPS",
@@ -66,6 +75,11 @@
     "type" : "simple-state",
     "id" : "Contingency FR1 FR3-Défaut",
     "contingency" : "Contingency FR1 FR3",
+    "instant" : "Défaut"
+  }, {
+    "type" : "simple-state",
+    "id" : "Contingency Interco-Défaut",
+    "contingency" : "Contingency Interco",
     "instant" : "Défaut"
   } ],
   "cnecs" : [ {
