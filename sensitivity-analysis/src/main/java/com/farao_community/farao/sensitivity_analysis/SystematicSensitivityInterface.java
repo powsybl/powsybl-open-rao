@@ -8,11 +8,12 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,8 +78,8 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
-        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(GlskProvider glskProvider, Set<Cnec> cnecs, Set<Unit> units) {
-            return this.withSensitivityProvider(new PtdfSensitivityProvider(glskProvider, cnecs, units));
+        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<LinearGlsk> glsk, Set<Cnec> cnecs, Set<Unit> units) {
+            return this.withSensitivityProvider(new PtdfSensitivityProvider(glsk, cnecs, units));
         }
 
         public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<Cnec> cnecs, Set<Unit> units) {
@@ -136,6 +137,7 @@ public final class SystematicSensitivityInterface {
             return result;
 
         } catch (SensitivityAnalysisException e) {
+            LOGGER.debug("Exception occured during sensitivity analysis", e);
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;

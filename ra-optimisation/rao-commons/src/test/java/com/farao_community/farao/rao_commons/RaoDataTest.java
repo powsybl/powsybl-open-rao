@@ -62,7 +62,7 @@ public class RaoDataTest {
         RangeActionResult rangeActionResult = crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class).getVariant(initialVariantId);
         raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
         Assert.assertEquals(0, rangeActionResult.getSetPoint("none-initial"), 0.1);
-        Assert.assertEquals(0, ((PstRangeResult) rangeActionResult).getTap("none-initial"));
+        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("none-initial"));
     }
 
     @Test

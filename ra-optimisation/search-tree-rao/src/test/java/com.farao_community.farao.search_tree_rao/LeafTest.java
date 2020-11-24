@@ -35,8 +35,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -103,7 +102,7 @@ public class LeafTest {
             PowerMockito.when(SystematicSensitivityInterface.builder()).thenAnswer(invocationOnMock -> sensitivityBuilder);
             PowerMockito.mockStatic(RaoUtil.class);
             PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
-            PowerMockito.when(RaoUtil.createSystematicSensitivityInterface(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> systematicSensitivityInterface);
+            PowerMockito.when(RaoUtil.createSystematicSensitivityInterface(Mockito.any(), Mockito.any(), anyBoolean())).thenAnswer(invocationOnMock -> systematicSensitivityInterface);
 
         } catch (Exception e) {
             e.printStackTrace();

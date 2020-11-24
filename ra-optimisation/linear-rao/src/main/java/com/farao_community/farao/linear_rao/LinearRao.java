@@ -79,7 +79,7 @@ public class LinearRao implements RaoProvider {
         }
 
         this.unit = raoParameters.getObjectiveFunction().getUnit();
-        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
         IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
         return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData, raoParameters), raoParameters);
     }
@@ -132,7 +132,7 @@ public class LinearRao implements RaoProvider {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.setPostOptimVariantIdForStateId(raoData.getOptimizedState().getId(), postOptimVariantId);
+        raoResult.setPostOptimVariantId(postOptimVariantId);
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
@@ -157,7 +157,7 @@ public class LinearRao implements RaoProvider {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
         raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.setPostOptimVariantIdForStateId(raoData.getOptimizedState().getId(), raoData.getInitialVariantId());
+        raoResult.setPostOptimVariantId(raoData.getInitialVariantId());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();

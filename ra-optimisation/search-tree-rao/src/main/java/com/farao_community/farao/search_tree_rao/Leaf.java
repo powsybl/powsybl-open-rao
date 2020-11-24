@@ -79,7 +79,8 @@ class Leaf {
         this.raoParameters = raoParameters;
         this.raoData = raoData;
         initialVariantId = raoData.getInitialVariantId();
-        systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
+                raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
 
         if (raoData.hasSensitivityValues()) {
             status = Status.EVALUATED;
@@ -102,9 +103,12 @@ class Leaf {
         raoData = RaoData.create(network, parentLeaf.getRaoData());
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
-        systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData);
+        systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
+                raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
         copyAbsolutePtdfSumsBetweenVariants(parentLeaf.getRaoData().getInitialVariantId(), initialVariantId);
-
+        if (!raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
+            raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(parentLeaf.getRaoData().getInitialVariantId(), initialVariantId);
+        }
         status = Status.CREATED;
     }
 
@@ -156,7 +160,8 @@ class Leaf {
                     raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
 
                     if (raoParameters.isRaoWithLoopFlowLimitation()) {
-                        LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, raoParameters.isLoopFlowApproximation());
+                        LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,
+                                !raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
                     }
 
                     ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
@@ -186,7 +191,10 @@ class Leaf {
     void optimize() {
         if (status.equals(Status.EVALUATED)) {
             if (!raoData.getAvailableRangeActions().isEmpty()) {
-                IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
+                SystematicSensitivityInterface linearOptimizerSystematicSensitivityInterface =
+                        RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
+                        raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
+                IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, linearOptimizerSystematicSensitivityInterface);
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
                 copyAbsolutePtdfSumsBetweenVariants(initialVariantId, optimizedVariantId);

@@ -9,10 +9,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.UsageMethod;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -70,11 +67,9 @@ public final class RaoUtil {
 
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             if (raoInput.getGlskProvider() == null) {
-                throw new FaraoException(format("Objective function %s requires a GLSK provider", raoParameters.getObjectiveFunction()));
+                throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunction()));
             }
-            if (Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class))
-                || Objects.isNull(raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries())
-                || raoParameters.getExtension(RaoPtdfParameters.class).getBoundaries().isEmpty()) {
+            if (raoParameters.getPtdfBoundaries().isEmpty()) {
                 throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunction()));
             }
         }
@@ -83,19 +78,19 @@ public final class RaoUtil {
             || raoParameters.getObjectiveFunction().doesRequirePtdf())
             && (raoInput.getReferenceProgram() == null)) {
             LOGGER.info("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
-            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork()));
+            raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters()));
         }
 
         if (raoParameters.isRaoWithLoopFlowLimitation() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
             String msg = format(
-                "Loopflow computation cannot be performed %s because the RaoInput lacks a ReferenceProgram or a GlskProvider",
+                "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
                 raoInput.getCrac().getId());
             LOGGER.error(msg);
             throw new FaraoException(msg);
         }
     }
 
-    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData) {
+    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData, boolean withPtdfSensitivitiesForLoopFlows) {
 
         Set<Unit> flowUnits = new HashSet<>();
         flowUnits.add(Unit.MEGAWATT);
@@ -109,11 +104,8 @@ public final class RaoUtil {
             .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs(), flowUnits);
 
-        if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.isLoopFlowApproximation()) {
-
-            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs(), Collections.singleton(Unit.MEGAWATT));
-            // We may want to have a different interface for the first run and the successive runs if we do not wish to
-            // compute the PTDFs at every iteration.
+        if (raoParameters.isRaoWithLoopFlowLimitation() && withPtdfSensitivitiesForLoopFlows) {
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs(), flowUnits);
         }
 
         return builder.build();
@@ -123,11 +115,11 @@ public final class RaoUtil {
         List<ProblemFiller> fillers = new ArrayList<>();
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold()));
         if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
-                || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
+            || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         } else if (raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
-                || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
+            || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getPtdfSumLowerBound()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
@@ -136,15 +128,14 @@ public final class RaoUtil {
             // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
             fillers.add(createMaxLoopFlowFiller(raoParameters));
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityInterface,
-                    createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
+                createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
         } else {
             return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
         }
     }
 
     private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
-        return new MaxLoopFlowFiller(raoParameters.isLoopFlowApproximation(),
-            raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getDefaultSensitivityAnalysisParameters());
+        return new MaxLoopFlowFiller(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowApproximationLevel());
     }
 
     private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {
@@ -153,7 +144,7 @@ public final class RaoUtil {
 
     private static IteratingLinearOptimizerWithLoopFLowsParameters createIteratingLoopFlowsParameters(RaoParameters raoParameters) {
         return new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
-                raoParameters.getFallbackOverCost(), raoParameters.isLoopFlowApproximation(), raoParameters.getLoopFlowViolationCost());
+            raoParameters.getFallbackOverCost(), raoParameters.getLoopFlowApproximationLevel(), raoParameters.getLoopFlowViolationCost());
     }
 
     public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters) {
@@ -166,36 +157,5 @@ public final class RaoUtil {
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }
-    }
-
-    public static List<List<State>> createPerimeters(Crac crac, Network network, State startingState) {
-        List<List<State>> perimeters = new ArrayList<>();
-
-        if (startingState.equals(crac.getPreventiveState())) {
-            List<State> preventivePerimeter = new ArrayList<>();
-            preventivePerimeter.add(startingState);
-            perimeters.add(preventivePerimeter);
-
-            List<State> currentPerimeter;
-            for (Contingency contingency : crac.getContingencies()) {
-                currentPerimeter = preventivePerimeter;
-                for (State state : crac.getStates(contingency)) {
-                    if (anyAvailableRemedialAction(crac, network, state)) {
-                        currentPerimeter = new ArrayList<>();
-                        perimeters.add(currentPerimeter);
-                    }
-                    currentPerimeter.add(state);
-                }
-            }
-        } else {
-            throw new NotImplementedException("Cannot create perimeters if starting state is different from preventive state");
-        }
-
-        return perimeters;
-    }
-
-    private static boolean anyAvailableRemedialAction(Crac crac, Network network, State state) {
-        return !crac.getNetworkActions(network, state, UsageMethod.AVAILABLE).isEmpty() ||
-            !crac.getRangeActions(network, state, UsageMethod.AVAILABLE).isEmpty();
     }
 }

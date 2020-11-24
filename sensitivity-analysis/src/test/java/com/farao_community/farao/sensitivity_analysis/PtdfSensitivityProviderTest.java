@@ -7,10 +7,11 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.glsk.import_.glsk_provider.GlskProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -30,9 +31,9 @@ public class PtdfSensitivityProviderTest {
     public void getFactorsOnCommonCrac() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.create();
-        GlskProvider glskProviderMock = glskProvider();
+        ZonalData<LinearGlsk> glskMock = glsk();
 
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProviderMock, crac.getCnecs(), Collections.singleton(Unit.MEGAWATT));
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getCnecs(), Collections.singleton(Unit.MEGAWATT));
 
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getFactors(network);
 
@@ -41,22 +42,12 @@ public class PtdfSensitivityProviderTest {
                                                                           && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
     }
 
-    private static GlskProvider glskProvider() {
+    private static ZonalData<LinearGlsk> glsk() {
         Map<String, LinearGlsk> glsks = new HashMap<>();
         glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
         glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
         glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
         glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
-        return new GlskProvider() {
-            @Override
-            public Map<String, LinearGlsk> getAllGlsk(Network network) {
-                return glsks;
-            }
-
-            @Override
-            public LinearGlsk getGlsk(Network network, String area) {
-                return glsks.get(area);
-            }
-        };
+        return new ZonalDataImpl<>(glsks);
     }
 }

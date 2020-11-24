@@ -74,12 +74,17 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-glsk-file</artifactId>
+            <artifactId>farao-glsk-document-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-glsk-quality-check</artifactId>
+            <artifactId>farao-glsk-document-io-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-glsk-quality-check-ucte</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -191,6 +196,18 @@
         </dependency>
 
         <!-- Other dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-glsk-document-cim</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-glsk-document-ucte</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>

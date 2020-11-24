@@ -11,8 +11,6 @@ import com.farao_community.farao.data.crac_result_extensions.CracResultExtension
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.*;
 
-import java.util.Map;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -36,7 +34,7 @@ public class RaoRunnerMock extends Rao.Runner {
 
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId(preOpt);
-        raoResult.setPostOptimVariantIdPerStateId(Map.of(raoInput.getOptimizedState().getId(), postOpt));
+        raoResult.setPostOptimVariantId(postOpt);
         return raoResult;
     }
 }

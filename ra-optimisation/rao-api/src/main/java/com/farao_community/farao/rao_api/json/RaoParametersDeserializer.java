@@ -71,9 +71,12 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setRaoWithLoopFlowLimitation(parser.getBooleanValue());
                     break;
-                case "loop-flow-approximation":
+                case "loop-flow-acceptable-augmentation":
                     parser.nextToken();
-                    parameters.setLoopFlowApproximation(parser.getBooleanValue());
+                    parameters.setLoopFlowAcceptableAugmentation(parser.getDoubleValue());
+                    break;
+                case "loop-flow-approximation":
+                    parameters.setLoopFlowApproximationLevel(stringToLoopFlowApproximationLevel(parser.nextTextValue()));
                     break;
                 case "loop-flow-constraint-adjustment-coefficient":
                     parser.nextToken();
@@ -106,10 +109,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setNegativeMarginObjectiveCoefficient(parser.getDoubleValue());
                     break;
-                case "ptdf-sum-lower-bound":
-                    parser.nextToken();
-                    parameters.setPtdfSumLowerBound(parser.getDoubleValue());
-                    break;
                 case "sensitivity-parameters":
                     parser.nextToken();
                     JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityAnalysisParameters());
@@ -121,12 +120,29 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     }
                     JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
                     break;
+                case "ptdf-boundaries":
+                    if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
+                        List<String> boundaries = new ArrayList<>();
+                        while (parser.nextToken() != JsonToken.END_ARRAY) {
+                            boundaries.add(parser.getValueAsString());
+                        }
+                        parameters.setPtdfBoundariesFromCountryCodes(boundaries);
+                    }
+                    break;
+                case "ptdf-sum-lower-bound":
+                    parser.nextToken();
+                    parameters.setPtdfSumLowerBound(parser.getDoubleValue());
+                    break;
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
+                    if (parameters.getExtensions().isEmpty()) {
+                        extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers());
+                    } else {
+                        JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters);
+                    }
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new FaraoException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
@@ -138,7 +154,15 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
         try {
             return RaoParameters.ObjectiveFunction.valueOf(string);
         } catch (IllegalArgumentException e) {
-            throw new FaraoException(String.format("Unknown objective function value : %s", string));
+            throw new FaraoException(String.format("Unknown objective function value: %s", string));
+        }
+    }
+
+    private RaoParameters.LoopFlowApproximationLevel stringToLoopFlowApproximationLevel(String string) {
+        try {
+            return RaoParameters.LoopFlowApproximationLevel.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown loopflow approximation level: %s", string));
         }
     }
 }
