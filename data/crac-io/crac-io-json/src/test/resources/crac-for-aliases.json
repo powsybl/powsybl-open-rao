@@ -5,8 +5,8 @@
   "networkDate" : "2020-05-22T10:09:17Z",
   "networkElements" : [ {
     "type" : "NetworkElement",
-    "id" : "FFR1AA1  FFR3AA1  1",
-    "name" : "FFR1AA1  FFR3AA1  1"
+    "id" : "FFR3AA1  FFR1AA1  1",
+    "name" : "FFR3AA1  FFR1AA1  1"
   }, {
     "type" : "NetworkElement",
     "id" : "FFR2AA1  DDE3AA1  1",
@@ -45,7 +45,7 @@
     "type" : "complex-contingency",
     "id" : "Contingency FR1 FR3",
     "name" : "Contingency FR1 FR3",
-    "networkElements" : [ "FFR1AA1  FFR3AA1  1" ]
+    "networkElements" : [ "FFR3AA1  FFR1AA1  1" ]
   } ],
   "states" : [ {
     "type" : "simple-state",

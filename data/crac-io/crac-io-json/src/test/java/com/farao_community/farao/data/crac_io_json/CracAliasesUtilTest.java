@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.Network;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -25,8 +27,12 @@ public class CracAliasesUtilTest {
         Crac crac = CracImporters.importCrac("crac-for-aliases.json", getClass().getResourceAsStream("/crac-for-aliases.json"));
         Network network = Importers.loadNetwork("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
 
+        network.getBranch("BBE2AA1B BBE3AA1C 1").addAlias("BBE2AA1B BBE3AA1C HFSK JDV");
+        network.getBranch("DDE1AA1D DDE2AA1E 1").addAlias("DDE2AA1E DDE1AA1D DLJKSC H");
+
         CracImporters.cracAliasesUtil(crac, network);
 
-        int i = 1;
+        assertEquals(1, network.getBranch("FFR1AA1G FFR3AA1I 1").getAliases().size());
+        assertEquals(2, network.getBranch("DDE1AA1D DDE2AA1E 1").getAliases().size());
     }
 }
