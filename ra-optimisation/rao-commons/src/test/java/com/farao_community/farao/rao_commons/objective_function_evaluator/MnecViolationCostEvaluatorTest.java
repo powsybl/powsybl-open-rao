@@ -98,7 +98,7 @@ public class MnecViolationCostEvaluatorTest {
 
         raoData = RaoData.createOnPreventiveState(network, crac);
 
-        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.cleanCrac(crac, network, false);
         RaoInputHelper.synchronize(crac, network);
 
         raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, TEST_VARIANT);

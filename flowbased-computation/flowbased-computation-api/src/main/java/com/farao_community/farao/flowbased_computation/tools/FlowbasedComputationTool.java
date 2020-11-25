@@ -159,7 +159,7 @@ public class FlowbasedComputationTool implements Tool {
         if (line.hasOption(DEFINE_ALIASES)) {
             UcteAliasesCreation.createAliases(network);
             CracImporters.cracAliasesUtil(crac, network);
-            RaoInputHelper.cleanCrac(crac, network);
+            RaoInputHelper.cleanCrac(crac, network, true);
         }
         crac.synchronize(network);
         ZonalData<LinearGlsk> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);

@@ -55,7 +55,7 @@ public final class RaoUtil {
     }
 
     public static void initCrac(Crac crac, Network network) {
-        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.cleanCrac(crac, network, false);
         RaoInputHelper.synchronize(crac, network);
     }
 

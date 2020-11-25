@@ -59,7 +59,7 @@ public class MnecFillerTest extends AbstractFillerTest {
         mnec2 = crac.getCnec("MNEC2 - N - preventive");
 
         crac.desynchronize();
-        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.cleanCrac(crac, network, false);
         RaoInputHelper.synchronize(crac, network);
 
         initRaoData(crac.getPreventiveState());

@@ -122,7 +122,7 @@ public class RaoInputHelperTest {
         assertEquals(3, simpleCrac.getContingencies().size());
         assertEquals(3, simpleCrac.getStates().size());
 
-        List<String> qualityReport = RaoInputHelper.cleanCrac(simpleCrac, network);
+        List<String> qualityReport = RaoInputHelper.cleanCrac(simpleCrac, network, false);
 
         assertEquals(1, simpleCrac.getCnecs().size());
         assertEquals(1, simpleCrac.getNetworkActions().size());
@@ -165,7 +165,7 @@ public class RaoInputHelperTest {
                 .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
                 .setInstant(inst)
                 .add();
-        List<String> qualityReport = RaoInputHelper.cleanCrac(crac, network);
+        List<String> qualityReport = RaoInputHelper.cleanCrac(crac, network, false);
         assertEquals(1, qualityReport.size());
         assertEquals(3, crac.getCnecs().size());
         assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));

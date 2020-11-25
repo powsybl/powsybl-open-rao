@@ -68,7 +68,7 @@ public class MinMarginObjectiveFunctionTest {
                 .add();
 
         crac.desynchronize();
-        RaoInputHelper.cleanCrac(crac, network);
+        RaoInputHelper.cleanCrac(crac, network, false);
         RaoInputHelper.synchronize(crac, network);
 
         ResultVariantManager resultVariantManager = new ResultVariantManager();

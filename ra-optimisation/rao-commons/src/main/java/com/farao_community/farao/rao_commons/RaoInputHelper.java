@@ -36,7 +36,7 @@ public final class RaoInputHelper {
         }
     }
 
-    public static List<String> cleanCrac(Crac crac, Network network) {
+    public static List<String> cleanCrac(Crac crac, Network network, boolean ignoreCnecMnec) {
         List<String> report = new ArrayList<>();
 
         // remove Cnec whose NetworkElement is absent from the network
@@ -50,14 +50,16 @@ public final class RaoInputHelper {
         absentFromNetworkCnecs.forEach(cnec -> crac.removeCnec(cnec.getId()));
 
         // remove Cnecs that are neither optimized nor monitored
-        ArrayList<Cnec> unmonitoredCnecs = new ArrayList<>();
-        crac.getCnecs().forEach(cnec -> {
-            if (!cnec.isOptimized() && !cnec.isMonitored()) {
-                unmonitoredCnecs.add(cnec);
-                report.add(String.format("[REMOVED] Cnec %s with network element [%s] is neither optimized nor monitored. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
-            }
-        });
-        unmonitoredCnecs.forEach(cnec -> crac.removeCnec(cnec.getId()));
+        if (!ignoreCnecMnec) {
+            ArrayList<Cnec> unmonitoredCnecs = new ArrayList<>();
+            crac.getCnecs().forEach(cnec -> {
+                if (!cnec.isOptimized() && !cnec.isMonitored()) {
+                    unmonitoredCnecs.add(cnec);
+                    report.add(String.format("[REMOVED] Cnec %s with network element [%s] is neither optimized nor monitored. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
+                }
+            });
+            unmonitoredCnecs.forEach(cnec -> crac.removeCnec(cnec.getId()));
+        }
 
         // remove RangeAction whose NetworkElement is absent from the network
         ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
