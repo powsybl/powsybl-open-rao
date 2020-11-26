@@ -56,11 +56,11 @@ public final class CracImporters {
     }
 
     private static boolean nameMatches(Identifiable<?> identifiable, String cnecId, boolean reverse) {
-        return identifiable.getId().matches(checkWithPattern(cnecId, reverse));
+        return identifiable.getId().trim().matches(checkWithPattern(cnecId, reverse));
     }
 
     private static boolean aliasMatches(Identifiable<?> identifiable, String cnecId, boolean reverse) {
-        return identifiable.getAliases().stream().anyMatch(alias -> alias.matches(checkWithPattern(cnecId, reverse)));
+        return identifiable.getAliases().stream().anyMatch(alias -> alias.trim().matches(checkWithPattern(cnecId, reverse)));
     }
 
     private static String checkWithPattern(String string, boolean reverse) {
