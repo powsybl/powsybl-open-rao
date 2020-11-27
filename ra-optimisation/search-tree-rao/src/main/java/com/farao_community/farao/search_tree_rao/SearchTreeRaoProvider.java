@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.*;
@@ -104,19 +103,23 @@ public class SearchTreeRaoProvider implements RaoProvider {
                         try {
                             LOGGER.info("Optimizing curative state {}.", optimizedState.getId());
                             Network networkClone = networkPool.getAvailableNetwork();
-                            RaoData curativeRaoData = new RaoData(
-                                networkClone,
-                                raoInput.getCrac(),
-                                optimizedState,
-                                stateTree.getPerimeter(optimizedState),
-                                raoInput.getReferenceProgram(),
-                                raoInput.getGlskProvider(),
-                                preventiveRaoResult.getPostOptimVariantId(),
-                                parameters.getLoopflowCountries());
-                            RaoResult curativeResult = new SearchTree().run(curativeRaoData, parameters).join();
-                            curativeResults.put(optimizedState, curativeResult);
-                            networkPool.releaseUsedNetwork(networkClone);
-                        } catch (InterruptedException | NotImplementedException | FaraoException e) {
+                            try {
+                                RaoData curativeRaoData = new RaoData(
+                                        networkClone,
+                                        raoInput.getCrac(),
+                                        optimizedState,
+                                        stateTree.getPerimeter(optimizedState),
+                                        raoInput.getReferenceProgram(),
+                                        raoInput.getGlskProvider(),
+                                        preventiveRaoResult.getPostOptimVariantId(),
+                                        parameters.getLoopflowCountries());
+                                RaoResult curativeResult = new SearchTree().run(curativeRaoData, parameters).join();
+                                curativeResults.put(optimizedState, curativeResult);
+                                networkPool.releaseUsedNetwork(networkClone);
+                            } catch (Exception e) {
+                                networkPool.releaseUsedNetwork(networkClone);
+                            }
+                        } catch (InterruptedException | NotImplementedException e) {
                             Thread.currentThread().interrupt();
                         }
                     });
