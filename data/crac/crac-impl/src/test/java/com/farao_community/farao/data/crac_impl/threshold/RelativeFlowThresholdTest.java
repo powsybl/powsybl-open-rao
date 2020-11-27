@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class RelativeFlowThresholdTest {
-    private static final double DOUBLE_PRECISION = 0.01;
+    private static final double DOUBLE_PRECISION = 1;
 
     private Network network;
 
@@ -34,10 +34,10 @@ public class RelativeFlowThresholdTest {
         UcteAliasesCreation.createAliases(network);
     }
 
-    public void testOnSynchronize(String networkElementId, double expectedValue) {
+    public void testOnSynchronize(String networkElementId, Side side, double expectedValue) {
         RelativeFlowThreshold threshold = new RelativeFlowThreshold(
             new NetworkElement(networkElementId),
-            Side.LEFT,
+            side,
             Direction.DIRECT,
             100,
             0);
@@ -48,17 +48,29 @@ public class RelativeFlowThresholdTest {
 
     @Test
     public void testSynchronizeOnHalfLine1() {
-        testOnSynchronize("FFR3AA1  X_BEFR1  1", 500);
+        testOnSynchronize("FFR3AA1  X_BEFR1  1", Side.LEFT, 500);
     }
 
     @Test
     public void testSynchronizeOnHalfLine2() {
-        testOnSynchronize("BBE2AA1  X_BEFR1  1", 1500);
+        testOnSynchronize("BBE2AA1  X_BEFR1  1", Side.LEFT, 1500);
     }
 
     @Test
     public void testSynchronizeOnTieLine() {
         // It takes most limiting threshold
-        testOnSynchronize("BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1", 500);
+        testOnSynchronize("BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1", Side.LEFT, 500);
+    }
+
+    @Test
+    public void testSynchronizeOnTransformerGoodSide() {
+        testOnSynchronize("BBE1AA1  BBE1AA2  1", Side.RIGHT, 1000);
+        testOnSynchronize("BBE2AA2  BBE2AA1  2", Side.RIGHT, 1200);
+    }
+
+    @Test
+    public void testSynchronizeOnTransformerWrongSide() {
+        testOnSynchronize("BBE1AA1  BBE1AA2  1", Side.LEFT, 1778);
+        testOnSynchronize("BBE2AA2  BBE2AA1  2", Side.LEFT, 675);
     }
 }

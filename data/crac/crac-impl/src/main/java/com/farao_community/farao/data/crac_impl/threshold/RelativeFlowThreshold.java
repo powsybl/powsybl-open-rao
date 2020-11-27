@@ -13,10 +13,7 @@ import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +28,9 @@ import org.slf4j.LoggerFactory;
 @JsonTypeName("relative-flow-threshold")
 public class RelativeFlowThreshold extends AbstractFlowThreshold {
     private static final Logger LOGGER = LoggerFactory.getLogger(RelativeFlowThreshold.class);
-    private static final String TIE_LINE_WARN = "For tie-line {}, the CNEC network element ID {} is not half1 nor half2 IDs. Most limiting threshold will be taken.";
+    private static final String TIE_LINE_WARN = "For tie-line {}, the network element ID {} is not half1 nor half2 IDs. Most limiting threshold will be taken.";
+    private static final String SIDE_INVERSION_WARN = "Side of relative threshold on the network element {} will be inverted because no limit has been found on the defined side ({}).";
+
     private double branchLimit;
 
     /**
@@ -80,14 +79,12 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
             TieLine tieLine = (TieLine) branch;
             branchLimit = getBranchLimit(tieLine);
         } else {
-            CurrentLimits currentLimits = branch.getCurrentLimits(Branch.Side.ONE);
-            if (currentLimits == null) {
-                currentLimits = branch.getCurrentLimits(Branch.Side.TWO);
+            CurrentLimits currentLimits = branch.getCurrentLimits(getBranchSide());
+            if (currentLimits != null) {
+                branchLimit = currentLimits.getPermanentLimit();
+            } else {
+                branchLimit = getBranchLimitFromOppositeSide(branch);
             }
-            if (currentLimits == null) {
-                throw new FaraoException(String.format("No IMAP defined for %s", networkElement.getId()));
-            }
-            branchLimit = currentLimits.getPermanentLimit();
         }
     }
 
@@ -106,8 +103,27 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         return tieLine.getCurrentLimits(side).getPermanentLimit();
     }
 
+    private double getBranchLimitFromOppositeSide(Branch branch) {
+        CurrentLimits currentLimits = branch.getCurrentLimits(getOppositeBranchSide());
+        if (currentLimits != null) {
+            LOGGER.warn(SIDE_INVERSION_WARN, networkElement.getId(), side);
+            double conversionCoefficient = 1;
+            if (branch instanceof TwoWindingsTransformer) {
+                TwoWindingsTransformer twoWindingsTransformer = (TwoWindingsTransformer) branch;
+                // Coefficient if side is ONE
+                conversionCoefficient = twoWindingsTransformer.getRatedU2() / twoWindingsTransformer.getRatedU1();
+                if (getBranchSide().equals(Branch.Side.TWO)) {
+                    conversionCoefficient = 1 / conversionCoefficient;
+                }
+            }
+            return currentLimits.getPermanentLimit() * conversionCoefficient;
+        } else {
+            throw new FaraoException(String.format("No IMAP defined for %s", networkElement.getId()));
+        }
+    }
+
     @Override
-    public AbstractThreshold copy() {
+    public AbstractFlowThreshold copy() {
         RelativeFlowThreshold copiedRelativeFlowThreshold = new RelativeFlowThreshold(networkElement, side, direction, percentageOfMax, frmInMW);
         if (isSynchronized()) {
             copiedRelativeFlowThreshold.isSynchronized = isSynchronized;

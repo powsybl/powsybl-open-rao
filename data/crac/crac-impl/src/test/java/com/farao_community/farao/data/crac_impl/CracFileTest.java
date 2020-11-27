@@ -395,7 +395,7 @@ public class CracFileTest {
 
     @Test
     public void testGetCnecWithIds() {
-        Cnec cnec = new SimpleCnec(
+        Cnec cnec = new BranchCnec(
                 "cnec",
                 new NetworkElement("network-element-1"),
             Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
@@ -476,7 +476,7 @@ public class CracFileTest {
 
     @Test
     public void testAddCnecWithNoConflicts() {
-        Cnec cnec1 = new SimpleCnec(
+        Cnec cnec1 = new BranchCnec(
                 "cnec1",
                 new NetworkElement("network-element-1"),
             Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
@@ -490,7 +490,7 @@ public class CracFileTest {
         assertEquals(1, simpleCrac.getCnecs(simpleCrac.getPreventiveState()).size());
         assertSame(simpleCrac.getCnecs(simpleCrac.getPreventiveState()).iterator().next().getState(), simpleCrac.getPreventiveState());
 
-        Cnec cnec2 = new SimpleCnec(
+        Cnec cnec2 = new BranchCnec(
                 "cnec2",
                 new NetworkElement("network-element-1"),
             Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
@@ -518,7 +518,7 @@ public class CracFileTest {
         assertNotNull(simpleCrac.getInstant("after-co"));
         assertNotNull(simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
 
-        Cnec cnec = new SimpleCnec(
+        Cnec cnec = new BranchCnec(
                 "cnec2",
                 new NetworkElement("network-element-1"),
             Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
@@ -539,7 +539,7 @@ public class CracFileTest {
 
     @Test
     public void testAddCnecWithTwoIdenticalCnecs() {
-        Cnec cnec1 = new SimpleCnec(
+        Cnec cnec1 = new BranchCnec(
                 "cnec1",
                 new NetworkElement("network-element-1"),
             Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
@@ -549,7 +549,7 @@ public class CracFileTest {
                 )
         );
 
-        Cnec cnec2 = new SimpleCnec(
+        Cnec cnec2 = new BranchCnec(
                 "cnec1",
                 new NetworkElement("network-element-1"),
             Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),

@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCnecSerializer;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
@@ -347,7 +347,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public CnecAdder newCnec() {
-        return new SimpleCnecAdder(this);
+        return new BranchCnecAdder(this);
     }
 
     @Override
@@ -373,29 +373,29 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         cnecs.remove(cnecId);
     }
 
-    public Cnec addCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> abstractThresholds, State state) {
+    public Cnec addCnec(String id, NetworkElement networkElement, Set<AbstractFlowThreshold> abstractThresholds, State state) {
         if (!networkElements.containsKey(networkElement.getId()) || !states.containsKey(state.getId())) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElement.getId(), state.getId()));
         }
-        Cnec cnec = new SimpleCnec(id, networkElement, abstractThresholds, state);
+        Cnec cnec = new BranchCnec(id, networkElement, abstractThresholds, state);
         cnecs.put(id, cnec);
         return cnec;
     }
 
-    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId, double frm, boolean optimized, boolean monitored) {
+    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractFlowThreshold> abstractThresholds, String stateId, double frm, boolean optimized, boolean monitored) {
         if (getNetworkElement(networkElementId) == null || getState(stateId) == null) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
         }
-        Cnec cnec = new SimpleCnec(id, name, getNetworkElement(networkElementId), abstractThresholds, getState(stateId), frm, optimized, monitored);
+        Cnec cnec = new BranchCnec(id, name, getNetworkElement(networkElementId), abstractThresholds, getState(stateId), frm, optimized, monitored);
         cnecs.put(id, cnec);
         return cnec;
     }
 
-    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId, double frm) {
+    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractFlowThreshold> abstractThresholds, String stateId, double frm) {
         return this.addCnec(id, name, networkElementId, abstractThresholds, stateId, frm, true, false);
     }
 
-    public Cnec addCnec(String id, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
+    public Cnec addCnec(String id, String networkElementId, Set<AbstractFlowThreshold> abstractThresholds, String stateId) {
         return this.addCnec(id, id, networkElementId, abstractThresholds, stateId, 0);
     }
 
@@ -405,7 +405,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         NetworkElement networkElement = addNetworkElement(cnec.getNetworkElement());
 
         // add cnec
-        cnecs.put(cnec.getId(), ((SimpleCnec) cnec).copy(networkElement, getState(cnec.getState().getId()), ((SimpleCnec) cnec).getFrm(), cnec.isOptimized(), cnec.isMonitored()));
+        cnecs.put(cnec.getId(), ((BranchCnec) cnec).copy(networkElement, getState(cnec.getState().getId()), ((BranchCnec) cnec).getFrm(), cnec.isOptimized(), cnec.isMonitored()));
 
         // add extensions
         if (!cnec.getExtensions().isEmpty()) {

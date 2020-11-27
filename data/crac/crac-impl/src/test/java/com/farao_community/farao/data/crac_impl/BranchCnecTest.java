@@ -12,7 +12,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Branch;
@@ -32,7 +31,7 @@ import static org.junit.Assert.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SimpleCnecTest {
+public class BranchCnecTest {
 
     private final static double DOUBLE_TOLERANCE = 0.01;
 
@@ -56,9 +55,9 @@ public class SimpleCnecTest {
         State state = Mockito.mock(State.class);
 
         // arrange Cnecs
-        cnec1 = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), Collections.singleton(threshold), state);
-        cnec2 = new SimpleCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), Collections.singleton(threshold), state);
-        cnec3 = new SimpleCnec("cnec3", new NetworkElement("FFR4AA1  FFR6AA1  1"), Collections.singleton(threshold), state);
+        cnec1 = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), Collections.singleton(threshold), state);
+        cnec2 = new BranchCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), Collections.singleton(threshold), state);
+        cnec3 = new BranchCnec("cnec3", new NetworkElement("FFR4AA1  FFR6AA1  1"), Collections.singleton(threshold), state);
 
         // create networks
         networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
@@ -174,8 +173,8 @@ public class SimpleCnecTest {
     public void synchronizeTwoCnecsCreatedWithSameThresholdObject() {
         State state = Mockito.mock(State.class);
         RelativeFlowThreshold relativeFlowThreshold = new RelativeFlowThreshold(Side.LEFT, Direction.DIRECT, 50);
-        Cnec cnecOnLine1 = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), Collections.singleton(relativeFlowThreshold), state);
-        Cnec cnecOnLine2 = new SimpleCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), Collections.singleton(relativeFlowThreshold), state);
+        Cnec cnecOnLine1 = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), Collections.singleton(relativeFlowThreshold), state);
+        Cnec cnecOnLine2 = new BranchCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), Collections.singleton(relativeFlowThreshold), state);
 
         Network network = Importers.loadNetwork(
             "TestCase2Nodes_withLF_withDifferentLimits.xiidm",
@@ -194,11 +193,11 @@ public class SimpleCnecTest {
         AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500);
         AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200);
 
-        Set<AbstractThreshold> thresholds = new HashSet<>();
+        Set<AbstractFlowThreshold> thresholds = new HashSet<>();
         thresholds.add(directThreshold);
         thresholds.add(oppositeThreshold);
 
-        Cnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+        Cnec cnec = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
 
         assertEquals(500, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
         assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
@@ -212,12 +211,12 @@ public class SimpleCnecTest {
         AbsoluteFlowThreshold directThreshold2 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.DIRECT, 490);
         AbsoluteFlowThreshold oppositeThreshold2 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.OPPOSITE, 210);
 
-        Set<AbstractThreshold> thresholds = new HashSet<>();
+        Set<AbstractFlowThreshold> thresholds = new HashSet<>();
         thresholds.add(directThreshold1);
         thresholds.add(oppositeThreshold1);
         thresholds.add(directThreshold2);
 
-        SimpleCnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+        BranchCnec cnec = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
         cnec.addThreshold(oppositeThreshold2);
 
         assertEquals(490, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
@@ -230,11 +229,11 @@ public class SimpleCnecTest {
         AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500);
         AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 200);
 
-        Set<AbstractThreshold> thresholds = new HashSet<>();
+        Set<AbstractFlowThreshold> thresholds = new HashSet<>();
         thresholds.add(directThreshold);
         thresholds.add(oppositeThreshold);
 
-        Cnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+        Cnec cnec = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
 
         assertEquals(200, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
         assertFalse(cnec.getMinThreshold(Unit.MEGAWATT).isPresent());
@@ -246,11 +245,11 @@ public class SimpleCnecTest {
         AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 500);
         AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200);
 
-        Set<AbstractThreshold> thresholds = new HashSet<>();
+        Set<AbstractFlowThreshold> thresholds = new HashSet<>();
         thresholds.add(directThreshold);
         thresholds.add(oppositeThreshold);
 
-        Cnec cnec = new SimpleCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
+        Cnec cnec = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
 
         assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
         assertFalse(cnec.getMaxThreshold(Unit.MEGAWATT).isPresent());

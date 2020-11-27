@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -47,7 +47,7 @@ final class CnecDeserializer {
             double frm = 0;
             boolean optimized = false;
             boolean monitored = false;
-            Set<AbstractThreshold> thresholds = new HashSet<>();
+            Set<AbstractFlowThreshold> thresholds = new HashSet<>();
             List<Extension<Cnec>> extensions = new ArrayList<>();
 
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -92,7 +92,7 @@ final class CnecDeserializer {
 
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        thresholds = jsonParser.readValueAs(new TypeReference<Set<AbstractThreshold>>() {
+                        thresholds = jsonParser.readValueAs(new TypeReference<Set<AbstractFlowThreshold>>() {
                         });
                         break;
 

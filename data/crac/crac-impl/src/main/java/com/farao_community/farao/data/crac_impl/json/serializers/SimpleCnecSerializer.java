@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.BranchCnec;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -25,10 +25,10 @@ import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNam
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SimpleCnecSerializer extends JsonSerializer<SimpleCnec> {
+public class SimpleCnecSerializer extends JsonSerializer<BranchCnec> {
 
     @Override
-    public void serialize(SimpleCnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(BranchCnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStringField(ID, cnec.getId());
         jsonGenerator.writeStringField(NAME, cnec.getName());
         jsonGenerator.writeStringField(NETWORK_ELEMENT, cnec.getNetworkElement().getId());
@@ -48,7 +48,7 @@ public class SimpleCnecSerializer extends JsonSerializer<SimpleCnec> {
     }
 
     @Override
-    public void serializeWithType(SimpleCnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
+    public void serializeWithType(BranchCnec cnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
         WritableTypeId writableTypeId = typeSerializer.typeId(cnec, JsonToken.START_OBJECT);
         typeSerializer.writeTypePrefix(jsonGenerator, writableTypeId);
         serialize(cnec, jsonGenerator, serializerProvider);

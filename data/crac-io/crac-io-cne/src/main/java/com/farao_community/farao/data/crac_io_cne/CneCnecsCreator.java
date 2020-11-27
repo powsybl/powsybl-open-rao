@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.powsybl.iidm.network.Branch;
@@ -223,8 +223,8 @@ public final class CneCnecsCreator {
     }
 
     private static void addFrm(Cnec cnec, List<Analog> measurements) {
-        if (cnec instanceof SimpleCnec && !Double.isNaN(((SimpleCnec) cnec).getFrm())) {
-            measurements.add(newMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, ((SimpleCnec) cnec).getFrm()));
+        if (cnec instanceof BranchCnec && !Double.isNaN(((BranchCnec) cnec).getFrm())) {
+            measurements.add(newMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, ((BranchCnec) cnec).getFrm()));
         }
     }
 

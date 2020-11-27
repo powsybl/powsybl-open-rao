@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
+import com.farao_community.farao.data.crac_impl.BranchCnec;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
@@ -62,15 +62,15 @@ public class RangeActionSensitivityProviderTest {
         Set<AbstractThreshold> thresholdSet = new HashSet<>();
         thresholdSet.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, 10));
 
-        crac.addCnec(new SimpleCnec("generatorContingencyCnec",
+        crac.addCnec(new BranchCnec("generatorContingencyCnec",
             networkElement,
             thresholdSet,
             new SimpleState(Optional.of(generatorContingency), instant)));
-        crac.addCnec(new SimpleCnec("hvdcContingencyCnec",
+        crac.addCnec(new BranchCnec("hvdcContingencyCnec",
             networkElement,
             thresholdSet,
             new SimpleState(Optional.of(hvdcContingency), instant)));
-        crac.addCnec(new SimpleCnec("busbarContingencyCnec",
+        crac.addCnec(new BranchCnec("busbarContingencyCnec",
             networkElement,
             thresholdSet,
             new SimpleState(Optional.of(busbarSectionContingency), instant)));
@@ -102,7 +102,7 @@ public class RangeActionSensitivityProviderTest {
         Set<AbstractThreshold> thresholdSet = new HashSet<>();
         thresholdSet.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, 10));
         Instant instant = crac.getInstant("curative");
-        Cnec cnec = new SimpleCnec("failureCnec",
+        Cnec cnec = new BranchCnec("failureCnec",
             crac.getNetworkElements().iterator().next(),
             thresholdSet,
             new SimpleState(Optional.of(busBreakerContingency), instant));

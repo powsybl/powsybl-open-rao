@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Branch;
@@ -20,6 +21,7 @@ import com.powsybl.iidm.network.Terminal;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Critical network element and contingency.
@@ -27,21 +29,22 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("simple-cnec")
-@JsonIdentityInfo(scope = SimpleCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(scope = BranchCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIdentityReference(alwaysAsId = true)
-public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
+public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private NetworkElement networkElement;
-    private Set<AbstractThreshold> thresholds;
+    private Set<AbstractFlowThreshold> thresholds;
     private State state;
     private boolean isSynchronized;
     private double frm;
     private boolean optimized;
     private boolean monitored;
+    private final double[] voltageLevels = new double[2];
 
     @JsonCreator
-    public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
+    public BranchCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("networkElement") NetworkElement networkElement,
-                      @JsonProperty("thresholds") Set<AbstractThreshold> thresholds, @JsonProperty("state") State state,
+                      @JsonProperty("thresholds") Set<AbstractFlowThreshold> thresholds, @JsonProperty("state") State state,
                       @JsonProperty("frm") double frm, @JsonProperty("optimized") boolean optimized,
                       @JsonProperty("monitored") boolean monitored) {
         super(id, name);
@@ -57,20 +60,20 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         this.monitored = monitored;
     }
 
-    public SimpleCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
+    public BranchCnec(@JsonProperty("id") String id, @JsonProperty("name") String name,
                       @JsonProperty("networkElement") NetworkElement networkElement,
-                      @JsonProperty("thresholds") Set<AbstractThreshold> thresholds, @JsonProperty("state") State state,
+                      @JsonProperty("thresholds") Set<AbstractFlowThreshold> thresholds, @JsonProperty("state") State state,
                       @JsonProperty("frm") double frm) {
         this(id, name, networkElement, thresholds, state, frm, true, false);
     }
 
-    public SimpleCnec(String id, String name,
+    public BranchCnec(String id, String name,
                       NetworkElement networkElement,
-                      Set<AbstractThreshold> thresholds, State state) {
+                      Set<AbstractFlowThreshold> thresholds, State state) {
         this(id, name, networkElement, thresholds, state, 0.0);
     }
 
-    public SimpleCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> thresholds, State state) {
+    public BranchCnec(String id, NetworkElement networkElement, Set<AbstractFlowThreshold> thresholds, State state) {
         this(id, id, networkElement, thresholds, state);
     }
 
@@ -79,24 +82,39 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return networkElement;
     }
 
-    public double computeMargin(double actualValue, Unit unit) {
-        return Math.min(getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - actualValue, actualValue - getMinThreshold(unit).orElse(Double.NEGATIVE_INFINITY));
+    public double computeMargin(double leftFlow, Unit unit) {
+        // Here we assume that actual value here will be always given for left side (or Side.ONE PowSyBl wise)
+        double worstMargin = Double.MAX_VALUE;
+        for (AbstractFlowThreshold threshold : thresholds) {
+            double flow = leftFlow;
+            if (threshold.getSide().equals(Side.RIGHT)
+                && unit.equals(Unit.AMPERE)
+                && threshold.getUnit().equals(Unit.AMPERE)
+                && getVoltageLevel(Side.LEFT) != getVoltageLevel(Side.RIGHT)) {
+                flow = leftFlow * getVoltageLevel(Side.LEFT) / getVoltageLevel(Side.RIGHT);
+            }
+            double margin = threshold.computeMargin(flow, unit);
+            if (Math.abs(margin) < Math.abs(worstMargin)) {
+                worstMargin = margin;
+            }
+        }
+        return worstMargin;
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
     }
 
-    public Set<AbstractThreshold> getThresholds() {
+    public Set<AbstractFlowThreshold> getThresholds() {
         return thresholds;
     }
 
-    public void setThresholds(Set<AbstractThreshold> thresholds) {
+    public void setThresholds(Set<AbstractFlowThreshold> thresholds) {
         this.thresholds = thresholds;
     }
 
-    public void addThreshold(AbstractThreshold threshold) {
-        AbstractThreshold thresholdCopy = threshold.copy();
+    public void addThreshold(AbstractFlowThreshold threshold) {
+        AbstractFlowThreshold thresholdCopy = threshold.copy();
         thresholdCopy.setNetworkElement(networkElement);
         this.thresholds.add(thresholdCopy);
     }
@@ -152,9 +170,20 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) {
+        // For now we assume that we convert thresholds towards LEFT side
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        if (thresholds.stream().anyMatch(t -> t.getMinThreshold(requestedUnit).isPresent())) {
-            return Optional.of(thresholds.stream().map(threshold -> threshold.getMinThreshold(requestedUnit).orElse(Double.NEGATIVE_INFINITY)).max(Double::compare).orElse(Double.NEGATIVE_INFINITY));
+        Set<AbstractFlowThreshold> limitingThresholds = thresholds.stream()
+            .filter(threshold -> threshold.getMinThreshold(requestedUnit).isPresent())
+            .collect(Collectors.toSet());
+        if (!limitingThresholds.isEmpty()) {
+            double mostLimitingThreshold = Double.MAX_VALUE;
+            for (AbstractFlowThreshold threshold : limitingThresholds) {
+                double thresholdValue = convertThresholdValue(threshold, requestedUnit, threshold.getMinThreshold(requestedUnit).get());
+                if (thresholdValue < mostLimitingThreshold) {
+                    mostLimitingThreshold = thresholdValue;
+                }
+            }
+            return Optional.of(mostLimitingThreshold);
         } else {
             return Optional.empty();
         }
@@ -162,12 +191,32 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) {
+        // For now we assume that we convert thresholds towards LEFT side
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        if (thresholds.stream().anyMatch(t -> t.getMaxThreshold(requestedUnit).isPresent())) {
-            return Optional.of(thresholds.stream().map(threshold -> threshold.getMaxThreshold(requestedUnit).orElse(Double.POSITIVE_INFINITY)).min(Double::compare).orElse(Double.POSITIVE_INFINITY));
+        Set<AbstractFlowThreshold> limitingThresholds = thresholds.stream()
+            .filter(threshold -> threshold.getMaxThreshold(requestedUnit).isPresent())
+            .collect(Collectors.toSet());
+        if (!limitingThresholds.isEmpty()) {
+            double mostLimitingThreshold = Double.MAX_VALUE;
+            for (AbstractFlowThreshold threshold : limitingThresholds) {
+                double thresholdValue = convertThresholdValue(threshold, requestedUnit, threshold.getMaxThreshold(requestedUnit).get());
+                if (thresholdValue < mostLimitingThreshold) {
+                    mostLimitingThreshold = thresholdValue;
+                }
+            }
+            return Optional.of(mostLimitingThreshold);
         } else {
             return Optional.empty();
         }
+    }
+
+    private double convertThresholdValue(AbstractFlowThreshold threshold, Unit requestedUnit, double thresholdValue) {
+        if (threshold.getSide().equals(Side.RIGHT)
+            && requestedUnit.equals(Unit.AMPERE)
+            && getVoltageLevel(Side.LEFT) != getVoltageLevel(Side.RIGHT)) {
+            return thresholdValue * getVoltageLevel(Side.RIGHT) / getVoltageLevel(Side.LEFT);
+        }
+        return thresholdValue;
     }
 
     @Override
@@ -200,7 +249,17 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     @Override
     public void synchronize(Network network) {
         thresholds.forEach(threshold -> threshold.synchronize(network));
+        setVoltageLevel(Side.LEFT, network.getBranch(networkElement.getId()).getTerminal1().getVoltageLevel().getNominalV());
+        setVoltageLevel(Side.RIGHT, network.getBranch(networkElement.getId()).getTerminal2().getVoltageLevel().getNominalV());
         isSynchronized = true;
+    }
+
+    private double getVoltageLevel(Side side) {
+        return voltageLevels[side.equals(Side.LEFT) ? 0 : 1];
+    }
+
+    private void setVoltageLevel(Side side, double value) {
+        voltageLevels[side.equals(Side.LEFT) ? 0 : 1] = value;
     }
 
     @Override
@@ -215,15 +274,15 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     }
 
     public Cnec copy(NetworkElement networkElement, State state) {
-        return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state);
+        return new BranchCnec(super.getId(), super.name, networkElement, thresholds, state);
     }
 
     public Cnec copy(NetworkElement networkElement, State state, double frm) {
-        return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state, frm);
+        return new BranchCnec(super.getId(), super.name, networkElement, thresholds, state, frm);
     }
 
     public Cnec copy(NetworkElement networkElement, State state, double frm, boolean optimized, boolean monitored) {
-        return new SimpleCnec(super.getId(), super.name, networkElement, thresholds, state, frm, optimized, monitored);
+        return new BranchCnec(super.getId(), super.name, networkElement, thresholds, state, frm, optimized, monitored);
     }
 
     @Override
@@ -234,7 +293,7 @@ public class SimpleCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SimpleCnec cnec = (SimpleCnec) o;
+        BranchCnec cnec = (BranchCnec) o;
         return super.equals(cnec) && networkElement.equals(cnec.getNetworkElement())
             && state.equals(cnec.getState())
             && thresholds.equals(cnec.thresholds);

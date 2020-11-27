@@ -69,6 +69,19 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         this(unit, null, side, direction);
     }
 
+    public double computeMargin(double flow, Unit unit) {
+        // patch added: for the moment, the FRM can only be handled for the Cnecs with all thresholds in MW
+        // TODO: remove this patch when appropriate development is done in our application (see technical debt)
+        double convertedAbsoluteMax = convert(getAbsoluteMax(), this.unit, unit) - convert(frmInMW, Unit.MEGAWATT, unit);
+        if (direction.equals(Direction.DIRECT)) {
+            return convertedAbsoluteMax - flow;
+        } else if (direction.equals(Direction.OPPOSITE)) {
+            return convertedAbsoluteMax + flow;
+        } else {
+            return Math.min(convertedAbsoluteMax - flow, convertedAbsoluteMax + flow);
+        }
+    }
+
     @Override
     public PhysicalParameter getPhysicalParameter() {
         return PhysicalParameter.FLOW;
@@ -165,6 +178,19 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     @JsonIgnore
     public Branch.Side getBranchSide() {
         // TODO: manage matching between LEFT/RIGHT and ONE/TWO
+        return getBranchSide(side);
+    }
+
+    @JsonIgnore
+    public Branch.Side getOppositeBranchSide() {
+        if (side.equals(Side.LEFT)) {
+            return getBranchSide(Side.RIGHT);
+        } else {
+            return getBranchSide(Side.LEFT);
+        }
+    }
+
+    public static Branch.Side getBranchSide(Side side) {
         if (side.equals(Side.LEFT)) {
             return Branch.Side.ONE;
         } else if (side.equals(Side.RIGHT)) {
@@ -205,6 +231,9 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
      * the branch is monitored.
      */
     protected abstract double getAbsoluteMax();
+
+    @Override
+    public abstract AbstractFlowThreshold copy();
 
     @Override
     public boolean equals(Object o) {

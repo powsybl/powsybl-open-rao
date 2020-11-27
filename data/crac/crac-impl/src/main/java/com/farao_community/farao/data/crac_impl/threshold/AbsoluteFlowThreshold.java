@@ -58,7 +58,7 @@ public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
     }
 
     @Override
-    public AbstractThreshold copy() {
+    public AbstractFlowThreshold copy() {
         AbsoluteFlowThreshold copiedAbsoluteFlowThreshold = new AbsoluteFlowThreshold(unit, networkElement, side, direction, maxValue, frmInMW);
         if (isSynchronized()) {
             copiedAbsoluteFlowThreshold.isSynchronized = isSynchronized;

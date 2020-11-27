@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.SimpleCnecAdder;
+import com.farao_community.farao.data.crac_impl.BranchCnecAdder;
 
 import java.util.Objects;
 
@@ -20,13 +20,13 @@ import java.util.Objects;
  */
 public class ThresholdAdderImpl implements ThresholdAdder {
 
-    private SimpleCnecAdder parent;
+    private BranchCnecAdder parent;
     private Unit unit;
     private Double maxValue;
     private Side side;
     private Direction direction;
 
-    public ThresholdAdderImpl(SimpleCnecAdder parent) {
+    public ThresholdAdderImpl(BranchCnecAdder parent) {
         Objects.requireNonNull(parent);
         this.parent = parent;
     }
