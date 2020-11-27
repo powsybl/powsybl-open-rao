@@ -7,7 +7,7 @@
  */
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 @AutoService(ExtensionsHandler.ExtensionSerializer.class)
-public class JsonCnecResultExtension extends AbstractJsonResultExtension<Cnec, CnecResultExtension> {
+public class JsonCnecResultExtension extends AbstractJsonResultExtension<BranchCnec, CnecResultExtension> {
 
     @Override
     public CnecResultExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {

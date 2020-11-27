@@ -9,9 +9,8 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
@@ -20,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -35,20 +33,30 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
         // States
-        Instant initialInstant = simpleCrac.addInstant("N", 0);
-        State preventiveState = simpleCrac.addState(null, initialInstant);
+        Instant initialInstant = simpleCrac.newInstant().setId("N").setSeconds(0).add();
 
-        // Cnecs
-        simpleCrac.addNetworkElement("ne1");
-        simpleCrac.addNetworkElement("ne2");
-        simpleCrac.addNetworkElement("ne3");
-        simpleCrac.addCnec("cnec1", "ne1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
-        simpleCrac.addCnec("cnec2", "ne2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
-        simpleCrac.addCnec("cnec3", "ne3", Collections.singleton(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.BOTH, 700)), preventiveState.getId());
+        simpleCrac.newBranchCnec()
+            .setId("cnec1")
+            .newNetworkElement().setId("ne1").add()
+            .setInstant(initialInstant)
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMin(-500.).add()
+            .add();
+        simpleCrac.getBranchCnec("cnec1").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100, Unit.AMPERE));
 
-        // LoopFlowExtensions
-        simpleCrac.getCnec("cnec1").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100, Unit.AMPERE));
-        simpleCrac.getCnec("cnec2").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(30, Unit.PERCENT_IMAX));
+        simpleCrac.newBranchCnec()
+            .setId("cnec2")
+            .newNetworkElement().setId("ne2").add()
+            .setInstant(initialInstant)
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.PERCENT_IMAX).setMin(-0.3).add()
+            .add();
+        simpleCrac.getBranchCnec("cnec2").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(30, Unit.PERCENT_IMAX));
+
+        simpleCrac.newBranchCnec()
+            .setId("cnec3")
+            .newNetworkElement().setId("ne3").add()
+            .setInstant(initialInstant)
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.MEGAWATT).setMin(-700.).setMax(700.).add()
+            .add();
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -63,14 +71,14 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
         }
 
         // test
-        assertNotNull(simpleCrac.getCnec("cnec1").getExtension(CnecLoopFlowExtension.class));
-        assertEquals(100, simpleCrac.getCnec("cnec1").getExtension(CnecLoopFlowExtension.class).getInputThreshold(), 0.1);
-        assertEquals(Unit.AMPERE, simpleCrac.getCnec("cnec1").getExtension(CnecLoopFlowExtension.class).getInputThresholdUnit());
+        assertNotNull(simpleCrac.getBranchCnec("cnec1").getExtension(CnecLoopFlowExtension.class));
+        assertEquals(100, simpleCrac.getBranchCnec("cnec1").getExtension(CnecLoopFlowExtension.class).getInputThreshold(), 0.1);
+        assertEquals(Unit.AMPERE, simpleCrac.getBranchCnec("cnec1").getExtension(CnecLoopFlowExtension.class).getInputThresholdUnit());
 
-        assertNotNull(simpleCrac.getCnec("cnec2").getExtension(CnecLoopFlowExtension.class));
-        assertEquals(30, simpleCrac.getCnec("cnec2").getExtension(CnecLoopFlowExtension.class).getInputThreshold(), 0.1);
-        assertEquals(Unit.PERCENT_IMAX, simpleCrac.getCnec("cnec2").getExtension(CnecLoopFlowExtension.class).getInputThresholdUnit());
+        assertNotNull(simpleCrac.getBranchCnec("cnec2").getExtension(CnecLoopFlowExtension.class));
+        assertEquals(30, simpleCrac.getBranchCnec("cnec2").getExtension(CnecLoopFlowExtension.class).getInputThreshold(), 0.1);
+        assertEquals(Unit.PERCENT_IMAX, simpleCrac.getBranchCnec("cnec2").getExtension(CnecLoopFlowExtension.class).getInputThresholdUnit());
 
-        assertNull(simpleCrac.getCnec("cnec3").getExtension(CnecLoopFlowExtension.class));
+        assertNull(simpleCrac.getBranchCnec("cnec3").getExtension(CnecLoopFlowExtension.class));
     }
 }

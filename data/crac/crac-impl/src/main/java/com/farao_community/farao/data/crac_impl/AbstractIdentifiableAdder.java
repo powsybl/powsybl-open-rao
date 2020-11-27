@@ -8,11 +8,12 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.IdentifiableAdder;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>> {
+public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> {
 
     protected String id;
     protected String name;

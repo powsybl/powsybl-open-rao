@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -23,7 +23,7 @@ import java.io.IOException;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(ExtensionsHandler.ExtensionSerializer.class)
-public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.ExtensionSerializer<Cnec, CnecLoopFlowExtension> {
+public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.ExtensionSerializer<BranchCnec, CnecLoopFlowExtension> {
 
     @Override
     public void serialize(CnecLoopFlowExtension cnecLoopFlowExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {

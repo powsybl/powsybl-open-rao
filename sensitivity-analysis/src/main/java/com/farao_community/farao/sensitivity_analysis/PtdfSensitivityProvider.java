@@ -8,7 +8,8 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
@@ -27,7 +28,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PtdfSensitivityProvider.class);
 
-    PtdfSensitivityProvider(ZonalData<LinearGlsk> glsk, Set<Cnec> cnecs, Set<Unit> units) {
+    PtdfSensitivityProvider(ZonalData<LinearGlsk> glsk, Set<BranchCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
 
         // todo : handle PTDFs in AMPERE

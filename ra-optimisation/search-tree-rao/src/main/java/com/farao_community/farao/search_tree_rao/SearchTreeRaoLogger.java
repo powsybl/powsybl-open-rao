@@ -9,7 +9,9 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
@@ -58,14 +60,14 @@ final class SearchTreeRaoLogger {
         logMostLimitingElementsResults(leaf.getRaoData().getCnecs(), leaf.getBestVariantId(), unit, relativePositiveMargins);
     }
 
-    static void logMostLimitingElementsResults(Set<Cnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
-        List<Cnec> sortedCnecs = cnecs.stream().
+    static void logMostLimitingElementsResults(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
+        List<BranchCnec> sortedCnecs = cnecs.stream().
                 filter(Cnec::isOptimized).
                 sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
                 collect(Collectors.toList());
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
-            Cnec cnec = sortedCnecs.get(i);
+            BranchCnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
             double cnecMargin = computeCnecMargin(cnec, variantId, unit, relativePositiveMargins);
@@ -83,11 +85,11 @@ final class SearchTreeRaoLogger {
         }
     }
 
-    private static double computeCnecMargin(Cnec cnec, String variantId, Unit unit, boolean relativePositiveMargins) {
+    private static double computeCnecMargin(BranchCnec cnec, String variantId, Unit unit, boolean relativePositiveMargins) {
         CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         double actualValue = unit.equals(Unit.MEGAWATT) ? cnecResult.getFlowInMW() : cnecResult.getFlowInA();
-        double absoluteMargin = cnec.computeMargin(actualValue, unit);
+        double absoluteMargin = cnec.computeMargin(actualValue, Side.LEFT, unit);
         if (relativePositiveMargins && (absoluteMargin > 0)) {
             return absoluteMargin / cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum();
         } else {

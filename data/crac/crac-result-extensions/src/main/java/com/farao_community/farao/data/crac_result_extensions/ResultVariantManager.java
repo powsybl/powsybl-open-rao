@@ -96,7 +96,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         getExtendable().getExtension(CracResultExtension.class).addVariant(variantId, new CracResult());
 
         // add CNEC result variant
-        getExtendable().getCnecs().forEach(cnec -> {
+        getExtendable().getBranchCnecs().forEach(cnec -> {
             if (cnec.getExtension(CnecResultExtension.class) == null) {
                 cnec.addExtension(CnecResultExtension.class, new CnecResultExtension());
             }
@@ -142,7 +142,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         if (variants.size() == 1) { // if the crac does not contains other variant than this one : delete all extension
             getExtendable().removeExtension(CracResultExtension.class);
 
-            getExtendable().getCnecs().forEach(cnec -> cnec.removeExtension(CnecResultExtension.class));
+            getExtendable().getBranchCnecs().forEach(cnec -> cnec.removeExtension(CnecResultExtension.class));
 
             for (NetworkAction networkAction: getExtendable().getNetworkActions()) {
                 networkAction.removeExtension(NetworkActionResultExtension.class);
@@ -156,7 +156,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
             getExtendable().getExtension(CracResultExtension.class).deleteVariant(variantId);
 
-            getExtendable().getCnecs().forEach(cnec -> cnec.getExtension(CnecResultExtension.class).deleteVariant(variantId));
+            getExtendable().getBranchCnecs().forEach(cnec -> cnec.getExtension(CnecResultExtension.class).deleteVariant(variantId));
 
             for (NetworkAction networkAction: getExtendable().getNetworkActions()) {
                 networkAction.getExtension(NetworkActionResultExtension.class).deleteVariant(variantId);
