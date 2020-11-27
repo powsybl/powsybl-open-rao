@@ -88,6 +88,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-ucte-util</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
