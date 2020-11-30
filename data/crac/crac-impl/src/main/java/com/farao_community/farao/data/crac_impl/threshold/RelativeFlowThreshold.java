@@ -16,6 +16,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Limits of a flow through a branch. Given as a percentage of the branch limit
@@ -27,6 +30,8 @@ import com.powsybl.iidm.network.Network;
  */
 @JsonTypeName("relative-flow-threshold")
 public class RelativeFlowThreshold extends AbstractFlowThreshold {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RelativeFlowThreshold.class);
+    private static final String TIE_LINE_WARN = "For tie-line {}, the CNEC network element ID {} is not half1 nor half2 IDs. Most limiting threshold will be taken.";
     private double branchLimit;
 
     /**
@@ -71,15 +76,34 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     public void synchronize(Network network) {
         super.synchronize(network);
         Branch branch = super.checkAndGetValidBranch(network, networkElement.getId());
-        CurrentLimits currentLimits = branch.getCurrentLimits(Branch.Side.ONE);
-        if (currentLimits == null) {
-            currentLimits = branch.getCurrentLimits(Branch.Side.TWO);
+        if (branch instanceof TieLine) {
+            TieLine tieLine = (TieLine) branch;
+            branchLimit = getBranchLimit(tieLine);
+        } else {
+            CurrentLimits currentLimits = branch.getCurrentLimits(Branch.Side.ONE);
+            if (currentLimits == null) {
+                currentLimits = branch.getCurrentLimits(Branch.Side.TWO);
+            }
+            if (currentLimits == null) {
+                throw new FaraoException(String.format("No IMAP defined for %s", networkElement.getId()));
+            }
+            branchLimit = currentLimits.getPermanentLimit();
         }
-        if (currentLimits == null) {
-            throw new FaraoException(String.format("No IMAP defined for %s", networkElement.getId()));
+    }
+
+    private double getBranchLimit(TieLine tieLine) {
+        Branch.Side side;
+        if (tieLine.getHalf1().getId().equals(networkElement.getId())) {
+            side = Branch.Side.ONE;
+        } else if (tieLine.getHalf2().getId().equals(networkElement.getId())) {
+            side = Branch.Side.TWO;
+        } else {
+            LOGGER.warn(TIE_LINE_WARN, tieLine.getId(), networkElement.getId());
+            return Math.min(
+                tieLine.getCurrentLimits(Branch.Side.ONE).getPermanentLimit(),
+                tieLine.getCurrentLimits(Branch.Side.TWO).getPermanentLimit());
         }
-        // compute maxValue, in Unit.AMPERE
-        branchLimit = currentLimits.getPermanentLimit();
+        return tieLine.getCurrentLimits(side).getPermanentLimit();
     }
 
     @Override
