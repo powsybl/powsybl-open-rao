@@ -77,12 +77,17 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         Branch branch = super.checkAndGetValidBranch(network, networkElement.getId());
         if (branch instanceof TieLine) {
             TieLine tieLine = (TieLine) branch;
+            // Independently from what is defined in side field this method will return the limit of the side that
+            // corresponds to the network element id (either half1 side or half2).
+            // If no matching, it will return the limit of the most limiting side.
             branchLimit = getBranchLimit(tieLine);
         } else {
             CurrentLimits currentLimits = branch.getCurrentLimits(getBranchSide());
             if (currentLimits != null) {
                 branchLimit = currentLimits.getPermanentLimit();
             } else {
+                // If the branch is a simple line limit of the opposite will be taken as granted. If it a transformer,
+                // a conversion will be done to bring back the limit according to side field.
                 branchLimit = getBranchLimitFromOppositeSide(branch);
             }
         }
@@ -107,12 +112,14 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         CurrentLimits currentLimits = branch.getCurrentLimits(getOppositeBranchSide());
         if (currentLimits != null) {
             LOGGER.warn(SIDE_INVERSION_WARN, networkElement.getId(), side);
+            // No conversion required if it is a simple line
             double conversionCoefficient = 1;
             if (branch instanceof TwoWindingsTransformer) {
                 TwoWindingsTransformer twoWindingsTransformer = (TwoWindingsTransformer) branch;
                 // Coefficient if side is ONE
                 conversionCoefficient = twoWindingsTransformer.getRatedU2() / twoWindingsTransformer.getRatedU1();
                 if (getBranchSide().equals(Branch.Side.TWO)) {
+                    // Invert it if it is for side TWO
                     conversionCoefficient = 1 / conversionCoefficient;
                 }
             }

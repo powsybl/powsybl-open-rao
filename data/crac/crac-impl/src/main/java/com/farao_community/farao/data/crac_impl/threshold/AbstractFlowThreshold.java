@@ -69,6 +69,14 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
         this(unit, null, side, direction);
     }
 
+    /**
+     * A margin can be computed on a flow threshold. The {@code unit} is the one of the {@code flow} and will be the
+     * one of the returned margin. It is assumed in input that the flow is the one on the same side as the threshold.
+     *
+     * @param flow: Flow on which to make the difference to compute the threshold.
+     * @param unit: Unit of the input flow. It will also be the one of the returned value.
+     * @return A margin given {@code flow} and {@code unit} for this flow threshold.
+     */
     public double computeMargin(double flow, Unit unit) {
         // patch added: for the moment, the FRM can only be handled for the Cnecs with all thresholds in MW
         // TODO: remove this patch when appropriate development is done in our application (see technical debt)

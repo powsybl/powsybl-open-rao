@@ -14,9 +14,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -82,19 +80,34 @@ public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return networkElement;
     }
 
+    /**
+     * A margin can be computed on a {@code BranchCnec}. The {@code unit} is the one of the {@code leftFlow} and will be
+     * the one of the returned margin. It is assumed in input that the {@code leftFlow} is defined on the
+     * LEFT {@link Side}. Then given the thresholds and the parameters of the margin computation a conversion could be
+     * done to get the flow on the right side. The only use case for this conversion is if both threshold
+     * and {@code unit} are in AMPERE, the threshold is defined on the RIGHT {@link Side} and the {@code BranchCnec}
+     * is on a transformer.
+     *
+     * @param leftFlow: Flow on the LEFT {@link Side} of the {@code BranchCnec} on which to make the difference to
+     *                compute the threshold.
+     * @param unit: Unit of the input flow. It will also be the one of the returned value.
+     * @return A margin given {@code leftFlow} and {@code unit} for this flow threshold.
+     */
     public double computeMargin(double leftFlow, Unit unit) {
         // Here we assume that actual value here will be always given for left side (or Side.ONE PowSyBl wise)
         double worstMargin = Double.MAX_VALUE;
         for (AbstractFlowThreshold threshold : thresholds) {
-            double flow = leftFlow;
+            double margin;
             if (threshold.getSide().equals(Side.RIGHT)
                 && unit.equals(Unit.AMPERE)
-                && threshold.getUnit().equals(Unit.AMPERE)
                 && getVoltageLevel(Side.LEFT) != getVoltageLevel(Side.RIGHT)) {
-                flow = leftFlow * getVoltageLevel(Side.LEFT) / getVoltageLevel(Side.RIGHT);
+                double flow = leftFlow * getVoltageLevel(Side.LEFT) / getVoltageLevel(Side.RIGHT);
+                margin = threshold.computeMargin(flow, unit) * getVoltageLevel(Side.RIGHT) / getVoltageLevel(Side.LEFT);
+            } else {
+                margin = threshold.computeMargin(leftFlow, unit);
             }
-            double margin = threshold.computeMargin(flow, unit);
-            if (Math.abs(margin) < Math.abs(worstMargin)) {
+
+            if (margin < worstMargin) {
                 worstMargin = margin;
             }
         }
@@ -133,27 +146,6 @@ public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
         return !state.getContingency().isPresent();
     }
 
-    /**
-     * Get the monitored Terminal of a Cnec.
-     */
-    private Terminal getTerminal(Network network) {
-        //TODO: make this clean
-        //return network.getBranch(getNetworkElement().getId()).getTerminal(((AbstractFlowThreshold) thresholds).getBranchSide()); // this is dirty but we can assume that this method will be used only if the threshold of the cnec is an abstractflowthreshold
-        return network.getBranch(getNetworkElement().getId()).getTerminal(Branch.Side.ONE); // Very dirty! To handle the Cnecs with several thresholds, we consider that the terminal needed for the computation is always on Branch.Side.ONE
-    }
-
-    /**
-     * Check if a Cnec is connected, on both side, to the network.
-     */
-    private boolean isCnecDisconnected(Network network) {
-        Branch branch = network.getBranch(getNetworkElement().getId());
-        return !branch.getTerminal1().isConnected() || !branch.getTerminal2().isConnected();
-    }
-
-    private boolean isCnecInMainComponent(Network network) {
-        return getTerminal(network).getBusView().getBus().isInMainSynchronousComponent();
-    }
-
     @Override
     public PhysicalParameter getPhysicalParameter() {
         if (!thresholds.isEmpty()) {
@@ -179,7 +171,7 @@ public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
             double mostLimitingThreshold = Double.MAX_VALUE;
             for (AbstractFlowThreshold threshold : limitingThresholds) {
                 double thresholdValue = convertThresholdValue(threshold, requestedUnit, threshold.getMinThreshold(requestedUnit).get());
-                if (thresholdValue < mostLimitingThreshold) {
+                if (Math.abs(thresholdValue) < Math.abs(mostLimitingThreshold)) {
                     mostLimitingThreshold = thresholdValue;
                 }
             }
@@ -200,7 +192,7 @@ public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
             double mostLimitingThreshold = Double.MAX_VALUE;
             for (AbstractFlowThreshold threshold : limitingThresholds) {
                 double thresholdValue = convertThresholdValue(threshold, requestedUnit, threshold.getMaxThreshold(requestedUnit).get());
-                if (thresholdValue < mostLimitingThreshold) {
+                if (Math.abs(thresholdValue) < Math.abs(mostLimitingThreshold)) {
                     mostLimitingThreshold = thresholdValue;
                 }
             }
@@ -217,23 +209,6 @@ public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
             return thresholdValue * getVoltageLevel(Side.RIGHT) / getVoltageLevel(Side.LEFT);
         }
         return thresholdValue;
-    }
-
-    @Override
-    public double getI(Network network) {
-        return isCnecDisconnected(network) ? 0 : getTerminal(network).getI();
-    }
-
-    @Override
-    public double getP(Network network) {
-        double p = getTerminal(network).getP();
-        if (Double.isNaN(p)) {
-            if (isCnecDisconnected(network) || !isCnecInMainComponent(network)) {
-                return 0.0;
-            }
-            throw new FaraoException(String.format("No transmitted power (P) data available for CNEC %s", getName()));
-        }
-        return p;
     }
 
     @Override

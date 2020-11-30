@@ -6,252 +6,225 @@
  */
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class BranchCnecTest {
+    private final static double DOUBLE_TOLERANCE = 1;
 
-    private final static double DOUBLE_TOLERANCE = 0.01;
-
-    private Cnec cnec1;
-    private Cnec cnec2;
-    private Cnec cnec3;
-
-    private AbstractFlowThreshold threshold;
-
-    private Network networkWithLf;
-    private Network networkWithoutLf;
-    private Network network15nodes;
+    private BranchCnec lineCnec;
+    private BranchCnec transformerCnec;
+    private Set<AbstractFlowThreshold> thresholds;
+    private Network network12nodes;
 
     @Before
     public void setUp() {
-
-        // mock threshold
-        threshold = Mockito.mock(AbstractFlowThreshold.class);
-        Mockito.when(threshold.copy()).thenReturn(threshold);
-        Mockito.when(threshold.getBranchSide()).thenReturn(Branch.Side.ONE);
+        thresholds = new HashSet<>();
         State state = Mockito.mock(State.class);
+        lineCnec = new BranchCnec("cnec1", new NetworkElement("FFR2AA1  FFR3AA1  1"), new HashSet<>(), state);
+        transformerCnec = new BranchCnec("cnec2", new NetworkElement("BBE1AA1  BBE1AA2  1"), new HashSet<>(), state);
 
-        // arrange Cnecs
-        cnec1 = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), Collections.singleton(threshold), state);
-        cnec2 = new BranchCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), Collections.singleton(threshold), state);
-        cnec3 = new BranchCnec("cnec3", new NetworkElement("FFR4AA1  FFR6AA1  1"), Collections.singleton(threshold), state);
+        network12nodes = Importers.loadNetwork(
+            "TestCase12Nodes_with_Xnodes_different_imax.uct",
+            getClass().getResourceAsStream("/TestCase12Nodes_with_Xnodes_different_imax.uct"));
+        UcteAliasesCreation.createAliases(network12nodes);
+    }
 
-        // create networks
-        networkWithoutLf = Importers.loadNetwork("TestCase2Nodes.xiidm", getClass().getResourceAsStream("/TestCase2Nodes.xiidm"));
-        networkWithLf = Importers.loadNetwork("TestCase2Nodes_withLF.xiidm", getClass().getResourceAsStream("/TestCase2Nodes_withLF.xiidm"));
-        network15nodes = Importers.loadNetwork("TestCase15Nodes_2_components.uct", getClass().getResourceAsStream("/TestCase15Nodes_2_components.uct"));
+    private void fillThresholdsAndSynchronize(BranchCnec cnec) {
+        thresholds.forEach(cnec::addThreshold);
+        cnec.synchronize(network12nodes);
     }
 
     @Test
-    public void getIOkTest() {
-        assertEquals(384.90, cnec1.getI(networkWithLf), DOUBLE_TOLERANCE);
-        assertEquals(769.80, cnec2.getI(networkWithLf), DOUBLE_TOLERANCE);
+    public void testComputeMarginOnLineWithOneThresholdOnLeftSameUnitMW() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500));
+        fillThresholdsAndSynchronize(lineCnec);
+        assertEquals(200, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(459, lineCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void getINoData() {
-        try {
-            cnec1.getP(networkWithoutLf);
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-        }
+    public void testComputeMarginOnLineWithOneThresholdOnRightSameUnitMW() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.DIRECT, 500));
+        fillThresholdsAndSynchronize(lineCnec);
+        assertEquals(200, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(459, lineCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void getPOkTest() {
-        assertEquals(-266.66, cnec1.getP(networkWithLf), DOUBLE_TOLERANCE);
-        assertEquals(-533.33, cnec2.getP(networkWithLf), DOUBLE_TOLERANCE);
+    public void testComputeMarginOnLineWithOneThresholdOnLeftSameUnitAmps() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.DIRECT, 500));
+        fillThresholdsAndSynchronize(lineCnec);
+        assertEquals(200, lineCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(29, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void getPNoData() {
-        try {
-            cnec1.getP(networkWithoutLf);
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-        }
+    public void testComputeMarginOnLineWithOneThresholdOnRightSameUnitAmps() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.DIRECT, 500));
+        fillThresholdsAndSynchronize(lineCnec);
+        assertEquals(200, lineCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(29, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+    }
+
+    // Tests on transformers : LEFT is low-voltage level and RIGHT is high-voltage level
+
+    // TEST 1 : When a limit is defined in MW, as flows are always declared on LEFT side, margins must be the same
+    // whether the limit is defined on LEFT or RIGHT side.
+    @Test
+    public void testComputeMarginOnTransformerWithOneThresholdOnLeftSameUnitMW() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500));
+        fillThresholdsAndSynchronize(transformerCnec);
+        assertEquals(200, transformerCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1012, transformerCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void getPNotMainComponent() {
-        network15nodes.getBranch("FFR4AA1  FFR6AA1  1").getTerminal1().setP(Double.NaN);
-        assertEquals(0.0, cnec3.getP(network15nodes), DOUBLE_TOLERANCE);
+    public void testComputeMarginOnTransformerWithOneThresholdOnRightSameUnitMW() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.DIRECT, 500));
+        fillThresholdsAndSynchronize(transformerCnec);
+        assertEquals(200, transformerCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1012, transformerCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
+    }
+
+    // TEST 2 : When a limit is defined in A:
+    // - If it is on left:
+    //   - For a flow in Amps we have directly 500 - 300 = 200 A
+    //   - For a flow in MW: it's still on the good side so we can call threshold compute margin method directly
+    //     Threshold will be converted 500A -> 190,5MW, so 190,5 - 300 = -109MW
+    // - If it is on the right:
+    //   - For a flow in Amps: flow has to be computed on the right side 300A -> 300 * 220 / 380 = 173,68A, then we can
+    //     compute the margin 500 - 174 = 326,31A, then we have to convert it for the left side again 326A -> 563,63A
+    //   - For a flow in MW: it's the same for side one and two so no need to convert, we can call threshold compute
+    //     margin method, that will convert threshold to MW 500A -> 328,7MW, then make the difference 328,7 - 300 = 28,7MW
+    @Test
+    public void testComputeMarginOnTransformerWithOneThresholdOnLeftSameUnitAmps() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.DIRECT, 500));
+        fillThresholdsAndSynchronize(transformerCnec);
+        assertEquals(200, transformerCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-109, transformerCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void computeMarginInAmpereOk() {
+    public void testComputeMarginOnTransformerWithOneThresholdOnRightSameUnitAmps() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.DIRECT, 500));
+        fillThresholdsAndSynchronize(transformerCnec);
+        assertEquals(563, transformerCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(29, transformerCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+    }
 
-        Mockito.when(threshold.getUnit()).thenReturn(Unit.AMPERE);
-        Mockito.when(threshold.getPhysicalParameter()).thenReturn(PhysicalParameter.FLOW);
+    // Tests on concurrency between thresholds
 
-        double flow = 384.90; //A
-        // threshold = [-500;500]
-        Mockito.when(threshold.getMinThreshold(Unit.AMPERE)).thenReturn(Optional.of(-500.0));
-        Mockito.when(threshold.getMaxThreshold(Unit.AMPERE)).thenReturn(Optional.of(500.0));
-        assertEquals(500.0 - flow, cnec1.computeMargin(flow, Unit.AMPERE), DOUBLE_TOLERANCE);
+    @Test
+    public void testComputeMarginOnLineWithSeveralThresholdsWithLimitingOnLeftOrRightSide() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 100));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.DIRECT, 500));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.OPPOSITE, 300));
+        fillThresholdsAndSynchronize(lineCnec);
 
-        // threshold = [-inf ; 300]
-        Mockito.when(threshold.getMinThreshold(Unit.AMPERE)).thenReturn(Optional.empty());
-        Mockito.when(threshold.getMaxThreshold(Unit.AMPERE)).thenReturn(Optional.of(300.0));
-        assertEquals(300.0 - flow, cnec1.computeMargin(flow, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-200, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0, lineCnec.computeMargin(-200, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void computeMarginInMegawattOk() {
+    public void testComputeMarginOnLineWithSeveralThresholdsWithBoth() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 100));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.DIRECT, 500));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.OPPOSITE, 300));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.BOTH, 50));
+        fillThresholdsAndSynchronize(lineCnec);
 
-        Mockito.when(threshold.getUnit()).thenReturn(Unit.MEGAWATT);
-        Mockito.when(threshold.getPhysicalParameter()).thenReturn(PhysicalParameter.FLOW);
-
-        double flow = -266.67; //MW
-        // threshold = [-500;500]
-        Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-500.0));
-        Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(500.0));
-        assertEquals(flow - (-500.0), cnec1.computeMargin(flow, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        // threshold = [-inf ; 300]
-        Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(300.0));
-        assertEquals(300.0 - flow, cnec1.computeMargin(flow, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        // threshold = [-300 ; +inf]
-        Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-300.0));
-        Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.empty());
-        assertEquals(flow - (-300.0), cnec1.computeMargin(flow, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-250, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-150, lineCnec.computeMargin(-200, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void computeMarginDisconnectedBranch() {
+    public void testComputeMarginOnTransformerWithSeveralThresholdsInAmps() {
+        thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.DIRECT, 100));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 70));
+        // This threshold is 86A on LEFT side, so it's limiting for DIRECT but not for OPPOSITE flow
+        thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.BOTH, 50));
+        fillThresholdsAndSynchronize(transformerCnec);
 
-        Mockito.when(threshold.getUnit()).thenReturn(Unit.MEGAWATT);
-        Mockito.when(threshold.getPhysicalParameter()).thenReturn(PhysicalParameter.FLOW);
-
-        Mockito.when(threshold.getMinThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(-500.0));
-        Mockito.when(threshold.getMaxThreshold(Unit.MEGAWATT)).thenReturn(Optional.of(500.0));
-
-        // terminal 1 disconnected
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().setP(Double.NaN);
-
-        assertEquals(500.0 - 0.0, cnec2.computeMargin(cnec2.getP(networkWithLf), Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        // terminal 2 disconnected
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().connect();
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal2().disconnect();
-        assertEquals(500.0 - 0.0, cnec2.computeMargin(cnec2.getP(networkWithLf), Unit.MEGAWATT), DOUBLE_TOLERANCE);
-
-        // both terminal disconnected
-        networkWithLf.getBranch("FRANCE_BELGIUM_2").getTerminal1().disconnect();
-        assertEquals(500.0 - 0.0, cnec2.computeMargin(cnec2.getP(networkWithLf), Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-14, transformerCnec.computeMargin(100, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-30, transformerCnec.computeMargin(-100, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void synchronizeTwoCnecsCreatedWithSameThresholdObject() {
         State state = Mockito.mock(State.class);
         RelativeFlowThreshold relativeFlowThreshold = new RelativeFlowThreshold(Side.LEFT, Direction.DIRECT, 50);
-        Cnec cnecOnLine1 = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), Collections.singleton(relativeFlowThreshold), state);
-        Cnec cnecOnLine2 = new BranchCnec("cnec2", new NetworkElement("FRANCE_BELGIUM_2"), Collections.singleton(relativeFlowThreshold), state);
+        Cnec cnecOnLine1 = new BranchCnec("cnec1", new NetworkElement("DDE1AA1  DDE2AA1  1"), Collections.singleton(relativeFlowThreshold), state);
+        Cnec cnecOnLine2 = new BranchCnec("cnec2", new NetworkElement("BBE2AA1  X_BEFR1  1"), Collections.singleton(relativeFlowThreshold), state);
 
-        Network network = Importers.loadNetwork(
-            "TestCase2Nodes_withLF_withDifferentLimits.xiidm",
-            getClass().getResourceAsStream("/TestCase2Nodes_withLF_withDifferentLimits.xiidm"));
+        cnecOnLine2.synchronize(network12nodes);
+        cnecOnLine1.synchronize(network12nodes);
 
-        cnecOnLine2.synchronize(network);
-        cnecOnLine1.synchronize(network);
-
-        assertEquals(400, cnecOnLine1.getMaxThreshold(Unit.AMPERE).get(), 0.1);
-        assertEquals(250, cnecOnLine2.getMaxThreshold(Unit.AMPERE).get(), 0.1);
+        assertEquals(2500, cnecOnLine1.getMaxThreshold(Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(1645, cnecOnLine1.getMaxThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
+        assertEquals(750, cnecOnLine2.getMaxThreshold(Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(494, cnecOnLine2.getMaxThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void severalThresholdTest1() {
-        State state = Mockito.mock(State.class);
-        AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500);
-        AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200);
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200));
+        fillThresholdsAndSynchronize(lineCnec);
 
-        Set<AbstractFlowThreshold> thresholds = new HashSet<>();
-        thresholds.add(directThreshold);
-        thresholds.add(oppositeThreshold);
-
-        Cnec cnec = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
-
-        assertEquals(500, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
-        assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
+        assertEquals(500, lineCnec.getMaxThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
+        assertEquals(-200, lineCnec.getMinThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void severalThresholdTest2() {
-        State state = Mockito.mock(State.class);
-        AbsoluteFlowThreshold directThreshold1 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500);
-        AbsoluteFlowThreshold oppositeThreshold1 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200);
-        AbsoluteFlowThreshold directThreshold2 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.DIRECT, 490);
-        AbsoluteFlowThreshold oppositeThreshold2 = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.OPPOSITE, 210);
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.DIRECT, 490));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.OPPOSITE, 210));
+        fillThresholdsAndSynchronize(lineCnec);
 
-        Set<AbstractFlowThreshold> thresholds = new HashSet<>();
-        thresholds.add(directThreshold1);
-        thresholds.add(oppositeThreshold1);
-        thresholds.add(directThreshold2);
-
-        BranchCnec cnec = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
-        cnec.addThreshold(oppositeThreshold2);
-
-        assertEquals(490, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
-        assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
+        assertEquals(490, lineCnec.getMaxThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
+        assertEquals(-200, lineCnec.getMinThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void unboundedCnecInOppositeDirection() {
-        State state = Mockito.mock(State.class);
-        AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500);
-        AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 200);
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 200));
+        fillThresholdsAndSynchronize(lineCnec);
 
-        Set<AbstractFlowThreshold> thresholds = new HashSet<>();
-        thresholds.add(directThreshold);
-        thresholds.add(oppositeThreshold);
-
-        Cnec cnec = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
-
-        assertEquals(200, cnec.getMaxThreshold(Unit.MEGAWATT).get(), 0.1);
-        assertFalse(cnec.getMinThreshold(Unit.MEGAWATT).isPresent());
+        assertEquals(200, lineCnec.getMaxThreshold(Unit.MEGAWATT).get(), DOUBLE_TOLERANCE);
+        assertFalse(lineCnec.getMinThreshold(Unit.MEGAWATT).isPresent());
     }
 
     @Test
     public void unboundedCnecInDirectDirection() {
-        State state = Mockito.mock(State.class);
-        AbsoluteFlowThreshold directThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 500);
-        AbsoluteFlowThreshold oppositeThreshold = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200);
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 500));
+        thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.OPPOSITE, 200));
+        fillThresholdsAndSynchronize(lineCnec);
 
-        Set<AbstractFlowThreshold> thresholds = new HashSet<>();
-        thresholds.add(directThreshold);
-        thresholds.add(oppositeThreshold);
-
-        Cnec cnec = new BranchCnec("cnec1", new NetworkElement("FRANCE_BELGIUM_1"), thresholds, state);
-
-        assertEquals(-200, cnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
-        assertFalse(cnec.getMaxThreshold(Unit.MEGAWATT).isPresent());
+        assertEquals(-200, lineCnec.getMinThreshold(Unit.MEGAWATT).get(), 0.1);
+        assertFalse(lineCnec.getMaxThreshold(Unit.MEGAWATT).isPresent());
     }
 }

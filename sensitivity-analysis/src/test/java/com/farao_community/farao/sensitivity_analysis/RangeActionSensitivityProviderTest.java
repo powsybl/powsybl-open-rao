@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.BranchCnec;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
@@ -59,7 +59,7 @@ public class RangeActionSensitivityProviderTest {
 
         NetworkElement networkElement = crac.getCnecs().iterator().next().getNetworkElement();
         Instant instant = crac.getInstant("curative");
-        Set<AbstractThreshold> thresholdSet = new HashSet<>();
+        Set<AbstractFlowThreshold> thresholdSet = new HashSet<>();
         thresholdSet.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, 10));
 
         crac.addCnec(new BranchCnec("generatorContingencyCnec",
@@ -99,7 +99,7 @@ public class RangeActionSensitivityProviderTest {
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider();
 
-        Set<AbstractThreshold> thresholdSet = new HashSet<>();
+        Set<AbstractFlowThreshold> thresholdSet = new HashSet<>();
         thresholdSet.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.BOTH, 10));
         Instant instant = crac.getInstant("curative");
         Cnec cnec = new BranchCnec("failureCnec",
@@ -110,8 +110,7 @@ public class RangeActionSensitivityProviderTest {
         cnecs.add(cnec);
 
         provider.addSensitivityFactors(new HashSet<>(), cnecs);
-
-        List<Contingency> contingencyList = provider.getContingencies(network);
+        provider.getContingencies(network);
     }
 
     @Test

@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
 
@@ -78,26 +77,6 @@ public interface Cnec extends Identifiable<Cnec>, Synchronizable {
      */
     @JsonIgnore
     Optional<Double> getMaxThreshold(Unit unit);
-
-    /**
-     * Get the current (in A) transmitted by Cnec in a given Network. Note that an I
-     * value exists in the Network only if an AC load-flow has been previously run.
-     * If no value is present in the network, returns Double.NaN.
-     *
-     * @param network: Network on which the current is evaluated.
-     * @return Current value on the network element.
-     */
-    double getI(Network network);
-
-    /**
-     * Get the flow (in MW) transmitted by Cnec in a given Network. Note that an P
-     * value exists in the Network only if an load-flow (AC or DC) has been previously
-     * run. If no value is present in the network, throws a FaraoException.
-     *
-     * @param network: Network on which the flow is evaluated.
-     * @return Flow value on the network element.
-     */
-    double getP(Network network);
 
     /**
      * Returns if the margin of the branch should be "maximized" (optimized), in case it is the most limiting one.
