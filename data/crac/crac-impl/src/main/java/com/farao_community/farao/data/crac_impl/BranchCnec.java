@@ -15,6 +15,8 @@ import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -30,6 +32,8 @@ import java.util.stream.Collectors;
 @JsonIdentityInfo(scope = BranchCnec.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIdentityReference(alwaysAsId = true)
 public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BranchCnec.class);
+
     private NetworkElement networkElement;
     private Set<AbstractFlowThreshold> thresholds;
     private State state;
@@ -37,6 +41,7 @@ public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     private double frm;
     private boolean optimized;
     private boolean monitored;
+    private BoundsCache bounds = new BoundsCache();
     private final double[] voltageLevels = new double[2];
 
     @JsonCreator
@@ -95,23 +100,9 @@ public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
      */
     public double computeMargin(double leftFlow, Unit unit) {
         // Here we assume that actual value here will be always given for left side (or Side.ONE PowSyBl wise)
-        double worstMargin = Double.MAX_VALUE;
-        for (AbstractFlowThreshold threshold : thresholds) {
-            double margin;
-            if (threshold.getSide().equals(Side.RIGHT)
-                && unit.equals(Unit.AMPERE)
-                && getVoltageLevel(Side.LEFT) != getVoltageLevel(Side.RIGHT)) {
-                double flow = leftFlow * getVoltageLevel(Side.LEFT) / getVoltageLevel(Side.RIGHT);
-                margin = threshold.computeMargin(flow, unit) * getVoltageLevel(Side.RIGHT) / getVoltageLevel(Side.LEFT);
-            } else {
-                margin = threshold.computeMargin(leftFlow, unit);
-            }
-
-            if (margin < worstMargin) {
-                worstMargin = margin;
-            }
-        }
-        return worstMargin;
+        double oppositeMargin = leftFlow - getMinThreshold(unit).orElse(Double.POSITIVE_INFINITY);
+        double directMargin = getMaxThreshold(unit).orElse(Double.POSITIVE_INFINITY) - leftFlow;
+        return Math.abs(oppositeMargin) < Math.abs(directMargin) ? oppositeMargin : directMargin;
     }
 
     public void setNetworkElement(NetworkElement networkElement) {
@@ -123,10 +114,12 @@ public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
     }
 
     public void setThresholds(Set<AbstractFlowThreshold> thresholds) {
+        bounds.resetBounds();
         this.thresholds = thresholds;
     }
 
     public void addThreshold(AbstractFlowThreshold threshold) {
+        bounds.resetBounds();
         AbstractFlowThreshold thresholdCopy = threshold.copy();
         thresholdCopy.setNetworkElement(networkElement);
         this.thresholds.add(thresholdCopy);
@@ -162,44 +155,52 @@ public class BranchCnec extends AbstractIdentifiable<Cnec> implements Cnec {
 
     @Override
     public Optional<Double> getMinThreshold(Unit requestedUnit) {
-        // For now we assume that we convert thresholds towards LEFT side
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        Set<AbstractFlowThreshold> limitingThresholds = thresholds.stream()
-            .filter(threshold -> threshold.getMinThreshold(requestedUnit).isPresent())
-            .collect(Collectors.toSet());
-        if (!limitingThresholds.isEmpty()) {
-            double mostLimitingThreshold = Double.MAX_VALUE;
-            for (AbstractFlowThreshold threshold : limitingThresholds) {
-                double thresholdValue = convertThresholdValue(threshold, requestedUnit, threshold.getMinThreshold(requestedUnit).get());
-                if (Math.abs(thresholdValue) < Math.abs(mostLimitingThreshold)) {
-                    mostLimitingThreshold = thresholdValue;
+        if (!bounds.isLowerBoundComputed(requestedUnit)) {
+            LOGGER.debug("Lower bound computed for {} in {}", getId(), requestedUnit);
+            // For now we assume that we convert thresholds towards LEFT side
+            Set<AbstractFlowThreshold> limitingThresholds = thresholds.stream()
+                .filter(threshold -> threshold.getMinThreshold(requestedUnit).isPresent())
+                .collect(Collectors.toSet());
+            if (!limitingThresholds.isEmpty()) {
+                double mostLimitingThreshold = Double.MAX_VALUE;
+                for (AbstractFlowThreshold threshold : limitingThresholds) {
+                    double thresholdValue = convertThresholdValue(threshold, requestedUnit, threshold.getMinThreshold(requestedUnit).orElseThrow());
+                    if (Math.abs(thresholdValue) < Math.abs(mostLimitingThreshold)) {
+                        mostLimitingThreshold = thresholdValue;
+                    }
                 }
+                bounds.setLowerBound(mostLimitingThreshold, requestedUnit);
+            } else {
+                bounds.setLowerBound(null, requestedUnit);
             }
-            return Optional.of(mostLimitingThreshold);
-        } else {
-            return Optional.empty();
         }
+        return Optional.ofNullable(bounds.getLowerBound(requestedUnit));
     }
 
     @Override
     public Optional<Double> getMaxThreshold(Unit requestedUnit) {
         // For now we assume that we convert thresholds towards LEFT side
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        Set<AbstractFlowThreshold> limitingThresholds = thresholds.stream()
-            .filter(threshold -> threshold.getMaxThreshold(requestedUnit).isPresent())
-            .collect(Collectors.toSet());
-        if (!limitingThresholds.isEmpty()) {
-            double mostLimitingThreshold = Double.MAX_VALUE;
-            for (AbstractFlowThreshold threshold : limitingThresholds) {
-                double thresholdValue = convertThresholdValue(threshold, requestedUnit, threshold.getMaxThreshold(requestedUnit).get());
-                if (Math.abs(thresholdValue) < Math.abs(mostLimitingThreshold)) {
-                    mostLimitingThreshold = thresholdValue;
+        if (!bounds.isUpperBoundComputed(requestedUnit)) {
+            LOGGER.debug("Upper bound computed for {} in {}", getId(), requestedUnit);
+            Set<AbstractFlowThreshold> limitingThresholds = thresholds.stream()
+                .filter(threshold -> threshold.getMaxThreshold(requestedUnit).isPresent())
+                .collect(Collectors.toSet());
+            if (!limitingThresholds.isEmpty()) {
+                double mostLimitingThreshold = Double.MAX_VALUE;
+                for (AbstractFlowThreshold threshold : limitingThresholds) {
+                    double thresholdValue = convertThresholdValue(threshold, requestedUnit, threshold.getMaxThreshold(requestedUnit).orElseThrow());
+                    if (Math.abs(thresholdValue) < Math.abs(mostLimitingThreshold)) {
+                        mostLimitingThreshold = thresholdValue;
+                    }
                 }
+                bounds.setUpperBound(mostLimitingThreshold, requestedUnit);
+            } else {
+                bounds.setUpperBound(null, requestedUnit);
             }
-            return Optional.of(mostLimitingThreshold);
-        } else {
-            return Optional.empty();
         }
+        return Optional.ofNullable(bounds.getUpperBound(requestedUnit));
     }
 
     private double convertThresholdValue(AbstractFlowThreshold threshold, Unit requestedUnit, double thresholdValue) {

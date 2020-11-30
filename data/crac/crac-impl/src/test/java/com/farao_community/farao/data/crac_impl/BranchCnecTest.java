@@ -39,8 +39,8 @@ public class BranchCnecTest {
     public void setUp() {
         thresholds = new HashSet<>();
         State state = Mockito.mock(State.class);
-        lineCnec = new BranchCnec("cnec1", new NetworkElement("FFR2AA1  FFR3AA1  1"), new HashSet<>(), state);
-        transformerCnec = new BranchCnec("cnec2", new NetworkElement("BBE1AA1  BBE1AA2  1"), new HashSet<>(), state);
+        lineCnec = new BranchCnec("line-cnec", new NetworkElement("FFR2AA1  FFR3AA1  1"), new HashSet<>(), state);
+        transformerCnec = new BranchCnec("transformer-cnec", new NetworkElement("BBE1AA1  BBE1AA2  1"), new HashSet<>(), state);
 
         network12nodes = Importers.loadNetwork(
             "TestCase12Nodes_with_Xnodes_different_imax.uct",
@@ -57,7 +57,11 @@ public class BranchCnecTest {
     public void testComputeMarginOnLineWithOneThresholdOnLeftSameUnitMW() {
         thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500));
         fillThresholdsAndSynchronize(lineCnec);
+        assertEquals(500, lineCnec.getMaxThreshold(Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(lineCnec.getMinThreshold(Unit.MEGAWATT).isPresent());
         assertEquals(200, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(759, lineCnec.getMaxThreshold(Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(lineCnec.getMinThreshold(Unit.AMPERE).isPresent());
         assertEquals(459, lineCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
@@ -73,16 +77,20 @@ public class BranchCnecTest {
     public void testComputeMarginOnLineWithOneThresholdOnLeftSameUnitAmps() {
         thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.DIRECT, 500));
         fillThresholdsAndSynchronize(lineCnec);
-        assertEquals(200, lineCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(329, lineCnec.getMaxThreshold(Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(lineCnec.getMinThreshold(Unit.MEGAWATT).isPresent());
         assertEquals(29, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(500, lineCnec.getMaxThreshold(Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(lineCnec.getMinThreshold(Unit.AMPERE).isPresent());
+        assertEquals(200, lineCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testComputeMarginOnLineWithOneThresholdOnRightSameUnitAmps() {
         thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.DIRECT, 500));
         fillThresholdsAndSynchronize(lineCnec);
-        assertEquals(200, lineCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(29, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(200, lineCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
     // Tests on transformers : LEFT is low-voltage level and RIGHT is high-voltage level
@@ -93,7 +101,11 @@ public class BranchCnecTest {
     public void testComputeMarginOnTransformerWithOneThresholdOnLeftSameUnitMW() {
         thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.DIRECT, 500));
         fillThresholdsAndSynchronize(transformerCnec);
+        assertEquals(500, transformerCnec.getMaxThreshold(Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(transformerCnec.getMinThreshold(Unit.MEGAWATT).isPresent());
         assertEquals(200, transformerCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1312, transformerCnec.getMaxThreshold(Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(transformerCnec.getMinThreshold(Unit.AMPERE).isPresent());
         assertEquals(1012, transformerCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 
@@ -119,7 +131,11 @@ public class BranchCnecTest {
     public void testComputeMarginOnTransformerWithOneThresholdOnLeftSameUnitAmps() {
         thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.DIRECT, 500));
         fillThresholdsAndSynchronize(transformerCnec);
+        assertEquals(500, transformerCnec.getMaxThreshold(Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(transformerCnec.getMinThreshold(Unit.AMPERE).isPresent());
         assertEquals(200, transformerCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(190, transformerCnec.getMaxThreshold(Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(transformerCnec.getMinThreshold(Unit.MEGAWATT).isPresent());
         assertEquals(-109, transformerCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
@@ -128,6 +144,8 @@ public class BranchCnecTest {
         thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.DIRECT, 500));
         fillThresholdsAndSynchronize(transformerCnec);
         assertEquals(563, transformerCnec.computeMargin(300, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(329, transformerCnec.getMaxThreshold(Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(transformerCnec.getMinThreshold(Unit.MEGAWATT).isPresent());
         assertEquals(29, transformerCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
@@ -141,6 +159,8 @@ public class BranchCnecTest {
         thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.OPPOSITE, 300));
         fillThresholdsAndSynchronize(lineCnec);
 
+        assertEquals(100, lineCnec.getMaxThreshold(Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-200, lineCnec.getMinThreshold(Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-200, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(0, lineCnec.computeMargin(-200, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
@@ -154,6 +174,8 @@ public class BranchCnecTest {
         thresholds.add(new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.RIGHT, Direction.BOTH, 50));
         fillThresholdsAndSynchronize(lineCnec);
 
+        assertEquals(50, lineCnec.getMaxThreshold(Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-50, lineCnec.getMinThreshold(Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-250, lineCnec.computeMargin(300, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-150, lineCnec.computeMargin(-200, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
@@ -166,8 +188,12 @@ public class BranchCnecTest {
         thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.RIGHT, Direction.BOTH, 50));
         fillThresholdsAndSynchronize(transformerCnec);
 
+        assertEquals(86, transformerCnec.getMaxThreshold(Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-70, transformerCnec.getMinThreshold(Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-14, transformerCnec.computeMargin(100, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-30, transformerCnec.computeMargin(-100, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-70, transformerCnec.getMinThreshold(Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(86, transformerCnec.getMaxThreshold(Unit.AMPERE).get(), DOUBLE_TOLERANCE);
     }
 
     @Test
