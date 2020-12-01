@@ -18,8 +18,6 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import org.junit.Before;
@@ -44,21 +42,6 @@ public class CracCleanerTest {
     @Before
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-    }
-
-    @Test
-    public void testCracAliasesUtil() {
-        Crac crac = CracImporters.importCrac("crac-for-aliases.json", getClass().getResourceAsStream("/crac-for-aliases.json"));
-        Network network = Importers.loadNetwork("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
-
-        network.getBranch("FFR2AA1H DDE3AA1F 1").addAlias("FFR2AA1H DDE3AA1F HFSK JDV");
-        network.getBranch("DDE1AA1D DDE2AA1E 1").addAlias("DDE2AA1E DDE1AA1D DLJKSC H");
-
-        CracCleaner.cracAliasesUtil(crac, network);
-
-        assertEquals(1, network.getBranch("FFR1AA1G FFR3AA1I 1").getAliases().size());
-        assertEquals(2, network.getBranch("DDE1AA1D DDE2AA1E 1").getAliases().size());
-        assertEquals(3, network.getBranch("FFR2AA1H DDE3AA1F 1").getAliases().size());
     }
 
     @Test

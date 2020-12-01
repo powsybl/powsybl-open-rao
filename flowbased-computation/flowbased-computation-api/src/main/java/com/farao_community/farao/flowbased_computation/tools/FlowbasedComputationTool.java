@@ -9,6 +9,7 @@ package com.farao_community.farao.flowbased_computation.tools;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.data.crac_util.CracAliasesUtil;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
@@ -158,7 +159,7 @@ public class FlowbasedComputationTool implements Tool {
         Crac crac = CracImporters.importCrac(cracFile);
         if (line.hasOption(DEFINE_ALIASES)) {
             UcteAliasesCreation.createAliases(network);
-            CracCleaner.cracAliasesUtil(crac, network);
+            CracAliasesUtil.createAliases(crac, network);
             CracCleaner.cleanCrac(crac, network);
         }
         crac.synchronize(network);
