@@ -15,13 +15,13 @@ public enum CracCleaningFeature {
     CHECK_CNEC_MNEC(true),
     REMOVE_UNHANDLED_CONTINGENCIES(false);
 
-    boolean b;
+    boolean enabled;
 
-    CracCleaningFeature(boolean b) {
-        this.b = b;
+    CracCleaningFeature(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public boolean getBoolean() {
-        return b;
+        return enabled;
     }
 }

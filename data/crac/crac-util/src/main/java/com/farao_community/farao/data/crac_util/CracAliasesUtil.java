@@ -14,8 +14,7 @@ import com.powsybl.iidm.network.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.farao_community.farao.data.crac_util.UcteNodeMatchingRule.BEGINNING_OF_ELEMENT_NAME;
-import static com.farao_community.farao.data.crac_util.UcteNodeMatchingRule.FIRST_7_CHARACTER_EQUAL;
+import static com.farao_community.farao.data.crac_util.UcteNodeMatchingRule.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
