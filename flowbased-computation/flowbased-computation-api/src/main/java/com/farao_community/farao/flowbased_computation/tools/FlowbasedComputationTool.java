@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_util.CracAliasesUtil;
 import com.farao_community.farao.data.crac_util.CracCleaner;
+import com.farao_community.farao.data.crac_util.CracCleaningFeature;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
@@ -160,7 +161,10 @@ public class FlowbasedComputationTool implements Tool {
         if (line.hasOption(DEFINE_ALIASES)) {
             UcteAliasesCreation.createAliases(network);
             CracAliasesUtil.createAliases(crac, network);
-            CracCleaner.cleanCrac(crac, network);
+            CracCleaner cracCleaner = new CracCleaner();
+            cracCleaner.disableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
+            cracCleaner.enableFeature(CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES);
+            cracCleaner.cleanCrac(crac, network);
         }
         crac.synchronize(network);
         ZonalData<LinearGlsk> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);

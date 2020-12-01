@@ -22,14 +22,14 @@ import static com.farao_community.farao.data.crac_util.CracCleaningFeature.REMOV
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 
-public final class CracCleaner {
+public class CracCleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CracCleaner.class);
 
-    private CracCleaner() {
+    public CracCleaner() {
     }
 
-    public static List<String> cleanCrac(Crac crac, Network network) {
+    public List<String> cleanCrac(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
 
         // remove Cnec whose NetworkElement is absent from the network
@@ -42,7 +42,7 @@ public final class CracCleaner {
         });
         absentFromNetworkCnecs.forEach(cnec -> crac.removeCnec(cnec.getId()));
 
-        if (CHECK_CNEC_MNEC.getBoolean()) {
+        if (CHECK_CNEC_MNEC.isEnabled()) {
             // remove Cnecs that are neither optimized nor monitored
             ArrayList<Cnec> unmonitoredCnecs = new ArrayList<>();
             crac.getCnecs().forEach(cnec -> {
@@ -87,7 +87,7 @@ public final class CracCleaner {
                     absentFromNetworkOrUnhandledContingencies.add(contingency);
                     report.add(String.format("[REMOVED] Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
                 } else if (!(identifiable instanceof Branch || identifiable instanceof Generator || identifiable instanceof HvdcLine || identifiable instanceof BusbarSection || identifiable instanceof DanglingLine)) {
-                    if (!REMOVE_UNHANDLED_CONTINGENCIES.getBoolean()) {
+                    if (!REMOVE_UNHANDLED_CONTINGENCIES.isEnabled()) {
                         report.add(String.format("[WARNING] Contingency %s has a network element [%s] of unhandled type [%s]. This may result in unexpected behavior.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
                     } else {
                         absentFromNetworkOrUnhandledContingencies.add(contingency);
@@ -119,5 +119,13 @@ public final class CracCleaner {
         report.forEach(LOGGER::warn);
 
         return report;
+    }
+
+    public void enableFeature(CracCleaningFeature feature) {
+        feature.enable();
+    }
+
+    public void disableFeature(CracCleaningFeature feature) {
+        feature.disable();
     }
 }

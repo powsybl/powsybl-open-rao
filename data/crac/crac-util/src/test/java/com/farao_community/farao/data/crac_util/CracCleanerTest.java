@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -90,7 +89,7 @@ public class CracCleanerTest {
             "pstRangeName",
             "RTE",
             Collections.singletonList(new FreeToUse(UsageMethod.AVAILABLE, preventiveState)),
-            Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE)),
+            Collections.singletonList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("pst")
         );
 
@@ -104,7 +103,8 @@ public class CracCleanerTest {
         assertEquals(3, simpleCrac.getContingencies().size());
         assertEquals(3, simpleCrac.getStates().size());
 
-        List<String> qualityReport = CracCleaner.cleanCrac(simpleCrac, network);
+        CracCleaner cracCleaner = new CracCleaner();
+        List<String> qualityReport = cracCleaner.cleanCrac(simpleCrac, network);
 
         assertEquals(1, simpleCrac.getCnecs().size());
         assertEquals(1, simpleCrac.getNetworkActions().size());
@@ -147,7 +147,8 @@ public class CracCleanerTest {
             .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
             .setInstant(inst)
             .add();
-        List<String> qualityReport = CracCleaner.cleanCrac(crac, network);
+        CracCleaner cracCleaner = new CracCleaner();
+        List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
         assertEquals(1, qualityReport.size());
         assertEquals(3, crac.getCnecs().size());
         assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));

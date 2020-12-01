@@ -21,7 +21,15 @@ public enum CracCleaningFeature {
         this.enabled = enabled;
     }
 
-    public boolean getBoolean() {
+    public boolean isEnabled() {
         return enabled;
+    }
+
+    public void enable() {
+        enabled = true;
+    }
+
+    public void disable() {
+        enabled = false;
     }
 }
