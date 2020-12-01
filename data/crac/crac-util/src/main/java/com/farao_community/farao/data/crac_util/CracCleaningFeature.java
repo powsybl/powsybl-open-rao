@@ -12,6 +12,16 @@ package com.farao_community.farao.data.crac_util;
  */
 
 public enum CracCleaningFeature {
-    CHECK_CNEC_MNEC,
-    REMOVE_UNHANDLED_CONTINGENCIES
+    CHECK_CNEC_MNEC(true),
+    REMOVE_UNHANDLED_CONTINGENCIES(false);
+
+    boolean b;
+
+    CracCleaningFeature(boolean b) {
+        this.b = b;
+    }
+
+    public boolean getBoolean() {
+        return b;
+    }
 }

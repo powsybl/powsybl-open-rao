@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.farao_community.farao.data.crac_util.CracCleaningFeature.CHECK_CNEC_MNEC;
+import static com.farao_community.farao.data.crac_util.CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES;
+
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
@@ -39,15 +42,17 @@ public final class CracCleaner {
         });
         absentFromNetworkCnecs.forEach(cnec -> crac.removeCnec(cnec.getId()));
 
-        // remove Cnecs that are neither optimized nor monitored
-        ArrayList<Cnec> unmonitoredCnecs = new ArrayList<>();
-        crac.getCnecs().forEach(cnec -> {
-            if (!cnec.isOptimized() && !cnec.isMonitored()) {
-                unmonitoredCnecs.add(cnec);
-                report.add(String.format("[REMOVED] Cnec %s with network element [%s] is neither optimized nor monitored. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
-            }
-        });
-        unmonitoredCnecs.forEach(cnec -> crac.removeCnec(cnec.getId()));
+        if (CHECK_CNEC_MNEC.getBoolean()) {
+            // remove Cnecs that are neither optimized nor monitored
+            ArrayList<Cnec> unmonitoredCnecs = new ArrayList<>();
+            crac.getCnecs().forEach(cnec -> {
+                if (!cnec.isOptimized() && !cnec.isMonitored()) {
+                    unmonitoredCnecs.add(cnec);
+                    report.add(String.format("[REMOVED] Cnec %s with network element [%s] is neither optimized nor monitored. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
+                }
+            });
+            unmonitoredCnecs.forEach(cnec -> crac.removeCnec(cnec.getId()));
+        }
 
         // remove RangeAction whose NetworkElement is absent from the network
         ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
@@ -74,20 +79,25 @@ public final class CracCleaner {
         absentFromNetworkNetworkActions.forEach(networkAction -> crac.removeNetworkAction(networkAction.getId()));
 
         // remove Contingencies whose NetworkElement is absent from the network or does not fit a valid Powsybl Contingency
-        Set<Contingency> absentFromNetworkContingencies = new HashSet<>();
+        Set<Contingency> absentFromNetworkOrUnhandledContingencies = new HashSet<>();
         for (Contingency contingency : crac.getContingencies()) {
             contingency.getNetworkElements().forEach(networkElement -> {
                 Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
                 if (identifiable == null) {
-                    absentFromNetworkContingencies.add(contingency);
+                    absentFromNetworkOrUnhandledContingencies.add(contingency);
                     report.add(String.format("[REMOVED] Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
                 } else if (!(identifiable instanceof Branch || identifiable instanceof Generator || identifiable instanceof HvdcLine || identifiable instanceof BusbarSection || identifiable instanceof DanglingLine)) {
-                    report.add(String.format("[WARNING] Contingency %s has a network element [%s] of unhandled type [%s]. This may result in unexpected behavior.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
+                    if (!REMOVE_UNHANDLED_CONTINGENCIES.getBoolean()) {
+                        report.add(String.format("[WARNING] Contingency %s has a network element [%s] of unhandled type [%s]. This may result in unexpected behavior.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
+                    } else {
+                        absentFromNetworkOrUnhandledContingencies.add(contingency);
+                        report.add(String.format("[REMOVED] Contingency %s has a network element [%s] of unhandled type [%s].  It is removed from the Crac.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
+                    }
                 }
             });
         }
 
-        absentFromNetworkContingencies.forEach(contingency ->  {
+        absentFromNetworkOrUnhandledContingencies.forEach(contingency ->  {
             crac.getStatesFromContingency(contingency.getId()).forEach(state -> {
                 crac.getCnecs(state).forEach(cnec -> {
                     crac.removeCnec(cnec.getId());
