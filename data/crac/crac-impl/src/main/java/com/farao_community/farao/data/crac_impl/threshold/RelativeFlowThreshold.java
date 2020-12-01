@@ -46,8 +46,19 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         initPercentageOfMax(percentageOfMax);
     }
 
+    public RelativeFlowThreshold(Direction direction, double percentageOfMax) {
+        super(Unit.AMPERE, Side.LEFT, direction);
+        initPercentageOfMax(percentageOfMax);
+    }
+
     public RelativeFlowThreshold(NetworkElement networkElement, Side side, Direction direction, double percentageOfMax, double frmInMw) {
         super(Unit.AMPERE, networkElement, side, direction);
+        initPercentageOfMax(percentageOfMax);
+        this.frmInMW = frmInMw;
+    }
+
+    public RelativeFlowThreshold(NetworkElement networkElement, Direction direction, double percentageOfMax, double frmInMw) {
+        super(Unit.AMPERE, networkElement, Side.LEFT, direction);
         initPercentageOfMax(percentageOfMax);
         this.frmInMW = frmInMw;
     }

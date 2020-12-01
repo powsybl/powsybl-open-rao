@@ -31,6 +31,9 @@ import java.util.Optional;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = AbsoluteFlowThreshold.class, name = "absolute-flow-threshold"),
+        @JsonSubTypes.Type(value = AbsoluteHighVoltageLevelThreshold.class, name = "absolute-high-voltage-threshold"),
+        @JsonSubTypes.Type(value = AbsoluteLowVoltageLevelThreshold.class, name = "absolute-low-voltage-threshold"),
+        @JsonSubTypes.Type(value = AbsoluteFlowThresholdOnNonRegulatedSide.class, name = "absolute-flow-threshold-on-non-regulated-side"),
         @JsonSubTypes.Type(value = RelativeFlowThreshold.class, name = "relative-flow-threshold")
     })
 public abstract class AbstractFlowThreshold extends AbstractThreshold {
@@ -78,16 +81,14 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     public Optional<Double> getMinThreshold(Unit requestedUnit) {
         // patch added: for the moment, the FRM can only be handled for the Cnecs with all thresholds in MW
         // TODO: remove this patch when appropriate development is done in our application (see technical debt)
-        double temporaryFrmInMW = 0;
         if (direction == Direction.DIRECT) {
             return Optional.empty();
         } else { // Direction.OPPOSITE and Direction.BOTH
+            double temporaryFrmInMW = 0;
             if (frmInMW > 0) {
                 temporaryFrmInMW = convert(frmInMW, Unit.MEGAWATT, requestedUnit);
             }
-            return Optional.of(
-                    temporaryFrmInMW
-                    - convert(getAbsoluteMax(), unit, requestedUnit));
+            return Optional.of(temporaryFrmInMW - convert(getAbsoluteMax(), unit, requestedUnit));
         }
     }
 
@@ -95,16 +96,14 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
     public Optional<Double> getMaxThreshold(Unit requestedUnit) {
         // patch added: for the moment, the FRM can only be handled for the Cnecs with all thresholds in MW
         // TODO: remove this patch when appropriate development is done in our application (see technical debt)
-        double temporaryFrmInMW = 0;
         if (direction == Direction.OPPOSITE) {
             return Optional.empty();
         } else { // Direction.DIRECT and Direction.BOTH
+            double temporaryFrmInMW = 0;
             if (frmInMW > 0) {
                 temporaryFrmInMW = convert(frmInMW, Unit.MEGAWATT, requestedUnit);
             }
-            return Optional.of(
-                    convert(getAbsoluteMax(), unit, requestedUnit)
-                    - temporaryFrmInMW);
+            return Optional.of(convert(getAbsoluteMax(), unit, requestedUnit) - temporaryFrmInMW);
         }
     }
 
@@ -238,15 +237,13 @@ public abstract class AbstractFlowThreshold extends AbstractThreshold {
             result = threshold.networkElement == null;
         }
         return result && unit.equals(threshold.unit)
-            && side.equals(threshold.side)
-                && direction.equals(threshold.direction)
-                && frmInMW == (threshold.frmInMW);
+            && direction.equals(threshold.direction)
+            && frmInMW == (threshold.frmInMW);
     }
 
     @Override
     public int hashCode() {
         int result = unit.hashCode();
-        result = 31 * result + side.hashCode();
         result = 31 * result + direction.hashCode();
         result += frmInMW;
         return result;

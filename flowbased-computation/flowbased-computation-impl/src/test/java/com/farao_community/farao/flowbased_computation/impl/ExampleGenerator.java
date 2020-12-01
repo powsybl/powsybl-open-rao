@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.*;

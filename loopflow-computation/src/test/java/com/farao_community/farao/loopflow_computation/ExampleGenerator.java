@@ -14,6 +14,7 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceExchang
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.mockito.Mockito;
 

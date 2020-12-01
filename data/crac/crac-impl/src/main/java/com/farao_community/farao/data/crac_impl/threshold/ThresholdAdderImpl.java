@@ -24,6 +24,8 @@ public class ThresholdAdderImpl implements ThresholdAdder {
     private Unit unit;
     private Double maxValue;
     private Side side;
+    private VoltageLevel voltageLevel;
+    private boolean regulatedSide = true;
     private Direction direction;
 
     public ThresholdAdderImpl(BranchCnecAdder parent) {
@@ -45,8 +47,20 @@ public class ThresholdAdderImpl implements ThresholdAdder {
     }
 
     @Override
+    public ThresholdAdder onNonRegulatedSide() {
+        this.regulatedSide = false;
+        return this;
+    }
+
+    @Override
     public ThresholdAdder setSide(Side side) {
         this.side = side;
+        return this;
+    }
+
+    @Override
+    public ThresholdAdder setVoltageLevel(VoltageLevel voltageLevel) {
+        this.voltageLevel = voltageLevel;
         return this;
     }
 
@@ -64,16 +78,28 @@ public class ThresholdAdderImpl implements ThresholdAdder {
         if (this.maxValue == null) {
             throw new FaraoException("Cannot add a threshold without a value. Please use setMaxValue.");
         }
-        if (this.side == null) {
-            throw new FaraoException("Cannot add a threshold without a side. Please use setSide.");
-        }
         if (this.direction == null) {
             throw new FaraoException("Cannot add a threshold without a direction. Please use setDirection.");
         }
         if (this.unit == Unit.PERCENT_IMAX) {
+            if (this.side == null) {
+                parent.addThreshold(new RelativeFlowThreshold(Side.LEFT, this.direction, this.maxValue));
+            }
             parent.addThreshold(new RelativeFlowThreshold(this.side, this.direction, this.maxValue));
         } else {
-            parent.addThreshold(new AbsoluteFlowThreshold(this.unit, this.side, this.direction, this.maxValue));
+            if (voltageLevel != null) {
+                if (voltageLevel.equals(VoltageLevel.HIGH)) {
+                    parent.addThreshold(new AbsoluteHighVoltageLevelThreshold(this.unit, this.direction, this.maxValue));
+                } else {
+                    parent.addThreshold(new AbsoluteLowVoltageLevelThreshold(this.unit, this.direction, this.maxValue));
+                }
+            } else if (this.side != null) {
+                parent.addThreshold(new AbsoluteFlowThreshold(this.unit, this.side, this.direction, this.maxValue));
+            } else if (!regulatedSide) {
+                parent.addThreshold(new AbsoluteFlowThresholdOnNonRegulatedSide(this.unit, this.direction, this.maxValue));
+            } else {
+                throw new FaraoException("Cannot add an absolute threshold without a side or a voltage level on regulated side. Please use setSide or setVoltageLevel.");
+            }
         }
         return parent;
     }

@@ -28,12 +28,21 @@ public interface ThresholdAdder {
      */
     ThresholdAdder setMaxValue(Double maxValue);
 
+    ThresholdAdder onNonRegulatedSide();
+
     /**
      * Set the side of the threshold to add to cnec
      * @param side: side of threshold
      * @return the {@code ThresholdAdder} instance
      */
     ThresholdAdder setSide(Side side);
+
+    /**
+     * Set the voltage level on which it should be applied
+     * @param voltageLevel: can be either LOW or HIGH
+     * @return the {@code ThresholdAdder} instance
+     */
+    ThresholdAdder setVoltageLevel(VoltageLevel voltageLevel);
 
     /**
      * Set the direction of the threshold to add to cnec

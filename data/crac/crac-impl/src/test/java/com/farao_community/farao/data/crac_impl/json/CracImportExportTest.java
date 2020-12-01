@@ -17,9 +17,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.P
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
-import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.*;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
@@ -58,6 +56,8 @@ public class CracImportExportTest {
         Set<AbstractFlowThreshold> thresholds = new HashSet<>();
         thresholds.add(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30));
         thresholds.add(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800));
+        thresholds.add(new AbsoluteHighVoltageLevelThreshold(Unit.AMPERE, Direction.OPPOSITE, 800));
+        thresholds.add(new AbsoluteLowVoltageLevelThreshold(Unit.AMPERE, Direction.DIRECT, 1200));
 
         simpleCrac.addCnec("cnec2prev", "neId2", thresholds, preventiveState.getId());
         simpleCrac.addCnec("cnec1cur", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800)), postContingencyState.getId());
@@ -135,6 +135,7 @@ public class CracImportExportTest {
         assertEquals(5, crac.getCnecs().size());
         assertEquals(2, crac.getRangeActions().size());
         assertEquals(2, crac.getNetworkActions().size());
+        assertEquals(4, ((BranchCnec) crac.getCnec("cnec2prev")).getThresholds().size());
         assertTrue(crac.getCnec("cnec4prevId").getMaxThreshold(Unit.MEGAWATT).get()
                 > crac.getCnec("cnec3prevId").getMaxThreshold(Unit.MEGAWATT).get());
         assertFalse(crac.getCnec("cnec3prevId").isOptimized());

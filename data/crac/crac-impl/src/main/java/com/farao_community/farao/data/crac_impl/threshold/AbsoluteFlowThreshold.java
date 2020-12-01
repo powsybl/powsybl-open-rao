@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeName("absolute-flow-threshold")
 public class AbsoluteFlowThreshold extends AbstractFlowThreshold {
-    private double maxValue;
+    protected double maxValue;
 
     @JsonCreator
     public AbsoluteFlowThreshold(@JsonProperty("unit") Unit unit,
