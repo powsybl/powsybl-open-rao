@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Direction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -59,7 +60,7 @@ public class MnecFillerTest extends AbstractFillerTest {
         mnec2 = crac.getCnec("MNEC2 - N - preventive");
 
         crac.desynchronize();
-        RaoInputHelper.cleanCrac(crac, network);
+        CracCleaner.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
         initRaoData(crac.getPreventiveState());

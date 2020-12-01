@@ -17,7 +17,6 @@ import com.farao_community.farao.flowbased_computation.FlowbasedComputationParam
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputationParameters;
 
-import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.google.auto.service.AutoService;
 
 import com.powsybl.iidm.import_.Importers;
@@ -160,7 +159,7 @@ public class FlowbasedComputationTool implements Tool {
         if (line.hasOption(DEFINE_ALIASES)) {
             UcteAliasesCreation.createAliases(network);
             CracCleaner.cracAliasesUtil(crac, network);
-            RaoInputHelper.cleanCrac(crac, network);
+            CracCleaner.cleanCrac(crac, network);
         }
         crac.synchronize(network);
         ZonalData<LinearGlsk> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);
