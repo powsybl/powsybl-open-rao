@@ -31,13 +31,19 @@ public final class CracAliasesUtil {
         // List (without duplicates) all the crac elements that need to be found in the network
         Set<String> elementIds = new HashSet<>();
         crac.getCnecs().forEach(cnec -> elementIds.add(cnec.getNetworkElement().getId()));
-        crac.getContingencies().forEach(contingency -> contingency.getNetworkElements().forEach(networkElement -> elementIds.add(networkElement.getId())));
+        crac.getContingencies().forEach(contingency -> handleAliases(contingency.getNetworkElements(), elementIds));
+        crac.getNetworkActions().forEach(networkAction -> handleAliases(networkAction.getNetworkElements(), elementIds));
+        crac.getRangeActions().forEach(rangeAction -> handleAliases(rangeAction.getNetworkElements(), elementIds));
 
         // Try to find a corresponding element in the network, and add elementId as an alias
         elementIds.forEach(elementId -> {
             Optional<Identifiable<?>> correspondingElement = network.getIdentifiables().stream().filter(identifiable -> anyMatch(identifiable, elementId)).findAny();
             correspondingElement.ifPresent(identifiable -> identifiable.addAlias(elementId));
         });
+    }
+
+    private static void handleAliases(Set<NetworkElement> networkElements, Set<String> elementIds) {
+        networkElements.forEach(networkElement -> elementIds.add(networkElement.getId()));
     }
 
     /* It only works correctly for Cnec with direction = both. This corrupts the other Cnec.
