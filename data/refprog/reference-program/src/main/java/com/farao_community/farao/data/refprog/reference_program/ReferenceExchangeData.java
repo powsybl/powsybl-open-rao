@@ -54,4 +54,8 @@ public class ReferenceExchangeData {
     boolean isAreaOutToAreaInExchange(Country areaOutId, Country areaInId) {
         return this.areaIn != null && this.areaOut != null && this.areaIn.equals(areaInId) && this.areaOut.equals(areaOutId);
     }
+
+    public boolean isVirtualHub() {
+        return false; // TODO: implement this function
+    }
 }
