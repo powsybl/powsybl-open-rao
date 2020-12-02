@@ -14,8 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * The remedial action is available only after a specific contingency, with a given method
- * and in a given state.
+ * The UsageMethod of the OnStateImpl UsageRule is only effective in a given State.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */

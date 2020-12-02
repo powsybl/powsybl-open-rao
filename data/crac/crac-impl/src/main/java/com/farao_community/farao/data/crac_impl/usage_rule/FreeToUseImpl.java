@@ -16,7 +16,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * The remedial action is free to use with a given method and in a given state.
+ * The UsageMethod of the FreeToUseImpl UsageRule is effective in all the States which
+ * are at a given Instant.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
