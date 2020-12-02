@@ -49,7 +49,7 @@ public class FreeToUseImplTest {
     public void testEqualsFalseNotTheSameObject() {
         FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, new Instant("initial-instant", 0));
 
-        assertFalse(rule1.equals(new Instant("fail", 10)));
+        assertNotEquals(rule1, new Instant("fail", 10));
     }
 
     @Test

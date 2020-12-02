@@ -26,7 +26,7 @@ public abstract class AbstractUsageRule implements UsageRule {
 
     protected UsageMethod usageMethod;
 
-    public AbstractUsageRule(UsageMethod usageMethod) {
+    protected AbstractUsageRule(UsageMethod usageMethod) {
         this.usageMethod = usageMethod;
     }
 
