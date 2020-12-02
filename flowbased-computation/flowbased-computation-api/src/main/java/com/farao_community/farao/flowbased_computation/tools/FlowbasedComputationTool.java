@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_util.CracAliasesUtil;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.crac_util.CracCleaningFeature;
+import com.farao_community.farao.data.crac_util.UcteNodeMatchingRule;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
@@ -160,7 +161,7 @@ public class FlowbasedComputationTool implements Tool {
         Crac crac = CracImporters.importCrac(cracFile);
         if (line.hasOption(DEFINE_ALIASES)) {
             UcteAliasesCreation.createAliases(network);
-            CracAliasesUtil.createAliases(crac, network);
+            CracAliasesUtil.createAliases(crac, network, UcteNodeMatchingRule.FIRST_7_CHARACTER_EQUAL);
             CracCleaner cracCleaner = new CracCleaner();
             cracCleaner.disableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
             cracCleaner.enableFeature(CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES);

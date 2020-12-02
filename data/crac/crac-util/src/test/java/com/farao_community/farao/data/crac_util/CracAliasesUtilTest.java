@@ -29,7 +29,7 @@ public class CracAliasesUtilTest {
         network.getBranch("FFR2AA1H DDE3AA1F 1").addAlias("FFR2AA1H DDE3AA1F HFSK JDV");
         network.getBranch("DDE1AA1D DDE2AA1E 1").addAlias("DDE2AA1E DDE1AA1D DLJKSC H");
 
-        CracAliasesUtil.createAliases(crac, network);
+        CracAliasesUtil.createAliases(crac, network, UcteNodeMatchingRule.FIRST_7_CHARACTER_EQUAL);
 
         assertEquals(1, network.getBranch("FFR1AA1G FFR3AA1I 1").getAliases().size());
         assertEquals(2, network.getBranch("DDE1AA1D DDE2AA1E 1").getAliases().size());
