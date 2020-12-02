@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_impl.usage_rule;
 
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnStateSerializer;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -21,14 +21,42 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 @JsonTypeName("on-state")
 @JsonSerialize(using = OnStateSerializer.class)
-public final class OnState extends AbstractUsageRule {
+public final class OnStateImpl extends AbstractUsageRule {
 
-    public OnState(UsageMethod usageMethod, State state) {
-        super(usageMethod, state);
+    private State state;
+
+    public OnStateImpl(UsageMethod usageMethod, State state) {
+        super(usageMethod);
+        this.state = state;
     }
 
     @Override
     public UsageMethod getUsageMethod(State state) {
         return this.state.equals(state) ? usageMethod : UsageMethod.UNDEFINED;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OnStateImpl rule = (OnStateImpl) o;
+        return super.equals(o) && rule.getState().equals(state);
+    }
+
+    @Override
+    public int hashCode() {
+        return usageMethod.hashCode() * 19 + state.hashCode() * 47;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 }

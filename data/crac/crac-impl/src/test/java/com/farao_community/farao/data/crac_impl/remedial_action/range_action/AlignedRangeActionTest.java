@@ -8,9 +8,9 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class AlignedRangeActionTest {
 
         String complexRangeActionOperator = "cra_operator";
 
-        UsageRule freeToUse = Mockito.mock(FreeToUse.class);
+        UsageRule freeToUse = Mockito.mock(FreeToUseImpl.class);
         List<UsageRule> usageRuleList = new ArrayList<>(Collections.singletonList(freeToUse));
 
         mockedNetwork = Mockito.mock(Network.class);

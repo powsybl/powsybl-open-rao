@@ -116,6 +116,8 @@ public final class RaoInputHelper {
         });
         noValidAction.forEach(networkAction -> crac.removeNetworkAction(networkAction.getId()));
 
+        // remove onContingency Remedial Action
+
         report.forEach(LOGGER::warn);
 
         return report;

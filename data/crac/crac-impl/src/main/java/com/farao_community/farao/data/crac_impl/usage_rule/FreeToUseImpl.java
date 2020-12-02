@@ -7,8 +7,10 @@
 
 package com.farao_community.farao.data.crac_impl.usage_rule;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.FreeToUseSerializer;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -20,10 +22,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 @JsonTypeName("free-to-use")
 @JsonSerialize(using = FreeToUseSerializer.class)
-public final class FreeToUse extends AbstractUsageRule {
+public final class FreeToUseImpl extends AbstractUsageRule implements FreeToUse {
 
-    public FreeToUse(UsageMethod usageMethod, State state) {
-        super(usageMethod, state);
+    private Instant instant;
+
+    public FreeToUseImpl(UsageMethod usageMethod, Instant instant) {
+        super(usageMethod);
+        this.instant = instant;
     }
 
     @Override
@@ -34,16 +39,26 @@ public final class FreeToUse extends AbstractUsageRule {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return super.equals(o);
+        FreeToUseImpl rule = (FreeToUseImpl) o;
+        return super.equals(o) && rule.getInstant().equals(instant);
     }
 
     @Override
     public int hashCode() {
-        return usageMethod.hashCode() * 19 + state.hashCode() * 47;
+        return usageMethod.hashCode() * 19 + instant.hashCode() * 47;
     }
 
     @Override
     public UsageMethod getUsageMethod(State state) {
-        return this.state.equals(state) ? usageMethod : UsageMethod.UNDEFINED;
+        return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
+    }
+
+    @Override
+    public Instant getInstant() {
+        return instant;
+    }
+
+    public void setIntant(Instant instant) {
+        this.instant = instant;
     }
 }
