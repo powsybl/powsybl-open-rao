@@ -9,6 +9,9 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+
+import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
+
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -22,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -74,6 +78,24 @@ public class LoopFlowComputation {
     }
 
     private List<LinearGlsk> getValidGlsks() {
+        List<LinearGlsk> linearGlsksFromRealCountry = getRealCountryGlsks();
+        List<LinearGlsk> linearGlsksFromVirtualHubs = getVirtualHubGlsks();
+        return Stream.concat(linearGlsksFromRealCountry.stream(), linearGlsksFromVirtualHubs.stream()).collect(Collectors.toList());
+    }
+
+    private List<LinearGlsk> getVirtualHubGlsks() {
+        List<LinearGlsk> virtualHubGlsks = new ArrayList<>();
+        // Extract from the referenceExchangeDataList the ones that are described in the virtualhubs
+        List<ReferenceExchangeData> referenceExchangesFromVirtualHubs = referenceProgram.getReferenceExchangeDataList().stream().filter(ReferenceExchangeData::isVirtualHub).collect(Collectors.toList());
+        referenceExchangesFromVirtualHubs.forEach(referenceExchangeData -> virtualHubGlsks.add(getVirtualHubGlsk(referenceExchangeData)));
+        return virtualHubGlsks;
+    }
+
+    private LinearGlsk getVirtualHubGlsk(ReferenceExchangeData referenceExchangeData) {
+        return null; //TODO: implement this function
+    }
+
+    private List<LinearGlsk> getRealCountryGlsks() {
         return glsk.getDataPerZone().values().stream().filter(linearGlsk -> {
             if (!referenceProgram.getListOfCountries().contains(glskToCountry(linearGlsk))) {
                 LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding country was found in the ReferenceProgram", linearGlsk.getId()));
@@ -82,6 +104,7 @@ public class LoopFlowComputation {
             return true;
         }).collect(Collectors.toList());
     }
+
 }
 
 
