@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.glsk.ucte;
 
 import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -65,5 +66,21 @@ public class UcteGlskValueProviderTest {
         ZonalData<LinearGlsk> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
             .getZonalGlsks(network, instant);
         assertTrue(ucteGlskProvider.getDataPerZone().isEmpty());
+    }
+
+    @Test
+    public void testMultiGskSeries() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Instant instant = Instant.parse("2016-07-29T10:00:00Z");
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestMultiGskSeries.xml"));
+        ZonalData<Scalable> ucteScalableProvider = ucteGlskDocument.getZonalScalable(network, instant);
+        assertEquals(2, ucteScalableProvider.getData("10YFR-RTE------C").filterInjections(network).size());
+        assertTrue(ucteScalableProvider.getData("10YFR-RTE------C").filterInjections(network).contains(network.getGenerator("FFR1AA1 _generator")));
+        assertTrue(ucteScalableProvider.getData("10YFR-RTE------C").filterInjections(network).contains(network.getGenerator("FFR2AA1 _generator")));
+
+        ZonalData<LinearGlsk> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
+        assertEquals(2, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
+        assertEquals(0.5, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
+        assertEquals(0.5, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _generator"), EPSILON);
     }
 }
