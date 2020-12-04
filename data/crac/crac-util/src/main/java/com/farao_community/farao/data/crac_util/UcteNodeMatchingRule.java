@@ -14,8 +14,7 @@ package com.farao_community.farao.data.crac_util;
 public enum UcteNodeMatchingRule {
 
     FIRST_7_CHARACTER_EQUAL(7),
-    ALL_8_CHARACTER_EQUAL(8),
-    BEGINNING_OF_ELEMENT_NAME(17);
+    ALL_8_CHARACTER_EQUAL(8);
 
     private final int value;
 

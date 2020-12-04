@@ -9,7 +9,7 @@ package com.farao_community.farao.flowbased_computation.tools;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.crac_util.CracAliasesUtil;
+import com.farao_community.farao.data.crac_util.CracAliasesCreator;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.crac_util.CracCleaningFeature;
 import com.farao_community.farao.data.crac_util.UcteNodeMatchingRule;
@@ -161,7 +161,8 @@ public class FlowbasedComputationTool implements Tool {
         Crac crac = CracImporters.importCrac(cracFile);
         if (line.hasOption(DEFINE_ALIASES)) {
             UcteAliasesCreation.createAliases(network);
-            CracAliasesUtil.createAliases(crac, network, UcteNodeMatchingRule.FIRST_7_CHARACTER_EQUAL);
+            CracAliasesCreator cracAliasesCreator = new CracAliasesCreator();
+            cracAliasesCreator.createAliases(crac, network, UcteNodeMatchingRule.FIRST_7_CHARACTER_EQUAL);
             CracCleaner cracCleaner = new CracCleaner();
             cracCleaner.disableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
             cracCleaner.enableFeature(CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES);

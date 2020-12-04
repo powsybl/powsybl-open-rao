@@ -87,11 +87,11 @@ public class CracCleaner {
                     absentFromNetworkOrUnhandledContingencies.add(contingency);
                     report.add(String.format("[REMOVED] Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
                 } else if (!(identifiable instanceof Branch || identifiable instanceof Generator || identifiable instanceof HvdcLine || identifiable instanceof BusbarSection || identifiable instanceof DanglingLine)) {
-                    if (!REMOVE_UNHANDLED_CONTINGENCIES.isEnabled()) {
-                        report.add(String.format("[WARNING] Contingency %s has a network element [%s] of unhandled type [%s]. This may result in unexpected behavior.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
-                    } else {
+                    if (REMOVE_UNHANDLED_CONTINGENCIES.isEnabled()) {
                         absentFromNetworkOrUnhandledContingencies.add(contingency);
                         report.add(String.format("[REMOVED] Contingency %s has a network element [%s] of unhandled type [%s].  It is removed from the Crac.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
+                    } else {
+                        report.add(String.format("[WARNING] Contingency %s has a network element [%s] of unhandled type [%s]. This may result in unexpected behavior.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
                     }
                 }
             });

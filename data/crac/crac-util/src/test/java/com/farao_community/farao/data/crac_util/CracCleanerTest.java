@@ -122,8 +122,7 @@ public class CracCleanerTest {
         assertEquals(7, removedCount);
     }
 
-    @Test
-    public void testRemoveUnmonitoredCnecs() {
+    private Crac createTestCrac() {
         CracFactory factory = CracFactory.find("SimpleCracFactory");
         Crac crac = factory.create("test-crac");
         Instant inst = crac.newInstant().setId("inst1").setSeconds(10).add();
@@ -147,10 +146,27 @@ public class CracCleanerTest {
             .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
             .setInstant(inst)
             .add();
+
+        return crac;
+    }
+
+    @Test
+    public void testRemoveUnmonitoredCnecs() {
+        Crac crac = createTestCrac();
         CracCleaner cracCleaner = new CracCleaner();
         List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
         assertEquals(1, qualityReport.size());
         assertEquals(3, crac.getCnecs().size());
         assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));
     }
+
+    /*@Test
+    public void testIgnoreRemoveUnmonitoredCnecs() {
+        Crac crac = createTestCrac();
+        CracCleaner cracCleaner = new CracCleaner();
+        cracCleaner.disableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
+        List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
+        assertEquals(0, qualityReport.size());
+        assertEquals(4, crac.getCnecs().size());
+    }*/
 }
