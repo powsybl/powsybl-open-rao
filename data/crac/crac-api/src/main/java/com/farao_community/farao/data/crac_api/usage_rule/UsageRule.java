@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- * The UsageRule define conditions under which a RemedialAction can be used.
+ * The UsageRule defines conditions under which a RemedialAction can be used.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */

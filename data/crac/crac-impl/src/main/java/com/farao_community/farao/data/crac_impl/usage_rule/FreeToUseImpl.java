@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * are at a given Instant.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @JsonTypeName("free-to-use")
 @JsonSerialize(using = FreeToUseSerializer.class)
