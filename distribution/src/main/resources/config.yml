@@ -9,7 +9,7 @@ load-flow:
 load-flow-default-parameters:
     voltageInitMode: DC_VALUES
     transformerVoltageControlOn: false
-    dcMode: false
+    dcMode: true
     balanceType: PROPORTIONAL_TO_GENERATION_P
 
 hades2-default-parameters:
