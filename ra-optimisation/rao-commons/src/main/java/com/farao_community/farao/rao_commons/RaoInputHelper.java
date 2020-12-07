@@ -118,6 +118,8 @@ public final class RaoInputHelper {
         });
         notValidAction.forEach(networkAction -> crac.removeNetworkAction(networkAction.getId()));
 
+        // todo : remove State whose contingency does not exist anymore
+        // todo : remove onState remedial action whose state does not exist anymore
         summary.forEach(LOGGER::warn);
 
         return summary;

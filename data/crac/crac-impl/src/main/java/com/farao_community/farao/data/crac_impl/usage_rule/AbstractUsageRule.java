@@ -7,9 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl.usage_rule;
 
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -20,18 +19,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FreeToUse.class, name = "free-to-use"),
-        @JsonSubTypes.Type(value = OnConstraint.class, name = "on-constraint"),
-        @JsonSubTypes.Type(value = OnState.class, name = "on-state")
+        @JsonSubTypes.Type(value = FreeToUseImpl.class, name = "free-to-use"),
+        @JsonSubTypes.Type(value = OnStateImpl.class, name = "on-state")
     })
 public abstract class AbstractUsageRule implements UsageRule {
 
     protected UsageMethod usageMethod;
-    protected State state;
 
-    public AbstractUsageRule(UsageMethod usageMethod, State state) {
+    protected AbstractUsageRule(UsageMethod usageMethod) {
         this.usageMethod = usageMethod;
-        this.state = state;
     }
 
     @Override
@@ -44,15 +40,6 @@ public abstract class AbstractUsageRule implements UsageRule {
     }
 
     @Override
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -61,11 +48,11 @@ public abstract class AbstractUsageRule implements UsageRule {
             return false;
         }
         AbstractUsageRule rule = (AbstractUsageRule) o;
-        return usageMethod.equals(rule.getUsageMethod()) && state.equals(rule.getState());
+        return usageMethod.equals(rule.getUsageMethod());
     }
 
     @Override
     public int hashCode()  {
-        return usageMethod.hashCode() * 23 + state.hashCode() * 53;
+        return usageMethod.hashCode() * 23;
     }
 }
