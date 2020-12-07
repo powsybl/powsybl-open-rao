@@ -151,16 +151,6 @@ public class CracCleanerTest {
     }
 
     @Test
-    public void testRemoveUnmonitoredCnecs() {
-        Crac crac = createTestCrac();
-        CracCleaner cracCleaner = new CracCleaner();
-        List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
-        assertEquals(1, qualityReport.size());
-        assertEquals(3, crac.getCnecs().size());
-        assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));
-    }
-
-    /*@Test
     public void testIgnoreRemoveUnmonitoredCnecs() {
         Crac crac = createTestCrac();
         CracCleaner cracCleaner = new CracCleaner();
@@ -168,5 +158,16 @@ public class CracCleanerTest {
         List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
         assertEquals(0, qualityReport.size());
         assertEquals(4, crac.getCnecs().size());
-    }*/
+    }
+
+    @Test
+    public void testRemoveUnmonitoredCnecs() {
+        Crac crac = createTestCrac();
+        CracCleaner cracCleaner = new CracCleaner();
+        cracCleaner.enableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
+        List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
+        assertEquals(1, qualityReport.size());
+        assertEquals(3, crac.getCnecs().size());
+        assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));
+    }
 }
