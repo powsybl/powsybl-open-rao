@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCnecSerializer;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.fasterxml.jackson.annotation.*;
@@ -430,13 +431,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     public void addNetworkAction(NetworkAction networkAction) {
-        networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);
         networkActions.put(networkAction.getId(), networkAction);
     }
 
     public void addRangeAction(RangeAction rangeAction) {
-        rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         rangeActions.put(rangeAction.getId(), rangeAction);
     }
 

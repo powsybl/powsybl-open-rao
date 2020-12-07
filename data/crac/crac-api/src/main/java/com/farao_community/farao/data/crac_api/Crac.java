@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
