@@ -11,8 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.UsageMethod;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -62,8 +62,8 @@ public class PstRangeActionAdderImplTest {
         // Verify that the PST is free to use
         // TODO : change this when usage rules are implemented
         assertEquals(1, crac.getRangeAction("id1").getUsageRules().size());
-        assertEquals(FreeToUse.class, crac.getRangeAction("id1").getUsageRules().get(0).getClass());
-        FreeToUse usageRule = (FreeToUse) crac.getRangeAction("id1").getUsageRules().get(0);
+        assertEquals(FreeToUseImpl.class, crac.getRangeAction("id1").getUsageRules().get(0).getClass());
+        FreeToUseImpl usageRule = (FreeToUseImpl) crac.getRangeAction("id1").getUsageRules().get(0);
         assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
     }
 

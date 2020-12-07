@@ -1,6 +1,6 @@
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;

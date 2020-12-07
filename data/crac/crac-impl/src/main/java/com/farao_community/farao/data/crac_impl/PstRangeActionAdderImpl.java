@@ -10,17 +10,18 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.crac_api.UsageMethod.AVAILABLE;
+import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -37,7 +38,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     public PstRangeActionAdderImpl(SimpleCrac parent) {
         Objects.requireNonNull(parent);
         this.parent = parent;
-        this.usageRules.add(new FreeToUse(AVAILABLE, parent.getPreventiveState()));
+        this.usageRules.add(new FreeToUseImpl(AVAILABLE, parent.getPreventiveState().getInstant()));
     }
 
     @Override

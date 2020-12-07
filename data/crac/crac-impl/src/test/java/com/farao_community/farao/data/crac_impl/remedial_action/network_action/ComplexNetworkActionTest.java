@@ -8,7 +8,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class ComplexNetworkActionTest {
 
         String complexNetworkActionOperator = "cna_operator";
 
-        UsageRule freeToUse = Mockito.mock(FreeToUse.class);
+        UsageRule freeToUse = Mockito.mock(FreeToUseImpl.class);
         List<UsageRule> usageRuleList = new ArrayList<>(Collections.singletonList(freeToUse));
 
         mockedNetworkAction = Mockito.mock(AbstractElementaryNetworkAction.class);

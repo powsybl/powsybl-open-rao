@@ -5,19 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_api;
-
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+package com.farao_community.farao.data.crac_api.usage_rule;
 
 /**
+ * Usage method of a remedial action.
+ *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface UsageRule {
 
-    State getState();
-
-    UsageMethod getUsageMethod();
-
-    UsageMethod getUsageMethod(State state);
+public enum UsageMethod {
+    FORCED,
+    AVAILABLE,
+    UNAVAILABLE,
+    UNDEFINED
 }

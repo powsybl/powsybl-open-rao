@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -574,11 +573,9 @@ public class CracFileTest {
         Mockito.when(instant.getId()).thenReturn("instantid");
         Mockito.when(state.getInstant()).thenReturn(instant);
         Mockito.when(state.getContingency()).thenReturn(Optional.empty());
-        Mockito.when(rangeAction.getUsageRules()).thenReturn(Collections.singletonList(new FreeToUse(UsageMethod.AVAILABLE, state)));
 
         simpleCrac.addRangeAction(rangeAction);
 
-        assertNotNull(simpleCrac.getPreventiveState());
         assertEquals(0, simpleCrac.getCnecs().size());
     }
 

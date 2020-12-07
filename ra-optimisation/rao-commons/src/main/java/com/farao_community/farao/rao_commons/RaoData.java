@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;

@@ -107,6 +107,8 @@
         <jackson.version>2.11.2</jackson.version>
         <java.version>11</java.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
+        <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
+        <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
         <jimfs.version>1.1</jimfs.version>
         <jgrapht.core.version>1.4.0</jgrapht.core.version>
         <junit.version>4.13.1</junit.version>
@@ -470,6 +472,11 @@
                 <version>${javax.validation.version}</version>
             </dependency>
             <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb-api.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.threeten</groupId>
                 <artifactId>threeten-extra</artifactId>
                 <version>${threeten.version}</version>
@@ -504,6 +511,12 @@
                 <groupId>com.rte-france.powsybl</groupId>
                 <artifactId>powsybl-hades2-integration</artifactId>
                 <version>${powsybl.hades2.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb-runtime.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>

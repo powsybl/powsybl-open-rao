@@ -8,6 +8,8 @@ package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
@@ -20,9 +22,8 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -70,9 +71,8 @@ public class CracImportExportTest {
         simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", thresholdSet, preventiveState.getId(), 0.0, true, true);
 
         List<UsageRule> usageRules = new ArrayList<>();
-        usageRules.add(new FreeToUse(UsageMethod.AVAILABLE, preventiveState));
-        usageRules.add(new OnConstraint(UsageMethod.UNAVAILABLE, preventiveState, preventiveCnec1));
-        usageRules.add(new OnState(UsageMethod.FORCED, postContingencyState));
+        usageRules.add(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant()));
+        usageRules.add(new OnStateImpl(UsageMethod.FORCED, postContingencyState));
 
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
         simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15, CENTERED_ON_ZERO));
@@ -110,7 +110,7 @@ public class CracImportExportTest {
                 "pstRangeId",
                 "pstRangeName",
                 "RTE",
-                Collections.singletonList(new FreeToUse(UsageMethod.AVAILABLE, preventiveState)),
+                Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
                 Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
                         new Range(-3, 3, RangeType.RELATIVE_FIXED, CENTERED_ON_ZERO)),
                 simpleCrac.getNetworkElement("pst")
@@ -120,7 +120,7 @@ public class CracImportExportTest {
                 "alignedRangeId",
                 "alignedRangeName",
                 "RTE",
-                Collections.singletonList(new OnConstraint(UsageMethod.AVAILABLE, preventiveState, preventiveCnec1)),
+                Collections.singletonList(new OnStateImpl(UsageMethod.AVAILABLE, preventiveState)),
                 Collections.singletonList(new Range(-3, 3, RangeType.RELATIVE_DYNAMIC, CENTERED_ON_ZERO)),
                 Stream.of(simpleCrac.getNetworkElement("pst"), simpleCrac.addNetworkElement("pst2")).collect(Collectors.toSet())
         ));

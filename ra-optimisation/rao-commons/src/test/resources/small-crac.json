@@ -99,7 +99,7 @@
         {
           "type": "free-to-use",
           "usageMethod": "AVAILABLE",
-          "state": "none-N"
+          "instant": "N"
         }
       ],
       "ranges": [
