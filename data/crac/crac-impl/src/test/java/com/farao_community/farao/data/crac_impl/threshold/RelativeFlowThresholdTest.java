@@ -47,13 +47,23 @@ public class RelativeFlowThresholdTest {
     }
 
     @Test
-    public void testSynchronizeOnHalfLine1() {
+    public void testSynchronizeOnHalfLine1WithOrderCode() {
         testOnSynchronize("FFR3AA1  X_BEFR1  1", 500);
     }
 
     @Test
-    public void testSynchronizeOnHalfLine2() {
+    public void testSynchronizeOnHalfLine2WithOrderCode() {
         testOnSynchronize("BBE2AA1  X_BEFR1  1", 1500);
+    }
+
+    @Test
+    public void testSynchronizeOnHalfLine1WithElementName() {
+        testOnSynchronize("DDE2AA1  X_NLDE1  E_NAME_H1", 2000);
+    }
+
+    @Test
+    public void testSynchronizeOnHalfLine2WithElementName() {
+        testOnSynchronize("NNL3AA1  X_NLDE1  E_NAME_H2", 3000);
     }
 
     @Test
