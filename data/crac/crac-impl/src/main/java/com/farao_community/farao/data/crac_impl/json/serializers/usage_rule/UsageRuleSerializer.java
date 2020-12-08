@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.usage_rule;
 
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -27,7 +27,6 @@ public class UsageRuleSerializer<I extends UsageRule> extends JsonSerializer<I> 
     @Override
     public void serialize(I usageRule, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeObjectField(USAGE_METHOD, usageRule.getUsageMethod());
-        jsonGenerator.writeStringField(STATE, usageRule.getState().getId());
     }
 
     @Override

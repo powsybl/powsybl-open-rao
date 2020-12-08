@@ -10,10 +10,10 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -44,7 +44,7 @@ public class SearchTreeRaoProviderTest {
         State curativeState = crac.getState("Contingency FR1 FR3", "curative");
 
         crac.addNetworkAction(new Topology("open BE2-FR3", "open BE2-FR3", "FR",
-            List.of(new OnState(UsageMethod.AVAILABLE, curativeState)),
+            List.of(new OnStateImpl(UsageMethod.AVAILABLE, curativeState)),
             crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN));
 
         ResultVariantManager resultVariantManager = new ResultVariantManager();
