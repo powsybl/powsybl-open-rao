@@ -35,6 +35,7 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
     private static final Logger LOGGER = LoggerFactory.getLogger(RelativeFlowThreshold.class);
     private static final String TIE_LINE_WARN = "For tie-line {}, the CNEC network element ID {} is not half1 nor half2 IDs. Most limiting threshold will be taken.";
     private static final int NB_CHARACTER_UCTE_LINE_WITHOUT_ORDER_CODE = 19;
+    private static final int NB_MAX_CHARACTER_ELEMENT_NAME = 12;
 
     private double branchLimit;
 
@@ -115,6 +116,12 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         }
         if (tieLine.getHalf2().getId().equals(networkElement.getId())) {
             return Optional.of(Branch.Side.TWO);
+        }
+        if (networkElement.getId().length() > NB_CHARACTER_UCTE_LINE_WITHOUT_ORDER_CODE + NB_MAX_CHARACTER_ELEMENT_NAME) {
+            // temporary UCTE patch : check if network element length is compatible with an UCTE half-line id
+            // if not, network element id is not of the type (e.g.) : BBE2AA1  X_BEFR1  ELEMENTNAME_
+            // if is probably the aggregated tie-line id (e.g.) : BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1
+            return Optional.empty();
         }
         if (tieLine.getHalf1().getId().substring(0, tieLine.getHalf1().getId().length() - 1).equals(networkElement.getId().substring(0, NB_CHARACTER_UCTE_LINE_WITHOUT_ORDER_CODE - 1))) {
             // temporary UCTE patch : check id of the line without the order code as an element name could be given in the crac instead
