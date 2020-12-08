@@ -111,17 +111,17 @@ public final class RaoInputHelper {
         }
 
         // remove Cnec whose contingency does not exist anymore
-        removedContingencies.forEach(contingency ->  {
-            crac.getStatesFromContingency(contingency.getId()).forEach(state -> {
+        removedContingencies.forEach(contingency ->
+            crac.getStatesFromContingency(contingency.getId()).forEach(state ->
                 crac.getCnecs(state).forEach(cnec -> {
                     crac.removeCnec(cnec.getId());
                     report.add(String.format("[REMOVED] Cnec %s is removed because its associated contingency [%s] has been removed", cnec.getId(), contingency.getId()));
-                });
-            });
-        });
+                })
+            )
+        );
 
         // remove Remedial Action with an empty list of NetworkElement
-        Set<RemedialAction> noValidAction = new HashSet<>();
+        Set<RemedialAction<?>> noValidAction = new HashSet<>();
         crac.getNetworkActions().stream().filter(na -> na.getNetworkElements().isEmpty()).forEach(na -> {
             report.add(String.format("[REMOVED] Remedial Action %s has no associated action. It is removed from the Crac", na.getId()));
             noValidAction.add(na);
@@ -148,13 +148,11 @@ public final class RaoInputHelper {
     private static void checkUsageRules(RemedialAction<?> remedialAction, Set<State> removedStates, List<String> report) {
         Set<UsageRule> removedUr = new HashSet<>();
         remedialAction.getUsageRules().forEach(usageRule -> {
-            if (usageRule instanceof OnState) {
-                if (removedStates.contains(((OnState) usageRule).getState())) {
-                    report.add(String.format("[REMOVED] OnState usage rule of RA %s is removed because its associated state [%s] has been removed",
-                        remedialAction.getId(),
-                        ((OnState) usageRule).getState().getId()));
-                    removedUr.add(usageRule);
-                }
+            if (usageRule instanceof OnState && removedStates.contains(((OnState) usageRule).getState())) {
+                report.add(String.format("[REMOVED] OnState usage rule of RA %s is removed because its associated state [%s] has been removed",
+                    remedialAction.getId(),
+                    ((OnState) usageRule).getState().getId()));
+                removedUr.add(usageRule);
             }
         });
         remedialAction.getUsageRules().removeAll(removedUr);
