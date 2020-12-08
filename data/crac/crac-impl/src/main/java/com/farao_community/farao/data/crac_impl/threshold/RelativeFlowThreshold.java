@@ -34,7 +34,7 @@ import java.util.Optional;
 public class RelativeFlowThreshold extends AbstractFlowThreshold {
     private static final Logger LOGGER = LoggerFactory.getLogger(RelativeFlowThreshold.class);
     private static final String TIE_LINE_WARN = "For tie-line {}, the CNEC network element ID {} is not half1 nor half2 IDs. Most limiting threshold will be taken.";
-    private static final int NB_CHARACTER_TWO_UCTE_NODES = 17;
+    private static final int NB_CHARACTER_UCTE_LINE_WITHOUT_ORDER_CODE = 19;
 
     private double branchLimit;
 
@@ -116,16 +116,13 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         if (tieLine.getHalf2().getId().equals(networkElement.getId())) {
             return Optional.of(Branch.Side.TWO);
         }
-        if (networkElement.getId().length() > NB_CHARACTER_TWO_UCTE_NODES * 2 && networkElement.getId().contains("+")) {
-            // temporary UCTE patch : if the aggregated tie-line id is given (e.g. below) then an undefined side is returned
-            // example : BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1
-            return Optional.empty();
-        }
-        if (tieLine.getHalf1().getId().substring(1, NB_CHARACTER_TWO_UCTE_NODES).equals(networkElement.getId().substring(1, NB_CHARACTER_TWO_UCTE_NODES))) {
+        if (tieLine.getHalf1().getId().substring(0, tieLine.getHalf1().getId().length() - 1).equals(networkElement.getId().substring(0, NB_CHARACTER_UCTE_LINE_WITHOUT_ORDER_CODE - 1))) {
             // temporary UCTE patch : check id of the line without the order code as an element name could be given in the crac instead
+            // assuming HalfLine id (e.g.) : DDE2AA1  X_NLDE1  1
+            // assuming NetworkElement id (e.g.) : DDE2AA1  X_NLDE1  E_NAME_H1
             return Optional.of(Branch.Side.ONE);
         }
-        if (tieLine.getHalf2().getId().substring(1, NB_CHARACTER_TWO_UCTE_NODES).equals(networkElement.getId().substring(1, NB_CHARACTER_TWO_UCTE_NODES))) {
+        if (tieLine.getHalf2().getId().substring(0, tieLine.getHalf2().getId().length() - 1).equals(networkElement.getId().substring(0, NB_CHARACTER_UCTE_LINE_WITHOUT_ORDER_CODE - 1))) {
             // temporary UCTE patch : check id of the line without the order code as an element name could be given in the crac instead
             return Optional.of(Branch.Side.TWO);
         }
