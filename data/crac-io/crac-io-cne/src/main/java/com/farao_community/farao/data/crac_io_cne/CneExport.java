@@ -25,6 +25,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
+import java.util.Objects;
 
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 
@@ -80,8 +81,8 @@ public class CneExport implements CracExporter {
         }
     }
 
-    private static File getSchemaFile(String schemaName) {
-        return new File(CneExport.class.getResource("/xsd/" + schemaName).getFile());
+    private static String getSchemaFile(String schemaName) {
+        return Objects.requireNonNull(CneExport.class.getResource("/xsd/" + schemaName)).toExternalForm();
     }
 
     public static boolean validateCNESchema(String xmlContent) {
