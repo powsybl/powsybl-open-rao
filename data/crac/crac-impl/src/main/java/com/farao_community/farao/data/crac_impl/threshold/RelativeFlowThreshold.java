@@ -120,7 +120,7 @@ public class RelativeFlowThreshold extends AbstractFlowThreshold {
         if (networkElement.getId().length() > NB_CHARACTER_UCTE_LINE_WITHOUT_ORDER_CODE + NB_MAX_CHARACTER_ELEMENT_NAME) {
             // temporary UCTE patch : check if network element length is compatible with an UCTE half-line id
             // if not, network element id is not of the type (e.g.) : BBE2AA1  X_BEFR1  ELEMENTNAME_
-            // if is probably the aggregated tie-line id (e.g.) : BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1
+            // it is probably the aggregated tie-line id (e.g.) : BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1
             return Optional.empty();
         }
         if (tieLine.getHalf1().getId().substring(0, tieLine.getHalf1().getId().length() - 1).equals(networkElement.getId().substring(0, NB_CHARACTER_UCTE_LINE_WITHOUT_ORDER_CODE - 1))) {
