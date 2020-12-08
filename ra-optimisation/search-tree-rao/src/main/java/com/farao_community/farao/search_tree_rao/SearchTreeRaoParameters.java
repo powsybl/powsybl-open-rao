@@ -8,12 +8,15 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
+    static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoParameters.class);
 
     public enum StopCriterion {
         POSITIVE_MARGIN,
@@ -57,7 +60,15 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     }
 
     public void setRelativeNetworkActionMinimumImpactThreshold(double relativeNetworkActionMinimumImpactThreshold) {
-        this.relativeNetworkActionMinimumImpactThreshold = relativeNetworkActionMinimumImpactThreshold;
+        if (relativeNetworkActionMinimumImpactThreshold < 0) {
+            LOGGER.warn("The value {} provided for relative network action minimum impact threshold is smaller than 0. It will be set to 0.", relativeNetworkActionMinimumImpactThreshold);
+            this.relativeNetworkActionMinimumImpactThreshold = 0;
+        } else if (relativeNetworkActionMinimumImpactThreshold > 1) {
+            LOGGER.warn("The value {} provided for relative network action minimum impact threshold is greater than 1. It will be set to 1.", relativeNetworkActionMinimumImpactThreshold);
+            this.relativeNetworkActionMinimumImpactThreshold = 1;
+        } else {
+            this.relativeNetworkActionMinimumImpactThreshold = relativeNetworkActionMinimumImpactThreshold;
+        }
     }
 
     public double getAbsoluteNetworkActionMinimumImpactThreshold() {
