@@ -82,7 +82,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         throw new FaraoException(String.format("Unable to create sensitivity factors. Did not find any varying element in network '%s'.", network.getId()));
     }
 
-    SensitivityFactor sensitivityFactorMapping(SensitivityFunction function, SensitivityVariable variable) {
+    SensitivityFactor<? extends SensitivityFunction, ? extends SensitivityVariable> sensitivityFactorMapping(SensitivityFunction function, SensitivityVariable variable) {
         if (function instanceof BranchFlow) {
             if (variable instanceof PhaseTapChangerAngle) {
                 return new BranchFlowPerPSTAngle((BranchFlow) function, (PhaseTapChangerAngle) variable);

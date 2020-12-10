@@ -215,5 +215,12 @@ public class RaoUtilTest {
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, true);
         assertNotNull(systematicSensitivityInterface);
     }
+
+    @Test(expected = FaraoException.class)
+    public void testAmpereWithDc() {
+        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().setDc(true);
+        RaoUtil.checkParameters(raoParameters, raoInput);
+    }
 }
 
