@@ -133,8 +133,8 @@ public final class RaoInputHelper {
         noValidAction.forEach(networkAction -> crac.removeNetworkAction(networkAction.getId()));
 
         // remove On State usage rule with invalid state
-        crac.getRangeActions().forEach(ra -> checkUsageRules(ra, removedStates, report));
-        crac.getNetworkActions().forEach(ra -> checkUsageRules(ra, removedStates, report));
+        crac.getRangeActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
+        crac.getNetworkActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
 
         // remove states and contingencies
         removedContingencies.forEach(contingency -> crac.removeContingency(contingency.getId()));
@@ -145,7 +145,7 @@ public final class RaoInputHelper {
         return report;
     }
 
-    private static void checkUsageRules(RemedialAction<?> remedialAction, Set<State> removedStates, List<String> report) {
+    private static void cleanUsageRules(RemedialAction<?> remedialAction, Set<State> removedStates, List<String> report) {
         Set<UsageRule> removedUr = new HashSet<>();
         remedialAction.getUsageRules().forEach(usageRule -> {
             if (usageRule instanceof OnState && removedStates.contains(((OnState) usageRule).getState())) {
