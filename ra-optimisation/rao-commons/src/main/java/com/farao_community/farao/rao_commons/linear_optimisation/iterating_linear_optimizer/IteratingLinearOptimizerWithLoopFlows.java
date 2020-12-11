@@ -34,7 +34,7 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
 
     @Override
     void runSensitivityAndUpdateResults() {
-        raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork(), objectiveFunctionEvaluator.getUnit()));
+        raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
         LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, !loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange());
 
         raoData.getCracResultManager().fillCnecResultWithFlows();
