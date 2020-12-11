@@ -9,10 +9,9 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
 
 /**
  * Cnec extension for loop flow
@@ -20,7 +19,7 @@ import com.powsybl.iidm.network.Network;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
+public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
 
     /*
     INPUTS
@@ -71,7 +70,7 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         this.loopFlowConstraintInMW = loopFlowConstraint;
     }
 
-    public double getInputThreshold(Unit requestedUnit, Network network) {
+    public double getInputThreshold(Unit requestedUnit) {
 
         if (requestedUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
             throw new FaraoException("Loopflow thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
@@ -82,27 +81,27 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         }
 
         if (inputThresholdUnit == Unit.PERCENT_IMAX && requestedUnit == Unit.AMPERE) {
-            return convertPercentImaxToA(network, inputThreshold);
+            return convertPercentImaxToA(inputThreshold);
         }
 
         if (inputThresholdUnit == Unit.PERCENT_IMAX && requestedUnit == Unit.MEGAWATT) {
-            return convertAToMW(network, convertPercentImaxToA(network, inputThreshold));
+            return convertAToMW(convertPercentImaxToA(inputThreshold));
         }
 
         if (inputThresholdUnit == Unit.AMPERE && requestedUnit == Unit.PERCENT_IMAX) {
-            return convertAToPercentImax(network, inputThreshold);
+            return convertAToPercentImax(inputThreshold);
         }
 
         if (inputThresholdUnit == Unit.AMPERE && requestedUnit == Unit.MEGAWATT) {
-            return convertAToMW(network, inputThreshold);
+            return convertAToMW(inputThreshold);
         }
 
         if (inputThresholdUnit == Unit.MEGAWATT && requestedUnit == Unit.AMPERE) {
-            return convertMWToA(network, inputThreshold);
+            return convertMWToA(inputThreshold);
         }
 
         if (inputThresholdUnit == Unit.MEGAWATT && requestedUnit == Unit.PERCENT_IMAX) {
-            return convertAToPercentImax(network, convertMWToA(network, inputThreshold));
+            return convertAToPercentImax(convertMWToA(inputThreshold));
         }
 
         throw new FaraoException(String.format("Cannot convert %s into %s", inputThresholdUnit, requestedUnit));
@@ -114,32 +113,26 @@ public class CnecLoopFlowExtension extends AbstractExtension<Cnec> {
         return "CnecLoopFlowExtension";
     }
 
-    private double convertMWToA(Network network, double valueInMW) {
-        return valueInMW * 1000 / (getNominalVoltage(network) * Math.sqrt(3));
+    private double convertMWToA(double valueInMW) {
+        return valueInMW * 1000 / (getExtendable().getNominalVoltage(Side.LEFT) * Math.sqrt(3));
     }
 
-    private double convertAToMW(Network network, double valueInA) {
-        return valueInA * getNominalVoltage(network) * Math.sqrt(3) / 1000;
+    private double convertAToMW(double valueInA) {
+        return valueInA * getExtendable().getNominalVoltage(Side.LEFT) * Math.sqrt(3) / 1000;
     }
 
-    private double convertAToPercentImax(Network network, double valueInA) {
-        return valueInA * 100 / getCnecThresholdInA(network);
+    private double convertAToPercentImax(double valueInA) {
+        return valueInA * 100 / getCnecThresholdInA();
     }
 
-    private double convertPercentImaxToA(Network network, double valueInPercent) {
-        return valueInPercent * getCnecThresholdInA(network) / 100;
+    private double convertPercentImaxToA(double valueInPercent) {
+        return valueInPercent * getCnecThresholdInA() / 100;
     }
 
-    private double getNominalVoltage(Network network) {
-        Branch<?> branch = network.getBranch(this.getExtendable().getNetworkElement().getId());
-        if (branch == null) {
-            throw new FaraoException(String.format("Cnec with id %s was not found in the network", this.getExtendable().getId()));
-        }
-        return branch.getTerminal1().getVoltageLevel().getNominalV();
-    }
-
-    private double getCnecThresholdInA(Network network) {
-        return Math.min(getExtendable().getMaxThreshold(Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
-            -getExtendable().getMinThreshold(Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY)) + convertMWToA(network, this.getExtendable().getFrm());
+    private double getCnecThresholdInA() {
+        return Math.min(
+                getExtendable().getUpperBound(Side.LEFT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
+                -getExtendable().getLowerBound(Side.LEFT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))
+                + convertMWToA(getExtendable().getReliabilityMargin());
     }
 }

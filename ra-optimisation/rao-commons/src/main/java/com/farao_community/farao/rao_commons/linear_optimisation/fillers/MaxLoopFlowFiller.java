@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -76,7 +76,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * and a "virtual cost" is added to objective function as "loopflowViolationVariable * Loopflow violation cost"
      */
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(RaoData raoData, LinearProblem linearProblem) {
-        for (Cnec cnec : raoData.getLoopflowCnecs()) {
+        for (BranchCnec cnec : raoData.getLoopflowCnecs()) {
             //get and update MapLoopFlowLimit with loopflowConstraintAdjustmentCoefficient
             double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
 
@@ -128,7 +128,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * Update LoopFlow constraints' bounds when commercial flows have changed
      */
     private void updateLoopFlowConstraints(RaoData raoData, LinearProblem linearProblem) {
-        for (Cnec cnec : raoData.getLoopflowCnecs()) {
+        for (BranchCnec cnec : raoData.getLoopflowCnecs()) {
 
             double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
             if (maxLoopFlowLimit == Double.POSITIVE_INFINITY) {

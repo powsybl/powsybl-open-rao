@@ -9,6 +9,8 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
@@ -41,8 +43,8 @@ public final class RaoData {
     private final CracResultManager cracResultManager;
     private final Set<Country> loopflowCountries;
 
-    private Set<Cnec> perimeterCnecs;
-    private Set<Cnec> loopflowCnecs;
+    private Set<BranchCnec> perimeterCnecs;
+    private Set<BranchCnec> loopflowCnecs;
 
     private CracVariantManager cracVariantManager;
 
@@ -136,17 +138,17 @@ public final class RaoData {
         return loopflowCountries;
     }
 
-    public Set<Cnec> getCnecs() {
+    public Set<BranchCnec> getCnecs() {
         return perimeterCnecs;
     }
 
     private void computePerimeterCnecs() {
-        Set<Cnec> cnecs = new HashSet<>();
-        perimeter.forEach(state -> cnecs.addAll(crac.getCnecs(state)));
+        Set<BranchCnec> cnecs = new HashSet<>();
+        perimeter.forEach(state -> cnecs.addAll(crac.getBranchCnecs(state)));
         perimeterCnecs = cnecs;
     }
 
-    public Set<Cnec> getLoopflowCnecs() {
+    public Set<BranchCnec> getLoopflowCnecs() {
         return loopflowCnecs;
     }
 
@@ -165,11 +167,11 @@ public final class RaoData {
         }
     }
 
-    private static boolean cnecIsInCountryList(Cnec cnec, Network network, Set<Country> loopflowCountries) {
+    private static boolean cnecIsInCountryList(Cnec<?> cnec, Network network, Set<Country> loopflowCountries) {
         Line line = (Line) network.getIdentifiable(cnec.getNetworkElement().getId());
         Optional<Country> country1 = line.getTerminal1().getVoltageLevel().getSubstation().getCountry();
         Optional<Country> country2 = line.getTerminal2().getVoltageLevel().getSubstation().getCountry();
-        return (!country1.isEmpty() && loopflowCountries.contains(country1.get())) || (!country2.isEmpty() && loopflowCountries.contains(country2.get()));
+        return (country1.isPresent() && loopflowCountries.contains(country1.get())) || (country2.isPresent() && loopflowCountries.contains(country2.get()));
     }
 
     public Set<RangeAction> getAvailableRangeActions() {
@@ -225,11 +227,11 @@ public final class RaoData {
         return getSystematicSensitivityResult() != null;
     }
 
-    public double getReferenceFlow(Cnec cnec) {
+    public double getReferenceFlow(Cnec<?> cnec) {
         return getSystematicSensitivityResult().getReferenceFlow(cnec);
     }
 
-    public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
+    public double getSensitivity(Cnec<?> cnec, RangeAction rangeAction) {
         return getSystematicSensitivityResult().getSensitivityOnFlow(rangeAction, cnec);
     }
 }

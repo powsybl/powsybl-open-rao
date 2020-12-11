@@ -1,0 +1,384 @@
+{
+  "type" : "simple-crac",
+  "id" : "LS_parade_pst_direct",
+  "name" : "LS_parade_pst_direct",
+  "networkDate" : "2020-05-22T10:09:17Z",
+  "networkElements" : [ {
+    "type" : "NetworkElement",
+    "id" : "FFR3AA1  FFR1AA1  1",
+    "name" : "FFR3AA1  FFR1AA1  1"
+  }, {
+    "type" : "NetworkElement",
+    "id" : "FFR2AA1  DDE3AA1  1",
+    "name" : "FFR2AA1  DDE3AA1  1"
+  }, {
+    "type" : "NetworkElement",
+    "id" : "DDE1AA1  DDE2AA1  1",
+    "name" : "DDE1AA1  DDE2AA1  1"
+  }, {
+    "type" : "NetworkElement",
+    "id" : "BBE2AA1  BBE3AA1  1",
+    "name" : "BBE2AA1  BBE3AA1  1"
+  }, {
+    "type" : "NetworkElement",
+    "id" : "DDE3AA1  FFR2AA1  HFSK JDV",
+    "name" : "DDE3AA1  FFR2AA1  HFSK JDV"
+  } ],
+  "instants" : [ {
+    "type" : "Instant",
+    "id" : "N",
+    "seconds" : -1,
+    "name" : "N"
+  }, {
+    "type" : "Instant",
+    "id" : "SPS",
+    "seconds" : 61,
+    "name" : "SPS"
+  }, {
+    "type" : "Instant",
+    "id" : "Curatif",
+    "seconds" : 1200,
+    "name" : "Curatif"
+  }, {
+    "type" : "Instant",
+    "id" : "Défaut",
+    "seconds" : 60,
+    "name" : "Défaut"
+  } ],
+  "contingencies" : [ {
+    "type" : "complex-contingency",
+    "id" : "Contingency FR1 FR3",
+    "name" : "Contingency FR1 FR3",
+    "networkElements" : [ "FFR3AA1  FFR1AA1  1" ]
+  }, {
+      "type" : "complex-contingency",
+      "id" : "Contingency Interco",
+      "name" : "Contingency Interco",
+      "networkElements" : [ "DDE3AA1  FFR2AA1  HFSK JDV" ]
+    }],
+  "states" : [ {
+    "type" : "simple-state",
+    "id" : "Contingency FR1 FR3-SPS",
+    "contingency" : "Contingency FR1 FR3",
+    "instant" : "SPS"
+  }, {
+    "type" : "simple-state",
+    "id" : "none-N",
+    "contingency" : null,
+    "instant" : "N"
+  }, {
+    "type" : "simple-state",
+    "id" : "Contingency FR1 FR3-Curatif",
+    "contingency" : "Contingency FR1 FR3",
+    "instant" : "Curatif"
+  }, {
+    "type" : "simple-state",
+    "id" : "Contingency FR1 FR3-Défaut",
+    "contingency" : "Contingency FR1 FR3",
+    "instant" : "Défaut"
+  }, {
+    "type" : "simple-state",
+    "id" : "Contingency Interco-Défaut",
+    "contingency" : "Contingency Interco",
+    "instant" : "Défaut"
+  } ],
+  "cnecs" : [ {
+    "type" : "flow-cnec",
+    "id" : "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3",
+    "name" : "Tie-line FR DE",
+    "networkElement" : "FFR2AA1  DDE3AA1  1",
+    "state" : "Contingency FR1 FR3-Curatif",
+    "frm" : 0.0,
+    "thresholds" : [ {
+      "type" : "branch-threshold",
+      "unit" : "A",
+      "rule" : "ON_LEFT_SIDE",
+      "min" : null,
+      "max" : 1500.0
+    } ],
+    "extensions" : {
+      "CnecResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+            "type" : "cnec-result",
+            "flowInMW" : 1451.9127197265625,
+            "flowInA" : 2097.820556640625,
+            "minThresholdInMW" : -Infinity,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -Infinity,
+            "maxThresholdInA" : 1500.0
+          },
+          "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+            "type" : "cnec-result",
+            "flowInMW" : 1286.8662109375,
+            "flowInA" : 1858.9375,
+            "minThresholdInMW" : -Infinity,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -Infinity,
+            "maxThresholdInA" : 1500.0
+          }
+        }
+      }
+    }
+  }, {
+    "type" : "flow-cnec",
+    "id" : "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3",
+    "name" : "Line DE1 DE2",
+    "networkElement" : "DDE1AA1  DDE2AA1  1",
+    "state" : "Contingency FR1 FR3-Défaut",
+    "frm" : -1.0,
+    "thresholds" : [ {
+      "type" : "branch-threshold",
+      "unit" : "A",
+      "rule" : "ON_LEFT_SIDE",
+      "min" : -1500.0,
+      "max" : 1500.0
+    } ],
+    "extensions" : {
+      "CnecResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+            "type" : "cnec-result",
+            "flowInMW" : -349.3979797363281,
+            "flowInA" : -504.3426208496094,
+            "minThresholdInMW" : -1039.2304845413264,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -1500.0,
+            "maxThresholdInA" : 1500.0
+          },
+          "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+            "type" : "cnec-result",
+            "flowInMW" : -404.3988952636719,
+            "flowInA" : -583.7461547851562,
+            "minThresholdInMW" : -1039.2304845413264,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -1500.0,
+            "maxThresholdInA" : 1500.0
+          }
+        }
+      }
+    }
+  }, {
+    "type" : "flow-cnec",
+    "id" : "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3",
+    "name" : "Line DE1 DE2",
+    "networkElement" : "DDE1AA1  DDE2AA1  1",
+    "state" : "Contingency FR1 FR3-Curatif",
+    "frm" : 2.0,
+    "thresholds" : [ {
+      "type" : "branch-threshold",
+      "unit" : "A",
+      "rule" : "ON_LEFT_SIDE",
+      "min" : -1500.0,
+      "max" : 1500.0
+    } ],
+    "extensions" : {
+      "CnecResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+            "type" : "cnec-result",
+            "flowInMW" : -349.3979797363281,
+            "flowInA" : -504.3426208496094,
+            "minThresholdInMW" : -1039.2304845413264,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -1500.0,
+            "maxThresholdInA" : 1500.0
+          },
+          "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+            "type" : "cnec-result",
+            "flowInMW" : -404.3988952636719,
+            "flowInA" : -583.7461547851562,
+            "minThresholdInMW" : -1039.2304845413264,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -1500.0,
+            "maxThresholdInA" : 1500.0
+          }
+        }
+      }
+    }
+  }, {
+    "type" : "flow-cnec",
+    "id" : "DDE1AA1  DDE2AA1  1 - N - preventive",
+    "name" : "Line DE1 DE2",
+    "networkElement" : "DDE1AA1  DDE2AA1  1",
+    "state" : "none-N",
+    "frm" : 3.0,
+    "thresholds" : [ {
+      "type" : "branch-threshold",
+      "unit" : "A",
+      "rule" : "ON_LEFT_SIDE",
+      "min" : -1500.0,
+      "max" : 1500.0
+    } ],
+    "extensions" : {
+      "CnecResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+            "type" : "cnec-result",
+            "flowInMW" : -333.455078125,
+            "flowInA" : -481.3270568847656,
+            "minThresholdInMW" : -1039.2304845413264,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -1500.0,
+            "maxThresholdInA" : 1500.0
+          },
+          "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+            "type" : "cnec-result",
+            "flowInMW" : -391.2393493652344,
+            "flowInA" : -564.74755859375,
+            "minThresholdInMW" : -1039.2304845413264,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -1500.0,
+            "maxThresholdInA" : 1500.0
+          }
+        }
+      }
+    }
+  }, {
+    "type" : "flow-cnec",
+    "id" : "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3",
+    "name" : "Tie-line FR DE",
+    "networkElement" : "FFR2AA1  DDE3AA1  1",
+    "state" : "Contingency FR1 FR3-Défaut",
+    "frm" : 4.0,
+    "thresholds" : [ {
+      "type" : "branch-threshold",
+      "unit" : "A",
+      "rule" : "ON_LEFT_SIDE",
+      "min" : null,
+      "max" : 1500.0
+    } ],
+    "extensions" : {
+      "CnecResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+            "type" : "cnec-result",
+            "flowInMW" : 1451.9127197265625,
+            "flowInA" : 2097.820556640625,
+            "minThresholdInMW" : -Infinity,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -Infinity,
+            "maxThresholdInA" : 1500.0
+          },
+          "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+            "type" : "cnec-result",
+            "flowInMW" : 1286.8662109375,
+            "flowInA" : 1858.9375,
+            "minThresholdInMW" : -Infinity,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -Infinity,
+            "maxThresholdInA" : 1500.0
+          }
+        }
+      }
+    }
+  }, {
+    "type" : "flow-cnec",
+    "id" : "FFR2AA1  DDE3AA1  1 - N - preventive",
+    "name" : "Tie-line FR DE",
+    "networkElement" : "FFR2AA1  DDE3AA1  1",
+    "state" : "none-N",
+    "frm" : 5.0,
+    "thresholds" : [ {
+      "type" : "branch-threshold",
+      "unit" : "A",
+      "rule" : "ON_LEFT_SIDE",
+      "min" : null,
+      "max" : 1500.0
+    } ],
+    "extensions" : {
+      "CnecResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+            "type" : "cnec-result",
+            "flowInMW" : 1499.7794189453125,
+            "flowInA" : 2167.1318359375,
+            "minThresholdInMW" : -Infinity,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -Infinity,
+            "maxThresholdInA" : 1500.0
+          },
+          "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+            "type" : "cnec-result",
+            "flowInMW" : 1326.383056640625,
+            "flowInA" : 1916.11865234375,
+            "minThresholdInMW" : -Infinity,
+            "maxThresholdInMW" : 1039.2304845413264,
+            "minThresholdInA" : -Infinity,
+            "maxThresholdInA" : 1500.0
+          }
+        }
+      }
+    }
+  } ],
+  "rangeActions" : [ {
+    "type" : "pst-with-range",
+    "id" : "PST1",
+    "name" : "PST1",
+    "operator" : "FR",
+    "usageRules" : [ {
+      "type" : "free-to-use",
+      "usageMethod" : "AVAILABLE",
+      "instant" : "N"
+    } ],
+    "networkElements" : [ "BBE2AA1  BBE3AA1  1" ],
+    "ranges" : [ {
+      "min" : 1.0,
+      "max" : 33.0,
+      "rangeType" : "ABSOLUTE_FIXED",
+      "rangeDefinition" : "STARTS_AT_ONE"
+    } ],
+    "extensions" : {
+      "RangeActionResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+            "type" : "pst-range-result",
+            "tapPerStates" : {
+              "none-N" : 0
+            },
+            "setPointPerStates" : {
+              "Contingency FR1 FR3-Défaut" : NaN,
+              "Contingency FR1 FR3-Curatif" : NaN,
+              "Contingency FR1 FR3-SPS" : NaN,
+              "none-N" : 0.0
+            }
+          },
+          "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+            "type" : "pst-range-result",
+            "tapPerStates" : {
+              "none-N" : -16
+            },
+            "setPointPerStates" : {
+              "Contingency FR1 FR3-Défaut" : NaN,
+              "Contingency FR1 FR3-Curatif" : NaN,
+              "Contingency FR1 FR3-SPS" : NaN,
+              "none-N" : -6.22764253616333
+            }
+          }
+        }
+      }
+    }
+  } ],
+  "networkActions" : [ ],
+  "extensions" : {
+    "ResultVariantManager" : {
+      "variantIds" : [ "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf", "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" ]
+    },
+    "CracResultExtension" : {
+      "resultsPerVariant" : {
+        "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
+          "type" : "crac-result",
+          "networkSecurityStatus" : "UNSECURED",
+          "functionalCost" : 460.5489344039861,
+          "virtualCost" : 0.0
+        },
+        "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
+          "type" : "crac-result",
+          "networkSecurityStatus" : "UNSECURED",
+          "functionalCost" : 287.1525720992986,
+          "virtualCost" : 0.0
+        }
+      }
+    }
+  }
+}

@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
@@ -28,8 +28,8 @@ import java.util.Set;
 public final class AbsolutePtdfSumsComputation {
     private AbsolutePtdfSumsComputation() { }
 
-    public static Map<Cnec, Double> computeAbsolutePtdfSums(Set<Cnec> cnecs, ZonalData<LinearGlsk> glsk, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
-        Map<Cnec, Double> ptdfSums = new HashMap<>();
+    public static Map<BranchCnec, Double> computeAbsolutePtdfSums(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
+        Map<BranchCnec, Double> ptdfSums = new HashMap<>();
         Map<String, Map<Country, Double>> ptdfMap = computePtdf(cnecs, glsk, sensitivityResult);
         cnecs.forEach(cnec -> {
             double ptdfSum = 0;
@@ -43,10 +43,10 @@ public final class AbsolutePtdfSumsComputation {
         return ptdfSums;
     }
 
-    private static Map<String, Map<Country, Double>> computePtdf(Set<Cnec> cnecs, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult sensitivityResult) {
+    private static Map<String, Map<Country, Double>> computePtdf(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult sensitivityResult) {
         Map<String, Map<Country, Double>> ptdfs = new HashMap<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
-        for (Cnec cnec : cnecs) {
+        for (BranchCnec cnec : cnecs) {
             for (LinearGlsk linearGlsk: mapCountryLinearGlsk.values()) {
                 double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
                 Country country = glskIdToCountry(linearGlsk.getId());

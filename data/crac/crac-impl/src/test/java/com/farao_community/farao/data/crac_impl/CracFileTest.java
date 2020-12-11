@@ -10,7 +10,10 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
+import com.farao_community.farao.data.crac_impl.threshold.BranchThresholdImpl;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_api.Direction.OPPOSITE;
-import static com.farao_community.farao.data.crac_api.Side.LEFT;
 import static org.junit.Assert.*;
 
 /**
@@ -77,7 +78,7 @@ public class CracFileTest {
 
     @Test
     public void testAddNetworkElementWithNetworkElement() {
-        NetworkElement networkElement = simpleCrac.addNetworkElement(new NetworkElement("neID"));
+        NetworkElement networkElement = simpleCrac.addNetworkElement("neID");
         assertEquals(1, simpleCrac.getNetworkElements().size());
         assertNotNull(simpleCrac.getNetworkElement("neID"));
         assertSame(networkElement, simpleCrac.getNetworkElement("neID"));
@@ -394,20 +395,22 @@ public class CracFileTest {
 
     @Test
     public void testGetCnecWithIds() {
-        Cnec cnec = new SimpleCnec(
-                "cnec",
-                new NetworkElement("network-element-1"),
-            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
-                new SimpleState(
-                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                    new Instant("after-co", 60)
-                )
+        BranchCnec cnec = new FlowCnecImpl(
+            "cnec",
+            new NetworkElement("network-element-1"),
+            new SimpleState(
+                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                new Instant("after-co", 60)
+            ),
+            true, false,
+            Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
+            0.
         );
 
         simpleCrac.addCnec(cnec);
 
-        assertEquals(1, simpleCrac.getCnecs("co", "after-co").size());
-        Cnec getCnec = simpleCrac.getCnecs("co", "after-co").iterator().next();
+        assertEquals(1, simpleCrac.getBranchCnecs("co", "after-co").size());
+        BranchCnec getCnec = simpleCrac.getBranchCnecs("co", "after-co").iterator().next();
         assertEquals("cnec", getCnec.getId());
         assertEquals("network-element-1", getCnec.getNetworkElement().getId());
     }
@@ -475,35 +478,38 @@ public class CracFileTest {
 
     @Test
     public void testAddCnecWithNoConflicts() {
-        Cnec cnec1 = new SimpleCnec(
-                "cnec1",
-                new NetworkElement("network-element-1"),
-            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
-                new SimpleState(Optional.empty(), new Instant("initial-instant", 0))
+        BranchCnec cnec1 = new FlowCnecImpl(
+            "cnec1",
+            new NetworkElement("network-element-1"),
+            new SimpleState(Optional.empty(), new Instant("initial-instant", 0)),
+            true, false,
+            Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
+            0.
         );
 
         simpleCrac.addCnec(cnec1);
         assertEquals(0, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getInstant("initial-instant"));
         assertNotNull(simpleCrac.getPreventiveState());
-        assertEquals(1, simpleCrac.getCnecs(simpleCrac.getPreventiveState()).size());
-        assertSame(simpleCrac.getCnecs(simpleCrac.getPreventiveState()).iterator().next().getState(), simpleCrac.getPreventiveState());
+        assertEquals(1, simpleCrac.getBranchCnecs(simpleCrac.getPreventiveState()).size());
+        assertSame(simpleCrac.getBranchCnecs(simpleCrac.getPreventiveState()).iterator().next().getState(), simpleCrac.getPreventiveState());
 
-        Cnec cnec2 = new SimpleCnec(
-                "cnec2",
-                new NetworkElement("network-element-1"),
-            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
-                new SimpleState(
-                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                    new Instant("after-co", 60)
-                )
+        BranchCnec cnec2 = new FlowCnecImpl(
+            "cnec2",
+            new NetworkElement("network-element-1"),
+            new SimpleState(
+                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                new Instant("after-co", 60)
+            ),
+            true, false,
+            Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
+            0.
         );
-
         simpleCrac.addCnec(cnec2);
         assertEquals(1, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getInstant("after-co"));
         assertNotNull(simpleCrac.getState("co", "after-co"));
-        assertSame(simpleCrac.getCnecs(simpleCrac.getState("co", "after-co")).iterator().next().getState(), simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
+        assertSame(simpleCrac.getBranchCnecs(simpleCrac.getState("co", "after-co")).iterator().next().getState(), simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
     }
 
     @Test
@@ -517,52 +523,56 @@ public class CracFileTest {
         assertNotNull(simpleCrac.getInstant("after-co"));
         assertNotNull(simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
 
-        Cnec cnec = new SimpleCnec(
-                "cnec2",
-                new NetworkElement("network-element-1"),
-            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
-                new SimpleState(
-                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                    new Instant("after-co", 60)
-                )
+        BranchCnec cnec = new FlowCnecImpl(
+            "cnec2",
+            new NetworkElement("network-element-1"),
+            new SimpleState(
+                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                new Instant("after-co", 60)
+            ),
+            true, false,
+            Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
+            0.
         );
-
         simpleCrac.addCnec(cnec);
         assertEquals(1, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getInstant("after-co"));
         assertNotNull(simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
         assertSame(
-                simpleCrac.getCnecs(simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co"))).iterator().next().getState(),
+                simpleCrac.getBranchCnecs(simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co"))).iterator().next().getState(),
                 simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
     }
 
     @Test
     public void testAddCnecWithTwoIdenticalCnecs() {
-        Cnec cnec1 = new SimpleCnec(
-                "cnec1",
-                new NetworkElement("network-element-1"),
-            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
-                new SimpleState(
-                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                    new Instant("after-co", 60)
-                )
+        BranchCnec cnec1 = new FlowCnecImpl(
+            "cnec2",
+            new NetworkElement("network-element-1"),
+            new SimpleState(
+                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                new Instant("after-co", 60)
+            ),
+            true, false,
+            Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
+            0.
+        );
+        BranchCnec cnec2 = new FlowCnecImpl(
+            "cnec2",
+            new NetworkElement("network-element-1"),
+            new SimpleState(
+                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
+                new Instant("after-co", 60)
+            ),
+            true, false,
+            Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
+            0.
         );
 
-        Cnec cnec2 = new SimpleCnec(
-                "cnec1",
-                new NetworkElement("network-element-1"),
-            Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, LEFT, OPPOSITE, 1000.)),
-                new SimpleState(
-                    Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                    new Instant("after-co", 60)
-                )
-        );
-
-        assertEquals(0, simpleCrac.getCnecs().size());
+        assertEquals(0, simpleCrac.getBranchCnecs().size());
         simpleCrac.addCnec(cnec1);
-        assertEquals(1, simpleCrac.getCnecs().size());
+        assertEquals(1, simpleCrac.getBranchCnecs().size());
         simpleCrac.addCnec(cnec2);
-        assertEquals(1, simpleCrac.getCnecs().size());
+        assertEquals(1, simpleCrac.getBranchCnecs().size());
     }
 
     @Test
@@ -576,7 +586,7 @@ public class CracFileTest {
 
         simpleCrac.addRangeAction(rangeAction);
 
-        assertEquals(0, simpleCrac.getCnecs().size());
+        assertEquals(0, simpleCrac.getBranchCnecs().size());
     }
 
     @Test
