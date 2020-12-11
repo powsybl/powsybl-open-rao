@@ -54,12 +54,12 @@ public class SearchTreeRaoProviderTest {
         postOptimCurVariantId = resultVariantManager.createNewUniqueVariantId("postOptim-cur");
         resultVariantManager.setInitialVariantId(initialVariantId);
 
-        crac.getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(600);
-        crac.getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(postOptimPrevVariantId).setFlowInMW(300);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(600);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(postOptimPrevVariantId).setFlowInMW(300);
 
-        crac.getCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
+        crac.getBranchCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
             .getVariant(postOptimPrevVariantId).setFlowInMW(400);
-        crac.getCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
+        crac.getBranchCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
             .getVariant(postOptimCurVariantId).setFlowInMW(200);
 
         ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
@@ -107,9 +107,9 @@ public class SearchTreeRaoProviderTest {
 
         assertEquals(RaoResult.Status.SUCCESS, mergedRaoResult.getStatus());
         assertEquals(postOptimPrevVariantId, mergedRaoResult.getPostOptimVariantId());
-        assertEquals(300, crac.getCnec("cnec1basecase").getExtension(CnecResultExtension.class)
+        assertEquals(300, crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class)
             .getVariant(postOptimPrevVariantId).getFlowInMW(), 0.1);
-        assertEquals(200, crac.getCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
+        assertEquals(200, crac.getBranchCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
             .getVariant(postOptimPrevVariantId).getFlowInMW(), 0.1);
         assertEquals(Integer.valueOf(5), ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
             .getVariant(postOptimPrevVariantId)).getTap(crac.getPreventiveState().getId()));

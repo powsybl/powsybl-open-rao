@@ -7,7 +7,8 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.commons.Unit;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -78,11 +79,11 @@ public class CnecResult implements Result {
         return flowInA;
     }
 
-    public void setThresholds(Cnec cnec) {
-        minThresholdInMW = cnec.getMinThreshold(Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
-        maxThresholdInMW = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
-        minThresholdInA = cnec.getMinThreshold(Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY);
-        maxThresholdInA = cnec.getMaxThreshold(Unit.AMPERE).orElse(Double.POSITIVE_INFINITY);
+    public void setThresholds(BranchCnec cnec) {
+        minThresholdInMW = cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
+        maxThresholdInMW = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+        minThresholdInA = cnec.getLowerBound(Side.LEFT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY);
+        maxThresholdInA = cnec.getUpperBound(Side.LEFT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY);
     }
 
     public double getMinThresholdInMW() {

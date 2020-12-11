@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -77,7 +77,7 @@ public class SystematicSensitivityInterfaceTest {
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
         assertFalse(systematicSensitivityInterface.isFallback());
-        for (Cnec cnec: crac.getCnecs()) {
+        for (Cnec cnec: crac.getBranchCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
                 assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
                 assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
@@ -129,7 +129,7 @@ public class SystematicSensitivityInterfaceTest {
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
         assertTrue(systematicSensitivityInterface.isFallback());
-        for (Cnec cnec: crac.getCnecs()) {
+        for (Cnec cnec: crac.getBranchCnecs()) {
             if (cnec.getId().equals("cnec2basecase")) {
                 assertEquals(1400., systematicSensitivityAnalysisResult.getReferenceFlow(cnec), FLOW_TOLERANCE);
                 assertEquals(2000., systematicSensitivityAnalysisResult.getReferenceIntensity(cnec), FLOW_TOLERANCE);
@@ -169,7 +169,7 @@ public class SystematicSensitivityInterfaceTest {
         random.setSeed(42L);
         SystematicSensitivityResult result = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(result.isSuccess()).thenReturn(true);
-        crac.getCnecs().forEach(cnec -> {
+        crac.getBranchCnecs().forEach(cnec -> {
             if (cnec.getId().equals("cnec2basecase")) {
                 Mockito.when(result.getReferenceFlow(cnec)).thenReturn(1400.);
                 Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(2000.);

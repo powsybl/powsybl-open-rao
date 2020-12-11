@@ -9,11 +9,13 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.mockito.Mockito;
 
@@ -306,21 +308,21 @@ final class ExampleGenerator {
         Crac crac = new SimpleCrac("test-crac");
         Instant instantN = crac.newInstant().setId("N").setSeconds(-1).add();
 
-        crac.newCnec().setId("FR-BE1").setInstant(instantN)
+        crac.newBranchCnec().setId("FR-BE1").setInstant(instantN)
             .newNetworkElement().setId("FR-BE1").add()
-            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add().add();
-        crac.newCnec().setId("FR-DE").setInstant(instantN)
+            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
+        crac.newBranchCnec().setId("FR-DE").setInstant(instantN)
             .newNetworkElement().setId("FR-DE").add()
-            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add().add();
-        crac.newCnec().setId("BE2-NL").setInstant(instantN)
+            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
+        crac.newBranchCnec().setId("BE2-NL").setInstant(instantN)
             .newNetworkElement().setId("BE2-NL").add()
-            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add().add();
-        crac.newCnec().setId("DE-NL").setInstant(instantN)
+            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
+        crac.newBranchCnec().setId("DE-NL").setInstant(instantN)
             .newNetworkElement().setId("DE-NL").add()
-            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add().add();
-        crac.newCnec().setId("BE1-BE2").setInstant(instantN)
+            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
+        crac.newBranchCnec().setId("BE1-BE2").setInstant(instantN)
             .newNetworkElement().setId("BE1-BE2").add()
-            .newThreshold().setMaxValue(200.).setUnit(MEGAWATT).setDirection(Direction.BOTH).setSide(Side.LEFT).add().add();
+            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
 
         return crac;
     }
@@ -351,11 +353,11 @@ final class ExampleGenerator {
         SystematicSensitivityResult sensisResults = Mockito.mock(SystematicSensitivityResult.class);
 
         // flow results
-        Mockito.when(sensisResults.getReferenceFlow(crac.getCnec("FR-BE1"))).thenReturn(30.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getCnec("BE1-BE2"))).thenReturn(280.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getCnec("FR-DE"))).thenReturn(170.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getCnec("BE2-NL"))).thenReturn(30.);
-        Mockito.when(sensisResults.getReferenceFlow(crac.getCnec("DE-NL"))).thenReturn(170.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("FR-BE1"))).thenReturn(30.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("BE1-BE2"))).thenReturn(280.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("FR-DE"))).thenReturn(170.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("BE2-NL"))).thenReturn(30.);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("DE-NL"))).thenReturn(170.);
 
         // sensi results
         LinearGlsk glskFr = glsk.getData("FR");
@@ -363,30 +365,30 @@ final class ExampleGenerator {
         LinearGlsk glskDe = glsk.getData("DE");
         LinearGlsk glskNl = glsk.getData("NL");
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getCnec("FR-BE1"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getCnec("FR-BE1"))).thenReturn(-1.5);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getCnec("FR-BE1"))).thenReturn(-0.4);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getCnec("FR-BE1"))).thenReturn(-0.8);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("FR-BE1"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("FR-BE1"))).thenReturn(-1.5);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("FR-BE1"))).thenReturn(-0.4);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("FR-BE1"))).thenReturn(-0.8);
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getCnec("BE1-BE2"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getCnec("BE1-BE2"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getCnec("BE1-BE2"))).thenReturn(-0.4);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getCnec("BE1-BE2"))).thenReturn(-0.8);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("BE1-BE2"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("BE1-BE2"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("BE1-BE2"))).thenReturn(-0.4);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("BE1-BE2"))).thenReturn(-0.8);
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getCnec("FR-DE"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getCnec("FR-DE"))).thenReturn(-0.5);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getCnec("FR-DE"))).thenReturn(-1.6);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getCnec("FR-DE"))).thenReturn(-1.2);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("FR-DE"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("FR-DE"))).thenReturn(-0.5);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("FR-DE"))).thenReturn(-1.6);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("FR-DE"))).thenReturn(-1.2);
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getCnec("BE2-NL"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getCnec("BE2-NL"))).thenReturn(0.5);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getCnec("BE2-NL"))).thenReturn(-0.4);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getCnec("BE2-NL"))).thenReturn(-0.8);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("BE2-NL"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("BE2-NL"))).thenReturn(0.5);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("BE2-NL"))).thenReturn(-0.4);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("BE2-NL"))).thenReturn(-0.8);
 
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getCnec("DE-NL"))).thenReturn(0.);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getCnec("DE-NL"))).thenReturn(-0.5);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getCnec("DE-NL"))).thenReturn(0.4);
-        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getCnec("DE-NL"))).thenReturn(-1.2);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("DE-NL"))).thenReturn(0.);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("DE-NL"))).thenReturn(-0.5);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskDe, crac.getBranchCnec("DE-NL"))).thenReturn(0.4);
+        Mockito.when(sensisResults.getSensitivityOnFlow(glskNl, crac.getBranchCnec("DE-NL"))).thenReturn(-1.2);
 
         return sensisResults;
     }

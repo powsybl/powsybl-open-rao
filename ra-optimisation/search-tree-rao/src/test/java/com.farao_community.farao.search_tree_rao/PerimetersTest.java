@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
@@ -40,53 +41,53 @@ public class PerimetersTest {
         crac.newContingency().setId("contingency-1").add();
         crac.newContingency().setId("contingency-2").add();
         crac.newContingency().setId("contingency-3").add();
-        crac.newCnec()
+        crac.newBranchCnec()
             .setInstant(crac.getInstant("N"))
             .setId("cnec1-preventive")
             .newNetworkElement().setId("ne1").add()
-            .newThreshold().setSide(Side.LEFT).setUnit(Unit.AMPERE).setMaxValue(200.).setDirection(Direction.BOTH).add()
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(200.).setMin(-200.).add()
             .add();
-        crac.newCnec()
+        crac.newBranchCnec()
             .setInstant(crac.getInstant("Outage"))
             .setContingency(crac.getContingency("contingency-1"))
             .setId("cnec1-outage1")
             .newNetworkElement().setId("ne1").add()
-            .newThreshold().setSide(Side.LEFT).setUnit(Unit.AMPERE).setMaxValue(400.).setDirection(Direction.BOTH).add()
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(400.).setMin(-400.).add()
             .add();
-        crac.newCnec()
+        crac.newBranchCnec()
             .setInstant(crac.getInstant("Curative"))
             .setContingency(crac.getContingency("contingency-1"))
             .setId("cnec1-curative1")
             .newNetworkElement().setId("ne1").add()
-            .newThreshold().setSide(Side.LEFT).setUnit(Unit.AMPERE).setMaxValue(200.).setDirection(Direction.BOTH).add()
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(200.).setMin(-200.).add()
             .add();
-        crac.newCnec()
+        crac.newBranchCnec()
             .setInstant(crac.getInstant("Outage")).
             setContingency(crac.getContingency("contingency-2"))
             .setId("cnec1-outage2")
             .newNetworkElement().setId("ne1").add()
-            .newThreshold().setSide(Side.LEFT).setUnit(Unit.AMPERE).setMaxValue(500.).setDirection(Direction.BOTH).add()
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(500.).setMin(-500.).add()
             .add();
-        crac.newCnec()
+        crac.newBranchCnec()
             .setInstant(crac.getInstant("Curative"))
             .setContingency(crac.getContingency("contingency-2"))
             .setId("cnec1-curative2")
             .newNetworkElement().setId("ne1").add()
-            .newThreshold().setSide(Side.LEFT).setUnit(Unit.AMPERE).setMaxValue(200.).setDirection(Direction.BOTH).add()
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(200.).setMin(-200.).add()
             .add();
-        crac.newCnec()
+        crac.newBranchCnec()
             .setInstant(crac.getInstant("Outage"))
             .setContingency(crac.getContingency("contingency-3"))
             .setId("cnec1-outage3")
             .newNetworkElement().setId("ne1").add()
-            .newThreshold().setSide(Side.LEFT).setUnit(Unit.AMPERE).setMaxValue(200.).setDirection(Direction.BOTH).add()
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(200.).setMin(-200.).add()
             .add();
-        crac.newCnec()
+        crac.newBranchCnec()
             .setInstant(crac.getInstant("Curative"))
             .setContingency(crac.getContingency("contingency-3"))
             .setId("cnec1-curative3")
             .newNetworkElement().setId("ne1").add()
-            .newThreshold().setSide(Side.LEFT).setUnit(Unit.AMPERE).setMaxValue(200.).setDirection(Direction.BOTH).add()
+            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(200.).setMin(-200.).add()
             .add();
     }
 
@@ -99,7 +100,7 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithOneRemedialActionOnOutage() {
-        PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement(new NetworkElement("pst1")));
+        PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement("pst1"));
         pstRange.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Outage")));
         crac.addRangeAction(pstRange);
         stateTree = new StateTree(crac, network, crac.getPreventiveState());
@@ -110,7 +111,7 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithOneRemedialActionOnCurative() {
-        PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement(new NetworkElement("pst1")));
+        PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement("pst1"));
         pstRange.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Curative")));
         crac.addRangeAction(pstRange);
         stateTree = new StateTree(crac, network, crac.getPreventiveState());
@@ -121,10 +122,10 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithTwoRemedialActions() {
-        PstRange pstRange1 = new PstWithRange("pst-ra1", crac.addNetworkElement(new NetworkElement("pst1")));
+        PstRange pstRange1 = new PstWithRange("pst-ra1", crac.addNetworkElement("pst1"));
         pstRange1.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Curative")));
         crac.addRangeAction(pstRange1);
-        PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
+        PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement("pst1"));
         pstRange2.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
         stateTree = new StateTree(crac, network, crac.getPreventiveState());
@@ -134,10 +135,10 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithTwoRemedialActionsOnSameContingency() {
-        PstRange pstRange1 = new PstWithRange("pst-ra1", crac.addNetworkElement(new NetworkElement("pst1")));
+        PstRange pstRange1 = new PstWithRange("pst-ra1", crac.addNetworkElement("pst1"));
         pstRange1.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Curative")));
         crac.addRangeAction(pstRange1);
-        PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement(new NetworkElement("pst1")));
+        PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement("pst1"));
         pstRange2.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
         stateTree = new StateTree(crac, network, crac.getPreventiveState());

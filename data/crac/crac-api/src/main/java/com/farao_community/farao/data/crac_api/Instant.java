@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonIdentityInfo(scope = Instant.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Instant extends AbstractIdentifiable {
+public class Instant extends AbstractIdentifiable<Instant> {
     private int seconds;
 
     @JsonCreator

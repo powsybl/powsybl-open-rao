@@ -91,7 +91,7 @@ public class LinearOptimizerTest {
     private SystematicSensitivityResult createSystematicResult() {
         SystematicSensitivityResult result = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(result.isSuccess()).thenReturn(true);
-        crac.getCnecs().forEach(cnec -> {
+        crac.getBranchCnecs().forEach(cnec -> {
             Mockito.when(result.getReferenceFlow(cnec)).thenReturn(499.);
             Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(11.);
             crac.getRangeActions().forEach(rangeAction -> {

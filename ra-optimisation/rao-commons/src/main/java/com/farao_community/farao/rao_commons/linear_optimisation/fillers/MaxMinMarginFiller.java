@@ -9,7 +9,8 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -87,7 +88,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
-        raoData.getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
+        raoData.getCnecs().stream().filter(BranchCnec::isOptimized).forEach(cnec -> {
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {
@@ -96,8 +97,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-            minFlow = cnec.getMinThreshold(MEGAWATT);
-            maxFlow = cnec.getMaxThreshold(MEGAWATT);
+            minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
+            maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
             double unitConversionCoefficient = getUnitConversionCoefficient(cnec, raoData);
 
             if (minFlow.isPresent()) {
@@ -156,7 +157,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * the flows are always defined in MW, so if the minimum margin is defined in ampere,
      * and appropriate conversion coefficient should be used.
      */
-    protected double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData) {
+    protected double getUnitConversionCoefficient(BranchCnec cnec, RaoData linearRaoData) {
         if (unit.equals(MEGAWATT)) {
             return 1;
         } else {

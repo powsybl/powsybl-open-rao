@@ -6,18 +6,18 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
-/**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
- */
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class LoopFlowResult {
 
-    private Map<Cnec, LoopFlow> loopFlowmap;
+    private Map<Cnec<?>, LoopFlow> loopFlowmap;
 
     private class LoopFlow {
         double loopFlowValue;
@@ -47,11 +47,11 @@ public class LoopFlowResult {
         this.loopFlowmap = new HashMap<>();
     }
 
-    public void addCnecResult(Cnec cnec, double loopFlowValue, double commercialFlowValue, double referenceFlowValue) {
+    public void addCnecResult(Cnec<?> cnec, double loopFlowValue, double commercialFlowValue, double referenceFlowValue) {
         loopFlowmap.put(cnec, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue));
     }
 
-    public double getLoopFlow(Cnec cnec) {
+    public double getLoopFlow(Cnec<?> cnec) {
         LoopFlow loopFlow = loopFlowmap.get(cnec);
         if (loopFlow == null) {
             throw new FaraoException(String.format("No loop-flow value found for cnec %s", cnec.getId()));
@@ -59,7 +59,7 @@ public class LoopFlowResult {
         return loopFlow.getLoopFlow();
     }
 
-    public double getCommercialFlow(Cnec cnec) {
+    public double getCommercialFlow(Cnec<?> cnec) {
         LoopFlow loopFlow = loopFlowmap.get(cnec);
         if (loopFlow == null) {
             throw new FaraoException(String.format("No commercial flow value found for cnec %s", cnec.getId()));
@@ -67,7 +67,7 @@ public class LoopFlowResult {
         return loopFlow.getCommercialFlow();
     }
 
-    public double getReferenceFlow(Cnec cnec) {
+    public double getReferenceFlow(Cnec<?> cnec) {
         LoopFlow loopFlow = loopFlowmap.get(cnec);
         if (loopFlow == null) {
             throw new FaraoException(String.format("No reference flow value found for cnec %s", cnec.getId()));
@@ -75,7 +75,7 @@ public class LoopFlowResult {
         return loopFlow.getTotalFlow();
     }
 
-    public boolean containValues(Cnec cnec) {
+    public boolean containValues(Cnec<?> cnec) {
         return loopFlowmap.get(cnec) != null;
     }
 }

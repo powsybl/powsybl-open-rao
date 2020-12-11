@@ -7,7 +7,7 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.powsybl.iidm.network.*;
@@ -22,10 +22,9 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class RangeActionSensitivityProvider extends LoadflowProvider {
-
     private Set<RangeAction> rangeActions;
 
-    RangeActionSensitivityProvider(Set<RangeAction> rangeActions, Set<Cnec> cnecs, Set<Unit> units) {
+    RangeActionSensitivityProvider(Set<RangeAction> rangeActions, Set<BranchCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
         this.rangeActions = rangeActions;
     }

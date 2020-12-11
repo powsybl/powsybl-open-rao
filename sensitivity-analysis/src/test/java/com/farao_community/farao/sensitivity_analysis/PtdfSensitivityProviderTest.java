@@ -49,8 +49,7 @@ public class PtdfSensitivityProviderTest {
 
     @Test
     public void getFactorsOnCommonCrac() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getCnecs(), Collections.singleton(Unit.MEGAWATT));
-
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT));
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getFactors(network);
 
         assertEquals(8, sensitivityFactors.size());
@@ -60,7 +59,7 @@ public class PtdfSensitivityProviderTest {
 
     @Test
     public void testDoNotHandleAmpere() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getCnecs(), Collections.singleton(Unit.AMPERE));
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getBranchCnecs(), Collections.singleton(Unit.AMPERE));
         assertFalse(ptdfSensitivityProvider.factorsInAmpere);
         assertTrue(ptdfSensitivityProvider.factorsInMegawatt);
     }

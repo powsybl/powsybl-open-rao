@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class InstantAdderImpl extends AbstractIdentifiableAdder<InstantAdderImpl> implements InstantAdder {
+public class InstantAdderImpl extends AbstractIdentifiableAdder<InstantAdder> implements InstantAdder {
 
     private SimpleCrac parent;
     private Integer seconds;

@@ -8,7 +8,8 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -45,7 +46,7 @@ public class MnecFiller implements ProblemFiller {
     }
 
     private void buildMarginViolationVariable(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec ->
+        raoData.getCnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec ->
             linearProblem.addMnecViolationVariable(0, linearProblem.infinity(), mnec)
         );
     }
@@ -53,7 +54,7 @@ public class MnecFiller implements ProblemFiller {
     private void buildMnecMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
         String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
 
-        raoData.getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec -> {
+        raoData.getCnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec -> {
                 if (Objects.isNull(mnec.getExtension(CnecResultExtension.class))) {
                     return;
                 }
@@ -71,7 +72,7 @@ public class MnecFiller implements ProblemFiller {
                     throw new FaraoException(String.format("Mnec violation variable has not yet been created for Mnec %s", mnec.getId()));
                 }
 
-                Optional<Double> maxFlow = mnec.getMaxThreshold(MEGAWATT);
+                Optional<Double> maxFlow = mnec.getUpperBound(Side.LEFT, MEGAWATT);
                 if (maxFlow.isPresent()) {
                     double ub = Math.max(maxFlow.get(), mnecInitialFlow + mnecAcceptableMarginDiminution) - mnecConstraintAdjustmentCoefficient;
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
@@ -79,7 +80,7 @@ public class MnecFiller implements ProblemFiller {
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
                 }
 
-                Optional<Double> minFlow = mnec.getMinThreshold(MEGAWATT);
+                Optional<Double> minFlow = mnec.getLowerBound(Side.LEFT, MEGAWATT);
                 if (minFlow.isPresent()) {
                     double lb = Math.min(minFlow.get(), mnecInitialFlow - mnecAcceptableMarginDiminution) + mnecConstraintAdjustmentCoefficient;
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
@@ -91,7 +92,7 @@ public class MnecFiller implements ProblemFiller {
     }
 
     public void fillObjectiveWithMnecPenaltyCost(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getCnecs().stream().filter(Cnec::isMonitored).forEach(mnec ->
+        raoData.getCnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec ->
             linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec), mnecViolationCost / getUnitConversionCoefficient(mnec, raoData))
         );
     }
@@ -106,7 +107,7 @@ public class MnecFiller implements ProblemFiller {
      * The acceptable margin diminution parameter is defined in MW, so if the minimum margin is defined in ampere,
      * appropriate conversion coefficient should be used.
      */
-    private double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData) {
+    private double getUnitConversionCoefficient(BranchCnec cnec, RaoData linearRaoData) {
         if (unit.equals(MEGAWATT)) {
             return 1;
         } else {

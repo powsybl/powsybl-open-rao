@@ -94,7 +94,7 @@ public class Cne {
         Crac crac = cneHelper.getCrac();
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
-        crac.getCnecs().forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList));
+        crac.getBranchCnecs().forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList));
 
         ConstraintSeries preventiveB56 = newConstraintSeries(generateRandomMRID(), B56_BUSINESS_TYPE);
         crac.getRangeActions().forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, cneHelper, constraintSeriesList, preventiveB56));

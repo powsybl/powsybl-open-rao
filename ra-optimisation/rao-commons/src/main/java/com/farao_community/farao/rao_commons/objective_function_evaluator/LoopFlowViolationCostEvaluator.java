@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -46,7 +46,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         return Unit.MEGAWATT;
     }
 
-    private double getLoopFlowExcess(RaoData raoData, Cnec cnec) {
+    private double getLoopFlowExcess(RaoData raoData, BranchCnec cnec) {
         CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
         return Math.max(0, Math.abs(cnecResult.getLoopflowInMW()) - Math.abs(cnecResult.getLoopflowThresholdInMW()));
     }

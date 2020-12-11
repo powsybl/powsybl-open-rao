@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
@@ -41,8 +42,8 @@ public class RaoDataTest {
         initialNetworkVariantId = network.getVariantManager().getWorkingVariantId();
         crac = CommonCracCreation.createWithPstRange();
         crac.synchronize(network);
-        crac.getCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
-        crac.getCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
+        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
+        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
         raoData = RaoData.createOnPreventiveState(network, crac);
         initialVariantId  = raoData.getWorkingVariantId();
     }
@@ -153,7 +154,7 @@ public class RaoDataTest {
         Set<Country> loopflowCountries = raoData.getLoopflowCountries();
         assertEquals(0, loopflowCountries.size());
 
-        Set<Cnec> loopflowCnecs = raoData.getLoopflowCnecs();
+        Set<BranchCnec> loopflowCnecs = raoData.getLoopflowCnecs();
         assertEquals(2, loopflowCnecs.size());
     }
 
@@ -166,7 +167,7 @@ public class RaoDataTest {
         Set<Country> loopflowCountries = raoData.getLoopflowCountries();
         assertEquals(1, loopflowCountries.size());
 
-        Set<Cnec> loopflowCnecs = raoData.getLoopflowCnecs();
+        Set<BranchCnec> loopflowCnecs = raoData.getLoopflowCnecs();
         assertEquals(1, loopflowCnecs.size());
     }
 }

@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
@@ -18,8 +19,6 @@ import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
-import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.powsybl.iidm.network.Network;
@@ -67,10 +66,32 @@ public class CracCleanerTest {
         simpleCrac.addNetworkElement("neId2");
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
 
-        simpleCrac.addCnec("cnec1prev", "FFR1AA1  FFR2AA1  1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
-        simpleCrac.addCnec("cnec2prev", "neId2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
-        simpleCrac.addCnec("cnec1cur", "neId1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 800)), postContingencyState.getId());
-        simpleCrac.addCnec("cnec3cur", "BBE1AA1  BBE2AA1  1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), stateThatShouldBeRemoved.getId());
+        simpleCrac.newBranchCnec()
+                .setId("cnec1prev").optimized().monitored()
+                .newNetworkElement().setId("FFR1AA1  FFR2AA1  1").add()
+                .newThreshold().setUnit(Unit.AMPERE).setMin(-500.0).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .setInstant(preventiveState.getInstant())
+                .add();
+        simpleCrac.newBranchCnec()
+                .setId("cnec2prev").optimized().monitored()
+                .newNetworkElement().setId("neId2").add()
+                .newThreshold().setUnit(Unit.PERCENT_IMAX).setMin(-0.3).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .setInstant(preventiveState.getInstant())
+                .add();
+        simpleCrac.newBranchCnec()
+                .setId("cnec1cur").optimized().monitored()
+                .newNetworkElement().setId("neId1").add()
+                .newThreshold().setUnit(Unit.AMPERE).setMin(-800.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .setInstant(postContingencyState.getInstant())
+                .setContingency(postContingencyState.getContingency().orElseThrow())
+                .add();
+        simpleCrac.newBranchCnec()
+                .setId("cnec3cur").optimized().monitored()
+                .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
+                .newThreshold().setUnit(Unit.AMPERE).setMin(-500.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .setInstant(stateThatShouldBeRemoved.getInstant())
+                .setContingency(stateThatShouldBeRemoved.getContingency().orElseThrow())
+                .add();
 
         Topology topology1 = new Topology(
             "topologyId1",
@@ -102,7 +123,7 @@ public class CracCleanerTest {
         simpleCrac.addNetworkAction(topology2);
         simpleCrac.addNetworkAction(complexNetworkAction);
         simpleCrac.addRangeAction(pstWithRange);
-        assertEquals(4, simpleCrac.getCnecs().size());
+        assertEquals(4, simpleCrac.getBranchCnecs().size());
         assertEquals(3, simpleCrac.getNetworkActions().size());
         assertEquals(1, simpleCrac.getRangeActions().size());
         assertEquals(3, simpleCrac.getContingencies().size());
@@ -111,7 +132,7 @@ public class CracCleanerTest {
         CracCleaner cracCleaner = new CracCleaner();
         List<String> qualityReport = cracCleaner.cleanCrac(simpleCrac, network);
 
-        assertEquals(1, simpleCrac.getCnecs().size());
+        assertEquals(1, simpleCrac.getBranchCnecs().size());
         assertEquals(1, simpleCrac.getNetworkActions().size());
         assertEquals(0, simpleCrac.getRangeActions().size());
         assertEquals(2, simpleCrac.getContingencies().size());
@@ -131,26 +152,26 @@ public class CracCleanerTest {
         CracFactory factory = CracFactory.find("SimpleCracFactory");
         Crac crac = factory.create("test-crac");
         Instant inst = crac.newInstant().setId("inst1").setSeconds(10).add();
-        crac.newCnec().setId("BBE1AA1  BBE2AA1  1").setOptimized(true).setMonitored(true)
-            .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
-            .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
-            .setInstant(inst)
-            .add();
-        crac.newCnec().setId("BBE1AA1  BBE3AA1  1").setOptimized(true).setMonitored(false)
-            .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
-            .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
-            .setInstant(inst)
-            .add();
-        crac.newCnec().setId("FFR1AA1  FFR2AA1  1").setOptimized(false).setMonitored(true)
-            .newNetworkElement().setId("FFR1AA1  FFR2AA1  1").add()
-            .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
-            .setInstant(inst)
-            .add();
-        crac.newCnec().setId("FFR1AA1  FFR3AA1  1").setOptimized(false).setMonitored(false)
-            .newNetworkElement().setId("FFR1AA1  FFR3AA1  1").add()
-            .newThreshold().setUnit(Unit.MEGAWATT).setMaxValue(0.0).setDirection(Direction.BOTH).setSide(Side.LEFT).add()
-            .setInstant(inst)
-            .add();
+        crac.newBranchCnec().setId("BBE1AA1  BBE2AA1  1").optimized().monitored()
+                .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
+                .newThreshold().setUnit(Unit.MEGAWATT).setMin(0.0).setMax(0.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .setInstant(inst)
+                .add();
+        crac.newBranchCnec().setId("BBE1AA1  BBE3AA1  1").optimized()
+                .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
+                .newThreshold().setUnit(Unit.MEGAWATT).setMin(0.0).setMax(0.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .setInstant(inst)
+                .add();
+        crac.newBranchCnec().setId("FFR1AA1  FFR2AA1  1").monitored()
+                .newNetworkElement().setId("FFR1AA1  FFR2AA1  1").add()
+                .newThreshold().setUnit(Unit.MEGAWATT).setMin(0.0).setMax(0.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .setInstant(inst)
+                .add();
+        crac.newBranchCnec().setId("FFR1AA1  FFR3AA1  1")
+                .newNetworkElement().setId("FFR1AA1  FFR3AA1  1").add()
+                .newThreshold().setUnit(Unit.MEGAWATT).setMin(0.0).setMax(0.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .setInstant(inst)
+                .add();
 
         return crac;
     }
@@ -162,7 +183,7 @@ public class CracCleanerTest {
         cracCleaner.disableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
         List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
         assertEquals(0, qualityReport.size());
-        assertEquals(4, crac.getCnecs().size());
+        assertEquals(4, crac.getBranchCnecs().size());
     }
 
     @Test
@@ -172,8 +193,8 @@ public class CracCleanerTest {
         cracCleaner.enableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
         List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
         assertEquals(1, qualityReport.size());
-        assertEquals(3, crac.getCnecs().size());
-        assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));
+        assertEquals(3, crac.getBranchCnecs().size());
+        assertNull(crac.getBranchCnec("FFR1AA1  FFR3AA1  1"));
     }
 
     @Test

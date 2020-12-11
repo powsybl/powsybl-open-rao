@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.sensitivity.SensitivityFactorsProvider;
 
@@ -17,5 +17,5 @@ import java.util.Set;
  */
 public interface CnecSensitivityProvider extends SensitivityFactorsProvider, ContingenciesProvider {
 
-    public Set<Cnec> getCnecs();
+    Set<BranchCnec> getBranchCnecs();
 }

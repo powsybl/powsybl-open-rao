@@ -10,14 +10,7 @@ package com.farao_community.farao.data.crac_api;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface InstantAdder {
-
-    /**
-     * Set the id of the new instant
-     * @param id: the id to set
-     * @return the {@code InstantAdder} instance
-     */
-    InstantAdder setId(String id);
+public interface InstantAdder extends IdentifiableAdder<InstantAdder> {
 
     /**
      * Set the seconds of the new instant

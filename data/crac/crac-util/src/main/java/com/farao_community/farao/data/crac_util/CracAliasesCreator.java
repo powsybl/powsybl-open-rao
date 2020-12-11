@@ -33,7 +33,7 @@ public class CracAliasesCreator {
     public void createAliases(Crac crac, Network network, UcteNodeMatchingRule rule) {
         // List (without duplicates) all the crac elements that need to be found in the network
         Set<String> elementIds = new HashSet<>();
-        crac.getCnecs().forEach(cnec -> elementIds.add(cnec.getNetworkElement().getId()));
+        crac.getBranchCnecs().forEach(cnec -> elementIds.add(cnec.getNetworkElement().getId()));
         crac.getContingencies().forEach(contingency -> handleAliases(contingency.getNetworkElements(), elementIds));
         crac.getNetworkActions().forEach(networkAction -> handleAliases(networkAction.getNetworkElements(), elementIds));
         crac.getRangeActions().forEach(rangeAction -> handleAliases(rangeAction.getNetworkElements(), elementIds));

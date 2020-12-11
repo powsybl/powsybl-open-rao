@@ -8,9 +8,8 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Direction;
-import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -158,14 +157,15 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void skipMnecsInMinMarginDef() {
-        crac.newCnec().setId("MNEC - N - preventive")
+        crac.newBranchCnec().setId("MNEC - N - preventive")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setDirection(Direction.BOTH).setSide(Side.BOTH).setMaxValue(1000.0).setUnit(Unit.MEGAWATT).add()
-                .setOptimized(false)
-                .setMonitored(true)
+                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
+                .newThreshold().setRule(BranchThresholdRule.ON_RIGHT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
+                .optimized()
+                .monitored()
                 .setInstant(crac.getInstant("N"))
                 .add();
-        Cnec mnec = crac.getCnec("MNEC - N - preventive");
+        BranchCnec mnec = crac.getBranchCnec("MNEC - N - preventive");
         fillProblemWithCoreFiller();
         maxMinMarginFiller.fill(raoData, linearProblem);
         MPConstraint mnecAboveThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);

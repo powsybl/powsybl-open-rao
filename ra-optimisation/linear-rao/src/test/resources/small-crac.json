@@ -59,30 +59,30 @@
   ],
   "cnecs": [
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "Tieline BE FR - Defaut - N-1 NL1-NL3",
       "name": "Tieline BE FR",
       "networkElement": "BBE2AA1  FFR3AA1  1",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "BOTH",
-        "maxValue": 750
+        "min": -750,
+        "max": 750,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "state": "N-1 NL1-NL3-Défaut"
     },
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "Tieline BE FR - N - preventive",
       "name": "Tieline BE FR",
       "networkElement": "BBE2AA1  FFR3AA1  1",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "BOTH",
-        "maxValue": 750
+        "min": -750,
+        "max": 750,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "state": "none-N"
     }

@@ -26,7 +26,7 @@ import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVA
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeActionAdderImpl> implements PstRangeActionAdder {
+public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeActionAdder> implements PstRangeActionAdder {
     private SimpleCrac parent;
     private Unit unit;
     private Double minValue;
@@ -66,15 +66,15 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     }
 
     @Override
-    public NetworkElement addNetworkElement(NetworkElement networkElement) {
+    public PstRangeActionAdder addNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
-        return networkElement;
+        return this;
     }
 
     @Override
-    public NetworkElementAdder newNetworkElement() {
+    public NetworkElementAdder<PstRangeActionAdder> newNetworkElement() {
         if (networkElement == null) {
-            return new NetworkElementAdderImpl<PstRangeActionAdder>(this);
+            return new NetworkElementAdderImpl<>(this);
         } else {
             throw new FaraoException("You can only add one network element to a PstRangeAction.");
         }
@@ -106,7 +106,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
          * This is done here because it is too complicated to do in
          * SimpleCrac.addRangeAction, which handles abstract RangeActions
          */
-        NetworkElement newNetworkElement = parent.addNetworkElement(this.networkElement);
+        NetworkElement newNetworkElement = parent.addNetworkElement(networkElement.getId(), networkElement.getName());
 
         PstWithRange pstWithRange = new PstWithRange(this.id, this.name, this.operator, this.usageRules, ranges, newNetworkElement);
         this.parent.addRangeAction(pstWithRange);

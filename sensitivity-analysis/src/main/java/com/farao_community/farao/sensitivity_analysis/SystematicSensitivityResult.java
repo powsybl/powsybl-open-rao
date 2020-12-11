@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
@@ -134,17 +134,17 @@ public class SystematicSensitivityResult {
         this.status = status;
     }
 
-    public double getReferenceFlow(Cnec cnec) {
+    public double getReferenceFlow(Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         return stateResult.getReferenceFlows().getOrDefault(cnec.getNetworkElement().getId(), Double.NaN);
     }
 
-    public double getReferenceIntensity(Cnec cnec) {
+    public double getReferenceIntensity(Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), Double.NaN);
     }
 
-    public double getSensitivityOnFlow(RangeAction rangeAction, Cnec cnec) {
+    public double getSensitivityOnFlow(RangeAction rangeAction, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
         if (!stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
@@ -154,11 +154,11 @@ public class SystematicSensitivityResult {
         return networkElements.stream().mapToDouble(netEl -> sensitivities.get(netEl.getId())).sum();
     }
 
-    public double getSensitivityOnFlow(LinearGlsk glsk, Cnec cnec) {
+    public double getSensitivityOnFlow(LinearGlsk glsk, Cnec<?> cnec) {
         return getSensitivityOnFlow(glsk.getId(), cnec);
     }
 
-    public double getSensitivityOnFlow(String variableId, Cnec cnec) {
+    public double getSensitivityOnFlow(String variableId, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (!stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
             return Double.NaN;
@@ -167,7 +167,7 @@ public class SystematicSensitivityResult {
         return sensitivities.get(variableId);
     }
 
-    public double getSensitivityOnIntensity(RangeAction rangeAction, Cnec cnec) {
+    public double getSensitivityOnIntensity(RangeAction rangeAction, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
         if (!stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId())) {
@@ -177,7 +177,7 @@ public class SystematicSensitivityResult {
         return networkElements.stream().mapToDouble(netEl -> sensitivities.get(netEl.getId())).sum();
     }
 
-    private StateResult getCnecStateResult(Cnec cnec) {
+    private StateResult getCnecStateResult(Cnec<?> cnec) {
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
             return contingencyResults.get(optionalContingency.get().getId());

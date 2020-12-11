@@ -7,7 +7,8 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -48,7 +49,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         double totalMnecMarginViolation = 0;
         boolean mnecsSkipped = false;
         String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
-        for (Cnec cnec : raoData.getCnecs()) {
+        for (BranchCnec cnec : raoData.getCnecs()) {
             if (cnec.isMonitored()) {
                 double initialFlow = (unit == MEGAWATT) ? cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW()
                         : cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInA();
@@ -58,10 +59,10 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
                     mnecsSkipped = true;
                     continue;
                 }
-                double initialMargin = cnec.computeMargin(initialFlow, unit);
+                double initialMargin = cnec.computeMargin(initialFlow, Side.LEFT, unit);
                 double newFlow = (unit == MEGAWATT) ? raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) :
                         raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec);
-                double newMargin = cnec.computeMargin(newFlow, unit);
+                double newMargin = cnec.computeMargin(newFlow, Side.LEFT, unit);
                 double convertedAcceptableMarginDiminution = mnecAcceptableMarginDiminution / getUnitConversionCoefficient(cnec, raoData);
                 totalMnecMarginViolation += Math.max(0, Math.min(0, initialMargin - convertedAcceptableMarginDiminution) - newMargin);
             }
@@ -82,7 +83,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
      * The acceptable margin diminution parameter is defined in MW, so if the minimum margin is defined in ampere,
      * appropriate conversion coefficient should be used.
      */
-    private double getUnitConversionCoefficient(Cnec cnec, RaoData linearRaoData) {
+    private double getUnitConversionCoefficient(BranchCnec cnec, RaoData linearRaoData) {
         if (unit.equals(MEGAWATT)) {
             return 1;
         } else {

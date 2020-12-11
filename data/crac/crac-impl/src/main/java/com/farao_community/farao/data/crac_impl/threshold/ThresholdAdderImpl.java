@@ -10,71 +10,42 @@ package com.farao_community.farao.data.crac_impl.threshold;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.SimpleCnecAdder;
-
-import java.util.Objects;
+import com.farao_community.farao.data.crac_api.threshold.adder.ThresholdAdder;
 
 /**
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ThresholdAdderImpl implements ThresholdAdder {
+public class ThresholdAdderImpl<I extends ThresholdAdder<I>> implements ThresholdAdder<I> {
 
-    private SimpleCnecAdder parent;
-    private Unit unit;
-    private Double maxValue;
-    private Side side;
-    private Direction direction;
-
-    public ThresholdAdderImpl(SimpleCnecAdder parent) {
-        Objects.requireNonNull(parent);
-        this.parent = parent;
-    }
+    protected Unit unit;
+    protected Double max;
+    protected Double min;
 
     @Override
-    public ThresholdAdder setUnit(Unit unit) {
+    public I setUnit(Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         this.unit = unit;
-        return this;
+        return (I) this;
     }
 
     @Override
-    public ThresholdAdder setMaxValue(Double maxValue) {
-        this.maxValue = maxValue;
-        return this;
+    public I setMax(Double max) {
+        this.max = max;
+        return (I) this;
     }
 
     @Override
-    public ThresholdAdder setSide(Side side) {
-        this.side = side;
-        return this;
+    public I setMin(Double min) {
+        this.min = min;
+        return (I) this;
     }
 
-    @Override
-    public ThresholdAdder setDirection(Direction direction) {
-        this.direction = direction;
-        return this;
-    }
-
-    @Override
-    public CnecAdder add() {
-        if (this.unit == null) {
+    protected void checkThreshold() {
+        if (unit == null) {
             throw new FaraoException("Cannot add a threshold without a unit. Please use setUnit.");
         }
-        if (this.maxValue == null) {
-            throw new FaraoException("Cannot add a threshold without a value. Please use setMaxValue.");
+        if (min == null && max == null) {
+            throw new FaraoException("Cannot add a threshold without min nor max values. Please use setMin or setMax.");
         }
-        if (this.side == null) {
-            throw new FaraoException("Cannot add a threshold without a side. Please use setSide.");
-        }
-        if (this.direction == null) {
-            throw new FaraoException("Cannot add a threshold without a direction. Please use setDirection.");
-        }
-        if (this.unit == Unit.PERCENT_IMAX) {
-            parent.addThreshold(new RelativeFlowThreshold(this.side, this.direction, this.maxValue));
-        } else {
-            parent.addThreshold(new AbsoluteFlowThreshold(this.unit, this.side, this.direction, this.maxValue));
-        }
-        return parent;
     }
 }

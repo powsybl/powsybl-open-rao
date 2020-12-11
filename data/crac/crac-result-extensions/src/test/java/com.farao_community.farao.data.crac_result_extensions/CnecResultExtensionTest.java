@@ -8,11 +8,11 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
+import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -44,8 +44,9 @@ public class CnecResultExtensionTest {
         assertNull(cnecResultExtension.getVariant("variant-before-opt"));
 
         // add extension to a Cnec
-        Set<AbstractThreshold> thresholds = new HashSet<>();
-        Cnec cnec = new SimpleCnec("cnecId", new NetworkElement("networkElementId"), thresholds, Mockito.mock(State.class));
+        Set<BranchThreshold> thresholds = new HashSet<>();
+        BranchCnec cnec = new FlowCnecImpl("cnecId", new NetworkElement("networkElementId"),
+            Mockito.mock(State.class), true, false, thresholds, 0.);
 
         cnec.addExtension(CnecResultExtension.class, cnecResultExtension);
         CnecResultExtension ext = cnec.getExtension(CnecResultExtension.class);

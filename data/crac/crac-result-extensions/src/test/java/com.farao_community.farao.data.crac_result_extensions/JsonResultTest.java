@@ -10,12 +10,11 @@ package com.farao_community.farao.data.crac_result_extensions;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
-import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
@@ -24,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Collections;
 
 import static junit.framework.TestCase.*;
 
@@ -41,14 +39,21 @@ public class JsonResultTest {
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
         // States
-        Instant initialInstant = simpleCrac.addInstant("N", 0);
+        Instant initialInstant = simpleCrac.newInstant().setId("N").setSeconds(0).add();
         State preventiveState = simpleCrac.addState(null, initialInstant);
 
-        // Cnecs
-        simpleCrac.addNetworkElement("ne1");
-        simpleCrac.addNetworkElement("ne2");
-        simpleCrac.addCnec("cnec1prev", "ne1", Collections.singleton(new AbsoluteFlowThreshold(Unit.AMPERE, Side.LEFT, Direction.OPPOSITE, 500)), preventiveState.getId());
-        simpleCrac.addCnec("cnec2prev", "ne2", Collections.singleton(new RelativeFlowThreshold(Side.LEFT, Direction.OPPOSITE, 30)), preventiveState.getId());
+        simpleCrac.newBranchCnec()
+            .setId("cnec1prev")
+            .newNetworkElement().setId("ne1").add()
+            .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-500.).add()
+            .setInstant(initialInstant)
+            .add();
+        simpleCrac.newBranchCnec()
+            .setId("cnec2prev")
+            .newNetworkElement().setId("ne2").add()
+            .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).add()
+            .setInstant(initialInstant)
+            .add();
 
         // RangeActions : PstWithRange
         NetworkElement networkElement1 = new NetworkElement("pst1networkElement");
@@ -80,7 +85,7 @@ public class JsonResultTest {
         cracResultExtension.getVariant("variant1").setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED);
 
         // CnecResult
-        CnecResultExtension cnecResultExtension = simpleCrac.getCnec("cnec2prev").getExtension(CnecResultExtension.class);
+        CnecResultExtension cnecResultExtension = simpleCrac.getBranchCnec("cnec2prev").getExtension(CnecResultExtension.class);
         cnecResultExtension.getVariant("variant1").setFlowInA(75.0);
         cnecResultExtension.getVariant("variant1").setFlowInMW(50.0);
         cnecResultExtension.getVariant("variant1").setMinThresholdInMW(-1000);
@@ -139,13 +144,13 @@ public class JsonResultTest {
         assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, crac.getExtension(CracResultExtension.class).getVariant("variant1").getNetworkSecurityStatus());
 
         // assert that cnecs exist in the crac
-        assertEquals(2, crac.getCnecs().size());
-        assertNotNull(crac.getCnec("cnec1prev"));
-        assertNotNull(crac.getCnec("cnec2prev"));
+        assertEquals(2, crac.getBranchCnecs().size());
+        assertNotNull(crac.getBranchCnec("cnec1prev"));
+        assertNotNull(crac.getBranchCnec("cnec2prev"));
 
         // assert that the second one has a CnecResult extension with the expected content
-        assertEquals(1, crac.getCnec("cnec2prev").getExtensions().size());
-        CnecResultExtension extCnec = crac.getCnec("cnec2prev").getExtension(CnecResultExtension.class);
+        assertEquals(1, crac.getBranchCnec("cnec2prev").getExtensions().size());
+        CnecResultExtension extCnec = crac.getBranchCnec("cnec2prev").getExtension(CnecResultExtension.class);
         assertNotNull(extCnec);
         assertEquals(50.0, extCnec.getVariant("variant1").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(75.0, extCnec.getVariant("variant1").getFlowInA(), DOUBLE_TOLERANCE);
@@ -198,7 +203,7 @@ public class JsonResultTest {
         assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, extCrac.getVariant("variant1").getNetworkSecurityStatus());
 
         // CnecResultExtension
-        CnecResultExtension extCnec = crac.getCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
+        CnecResultExtension extCnec = crac.getBranchCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
         assertNotNull(extCnec);
         assertEquals(-450.0, extCnec.getVariant("variant2").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(750.0, extCnec.getVariant("variant2").getFlowInA(), DOUBLE_TOLERANCE);

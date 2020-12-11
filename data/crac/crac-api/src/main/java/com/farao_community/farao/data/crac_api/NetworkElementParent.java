@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_api;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface NetworkElementParent<T extends NetworkElementParent> {
+public interface NetworkElementParent<T extends NetworkElementParent<T>> {
     /**
      * Get a {@code NetworkElement} adder, to add a network element
      * @return a {@code NetworkElementAdder} instance
@@ -22,5 +22,5 @@ public interface NetworkElementParent<T extends NetworkElementParent> {
      * @param networkElement: {@code NetworkElement}
      * @return the added {@code NetworkElement} object
      */
-    NetworkElement addNetworkElement(NetworkElement networkElement);
+    T addNetworkElement(NetworkElement networkElement);
 }
