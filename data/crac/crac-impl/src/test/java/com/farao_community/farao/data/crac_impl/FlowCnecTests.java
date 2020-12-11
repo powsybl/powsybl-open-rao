@@ -301,13 +301,23 @@ public class FlowCnecTests {
     }
 
     @Test
-    public void testSynchronizeOnHalfLine1() {
+    public void testSynchronizeOnHalfLine1WithOrderCode() {
         testOnSynchronize("FFR3AA1  X_BEFR1  1", BranchThresholdRule.ON_LEFT_SIDE, 500);
     }
 
     @Test
-    public void testSynchronizeOnHalfLine2() {
+    public void testSynchronizeOnHalfLine2WithOrderCode() {
         testOnSynchronize("BBE2AA1  X_BEFR1  1", BranchThresholdRule.ON_LEFT_SIDE, 1500);
+    }
+
+    @Test
+    public void testSynchronizeOnHalfLine1WithElementName() {
+        testOnSynchronize("DDE2AA1  X_NLDE1  E_NAME_H1", BranchThresholdRule.ON_LEFT_SIDE, 2000);
+    }
+
+    @Test
+    public void testSynchronizeOnHalfLine2WithElementName() {
+        testOnSynchronize("NNL3AA1  X_NLDE1  E_NAME_H2", BranchThresholdRule.ON_LEFT_SIDE, 3000);
     }
 
     @Test
