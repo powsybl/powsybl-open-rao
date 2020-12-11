@@ -7,16 +7,16 @@
  */
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -76,29 +76,24 @@ public final class CracResultUtil {
     public static void setAllSelectedPrasToForced(Crac crac) {
 
         // Find post optim variant if any
-        // TODO: this comes from CNEHelper (until String cracVariantId) ...
+        // this comes from CNEHelper (until String cracVariantId) ...
         CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager != null && cracExtension != null) {
             List<String> variants = new ArrayList<>(resultVariantManager.getVariants());
 
-            // TODO: store the information on preOptim/postOptim Variant in the ResultVariantManager
-            //String preOptimVariantId = variants.get(0);
             String postOptimVariantId = variants.get(0);
 
             double minCost = cracExtension.getVariant(variants.get(0)).getCost();
-            double maxCost = cracExtension.getVariant(variants.get(0)).getCost();
             for (String variant : variants) {
                 if (cracExtension.getVariant(variant).getCost() <= minCost) {
                     minCost = cracExtension.getVariant(variant).getCost();
                     postOptimVariantId = variant;
-                } else if (cracExtension.getVariant(variant).getCost() > maxCost) {
-                    maxCost = cracExtension.getVariant(variant).getCost();
-                    //preOptimVariantId = variant;
                 }
             }
             String cracVariantId = postOptimVariantId;
 
+            // Convert activated resultExtension into enforced UsageRule
             String preventiveStateId = crac.getPreventiveState().getId();
             crac.getNetworkActions().forEach(na -> {
                 NetworkActionResultExtension resultExtension = na.getExtension(NetworkActionResultExtension.class);
@@ -123,9 +118,17 @@ public final class CracResultUtil {
                 }
                 RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
                 if (rangeActionResult != null) {
-                    ra.addUsageRule(new FreeToUseImpl(UsageMethod.FORCED, new Instant(preventiveStateId, 0)));
-                    // TODO: create a network action with setpoint
-                    //rangeActionResult.getSetPoint(preventiveStateId)
+                    if (ra instanceof PstRange) {
+                        new PstSetpoint(ra.getId(),
+                            ra.getName(),
+                            ra.getOperator(),
+                            Collections.singletonList(new FreeToUseImpl(UsageMethod.FORCED, new Instant(preventiveStateId, 0))),
+                            ra.getNetworkElements().stream().findAny().get(),
+                            rangeActionResult.getSetPoint(preventiveStateId),
+                            RangeDefinition.CENTERED_ON_ZERO);
+                    } else {
+                        LOGGER.error(String.format("Unhandled range action type for %s", ra.getId()));
+                    }
                 } else {
                     LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, ra.getId()));
                 }
