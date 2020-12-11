@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.refprog.reference_program;
 
+import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
@@ -24,9 +25,9 @@ public class ReferenceProgramTest {
     @Test
     public void testGlobalNetPositionMap() {
         List<ReferenceExchangeData> list = Arrays.asList(
-                new ReferenceExchangeData(Country.FR, Country.BE, 100),
-                new ReferenceExchangeData(Country.FR, Country.DE, -250),
-                new ReferenceExchangeData(Country.DK, Country.SK, 100));
+                new ReferenceExchangeData(new ReferenceProgramArea(new EICode(Country.FR).getCode()), new ReferenceProgramArea(new EICode(Country.BE).getCode()), 100),
+                new ReferenceExchangeData(new ReferenceProgramArea(new EICode(Country.FR).getCode()), new ReferenceProgramArea(new EICode(Country.DE).getCode()), -250),
+                new ReferenceExchangeData(new ReferenceProgramArea(new EICode(Country.DK).getCode()), new ReferenceProgramArea(new EICode(Country.SK).getCode()), 100));
         ReferenceProgram referenceProgram = new ReferenceProgram(list);
         Map<Country, Double> netPositions = referenceProgram.getAllGlobalNetPositions();
         assertEquals(5, referenceProgram.getListOfCountries().size());

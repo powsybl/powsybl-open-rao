@@ -26,11 +26,11 @@ public class ReferenceProgram {
         this.referenceExchangeDataList = referenceExchangeDataList;
         this.countries = new HashSet<>();
         this.referenceExchangeDataList.stream().forEach(referenceExchangeData -> {
-            if (referenceExchangeData.getAreaOut() != null) {
-                countries.add(referenceExchangeData.getAreaOut());
+            if (referenceExchangeData.getAreaOut() != null && !referenceExchangeData.getAreaOut().isVirtualHub()) {
+                countries.add(new EICode(referenceExchangeData.getAreaOut().areaCode).getCountry());
             }
-            if (referenceExchangeData.getAreaIn() != null) {
-                countries.add(referenceExchangeData.getAreaIn());
+            if (referenceExchangeData.getAreaIn() != null && !referenceExchangeData.getAreaIn().isVirtualHub()) {
+                countries.add(new EICode(referenceExchangeData.getAreaIn().areaCode).getCountry());
             }
         });
         netPositions = new EnumMap<>(Country.class);
@@ -48,10 +48,14 @@ public class ReferenceProgram {
     private double computeGlobalNetPosition(Country country) {
         double netPosition = 0.;
         netPosition += referenceExchangeDataList.stream()
-                .filter(referenceExchangeData -> referenceExchangeData.getAreaOut() != null && referenceExchangeData.getAreaOut().equals(country))
+                .filter(referenceExchangeData -> referenceExchangeData.getAreaOut() != null &&
+                        !referenceExchangeData.getAreaOut().isVirtualHub() &&
+                        new EICode(referenceExchangeData.getAreaOut().areaCode).getCountry().equals(country))
                 .mapToDouble(ReferenceExchangeData::getFlow).sum();
         netPosition -= referenceExchangeDataList.stream()
-                .filter(referenceExchangeData -> referenceExchangeData.getAreaIn() != null && referenceExchangeData.getAreaIn().equals(country))
+                .filter(referenceExchangeData -> referenceExchangeData.getAreaIn() != null &&
+                        !referenceExchangeData.getAreaIn().isVirtualHub() &&
+                        new EICode(referenceExchangeData.getAreaIn().areaCode).getCountry().equals(country))
                 .mapToDouble(ReferenceExchangeData::getFlow).sum();
         return netPosition;
     }
@@ -61,14 +65,14 @@ public class ReferenceProgram {
     }
 
     public double getExchange(String areaOrigin, String areaExtremity) {
-        return getExchange(new EICode(areaOrigin).getCountry(), new EICode(areaExtremity).getCountry());
+        return getExchange(new ReferenceProgramArea(areaOrigin), new ReferenceProgramArea(areaExtremity));
     }
 
     public double getGlobalNetPosition(String area) {
         return getGlobalNetPosition(new EICode(area).getCountry());
     }
 
-    public double getExchange(Country areaOrigin, Country areaExtremity) {
+    public double getExchange(ReferenceProgramArea areaOrigin, ReferenceProgramArea areaExtremity) {
         List<ReferenceExchangeData> entries = referenceExchangeDataList.stream().filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaOrigin, areaExtremity)).collect(Collectors.toList());
         if (!entries.isEmpty()) {
             return entries.stream().mapToDouble(ReferenceExchangeData::getFlow).sum();
