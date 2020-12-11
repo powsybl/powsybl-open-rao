@@ -83,7 +83,7 @@ public class IteratingLinearOptimizerTest {
         Mockito.when(systematicSensitivityResult2.getReferenceFlow(Mockito.any())).thenReturn(50.);
         Mockito.when(systematicSensitivityResult3.getReferenceFlow(Mockito.any())).thenReturn(20.);
         Mockito.when(systematicSensitivityResult3.getReferenceFlow(Mockito.any())).thenReturn(0.);
-        Mockito.when(systematicSensitivityInterface.run(Mockito.any(), Mockito.any()))
+        Mockito.when(systematicSensitivityInterface.run(Mockito.any()))
             .thenReturn(systematicSensitivityResult1, systematicSensitivityResult2, systematicSensitivityResult3, systematicSensitivityResult4);
 
         // mock linear optimisation engine

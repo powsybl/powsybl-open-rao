@@ -157,8 +157,7 @@ class Leaf {
                     new InitialSensitivityAnalysis(raoData, raoParameters).run();
                 } else {
 
-                    raoData.setSystematicSensitivityResult(
-                            systematicSensitivityInterface.run(raoData.getNetwork(), raoParameters.getObjectiveFunction().getUnit()));
+                    raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
 
                     if (raoParameters.isRaoWithLoopFlowLimitation()) {
                         LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,

@@ -6,16 +6,14 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFunction;
 import com.powsybl.sensitivity.SensitivityVariable;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,17 +22,29 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class RangeActionSensitivityProvider extends LoadflowProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RangeActionSensitivityProvider.class);
-    private List<RangeAction> rangeActions;
 
-    public RangeActionSensitivityProvider() {
-        super();
-        rangeActions = new ArrayList<>();
+    private Set<RangeAction> rangeActions;
+
+    RangeActionSensitivityProvider(Set<RangeAction> rangeActions, Set<Cnec> cnecs, Set<Unit> units) {
+        super(cnecs, units);
+        this.rangeActions = rangeActions;
     }
 
-    public void addSensitivityFactors(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
-        this.rangeActions.addAll(rangeActions);
-        super.addCnecs(cnecs);
+    @Override
+    public List<SensitivityFactor> getFactors(Network network) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        List<SensitivityVariable> sensitivityVariables = rangeActions.stream()
+            .map(ra -> rangeActionToSensitivityVariables(network, ra))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+
+        // Case no RangeAction is provided, we still want to get reference flows
+        if (sensitivityVariables.isEmpty()) {
+            sensitivityVariables.add(defaultSensitivityVariable(network));
+        }
+
+        getSensitivityFunctions(network).forEach(fun -> sensitivityVariables.forEach(var -> factors.add(sensitivityFactorMapping(fun, var))));
+        return factors;
     }
 
     private List<SensitivityVariable> rangeActionToSensitivityVariables(Network network, RangeAction rangeAction) {
@@ -52,29 +62,5 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         } else {
             throw new SensitivityAnalysisException("Unable to create sensitivity variable for " + elementId);
         }
-    }
-
-    @Override
-    public List<SensitivityFactor> getFactors(Network network) {
-        List<SensitivityFactor> factors = new ArrayList<>();
-        List<SensitivityVariable> sensitivityVariables = rangeActions.stream()
-            .map(ra -> rangeActionToSensitivityVariables(network, ra))
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
-
-        // Case no RangeAction is provided, we still want to get reference flows
-        if (sensitivityVariables.isEmpty()) {
-            sensitivityVariables.add(defaultSensitivityVariable(network));
-        }
-
-        Set<NetworkElement> networkElements = new HashSet<>();
-        cnecs.forEach(cnec -> networkElements.add(cnec.getNetworkElement()));
-        List<SensitivityFunction> sensitivityFunctions = networkElements.stream()
-            .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
-
-        sensitivityFunctions.forEach(fun -> sensitivityVariables.forEach(var -> factors.add(sensitivityFactorMapping(fun, var))));
-        return factors;
     }
 }
