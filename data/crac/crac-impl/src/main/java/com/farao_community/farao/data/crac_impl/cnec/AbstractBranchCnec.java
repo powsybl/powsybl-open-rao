@@ -82,10 +82,14 @@ public abstract class AbstractBranchCnec extends AbstractCnec<BranchCnec> implem
         switch (branchThreshold.getRule()) {
             case ON_LEFT_SIDE:
             case ON_REGULATED_SIDE:
+                // TODO: This is verified only when the network is in UCTE format.
+                //  Make it cleaner when we will have to work with other network format and the ON_REGULATED_SIDE rule
                 branchThreshold.setSide(Side.LEFT);
                 break;
             case ON_RIGHT_SIDE:
             case ON_NON_REGULATED_SIDE:
+                // TODO: This is verified only when the network is in UCTE format.
+                //  Make it cleaner when we will have to work with other network format and the ON_NON_REGULATED_SIDE rule
                 branchThreshold.setSide(Side.RIGHT);
                 break;
             default:

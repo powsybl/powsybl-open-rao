@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
-import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
@@ -74,9 +73,6 @@ public class FlowCnecImpl extends AbstractBranchCnec implements BranchCnec {
 
     @Override
     public Optional<Double> getLowerBound(Side side, Unit requestedUnit) {
-        if (side == null) {
-            throw new NotSynchronizedException(format("Flow cnec %s has to be synchronized with a network to be able to set a side.", getId()));
-        }
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
         if (!bounds.isLowerBoundComputed(side, requestedUnit)) {
             LOGGER.debug("Lower bound computed for {} in {}", getId(), requestedUnit);
@@ -104,9 +100,6 @@ public class FlowCnecImpl extends AbstractBranchCnec implements BranchCnec {
 
     @Override
     public Optional<Double> getUpperBound(Side side, Unit requestedUnit) {
-        if (side == null) {
-            throw new NotSynchronizedException(format("Flow cnec %s has to be synchronized with a network to be able to set a side.", getId()));
-        }
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
         if (!bounds.isUpperBoundComputed(side, requestedUnit)) {
             LOGGER.debug("Upper bound computed for {} in {}", getId(), requestedUnit);
