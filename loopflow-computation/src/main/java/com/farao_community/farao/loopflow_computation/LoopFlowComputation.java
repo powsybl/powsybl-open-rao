@@ -52,11 +52,12 @@ public class LoopFlowComputation {
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
 
-        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, cnecs);
+        return buildLoopFlowsFromReferenceFlowAndPtdf(network, ptdfsAndRefFlows, cnecs);
     }
 
-    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
-        List<LinearGlsk> glsks = getValidGlsks();
+    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(Network network, SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
+
+        List<LinearGlsk> glsks = getValidGlsks(network);
         LoopFlowResult results = new LoopFlowResult();
 
         for (BranchCnec cnec : cnecs) {
@@ -77,21 +78,21 @@ public class LoopFlowComputation {
         return eiCode.getCountry();
     }
 
-    private List<LinearGlsk> getValidGlsks() {
+    private List<LinearGlsk> getValidGlsks(Network network) {
         List<LinearGlsk> linearGlsksFromRealCountry = getRealCountryGlsks();
-        List<LinearGlsk> linearGlsksFromVirtualHubs = getVirtualHubGlsks();
+        List<LinearGlsk> linearGlsksFromVirtualHubs = getVirtualHubGlsks(network);
         return Stream.concat(linearGlsksFromRealCountry.stream(), linearGlsksFromVirtualHubs.stream()).collect(Collectors.toList());
     }
 
-    private List<LinearGlsk> getVirtualHubGlsks() {
+    private List<LinearGlsk> getVirtualHubGlsks(Network network) {
         List<LinearGlsk> virtualHubGlsks = new ArrayList<>();
         // Extract from the referenceExchangeDataList the ones that are described in the virtualhubs
         List<ReferenceExchangeData> referenceExchangesFromVirtualHubs = referenceProgram.getReferenceExchangeDataList().stream().filter(ReferenceExchangeData::isVirtualHub).collect(Collectors.toList());
-        referenceExchangesFromVirtualHubs.forEach(referenceExchangeData -> virtualHubGlsks.add(getVirtualHubGlsk(referenceExchangeData)));
+        referenceExchangesFromVirtualHubs.forEach(referenceExchangeData -> virtualHubGlsks.add(getVirtualHubGlsk(network, referenceExchangeData)));
         return virtualHubGlsks;
     }
 
-    private LinearGlsk getVirtualHubGlsk(ReferenceExchangeData referenceExchangeData) {
+    private LinearGlsk getVirtualHubGlsk(Network network, ReferenceExchangeData referenceExchangeData) {
         return null; //TODO: implement this function
     }
 
