@@ -59,9 +59,11 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .withPtdfSensitivities(glsk, crac.getCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .build();
 
+        // do this if after RAO: applyPreventiveRemedialActions(raoInput.getNetwork(), raoInput.getCrac(), preventiveRaoResult.getPostOptimVariantId());
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "InitialStateWithPra");
         network.getVariantManager().setWorkingVariant("InitialStateWithPra");
-        CracResultUtil.applyEnforcedRemedialActions(crac);
+        CracResultUtil.setAllSelectedPrasToForced(crac);
+        CracResultUtil.applyEnforcedPrasOnNetwork(network, crac);
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
