@@ -9,10 +9,11 @@ package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnConstraint;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -31,7 +32,7 @@ final class UsageRuleDeserializer {
 
     static List<UsageRule> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard UsageRule deserializer as it requires the simpleCrac to compare
-        // the contingencies of the OnConstraints UsageRules with the contingencies in the Crac
+        // the state of the OnState UsageRules with the states in the Crac
         List<UsageRule> usageRules = new ArrayList<>();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -51,10 +52,6 @@ final class UsageRuleDeserializer {
                     usageRule = deserializeFreeToUseUsageRule(jsonParser, simpleCrac);
                     break;
 
-                case ON_CONSTRAINT_TYPE:
-                    usageRule = deserializeOnConstraintUsageRule(jsonParser, simpleCrac);
-                    break;
-
                 case ON_STATE_TYPE:
                     usageRule = deserializeOnStateUsageRule(jsonParser, simpleCrac);
                     break;
@@ -69,10 +66,10 @@ final class UsageRuleDeserializer {
 
     }
 
-    private static FreeToUse deserializeFreeToUseUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static FreeToUseImpl deserializeFreeToUseUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
 
         UsageMethod usageMethod = null;
-        String stateId = null;
+        String instantId = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -82,8 +79,8 @@ final class UsageRuleDeserializer {
                     usageMethod = jsonParser.readValueAs(UsageMethod.class);
                     break;
 
-                case STATE:
-                    stateId = jsonParser.nextTextValue();
+                case INSTANT:
+                    instantId = jsonParser.nextTextValue();
                     break;
 
                 default:
@@ -91,54 +88,15 @@ final class UsageRuleDeserializer {
             }
         }
 
-        State state = simpleCrac.getState(stateId);
-        if (state == null) {
-            throw new FaraoException(String.format("The state [%s] mentioned in the free-to-use usage rule is not defined", stateId));
+        Instant instant = simpleCrac.getInstant(instantId);
+        if (instant == null) {
+            throw new FaraoException(String.format("The instant [%s] mentioned in the free-to-use usage rule is not defined", instantId));
         }
 
-        return new FreeToUse(usageMethod, state);
+        return new FreeToUseImpl(usageMethod, instant);
     }
 
-    private static OnConstraint deserializeOnConstraintUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-
-        UsageMethod usageMethod = null;
-        String stateId = null;
-        String cnecId = null;
-
-        while (!jsonParser.nextToken().isStructEnd()) {
-
-            switch (jsonParser.getCurrentName()) {
-                case USAGE_METHOD:
-                    jsonParser.nextToken();
-                    usageMethod = jsonParser.readValueAs(UsageMethod.class);
-                    break;
-
-                case STATE:
-                    stateId = jsonParser.nextTextValue();
-                    break;
-
-                case CNEC:
-                    cnecId = jsonParser.nextTextValue();
-                    break;
-
-                default:
-                    throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
-            }
-        }
-
-        State state = simpleCrac.getState(stateId);
-        if (state == null) {
-            throw new FaraoException(String.format("The state [%s] mentioned in the on-constraint usage rule is not defined", stateId));
-        }
-
-        Cnec cnec = simpleCrac.getCnec(cnecId);
-        if (cnec == null) {
-            throw new FaraoException(String.format("The cnec [%s] mentioned in the on-constraint usage rule is not defined", cnecId));
-        }
-        return new OnConstraint(usageMethod, state, cnec);
-    }
-
-    private static OnState deserializeOnStateUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static OnStateImpl deserializeOnStateUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
 
         UsageMethod usageMethod = null;
         String stateId = null;
@@ -165,6 +123,6 @@ final class UsageRuleDeserializer {
             throw new FaraoException(String.format("The state [%s] mentioned in the on-contingency usage rule is not defined", stateId));
         }
 
-        return new OnState(usageMethod, state);
+        return new OnStateImpl(usageMethod, state);
     }
 }

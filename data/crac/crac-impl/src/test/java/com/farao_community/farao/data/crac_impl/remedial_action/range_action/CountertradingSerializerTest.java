@@ -9,7 +9,7 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;

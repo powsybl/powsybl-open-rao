@@ -18,5 +18,4 @@ import java.util.Set;
 public interface CnecSensitivityProvider extends SensitivityFactorsProvider, ContingenciesProvider {
 
     public Set<Cnec> getCnecs();
-
 }

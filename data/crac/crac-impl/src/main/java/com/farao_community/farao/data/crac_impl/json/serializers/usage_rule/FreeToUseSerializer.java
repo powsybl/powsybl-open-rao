@@ -7,10 +7,21 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.usage_rule;
 
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+
+import java.io.IOException;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FreeToUseSerializer extends UsageRuleSerializer<FreeToUse> {
+public class FreeToUseSerializer extends UsageRuleSerializer<FreeToUseImpl> {
+
+    @Override
+    public void serialize(FreeToUseImpl usageRule, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        super.serialize(usageRule, jsonGenerator, serializerProvider);
+        jsonGenerator.writeStringField(JsonSerializationNames.INSTANT, usageRule.getInstant().getId());
+    }
 }

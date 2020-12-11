@@ -7,6 +7,8 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -33,6 +35,20 @@ import java.util.stream.Collectors;
  */
 public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
+    LoadflowProvider(Set<Cnec> cnecs, Set<Unit> units) {
+        super(cnecs, units);
+    }
+
+    @Override
+    public List<SensitivityFactor> getFactors(Network network) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+
+        SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
+
+        getSensitivityFunctions(network).forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
+        return factors;
+    }
+
     private boolean willBeKeptInSensi(TwoWindingsTransformer twoWindingsTransformer) {
         return twoWindingsTransformer.getTerminal1().isConnected() && twoWindingsTransformer.getTerminal1().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
             twoWindingsTransformer.getTerminal2().isConnected() && twoWindingsTransformer.getTerminal2().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
@@ -43,7 +59,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         return gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    protected SensitivityVariable defaultSensitivityVariable(Network network) {
+    SensitivityVariable defaultSensitivityVariable(Network network) {
         // First try to get a PST angle
         Optional<TwoWindingsTransformer> optionalPst = network.getTwoWindingsTransformerStream()
             .filter(this::willBeKeptInSensi)
@@ -66,7 +82,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         throw new FaraoException(String.format("Unable to create sensitivity factors. Did not find any varying element in network '%s'.", network.getId()));
     }
 
-    protected SensitivityFactor sensitivityFactorMapping(SensitivityFunction function, SensitivityVariable variable) {
+    SensitivityFactor sensitivityFactorMapping(SensitivityFunction function, SensitivityVariable variable) {
         if (function instanceof BranchFlow) {
             if (variable instanceof PhaseTapChangerAngle) {
                 return new BranchFlowPerPSTAngle((BranchFlow) function, (PhaseTapChangerAngle) variable);
@@ -90,39 +106,32 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         return "Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName();
     }
 
-    protected List<SensitivityFunction> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
+    List<SensitivityFunction> getSensitivityFunctions(Network network) {
+        Set<NetworkElement> networkElements = new HashSet<>();
+        cnecs.forEach(cnec -> networkElements.add(cnec.getNetworkElement()));
+        return networkElements.stream()
+            .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+    }
+
+    private List<SensitivityFunction> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
         String id = networkElement.getId();
         String name = networkElement.getName();
         Identifiable<?> networkIdentifiable = network.getIdentifiable(id);
+
         if (networkIdentifiable instanceof Branch) {
-
-            /*
-             todo : do not create the BranchIntensity here if the sensi is run in DC. Otherwise PowSyBl
-              returns tons of ERROR logs in DC mode as it cannot handle those sensitivity functions in DC mode.
-              (it is not possible to check this for now as the PowSyBl API does not allow yet to retrieve
-              the AC/DC information of the sensi).
-             */
-
-            return Arrays.asList(new BranchFlow(id, name, id), new BranchIntensity(id, name, id));
+            List<SensitivityFunction> sensitivityFunctions = new ArrayList<>();
+            if (factorsInMegawatt) {
+                sensitivityFunctions.add(new BranchFlow(id, name, id));
+            }
+            if (factorsInAmpere) {
+                sensitivityFunctions.add(new BranchIntensity(id, name, id));
+            }
+            return sensitivityFunctions;
         } else {
             throw new FaraoException("Unable to create sensitivity function for " + id);
         }
     }
 
-    @Override
-    public List<SensitivityFactor> getFactors(Network network) {
-        List<SensitivityFactor> factors = new ArrayList<>();
-
-        SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
-
-        Set<NetworkElement> networkElements = new HashSet<>();
-        cnecs.forEach(cnec -> networkElements.add(cnec.getNetworkElement()));
-        List<SensitivityFunction> sensitivityFunctions = networkElements.stream()
-            .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
-
-        sensitivityFunctions.forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
-        return factors;
-    }
 }

@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Cnec;
@@ -79,22 +78,16 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
-        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<LinearGlsk> glsk, Set<Cnec> cnecs) {
-            PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glsk);
-            ptdfSensitivityProvider.addCnecs(cnecs);
-            return this.withSensitivityProvider(ptdfSensitivityProvider);
+        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<LinearGlsk> glsk, Set<Cnec> cnecs, Set<Unit> units) {
+            return this.withSensitivityProvider(new PtdfSensitivityProvider(glsk, cnecs, units));
         }
 
-        public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
-            RangeActionSensitivityProvider rangeActionSensitivityProvider = new RangeActionSensitivityProvider();
-            rangeActionSensitivityProvider.addSensitivityFactors(rangeActions, cnecs);
-            return this.withSensitivityProvider(rangeActionSensitivityProvider);
+        public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<Cnec> cnecs, Set<Unit> units) {
+            return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units));
         }
 
-        public SystematicSensitivityInterfaceBuilder withLoadflow(Set<Cnec> cnecs) {
-            LoadflowProvider loadflowProvider = new LoadflowProvider();
-            loadflowProvider.addCnecs(cnecs);
-            return this.withSensitivityProvider(loadflowProvider);
+        public SystematicSensitivityInterfaceBuilder withLoadflow(Set<Cnec> cnecs, Set<Unit> units) {
+            return this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
         }
 
         public SystematicSensitivityInterface build() {
@@ -116,7 +109,7 @@ public final class SystematicSensitivityInterface {
         return new SystematicSensitivityInterfaceBuilder();
     }
 
-    SystematicSensitivityInterface() {
+    private SystematicSensitivityInterface() {
 
     }
 
@@ -130,14 +123,14 @@ public final class SystematicSensitivityInterface {
      *
      * Throw a SensitivityAnalysisException if the computation fails.
      */
-    public SystematicSensitivityResult run(Network network, Unit defaultUnit) {
+    public SystematicSensitivityResult run(Network network) {
         SensitivityAnalysisParameters sensitivityAnalysisParameters = fallbackMode ? fallbackParameters : defaultParameters;
         if (Objects.isNull(cnecSensitivityProvider)) {
             throw new SensitivityAnalysisException("Sensitivity provider was not defined.");
         }
 
         try {
-            SystematicSensitivityResult result = runWithConfig(network, sensitivityAnalysisParameters, defaultUnit);
+            SystematicSensitivityResult result = runWithConfig(network, sensitivityAnalysisParameters);
             if (fallbackMode) {
                 result.setStatus(SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK);
             }
@@ -148,7 +141,7 @@ public final class SystematicSensitivityInterface {
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
-                return run(network, defaultUnit);
+                return run(network);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 throw new SensitivityAnalysisException("Sensitivity analysis failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
@@ -157,16 +150,11 @@ public final class SystematicSensitivityInterface {
         }
     }
 
-    // Method for tests
-    SystematicSensitivityResult run(Network network) {
-        return run(network, Unit.AMPERE);
-    }
-
     /**
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Unit defaultUnit) {
+    private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         try {
             SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
                 .runSensitivity(network, cnecSensitivityProvider, sensitivityAnalysisParameters);
@@ -175,7 +163,7 @@ public final class SystematicSensitivityInterface {
                 throw new SensitivityAnalysisException("Some output data of the sensitivity analysis are missing.");
             }
 
-            checkSensiResults(tempSystematicSensitivityAnalysisResult, defaultUnit);
+            checkSensiResults(tempSystematicSensitivityAnalysisResult);
             return tempSystematicSensitivityAnalysisResult;
 
         } catch (Exception e) {
@@ -183,24 +171,9 @@ public final class SystematicSensitivityInterface {
         }
     }
 
-    private void checkSensiResults(SystematicSensitivityResult systematicSensitivityAnalysisResult, Unit defaultUnit) {
+    private void checkSensiResults(SystematicSensitivityResult systematicSensitivityAnalysisResult) {
         if (!systematicSensitivityAnalysisResult.isSuccess()) {
             throw new SensitivityAnalysisException("Status of the sensitivity result indicates a failure.");
-        }
-
-        if (cnecSensitivityProvider.getCnecs().stream()
-            .map(systematicSensitivityAnalysisResult::getReferenceFlow)
-            .anyMatch(f -> Double.isNaN(f))) {
-            throw new SensitivityAnalysisException("Flow values are missing from the output of the sensitivity analysis.");
-        }
-
-        if (cnecSensitivityProvider.getCnecs().stream()
-            .map(systematicSensitivityAnalysisResult::getReferenceIntensity)
-            .anyMatch(f -> Double.isNaN(f)) && !isFallback() && defaultUnit.equals(Unit.AMPERE)) {
-            // in default mode, this means that there is an error in the sensitivity analysis, or an
-            // incompatibility with the sensitivity analysis mode (i.e. the sensitivity analysis is
-            // made in DC mode and no intensity are computed).
-            throw new FaraoException("Intensity values are missing from the output of the sensitivity analysis. Min margin cannot be calculated in AMPERE.");
         }
     }
 }

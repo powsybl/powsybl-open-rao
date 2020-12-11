@@ -43,10 +43,10 @@ public class LoopFlowComputation {
     public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<Cnec> cnecs) {
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withDefaultParameters(sensitivityAnalysisParameters)
-            .withPtdfSensitivities(glsk, cnecs)
+            .withPtdfSensitivities(glsk, cnecs, Collections.singleton(Unit.MEGAWATT))
             .build();
 
-        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network, Unit.MEGAWATT);
+        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
 
         return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, cnecs);
     }

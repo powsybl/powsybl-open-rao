@@ -97,7 +97,7 @@
         {
           "type": "free-to-use",
           "usageMethod": "AVAILABLE",
-          "state": "none-N"
+          "instant": "N"
         }
       ],
       "ranges": [
@@ -121,7 +121,7 @@
         {
           "type": "free-to-use",
           "usageMethod": "AVAILABLE",
-          "state": "none-N"
+          "instant": "N"
         }
       ],
       "elementaryNetworkActions": [
@@ -147,7 +147,7 @@
         {
           "type": "free-to-use",
           "usageMethod": "AVAILABLE",
-          "state": "none-N"
+          "instant": "N"
         }
       ],
       "elementaryNetworkActions": [

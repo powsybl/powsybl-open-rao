@@ -9,8 +9,11 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
@@ -18,17 +21,15 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.T
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
 import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -107,7 +108,7 @@ public class RaoInputHelperTest {
             "pstRangeId",
             "pstRangeName",
             "RTE",
-            Collections.singletonList(new FreeToUse(UsageMethod.AVAILABLE, preventiveState)),
+            Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
             Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("pst")
         );
@@ -130,14 +131,14 @@ public class RaoInputHelperTest {
         assertEquals(2, simpleCrac.getContingencies().size());
         assertEquals(2, simpleCrac.getStates().size());
 
-        assertEquals(7, qualityReport.size());
+        assertEquals(8, qualityReport.size());
         int removedCount = 0;
         for (String line : qualityReport) {
             if (line.contains("[REMOVED]")) {
                 removedCount++;
             }
         }
-        assertEquals(7, removedCount);
+        assertEquals(8, removedCount);
     }
 
     @Test
@@ -169,5 +170,54 @@ public class RaoInputHelperTest {
         assertEquals(1, qualityReport.size());
         assertEquals(3, crac.getCnecs().size());
         assertNull(crac.getCnec("FFR1AA1  FFR3AA1  1"));
+    }
+
+    @Test
+    public void testRemoveOnStateUsageRule() {
+        SimpleCrac crac = new SimpleCrac("id");
+
+        crac.newInstant().setId("N").setSeconds(1).add();
+        crac.newInstant().setId("Outage").setSeconds(60).add();
+        crac.newContingency().setId("cont_exists").newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add().add();
+        crac.newContingency().setId("cont_unknown").newNetworkElement().setId("unknown").add().add();
+
+        State n = new SimpleState(Optional.empty(), crac.getInstant("N"));
+        State outageOk = new SimpleState(Optional.of(crac.getContingency("cont_exists")), crac.getInstant("Outage"));
+        State outageNok = new SimpleState(Optional.of(crac.getContingency("cont_unknown")), crac.getInstant("Outage"));
+
+        crac.addState(n);
+        crac.addState(outageOk);
+        crac.addState(outageNok);
+
+        List<UsageRule> usageRules = new ArrayList<>();
+        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageOk));
+        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageNok));
+
+        Topology topoRa = new Topology(
+            "topologyId1",
+            "topologyName",
+            "RTE",
+            usageRules,
+            new NetworkElement("FFR1AA1  FFR3AA1  1"),
+            ActionType.OPEN
+        );
+
+        PstWithRange pstWithRange = new PstWithRange(
+            "pstRangeId",
+            "pstRangeName",
+            "RTE",
+            usageRules,
+            Collections.singletonList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE)),
+            new NetworkElement("BBE1AA1  BBE2AA1  1")
+        );
+
+        crac.addNetworkAction(topoRa);
+        crac.addRangeAction(pstWithRange);
+
+        List<String> qualityReport = RaoInputHelper.cleanCrac(crac, network);
+
+        assertEquals(4, qualityReport.size());
+        assertEquals(1, crac.getNetworkAction("topologyId1").getUsageRules().size());
+        assertEquals(1, crac.getRangeAction("pstRangeId").getUsageRules().size());
     }
 }

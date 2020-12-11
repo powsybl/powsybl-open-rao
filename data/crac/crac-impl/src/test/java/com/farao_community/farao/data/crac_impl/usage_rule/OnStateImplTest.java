@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.usage_rule;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import org.junit.Before;
@@ -20,7 +21,7 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class OnStateTest {
+public class OnStateImplTest {
 
     private State initialState;
     private State curativeState1;
@@ -35,62 +36,65 @@ public class OnStateTest {
     }
 
     @Test
-    public void getCnec() {
-        OnState rule1 = new OnState(UsageMethod.AVAILABLE, initialState);
-        assertEquals("none-initial-instant", rule1.getState().getId());
+    public void testSetterGetter() {
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
+        assertEquals(initialState, rule1.getState());
+
+        rule1.setState(curativeState1);
+        assertEquals(curativeState1, rule1.getState());
     }
 
     @Test
     public void testEqualsSameObject() {
-        OnState rule1 = new OnState(UsageMethod.AVAILABLE, initialState);
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         assertEquals(rule1, rule1);
     }
 
     @Test
     public void testEqualsTrue() {
-        OnState rule1 = new OnState(UsageMethod.AVAILABLE, initialState);
-        OnState rule2 = new OnState(UsageMethod.AVAILABLE, initialState);
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         assertEquals(rule1, rule2);
     }
 
     @Test
     public void testEqualsFalseNotTheSameObject() {
-        OnState rule1 = new OnState(UsageMethod.AVAILABLE, initialState);
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         assertNotEquals(rule1, new Instant("fail", 10));
     }
 
     @Test
     public void testEqualsFalseForUsageMethod() {
-        OnState rule1 = new OnState(UsageMethod.AVAILABLE, initialState);
-        OnState rule2 = new OnState(UsageMethod.FORCED, initialState);
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnStateImpl rule2 = new OnStateImpl(UsageMethod.FORCED, initialState);
         assertNotEquals(rule1, rule2);
     }
 
     @Test
     public void testEqualsFalseForState() {
-        OnState rule1 = new OnState(UsageMethod.AVAILABLE, curativeState1);
-        OnState rule2 = new OnState(UsageMethod.AVAILABLE, curativeState2);
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState1);
+        OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState2);
         assertNotEquals(rule1, rule2);
     }
 
     @Test
     public void testHashCode() {
-        OnState rule1 = new OnState(UsageMethod.AVAILABLE, initialState);
-        OnState rule2 = new OnState(UsageMethod.AVAILABLE, initialState);
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
         assertEquals(rule1.hashCode(), rule2.hashCode());
     }
 
     @Test
     public void testHashCodeFalseForUsageMethod() {
-        OnState rule1 = new OnState(UsageMethod.AVAILABLE, initialState);
-        OnState rule2 = new OnState(UsageMethod.FORCED, initialState);
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnStateImpl rule2 = new OnStateImpl(UsageMethod.FORCED, initialState);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
     }
 
     @Test
     public void testHashCodeFalseForContingency() {
-        OnState rule1 = new OnState(UsageMethod.AVAILABLE, curativeState1);
-        OnState rule2 = new OnState(UsageMethod.AVAILABLE, curativeState2);
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState1);
+        OnStateImpl rule2 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
     }
 

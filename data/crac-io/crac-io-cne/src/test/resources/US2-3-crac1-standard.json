@@ -84,7 +84,7 @@
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "state" : "none-N"
+      "instant" : "N"
     } ],
     "networkElements" : [ "FFR4AA1  FFR3AA1  1" ],
     "ranges" : [ {
@@ -126,7 +126,7 @@
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "state" : "none-N"
+      "instant" : "N"
     } ],
     "elementaryNetworkActions" : [ {
       "type" : "topology",
@@ -163,7 +163,7 @@
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "state" : "none-N"
+      "instant" : "N"
     } ],
     "elementaryNetworkActions" : [ {
       "type" : "topology",
