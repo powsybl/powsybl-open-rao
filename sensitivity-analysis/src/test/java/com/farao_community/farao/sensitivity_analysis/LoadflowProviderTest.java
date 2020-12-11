@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -15,7 +16,10 @@ import com.powsybl.sensitivity.factors.BranchFlowPerPSTAngle;
 import com.powsybl.sensitivity.factors.BranchIntensityPerPSTAngle;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,16 +29,27 @@ import static org.junit.Assert.assertEquals;
 public class LoadflowProviderTest {
 
     @Test
-    public void cracWithoutRangeActionButWithPst() {
+    public void inAmpereAndMegawatt() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        LoadflowProvider provider = new LoadflowProvider();
-        provider.addCnecs(crac.getCnecs());
+        LoadflowProvider provider = new LoadflowProvider(crac.getCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
-        // Common Crac contains 6 CNEC and 1 range action
+        // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<SensitivityFactor> factorList = provider.getFactors(network);
         assertEquals(4, factorList.size());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
+    }
+
+    @Test
+    public void inMegawattOnly() {
+        Crac crac = CommonCracCreation.create();
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        LoadflowProvider provider = new LoadflowProvider(crac.getCnecs(), Collections.singleton(Unit.MEGAWATT));
+
+        // Common Crac contains 6 CNEC (2 network element) and 1 range action
+        List<SensitivityFactor> factorList = provider.getFactors(network);
+        assertEquals(2, factorList.size());
+        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
     }
 }

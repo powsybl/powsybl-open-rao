@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import org.slf4j.Logger;
@@ -78,49 +80,81 @@ public class CracCleaner {
         }
         absentFromNetworkNetworkActions.forEach(networkAction -> crac.removeNetworkAction(networkAction.getId()));
 
-        // remove Contingencies whose NetworkElement is absent from the network or does not fit a valid Powsybl Contingency
-        Set<Contingency> absentFromNetworkOrUnhandledContingencies = new HashSet<>();
+        // list Contingencies whose NetworkElement is absent from the network or does not fit a valid Powsybl Contingency
+        Set<Contingency> removedContingencies = new HashSet<>();
         for (Contingency contingency : crac.getContingencies()) {
             contingency.getNetworkElements().forEach(networkElement -> {
                 Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
                 if (identifiable == null) {
-                    absentFromNetworkOrUnhandledContingencies.add(contingency);
+                    removedContingencies.add(contingency);
                     report.add(String.format("[REMOVED] Contingency %s with network element [%s] is not present in the network. It is removed from the Crac", contingency.getId(), networkElement.getId()));
                 } else if (!(identifiable instanceof Branch || identifiable instanceof Generator || identifiable instanceof HvdcLine || identifiable instanceof BusbarSection || identifiable instanceof DanglingLine)) {
                     if (REMOVE_UNHANDLED_CONTINGENCIES.isEnabled()) {
-                        absentFromNetworkOrUnhandledContingencies.add(contingency);
+                        removedContingencies.add(contingency);
                         report.add(String.format("[REMOVED] Contingency %s has a network element [%s] of unhandled type [%s].  It is removed from the Crac.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
                     } else {
                         report.add(String.format("[WARNING] Contingency %s has a network element [%s] of unhandled type [%s]. This may result in unexpected behavior.", contingency.getId(), networkElement.getId(), identifiable.getClass().toString()));
                     }
+                    // do not delete contingencies now as they are needed to check which associated states/cnecs should be removed as well
                 }
             });
         }
 
-        absentFromNetworkOrUnhandledContingencies.forEach(contingency ->  {
-            crac.getStatesFromContingency(contingency.getId()).forEach(state -> {
+        // list States whose contingency does not exist anymore
+        Set<State> removedStates = new HashSet<>();
+        for (Contingency contingency : removedContingencies) {
+            crac.getStates(contingency).forEach(state -> {
+                report.add(String.format("[REMOVED] State %s is removed because its associated contingency [%s] has been removed", state.getId(), contingency.getId()));
+                removedStates.add(state);
+            });
+            // do not delete states now as they are needed to check which associated ra/cnecs should be removed as well
+        }
+
+        // remove Cnec whose contingency does not exist anymore
+        removedContingencies.forEach(contingency ->
+            crac.getStatesFromContingency(contingency.getId()).forEach(state ->
                 crac.getCnecs(state).forEach(cnec -> {
                     crac.removeCnec(cnec.getId());
                     report.add(String.format("[REMOVED] Cnec %s is removed because its associated contingency [%s] has been removed", cnec.getId(), contingency.getId()));
-                });
-                crac.removeState(state.getId());
-            });
-            crac.removeContingency(contingency.getId());
-        });
+                })
+            )
+        );
 
         // remove Remedial Action with an empty list of NetworkElement
-        ArrayList<NetworkAction> noValidAction = new ArrayList<>();
+        Set<RemedialAction<?>> noValidAction = new HashSet<>();
         crac.getNetworkActions().stream().filter(na -> na.getNetworkElements().isEmpty()).forEach(na -> {
             report.add(String.format("[REMOVED] Remedial Action %s has no associated action. It is removed from the Crac", na.getId()));
             noValidAction.add(na);
         });
+        crac.getRangeActions().stream().filter(ra -> ra.getNetworkElements().isEmpty()).forEach(ra -> {
+            report.add(String.format("[REMOVED] Remedial Action %s has no associated action. It is removed from the Crac", ra.getId()));
+            noValidAction.add(ra);
+        });
         noValidAction.forEach(networkAction -> crac.removeNetworkAction(networkAction.getId()));
 
-        // todo : remove State whose contingency does not exist anymore
-        // todo : remove onState remedial action whose state does not exist anymore
+        // remove On State usage rule with invalid state
+        crac.getRangeActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
+        crac.getNetworkActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
+
+        // remove states and contingencies
+        removedContingencies.forEach(contingency -> crac.removeContingency(contingency.getId()));
+        removedStates.forEach(state -> crac.removeState(state.getId()));
         report.forEach(LOGGER::warn);
 
         return report;
+    }
+
+    private static void cleanUsageRules(RemedialAction<?> remedialAction, Set<State> removedStates, List<String> report) {
+        Set<UsageRule> removedUr = new HashSet<>();
+        remedialAction.getUsageRules().forEach(usageRule -> {
+            if (usageRule instanceof OnState && removedStates.contains(((OnState) usageRule).getState())) {
+                report.add(String.format("[REMOVED] OnState usage rule of RA %s is removed because its associated state [%s] has been removed",
+                    remedialAction.getId(),
+                    ((OnState) usageRule).getState().getId()));
+                removedUr.add(usageRule);
+            }
+        });
+        remedialAction.getUsageRules().removeAll(removedUr);
     }
 
     public void enableFeature(CracCleaningFeature feature) {

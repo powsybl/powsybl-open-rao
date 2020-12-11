@@ -55,10 +55,10 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
-                .withPtdfSensitivities(glsk, crac.getCnecs())
+                .withPtdfSensitivities(glsk, crac.getCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .build();
 
-        SystematicSensitivityResult result = systematicSensitivityInterface.run(network, Unit.MEGAWATT);
+        SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
