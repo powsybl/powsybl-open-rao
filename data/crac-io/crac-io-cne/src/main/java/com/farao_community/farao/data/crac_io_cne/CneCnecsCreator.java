@@ -8,10 +8,9 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.powsybl.iidm.network.Branch;
@@ -40,7 +39,7 @@ public final class CneCnecsCreator {
 
     }
 
-    static void createConstraintSeriesOfACnec(Cnec cnec, CneHelper cneHelper, List<ConstraintSeries> constraintSeriesList) {
+    static void createConstraintSeriesOfACnec(BranchCnec cnec, CneHelper cneHelper, List<ConstraintSeries> constraintSeriesList) {
 
         Network network = cneHelper.getNetwork();
         String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
@@ -107,7 +106,7 @@ public final class CneCnecsCreator {
     }
 
     // B54 & B57
-    private static void createB54B57Measurements(Cnec cnec, String measurementType, String postOptimVariantId, List<Analog> measurementsB54, List<Analog> measurementsB57) {
+    private static void createB54B57Measurements(BranchCnec cnec, String measurementType, String postOptimVariantId, List<Analog> measurementsB54, List<Analog> measurementsB57) {
         // The check of the existence of the CnecResultExtension was done in another method
         CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
         assert cnecResultExtension != null;
@@ -129,7 +128,7 @@ public final class CneCnecsCreator {
     }
 
     // B88
-    private static void createB88Measurements(Cnec cnec, String measurementType, String preOptimVariantId, List<Analog> measurementsB88) {
+    private static void createB88Measurements(BranchCnec cnec, String measurementType, String preOptimVariantId, List<Analog> measurementsB88) {
         CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
         // The check of the existence of the CnecResultExtension was done in another method
         assert cnecResultExtension != null;
@@ -222,9 +221,9 @@ public final class CneCnecsCreator {
         }
     }
 
-    private static void addFrm(Cnec cnec, List<Analog> measurements) {
-        if (cnec instanceof SimpleCnec && !Double.isNaN(((SimpleCnec) cnec).getFrm())) {
-            measurements.add(newMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, ((SimpleCnec) cnec).getFrm()));
+    private static void addFrm(BranchCnec cnec, List<Analog> measurements) {
+        if (!Double.isNaN(cnec.getReliabilityMargin())) {
+            measurements.add(newMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, cnec.getReliabilityMargin()));
         }
     }
 
@@ -253,7 +252,7 @@ public final class CneCnecsCreator {
         return absMarginMeasType;
     }
 
-    public static MonitoredRegisteredResource createMonitoredRegisteredResource(Cnec cnec, Network network, List<Analog> measurements) {
+    public static MonitoredRegisteredResource createMonitoredRegisteredResource(BranchCnec cnec, Network network, List<Analog> measurements) {
         String nodeOr = findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.ONE);
         String nodeEx = findNodeInNetwork(cnec.getNetworkElement().getId(), network, Branch.Side.TWO);
 

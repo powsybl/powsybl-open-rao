@@ -8,10 +8,11 @@
 package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.farao_community.farao.data.crac_impl.threshold.BranchThresholdImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -47,15 +48,15 @@ final class CnecDeserializer {
             double frm = 0;
             boolean optimized = false;
             boolean monitored = false;
-            Set<AbstractThreshold> thresholds = new HashSet<>();
-            List<Extension<Cnec>> extensions = new ArrayList<>();
+            Set<BranchThreshold> thresholds = new HashSet<>();
+            List<Extension<BranchCnec>> extensions = new ArrayList<>();
 
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
 
                     case TYPE:
-                        if (!jsonParser.nextTextValue().equals(SIMPLE_CNEC_TYPE)) {
-                            throw new FaraoException(String.format("SimpleCrac cannot deserialize other Cnecs types than %s", SIMPLE_CNEC_TYPE));
+                        if (!jsonParser.nextTextValue().equals(FLOW_CNEC_TYPE)) {
+                            throw new FaraoException(String.format("SimpleCrac cannot deserialize other Cnecs types than %s", FLOW_CNEC_TYPE));
                         }
                         break;
 
@@ -92,7 +93,7 @@ final class CnecDeserializer {
 
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        thresholds = jsonParser.readValueAs(new TypeReference<Set<AbstractThreshold>>() {
+                        thresholds = jsonParser.readValueAs(new TypeReference<Set<BranchThresholdImpl>>() {
                         });
                         break;
 
@@ -109,7 +110,7 @@ final class CnecDeserializer {
             //add SimpleCnec in Crac
             simpleCrac.addCnec(id, name, networkElementId, thresholds, stateId, frm, optimized, monitored);
             if (!extensions.isEmpty()) {
-                ExtensionsHandler.getExtensionsSerializers().addExtensions(simpleCrac.getCnec(id), extensions);
+                ExtensionsHandler.getExtensionsSerializers().addExtensions(simpleCrac.getBranchCnec(id), extensions);
             }
         }
     }

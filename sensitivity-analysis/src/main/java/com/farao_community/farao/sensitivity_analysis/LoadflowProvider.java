@@ -8,8 +8,8 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunction;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  */
 public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
-    LoadflowProvider(Set<Cnec> cnecs, Set<Unit> units) {
+    LoadflowProvider(Set<BranchCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
     }
 

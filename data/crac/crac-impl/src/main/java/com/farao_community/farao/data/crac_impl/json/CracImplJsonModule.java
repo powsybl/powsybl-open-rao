@@ -8,11 +8,11 @@ package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import com.farao_community.farao.data.crac_impl.json.serializers.ComplexContingencySerializer;
-import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCnecSerializer;
+import com.farao_community.farao.data.crac_impl.json.serializers.FlowCnecImplSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCracSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.SimpleStateSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.network_action.ComplexNetworkActionSerializer;
@@ -43,7 +43,7 @@ public class CracImplJsonModule extends SimpleModule {
         this.addSerializer(PstSetpoint.class, new PstSetPointSerializer());
         this.addSerializer(NetworkAction.class, new NetworkActionSerializer());
         this.addSerializer(SimpleCrac.class, new SimpleCracSerializer());
-        this.addSerializer(SimpleCnec.class, new SimpleCnecSerializer());
+        this.addSerializer(FlowCnecImpl.class, new FlowCnecImplSerializer());
         this.addSerializer(SimpleState.class, new SimpleStateSerializer());
     }
 }

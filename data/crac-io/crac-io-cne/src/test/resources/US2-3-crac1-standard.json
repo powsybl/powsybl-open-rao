@@ -34,18 +34,18 @@
     "instant" : "N"
   } ],
   "cnecs" : [ {
-    "type" : "simple-cnec",
+    "type" : "flow-cnec",
     "id" : "FFR1AA1  FFR2AA1  1 - N - preventive",
     "name" : "Threshold12",
     "networkElement" : "FFR1AA1  FFR2AA1  1",
     "state" : "none-N",
     "frm" : 0.0,
     "thresholds" : [ {
-      "type" : "relative-flow-threshold",
-      "side" : "LEFT",
-      "direction" : "BOTH",
-      "percentageOfMax" : 95.0,
-      "unit" : "MW"
+      "type" : "branch-threshold",
+      "min" : -0.95,
+      "max" : 0.95,
+      "unit" : "%",
+      "rule" : "ON_LEFT_SIDE"
     } ],
     "extensions" : {
       "CnecResultExtension" : {

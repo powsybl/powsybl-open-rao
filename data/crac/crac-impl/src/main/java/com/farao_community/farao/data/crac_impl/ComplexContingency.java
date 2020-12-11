@@ -27,7 +27,7 @@ import java.util.*;
  */
 @JsonTypeName("complex-contingency")
 @JsonSerialize(using = ComplexContingencySerializer.class)
-public class ComplexContingency extends AbstractIdentifiable implements Contingency {
+public class ComplexContingency extends AbstractIdentifiable<Contingency> implements Contingency {
 
     private Set<NetworkElement> networkElements;
 

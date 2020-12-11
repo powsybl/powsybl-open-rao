@@ -19,9 +19,9 @@ import java.util.Set;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ComplexContingencyAdder extends AbstractIdentifiableAdder<ComplexContingencyAdder> implements ContingencyAdder {
+public class ComplexContingencyAdder extends AbstractIdentifiableAdder<ContingencyAdder> implements ContingencyAdder {
     SimpleCrac parent;
-    private Set<NetworkElement> networkElements = new HashSet<>();
+    private final Set<NetworkElement> networkElements = new HashSet<>();
 
     public ComplexContingencyAdder(SimpleCrac parent) {
         Objects.requireNonNull(parent);
@@ -29,8 +29,8 @@ public class ComplexContingencyAdder extends AbstractIdentifiableAdder<ComplexCo
     }
 
     @Override
-    public NetworkElementAdder newNetworkElement() {
-        return new NetworkElementAdderImpl<ContingencyAdder>(this);
+    public NetworkElementAdder<ContingencyAdder> newNetworkElement() {
+        return new NetworkElementAdderImpl<>(this);
     }
 
     @Override
@@ -42,8 +42,8 @@ public class ComplexContingencyAdder extends AbstractIdentifiableAdder<ComplexCo
     }
 
     @Override
-    public NetworkElement addNetworkElement(NetworkElement networkElement) {
+    public ContingencyAdder addNetworkElement(NetworkElement networkElement) {
         this.networkElements.add(networkElement);
-        return networkElement;
+        return this;
     }
 }

@@ -9,6 +9,7 @@
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -60,7 +61,7 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
         }
         gen.writeEndArray();
         gen.writeArrayFieldStart(CNECS);
-        for (Cnec cnec : value.getCnecs()) {
+        for (BranchCnec cnec : value.getBranchCnecs()) {
             gen.writeObject(cnec);
         }
         gen.writeEndArray();

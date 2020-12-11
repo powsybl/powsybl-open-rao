@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonIdentityInfo(scope = NetworkElement.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class NetworkElement extends AbstractIdentifiable {
+public class NetworkElement extends AbstractIdentifiable<NetworkElement> {
 
     @JsonCreator
     public NetworkElement(@JsonProperty("id") String id, @JsonProperty("name") String name) {
