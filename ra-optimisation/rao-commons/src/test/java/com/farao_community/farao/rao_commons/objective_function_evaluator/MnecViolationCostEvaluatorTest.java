@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -98,7 +99,8 @@ public class MnecViolationCostEvaluatorTest {
 
         raoData = RaoData.createOnPreventiveState(network, crac);
 
-        RaoInputHelper.cleanCrac(crac, network);
+        CracCleaner cracCleaner = new CracCleaner();
+        cracCleaner.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
         raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, TEST_VARIANT);

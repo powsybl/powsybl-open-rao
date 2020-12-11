@@ -9,6 +9,10 @@ package com.farao_community.farao.flowbased_computation.tools;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.data.crac_util.CracAliasesCreator;
+import com.farao_community.farao.data.crac_util.CracCleaner;
+import com.farao_community.farao.data.crac_util.CracCleaningFeature;
+import com.farao_community.farao.data.crac_util.UcteNodeMatchingRule;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
@@ -16,7 +20,6 @@ import com.farao_community.farao.flowbased_computation.FlowbasedComputationParam
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.farao_community.farao.flowbased_computation.json.JsonFlowbasedComputationParameters;
 
-import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.google.auto.service.AutoService;
 
 import com.powsybl.iidm.import_.Importers;
@@ -48,6 +51,7 @@ public class FlowbasedComputationTool implements Tool {
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String CRAC_FILE_OPTION = "crac-file";
     private static final String GLSK_FILE_OPTION = "glsk-file";
+    private static final String DEFINE_ALIASES = "define-aliases";
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String INSTANT = "instant";
@@ -110,6 +114,9 @@ public class FlowbasedComputationTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
+                options.addOption(Option.builder().longOpt(DEFINE_ALIASES)
+                    .desc("try to fix import if crac and network data slightly differ")
+                    .build());
                 options.addOption(Option
                         .builder()
                         .longOpt(INSTANT)
@@ -152,8 +159,15 @@ public class FlowbasedComputationTool implements Tool {
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
         Crac crac = CracImporters.importCrac(cracFile);
-        UcteAliasesCreation.createAliases(network);
-        RaoInputHelper.cleanCrac(crac, network);
+        if (line.hasOption(DEFINE_ALIASES)) {
+            UcteAliasesCreation.createAliases(network);
+            CracAliasesCreator cracAliasesCreator = new CracAliasesCreator();
+            cracAliasesCreator.createAliases(crac, network, UcteNodeMatchingRule.FIRST_7_CHARACTER_EQUAL);
+            CracCleaner cracCleaner = new CracCleaner();
+            cracCleaner.disableFeature(CracCleaningFeature.CHECK_CNEC_MNEC);
+            cracCleaner.enableFeature(CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES);
+            cracCleaner.cleanCrac(crac, network);
+        }
         crac.synchronize(network);
         ZonalData<LinearGlsk> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();

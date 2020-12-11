@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -54,7 +55,8 @@ public final class RaoUtil {
     }
 
     public static void initCrac(Crac crac, Network network) {
-        RaoInputHelper.cleanCrac(crac, network);
+        CracCleaner cracCleaner = new CracCleaner();
+        cracCleaner.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
     }
 

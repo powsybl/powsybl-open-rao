@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -76,7 +77,8 @@ public class LeafTest {
         crac.addNetworkAction(na1);
         crac.addNetworkAction(na2);
 
-        RaoInputHelper.cleanCrac(crac, network);
+        CracCleaner cracCleaner = new CracCleaner();
+        cracCleaner.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
         raoData = Mockito.spy(RaoData.createOnPreventiveState(network, crac));
         CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());

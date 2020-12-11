@@ -21,5 +21,6 @@
         <module>crac-impl</module>
         <module>crac-loopflow-extension</module>
         <module>crac-result-extensions</module>
+        <module>crac-util</module>
     </modules>
 </project>
