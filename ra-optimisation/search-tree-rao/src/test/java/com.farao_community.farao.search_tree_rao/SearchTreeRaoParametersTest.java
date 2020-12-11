@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -32,5 +33,14 @@ public class SearchTreeRaoParametersTest {
     public void testExtensionRecognition() {
         assertTrue(parameters.getExtensionByName("SearchTreeRaoParameters") instanceof SearchTreeRaoParameters);
         assertNotNull(parameters.getExtension(SearchTreeRaoParameters.class));
+    }
+
+    @Test
+    public void testRelativeNetworkActionMinimumImpactThresholdBounds() {
+        SearchTreeRaoParameters params = new SearchTreeRaoParameters();
+        params.setRelativeNetworkActionMinimumImpactThreshold(-0.5);
+        assertEquals(0, params.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
+        params.setRelativeNetworkActionMinimumImpactThreshold(1.1);
+        assertEquals(1, params.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
     }
 }
