@@ -148,6 +148,17 @@ public class RaoParametersTest {
     }
 
     @Test
+    public void checkPerimetersParallelConfig() {
+        MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
+        moduleConfig.setStringProperty("perimeters-in-parallel", Objects.toString(10));
+
+        RaoParameters parameters = new RaoParameters();
+        RaoParameters.load(parameters, platformCfg);
+
+        assertEquals(10, parameters.getPerimetersInParallel());
+    }
+
+    @Test
     public void testUpdatePtdfWithTopo() {
         assertFalse(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF.shouldUpdatePtdfWithTopologicalChange());
         assertTrue(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithTopologicalChange());

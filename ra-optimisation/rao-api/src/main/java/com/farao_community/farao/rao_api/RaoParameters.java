@@ -86,6 +86,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     private static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
     public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
+    private static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
 
     private static final String COUNTRY_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'XX-YY' where XX and YY are the 2-character country codes";
 
@@ -108,6 +109,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
     private List<Pair<Country, Country>> ptdfBoundaries = new ArrayList<>();
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
+
+    private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
@@ -298,6 +301,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
+    public int getPerimetersInParallel() {
+        return perimetersInParallel;
+    }
+
+    public void setPerimetersInParallel(int perimetersInParallel) {
+        this.perimetersInParallel = perimetersInParallel;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -354,6 +365,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setNegativeMarginObjectiveCoefficient(config.getDoubleProperty("negative-margin-objective-coefficient", DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT));
                 parameters.setPtdfBoundariesFromCountryCodes(config.getStringListProperty("ptdf-boundaries", new ArrayList<>()));
                 parameters.setPtdfSumLowerBound(config.getDoubleProperty("ptdf-sum-lower-bound", DEFAULT_PTDF_SUM_LOWER_BOUND));
+                parameters.setPerimetersInParallel(config.getIntProperty("perimeters-in-parallel", DEFAULT_PERIMETERS_IN_PARALLEL));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

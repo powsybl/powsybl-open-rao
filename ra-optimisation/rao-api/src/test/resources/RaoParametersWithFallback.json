@@ -17,6 +17,7 @@
   "negative-margin-objective-coefficient" : 1000.0,
   "ptdf-boundaries" : [ ],
   "ptdf-sum-lower-bound" : 0.01,
+  "perimeters-in-parallel" : 1,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
