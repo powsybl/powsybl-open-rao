@@ -8,9 +8,15 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -59,5 +65,69 @@ public final class CracResultUtil {
                 LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, ra.getId()));
             }
         });
+    }
+
+    /**
+     * Apply preventive remedial actions saved in CRAC result extension on current working variant of given network.
+     *
+     * @param crac CRAC that should contain result extension
+     */
+    public static void applyEnforcedRemedialActions(Crac crac) {
+        // TODO: this comes from CNEHelper (until String cracVariantId) ...
+        CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+        if (resultVariantManager != null && cracExtension != null) {
+            List<String> variants = new ArrayList<>(resultVariantManager.getVariants());
+
+            // TODO: store the information on preOptim/postOptim Variant in the ResultVariantManager
+            String preOptimVariantId = variants.get(0);
+            String postOptimVariantId = variants.get(0);
+
+            double minCost = cracExtension.getVariant(variants.get(0)).getCost();
+            double maxCost = cracExtension.getVariant(variants.get(0)).getCost();
+            for (String variant : variants) {
+                if (cracExtension.getVariant(variant).getCost() <= minCost) {
+                    minCost = cracExtension.getVariant(variant).getCost();
+                    postOptimVariantId = variant;
+                } else if (cracExtension.getVariant(variant).getCost() > maxCost) {
+                    maxCost = cracExtension.getVariant(variant).getCost();
+                    preOptimVariantId = variant;
+                }
+            }
+            String cracVariantId = postOptimVariantId;
+
+            String preventiveStateId = crac.getPreventiveState().getId();
+            crac.getNetworkActions().forEach(na -> {
+                NetworkActionResultExtension resultExtension = na.getExtension(NetworkActionResultExtension.class);
+                if (resultExtension == null) {
+                    LOGGER.error(String.format("Could not find results on network action %s", na.getId()));
+                    return;
+                }
+                NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
+                if (networkActionResult != null) {
+                    if (networkActionResult.isActivated(preventiveStateId)) {
+                        na.addUsageRule(new FreeToUseImpl(UsageMethod.FORCED, new Instant(preventiveStateId, 0)));
+                    }
+                } else {
+                    LOGGER.error(String.format("Could not find results for variant %s on network action %s", cracVariantId, na.getId()));
+                }
+            });
+            crac.getRangeActions().forEach(ra -> {
+                RangeActionResultExtension resultExtension = ra.getExtension(RangeActionResultExtension.class);
+                if (resultExtension == null) {
+                    LOGGER.error(String.format("Could not find results on range action %s", ra.getId()));
+                    return;
+                }
+                RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
+                if (rangeActionResult != null) {
+                    ra.addUsageRule(new FreeToUseImpl(UsageMethod.FORCED, new Instant(preventiveStateId, 0)));
+                    //rangeActionResult.getSetPoint(preventiveStateId)
+                } else {
+                    LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, ra.getId()));
+                }
+            });
+        } else {
+            LOGGER.error("Could not find postOptimVariant");
+        }
     }
 }

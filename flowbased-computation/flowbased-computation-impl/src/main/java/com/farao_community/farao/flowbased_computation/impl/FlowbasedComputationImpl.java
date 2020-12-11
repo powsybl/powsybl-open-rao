@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_result_extensions.CracResultUtil;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.commons.RandomizedString;
@@ -58,6 +59,9 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .withPtdfSensitivities(glsk, crac.getCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .build();
 
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "InitialStateWithPra");
+        network.getVariantManager().setWorkingVariant("InitialStateWithPra");
+        CracResultUtil.applyEnforcedRemedialActions(crac);
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
