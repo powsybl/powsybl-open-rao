@@ -89,7 +89,8 @@ public class LoopFlowComputation {
         // Extract from the referenceExchangeDataList the ones that are described in the virtualhubs
         List<ReferenceExchangeData> referenceExchangesFromVirtualHubs = referenceProgram.getReferenceExchangeDataList().stream().filter(ReferenceExchangeData::isVirtualHub).collect(Collectors.toList());
         referenceExchangesFromVirtualHubs.forEach(referenceExchangeData -> virtualHubGlsks.add(getVirtualHubGlsk(network, referenceExchangeData)));
-        return virtualHubGlsks;
+        return new ArrayList<>();
+        // return virtualHubGlsks;
     }
 
     private LinearGlsk getVirtualHubGlsk(Network network, ReferenceExchangeData referenceExchangeData) {

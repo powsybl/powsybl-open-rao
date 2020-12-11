@@ -54,6 +54,6 @@ public class ReferenceExchangeData {
     }
 
     public boolean isVirtualHub() {
-        return areaIn.isVirtualHub() || areaOut.isVirtualHub();
+        return areaIn == null || areaIn.isVirtualHub() || areaOut == null || areaOut.isVirtualHub();
     }
 }
