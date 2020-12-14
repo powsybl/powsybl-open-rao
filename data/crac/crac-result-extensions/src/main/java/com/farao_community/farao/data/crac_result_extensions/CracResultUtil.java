@@ -83,8 +83,8 @@ public final class CracResultUtil {
 
             // Convert activated resultExtension into enforced UsageRule
             String preventiveStateId = crac.getPreventiveState().getId();
-            crac.getNetworkActions().forEach(na -> doNa(na, preventiveStateId, cracVariantId));
-            crac.getRangeActions().forEach(ra -> doRa(ra, preventiveStateId, cracVariantId));
+            crac.getNetworkActions().forEach(na -> setForcedNetworkAction(na, preventiveStateId, cracVariantId));
+            crac.getRangeActions().forEach(ra -> setForcedRangeAction(ra, preventiveStateId, cracVariantId));
         } else {
             LOGGER.info("Could not find postOptimVariant");
         }
@@ -108,7 +108,7 @@ public final class CracResultUtil {
         return postOptimVariantId;
     }
 
-    private static void doNa(NetworkAction na, String preventiveStateId, String cracVariantId) {
+    private static void setForcedNetworkAction(NetworkAction na, String preventiveStateId, String cracVariantId) {
         NetworkActionResultExtension resultExtension = na.getExtension(NetworkActionResultExtension.class);
         if (resultExtension == null) {
             LOGGER.error(String.format("Could not find results on network action %s", na.getId()));
@@ -124,7 +124,7 @@ public final class CracResultUtil {
         }
     }
 
-    private static void doRa(RangeAction ra, String preventiveStateId, String cracVariantId) {
+    private static void setForcedRangeAction(RangeAction ra, String preventiveStateId, String cracVariantId) {
         RangeActionResultExtension resultExtension = ra.getExtension(RangeActionResultExtension.class);
         if (resultExtension == null) {
             LOGGER.error(String.format("Could not find results on range action %s", ra.getId()));
@@ -149,11 +149,10 @@ public final class CracResultUtil {
     }
 
     public static void applyEnforcedPrasOnNetwork(Network network, Crac crac) {
-        String preventiveStateId = crac.getPreventiveState().getId();
-        crac.getNetworkActions().forEach(na -> applyForcedNetworkAction(na, network, preventiveStateId));
+        crac.getNetworkActions().forEach(na -> applyForcedNetworkAction(na, network));
     }
 
-    private static void applyForcedNetworkAction(NetworkAction networkAction, Network network, String preventiveStateId) {
+    private static void applyForcedNetworkAction(NetworkAction networkAction, Network network) {
         if (networkAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getUsageMethod().equals(UsageMethod.FORCED))) {
             LOGGER.debug("Applying network action {}", networkAction.getName());
             networkAction.apply(network);

@@ -187,46 +187,46 @@
   "rangeActions" : [],
   "networkActions" : [ {
     "type" : "complex-network-action",
-    "id" : "Open line NL1-NL2",
-    "name" : "Open line NL1-NL2",
+    "id" : "Open line DE-NL",
+    "name" : "Open line DE-NL",
     "operator" : "NL",
     "usageRules" : [ {
-      "type" : "on-state",
+      "type" : "free-to-use",
       "usageMethod" : "FORCED",
-      "state" : "none-N"
+      "instant" : "N"
     } ],
     "elementaryNetworkActions" : [ {
       "type" : "topology",
-      "id" : "Open line NL1-NL2",
-      "name" : "Open line NL1-NL2",
+      "id" : "Open line DE-NL",
+      "name" : "Open line DE-NL",
       "operator" : "NL",
       "usageRules" : [ {
-        "type" : "on-state",
+        "type" : "free-to-use",
         "usageMethod" : "FORCED",
-        "state" : "none-N"
+        "instant" : "N"
       } ],
       "networkElements" : [ "DE-NL" ],
       "actionType" : "OPEN"
     } ]
   }, {
     "type" : "complex-network-action",
-    "id" : "Open line FR1-FR2",
-    "name" : "Open line FR1-FR2",
+    "id" : "Open line FR-BE",
+    "name" : "Open line FR-BE",
     "operator" : "FR",
     "usageRules" : [ {
-      "type" : "on-state",
+      "type" : "free-to-use",
       "usageMethod" : "FORCED",
-      "state" : "none-N"
+      "instant" : "N"
     } ],
     "elementaryNetworkActions" : [ {
       "type" : "topology",
-      "id" : "Open line FR1-FR2",
-      "name" : "Open line FR1-FR2",
+      "id" : "Open line FR-BE",
+      "name" : "Open line FR-BE",
       "operator" : "FR",
       "usageRules" : [ {
-        "type" : "on-state",
+        "type" : "free-to-use",
         "usageMethod" : "FORCED",
-        "state" : "none-N"
+        "instant" : "N"
       } ],
       "networkElements" : [ "FR-BE" ],
       "actionType" : "OPEN"
