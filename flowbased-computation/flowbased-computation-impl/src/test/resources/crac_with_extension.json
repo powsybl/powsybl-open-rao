@@ -1,0 +1,334 @@
+{
+  "type": "simple-crac",
+  "id": "CracFlowbased",
+  "name": "Crac for flowbased tests",
+  "networkElements": [
+    {
+      "type": "NetworkElement",
+      "id": "FR-BE",
+      "name": "FR-BE"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "FR-DE",
+      "name": "FR-DE"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "BE-NL",
+      "name": "BE-NL"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "DE-NL",
+      "name": "DE-NL"
+    }
+  ],
+  "instants": [
+    {
+      "type": "Instant",
+      "id": "N",
+      "seconds": -1,
+      "name": "N"
+    },
+    {
+      "type": "Instant",
+      "id": "N-1",
+      "seconds": 60,
+      "name": "N-1"
+    }
+  ],
+  "contingencies": [
+    {
+      "type": "complex-contingency",
+      "id": "N-1 FR-BE",
+      "name": "N-1 FR-BE",
+      "networkElements": [
+        "FR-BE"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "type": "simple-state",
+      "id": "none-N",
+      "contingency": null,
+      "instant": "N"
+    },
+    {
+      "type": "simple-state",
+      "id": "N-1 FR-BE-N-1",
+      "contingency": "N-1 FR-BE",
+      "instant": "N-1"
+    }
+  ],
+  "cnecs": [
+    {
+      "type": "flow-cnec",
+      "id": "FR-BE - N-1 - N-1 FR-BE",
+      "name": "Tieline FR-BE in N-1",
+      "networkElement": "FR-BE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "FR-DE - N-1 - N-1 FR-BE",
+      "name": "Tieline FR-DE in N-1",
+      "networkElement": "FR-DE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "BE-NL - N-1 - N-1 FR-BE",
+      "name": "Tieline BE-NL in N-1",
+      "networkElement": "BE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "DE-NL - N-1 - N-1 FR-BE",
+      "name": "Tieline DE-NL in N-1",
+      "networkElement": "DE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "FR-BE - N - preventive",
+      "name": "Tieline FR-BE in N",
+      "networkElement": "FR-BE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "FR-DE - N - preventive",
+      "name": "Tieline FR-DE in N",
+      "networkElement": "FR-DE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "BE-NL - N - preventive",
+      "name": "Tieline BE-NL in N",
+      "networkElement": "BE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "DE-NL - N - preventive",
+      "name": "Tieline DE-NL in N",
+      "networkElement": "DE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    }
+  ],
+  "rangeActions" : [ {
+    "type" : "pst-with-range",
+    "id" : "SelectTapPST43",
+    "name" : "SelectTapPST43",
+    "operator" : "FR",
+    "usageRules" : [ {
+      "type" : "free-to-use",
+      "usageMethod" : "AVAILABLE",
+      "instant" : "N"
+    } ],
+    "networkElements" : [ "BE-NL" ],
+    "ranges" : [ {
+      "min" : 1.0,
+      "max" : 33.0,
+      "rangeType" : "ABSOLUTE_FIXED",
+      "rangeDefinition" : "STARTS_AT_ONE"
+    } ],
+    "extensions" : {
+      "RangeActionResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
+            "type" : "pst-range-result",
+            "tapPerStates" : {
+              "none-N" : -16
+            },
+            "setPointPerStates" : {
+              "none-N" : -6.22764253616333
+            }
+          },
+          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+            "type" : "pst-range-result",
+            "tapPerStates" : {
+              "none-N" : 7
+            },
+            "setPointPerStates" : {
+              "none-N" : 2.3
+            }
+          }
+        }
+      }
+    }
+  } ],
+
+  "networkActions" : [ {
+    "type" : "complex-network-action",
+    "id" : "Open line DE-NL",
+    "name" : "Open line DE-NL",
+    "operator" : "NL",
+    "usageRules" : [ {
+      "type" : "free-to-use",
+      "usageMethod" : "AVAILABLE",
+      "instant" : "N"
+    } ],
+    "elementaryNetworkActions" : [ {
+      "type" : "topology",
+      "id" : "Open line DE-NL",
+      "name" : "Open line DE-NL",
+      "operator" : "NL",
+      "usageRules" : [ {
+        "type" : "free-to-use",
+        "usageMethod" : "AVAILABLE",
+        "instant" : "N"
+      } ],
+      "networkElements" : [ "DE-NL" ],
+      "actionType" : "OPEN"
+    } ],
+    "extensions" : {
+      "NetworkActionResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
+            "type" : "network-action-result",
+            "activationMap" : {
+              "none-N" : true
+            }
+          },
+          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+            "type" : "network-action-result",
+            "activationMap" : {
+              "none-N" : false
+            }
+          }
+        }
+      }
+    }
+  }, {
+    "type" : "complex-network-action",
+    "id" : "Open line FR-BE",
+    "name" : "Open line FR-BE",
+    "operator" : "FR",
+    "usageRules" : [ {
+      "type" : "free-to-use",
+      "usageMethod" : "AVAILABLE",
+      "instant" : "N"
+    } ],
+    "elementaryNetworkActions" : [ {
+      "type" : "topology",
+      "id" : "Open line FR-BE",
+      "name" : "Open line FR-BE",
+      "operator" : "FR",
+      "usageRules" : [ {
+        "type" : "free-to-use",
+        "usageMethod" : "AVAILABLE",
+        "instant" : "N"
+      } ],
+      "networkElements" : [ "FR-BE" ],
+      "actionType" : "OPEN"
+    } ],
+    "extensions" : {
+      "NetworkActionResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
+            "type" : "network-action-result",
+            "activationMap" : {
+              "none-N" : false
+            }
+          },
+          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+            "type" : "network-action-result",
+            "activationMap" : {
+              "none-N" : false
+            }
+          }
+        }
+      }
+    }
+  } ],
+  "extensions" : {
+    "ResultVariantManager" : {
+      "variantIds" : [ "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e", "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" ]
+    },
+    "CracResultExtension" : {
+      "resultsPerVariant" : {
+        "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
+          "type" : "crac-result",
+          "networkSecurityStatus" : "SECURED",
+          "functionalCost" : -25.64197836348194,
+          "virtualCost" : 0.0
+        },
+        "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+          "type" : "crac-result",
+          "networkSecurityStatus" : "UNSECURED",
+          "functionalCost" : 549.7274064021431,
+          "virtualCost" : 0.0
+        }
+      }
+    }
+  }
+}
