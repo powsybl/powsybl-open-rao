@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -84,7 +85,12 @@ public final class CracResultUtil {
             // Convert activated resultExtension into enforced UsageRule
             String preventiveStateId = crac.getPreventiveState().getId();
             crac.getNetworkActions().forEach(na -> setForcedNetworkAction(na, preventiveStateId, cracVariantId));
-            crac.getRangeActions().forEach(ra -> setForcedRangeAction(ra, preventiveStateId, cracVariantId));
+            crac.getRangeActions().forEach(ra -> {
+                NetworkAction networkAction = setForcedRangeAction(ra, preventiveStateId, cracVariantId);
+                if (networkAction != null) {
+                    crac.getNetworkActions().add(networkAction);
+                }
+            });
         } else {
             LOGGER.info("Could not find postOptimVariant");
         }
@@ -124,28 +130,31 @@ public final class CracResultUtil {
         }
     }
 
-    private static void setForcedRangeAction(RangeAction ra, String preventiveStateId, String cracVariantId) {
+    private static PstSetpoint setForcedRangeAction(RangeAction ra, String preventiveStateId, String cracVariantId) {
         RangeActionResultExtension resultExtension = ra.getExtension(RangeActionResultExtension.class);
         if (resultExtension == null) {
             LOGGER.error(String.format("Could not find results on range action %s", ra.getId()));
-            return;
         }
         RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
         if (rangeActionResult != null) {
             if (ra instanceof PstRange) {
-                new PstSetpoint(ra.getId(),
-                    ra.getName(),
-                    ra.getOperator(),
-                    Collections.singletonList(new FreeToUseImpl(UsageMethod.FORCED, new Instant(preventiveStateId, 0))),
-                    ra.getNetworkElements().stream().findAny().get(),
-                    rangeActionResult.getSetPoint(preventiveStateId),
-                    RangeDefinition.CENTERED_ON_ZERO);
+                Optional<NetworkElement> networkElement = ra.getNetworkElements().stream().findAny();
+                if (networkElement.isPresent()) {
+                    return new PstSetpoint(ra.getId(),
+                        ra.getName(),
+                        ra.getOperator(),
+                        Collections.singletonList(new FreeToUseImpl(UsageMethod.FORCED, new Instant(preventiveStateId, 0))),
+                        networkElement.get(),
+                        rangeActionResult.getSetPoint(preventiveStateId),
+                        RangeDefinition.CENTERED_ON_ZERO);
+                }
             } else {
                 LOGGER.error(String.format("Unhandled range action type for %s", ra.getId()));
             }
         } else {
             LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, ra.getId()));
         }
+        return null;
     }
 
     public static void applyEnforcedPrasOnNetwork(Network network, Crac crac) {
