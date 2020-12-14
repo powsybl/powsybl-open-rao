@@ -8,6 +8,9 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.adder.BranchCnecAdder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
@@ -179,23 +182,24 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * Get a {@code Cnec} adder, to add a cnec to the Crac
      * @return a {@code CnecAdder} instance
      */
-    CnecAdder newCnec();
+    BranchCnecAdder newBranchCnec();
 
     /**
      * Gather all the Cnecs present in the Crac. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.
      *
+     *
      * @return A set of Cnecs.
      */
-    Set<Cnec> getCnecs();
+    Set<BranchCnec> getBranchCnecs();
 
     /**
      * Find a Cnec by its id
      *
-     * @param cnecId: the Cnec identifier.
+     * @param branchCnecId : the Cnec identifier.
      * @return The Cnec with the id given in argument. Or null if it does not exist.
      */
-    Cnec getCnec(String cnecId);
+    BranchCnec getBranchCnec(String branchCnecId);
 
     /**
      * Remove a Cnec by its id
@@ -208,20 +212,20 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * Gather all the Cnecs of a specified State. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.
      *
-     * @param state: The state on which we want to select Cnecs.
+     * @param state : The state on which we want to select Cnecs.
      * @return A set of Cnecs.
      */
-    Set<Cnec> getCnecs(State state);
+    Set<BranchCnec> getBranchCnecs(State state);
 
-    default Set<Cnec> getCnecs(String contingencyId, String instantId) {
+    default Set<BranchCnec> getBranchCnecs(String contingencyId, String instantId) {
         if (getState(contingencyId, instantId) != null) {
-            return getCnecs(getState(contingencyId, instantId));
+            return getBranchCnecs(getState(contingencyId, instantId));
         } else {
             return new HashSet<>();
         }
     }
 
-    void addCnec(Cnec cnec);
+    void addCnec(Cnec<?> cnec);
 
     // Range actions management
     /**

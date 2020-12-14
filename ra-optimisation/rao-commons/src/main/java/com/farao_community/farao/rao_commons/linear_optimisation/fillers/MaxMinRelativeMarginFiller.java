@@ -8,7 +8,8 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -73,7 +74,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         if (minRelMarginVariable == null) {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
-        raoData.getCnecs().stream().filter(Cnec::isOptimized).forEach(cnec -> {
+        raoData.getCnecs().stream().filter(BranchCnec::isOptimized).forEach(cnec -> {
             double marginCoef = 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), ptdfSumLowerBound);
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
@@ -83,8 +84,8 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-            minFlow = cnec.getMinThreshold(MEGAWATT);
-            maxFlow = cnec.getMaxThreshold(MEGAWATT);
+            minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
+            maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
             double unitConversionCoefficient = getUnitConversionCoefficient(cnec, raoData);
 
             if (minFlow.isPresent()) {

@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
@@ -35,8 +36,8 @@ public class CracCleaner {
         List<String> report = new ArrayList<>();
 
         // remove Cnec whose NetworkElement is absent from the network
-        ArrayList<Cnec> absentFromNetworkCnecs = new ArrayList<>();
-        crac.getCnecs().forEach(cnec -> {
+        ArrayList<BranchCnec> absentFromNetworkCnecs = new ArrayList<>();
+        crac.getBranchCnecs().forEach(cnec -> {
             if (network.getBranch(cnec.getNetworkElement().getId()) == null) {
                 absentFromNetworkCnecs.add(cnec);
                 report.add(String.format("[REMOVED] Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
@@ -46,8 +47,8 @@ public class CracCleaner {
 
         if (CHECK_CNEC_MNEC.isEnabled()) {
             // remove Cnecs that are neither optimized nor monitored
-            ArrayList<Cnec> unmonitoredCnecs = new ArrayList<>();
-            crac.getCnecs().forEach(cnec -> {
+            ArrayList<BranchCnec> unmonitoredCnecs = new ArrayList<>();
+            crac.getBranchCnecs().forEach(cnec -> {
                 if (!cnec.isOptimized() && !cnec.isMonitored()) {
                     unmonitoredCnecs.add(cnec);
                     report.add(String.format("[REMOVED] Cnec %s with network element [%s] is neither optimized nor monitored. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
@@ -113,7 +114,7 @@ public class CracCleaner {
         // remove Cnec whose contingency does not exist anymore
         removedContingencies.forEach(contingency ->
             crac.getStatesFromContingency(contingency.getId()).forEach(state ->
-                crac.getCnecs(state).forEach(cnec -> {
+                crac.getBranchCnecs(state).forEach(cnec -> {
                     crac.removeCnec(cnec.getId());
                     report.add(String.format("[REMOVED] Cnec %s is removed because its associated contingency [%s] has been removed", cnec.getId(), contingency.getId()));
                 })

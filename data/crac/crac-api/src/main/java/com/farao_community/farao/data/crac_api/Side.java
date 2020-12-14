@@ -15,6 +15,5 @@ package com.farao_community.farao.data.crac_api;
 
 public enum Side {
     LEFT,
-    RIGHT,
-    BOTH
+    RIGHT
 }

@@ -8,7 +8,8 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
@@ -21,8 +22,6 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResul
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
  */
 @AutoService(FlowbasedComputationProvider.class)
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
     public String getName() {
@@ -56,7 +54,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
-                .withPtdfSensitivities(glsk, crac.getCnecs(), Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .build();
 
         // do this if after RAO: applyPreventiveRemedialActions(raoInput.getNetwork(), raoInput.getCrac(), preventiveRaoResult.getPostOptimVariantId());
@@ -109,13 +107,13 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private List<DataMonitoredBranch> buildDataMonitoredBranches(Crac crac, Set<State> states, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
         List<DataMonitoredBranch> branchResultList = new ArrayList<>();
-        states.forEach(state -> crac.getCnecs(state).forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(cnec, glsk, result))));
+        states.forEach(state -> crac.getBranchCnecs(state).forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(cnec, glsk, result))));
         return branchResultList;
     }
 
-    private DataMonitoredBranch buildDataMonitoredBranch(Cnec cnec, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
-        double maxThreshold = cnec.getMaxThreshold(Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
-        double minThreshold = cnec.getMinThreshold(Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
+    private DataMonitoredBranch buildDataMonitoredBranch(BranchCnec cnec, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
+        double maxThreshold = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
+        double minThreshold = cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         return new DataMonitoredBranch(
                 cnec.getId(),
                 cnec.getName(),
@@ -126,7 +124,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         );
     }
 
-    private List<DataPtdfPerCountry> buildDataPtdfPerCountry(Cnec cnec, ZonalData<LinearGlsk> glskProvider, SystematicSensitivityResult result) {
+    private List<DataPtdfPerCountry> buildDataPtdfPerCountry(BranchCnec cnec, ZonalData<LinearGlsk> glskProvider, SystematicSensitivityResult result) {
         Map<String, LinearGlsk> glsks = glskProvider.getDataPerZone();
         return glsks.values().stream()
                 .map(glsk ->
