@@ -248,7 +248,7 @@
         "instant" : "N"
       } ],
       "networkElements" : [ "FR-BE" ],
-      "actionType" : "OPEN"
+      "actionType" : "CLOSE"
     } ],
     "extensions" : {
       "NetworkActionResultExtension" : {
