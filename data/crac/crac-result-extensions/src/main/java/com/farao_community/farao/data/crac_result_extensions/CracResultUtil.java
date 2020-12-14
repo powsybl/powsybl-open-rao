@@ -86,7 +86,7 @@ public final class CracResultUtil {
             crac.getNetworkActions().forEach(na -> doNa(na, preventiveStateId, cracVariantId));
             crac.getRangeActions().forEach(ra -> doRa(ra, preventiveStateId, cracVariantId));
         } else {
-            LOGGER.error("Could not find postOptimVariant");
+            LOGGER.info("Could not find postOptimVariant");
         }
     }
 
@@ -154,7 +154,7 @@ public final class CracResultUtil {
     }
 
     private static void applyForcedNetworkAction(NetworkAction networkAction, Network network, String preventiveStateId) {
-        if (networkAction.getUsageRules().contains(new FreeToUseImpl(UsageMethod.FORCED, new Instant(preventiveStateId, 0)))) {
+        if (networkAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getUsageMethod().equals(UsageMethod.FORCED))) {
             LOGGER.debug("Applying network action {}", networkAction.getName());
             networkAction.apply(network);
         }

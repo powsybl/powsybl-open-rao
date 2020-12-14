@@ -183,5 +183,53 @@
       "optimized": false,
       "state": "none-N"
     }
-  ]
+  ],
+  "rangeActions" : [],
+  "networkActions" : [ {
+    "type" : "complex-network-action",
+    "id" : "Open line NL1-NL2",
+    "name" : "Open line NL1-NL2",
+    "operator" : "NL",
+    "usageRules" : [ {
+      "type" : "on-state",
+      "usageMethod" : "FORCED",
+      "state" : "none-N"
+    } ],
+    "elementaryNetworkActions" : [ {
+      "type" : "topology",
+      "id" : "Open line NL1-NL2",
+      "name" : "Open line NL1-NL2",
+      "operator" : "NL",
+      "usageRules" : [ {
+        "type" : "on-state",
+        "usageMethod" : "FORCED",
+        "state" : "none-N"
+      } ],
+      "networkElements" : [ "DE-NL" ],
+      "actionType" : "OPEN"
+    } ]
+  }, {
+    "type" : "complex-network-action",
+    "id" : "Open line FR1-FR2",
+    "name" : "Open line FR1-FR2",
+    "operator" : "FR",
+    "usageRules" : [ {
+      "type" : "on-state",
+      "usageMethod" : "FORCED",
+      "state" : "none-N"
+    } ],
+    "elementaryNetworkActions" : [ {
+      "type" : "topology",
+      "id" : "Open line FR1-FR2",
+      "name" : "Open line FR1-FR2",
+      "operator" : "FR",
+      "usageRules" : [ {
+        "type" : "on-state",
+        "usageMethod" : "FORCED",
+        "state" : "none-N"
+      } ],
+      "networkElements" : [ "FR-BE" ],
+      "actionType" : "OPEN"
+    } ]
+  } ]
 }
