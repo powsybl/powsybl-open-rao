@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class FlowCnecTests {
+public class FlowCnecImplTest {
     private final static double DOUBLE_TOLERANCE = 1;
 
     private AbstractBranchCnec lineCnec;
