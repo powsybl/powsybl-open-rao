@@ -229,47 +229,6 @@
 
   "networkActions" : [ {
     "type" : "complex-network-action",
-    "id" : "Open line DE-NL",
-    "name" : "Open line DE-NL",
-    "operator" : "NL",
-    "usageRules" : [ {
-      "type" : "free-to-use",
-      "usageMethod" : "AVAILABLE",
-      "instant" : "N"
-    } ],
-    "elementaryNetworkActions" : [ {
-      "type" : "topology",
-      "id" : "Open line DE-NL",
-      "name" : "Open line DE-NL",
-      "operator" : "NL",
-      "usageRules" : [ {
-        "type" : "free-to-use",
-        "usageMethod" : "AVAILABLE",
-        "instant" : "N"
-      } ],
-      "networkElements" : [ "DE-NL" ],
-      "actionType" : "OPEN"
-    } ],
-    "extensions" : {
-      "NetworkActionResultExtension" : {
-        "resultsPerVariant" : {
-          "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
-            "type" : "network-action-result",
-            "activationMap" : {
-              "none-N" : true
-            }
-          },
-          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
-            "type" : "network-action-result",
-            "activationMap" : {
-              "none-N" : false
-            }
-          }
-        }
-      }
-    }
-  }, {
-    "type" : "complex-network-action",
     "id" : "Open line FR-BE",
     "name" : "Open line FR-BE",
     "operator" : "FR",
@@ -297,7 +256,7 @@
           "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : false
+              "none-N" : true
             }
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
