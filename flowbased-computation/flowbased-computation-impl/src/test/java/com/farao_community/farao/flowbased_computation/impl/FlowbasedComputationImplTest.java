@@ -119,71 +119,16 @@ public class FlowbasedComputationImplTest {
 
     @Test
     public void testRunPraWithForced() {
-        crac = ExampleGenerator.crac("crac_with_forced.json");
-
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
-        assertEquals(FlowbasedComputationResult.Status.SUCCESS, result.getStatus());
-
-        assertEquals(0., getPreventiveFref(result, "FR-BE - N - preventive"), EPSILON);
-        assertEquals(100, getPreventiveFmax(result, "FR-BE - N - preventive"), EPSILON);
-        assertEquals(0., getPreventivePtdf(result, "FR-BE - N - preventive", "10YFR-RTE------C"), EPSILON);
-        assertEquals(0., getPreventivePtdf(result, "FR-BE - N - preventive", "10YBE----------2"), EPSILON);
-        assertEquals(0., getPreventivePtdf(result, "FR-BE - N - preventive", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(0., getPreventivePtdf(result, "FR-BE - N - preventive", "10YNL----------L"), EPSILON);
-
-        assertEquals(100, getPreventiveFref(result, "FR-DE - N - preventive"), EPSILON);
-        assertEquals(100, getPreventiveFmax(result, "FR-DE - N - preventive"), EPSILON);
-        assertEquals(0.75, getPreventivePtdf(result, "FR-DE - N - preventive", "10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "FR-DE - N - preventive", "10YBE----------2"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "FR-DE - N - preventive", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "FR-DE - N - preventive", "10YNL----------L"), EPSILON);
-
-        assertEquals(0, getPreventiveFref(result, "BE-NL - N - preventive"), EPSILON);
-        assertEquals(100, getPreventiveFmax(result, "BE-NL - N - preventive"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "BE-NL - N - preventive", "10YFR-RTE------C"), EPSILON);
-        assertEquals(0.75, getPreventivePtdf(result, "BE-NL - N - preventive", "10YBE----------2"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "BE-NL - N - preventive", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "BE-NL - N - preventive", "10YNL----------L"), EPSILON);
-
-        assertEquals(100, getPreventiveFref(result, "DE-NL - N - preventive"), EPSILON);
-        assertEquals(100, getPreventiveFmax(result, "FR-BE - N - preventive"), EPSILON);
-        assertEquals(0.5, getPreventivePtdf(result, "DE-NL - N - preventive", "10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.5, getPreventivePtdf(result, "DE-NL - N - preventive", "10YBE----------2"), EPSILON);
-        assertEquals(0.5, getPreventivePtdf(result, "DE-NL - N - preventive", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.5, getPreventivePtdf(result, "DE-NL - N - preventive", "10YNL----------L"), EPSILON);
-
-        assertEquals(0., getCurativeFref(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YFR-RTE------C"), EPSILON);
-        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YBE----------2"), EPSILON);
-        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - N-1 - N-1 FR-BE", "10YNL----------L"), EPSILON);
-
-        assertEquals(100, getCurativeFref(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(0.75, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE", "10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE", "10YBE----------2"), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - N-1 - N-1 FR-BE", "10YNL----------L"), EPSILON);
-
-        assertEquals(0, getCurativeFref(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE", "10YFR-RTE------C"), EPSILON);
-        assertEquals(0.75, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE", "10YBE----------2"), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - N-1 - N-1 FR-BE", "10YNL----------L"), EPSILON);
-
-        assertEquals(100, getCurativeFref(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE"), EPSILON);
-        assertEquals(0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YBE----------2"), EPSILON);
-        assertEquals(0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YNL----------L"), EPSILON);
+        runTestPraOpenFrBe("crac_with_forced.json");
     }
 
     @Test
     public void testRunPraWithExtension() {
-        crac = ExampleGenerator.crac("crac_with_extension.json");
+        runTestPraOpenFrBe("crac_with_extension.json");
+    }
+
+    private void runTestPraOpenFrBe(String filename) {
+        crac = ExampleGenerator.crac(filename);
 
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
         assertEquals(FlowbasedComputationResult.Status.SUCCESS, result.getStatus());

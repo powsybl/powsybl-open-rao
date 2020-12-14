@@ -132,27 +132,28 @@ public final class CracResultUtil {
 
     private static PstSetpoint setForcedRangeAction(RangeAction ra, String preventiveStateId, String cracVariantId) {
         RangeActionResultExtension resultExtension = ra.getExtension(RangeActionResultExtension.class);
-        if (resultExtension == null) {
-            LOGGER.error(String.format("Could not find results on range action %s", ra.getId()));
-        }
-        RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
-        if (rangeActionResult != null) {
-            if (ra instanceof PstRange) {
-                Optional<NetworkElement> networkElement = ra.getNetworkElements().stream().findAny();
-                if (networkElement.isPresent()) {
-                    return new PstSetpoint(ra.getId(),
-                        ra.getName(),
-                        ra.getOperator(),
-                        Collections.singletonList(new FreeToUseImpl(UsageMethod.FORCED, new Instant(preventiveStateId, 0))),
-                        networkElement.get(),
-                        rangeActionResult.getSetPoint(preventiveStateId),
-                        RangeDefinition.CENTERED_ON_ZERO);
+        if (resultExtension != null) {
+            RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
+            if (rangeActionResult != null) {
+                if (ra instanceof PstRange) {
+                    Optional<NetworkElement> networkElement = ra.getNetworkElements().stream().findAny();
+                    if (networkElement.isPresent()) {
+                        return new PstSetpoint(ra.getId(),
+                            ra.getName(),
+                            ra.getOperator(),
+                            Collections.singletonList(new FreeToUseImpl(UsageMethod.FORCED, new Instant(preventiveStateId, 0))),
+                            networkElement.get(),
+                            rangeActionResult.getSetPoint(preventiveStateId),
+                            RangeDefinition.CENTERED_ON_ZERO);
+                    }
+                } else {
+                    LOGGER.error(String.format("Unhandled range action type for %s", ra.getId()));
                 }
             } else {
-                LOGGER.error(String.format("Unhandled range action type for %s", ra.getId()));
+                LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, ra.getId()));
             }
         } else {
-            LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, ra.getId()));
+            LOGGER.error(String.format("Could not find results on range action %s", ra.getId()));
         }
         return null;
     }
