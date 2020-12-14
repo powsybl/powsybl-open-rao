@@ -22,7 +22,7 @@ public class ReferenceProgramArea {
     public ReferenceProgramArea(String areaCode) {
         try {
             Country country = new EICode(areaCode).getCountry();
-            this.isVirtualHub = false;
+            this.isVirtualHub = country == null;
 
         } catch (IllegalArgumentException e) {
             this.isVirtualHub = true;
@@ -58,7 +58,13 @@ public class ReferenceProgramArea {
             return false;
         }
         ReferenceProgramArea referenceProgramArea = (ReferenceProgramArea) o;
-        return areaCode.equals(referenceProgramArea.getAreaCode());
+        try {
+            Country country = new EICode(this.areaCode).getCountry();
+            Country otherCountry = new EICode(referenceProgramArea.areaCode).getCountry();
+            return country == otherCountry;
+        } catch (IllegalArgumentException e) {
+            return areaCode.equals(referenceProgramArea.getAreaCode());
+        }
     }
 
     @Override
