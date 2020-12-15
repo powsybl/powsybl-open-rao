@@ -229,8 +229,8 @@
 
   "networkActions" : [ {
     "type" : "complex-network-action",
-    "id" : "Open line FR-BE",
-    "name" : "Open line FR-BE",
+    "id" : "Close line FR-BE",
+    "name" : "Close line FR-BE",
     "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
@@ -239,8 +239,8 @@
     } ],
     "elementaryNetworkActions" : [ {
       "type" : "topology",
-      "id" : "Open line FR-BE",
-      "name" : "Open line FR-BE",
+      "id" : "Close line FR-BE",
+      "name" : "Close line FR-BE",
       "operator" : "FR",
       "usageRules" : [ {
         "type" : "free-to-use",
