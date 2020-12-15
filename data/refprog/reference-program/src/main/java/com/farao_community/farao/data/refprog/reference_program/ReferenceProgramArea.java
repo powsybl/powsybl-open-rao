@@ -69,6 +69,13 @@ public class ReferenceProgramArea {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        int hashcode;
+        try {
+            Country country = new EICode(areaCode).getCountry();
+            hashcode = country.hashCode();
+        } catch (IllegalArgumentException e) {
+            hashcode = areaCode.hashCode();
+        }
+        return hashcode;
     }
 }

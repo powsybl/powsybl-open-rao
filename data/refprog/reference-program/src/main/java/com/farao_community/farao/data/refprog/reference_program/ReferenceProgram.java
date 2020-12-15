@@ -8,9 +8,6 @@
 
 package com.farao_community.farao.data.refprog.reference_program;
 
-import com.farao_community.farao.util.EICode;
-import com.powsybl.iidm.network.Country;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,48 +16,48 @@ import java.util.stream.Collectors;
  */
 public class ReferenceProgram {
     private final List<ReferenceExchangeData> referenceExchangeDataList;
-    private final Set<Country> countries;
-    private final Map<Country, Double> netPositions;
+    private final Set<ReferenceProgramArea> referenceProgramAreas;
+    private final Map<ReferenceProgramArea, Double> netPositions;
 
     public ReferenceProgram(List<ReferenceExchangeData> referenceExchangeDataList) {
         this.referenceExchangeDataList = referenceExchangeDataList;
-        this.countries = new HashSet<>();
+        this.referenceProgramAreas = new HashSet<>();
         this.referenceExchangeDataList.stream().forEach(referenceExchangeData -> {
             if (referenceExchangeData.getAreaOut() != null && !referenceExchangeData.getAreaOut().isVirtualHub()) {
-                countries.add(new EICode(referenceExchangeData.getAreaOut().areaCode).getCountry());
+                referenceProgramAreas.add(referenceExchangeData.getAreaOut());
             }
             if (referenceExchangeData.getAreaIn() != null && !referenceExchangeData.getAreaIn().isVirtualHub()) {
-                countries.add(new EICode(referenceExchangeData.getAreaIn().areaCode).getCountry());
+                referenceProgramAreas.add(referenceExchangeData.getAreaIn());
             }
         });
-        netPositions = new EnumMap<>(Country.class);
-        countries.forEach(country -> netPositions.put(country, computeGlobalNetPosition(country)));
+        netPositions = new HashMap<>();
+        referenceProgramAreas.forEach(country -> netPositions.put(country, computeGlobalNetPosition(country)));
     }
 
     public List<ReferenceExchangeData> getReferenceExchangeDataList() {
         return referenceExchangeDataList;
     }
 
-    public Set<Country> getListOfCountries() {
-        return countries;
+    public Set<ReferenceProgramArea> getListOfCountries() {
+        return referenceProgramAreas;
     }
 
-    private double computeGlobalNetPosition(Country country) {
+    private double computeGlobalNetPosition(ReferenceProgramArea referenceProgramArea) {
         double netPosition = 0.;
         netPosition += referenceExchangeDataList.stream()
                 .filter(referenceExchangeData -> referenceExchangeData.getAreaOut() != null &&
                         !referenceExchangeData.getAreaOut().isVirtualHub() &&
-                        new EICode(referenceExchangeData.getAreaOut().areaCode).getCountry().equals(country))
+                        referenceExchangeData.getAreaOut().equals(referenceProgramArea))
                 .mapToDouble(ReferenceExchangeData::getFlow).sum();
         netPosition -= referenceExchangeDataList.stream()
                 .filter(referenceExchangeData -> referenceExchangeData.getAreaIn() != null &&
                         !referenceExchangeData.getAreaIn().isVirtualHub() &&
-                        new EICode(referenceExchangeData.getAreaIn().areaCode).getCountry().equals(country))
+                        referenceExchangeData.getAreaIn().equals(referenceProgramArea))
                 .mapToDouble(ReferenceExchangeData::getFlow).sum();
         return netPosition;
     }
 
-    public double getGlobalNetPosition(Country country) {
+    public double getGlobalNetPosition(ReferenceProgramArea country) {
         return netPositions.get(country);
     }
 
@@ -69,7 +66,7 @@ public class ReferenceProgram {
     }
 
     public double getGlobalNetPosition(String area) {
-        return getGlobalNetPosition(new EICode(area).getCountry());
+        return getGlobalNetPosition(new ReferenceProgramArea(area));
     }
 
     public double getExchange(ReferenceProgramArea areaOrigin, ReferenceProgramArea areaExtremity) {
@@ -81,7 +78,7 @@ public class ReferenceProgram {
         }
     }
 
-    public Map<Country, Double> getAllGlobalNetPositions() {
+    public Map<ReferenceProgramArea, Double> getAllGlobalNetPositions() {
         return netPositions;
     }
 

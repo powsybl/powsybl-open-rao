@@ -8,7 +8,7 @@ package com.farao_community.farao.data.refprog.reference_program;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -18,13 +18,13 @@ import java.util.Objects;
 public class CountryNetPositionComputation {
 
     private Network network;
-    private EnumMap<Country, Double> netPositions;
+    private Map<ReferenceProgramArea, Double> netPositions;
 
     public CountryNetPositionComputation(Network network) {
         this.network = network;
     }
 
-    public Map<Country, Double> getNetPositions() {
+    public Map<ReferenceProgramArea, Double> getNetPositions() {
         if (Objects.isNull(netPositions)) {
             computeNetPositions();
         }
@@ -32,53 +32,62 @@ public class CountryNetPositionComputation {
     }
 
     private void computeNetPositions() {
-        netPositions = new EnumMap<>(Country.class);
-
-        for (Country country : Country.values()) {
-            netPositions.put(country, 0.0);
-        }
+        netPositions = new HashMap<>();
 
         network.getDanglingLineStream().forEach(danglingLine -> {
-            Country country = danglingLine.getTerminal().getVoltageLevel().getSubstation().getNullableCountry();
-            addLeavingFlow(danglingLine, country);
+            ReferenceProgramArea referenceProgramArea = new ReferenceProgramArea(danglingLine.getTerminal().getVoltageLevel().getSubstation().getNullableCountry());
+            addLeavingFlow(danglingLine, referenceProgramArea);
         });
 
         network.getLineStream().forEach(line -> {
-            Country countrySide1 = line.getTerminal1().getVoltageLevel().getSubstation().getNullableCountry();
-            Country countrySide2 = line.getTerminal2().getVoltageLevel().getSubstation().getNullableCountry();
-            if (countrySide1 == countrySide2) {
+            ReferenceProgramArea referenceProgramAreaSide1 = new ReferenceProgramArea(line.getTerminal1().getVoltageLevel().getSubstation().getNullableCountry());
+            ReferenceProgramArea referenceProgramAreaSide2 = new ReferenceProgramArea(line.getTerminal2().getVoltageLevel().getSubstation().getNullableCountry());
+            if (referenceProgramAreaSide1.equals(referenceProgramAreaSide2)) {
                 return;
             }
-            addLeavingFlow(line, countrySide1);
-            addLeavingFlow(line, countrySide2);
+            addLeavingFlow(line, referenceProgramAreaSide1);
+            addLeavingFlow(line, referenceProgramAreaSide2);
         });
 
         network.getHvdcLineStream().forEach(hvdcLine -> {
-            Country countrySide1 = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().getNullableCountry();
-            Country countrySide2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getSubstation().getNullableCountry();
-            if (countrySide1 == countrySide2) {
+            ReferenceProgramArea referenceProgramAreaSide1 = new ReferenceProgramArea(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().getNullableCountry());
+            ReferenceProgramArea referenceProgramAreaSide2 = new ReferenceProgramArea(hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getSubstation().getNullableCountry());
+            if (referenceProgramAreaSide1.equals(referenceProgramAreaSide2)) {
                 return;
             }
-            addLeavingFlow(hvdcLine, countrySide1);
-            addLeavingFlow(hvdcLine, countrySide2);
+            addLeavingFlow(hvdcLine, referenceProgramAreaSide1);
+            addLeavingFlow(hvdcLine, referenceProgramAreaSide2);
         });
     }
 
-    private void addLeavingFlow(DanglingLine danglingLine, Country country) {
-        if (!Objects.isNull(country)) {
-            netPositions.put(country, netPositions.get(country) + getLeavingFlow(danglingLine));
+    private void addLeavingFlow(DanglingLine danglingLine, ReferenceProgramArea referenceProgramArea) {
+        Double previousValue = getPreviousValue(referenceProgramArea);
+        if (!Objects.isNull(referenceProgramArea)) {
+            netPositions.put(referenceProgramArea, previousValue + getLeavingFlow(danglingLine));
         }
     }
 
-    private void addLeavingFlow(Line line, Country country) {
-        if (!Objects.isNull(country)) {
-            netPositions.put(country, netPositions.get(country) + getLeavingFlow(line, country));
+    private Double getPreviousValue(ReferenceProgramArea referenceProgramArea) {
+        Double previousValue;
+        if (netPositions.get(referenceProgramArea) != null) {
+            previousValue = netPositions.get(referenceProgramArea);
+        } else {
+            previousValue = (double) 0;
+        }
+        return previousValue;
+    }
+
+    private void addLeavingFlow(Line line, ReferenceProgramArea referenceProgramArea) {
+        Double previousValue = getPreviousValue(referenceProgramArea);
+        if (!Objects.isNull(referenceProgramArea)) {
+            netPositions.put(referenceProgramArea, previousValue + getLeavingFlow(line, referenceProgramArea));
         }
     }
 
-    private void addLeavingFlow(HvdcLine hvdcLine, Country country) {
-        if (!Objects.isNull(country)) {
-            netPositions.put(country, netPositions.get(country) + getLeavingFlow(hvdcLine, country));
+    private void addLeavingFlow(HvdcLine hvdcLine, ReferenceProgramArea referenceProgramArea) {
+        Double previousValue = getPreviousValue(referenceProgramArea);
+        if (!Objects.isNull(referenceProgramArea)) {
+            netPositions.put(referenceProgramArea, previousValue + getLeavingFlow(hvdcLine, referenceProgramArea));
         }
     }
 
@@ -86,17 +95,17 @@ public class CountryNetPositionComputation {
         return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP()) ? danglingLine.getTerminal().getP() : 0;
     }
 
-    private double getLeavingFlow(Line line, Country country) {
+    private double getLeavingFlow(Line line, ReferenceProgramArea referenceProgramArea) {
         double flowSide1 = line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP()) ? line.getTerminal1().getP() : 0;
         double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
-        return country.equals(line.getTerminal1().getVoltageLevel().getSubstation().getNullableCountry()) ? directFlow : -directFlow;
+        return referenceProgramArea.equals(new ReferenceProgramArea(line.getTerminal1().getVoltageLevel().getSubstation().getNullableCountry())) ? directFlow : -directFlow;
     }
 
-    private double getLeavingFlow(HvdcLine hvdcLine, Country country) {
+    private double getLeavingFlow(HvdcLine hvdcLine, ReferenceProgramArea referenceProgramArea) {
         double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation1().getTerminal().getP()) ? hvdcLine.getConverterStation1().getTerminal().getP() : 0;
         double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ? hvdcLine.getConverterStation2().getTerminal().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
-        return country.equals(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().getNullableCountry()) ? directFlow : -directFlow;
+        return referenceProgramArea.equals(new ReferenceProgramArea(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().getNullableCountry())) ? directFlow : -directFlow;
     }
 }

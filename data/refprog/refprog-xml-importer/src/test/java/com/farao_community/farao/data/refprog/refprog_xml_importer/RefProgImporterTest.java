@@ -104,11 +104,12 @@ public class RefProgImporterTest {
         ReferenceProgramArea areaRs = new ReferenceProgramArea(Country.RS);
         ReferenceProgramArea areaCz = new ReferenceProgramArea(Country.CZ);
         ReferenceProgramArea areaSk = new ReferenceProgramArea(Country.SK);
+        ReferenceProgramArea areaEs = new ReferenceProgramArea(Country.ES);
         assertEquals(-1397, referenceProgram.getExchange(areaCh, areaFr), DOUBLE_TOLERANCE);
         assertEquals(-147, referenceProgram.getExchange(areaBa, areaRs), DOUBLE_TOLERANCE);
         assertEquals(288, referenceProgram.getExchange("10YCS-CG-TSO---S", "10YCB-ALBANIA--1"), DOUBLE_TOLERANCE);
         assertEquals(374, referenceProgram.getExchange(areaCz, areaSk), DOUBLE_TOLERANCE);
-        assertEquals(-4249, referenceProgram.getGlobalNetPosition(Country.ES), DOUBLE_TOLERANCE);
-        assertEquals(11366, referenceProgram.getGlobalNetPosition(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(-4249, referenceProgram.getGlobalNetPosition(areaEs), DOUBLE_TOLERANCE);
+        assertEquals(11366, referenceProgram.getGlobalNetPosition(areaFr), DOUBLE_TOLERANCE);
     }
 }

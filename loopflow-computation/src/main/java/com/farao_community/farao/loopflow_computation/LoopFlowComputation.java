@@ -13,10 +13,10 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -70,12 +70,12 @@ public class LoopFlowComputation {
         return results;
     }
 
-    private Country glskToCountry(LinearGlsk glsk) {
+    private ReferenceProgramArea glskToCountry(LinearGlsk glsk) {
         if (glsk.getId().length() < EICode.LENGTH) {
             throw new IllegalArgumentException(String.format("Glsk [%s] should starts with an EI Code", glsk.getId()));
         }
         EICode eiCode = new EICode(glsk.getId().substring(0, EICode.LENGTH));
-        return eiCode.getCountry();
+        return new ReferenceProgramArea(eiCode.getCountry());
     }
 
     private List<LinearGlsk> getValidGlsks(Network network) {
