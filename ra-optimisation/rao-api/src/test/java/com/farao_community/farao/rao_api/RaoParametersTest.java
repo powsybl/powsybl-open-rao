@@ -79,7 +79,7 @@ public class RaoParametersTest {
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
 
-        assertEquals(false, parameters.isRaoWithLoopFlowLimitation());
+        assertFalse(parameters.isRaoWithLoopFlowLimitation());
     }
 
     @Test
@@ -216,7 +216,7 @@ public class RaoParametersTest {
 
     private void testWrongBoundary(String boundary) {
         RaoParameters parameters = new RaoParameters();
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList(boundary));
+        List<String> stringBoundaries = Arrays.asList(boundary);
         parameters.setPtdfBoundariesFromCountryCodes(stringBoundaries);
     }
 
@@ -245,5 +245,14 @@ public class RaoParametersTest {
         assertEquals(2, parameters.getPtdfBoundariesAsString().size());
         assertTrue(parameters.getPtdfBoundariesAsString().contains("BE-FR"));
         assertTrue(parameters.getPtdfBoundariesAsString().contains("DE-AT"));
+    }
+
+    @Test
+    public void testNegativeCurativeRaoMinObjImprovement() {
+        RaoParameters parameters = new RaoParameters();
+        parameters.setCurativeRaoMinObjImprovement(100);
+        assertEquals(100, parameters.getCurativeRaoMinObjImprovement(), 1e-6);
+        parameters.setCurativeRaoMinObjImprovement(-100);
+        assertEquals(100, parameters.getCurativeRaoMinObjImprovement(), 1e-6);
     }
 }

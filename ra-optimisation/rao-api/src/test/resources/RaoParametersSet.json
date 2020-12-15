@@ -18,6 +18,8 @@
   "ptdf-boundaries" : [ "FR-ES", "ES-PT" ],
   "ptdf-sum-lower-bound" : 0.05,
   "perimeters-in-parallel" : 15,
+  "curative-rao-stop-criterion" : "PREVENTIVE_OBJECTIVE_AND_SECURE",
+  "curative-rao-min-obj-improvement" : 150.0,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {

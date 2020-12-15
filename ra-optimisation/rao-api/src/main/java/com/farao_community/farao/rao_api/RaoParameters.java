@@ -19,6 +19,8 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +34,7 @@ import static java.lang.Math.max;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
+    static final Logger LOGGER = LoggerFactory.getLogger(RaoParameters.class);
 
     public enum ObjectiveFunction {
         MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT, false),
@@ -70,6 +73,13 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         }
     }
 
+    public enum CurativeRaoStopCriterion {
+        MIN_OBJECTIVE, // only stop after minimizing objective
+        PREVENTIVE_OBJECTIVE, // stop when preventive objective is reached, or bested by curativeRaoMinObjImprovement
+        PREVENTIVE_OBJECTIVE_AND_SECURE // stop when preventive objective is reached or bested by curativeRaoMinObjImprovement, and the situation is secure
+        // TODO : we can add WORST_OBJECTIVE and WORST_OBJECTIVE_AND_SECURE if we want to use the worst curative perimeter objective as a stop criterion for other curative perimeters too
+    }
+
     public static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
     public static final int DEFAULT_MAX_ITERATIONS = 10;
     public static final double DEFAULT_FALLBACK_OVER_COST = 0;
@@ -87,6 +97,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
     public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     private static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
+    private static final CurativeRaoStopCriterion DEFAULT_CURATIVE_RAO_STOP_CRITERION = CurativeRaoStopCriterion.MIN_OBJECTIVE;
+    private static final double DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT = 0;
 
     private static final String COUNTRY_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'XX-YY' where XX and YY are the 2-character country codes";
 
@@ -109,6 +121,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
     private List<Pair<Country, Country>> ptdfBoundaries = new ArrayList<>();
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
+    private CurativeRaoStopCriterion curativeRaoStopCriterion = DEFAULT_CURATIVE_RAO_STOP_CRITERION;
+
+    private double curativeRaoMinObjImprovement = DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT; // used for CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE and CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
 
     private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
 
@@ -307,6 +322,25 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public void setPerimetersInParallel(int perimetersInParallel) {
         this.perimetersInParallel = perimetersInParallel;
+    }
+
+    public CurativeRaoStopCriterion getCurativeRaoStopCriterion() {
+        return curativeRaoStopCriterion;
+    }
+
+    public void setCurativeRaoStopCriterion(CurativeRaoStopCriterion curativeRaoStopCriterion) {
+        this.curativeRaoStopCriterion = curativeRaoStopCriterion;
+    }
+
+    public double getCurativeRaoMinObjImprovement() {
+        return curativeRaoMinObjImprovement;
+    }
+
+    public void setCurativeRaoMinObjImprovement(double curativeRaoMinObjImprovement) {
+        if (curativeRaoMinObjImprovement < 0) {
+            LOGGER.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
+        }
+        this.curativeRaoMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
     }
 
     /**

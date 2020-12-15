@@ -162,7 +162,7 @@ public class RaoDataTest {
     public void loopflowSingleCountry() {
         Set<Country> countrySet = new HashSet<>();
         countrySet.add(Country.DE);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, countrySet);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, countrySet, null);
 
         Set<Country> loopflowCountries = raoData.getLoopflowCountries();
         assertEquals(1, loopflowCountries.size());

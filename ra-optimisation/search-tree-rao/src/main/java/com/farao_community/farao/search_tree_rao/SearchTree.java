@@ -26,12 +26,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
  * It aims at finding a good combination of Network Actions.
- *
+ * <p>
  * The tree is composed of leaves which evaluate the impact of Network Actions,
  * one by one. The tree is orchestrating the leaves : it looks for a smart
  * routing among the leaves in order to converge as quickly as possible to a local
  * minimum of the objective function.
- *
+ * <p>
  * The leaves of a same depth can be evaluated simultaneously.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -46,6 +46,7 @@ public class SearchTree {
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
     private boolean relativePositiveMargins;
+    private Double targetObjectiveFunctionValue;
 
     void initParameters(RaoParameters raoParameters) {
         this.raoParameters = raoParameters;
@@ -55,11 +56,12 @@ public class SearchTree {
             searchTreeRaoParameters = new SearchTreeRaoParameters();
         }
         relativePositiveMargins =
-            raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
-                raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+                raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
+                        raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
     }
 
     void initLeaves(RaoData raoData) {
+        targetObjectiveFunctionValue = raoData.getTargetObjectiveFunctionValue();
         rootLeaf = new Leaf(raoData, raoParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
@@ -189,12 +191,37 @@ public class SearchTree {
      * @return True if the stop criterion has been reached on this leaf.
      */
     private boolean stopCriterionReached(Leaf leaf) {
-        if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
+        if (!Objects.isNull(targetObjectiveFunctionValue)) {
+            return curativeStopCriterionReached(leaf);
+        } else if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
             return leaf.getBestCost() < 0;
         } else if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
             return false;
         } else {
             throw new FaraoException("Unexpected stop criterion: " + searchTreeRaoParameters.getStopCriterion());
+        }
+    }
+
+    /**
+     * This method evaluates if the stop criterion is reached for curative RAO (when a target objective function value is set)
+     */
+    private boolean curativeStopCriterionReached(Leaf leaf) {
+        switch (raoParameters.getCurativeRaoStopCriterion()) {
+            case PREVENTIVE_OBJECTIVE:
+                boolean reached = leaf.getBestCost() < targetObjectiveFunctionValue - raoParameters.getCurativeRaoMinObjImprovement();
+                if (reached) {
+                    LOGGER.debug("Curative optimization stopped because the target objective function value of {} has been reached", targetObjectiveFunctionValue - raoParameters.getCurativeRaoMinObjImprovement());
+                }
+                return reached;
+            case PREVENTIVE_OBJECTIVE_AND_SECURE:
+                reached = (leaf.getBestCost() < 0) && (leaf.getBestCost() < targetObjectiveFunctionValue - raoParameters.getCurativeRaoMinObjImprovement());
+                if (reached) {
+                    LOGGER.debug("Curative optimization stopped because the target objective function value of {} has been reached and the situation is secure", targetObjectiveFunctionValue - raoParameters.getCurativeRaoMinObjImprovement());
+                }
+                return reached;
+            case MIN_OBJECTIVE:
+            default:
+                return false;
         }
     }
 

@@ -28,7 +28,7 @@ public class InitialSensitivityAnalysisTest {
 
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.create();
-        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), crac.getStates(), null, null, null, new HashSet<>());
+        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), crac.getStates(), null, null, null, new HashSet<>(), null);
         RaoParameters raoParameters = new RaoParameters();
 
         InitialSensitivityAnalysis initialSensitivityAnalysis = new InitialSensitivityAnalysis(raoData, raoParameters);
