@@ -25,12 +25,6 @@ public class ReferenceProgram {
         this.referenceExchangeDataList.stream().forEach(referenceExchangeData -> {
             referenceProgramAreas.add(referenceExchangeData.getAreaOut());
             referenceProgramAreas.add(referenceExchangeData.getAreaIn());
-            if (referenceExchangeData.getAreaOut() != null && !referenceExchangeData.getAreaOut().isVirtualHub()) {
-                referenceProgramAreas.add(referenceExchangeData.getAreaOut());
-            }
-            if (referenceExchangeData.getAreaIn() != null && !referenceExchangeData.getAreaIn().isVirtualHub()) {
-                referenceProgramAreas.add(referenceExchangeData.getAreaIn());
-            }
         });
         netPositions = new HashMap<>();
         referenceProgramAreas.forEach(country -> netPositions.put(country, computeGlobalNetPosition(country)));
@@ -40,7 +34,7 @@ public class ReferenceProgram {
         return referenceExchangeDataList;
     }
 
-    public Set<ReferenceProgramArea> getListOfCountries() {
+    public Set<ReferenceProgramArea> getListOfAreas() {
         return referenceProgramAreas;
     }
 

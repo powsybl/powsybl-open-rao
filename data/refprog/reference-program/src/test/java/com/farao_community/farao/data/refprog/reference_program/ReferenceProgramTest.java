@@ -45,7 +45,7 @@ public class ReferenceProgramTest {
                 new ReferenceExchangeData(referenceProgramAreaDk, referenceProgramAreaSk, 100));
         ReferenceProgram referenceProgram = new ReferenceProgram(list);
         Map<ReferenceProgramArea, Double> netPositions = referenceProgram.getAllGlobalNetPositions();
-        assertEquals(5, referenceProgram.getListOfCountries().size());
+        assertEquals(5, referenceProgram.getListOfAreas().size());
         assertEquals(5, netPositions.size());
         assertEquals(-150, netPositions.get(referenceProgramAreaFrance), DOUBLE_TOLERANCE);
         assertEquals(-100, netPositions.get(referenceProgramAreaBelgium), DOUBLE_TOLERANCE);

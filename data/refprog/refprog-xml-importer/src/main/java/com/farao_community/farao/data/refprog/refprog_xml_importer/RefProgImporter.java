@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
-import com.farao_community.farao.util.EICode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,30 +46,12 @@ public final class RefProgImporter {
         }
         List<ReferenceExchangeData> exchangeDataList = new ArrayList<>();
         document.getPublicationTimeSeries().forEach(timeSeries -> {
-            ReferenceProgramArea outArea;
             String outAreaValue = timeSeries.getOutArea().getV();
-            try {
-                new EICode(outAreaValue).getCountry();
-                outArea = new ReferenceProgramArea(outAreaValue);
-            } catch (IllegalArgumentException e) {
-                LOGGER.warn("EIC code {} is not mapped to a country. The flow from this area will not be saved.", timeSeries.getOutArea().getV());
-                outArea = new ReferenceProgramArea(timeSeries.getOutArea().getV());
-            }
-            ReferenceProgramArea inArea;
+            ReferenceProgramArea outArea = new ReferenceProgramArea(outAreaValue);
             String inAreaValue = timeSeries.getInArea().getV();
-            try {
-                new EICode(inAreaValue).getCountry();
-                inArea = new ReferenceProgramArea(inAreaValue);
-            } catch (IllegalArgumentException e) {
-                LOGGER.warn("EIC code {} is not mapped to a country. The flow to this area will not be saved.", timeSeries.getInArea().getV());
-                inArea = new ReferenceProgramArea(timeSeries.getInArea().getV());
-            }
-            if (inArea.isVirtualHub() && outArea.isVirtualHub()) {
-                LOGGER.warn("Neither origin ({}) nor extremity ({}) EIC code is mapped to a country. The flow will not be imported.", outAreaValue, inAreaValue);
-            } else {
-                double flow = getFlow(dateTime, timeSeries);
-                exchangeDataList.add(new ReferenceExchangeData(outArea, inArea, flow));
-            }
+            ReferenceProgramArea inArea = new ReferenceProgramArea(inAreaValue);
+            double flow = getFlow(dateTime, timeSeries);
+            exchangeDataList.add(new ReferenceExchangeData(outArea, inArea, flow));
         });
         LOGGER.info("RefProg file was imported");
         return new ReferenceProgram(exchangeDataList);
