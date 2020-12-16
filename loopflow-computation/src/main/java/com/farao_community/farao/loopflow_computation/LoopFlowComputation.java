@@ -48,6 +48,8 @@ public class LoopFlowComputation {
     }
 
     public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<BranchCnec> cnecs) {
+        List<LinearGlsk> linearGlsksFromVirtualHubs = getVirtualHubGlsks(network);
+        linearGlsksFromVirtualHubs.forEach(linearGlsk -> glsk.getDataPerZone().put(linearGlsk.getId(), linearGlsk));
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withDefaultParameters(sensitivityAnalysisParameters)
             .withPtdfSensitivities(glsk, cnecs, Collections.singleton(Unit.MEGAWATT))
@@ -121,7 +123,7 @@ public class LoopFlowComputation {
         } else {
             Map<String, Float> glskMap = new HashMap<>();
             glskMap.put(virtualHub.getId(), 100.0F);
-            return new LinearGlsk(assignedVirtualHub.getName(), assignedVirtualHub.getName(), glskMap);
+            return new LinearGlsk(assignedVirtualHub.getEic(), assignedVirtualHub.getEic(), glskMap);
         }
     }
 
