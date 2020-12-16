@@ -122,7 +122,7 @@ public class LoopFlowComputation {
             throw new FaraoException(exceptionMessage);
         } else {
             Map<String, Float> glskMap = new HashMap<>();
-            glskMap.put(virtualHub.getId(), 100.0F);
+            glskMap.put(virtualHub.getId(), 1.0F);
             return new LinearGlsk(assignedVirtualHub.getEic(), assignedVirtualHub.getEic(), glskMap);
         }
     }
