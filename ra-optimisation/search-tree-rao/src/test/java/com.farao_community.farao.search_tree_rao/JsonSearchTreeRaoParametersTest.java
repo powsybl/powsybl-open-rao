@@ -30,6 +30,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(SearchTreeRaoParameters.class).setMaximumSearchDepth(10);
         parameters.getExtension(SearchTreeRaoParameters.class).setRelativeNetworkActionMinimumImpactThreshold(0.1);
         parameters.getExtension(SearchTreeRaoParameters.class).setAbsoluteNetworkActionMinimumImpactThreshold(20);
+        parameters.getExtension(SearchTreeRaoParameters.class).setTargetObjectiveValue(-1000.0);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SearchTreeRaoParameters.json");
     }
 
@@ -55,5 +56,6 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         assertEquals(0, extension.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(1, extension.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(8, extension.getLeavesInParallel());
+        assertEquals(-500.0, extension.getTargetObjectiveValue(), 1e-6);
     }
 }

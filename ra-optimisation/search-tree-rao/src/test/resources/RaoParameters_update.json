@@ -22,7 +22,8 @@
     },
     "SearchTreeRaoParameters": {
       "stop-criterion": "MAXIMUM_MARGIN",
-      "absolute-network-action-minimum-impact-threshold": 1
+      "absolute-network-action-minimum-impact-threshold": 1,
+      "target-objective-value" : -500.0
     }
   }
 }

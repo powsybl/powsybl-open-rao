@@ -46,7 +46,6 @@ public class SearchTree {
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
     private boolean relativePositiveMargins;
-    private Double targetObjectiveFunctionValue;
 
     void initParameters(RaoParameters raoParameters) {
         this.raoParameters = raoParameters;
@@ -61,7 +60,6 @@ public class SearchTree {
     }
 
     void initLeaves(RaoData raoData) {
-        targetObjectiveFunctionValue = raoData.getTargetObjectiveFunctionValue();
         rootLeaf = new Leaf(raoData, raoParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
@@ -191,37 +189,14 @@ public class SearchTree {
      * @return True if the stop criterion has been reached on this leaf.
      */
     private boolean stopCriterionReached(Leaf leaf) {
-        if (!Objects.isNull(targetObjectiveFunctionValue)) {
-            return curativeStopCriterionReached(leaf);
-        } else if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
+        if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
             return leaf.getBestCost() < 0;
         } else if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
             return false;
+        } else if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
+            return leaf.getBestCost() < searchTreeRaoParameters.getTargetObjectiveValue();
         } else {
             throw new FaraoException("Unexpected stop criterion: " + searchTreeRaoParameters.getStopCriterion());
-        }
-    }
-
-    /**
-     * This method evaluates if the stop criterion is reached for curative RAO (when a target objective function value is set)
-     */
-    private boolean curativeStopCriterionReached(Leaf leaf) {
-        switch (raoParameters.getCurativeRaoStopCriterion()) {
-            case PREVENTIVE_OBJECTIVE:
-                boolean reached = leaf.getBestCost() < targetObjectiveFunctionValue - raoParameters.getCurativeRaoMinObjImprovement();
-                if (reached) {
-                    LOGGER.debug("Curative optimization stopped because the target objective function value of {} has been reached", targetObjectiveFunctionValue - raoParameters.getCurativeRaoMinObjImprovement());
-                }
-                return reached;
-            case PREVENTIVE_OBJECTIVE_AND_SECURE:
-                reached = (leaf.getBestCost() < 0) && (leaf.getBestCost() < targetObjectiveFunctionValue - raoParameters.getCurativeRaoMinObjImprovement());
-                if (reached) {
-                    LOGGER.debug("Curative optimization stopped because the target objective function value of {} has been reached and the situation is secure", targetObjectiveFunctionValue - raoParameters.getCurativeRaoMinObjImprovement());
-                }
-                return reached;
-            case MIN_OBJECTIVE:
-            default:
-                return false;
         }
     }
 

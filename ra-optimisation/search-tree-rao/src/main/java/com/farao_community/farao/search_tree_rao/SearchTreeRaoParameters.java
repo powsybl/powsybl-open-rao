@@ -20,19 +20,22 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public enum StopCriterion {
         POSITIVE_MARGIN,
-        MAXIMUM_MARGIN
+        MAXIMUM_MARGIN,
+        AT_TARGET_OBJECTIVE_VALUE
     }
 
     static final StopCriterion DEFAULT_STOP_CRITERION = StopCriterion.POSITIVE_MARGIN;
     static final int DEFAULT_MAXIMUM_SEARCH_DEPTH = Integer.MAX_VALUE;
     static final double DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD = 0;
     static final int DEFAULT_LEAVES_IN_PARALLEL = 1;
+    static final double DEFAULT_TARGET_OBJECTIVE_VALUE = -Double.MAX_VALUE;
 
     private StopCriterion stopCriterion = DEFAULT_STOP_CRITERION;
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
     private double absoluteNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
     private int leavesInParallel = DEFAULT_LEAVES_IN_PARALLEL;
+    private double targetObjectiveValue = DEFAULT_TARGET_OBJECTIVE_VALUE;
 
     @Override
     public String getName() {
@@ -85,5 +88,13 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setLeavesInParallel(int leavesInParallel) {
         this.leavesInParallel = leavesInParallel;
+    }
+
+    public double getTargetObjectiveValue() {
+        return targetObjectiveValue;
+    }
+
+    public void setTargetObjectiveValue(double targetObjectiveValue) {
+        this.targetObjectiveValue = targetObjectiveValue;
     }
 }

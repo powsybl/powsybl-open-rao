@@ -33,6 +33,7 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
             parameters.setRelativeNetworkActionMinimumImpactThreshold(config.getDoubleProperty("relative-network-action-minimum-impact-threshold", SearchTreeRaoParameters.DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD));
             parameters.setAbsoluteNetworkActionMinimumImpactThreshold(config.getDoubleProperty("absolute-network-action-minimum-impact-threshold", SearchTreeRaoParameters.DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD));
             parameters.setLeavesInParallel(config.getIntProperty("leaves-in-parallel", SearchTreeRaoParameters.DEFAULT_LEAVES_IN_PARALLEL));
+            parameters.setTargetObjectiveValue(config.getDoubleProperty("target-objective-value", SearchTreeRaoParameters.DEFAULT_TARGET_OBJECTIVE_VALUE));
         }
         return parameters;
     }

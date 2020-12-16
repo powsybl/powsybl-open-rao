@@ -30,6 +30,7 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeNumberField("relative-network-action-minimum-impact-threshold", searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold());
         jsonGenerator.writeNumberField("absolute-network-action-minimum-impact-threshold", searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold());
         jsonGenerator.writeNumberField("leaves-in-parallel", searchTreeRaoParameters.getLeavesInParallel());
+        jsonGenerator.writeNumberField("target-objective-value", searchTreeRaoParameters.getTargetObjectiveValue());
         jsonGenerator.writeEndObject();
     }
 
@@ -57,6 +58,9 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                 case "leaves-in-parallel":
                     parameters.setLeavesInParallel(jsonParser.getValueAsInt());
                     break;
+                case "target-objective-value":
+                    parameters.setTargetObjectiveValue(jsonParser.getValueAsDouble());
+                    break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
@@ -81,16 +85,10 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
     }
 
     private SearchTreeRaoParameters.StopCriterion getStopCriterionFromString(String stopCriterion) {
-        switch (stopCriterion) {
-
-            case "POSITIVE_MARGIN":
-                return SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN;
-
-            case "MAXIMUM_MARGIN":
-                return SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN;
-
-            default:
-                throw new FaraoException("Unexpected field: " + stopCriterion);
+        try {
+            return SearchTreeRaoParameters.StopCriterion.valueOf(stopCriterion);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown search tree stop criterion: %s", stopCriterion));
         }
     }
 }

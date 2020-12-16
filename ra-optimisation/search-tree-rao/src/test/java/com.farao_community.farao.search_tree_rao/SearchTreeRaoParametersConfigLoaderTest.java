@@ -43,6 +43,7 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("relative-network-action-minimum-impact-threshold"), anyDouble())).thenReturn(0.1);
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("absolute-network-action-minimum-impact-threshold"), anyDouble())).thenReturn(20.0);
         Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("leaves-in-parallel"), anyInt())).thenReturn(4);
+        Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("target-objective-value"), anyDouble())).thenReturn(-168.0);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("search-tree-rao-parameters")).thenReturn(Optional.of(searchTreeRaoParametersModule));
 
@@ -52,6 +53,7 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         assertEquals(0.1, parameters.getRelativeNetworkActionMinimumImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(20.0, parameters.getAbsoluteNetworkActionMinimumImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(4, parameters.getLeavesInParallel());
+        assertEquals(-168, parameters.getTargetObjectiveValue(), DOUBLE_TOLERANCE);
     }
 
     @Test

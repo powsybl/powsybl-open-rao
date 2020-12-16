@@ -20,7 +20,6 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,7 +42,6 @@ public final class RaoData {
     private final ZonalData<LinearGlsk> glsk;
     private final CracResultManager cracResultManager;
     private final Set<Country> loopflowCountries;
-    private final Double targetObjectiveFunctionValue;
 
     private Set<BranchCnec> perimeterCnecs;
     private Set<BranchCnec> loopflowCnecs;
@@ -64,7 +62,7 @@ public final class RaoData {
      * @param cracVariantId:     Existing variant of the CRAC on which RaoData will be based
      * @param loopflowCountries: countries for which we wish to check loopflows
      */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, String cracVariantId, Set<Country> loopflowCountries, @Nullable Double targetObjectiveFunctionValue) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, String cracVariantId, Set<Country> loopflowCountries) {
         Objects.requireNonNull(network, "Unable to build RAO data without network.");
         Objects.requireNonNull(crac, "Unable to build RAO data without CRAC.");
         Objects.requireNonNull(optimizedState, "Unable to build RAO data without optimized state.");
@@ -76,7 +74,6 @@ public final class RaoData {
         this.referenceProgram = referenceProgram;
         this.glsk = glsk;
         this.loopflowCountries = loopflowCountries;
-        this.targetObjectiveFunctionValue = targetObjectiveFunctionValue;
         cracResultManager = new CracResultManager(this);
         addRaoDataVariantManager(cracVariantId);
 
@@ -106,8 +103,7 @@ public final class RaoData {
                 null,
                 null,
                 cracVariantId,
-                new HashSet<>(),
-                null);
+                new HashSet<>());
     }
 
     public static RaoData create(Network network, RaoData raoData) {
@@ -119,8 +115,7 @@ public final class RaoData {
                 raoData.getReferenceProgram(),
                 raoData.getGlskProvider(),
                 null,
-                raoData.getLoopflowCountries(),
-                raoData.getTargetObjectiveFunctionValue());
+                raoData.getLoopflowCountries());
     }
 
     public Network getNetwork() {
@@ -238,9 +233,5 @@ public final class RaoData {
 
     public double getSensitivity(Cnec<?> cnec, RangeAction rangeAction) {
         return getSystematicSensitivityResult().getSensitivityOnFlow(rangeAction, cnec);
-    }
-
-    public Double getTargetObjectiveFunctionValue() {
-        return targetObjectiveFunctionValue;
     }
 }
