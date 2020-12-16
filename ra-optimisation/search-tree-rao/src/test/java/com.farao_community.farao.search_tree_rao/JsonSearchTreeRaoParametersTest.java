@@ -58,4 +58,9 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         assertEquals(8, extension.getLeavesInParallel());
         assertEquals(-500.0, extension.getTargetObjectiveValue(), 1e-6);
     }
+
+    @Test(expected = FaraoException.class)
+    public void testWrongStopCriterionError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersStopCriterionError.json"));
+    }
 }

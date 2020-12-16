@@ -6,24 +6,17 @@
   "pst-sensitivity-threshold" : 0.0,
   "sensitivity-fallback-over-cost" : 0.0,
   "rao-with-loop-flow-limitation" : false,
-  "loop-flow-acceptable-augmentation" : 0.0,
   "loop-flow-approximation" : "FIXED_PTDF",
+  "loop-flow-acceptable-augmentation" : 0.0,
   "loop-flow-constraint-adjustment-coefficient" : 0.0,
-  "loop-flow-violation-cost" : 0.0,
-  "loop-flow-countries" : [ ],
   "mnec-acceptable-margin-diminution" : 50.0,
   "mnec-violation-cost" : 10.0,
   "mnec-constraint-adjustment-coefficient" : 0.0,
   "negative-margin-objective-coefficient" : 1000.0,
-  "ptdf-boundaries" : [ ],
-  "ptdf-sum-lower-bound" : 0.01,
-  "perimeters-in-parallel" : 1,
-  "curative-rao-stop-criterion" : "MIN_OBJECTIVE",
-  "curative-rao-min-obj-improvement" : 0.0,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
-      "version" : "1.4",
+      "version" : "1.3",
       "voltageInitMode" : "UNIFORM_VALUES",
       "transformerVoltageControlOn" : false,
       "phaseShifterRegulationOn" : false,
@@ -31,20 +24,12 @@
       "twtSplitShuntAdmittance" : false,
       "simulShunt" : false,
       "readSlackBus" : false,
-      "writeSlackBus" : false,
-      "dc" : false,
-      "distributedSlack" : true,
-      "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX"
+      "writeSlackBus" : false
     }
   },
   "extensions" : {
     "SearchTreeRaoParameters" : {
-      "stop-criterion" : "MAXIMUM_MARGIN",
-      "maximum-search-depth" : 10,
-      "relative-network-action-minimum-impact-threshold" : 0.1,
-      "absolute-network-action-minimum-impact-threshold" : 20.0,
-      "leaves-in-parallel" : 1,
-      "target-objective-value" : -1000.0
+      "stop-criterion" : "WRONG"
     }
   }
 }
