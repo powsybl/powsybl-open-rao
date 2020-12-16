@@ -89,7 +89,7 @@ public class LoopFlowComputation {
     private List<LinearGlsk> getVirtualHubGlsks(Network network) {
         List<LinearGlsk> virtualHubGlsks = new ArrayList<>();
         // Extract from the referenceExchangeDataList the ones that are described in the virtualhubs
-        List<ReferenceExchangeData> referenceExchangesFromVirtualHubs = referenceProgram.getReferenceExchangeDataList().stream().filter(ReferenceExchangeData::isVirtualHub).collect(Collectors.toList());
+        List<ReferenceExchangeData> referenceExchangesFromVirtualHubs = referenceProgram.getReferenceExchangeDataList().stream().filter(ReferenceExchangeData::involvesVirtualHub).collect(Collectors.toList());
         referenceExchangesFromVirtualHubs.forEach(referenceExchangeData -> virtualHubGlsks.add(getVirtualHubGlsk(network, referenceExchangeData)));
         return new ArrayList<>();
         // return virtualHubGlsks;
@@ -102,7 +102,7 @@ public class LoopFlowComputation {
     private List<LinearGlsk> getRealReferenceProgramAreasGlsks() {
         return glsk.getDataPerZone().values().stream().filter(linearGlsk -> {
             ReferenceProgramArea referenceProgramArea = gslkToReferenceProgramArea(linearGlsk);
-            if (!referenceProgram.getListOfCountries().contains(referenceProgramArea)) {
+            if (!referenceProgram.getListOfAreas().contains(referenceProgramArea)) {
                 LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding referenceProgramArea was found in the ReferenceProgram", linearGlsk.getId()));
                 return false;
             }

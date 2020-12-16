@@ -53,7 +53,7 @@ public class ReferenceExchangeData {
         return this.areaIn != null && this.areaOut != null && this.areaIn.equals(areaIn) && this.areaOut.equals(areaOut);
     }
 
-    public boolean isVirtualHub() {
-        return areaIn == null || areaIn.isVirtualHub() || areaOut == null || areaOut.isVirtualHub();
+    public boolean involvesVirtualHub() {
+        return (areaIn != null && areaIn.isVirtualHub()) || (areaOut != null || areaOut.isVirtualHub());
     }
 }
