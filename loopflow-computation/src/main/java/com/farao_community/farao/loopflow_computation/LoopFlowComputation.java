@@ -18,6 +18,7 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInter
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Network;
+
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
@@ -63,23 +64,24 @@ public class LoopFlowComputation {
         for (BranchCnec cnec : cnecs) {
             double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(cnec);
             double commercialFLow = glsks.stream()
-                .mapToDouble(glskElement -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(glskElement, cnec) * referenceProgram.getGlobalNetPosition(glskToCountry(glskElement)))
+                .mapToDouble(glskElement -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(glskElement, cnec) * referenceProgram.getGlobalNetPosition(gslkToReferenceProgramArea(glskElement)))
                 .sum();
             results.addCnecResult(cnec, refFlow - commercialFLow, commercialFLow, refFlow);
         }
         return results;
     }
 
-    private ReferenceProgramArea glskToCountry(LinearGlsk glsk) {
-        if (glsk.getId().length() < EICode.LENGTH) {
-            throw new IllegalArgumentException(String.format("Glsk [%s] should starts with an EI Code", glsk.getId()));
+    private ReferenceProgramArea gslkToReferenceProgramArea(LinearGlsk glsk) {
+        try {
+            EICode eiCode = new EICode(glsk.getId().substring(0, EICode.LENGTH));
+            return new ReferenceProgramArea(eiCode.getCountry());
+        } catch (IllegalArgumentException e) {
+            return new ReferenceProgramArea(glsk.getName());
         }
-        EICode eiCode = new EICode(glsk.getId().substring(0, EICode.LENGTH));
-        return new ReferenceProgramArea(eiCode.getCountry());
     }
 
     private List<LinearGlsk> getValidGlsks(Network network) {
-        List<LinearGlsk> linearGlsksFromRealCountry = getRealCountryGlsks();
+        List<LinearGlsk> linearGlsksFromRealCountry = getRealReferenceProgramAreasGlsks();
         List<LinearGlsk> linearGlsksFromVirtualHubs = getVirtualHubGlsks(network);
         return Stream.concat(linearGlsksFromRealCountry.stream(), linearGlsksFromVirtualHubs.stream()).collect(Collectors.toList());
     }
@@ -94,13 +96,14 @@ public class LoopFlowComputation {
     }
 
     private LinearGlsk getVirtualHubGlsk(Network network, ReferenceExchangeData referenceExchangeData) {
-        return null; //TODO: implement this function
+        return null; //TODO: implement this functio
     }
 
-    private List<LinearGlsk> getRealCountryGlsks() {
+    private List<LinearGlsk> getRealReferenceProgramAreasGlsks() {
         return glsk.getDataPerZone().values().stream().filter(linearGlsk -> {
-            if (!referenceProgram.getListOfCountries().contains(glskToCountry(linearGlsk))) {
-                LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding country was found in the ReferenceProgram", linearGlsk.getId()));
+            ReferenceProgramArea referenceProgramArea = gslkToReferenceProgramArea(linearGlsk);
+            if (!referenceProgram.getListOfCountries().contains(referenceProgramArea)) {
+                LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding referenceProgramArea was found in the ReferenceProgram", linearGlsk.getId()));
                 return false;
             }
             return true;

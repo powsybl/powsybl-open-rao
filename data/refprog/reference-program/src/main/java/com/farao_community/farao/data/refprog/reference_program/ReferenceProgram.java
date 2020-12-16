@@ -23,6 +23,8 @@ public class ReferenceProgram {
         this.referenceExchangeDataList = referenceExchangeDataList;
         this.referenceProgramAreas = new HashSet<>();
         this.referenceExchangeDataList.stream().forEach(referenceExchangeData -> {
+            referenceProgramAreas.add(referenceExchangeData.getAreaOut());
+            referenceProgramAreas.add(referenceExchangeData.getAreaIn());
             if (referenceExchangeData.getAreaOut() != null && !referenceExchangeData.getAreaOut().isVirtualHub()) {
                 referenceProgramAreas.add(referenceExchangeData.getAreaOut());
             }
@@ -46,12 +48,10 @@ public class ReferenceProgram {
         double netPosition = 0.;
         netPosition += referenceExchangeDataList.stream()
                 .filter(referenceExchangeData -> referenceExchangeData.getAreaOut() != null &&
-                        !referenceExchangeData.getAreaOut().isVirtualHub() &&
                         referenceExchangeData.getAreaOut().equals(referenceProgramArea))
                 .mapToDouble(ReferenceExchangeData::getFlow).sum();
         netPosition -= referenceExchangeDataList.stream()
                 .filter(referenceExchangeData -> referenceExchangeData.getAreaIn() != null &&
-                        !referenceExchangeData.getAreaIn().isVirtualHub() &&
                         referenceExchangeData.getAreaIn().equals(referenceProgramArea))
                 .mapToDouble(ReferenceExchangeData::getFlow).sum();
         return netPosition;
