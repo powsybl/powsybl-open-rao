@@ -6,23 +6,29 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.CountryUtil;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -218,10 +224,46 @@ class Leaf {
      * @return A set of available network actions after this leaf.
      */
     Set<NetworkAction> bloom() {
-        return raoData.getAvailableNetworkActions()
-                .stream()
-                .filter(na -> !networkActions.contains(na))
-                .collect(Collectors.toSet());
+        SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
+        if (searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement()) {
+            List<Optional<Country>> worstCnecLocation = getMostLimitingElementLocation();
+            return raoData.getAvailableNetworkActions()
+                    .stream()
+                    .filter(na -> !networkActions.contains(na)
+                            && isNetworkAcionCloseToLocations(na, worstCnecLocation, searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions()))
+                    .collect(Collectors.toSet());
+        } else {
+            return raoData.getAvailableNetworkActions()
+                    .stream()
+                    .filter(na -> !networkActions.contains(na))
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    /**
+     * Says if a network action is close to a given set of countries, respecting the maximum number of boundaries
+     */
+    private boolean isNetworkAcionCloseToLocations(NetworkAction networkAction, List<Optional<Country>> locations, int maxNumberOfBoundaries) {
+        if (locations.stream().anyMatch(country -> country.equals(Optional.empty()))) {
+            return true;
+        }
+        List<Optional<Country>> networkActionCountries = RaoUtil.getNetworkActionLocation(networkAction, raoData.getNetwork());
+        if (networkActionCountries.stream().anyMatch(country -> country.equals(Optional.empty()))) {
+            return true;
+        }
+        boolean isClose = false;
+        for (Optional<Country> location : locations) {
+            for (Optional<Country> networkActionCountry : networkActionCountries) {
+                if (CountryUtil.areNeighbors(location.get(), networkActionCountry.get(), maxNumberOfBoundaries, raoParameters.getPtdfBoundaries())) {
+                    isClose = true;
+                    break;
+                }
+            }
+            if (isClose) {
+                break;
+            }
+        }
+        return isClose;
     }
 
     /**
@@ -302,5 +344,13 @@ class Leaf {
         info += String.format(", Virtual: %.2f)", raoData.getCracResult().getVirtualCost());
         info += ", Status: " + status.getMessage();
         return info;
+    }
+
+    private List<Optional<Country>> getMostLimitingElementLocation() {
+        boolean relativePositiveMargins =
+                raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
+                        raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        Cnec cnec = RaoUtil.getMostLimitingElement(raoData.getCnecs(), getBestVariantId(), raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
+        return RaoUtil.getCnecLocation(cnec, raoData.getNetwork());
     }
 }

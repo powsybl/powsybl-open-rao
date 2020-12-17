@@ -8,8 +8,16 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -22,13 +30,14 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
 import static java.lang.String.format;
@@ -158,6 +167,54 @@ public final class RaoUtil {
                 return new MinMarginObjectiveFunction(raoParameters);
             default:
                 throw new NotImplementedException("Not implemented objective function");
+        }
+    }
+
+    public static List<Optional<Country>> getCnecLocation(Cnec cnec, Network network) {
+        return getNetworkElementLocation(cnec.getNetworkElement(), network);
+    }
+
+    private static List<Optional<Country>> getNetworkElementLocation(NetworkElement networkElement, Network network) {
+        Identifiable<?> ne = network.getIdentifiable(networkElement.getId());
+        if (ne instanceof Line) {
+            Line line = (Line) ne;
+            return Arrays.asList(line.getTerminal1().getVoltageLevel().getSubstation().getCountry(), line.getTerminal2().getVoltageLevel().getSubstation().getCountry());
+        } else if (ne instanceof TwoWindingsTransformer) {
+            TwoWindingsTransformer transformer = (TwoWindingsTransformer) ne;
+            return Arrays.asList(transformer.getTerminal1().getVoltageLevel().getSubstation().getCountry(), transformer.getTerminal2().getVoltageLevel().getSubstation().getCountry());
+        } else if (ne instanceof Switch) {
+            return Arrays.asList(((Switch) ne).getVoltageLevel().getSubstation().getCountry());
+        } else {
+            throw new NotImplementedException("Don't know how to fgure out the location of " + ne.getId() + " of type " + ne.getClass());
+        }
+    }
+
+    public static List<Optional<Country>> getNetworkActionLocation(NetworkAction networkAction, Network network) {
+        List<List<Optional<Country>>> listOfLists = networkAction.getNetworkElements().stream()
+                .map(networkElement -> getNetworkElementLocation(networkElement, network))
+                .collect(Collectors.toList());
+        List<Optional<Country>> result = new ArrayList<>();
+        listOfLists.forEach(result::addAll);
+        return result;
+    }
+
+    public static Cnec getMostLimitingElement(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
+        List<Cnec> sortedCnecs = cnecs.stream().
+                filter(Cnec::isOptimized).
+                sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
+                collect(Collectors.toList());
+        return sortedCnecs.get(0);
+    }
+
+    public static double computeCnecMargin(BranchCnec cnec, String variantId, Unit unit, boolean relativePositiveMargins) {
+        CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
+        unit.checkPhysicalParameter(PhysicalParameter.FLOW);
+        double actualValue = unit.equals(Unit.MEGAWATT) ? cnecResult.getFlowInMW() : cnecResult.getFlowInA();
+        double absoluteMargin = cnec.computeMargin(actualValue, Side.LEFT, unit);
+        if (relativePositiveMargins && (absoluteMargin > 0)) {
+            return absoluteMargin / cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum();
+        } else {
+            return absoluteMargin;
         }
     }
 }

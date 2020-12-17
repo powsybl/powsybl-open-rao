@@ -43,6 +43,8 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("relative-network-action-minimum-impact-threshold"), anyDouble())).thenReturn(0.1);
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("absolute-network-action-minimum-impact-threshold"), anyDouble())).thenReturn(20.0);
         Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("leaves-in-parallel"), anyInt())).thenReturn(4);
+        Mockito.when(searchTreeRaoParametersModule.getBooleanProperty(eq("skip-network-actions-far-from-most-limiting-element"), anyBoolean())).thenReturn(true);
+        Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("max-number-of-boundaries-for-skipping-network-actions"), anyInt())).thenReturn(1);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("search-tree-rao-parameters")).thenReturn(Optional.of(searchTreeRaoParametersModule));
 
@@ -52,6 +54,8 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         assertEquals(0.1, parameters.getRelativeNetworkActionMinimumImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(20.0, parameters.getAbsoluteNetworkActionMinimumImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(4, parameters.getLeavesInParallel());
+        assertTrue(parameters.getSkipNetworkActionsFarFromMostLimitingElement());
+        assertEquals(1, parameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
     }
 
     @Test

@@ -27,12 +27,16 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final int DEFAULT_MAXIMUM_SEARCH_DEPTH = Integer.MAX_VALUE;
     static final double DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD = 0;
     static final int DEFAULT_LEAVES_IN_PARALLEL = 1;
+    static final boolean DEFAULT_SKIP_NETWORK_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
+    static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_NETWORK_ACTIONS = 2;
 
     private StopCriterion stopCriterion = DEFAULT_STOP_CRITERION;
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
     private double absoluteNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
     private int leavesInParallel = DEFAULT_LEAVES_IN_PARALLEL;
+    private boolean skipNetworkActionsFarFromMostLimitingElement = DEFAULT_SKIP_NETWORK_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
+    private int maxNumberOfBoundariesForSkippingNetworkActions = DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_NETWORK_ACTIONS;
 
     @Override
     public String getName() {
@@ -85,5 +89,26 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setLeavesInParallel(int leavesInParallel) {
         this.leavesInParallel = leavesInParallel;
+    }
+
+    public boolean getSkipNetworkActionsFarFromMostLimitingElement() {
+        return skipNetworkActionsFarFromMostLimitingElement;
+    }
+
+    public void setSkipNetworkActionsFarFromMostLimitingElement(boolean skipNetworkActionsFarFromMostLimitingElement) {
+        this.skipNetworkActionsFarFromMostLimitingElement = skipNetworkActionsFarFromMostLimitingElement;
+    }
+
+    public int getMaxNumberOfBoundariesForSkippingNetworkActions() {
+        return maxNumberOfBoundariesForSkippingNetworkActions;
+    }
+
+    public void setMaxNumberOfBoundariesForSkippingNetworkActions(int maxNumberOfBoundariesForSkippingNetworkActions) {
+        if (maxNumberOfBoundariesForSkippingNetworkActions < 0) {
+            LOGGER.warn("The value {} provided for max number of boundaries for skipping network actions is smaller than 0. It will be set to 0.", maxNumberOfBoundariesForSkippingNetworkActions);
+            this.maxNumberOfBoundariesForSkippingNetworkActions = 0;
+        } else {
+            this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
+        }
     }
 }

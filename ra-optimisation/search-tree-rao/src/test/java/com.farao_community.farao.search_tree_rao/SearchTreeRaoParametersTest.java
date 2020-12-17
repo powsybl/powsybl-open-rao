@@ -43,4 +43,13 @@ public class SearchTreeRaoParametersTest {
         params.setRelativeNetworkActionMinimumImpactThreshold(1.1);
         assertEquals(1, params.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
     }
+
+    @Test
+    public void testMaxNumberOfBoundariesForSkippingNetworkActionsBounds() {
+        SearchTreeRaoParameters params = new SearchTreeRaoParameters();
+        params.setMaxNumberOfBoundariesForSkippingNetworkActions(300);
+        assertEquals(300, params.getMaxNumberOfBoundariesForSkippingNetworkActions());
+        params.setMaxNumberOfBoundariesForSkippingNetworkActions(-2);
+        assertEquals(0, params.getMaxNumberOfBoundariesForSkippingNetworkActions());
+    }
 }

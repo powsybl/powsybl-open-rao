@@ -30,6 +30,8 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeNumberField("relative-network-action-minimum-impact-threshold", searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold());
         jsonGenerator.writeNumberField("absolute-network-action-minimum-impact-threshold", searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold());
         jsonGenerator.writeNumberField("leaves-in-parallel", searchTreeRaoParameters.getLeavesInParallel());
+        jsonGenerator.writeBooleanField("skip-network-actions-far-from-most-limiting-element", searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement());
+        jsonGenerator.writeNumberField("max-number-of-boundaries-for-skipping-network-actions", searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
         jsonGenerator.writeEndObject();
     }
 
@@ -56,6 +58,12 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                     break;
                 case "leaves-in-parallel":
                     parameters.setLeavesInParallel(jsonParser.getValueAsInt());
+                    break;
+                case "skip-network-actions-far-from-most-limiting-element":
+                    parameters.setSkipNetworkActionsFarFromMostLimitingElement(jsonParser.getValueAsBoolean());
+                    break;
+                case "max-number-of-boundaries-for-skipping-network-actions":
+                    parameters.setMaxNumberOfBoundariesForSkippingNetworkActions(jsonParser.getValueAsInt());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
