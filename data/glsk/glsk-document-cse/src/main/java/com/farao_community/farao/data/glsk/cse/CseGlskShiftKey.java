@@ -21,14 +21,11 @@ import java.util.Optional;
  */
 public class CseGlskShiftKey extends AbstractGlskShiftKey {
 
-    private static final double EPSILON = 1e-3;
-
     public CseGlskShiftKey(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID) {
         initCommonMemberVariables(glskBlockElement, businessType, pointInterval, subjectDomainmRID);
 
         if ("ManualGSKBlock".equals(glskBlockElement.getTagName())) {
             this.businessType = "B43";
-            this.psrType = "A04";
             NodeList nodesList = glskBlockElement.getElementsByTagName("Node");
             double currentFactorsSum = 0;
             for (int i = 0; i < nodesList.getLength(); i++) {
@@ -41,7 +38,7 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
                 }
             }
 
-            if (Math.abs(currentFactorsSum) < EPSILON) {
+            if (currentFactorsSum == 0) {
                 throw new GlskException("Factors sum should not be 0");
             }
 
@@ -53,33 +50,12 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
                 }
             }
         } else if ("PropGSKBlock".equals(glskBlockElement.getTagName())) {
-            this.businessType = "B42";
-            this.psrType = "A04";
-            NodeList nodesList = glskBlockElement.getElementsByTagName("Node");
-            for (int i = 0; i < nodesList.getLength(); i++) {
-                Element nodeElement = (Element) nodesList.item(i);
-                CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
-                registeredResourceArrayList.add(cseRegisteredResource);
-            }
+            importImplicitProportionalBlock(glskBlockElement, "B42");
         } else if ("PropLSKBlock".equals(glskBlockElement.getTagName())) {
-            this.businessType = "B42";
-            this.psrType = "A05";
-            NodeList nodesList = glskBlockElement.getElementsByTagName("Node");
-            for (int i = 0; i < nodesList.getLength(); i++) {
-                Element nodeElement = (Element) nodesList.item(i);
-                CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
-                registeredResourceArrayList.add(cseRegisteredResource);
-            }
+            this.psrType = "A05"; // Enforce psrType that does not respect "official" format specification
+            importImplicitProportionalBlock(glskBlockElement, "B42");
         } else if ("ReserveGSKBlock".equals(glskBlockElement.getTagName())) {
-            this.businessType = "B44";
-            this.psrType = "A04";
-
-            NodeList nodesList = glskBlockElement.getElementsByTagName("Node");
-            for (int i = 0; i < nodesList.getLength(); i++) {
-                Element nodeElement = (Element) nodesList.item(i);
-                CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
-                registeredResourceArrayList.add(cseRegisteredResource);
-            }
+            importImplicitProportionalBlock(glskBlockElement, "B44");
         } else {
             throw new GlskException("Unknown UCTE Block type");
         }
@@ -91,7 +67,6 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
 
         if ("MeritOrderGSKBlock".equals(glskBlockElement.getTagName())) {
             this.businessType = "B45";
-            this.psrType = "A04";
             Element nodeElement = (Element) glskBlockElement.getElementsByTagName("Node").item(position);
             CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
             registeredResourceArrayList.add(cseRegisteredResource);
@@ -112,5 +87,16 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         this.glskShiftKeyInterval = pointInterval;
         this.subjectDomainmRID = subjectDomainmRID;
         this.registeredResourceArrayList = new ArrayList<>();
+    }
+
+    private void importImplicitProportionalBlock(Element glskBlockElement, String businessType) {
+        this.businessType = businessType;
+
+        NodeList nodesList = glskBlockElement.getElementsByTagName("Node");
+        for (int i = 0; i < nodesList.getLength(); i++) {
+            Element nodeElement = (Element) nodesList.item(i);
+            CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
+            registeredResourceArrayList.add(cseRegisteredResource);
+        }
     }
 }
