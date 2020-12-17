@@ -30,55 +30,39 @@ public class CseGlskPoint extends AbstractGlskPoint {
         this.curveType = "A03";
         this.glskShiftKeys = new ArrayList<>();
 
-        NodeList manualGskBlocks = element.getElementsByTagName("ManualGSKBlock");
-        for (int i = 0; i < manualGskBlocks.getLength(); i++) {
-            if (manualGskBlocks.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                String businessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
-                Element manualGlskBlockElement = (Element) manualGskBlocks.item(i);
-                this.glskShiftKeys.add(new CseGlskShiftKey(manualGlskBlockElement, businessType, pointInterval, subjectDomainmRID));
-            }
-        }
-
-        NodeList propGskBlocks = element.getElementsByTagName("PropGSKBlock");
-        for (int i = 0; i < propGskBlocks.getLength(); i++) {
-            if (propGskBlocks.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                String businessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
-                Element propGlskBlockElement = (Element) propGskBlocks.item(i);
-                this.glskShiftKeys.add(new CseGlskShiftKey(propGlskBlockElement, businessType, pointInterval, subjectDomainmRID));
-            }
-        }
-
-        NodeList propLskBlocks = element.getElementsByTagName("PropLSKBlock");
-        for (int i = 0; i < propLskBlocks.getLength(); i++) {
-            if (propLskBlocks.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                String businessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
-                Element propGlskBlockElement = (Element) propLskBlocks.item(i);
-                this.glskShiftKeys.add(new CseGlskShiftKey(propGlskBlockElement, businessType, pointInterval, subjectDomainmRID));
-            }
-        }
-
-        NodeList reserveGskBlocks = element.getElementsByTagName("ReserveGSKBlock");
-        for (int i = 0; i < reserveGskBlocks.getLength(); i++) {
-            if (reserveGskBlocks.item(i).getNodeType() == Node.ELEMENT_NODE) {
-
-                String businessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
-                Element reserveGskBlockElement = (Element) reserveGskBlocks.item(i);
-                this.glskShiftKeys.add(new CseGlskShiftKey(reserveGskBlockElement, businessType, pointInterval, subjectDomainmRID));
-            }
-        }
-
-        NodeList meritOrderGskBlocks = element.getElementsByTagName("MeritOrderGSKBlock");
-        for (int i = 0; i < meritOrderGskBlocks.getLength(); i++) {
-            if (meritOrderGskBlocks.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                String businessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
-                Element meritOrderGskBlockElement = (Element) meritOrderGskBlocks.item(i);
-                // TODO, import down merit order block when UpDownScalable available
-                Element upBlockElement = (Element) meritOrderGskBlockElement.getElementsByTagName("Up").item(0);
-                NodeList nodesList = upBlockElement.getElementsByTagName("Node");
-                for (int j = 0; j < nodesList.getLength(); j++) {
-                    glskShiftKeys.add(new CseGlskShiftKey(meritOrderGskBlockElement, businessType, pointInterval, subjectDomainmRID, j));
+        String businessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
+        NodeList childNodes = element.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element childElement = (Element) childNode;
+                switch (childElement.getNodeName()) {
+                    case "ManualGSKBlock":
+                    case "PropGSKBlock":
+                    case "PropLSKBlock":
+                    case "ReserveGSKBlock":
+                        importStandardBlock(childElement, businessType);
+                        break;
+                    case "MeritOrderGSKBlock":
+                        importMeritOrderBlock(childElement, businessType);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
+    }
+
+    private void importMeritOrderBlock(Element blockElement, String businessType) {
+        Element upBlockElement = (Element) blockElement.getElementsByTagName("Up").item(0);
+        NodeList nodesList = upBlockElement.getElementsByTagName("Node");
+        for (int j = 0; j < nodesList.getLength(); j++) {
+            glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID, j));
+        }
+
+    }
+
+    private void importStandardBlock(Element blockElement, String businessType) {
+        this.glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID));
     }
 }
