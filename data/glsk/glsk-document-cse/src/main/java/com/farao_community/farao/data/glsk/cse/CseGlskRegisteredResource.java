@@ -22,16 +22,22 @@ public class CseGlskRegisteredResource extends AbstractGlskRegisteredResource {
         Objects.requireNonNull(element);
         this.name = ((Element) element.getElementsByTagName("Name").item(0)).getAttribute("v");
         this.mRID = this.name;
-        this.initialFactor = element.getElementsByTagName("Factor").getLength() == 0 ? null :
-                Double.parseDouble(((Element) element.getElementsByTagName("Factor").item(0)).getAttribute("v"));
-        this.maximumCapacity = element.getElementsByTagName("Pmax").getLength() == 0 ? Optional.empty() :
-                Optional.of(-Double.parseDouble(((Element) element.getElementsByTagName("Pmax").item(0)).getAttribute("v")));
-        this.minimumCapacity = element.getElementsByTagName("Pmin").getLength() == 0 ? Optional.empty() :
-                Optional.of(-Double.parseDouble(((Element) element.getElementsByTagName("Pmin").item(0)).getAttribute("v")));
+        this.initialFactor = getContentAsDoubleOrNull(element, "Factor");
+        this.maximumCapacity = negativeIfNotNull(getContentAsDoubleOrNull(element, "Pmax"));
+        this.minimumCapacity = negativeIfNotNull(getContentAsDoubleOrNull(element, "Pmin"));
     }
 
     void setParticipationFactor(double participationFactor) {
-        this.participationFactor = Optional.of(participationFactor);
+        this.participationFactor = participationFactor;
+    }
+
+    private Double getContentAsDoubleOrNull(Element baseElement, String tag) {
+        return baseElement.getElementsByTagName(tag).getLength() == 0 ? null :
+                Double.parseDouble(((Element) baseElement.getElementsByTagName(tag).item(0)).getAttribute("v"));
+    }
+
+    private Double negativeIfNotNull(Double value) {
+        return value == null ? null : -value;
     }
 
     @Override
