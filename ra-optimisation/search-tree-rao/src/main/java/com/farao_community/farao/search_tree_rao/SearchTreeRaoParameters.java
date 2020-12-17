@@ -18,36 +18,45 @@ import org.slf4j.LoggerFactory;
 public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoParameters.class);
 
-    public enum StopCriterion {
-        POSITIVE_MARGIN,
-        MAXIMUM_MARGIN,
-        AT_TARGET_OBJECTIVE_VALUE
+    public enum PreventiveRaoStopCriterion {
+        MIN_OBJECTIVE,
+        SECURE
     }
 
-    static final StopCriterion DEFAULT_STOP_CRITERION = StopCriterion.POSITIVE_MARGIN;
+    public enum CurativeRaoStopCriterion {
+        MIN_OBJECTIVE, // only stop after minimizing objective
+        SECURE, //stop when objective is strictly negative
+        PREVENTIVE_OBJECTIVE, // stop when preventive objective is reached, or bested by curativeRaoMinObjImprovement
+        PREVENTIVE_OBJECTIVE_AND_SECURE // stop when preventive objective is reached or bested by curativeRaoMinObjImprovement, and the situation is secure
+        // TODO : we can add WORST_OBJECTIVE and WORST_OBJECTIVE_AND_SECURE if we want to use the worst curative perimeter objective as a stop criterion for other curative perimeters too
+    }
+
     static final int DEFAULT_MAXIMUM_SEARCH_DEPTH = Integer.MAX_VALUE;
     static final double DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD = 0;
     static final int DEFAULT_LEAVES_IN_PARALLEL = 1;
-    static final double DEFAULT_TARGET_OBJECTIVE_VALUE = -Double.MAX_VALUE;
+    static final PreventiveRaoStopCriterion DEFAULT_PREVENTIVE_RAO_STOP_CRITERION = PreventiveRaoStopCriterion.SECURE;
+    static final CurativeRaoStopCriterion DEFAULT_CURATIVE_RAO_STOP_CRITERION = CurativeRaoStopCriterion.MIN_OBJECTIVE;
+    static final double DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT = 0;
 
-    private StopCriterion stopCriterion = DEFAULT_STOP_CRITERION;
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
     private double absoluteNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
     private int leavesInParallel = DEFAULT_LEAVES_IN_PARALLEL;
-    private double targetObjectiveValue = DEFAULT_TARGET_OBJECTIVE_VALUE;
+    private PreventiveRaoStopCriterion preventiveRaoStopCriterion = DEFAULT_PREVENTIVE_RAO_STOP_CRITERION;
+    private CurativeRaoStopCriterion curativeRaoStopCriterion = DEFAULT_CURATIVE_RAO_STOP_CRITERION;
+    private double curativeRaoMinObjImprovement = DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT; // used for CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE and CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
 
     @Override
     public String getName() {
         return "SearchTreeRaoParameters";
     }
 
-    public StopCriterion getStopCriterion() {
-        return stopCriterion;
+    public PreventiveRaoStopCriterion getPreventiveRaoStopCriterion() {
+        return preventiveRaoStopCriterion;
     }
 
-    public void setStopCriterion(StopCriterion stopCriterion) {
-        this.stopCriterion = stopCriterion;
+    public void setPreventiveRaoStopCriterion(PreventiveRaoStopCriterion preventiveRaoStopCriterion) {
+        this.preventiveRaoStopCriterion = preventiveRaoStopCriterion;
     }
 
     public int getMaximumSearchDepth() {
@@ -90,11 +99,22 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         this.leavesInParallel = leavesInParallel;
     }
 
-    public double getTargetObjectiveValue() {
-        return targetObjectiveValue;
+    public CurativeRaoStopCriterion getCurativeRaoStopCriterion() {
+        return curativeRaoStopCriterion;
     }
 
-    public void setTargetObjectiveValue(double targetObjectiveValue) {
-        this.targetObjectiveValue = targetObjectiveValue;
+    public void setCurativeRaoStopCriterion(CurativeRaoStopCriterion curativeRaoStopCriterion) {
+        this.curativeRaoStopCriterion = curativeRaoStopCriterion;
+    }
+
+    public double getCurativeRaoMinObjImprovement() {
+        return curativeRaoMinObjImprovement;
+    }
+
+    public void setCurativeRaoMinObjImprovement(double curativeRaoMinObjImprovement) {
+        if (curativeRaoMinObjImprovement < 0) {
+            LOGGER.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
+        }
+        this.curativeRaoMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
     }
 }

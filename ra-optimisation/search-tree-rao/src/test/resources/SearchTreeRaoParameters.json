@@ -18,8 +18,6 @@
   "ptdf-boundaries" : [ ],
   "ptdf-sum-lower-bound" : 0.01,
   "perimeters-in-parallel" : 1,
-  "curative-rao-stop-criterion" : "MIN_OBJECTIVE",
-  "curative-rao-min-obj-improvement" : 0.0,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
@@ -39,12 +37,13 @@
   },
   "extensions" : {
     "SearchTreeRaoParameters" : {
-      "stop-criterion" : "MAXIMUM_MARGIN",
       "maximum-search-depth" : 10,
       "relative-network-action-minimum-impact-threshold" : 0.1,
       "absolute-network-action-minimum-impact-threshold" : 20.0,
       "leaves-in-parallel" : 1,
-      "target-objective-value" : -1000.0
+      "preventive-rao-stop-criterion" : "MIN_OBJECTIVE",
+      "curative-rao-stop-criterion" : "PREVENTIVE_OBJECTIVE_AND_SECURE",
+      "curative-rao-min-obj-improvement" : 983.0
     }
   }
 }

@@ -246,13 +246,4 @@ public class RaoParametersTest {
         assertTrue(parameters.getPtdfBoundariesAsString().contains("BE-FR"));
         assertTrue(parameters.getPtdfBoundariesAsString().contains("DE-AT"));
     }
-
-    @Test
-    public void testNegativeCurativeRaoMinObjImprovement() {
-        RaoParameters parameters = new RaoParameters();
-        parameters.setCurativeRaoMinObjImprovement(100);
-        assertEquals(100, parameters.getCurativeRaoMinObjImprovement(), 1e-6);
-        parameters.setCurativeRaoMinObjImprovement(-100);
-        assertEquals(100, parameters.getCurativeRaoMinObjImprovement(), 1e-6);
-    }
 }

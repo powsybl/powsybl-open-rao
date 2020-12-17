@@ -21,12 +21,11 @@
       "security-analysis-without-rao": false
     },
     "SearchTreeRaoParameters": {
-      "stop-criterion": "POSITIVE_MARGIN",
+      "preventive-rao-stop-criterion": "SECURE",
       "maximum-search-depth": 5,
       "relative-network-action-minimum-impact-threshold": 0.0,
       "absolute-network-action-minimum-impact-threshold": 0.0,
-      "leaves-in-parallel": 8,
-      "target-objective-value" : -999999.9
+      "leaves-in-parallel": 8
     }
   }
 }

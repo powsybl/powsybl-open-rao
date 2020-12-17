@@ -137,13 +137,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setPerimetersInParallel(parser.getIntValue());
                     break;
-                case "curative-rao-stop-criterion":
-                    parameters.setCurativeRaoStopCriterion(stringToCurativeRaoStopCriterion(parser.nextTextValue()));
-                    break;
-                case "curative-rao-min-obj-improvement":
-                    parser.nextToken();
-                    parameters.setCurativeRaoMinObjImprovement(parser.getDoubleValue());
-                    break;
                 case "extensions":
                     parser.nextToken();
                     if (parameters.getExtensions().isEmpty()) {
@@ -174,14 +167,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
             return RaoParameters.LoopFlowApproximationLevel.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new FaraoException(String.format("Unknown loopflow approximation level: %s", string));
-        }
-    }
-
-    private RaoParameters.CurativeRaoStopCriterion stringToCurativeRaoStopCriterion(String string) {
-        try {
-            return RaoParameters.CurativeRaoStopCriterion.valueOf(string);
-        } catch (IllegalArgumentException e) {
-            throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", string));
         }
     }
 }

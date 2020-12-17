@@ -29,7 +29,7 @@
   },
   "extensions" : {
     "SearchTreeRaoParameters" : {
-      "stop-criterion" : "WRONG"
+      "preventive-rao-stop-criterion" : "WRONG"
     }
   }
 }
