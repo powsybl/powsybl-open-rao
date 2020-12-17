@@ -86,7 +86,8 @@ public class IteratingLinearOptimizer {
             raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(cracVariantManager.getWorkingVariantId(), optimizedVariantId);
             //TODO : copy crac results from one variant to the next in CracVariantManager.cloneWorkingVariant() ?
             cracVariantManager.setWorkingVariant(optimizedVariantId);
-            if (!optimize(iteration)
+            optimize(iteration);
+            if (hasNotOptimized() // If optimization fails iteration can stop
                     || !hasRemedialActionsChanged(optimizedVariantId, iteration)
                     || !evaluateNewCost(optimizedVariantId, iteration)
                     || !hasCostImproved(optimizedVariantId, iteration)) {
@@ -97,21 +98,21 @@ public class IteratingLinearOptimizer {
         return bestVariantId;
     }
 
-    private boolean optimize(int iteration) {
-        // If optimization fails iteration can stop
+    private void optimize(int iteration) {
         try {
             LOGGER.info(format(LINEAR_OPTIMIZATION_START, iteration));
             linearOptimizer.optimize(raoData);
-            if (!linearOptimizer.getSolverResultStatusString().equals("OPTIMAL")) {
+            if (hasNotOptimized()) {
                 LOGGER.info(format(LINEAR_OPTIMIZATION_INFEASIBLE, iteration)); //handle INFEASIBLE solver status
-                return false;
             }
             LOGGER.info(format(LINEAR_OPTIMIZATION_END, iteration));
-            return true;
         } catch (LinearOptimisationException e) {
             LOGGER.error(format(LINEAR_OPTIMIZATION_ERROR, iteration, e.getMessage()));
-            return false;
         }
+    }
+
+    private boolean hasNotOptimized() {
+        return !linearOptimizer.getSolverResultStatusString().equals("OPTIMAL");
     }
 
     private boolean hasRemedialActionsChanged(String optimizedVariantId, int iteration) {
