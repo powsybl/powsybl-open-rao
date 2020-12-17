@@ -19,8 +19,6 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,7 +32,6 @@ import static java.lang.Math.max;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
-    static final Logger LOGGER = LoggerFactory.getLogger(RaoParameters.class);
 
     public enum ObjectiveFunction {
         MAX_MIN_MARGIN_IN_MEGAWATT(Unit.MEGAWATT, false),

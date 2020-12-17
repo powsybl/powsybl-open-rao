@@ -29,7 +29,7 @@
   },
   "extensions" : {
     "SearchTreeRaoParameters" : {
-      "preventive-stop-criterion" : "MAXIMUM_MARGIN",
+      "preventive-stop-criterion" : "MIN_OBJECTIVE",
       "maximum-search-depth" : 10,
       "relative-network-action-minimum-impact-threshold" : 0.1,
       "absolute-network-action-minimum-impact-threshold" : 20.0,
