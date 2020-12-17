@@ -139,6 +139,7 @@ public class LinearOptimizer {
         } catch (Exception e) {
             String errorMessage = "Solving of the linear problem failed.";
             LOGGER.error(errorMessage);
+            setSolverResultStatusString("ABNORMAL");
             throw new LinearOptimisationException(errorMessage, e);
         }
     }
