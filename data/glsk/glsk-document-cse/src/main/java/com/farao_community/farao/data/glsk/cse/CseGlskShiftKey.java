@@ -32,9 +32,9 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
                 Element nodeElement = (Element) nodesList.item(i);
                 CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
                 registeredResourceArrayList.add(cseRegisteredResource);
-                Optional<Double> intialFactor = cseRegisteredResource.getInitialFactor();
-                if (intialFactor.isPresent()) {
-                    currentFactorsSum += intialFactor.get();
+                Optional<Double> initialFactor = cseRegisteredResource.getInitialFactor();
+                if (initialFactor.isPresent()) {
+                    currentFactorsSum += initialFactor.get();
                 }
             }
 
