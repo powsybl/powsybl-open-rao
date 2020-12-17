@@ -14,24 +14,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class CseGlskShiftKey extends AbstractGlskShiftKey {
 
+    private static final double EPSILON = 1e-3;
+
     public CseGlskShiftKey(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID) {
-        if (businessType.equals("Z02")) {
-            this.psrType = "A04";
-        } else if (businessType.equals("Z05")) {
-            this.psrType = "A05";
-        } else {
-            throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + businessType);
-        }
-        this.quantity = Double.valueOf(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v"));
-        this.glskShiftKeyInterval = pointInterval;
-        this.subjectDomainmRID = subjectDomainmRID;
-        this.registeredResourceArrayList = new ArrayList<>();
+        initCommonMemberVariables(glskBlockElement, businessType, pointInterval, subjectDomainmRID);
 
         if ("ManualGSKBlock".equals(glskBlockElement.getTagName())) {
             this.businessType = "B43";
@@ -42,14 +35,21 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
                 Element nodeElement = (Element) nodesList.item(i);
                 CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
                 registeredResourceArrayList.add(cseRegisteredResource);
-                if (cseRegisteredResource.getInitialFactor().isPresent()) {
-                    currentFactorsSum += cseRegisteredResource.getInitialFactor().get();
+                Optional<Double> intialFactor = cseRegisteredResource.getInitialFactor();
+                if (intialFactor.isPresent()) {
+                    currentFactorsSum += intialFactor.get();
                 }
             }
+
+            if (Math.abs(currentFactorsSum) < EPSILON) {
+                throw new GlskException("Factors sum should not be 0");
+            }
+
             for (AbstractGlskRegisteredResource registeredResource : registeredResourceArrayList) {
                 CseGlskRegisteredResource cseRegisteredResource = (CseGlskRegisteredResource) registeredResource;
-                if (cseRegisteredResource.getInitialFactor().isPresent()) {
-                    cseRegisteredResource.setParticipationFactor(cseRegisteredResource.getInitialFactor().get() / currentFactorsSum);
+                Optional<Double> intialFactor = cseRegisteredResource.getInitialFactor();
+                if (intialFactor.isPresent()) {
+                    cseRegisteredResource.setParticipationFactor(intialFactor.get() / currentFactorsSum);
                 }
             }
         } else if ("PropGSKBlock".equals(glskBlockElement.getTagName())) {
@@ -86,17 +86,7 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
     }
 
     public CseGlskShiftKey(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID, int position) {
-        if (businessType.equals("Z02")) {
-            this.psrType = "A04";
-        } else if (businessType.equals("Z05")) {
-            this.psrType = "A05";
-        } else {
-            throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + businessType);
-        }
-        this.quantity = Double.valueOf(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v"));
-        this.glskShiftKeyInterval = pointInterval;
-        this.subjectDomainmRID = subjectDomainmRID;
-        this.registeredResourceArrayList = new ArrayList<>();
+        initCommonMemberVariables(glskBlockElement, businessType, pointInterval, subjectDomainmRID);
         this.meritOrderPosition = position;
 
         if ("MeritOrderGSKBlock".equals(glskBlockElement.getTagName())) {
@@ -108,5 +98,19 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         } else {
             throw new GlskException("Unknown UCTE Block type");
         }
+    }
+
+    private void initCommonMemberVariables(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID) {
+        if (businessType.equals("Z02")) {
+            this.psrType = "A04";
+        } else if (businessType.equals("Z05")) {
+            this.psrType = "A05";
+        } else {
+            throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + businessType);
+        }
+        this.quantity = Double.valueOf(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v"));
+        this.glskShiftKeyInterval = pointInterval;
+        this.subjectDomainmRID = subjectDomainmRID;
+        this.registeredResourceArrayList = new ArrayList<>();
     }
 }
