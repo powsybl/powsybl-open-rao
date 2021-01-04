@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
@@ -64,17 +65,21 @@ public class RaoInputTest {
 
     @Test
     public void testBuildWithRefProg() {
+        ReferenceProgramArea areaFrance = new ReferenceProgramArea(Country.FR);
+        ReferenceProgramArea areaBelgium = new ReferenceProgramArea(Country.BE);
+        ReferenceProgramArea areaNetherlands = new ReferenceProgramArea(Country.NL);
+        ReferenceProgramArea areaGermany = new ReferenceProgramArea(Country.DE);
         List<ReferenceExchangeData> referenceExchangeDataList = Arrays.asList(
-                new ReferenceExchangeData(Country.FR, Country.BE, 100),
-                new ReferenceExchangeData(Country.DE, Country.NL, -200));
+                new ReferenceExchangeData(areaFrance, areaBelgium, 100),
+                new ReferenceExchangeData(areaGermany, areaNetherlands, -200));
         RaoInput raoInput = defaultBuilder
                 .withRefProg(new ReferenceProgram(referenceExchangeDataList))
                 .build();
         assertNotNull(raoInput.getReferenceProgram());
         ReferenceProgram actualRefProg =  raoInput.getReferenceProgram();
         assertEquals(2, actualRefProg.getReferenceExchangeDataList().size());
-        assertEquals(100, actualRefProg.getExchange(Country.FR, Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(-200, actualRefProg.getExchange(Country.DE, Country.NL), DOUBLE_TOLERANCE);
+        assertEquals(100, actualRefProg.getExchange(areaFrance, areaBelgium), DOUBLE_TOLERANCE);
+        assertEquals(-200, actualRefProg.getExchange(areaGermany, areaNetherlands), DOUBLE_TOLERANCE);
     }
 
     @Test(expected = FaraoException.class)
