@@ -27,7 +27,7 @@ import java.util.*;
  */
 public final class CseGlskDocument implements GlskDocument {
     /**
-     * list of GlskPoint in the give Glsk document
+     * list of GlskPoint in the given Glsk document
      */
     private final Map<String, List<AbstractGlskPoint>> cseGlskPoints = new TreeMap<>();
 
@@ -47,7 +47,7 @@ public final class CseGlskDocument implements GlskDocument {
             document.getDocumentElement().normalize();
             return new CseGlskDocument(document);
         } catch (IOException | SAXException | ParserConfigurationException e) {
-            throw new GlskException("Unable to import CIM GLSK file.", e);
+            throw new GlskException("Unable to import CSE GLSK file.", e);
         }
     }
 

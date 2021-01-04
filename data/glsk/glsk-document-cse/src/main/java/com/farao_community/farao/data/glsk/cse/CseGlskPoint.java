@@ -54,6 +54,8 @@ public class CseGlskPoint extends AbstractGlskPoint {
     }
 
     private void importMeritOrderBlock(Element blockElement, String businessType) {
+        // Merit order scaling is not symmetrical, a feature not yet released of PowSyBl.
+        // TODO : create UpDownScalable with up block and down block when available in PowSYBl
         Element upBlockElement = (Element) blockElement.getElementsByTagName("Up").item(0);
         NodeList nodesList = upBlockElement.getElementsByTagName("Node");
         for (int j = 0; j < nodesList.getLength(); j++) {

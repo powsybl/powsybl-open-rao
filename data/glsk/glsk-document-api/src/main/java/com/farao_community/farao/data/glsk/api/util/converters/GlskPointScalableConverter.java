@@ -75,7 +75,10 @@ public final class GlskPointScalableConverter {
 
     private static void convertRemainingCapacity(Network network, AbstractGlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
         LOGGER.debug("GLSK Type B44, not empty registered resources list --> remaining capacity proportional GSK");
-        // TODO create UpDownScalable with remaining capacity down and remaining capacity up when vailable in PowSYBl
+        // Remaining capacity algorithm is supposed to put all generators at Pmin at the same time when decreasing
+        // generation, and to put all generators at Pmax at the same time when increasing generation.
+        // Though the scaling is not symmetrical, a feature not yet released of PowSyBl.
+        // TODO : create UpDownScalable with remaining capacity down and remaining capacity up when available in PowSYBl
 
         List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
                 .filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId()) != null)
@@ -84,8 +87,10 @@ public final class GlskPointScalableConverter {
 
         double totalFactor = generatorResources.stream().mapToDouble(resource -> GlskPointScalableConverter.getRemainingCapacityDown(resource, network)).sum();
 
-        generatorResources.forEach(generatorResource -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) GlskPointScalableConverter.getRemainingCapacityDown(generatorResource, network) / (float) totalFactor));
-        generatorResources.forEach(generatorResource -> scalables.add(Scalable.onGenerator(generatorResource.getGeneratorId())));
+        generatorResources.forEach(generatorResource -> {
+            percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) GlskPointScalableConverter.getRemainingCapacityDown(generatorResource, network) / (float) totalFactor);
+            scalables.add(Scalable.onGenerator(generatorResource.getGeneratorId()));
+        });
     }
 
     private static double getRemainingCapacityDown(AbstractGlskRegisteredResource resource, Network network) {
