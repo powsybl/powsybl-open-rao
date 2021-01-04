@@ -62,7 +62,7 @@ public class LoopFlowComputation {
 
     public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(Network network, SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
 
-        List<LinearGlsk> glsks = getValidGlsks(network);
+        List<LinearGlsk> glsks = getValidGlsks(network); // second call to this method, can be improved!
         LoopFlowResult results = new LoopFlowResult();
 
         for (BranchCnec cnec : cnecs) {
@@ -122,8 +122,23 @@ public class LoopFlowComputation {
             throw new FaraoException(exceptionMessage);
         } else {
             Map<String, Float> glskMap = new HashMap<>();
-            glskMap.put(virtualHub.getId(), 1.0F);
+            String glskId = getGlskId(virtualHub);
+            glskMap.put(glskId, 1.0F);
             return new LinearGlsk(assignedVirtualHub.getEic(), assignedVirtualHub.getEic(), glskMap);
+        }
+    }
+
+    private <T extends Injection> String getGlskId(T virtualHub) {
+        if (virtualHub instanceof Generator) {
+            LOGGER.info("Generator found for virtual hub " + virtualHub.getId());
+            return virtualHub.getId();
+        } else {
+            Optional<Generator> generator = virtualHub.getTerminal().getVoltageLevel().getGeneratorStream().findFirst();
+            if (generator.isEmpty()) {
+                LOGGER.warn("No generator found for virtual hub " + virtualHub.getId());
+                return ""; //dirty
+            }
+            return generator.get().getId();
         }
     }
 
