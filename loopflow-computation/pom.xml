@@ -38,7 +38,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-virtual-hubs-network-extension</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>${farao.virtualhubs.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
