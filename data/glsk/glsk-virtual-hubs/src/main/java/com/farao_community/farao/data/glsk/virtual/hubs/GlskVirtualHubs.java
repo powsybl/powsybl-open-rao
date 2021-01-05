@@ -91,7 +91,7 @@ public final class GlskVirtualHubs {
     private Optional<LinearGlsk> createGlskFromVirtualHub(Injection<?> injection) {
         Map<String, Float> glskMap = new HashMap<>();
         try {
-            String glskId= getGlskId(injection);
+            String glskId = getGlskId(injection);
             glskMap.put(glskId, 1.0F);
             String eiCode = injection.getExtension(AssignedVirtualHub.class).getEic();
             return Optional.of(new LinearGlsk(eiCode, eiCode, glskMap));
