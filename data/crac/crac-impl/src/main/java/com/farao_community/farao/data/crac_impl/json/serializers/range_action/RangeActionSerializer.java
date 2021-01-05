@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.range_action;
 
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
 import com.farao_community.farao.data.crac_impl.json.serializers.AbstractRemedialActionSerializer;
@@ -18,7 +17,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
@@ -34,7 +32,6 @@ public class RangeActionSerializer<E extends AbstractRangeAction> extends Abstra
             jsonGenerator.writeObject(range);
         }
         jsonGenerator.writeEndArray();
-        JsonUtil.writeExtensions(abstractRangeAction, jsonGenerator, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
     }
 
     @Override

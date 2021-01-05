@@ -10,8 +10,6 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -28,13 +26,12 @@ public final class HvdcRange extends AbstractElementaryRangeAction {
 
     protected static int hvdcRangeTempValue = 0;
 
-    @JsonCreator
-    public HvdcRange(@JsonProperty("id") String id,
-                     @JsonProperty("name") String name,
-                     @JsonProperty("operator") String operator,
-                     @JsonProperty("usageRules") List<UsageRule> usageRules,
-                     @JsonProperty("ranges") List<Range> ranges,
-                     @JsonProperty("networkElement") NetworkElement networkElement) {
+    public HvdcRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges,
+                     NetworkElement networkElement, String groupId) {
+        super(id, name, operator, usageRules, ranges, networkElement, groupId);
+    }
+
+    public HvdcRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges, NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
     }
 

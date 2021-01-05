@@ -39,8 +39,7 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = HvdcRange.class, name = "hvdc-range"),
         @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
         @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching"),
-        @JsonSubTypes.Type(value = Countertrading.class, name = "countertrading"),
-        @JsonSubTypes.Type(value = AlignedRangeAction.class, name = "aligned-range-action")
+        @JsonSubTypes.Type(value = Countertrading.class, name = "countertrading")
     })
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;

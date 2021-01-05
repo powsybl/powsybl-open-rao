@@ -7,11 +7,39 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.range_action;
 
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AbstractElementaryRangeAction;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.powsybl.commons.json.JsonUtil;
+
+import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class ElementaryRangeActionSerializer<E extends AbstractElementaryRangeAction> extends RangeActionSerializer<E> {
+
+    @Override
+    public void serialize(E abstractElementaryRangeAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        super.serialize(abstractElementaryRangeAction, jsonGenerator, serializerProvider);
+        Optional<String> groupId = abstractElementaryRangeAction.getGroupId();
+        if (groupId.isPresent()) {
+            jsonGenerator.writeStringField("groupId", groupId.get());
+        }
+        JsonUtil.writeExtensions(abstractElementaryRangeAction, jsonGenerator, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
+    }
+
+    @Override
+    public void serializeWithType(E abstractRangeAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
+        WritableTypeId writableTypeId = typeSerializer.typeId(abstractRangeAction, JsonToken.START_OBJECT);
+        typeSerializer.writeTypePrefix(jsonGenerator, writableTypeId);
+        serialize(abstractRangeAction, jsonGenerator, serializerProvider);
+        typeSerializer.writeTypeSuffix(jsonGenerator, writableTypeId);
+    }
 
 }

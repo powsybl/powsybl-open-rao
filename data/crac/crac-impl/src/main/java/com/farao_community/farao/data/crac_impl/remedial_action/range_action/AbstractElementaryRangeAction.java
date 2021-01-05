@@ -10,10 +10,6 @@ package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -24,25 +20,20 @@ import java.util.*;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = PstWithRange.class, name = "pst-with-range"),
-        @JsonSubTypes.Type(value = HvdcRange.class, name = "hvdc-range"),
-        @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
-        @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching")
-    })
 public abstract class AbstractElementaryRangeAction extends AbstractRangeAction {
     protected NetworkElement networkElement;
+    protected String groupId;
 
-    @JsonCreator
-    public AbstractElementaryRangeAction(@JsonProperty("id") String id,
-                                         @JsonProperty("name") String name,
-                                         @JsonProperty("operator") String operator,
-                                         @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                         @JsonProperty("ranges") List<Range> ranges,
-                                         @JsonProperty("networkElement") NetworkElement networkElement) {
+    public AbstractElementaryRangeAction(String id, String name, String operator, List<UsageRule> usageRules,
+                                         List<Range> ranges, NetworkElement networkElement, String groupId) {
         super(id, name, operator, usageRules, ranges);
         this.networkElement = networkElement;
+        this.groupId = groupId;
+    }
+
+    public AbstractElementaryRangeAction(String id, String name, String operator, List<UsageRule> usageRules,
+                                         List<Range> ranges, NetworkElement networkElement) {
+        this(id, name, operator, usageRules, ranges, networkElement, null);
     }
 
     public AbstractElementaryRangeAction(String id, String name, String operator, NetworkElement networkElement) {
@@ -100,8 +91,14 @@ public abstract class AbstractElementaryRangeAction extends AbstractRangeAction 
         return maxValue;
     }
 
+    @Override
     public Set<NetworkElement> getNetworkElements() {
         return Collections.singleton(networkElement);
+    }
+
+    @Override
+    public Optional<String> getGroupId() {
+        return Optional.ofNullable(groupId);
     }
 
     @Override
