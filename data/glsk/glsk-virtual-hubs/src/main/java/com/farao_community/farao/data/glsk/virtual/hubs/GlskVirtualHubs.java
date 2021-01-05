@@ -37,7 +37,7 @@ public final class GlskVirtualHubs {
     private GlskVirtualHubs() {
     }
 
-    public ZonalData<LinearGlsk> getGlskFromVirtualHubs(Network network, ReferenceProgram referenceProgram) {
+    public static ZonalData<LinearGlsk> getGlskFromVirtualHubs(Network network, ReferenceProgram referenceProgram) {
         List<String> countryCodes = referenceProgram.getListOfAreas().stream()
             .filter(ReferenceProgramArea::isVirtualHub)
             .map(ReferenceProgramArea::getAreaCode)
@@ -45,10 +45,7 @@ public final class GlskVirtualHubs {
         return getGlskFromVirtualHubs(network, countryCodes);
     }
 
-    public ZonalData<LinearGlsk> getGlskFromVirtualHubs(Network network, List<String> eiCodes) {
-        //List<LinearGlsk> virtualHubGlsks = new ArrayList<>();
-        // Extract from the referenceExchangeDataList the ones that are described in the virtualhubs
-        // List<ReferenceExchangeData> referenceExchangesFromVirtualHubs;
+    public static ZonalData<LinearGlsk> getGlskFromVirtualHubs(Network network, List<String> eiCodes) {
         Map<String, LinearGlsk> glsks = new HashMap<>();
         List<Injection<?>> injectionsWithVirtualHubs = getInjectionsWithVirtualHubs(network);
         eiCodes.forEach(eiCode -> {
@@ -62,12 +59,10 @@ public final class GlskVirtualHubs {
             }
             }
         );
-        //danglingLinesWithVirtualHubs.forEach(danglingLine -> handleVirtualHubGlsk(virtualHubGlsks, referenceExchangesFromVirtualHubs, danglingLine));
-        //generatorsWithVirtualHubs.forEach(generator -> handleVirtualHubGlsk(virtualHubGlsks, referenceExchangesFromVirtualHubs, generator));
         return new ZonalDataImpl<>(glsks);
     }
 
-    private List<Injection<?>> getInjectionsWithVirtualHubs(Network network) {
+    private static List<Injection<?>> getInjectionsWithVirtualHubs(Network network) {
         List<Injection<?>> danglingLinesWithVirtualHubs = network.getDanglingLineStream()
             .filter(danglingLine -> danglingLine.getExtension(AssignedVirtualHub.class) != null)
             .collect(Collectors.toList());
@@ -78,7 +73,7 @@ public final class GlskVirtualHubs {
         return danglingLinesWithVirtualHubs;
     }
 
-    private Optional<Injection<?>> identifyVirtualHub(String eiCode, List<Injection<?>> injectionsWithVirtualHubs) {
+    private static Optional<Injection<?>> identifyVirtualHub(String eiCode, List<Injection<?>> injectionsWithVirtualHubs) {
         for (Injection<?> injection : injectionsWithVirtualHubs) {
             if (injection.getExtension(AssignedVirtualHub.class).getEic().equals(eiCode)) {
                 return Optional.of(injection);
@@ -88,7 +83,7 @@ public final class GlskVirtualHubs {
         return Optional.empty();
     }
 
-    private Optional<LinearGlsk> createGlskFromVirtualHub(Injection<?> injection) {
+    private static Optional<LinearGlsk> createGlskFromVirtualHub(Injection<?> injection) {
         Map<String, Float> glskMap = new HashMap<>();
         try {
             String glskId = getGlskId(injection);
@@ -100,10 +95,10 @@ public final class GlskVirtualHubs {
         }
     }
 
-    private String getGlskId(Injection<?> virtualHub) {
+    private static String getGlskId(Injection<?> virtualHub) {
+        String generatorId;
         if (virtualHub instanceof Generator) {
-            LOGGER.debug("Generator found for virtual hub {}", virtualHub.getId());
-            return virtualHub.getId();
+            generatorId = virtualHub.getId();
         } else {
             Optional<Generator> generator = virtualHub.getTerminal().getVoltageLevel().getGeneratorStream().findFirst();
             if (generator.isEmpty()) {
@@ -111,7 +106,9 @@ public final class GlskVirtualHubs {
                 LOGGER.warn(message);
                 throw new FaraoException(message);
             }
-            return generator.get().getId();
+            generatorId = generator.get().getId();
         }
+        LOGGER.debug("Generator {} found for virtual hub {}", generatorId, virtualHub.getId());
+        return generatorId;
     }
 }
