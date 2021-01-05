@@ -80,6 +80,7 @@
         <module>ra-optimisation</module>
         <module>sensitivity-analysis</module>
         <module>util</module>
+        <module>glsk-virtual-hubs</module>
     </modules>
 
     <properties>
