@@ -37,32 +37,48 @@ public final class GlskVirtualHubs {
     private GlskVirtualHubs() {
     }
 
-    public static ZonalData<LinearGlsk> getGlskFromVirtualHubs(Network network, ReferenceProgram referenceProgram) {
+    /**
+     * Build GLSKs of virtual hubs
+     *
+     * @param network : Network object, which contains AssignedVirtualHub extensions on
+     *                Injections which are virtual hubs
+     * @param referenceProgram : Reference Program object
+     *
+     * @return one LinearGlsk for each virtual hub given in the referenceProgram and found
+     * in the network
+     */
+    public static ZonalData<LinearGlsk> getVirtualHubGlsks(Network network, ReferenceProgram referenceProgram) {
         List<String> countryCodes = referenceProgram.getListOfAreas().stream()
             .filter(ReferenceProgramArea::isVirtualHub)
             .map(ReferenceProgramArea::getAreaCode)
             .collect(Collectors.toList());
-        return getGlskFromVirtualHubs(network, countryCodes);
+        return getVirtualHubGlsks(network, countryCodes);
     }
 
-    public static ZonalData<LinearGlsk> getGlskFromVirtualHubs(Network network, List<String> eiCodes) {
+    /**
+     * Build GLSKs of virtual hubs
+     *
+     * @param network : Network object, which contains AssignedVirtualHub extensions on
+     *                Injections which are virtual hubs
+     * @param eiCodes : list of EI Codes of virtual hubs
+     *
+     * @return one LinearGlsk for each virtual hub given in eiCodes and found in the network
+     */
+    public static ZonalData<LinearGlsk> getVirtualHubGlsks(Network network, List<String> eiCodes) {
         Map<String, LinearGlsk> glsks = new HashMap<>();
-        List<Injection<?>> injectionsWithVirtualHubs = getInjectionsWithVirtualHubs(network);
+        List<Injection<?>> injectionsWithVirtualHubs = findInjectionsWithVirtualHubs(network);
         eiCodes.forEach(eiCode -> {
             Optional<Injection<?>> virtualHubInjection = identifyVirtualHub(eiCode, injectionsWithVirtualHubs);
             if (virtualHubInjection.isPresent()) {
                 Optional<LinearGlsk> virtualHubGlsk = createGlskFromVirtualHub(virtualHubInjection.get());
-                if (virtualHubGlsk.isPresent()) {
-                    glsks.put(eiCode, virtualHubGlsk.get()
-                    );
-                }
+                virtualHubGlsk.ifPresent(linearGlsk -> glsks.put(eiCode, linearGlsk));
             }
             }
         );
         return new ZonalDataImpl<>(glsks);
     }
 
-    private static List<Injection<?>> getInjectionsWithVirtualHubs(Network network) {
+    private static List<Injection<?>> findInjectionsWithVirtualHubs(Network network) {
         List<Injection<?>> danglingLinesWithVirtualHubs = network.getDanglingLineStream()
             .filter(danglingLine -> danglingLine.getExtension(AssignedVirtualHub.class) != null)
             .collect(Collectors.toList());
