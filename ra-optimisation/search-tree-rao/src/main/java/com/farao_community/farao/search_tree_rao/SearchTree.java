@@ -17,7 +17,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,12 +25,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
  * It aims at finding a good combination of Network Actions.
- *
+ * <p>
  * The tree is composed of leaves which evaluate the impact of Network Actions,
  * one by one. The tree is orchestrating the leaves : it looks for a smart
  * routing among the leaves in order to converge as quickly as possible to a local
  * minimum of the objective function.
- *
+ * <p>
  * The leaves of a same depth can be evaluated simultaneously.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -41,22 +40,17 @@ public class SearchTree {
     static final Logger LOGGER = LoggerFactory.getLogger(SearchTree.class);
 
     private RaoParameters raoParameters;
-    private SearchTreeRaoParameters searchTreeRaoParameters;
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
     private boolean relativePositiveMargins;
+    private TreeParameters treeParameters;
 
     void initParameters(RaoParameters raoParameters) {
         this.raoParameters = raoParameters;
-        if (!Objects.isNull(raoParameters.getExtension(SearchTreeRaoParameters.class))) {
-            searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
-        } else {
-            searchTreeRaoParameters = new SearchTreeRaoParameters();
-        }
         relativePositiveMargins =
-            raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
-                raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+                raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
+                        raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
     }
 
     void initLeaves(RaoData raoData) {
@@ -65,9 +59,10 @@ public class SearchTree {
         previousDepthOptimalLeaf = rootLeaf;
     }
 
-    public CompletableFuture<RaoResult> run(RaoData raoData, RaoParameters raoParameters) {
+    public CompletableFuture<RaoResult> run(RaoData raoData, RaoParameters raoParameters, TreeParameters treeParameters) {
         initParameters(raoParameters);
         initLeaves(raoData);
+        this.treeParameters = treeParameters;
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
@@ -97,7 +92,7 @@ public class SearchTree {
     private void iterateOnTree() {
         int depth = 0;
         boolean hasImproved = true;
-        while (depth < searchTreeRaoParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
+        while (depth < treeParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
             LOGGER.info("Research depth: {} - [start]", depth);
             previousDepthOptimalLeaf = optimalLeaf;
             updateOptimalLeafWithNextDepthBestLeaf();
@@ -127,8 +122,8 @@ public class SearchTree {
         }
         AtomicInteger remainingLeaves = new AtomicInteger(networkActions.size());
         Network network = rootLeaf.getRaoData().getNetwork(); // NetworkPool starts from root leaf network to keep initial optimization of range actions
-        LOGGER.debug("Evaluating {} leaves in parallel", searchTreeRaoParameters.getLeavesInParallel());
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), searchTreeRaoParameters.getLeavesInParallel())) {
+        LOGGER.debug("Evaluating {} leaves in parallel", treeParameters.getLeavesInParallel());
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), treeParameters.getLeavesInParallel())) {
             networkActions.forEach(networkAction ->
                     networkPool.submit(() -> {
                         try {
@@ -189,12 +184,12 @@ public class SearchTree {
      * @return True if the stop criterion has been reached on this leaf.
      */
     private boolean stopCriterionReached(Leaf leaf) {
-        if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN)) {
-            return leaf.getBestCost() < 0;
-        } else if (searchTreeRaoParameters.getStopCriterion().equals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN)) {
+        if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
+        } else if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
+            return leaf.getBestCost() < treeParameters.getTargetObjectiveValue();
         } else {
-            throw new FaraoException("Unexpected stop criterion: " + searchTreeRaoParameters.getStopCriterion());
+            throw new FaraoException("Unexpected stop criterion: " + treeParameters.getStopCriterion());
         }
     }
 
@@ -206,8 +201,8 @@ public class SearchTree {
      * @return True if the leaf cost diminution is enough compared to optimal leaf.
      */
     private boolean improvedEnough(Leaf leaf) {
-        double relativeImpact = Math.max(searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
-        double absoluteImpact = Math.max(searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
+        double relativeImpact = Math.max(treeParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
+        double absoluteImpact = Math.max(treeParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
 
         double currentBestCost = optimalLeaf.getBestCost();
         double previousDepthBestCost = previousDepthOptimalLeaf.getBestCost();

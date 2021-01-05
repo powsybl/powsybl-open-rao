@@ -43,4 +43,13 @@ public class SearchTreeRaoParametersTest {
         params.setRelativeNetworkActionMinimumImpactThreshold(1.1);
         assertEquals(1, params.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
     }
+
+    @Test
+    public void testNegativeCurativeRaoMinObjImprovement() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setCurativeRaoMinObjImprovement(100);
+        assertEquals(100, parameters.getCurativeRaoMinObjImprovement(), 1e-6);
+        parameters.setCurativeRaoMinObjImprovement(-100);
+        assertEquals(100, parameters.getCurativeRaoMinObjImprovement(), 1e-6);
+    }
 }
