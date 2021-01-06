@@ -54,13 +54,13 @@ public class CneGenerationTest {
         }
 
         Optional<ConstraintSeries> constraintSeriesB54 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getMRID().contains("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).findFirst();
+                constraintSeries.getMRID().contains("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).findFirst();
         Optional<ConstraintSeries> constraintSeriesB57 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getMRID().contains("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).findFirst();
+                constraintSeries.getMRID().contains("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).findFirst();
         Optional<ConstraintSeries> constraintSeriesB88 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getMRID().contains("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).findFirst();
+                constraintSeries.getMRID().contains("FFR1AA1  FFR2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).findFirst();
         Optional<ConstraintSeries> constraintSeriesB56 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getMRID().contains("SelectTapPST43") && constraintSeries.getBusinessType().equals(B56_BUSINESS_TYPE)).findFirst();
+                constraintSeries.getMRID().contains("SelectTapPST43") && constraintSeries.getBusinessType().equals(B56_BUSINESS_TYPE)).findFirst();
 
         if (constraintSeriesB54.isPresent() && constraintSeriesB57.isPresent() && constraintSeriesB88.isPresent() && constraintSeriesB56.isPresent()) {
             // Constraint series B54
@@ -172,19 +172,8 @@ public class CneGenerationTest {
         }
     }
 
-    private void testCnecConstraintSeries(ConstraintSeries constraintSeries, String expectedCnecId, String expectedBusinessType) {
-        assertEquals(expectedCnecId, constraintSeries.getMonitoredSeries().get(0).getRegisteredResource().get(0).getMRID().getValue());
-        assertEquals(expectedBusinessType, constraintSeries.getBusinessType());
-    }
-
-    private void testRemedialActionConstraintSeries(ConstraintSeries constraintSeries, String expectedRemedialActionId) {
-        assertEquals(expectedRemedialActionId, constraintSeries.getRemedialActionSeries().get(0).getName());
-        assertEquals(B56_BUSINESS_TYPE, constraintSeries.getBusinessType());
-    }
-
     @Test
     public void testExport2() {
-
         Crac crac = CracImporters.importCrac("US3-2-pst-direct.json", getClass().getResourceAsStream("/US3-2-pst-direct.json"));
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
@@ -197,54 +186,35 @@ public class CneGenerationTest {
         assertEquals(20, point.getConstraintSeries().size());
 
         // Test order of Constraint_Series
-        testCnecConstraintSeries(point.getConstraintSeries().get(0), "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3", B88_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(1), "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3", B57_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(2), "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3", B54_BUSINESS_TYPE);
+        List<String> sortedCnecIds = List.of("DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3", "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3", "DDE1AA1  DDE2AA1  1 - N - preventive",
+                "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3", "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3", "FFR2AA1  DDE3AA1  1 - N - preventive");
+        assertCorrectCnecOrder(point.getConstraintSeries(), sortedCnecIds);
 
-        testCnecConstraintSeries(point.getConstraintSeries().get(3), "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3", B88_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(4), "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3", B57_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(5), "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3", B54_BUSINESS_TYPE);
-
-        testCnecConstraintSeries(point.getConstraintSeries().get(6), "DDE1AA1  DDE2AA1  1 - N - preventive", B88_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(7), "DDE1AA1  DDE2AA1  1 - N - preventive", B57_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(8), "DDE1AA1  DDE2AA1  1 - N - preventive", B54_BUSINESS_TYPE);
-
-        testCnecConstraintSeries(point.getConstraintSeries().get(9), "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3", B88_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(10), "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3", B57_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(11), "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3", B54_BUSINESS_TYPE);
         // test countries order
         assertEquals("10YCB-GERMANY--8", point.getConstraintSeries().get(11).getPartyMarketParticipant().get(0).getMRID().getValue());
         assertEquals("10YFR-RTE------C", point.getConstraintSeries().get(11).getPartyMarketParticipant().get(1).getMRID().getValue());
 
-        testCnecConstraintSeries(point.getConstraintSeries().get(12), "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3", B88_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(13), "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3", B57_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(14), "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3", B54_BUSINESS_TYPE);
-
-        testCnecConstraintSeries(point.getConstraintSeries().get(15), "FFR2AA1  DDE3AA1  1 - N - preventive", B88_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(16), "FFR2AA1  DDE3AA1  1 - N - preventive", B57_BUSINESS_TYPE);
-        testCnecConstraintSeries(point.getConstraintSeries().get(17), "FFR2AA1  DDE3AA1  1 - N - preventive", B54_BUSINESS_TYPE);
-
         List<ConstraintSeries> constraintSeriesList1 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getMRID().contains("FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3")).collect(Collectors.toList());
+                constraintSeries.getMRID().contains("FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3")).collect(Collectors.toList());
         assertEquals(3, constraintSeriesList1.size());
         List<ConstraintSeries> constraintSeriesList2 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).collect(Collectors.toList());
+                constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).collect(Collectors.toList());
         assertEquals(6, constraintSeriesList2.size());
         List<ConstraintSeries> constraintSeriesList3 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).collect(Collectors.toList());
+                constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).collect(Collectors.toList());
         assertEquals(6, constraintSeriesList3.size());
         List<ConstraintSeries> constraintSeriesList4 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).collect(Collectors.toList());
+                constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).collect(Collectors.toList());
         assertEquals(6, constraintSeriesList4.size());
 
         Optional<ConstraintSeries> constraintSeriesB54 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getMRID().contains("FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3") && constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).findFirst();
+                constraintSeries.getMRID().contains("FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3") && constraintSeries.getBusinessType().equals(B54_BUSINESS_TYPE)).findFirst();
         Optional<ConstraintSeries> constraintSeriesB57 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getMRID().contains("DDE1AA1  DDE2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).findFirst();
+                constraintSeries.getMRID().contains("DDE1AA1  DDE2AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B57_BUSINESS_TYPE)).findFirst();
         Optional<ConstraintSeries> constraintSeriesB88 = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getMRID().contains("DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3") && constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).findFirst();
+                constraintSeries.getMRID().contains("DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3") && constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).findFirst();
         Optional<ConstraintSeries> constraintSeriesB88prev = point.getConstraintSeries().stream().filter(constraintSeries ->
-            constraintSeries.getMRID().contains("FFR2AA1  DDE3AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).findFirst();
+                constraintSeries.getMRID().contains("FFR2AA1  DDE3AA1  1 - N - preventive") && constraintSeries.getBusinessType().equals(B88_BUSINESS_TYPE)).findFirst();
 
         if (constraintSeriesB54.isPresent() && constraintSeriesB57.isPresent() && constraintSeriesB88.isPresent() && constraintSeriesB88prev.isPresent()) {
             assertEquals(1, constraintSeriesB54.get().getContingencySeries().size());
@@ -288,5 +258,22 @@ public class CneGenerationTest {
         } else {
             fail();
         }
+    }
+
+    private void assertCorrectCnecOrder(List<ConstraintSeries> constraintSeries, List<String> sortedCnecIds) {
+        int index = 0;
+        for (String cnecId : sortedCnecIds) {
+            testCnecConstraintSeries(constraintSeries.get(index), cnecId, B88_BUSINESS_TYPE);
+            index++;
+            testCnecConstraintSeries(constraintSeries.get(index), cnecId, B57_BUSINESS_TYPE);
+            index++;
+            testCnecConstraintSeries(constraintSeries.get(index), cnecId, B54_BUSINESS_TYPE);
+            index++;
+        }
+    }
+
+    private void testCnecConstraintSeries(ConstraintSeries constraintSeries, String expectedCnecId, String expectedBusinessType) {
+        assertEquals(expectedCnecId, constraintSeries.getMonitoredSeries().get(0).getRegisteredResource().get(0).getMRID().getValue());
+        assertEquals(expectedBusinessType, constraintSeries.getBusinessType());
     }
 }
