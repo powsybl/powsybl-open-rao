@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class RedispatchingTest extends AbstractElementaryRangeActionTest {
+public class RedispatchingTest extends AbstractRangeActionTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Redispatching redispatching;
@@ -24,7 +24,7 @@ public class RedispatchingTest extends AbstractElementaryRangeActionTest {
     private double marginalCost = 2;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         generator = Mockito.mock(NetworkElement.class);
         redispatching = new Redispatching(
                 "rd_id",

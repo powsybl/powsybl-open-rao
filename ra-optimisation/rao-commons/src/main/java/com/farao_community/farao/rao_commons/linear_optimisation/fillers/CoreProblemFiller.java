@@ -16,15 +16,19 @@ import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
+import com.powsybl.iidm.network.Network;
+
+import java.util.*;
 
 import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD;
+import static java.lang.String.format;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CoreProblemFiller implements ProblemFiller {
-    private double pstSensitivityThreshold;
+    private final double pstSensitivityThreshold;
 
     public CoreProblemFiller(double pstSensitivityThreshold) {
         this.pstSensitivityThreshold = pstSensitivityThreshold;
@@ -39,8 +43,11 @@ public class CoreProblemFiller implements ProblemFiller {
     public void fill(RaoData raoData, LinearProblem linearProblem) {
         // add variables
         buildFlowVariables(raoData, linearProblem);
-        buildRangeActionSetPointVariables(raoData, linearProblem);
-        buildRangeActionAbsoluteVariationVariables(raoData, linearProblem);
+        raoData.getAvailableRangeActions().forEach(rangeAction -> {
+            buildRangeActionSetPointVariables(raoData.getNetwork(), rangeAction, linearProblem);
+            buildRangeActionAbsoluteVariationVariables(rangeAction, linearProblem);
+            buildRangeActionGroupConstraint(rangeAction, linearProblem);
+        });
 
         // add constraints
         buildFlowConstraints(raoData, linearProblem);
@@ -76,12 +83,10 @@ public class CoreProblemFiller implements ProblemFiller {
      * initialSetPoint[r] - maxNegativeVariation[r] <= S[r]
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
-    private void buildRangeActionSetPointVariables(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getAvailableRangeActions().forEach(rangeAction -> {
-            double minSetPoint = rangeAction.getMinValue(raoData.getNetwork());
-            double maxSetPoint = rangeAction.getMaxValue(raoData.getNetwork());
-            linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
-        });
+    private void buildRangeActionSetPointVariables(Network network, RangeAction rangeAction, LinearProblem linearProblem) {
+        double minSetPoint = rangeAction.getMinValue(network);
+        double maxSetPoint = rangeAction.getMaxValue(network);
+        linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
     }
 
     /**
@@ -92,10 +97,8 @@ public class CoreProblemFiller implements ProblemFiller {
      *     <li>in DEGREE for PST range actions</li>
      * </ul>
      */
-    private void buildRangeActionAbsoluteVariationVariables(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getAvailableRangeActions().forEach(rangeAction ->
-                linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction)
-        );
+    private void buildRangeActionAbsoluteVariationVariables(RangeAction rangeAction, LinearProblem linearProblem) {
+        linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction);
     }
 
     /**
@@ -113,7 +116,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
             if (flowVariable == null) {
-                throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnec.getId()));
+                throw new FaraoException(format("Flow variable on %s has not been defined yet.", cnec.getId()));
             }
 
             flowConstraint.setCoefficient(flowVariable, 1);
@@ -133,7 +136,7 @@ public class CoreProblemFiller implements ProblemFiller {
             double referenceFlow = raoData.getReferenceFlow(cnec);
             MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
             if (flowConstraint == null) {
-                throw new FaraoException(String.format("Flow constraint on %s has not been defined yet.", cnec.getId()));
+                throw new FaraoException(format("Flow constraint on %s has not been defined yet.", cnec.getId()));
             }
 
             //reset bounds
@@ -150,7 +153,7 @@ public class CoreProblemFiller implements ProblemFiller {
         MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
 
         if (flowVariable == null || flowConstraint == null) {
-            throw new FaraoException(String.format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
+            throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
         }
 
         raoData.getAvailableRangeActions().forEach(rangeAction -> {
@@ -165,7 +168,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private void addImpactOfPstOnCnec(RaoData raoData, LinearProblem linearProblem, RangeAction rangeAction, Cnec<?> cnec, MPConstraint flowConstraint) {
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
         if (setPointVariable == null) {
-            throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
+            throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
         }
 
         double sensitivity = raoData.getSensitivity(cnec, rangeAction);
@@ -205,5 +208,23 @@ public class CoreProblemFiller implements ProblemFiller {
             varConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
             varConstraintPositive.setCoefficient(setPointVariable, 1);
         });
+    }
+
+    private static void buildRangeActionGroupConstraint(RangeAction rangeAction, LinearProblem linearProblem) {
+        Optional<String> optGroupId = rangeAction.getGroupId();
+        if (optGroupId.isPresent()) {
+            String groupId = optGroupId.get();
+            // For the first time the group ID is encountered a common variable for set point has to be created
+            if (linearProblem.getRangeActionGroupSetPointVariable(groupId) == null) {
+                linearProblem.addRangeActionGroupSetPointVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId);
+            }
+            addRangeActionGroupConstraint(rangeAction, groupId, linearProblem);
+        }
+    }
+
+    private static void addRangeActionGroupConstraint(RangeAction rangeAction, String groupId, LinearProblem linearProblem) {
+        MPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetPointConstraint(0, 0, rangeAction);
+        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetPointVariable(rangeAction), 1);
+        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetPointVariable(groupId), -1);
     }
 }

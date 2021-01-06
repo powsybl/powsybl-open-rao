@@ -29,6 +29,10 @@ public final class NetworkImportsUtil {
         return Importers.loadNetwork("TestCase12Nodes_no_pst.uct", NetworkImportsUtil.class.getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
     }
 
+    public static Network import12NodesWith2PstsNetwork() {
+        return Importers.loadNetwork("utils/TestCase12Nodes_2_PSTS.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12Nodes_2_PSTS.uct"));
+    }
+
     public static Network import12NodesNetworkWithSwitch() {
         return Importers.loadNetwork("utils/TestCase12NodesWithSwitch.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12NodesWithSwitch.uct"));
     }

@@ -21,11 +21,13 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class RangeActionSerializer<E extends AbstractRangeAction> extends AbstractRemedialActionSerializer<RangeAction, E> {
+
     @Override
     public void serialize(E abstractRangeAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         super.serialize(abstractRangeAction, jsonGenerator, serializerProvider);
@@ -34,6 +36,10 @@ public class RangeActionSerializer<E extends AbstractRangeAction> extends Abstra
             jsonGenerator.writeObject(range);
         }
         jsonGenerator.writeEndArray();
+        Optional<String> groupId = abstractRangeAction.getGroupId();
+        if (groupId.isPresent()) {
+            jsonGenerator.writeStringField("groupId", groupId.get());
+        }
         JsonUtil.writeExtensions(abstractRangeAction, jsonGenerator, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
     }
 

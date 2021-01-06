@@ -26,6 +26,7 @@ public class LinearProblem {
 
     private static final String FLOW = "flow";
     private static final String SET_POINT = "setpoint";
+    private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
     private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
@@ -98,6 +99,30 @@ public class LinearProblem {
 
     public MPVariable getRangeActionSetPointVariable(RangeAction rangeAction) {
         return solver.lookupVariableOrNull(rangeActionSetPointVariableId(rangeAction));
+    }
+
+    private String rangeActionGroupSetPointVariableId(String rangeActionGroupId) {
+        return rangeActionGroupId + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public MPVariable addRangeActionGroupSetPointVariable(double lb, double ub, String rangeActionGroupId) {
+        return solver.makeNumVar(lb, ub, rangeActionGroupSetPointVariableId(rangeActionGroupId));
+    }
+
+    public MPVariable getRangeActionGroupSetPointVariable(String rangeActionGroupId) {
+        return solver.lookupVariableOrNull(rangeActionGroupSetPointVariableId(rangeActionGroupId));
+    }
+
+    public String rangeActionGroupSetPointConstraintId(RangeAction rangeAction) {
+        return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public MPConstraint addRangeActionGroupSetPointConstraint(double lb, double ub, RangeAction rangeAction) {
+        return solver.makeConstraint(lb, ub, rangeActionGroupSetPointConstraintId(rangeAction));
+    }
+
+    public MPConstraint getRangeActionGroupSetPointConstraint(RangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(rangeActionGroupSetPointConstraintId(rangeAction));
     }
 
     public String absoluteRangeActionVariationVariableId(RangeAction rangeAction) {

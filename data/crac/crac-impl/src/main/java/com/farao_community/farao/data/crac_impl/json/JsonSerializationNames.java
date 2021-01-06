@@ -22,6 +22,8 @@ public final class JsonSerializationNames {
     public static final String NETWORK_ELEMENT = "networkElement";
     public static final String NETWORK_ELEMENTS = "networkElements";
 
+    public static final String GROUP_ID = "groupId";
+
     public static final String CONTINGENCY = "contingency";
     public static final String CONTINGENCIES = "contingencies";
 

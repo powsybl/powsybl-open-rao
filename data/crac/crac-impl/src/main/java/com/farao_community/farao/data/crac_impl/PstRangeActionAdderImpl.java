@@ -33,6 +33,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     private Double maxValue;
     private NetworkElement networkElement;
     private String operator;
+    private String groupId = null;
     private List<UsageRule> usageRules = new ArrayList<>();
 
     public PstRangeActionAdderImpl(SimpleCrac parent) {
@@ -44,6 +45,12 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     @Override
     public PstRangeActionAdder setOperator(String operator) {
         this.operator = operator;
+        return this;
+    }
+
+    @Override
+    public PstRangeActionAdder setGroupId(String groupId) {
+        this.groupId = groupId;
         return this;
     }
 
@@ -108,7 +115,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
          */
         NetworkElement newNetworkElement = parent.addNetworkElement(networkElement.getId(), networkElement.getName());
 
-        PstWithRange pstWithRange = new PstWithRange(this.id, this.name, this.operator, this.usageRules, ranges, newNetworkElement);
+        PstWithRange pstWithRange = new PstWithRange(this.id, this.name, this.operator, this.usageRules, ranges, newNetworkElement, groupId);
         this.parent.addRangeAction(pstWithRange);
 
         return parent;

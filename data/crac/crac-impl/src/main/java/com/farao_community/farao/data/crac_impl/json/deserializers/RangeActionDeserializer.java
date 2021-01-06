@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AlignedRangeAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -65,6 +64,7 @@ final class RangeActionDeserializer {
         List<Range> ranges = new ArrayList<>();
         Set<String> networkElementsIds = new HashSet<>();
         List <Extension < RangeAction > > extensions = new ArrayList<>();
+        String groupId = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -99,6 +99,10 @@ final class RangeActionDeserializer {
                     });
                     break;
 
+                case GROUP_ID:
+                    groupId = jsonParser.nextTextValue();
+                    break;
+
                 case EXTENSIONS:
                     jsonParser.nextToken();
                     extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
@@ -114,10 +118,7 @@ final class RangeActionDeserializer {
         RangeAction rangeAction;
         switch (type) {
             case PST_WITH_RANGE_TYPE:
-                rangeAction = new PstWithRange(id, name, operator, usageRules, ranges, networkElements.iterator().next());
-                break;
-            case ALIGNED_RANGE_ACTIONS_TYPE:
-                rangeAction = new AlignedRangeAction(id, name, operator, usageRules, ranges, networkElements);
+                rangeAction = new PstWithRange(id, name, operator, usageRules, ranges, networkElements.iterator().next(), groupId);
                 break;
             default:
                 throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));

@@ -27,7 +27,7 @@ import static org.mockito.Mockito.spy;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstWithRangeTest extends AbstractElementaryRangeActionTest {
+public class PstWithRangeTest extends AbstractRangeActionTest {
     private String networkElementId;
     private PstWithRange pst;
     private Network network;
