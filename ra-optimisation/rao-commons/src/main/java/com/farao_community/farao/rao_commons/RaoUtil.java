@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_util.CracCleaner;
@@ -170,7 +169,7 @@ public final class RaoUtil {
         }
     }
 
-    public static List<Optional<Country>> getCnecLocation(Cnec cnec, Network network) {
+    public static List<Optional<Country>> getCnecLocation(BranchCnec cnec, Network network) {
         return getNetworkElementLocation(cnec.getNetworkElement(), network);
     }
 
@@ -185,7 +184,7 @@ public final class RaoUtil {
         } else if (ne instanceof Switch) {
             return Arrays.asList(((Switch) ne).getVoltageLevel().getSubstation().getCountry());
         } else {
-            throw new NotImplementedException("Don't know how to fgure out the location of " + ne.getId() + " of type " + ne.getClass());
+            throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
         }
     }
 
@@ -198,9 +197,9 @@ public final class RaoUtil {
         return result;
     }
 
-    public static Cnec getMostLimitingElement(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
-        List<Cnec> sortedCnecs = cnecs.stream().
-                filter(Cnec::isOptimized).
+    public static BranchCnec getMostLimitingElement(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
+        List<BranchCnec> sortedCnecs = cnecs.stream().
+                filter(BranchCnec::isOptimized).
                 sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
                 collect(Collectors.toList());
         return sortedCnecs.get(0);
