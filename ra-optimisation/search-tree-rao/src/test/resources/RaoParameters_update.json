@@ -21,7 +21,6 @@
       "security-analysis-without-rao": false
     },
     "SearchTreeRaoParameters": {
-      "stop-criterion": "MAXIMUM_MARGIN",
       "absolute-network-action-minimum-impact-threshold": 1,
       "skip-network-actions-far-from-most-limiting-element" : true,
       "preventive-rao-stop-criterion": "MIN_OBJECTIVE"

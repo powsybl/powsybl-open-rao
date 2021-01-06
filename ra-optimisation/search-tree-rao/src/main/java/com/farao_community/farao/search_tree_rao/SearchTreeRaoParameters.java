@@ -122,6 +122,8 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         } else {
             this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
         }
+    }
+
     public CurativeRaoStopCriterion getCurativeRaoStopCriterion() {
         return curativeRaoStopCriterion;
     }
