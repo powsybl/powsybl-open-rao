@@ -79,6 +79,7 @@ public class MnecFillerTest extends AbstractFillerTest {
         // fill the problem : the core filler is required
         mnecFiller = new MnecFiller(unit, 50, 10, 3.5);
         initRaoData(crac.getPreventiveState());
+        raoData.getCrac().getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
         coreProblemFiller.fill(raoData, linearProblem);
         mnecFiller.fill(raoData, linearProblem);
     }
