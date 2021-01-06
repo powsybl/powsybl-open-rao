@@ -53,6 +53,7 @@ public class CracVariantManager {
             variantIds.add(cracVariantId);
             systematicSensitivityResultMap.put(cracVariantId, null);
             setWorkingVariant(cracVariantId);
+            resultVariantManager.setPreOptimVariantId(cracVariantId);
         } else { // Case no base CRAC variant is defined so a new CRAC variant must be created
             String variantId;
             if (resultVariantManager == null) {
@@ -60,6 +61,7 @@ public class CracVariantManager {
                 crac.addExtension(ResultVariantManager.class, resultVariantManager);
                 variantId = createVariantFromWorkingVariant(VariantType.INITIAL);
                 resultVariantManager.setInitialVariantId(variantId);
+                resultVariantManager.setPreOptimVariantId(variantId);
             } else {
                 variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
             }
