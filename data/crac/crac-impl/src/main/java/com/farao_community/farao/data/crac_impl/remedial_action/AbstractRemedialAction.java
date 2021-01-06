@@ -10,12 +10,6 @@ package com.farao_community.farao.data.crac_impl.remedial_action;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.*;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
@@ -28,28 +22,11 @@ import java.util.stream.Collectors;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = PstSetpoint.class, name = "pst-setpoint"),
-        @JsonSubTypes.Type(value = HvdcSetpoint.class, name = "hvdc-setpoint"),
-        @JsonSubTypes.Type(value = InjectionSetpoint.class, name = "injection-setpoint"),
-        @JsonSubTypes.Type(value = Topology.class, name = "topology"),
-        @JsonSubTypes.Type(value = ComplexNetworkAction.class, name = "complex-network-action"),
-        @JsonSubTypes.Type(value = PstWithRange.class, name = "pst-with-range"),
-        @JsonSubTypes.Type(value = HvdcRange.class, name = "hvdc-range"),
-        @JsonSubTypes.Type(value = InjectionRange.class, name = "injection-range"),
-        @JsonSubTypes.Type(value = Redispatching.class, name = "redispatching"),
-        @JsonSubTypes.Type(value = Countertrading.class, name = "countertrading")
-    })
 public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extends AbstractIdentifiable<I> implements RemedialAction<I> {
     protected String operator;
     protected List<UsageRule> usageRules;
 
-    @JsonCreator
-    public AbstractRemedialAction(@JsonProperty("id") String id,
-                                  @JsonProperty("name") String name,
-                                  @JsonProperty("operator") String operator,
-                                  List<UsageRule> usageRules) {
+    public AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules) {
         super(id, name);
         this.operator = operator;
         this.usageRules = new ArrayList<>(usageRules);

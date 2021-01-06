@@ -113,16 +113,16 @@ public class LinearProblem {
         return solver.lookupVariableOrNull(rangeActionGroupSetPointVariableId(rangeActionGroupId));
     }
 
-    public String absoluteRangeActionGroupSetPointConstraintId(RangeAction rangeAction) {
+    public String rangeActionGroupSetPointConstraintId(RangeAction rangeAction) {
         return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public MPConstraint addRangeActionGroupSetPointConstraint(double lb, double ub, RangeAction rangeAction) {
-        return solver.makeConstraint(lb, ub, absoluteRangeActionGroupSetPointConstraintId(rangeAction));
+        return solver.makeConstraint(lb, ub, rangeActionGroupSetPointConstraintId(rangeAction));
     }
 
     public MPConstraint getRangeActionGroupSetPointConstraint(RangeAction rangeAction) {
-        return solver.lookupConstraintOrNull(absoluteRangeActionGroupSetPointConstraintId(rangeAction));
+        return solver.lookupConstraintOrNull(rangeActionGroupSetPointConstraintId(rangeAction));
     }
 
     public String absoluteRangeActionVariationVariableId(RangeAction rangeAction) {

@@ -12,5 +12,5 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstWithRangeSerializer extends ElementaryRangeActionSerializer<PstWithRange> {
+public class PstWithRangeSerializer extends RangeActionSerializer<PstWithRange> {
 }

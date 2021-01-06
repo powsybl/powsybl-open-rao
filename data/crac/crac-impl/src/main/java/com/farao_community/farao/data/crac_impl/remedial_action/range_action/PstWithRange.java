@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-with-range")
-public final class PstWithRange extends AbstractElementaryRangeAction implements PstRange {
+public final class PstWithRange extends AbstractRangeAction implements PstRange {
     private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
     private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;
@@ -51,6 +51,7 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
 
     public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges, NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
+        initAttributes();
     }
 
     public PstWithRange(String id, String name, String operator, NetworkElement networkElement) {
