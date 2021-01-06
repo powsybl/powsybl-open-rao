@@ -34,29 +34,33 @@ public final class CracResultUtil {
         crac.getNetworkActions().forEach(na -> {
             NetworkActionResultExtension resultExtension = na.getExtension(NetworkActionResultExtension.class);
             if (resultExtension == null) {
-                LOGGER.error(String.format("Could not find results on network action %s", na.getId()));
-                return;
-            }
-            NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
-            if (networkActionResult != null) {
-                if (networkActionResult.isActivated(preventiveStateId)) {
-                    na.apply(network);
-                }
+                LOGGER.error("Could not find results on network action {}", na.getId());
             } else {
-                LOGGER.error(String.format("Could not find results for variant %s on network action %s", cracVariantId, na.getId()));
+                NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
+                if (networkActionResult != null) {
+                    if (networkActionResult.isActivated(preventiveStateId)) {
+                        LOGGER.debug("Applying network action {}", na.getName());
+                        na.apply(network);
+                    }
+                } else {
+                    LOGGER.error("Could not find results for variant {} on network action {}", cracVariantId, na.getId());
+                }
             }
         });
         crac.getRangeActions().forEach(ra -> {
             RangeActionResultExtension resultExtension = ra.getExtension(RangeActionResultExtension.class);
             if (resultExtension == null) {
-                LOGGER.error(String.format("Could not find results on range action %s", ra.getId()));
-                return;
-            }
-            RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
-            if (rangeActionResult != null) {
-                ra.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
+                LOGGER.error("Could not find results on range action {}", ra.getId());
             } else {
-                LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, ra.getId()));
+                RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
+                if (rangeActionResult != null) {
+                    if (!Double.isNaN(rangeActionResult.getSetPoint(preventiveStateId))) {
+                        LOGGER.debug("Applying range action {}: tap {}", ra.getName(), ((PstRangeResult) rangeActionResult).getTap(preventiveStateId));
+                    }
+                    ra.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
+                } else {
+                    LOGGER.error("Could not find results for variant {} on range action {}", cracVariantId, ra.getId());
+                }
             }
         });
     }
