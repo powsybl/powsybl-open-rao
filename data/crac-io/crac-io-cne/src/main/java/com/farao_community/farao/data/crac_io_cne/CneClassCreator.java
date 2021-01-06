@@ -90,9 +90,7 @@ public final class CneClassCreator {
     public static ConstraintSeries newConstraintSeries(String id, String businessType, Set<Country> countries, String optimStatus) {
         ConstraintSeries constraintSeries = newConstraintSeries(id, businessType, optimStatus);
         if (!countries.isEmpty()) {
-            List<Country> sortedCountries = new ArrayList<>(countries);
-            sortedCountries.sort(Comparator.comparing((Country c) -> new EICode(c).getCode()));
-            sortedCountries.forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
+            countries.stream().sorted(Comparator.comparing((Country c) -> new EICode(c).getCode())).forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
         }
 
         return constraintSeries;
