@@ -6,14 +6,12 @@
  */
 package com.farao_community.farao.data.refprog.reference_program;
 
-import com.powsybl.iidm.network.Country;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class ReferenceExchangeData {
-    private Country areaOut;
-    private Country areaIn;
+    private ReferenceProgramArea areaOut;
+    private ReferenceProgramArea areaIn;
     private double flow;
 
     /**
@@ -21,17 +19,17 @@ public class ReferenceExchangeData {
      * @param areaIn destination country
      * @param flow flow exchanged from origin country to destination country in MW
      */
-    public ReferenceExchangeData(Country areaOut, Country areaIn, double flow) {
+    public ReferenceExchangeData(ReferenceProgramArea areaOut, ReferenceProgramArea areaIn, double flow) {
         this.areaOut = areaOut;
         this.areaIn = areaIn;
         this.flow = flow;
     }
 
-    public Country getAreaOut() {
+    public ReferenceProgramArea getAreaOut() {
         return areaOut;
     }
 
-    public Country getAreaIn() {
+    public ReferenceProgramArea getAreaIn() {
         return areaIn;
     }
 
@@ -39,11 +37,11 @@ public class ReferenceExchangeData {
         return flow;
     }
 
-    public void setAreaOut(Country areaOut) {
+    public void setAreaOut(ReferenceProgramArea areaOut) {
         this.areaOut = areaOut;
     }
 
-    public void setAreaIn(Country areaIn) {
+    public void setAreaIn(ReferenceProgramArea areaIn) {
         this.areaIn = areaIn;
     }
 
@@ -51,7 +49,11 @@ public class ReferenceExchangeData {
         this.flow = flow;
     }
 
-    boolean isAreaOutToAreaInExchange(Country areaOutId, Country areaInId) {
-        return this.areaIn != null && this.areaOut != null && this.areaIn.equals(areaInId) && this.areaOut.equals(areaOutId);
+    boolean isAreaOutToAreaInExchange(ReferenceProgramArea areaOut, ReferenceProgramArea areaIn) {
+        return this.areaIn != null && this.areaOut != null && this.areaIn.equals(areaIn) && this.areaOut.equals(areaOut);
+    }
+
+    public boolean involvesVirtualHub() {
+        return (areaIn != null && areaIn.isVirtualHub()) || (areaOut != null && areaOut.isVirtualHub());
     }
 }

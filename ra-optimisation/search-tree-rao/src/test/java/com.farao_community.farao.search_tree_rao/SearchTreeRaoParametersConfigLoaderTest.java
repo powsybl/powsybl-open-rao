@@ -15,8 +15,7 @@ import org.mockito.Mockito;
 
 import java.util.Optional;
 
-import static com.farao_community.farao.search_tree_rao.SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 
 /**
@@ -38,24 +37,28 @@ public class SearchTreeRaoParametersConfigLoaderTest {
     @Test
     public void testLoad() {
         ModuleConfig searchTreeRaoParametersModule = Mockito.mock(ModuleConfig.class);
-        Mockito.when(searchTreeRaoParametersModule.getEnumProperty(eq("stop-criterion"), eq(SearchTreeRaoParameters.StopCriterion.class), any())).thenReturn(MAXIMUM_MARGIN);
+        Mockito.when(searchTreeRaoParametersModule.getEnumProperty(eq("preventive-rao-stop-criterion"), eq(SearchTreeRaoParameters.PreventiveRaoStopCriterion.class), any())).thenReturn(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE);
         Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("maximum-search-depth"), anyInt())).thenReturn(2);
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("relative-network-action-minimum-impact-threshold"), anyDouble())).thenReturn(0.1);
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("absolute-network-action-minimum-impact-threshold"), anyDouble())).thenReturn(20.0);
         Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("leaves-in-parallel"), anyInt())).thenReturn(4);
         Mockito.when(searchTreeRaoParametersModule.getBooleanProperty(eq("skip-network-actions-far-from-most-limiting-element"), anyBoolean())).thenReturn(true);
         Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("max-number-of-boundaries-for-skipping-network-actions"), anyInt())).thenReturn(1);
+        Mockito.when(searchTreeRaoParametersModule.getEnumProperty(eq("curative-rao-stop-criterion"), eq(SearchTreeRaoParameters.CurativeRaoStopCriterion.class), any())).thenReturn(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
+        Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("curative-rao-min-obj-improvement"), anyDouble())).thenReturn(456.0);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("search-tree-rao-parameters")).thenReturn(Optional.of(searchTreeRaoParametersModule));
 
         SearchTreeRaoParameters parameters = configLoader.load(platformConfig);
-        assertEquals(MAXIMUM_MARGIN, parameters.getStopCriterion());
+        assertEquals(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE, parameters.getPreventiveRaoStopCriterion());
         assertEquals(2, parameters.getMaximumSearchDepth());
         assertEquals(0.1, parameters.getRelativeNetworkActionMinimumImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(20.0, parameters.getAbsoluteNetworkActionMinimumImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(4, parameters.getLeavesInParallel());
         assertTrue(parameters.getSkipNetworkActionsFarFromMostLimitingElement());
         assertEquals(1, parameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
+        assertEquals(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE, parameters.getCurativeRaoStopCriterion());
+        assertEquals(456.0, parameters.getCurativeRaoMinObjImprovement(), DOUBLE_TOLERANCE);
     }
 
     @Test
