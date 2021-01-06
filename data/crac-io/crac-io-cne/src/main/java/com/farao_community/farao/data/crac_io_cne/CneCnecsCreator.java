@@ -8,9 +8,9 @@
 package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.powsybl.iidm.network.Branch;
@@ -50,9 +50,10 @@ public final class CneCnecsCreator {
         Set<Country> countries = createCountries(network, cnec.getNetworkElement().getId());
 
         /* Create Constraint series */
-        ConstraintSeries constraintSeriesB54 = newConstraintSeries(cnec.getId(), B54_BUSINESS_TYPE, countries, OPTIMIZED_MARKET_STATUS);
-        ConstraintSeries constraintSeriesB57 = newConstraintSeries(cnec.getId(), B57_BUSINESS_TYPE, countries, OPTIMIZED_MARKET_STATUS);
-        ConstraintSeries constraintSeriesB88 = newConstraintSeries(cnec.getId(), B88_BUSINESS_TYPE, countries, OPTIMIZED_MARKET_STATUS);
+        String marketStatus = (cnec.isOptimized() || !cnec.isMonitored()) ? OPTIMIZED_MARKET_STATUS : MONITORED_MARKET_STATUS; // TO DO : separate CNECs from MNECs
+        ConstraintSeries constraintSeriesB54 = newConstraintSeries(cnec.getId(), B54_BUSINESS_TYPE, countries, marketStatus);
+        ConstraintSeries constraintSeriesB57 = newConstraintSeries(cnec.getId(), B57_BUSINESS_TYPE, countries, marketStatus);
+        ConstraintSeries constraintSeriesB88 = newConstraintSeries(cnec.getId(), B88_BUSINESS_TYPE, countries, marketStatus);
 
         /* Add contingency if exists */
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
@@ -87,10 +88,26 @@ public final class CneCnecsCreator {
             LOGGER.warn(warningMsg);
         }
 
+        // Sort the measurements
+        Collections.sort(measurementsB88, new AnalogComparator());
+        Collections.sort(measurementsB57, new AnalogComparator());
+        Collections.sort(measurementsB54, new AnalogComparator());
+
         /* Add constraint series to the list */
-        constraintSeriesList.add(constraintSeriesB54);
-        constraintSeriesList.add(constraintSeriesB57);
         constraintSeriesList.add(constraintSeriesB88);
+        constraintSeriesList.add(constraintSeriesB57);
+        constraintSeriesList.add(constraintSeriesB54);
+    }
+
+    private static class AnalogComparator implements Comparator<Analog> {
+        @Override
+        public int compare(Analog o1, Analog o2) {
+            if (o1.getMeasurementType().equals(o2.getMeasurementType())) {
+                return o1.getUnitSymbol().compareTo(o2.getUnitSymbol());
+            } else {
+                return o1.getMeasurementType().compareTo(o2.getMeasurementType());
+            }
+        }
     }
 
     private static Set<Country> createCountries(Network network, String networkElementId) {

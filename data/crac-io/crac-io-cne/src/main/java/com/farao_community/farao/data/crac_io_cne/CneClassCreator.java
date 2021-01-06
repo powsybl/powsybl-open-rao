@@ -16,10 +16,7 @@ import org.joda.time.DateTime;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
@@ -93,7 +90,9 @@ public final class CneClassCreator {
     public static ConstraintSeries newConstraintSeries(String id, String businessType, Set<Country> countries, String optimStatus) {
         ConstraintSeries constraintSeries = newConstraintSeries(id, businessType, optimStatus);
         if (!countries.isEmpty()) {
-            countries.forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
+            List<Country> sortedCountries = new ArrayList<>(countries);
+            sortedCountries.sort(Comparator.comparing((Country c) -> new EICode(c).getCode()));
+            sortedCountries.forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
         }
 
         return constraintSeries;

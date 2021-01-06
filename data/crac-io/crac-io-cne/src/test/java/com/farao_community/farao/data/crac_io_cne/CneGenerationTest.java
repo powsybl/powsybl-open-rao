@@ -82,63 +82,75 @@ public class CneGenerationTest {
             assertEquals("FFR1AA1 ", monitoredRegisteredResource.getInAggregateNodeMRID().getValue());
             assertEquals("FFR2AA1 ", monitoredRegisteredResource.getOutAggregateNodeMRID().getValue());
 
+            // Test measurements with correct order
             List<Analog> measurements = monitoredRegisteredResource.getMeasurements();
-            // Measurement A01
-            Optional<Analog> measurementA01 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(FLOW_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(AMP_UNIT_SYMBOL)).findFirst();
-            if (measurementA01.isPresent()) {
-                assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementA01.get().getPositiveFlowIn());
-                assertEquals(16540, measurementA01.get().getAnalogValuesValue(), 0);
-            } else {
-                fail();
-            }
-            // Measurement A02
-            Optional<Analog> measurementA02 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(AMP_UNIT_SYMBOL)).findFirst();
-            if (measurementA02.isPresent()) {
-                assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementA02.get().getPositiveFlowIn());
-                assertEquals(3325, measurementA02.get().getAnalogValuesValue(), 0);
-            } else {
-                fail();
-            }
-            // Measurement A03
-            Optional<Analog> measurementA03 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(OBJ_FUNC_PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
-            if (measurementA03.isPresent()) {
-                assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementA03.get().getPositiveFlowIn());
-                assertEquals(550, measurementA03.get().getAnalogValuesValue(), 0);
-            } else {
-                fail();
-            }
-            // Measurement Z12
-            Optional<Analog> measurementZ12 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(ABS_MARG_PATL_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(AMP_UNIT_SYMBOL)).findFirst();
-            if (measurementZ12.isPresent()) {
-                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ12.get().getPositiveFlowIn());
-                assertEquals(13215, measurementZ12.get().getAnalogValuesValue(), 0);
-            } else {
-                fail();
-            }
-            // Measurement Z13
-            Optional<Analog> measurementZ13 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(FRM_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
-            if (measurementZ13.isPresent()) {
-                assertEquals(DIRECT_POSITIVE_FLOW_IN, measurementZ13.get().getPositiveFlowIn());
-                assertEquals(0, measurementZ13.get().getAnalogValuesValue(), 0);
-            } else {
-                fail();
-            }
-            // Measurement Z16
-            Optional<Analog> measurementZ16 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(LOOPFLOW_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
-            if (measurementZ16.isPresent()) {
-                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ16.get().getPositiveFlowIn());
-                assertEquals(13, measurementZ16.get().getAnalogValuesValue(), 0);
-            } else {
-                fail();
-            }
-            // Measurement Z17
-            Optional<Analog> measurementZ17 = measurements.stream().filter(measurement -> measurement.getMeasurementType().equals(MAX_LOOPFLOW_MEASUREMENT_TYPE) && measurement.getUnitSymbol().equals(MAW_UNIT_SYMBOL)).findFirst();
-            if (measurementZ17.isPresent()) {
-                assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurementZ17.get().getPositiveFlowIn());
-                assertEquals(19, measurementZ17.get().getAnalogValuesValue(), 0);
-            } else {
-                fail();
-            }
+            int iMeasure = 0;
+            // Measurement A01 - AMP
+            assertEquals(FLOW_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(AMP_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(16540, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement A01 - MAW
+            iMeasure++;
+            assertEquals(FLOW_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(MAW_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(2853, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement A02 - AMP
+            iMeasure++;
+            assertEquals(PATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(AMP_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(3325, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement A02 - MAW
+            iMeasure++;
+            assertEquals(PATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(MAW_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(2304, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement A03 - MAW
+            iMeasure++;
+            assertEquals(FRM_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(MAW_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(0, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement Z12 - AMP
+            iMeasure++;
+            assertEquals(ABS_MARG_PATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(AMP_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(13215, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement Z12 - MAW
+            iMeasure++;
+            assertEquals(ABS_MARG_PATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(MAW_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(550, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement Z13 - AMP
+            iMeasure++;
+            assertEquals(OBJ_FUNC_PATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(AMP_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(13215, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement Z13 - MAW
+            iMeasure++;
+            assertEquals(OBJ_FUNC_PATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(MAW_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(550, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement Z16 - MAW
+            iMeasure++;
+            assertEquals(LOOPFLOW_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(MAW_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(13, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+            // Measurement Z17 - MAW
+            iMeasure++;
+            assertEquals(MAX_LOOPFLOW_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+            assertEquals(MAW_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+            assertEquals(OPPOSITE_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(19, measurements.get(iMeasure).getAnalogValuesValue(), 0);
+
             // Remedial action
             Optional<RemedialActionSeries> remedialActionSeriesPST = constraintSeriesB54.get().getRemedialActionSeries().stream().filter(remedialActionSeries -> remedialActionSeries.getMRID().contains("SelectTapPST43@-16@")).findFirst();
             if (remedialActionSeriesPST.isPresent()) {
@@ -160,6 +172,16 @@ public class CneGenerationTest {
         }
     }
 
+    private void testCnecConstraintSeries(ConstraintSeries constraintSeries, String expectedCnecId, String expectedBusinessType) {
+        assertEquals(expectedCnecId, constraintSeries.getMonitoredSeries().get(0).getRegisteredResource().get(0).getMRID().getValue());
+        assertEquals(expectedBusinessType, constraintSeries.getBusinessType());
+    }
+
+    private void testRemedialActionConstraintSeries(ConstraintSeries constraintSeries, String expectedRemedialActionId) {
+        assertEquals(expectedRemedialActionId, constraintSeries.getRemedialActionSeries().get(0).getName());
+        assertEquals(B56_BUSINESS_TYPE, constraintSeries.getBusinessType());
+    }
+
     @Test
     public void testExport2() {
 
@@ -173,6 +195,34 @@ public class CneGenerationTest {
         Point point = marketDocument.getTimeSeries().get(0).getPeriod().get(0).getPoint().get(0);
 
         assertEquals(20, point.getConstraintSeries().size());
+
+        // Test order of Constraint_Series
+        testCnecConstraintSeries(point.getConstraintSeries().get(0), "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3", B88_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(1), "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3", B57_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(2), "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3", B54_BUSINESS_TYPE);
+
+        testCnecConstraintSeries(point.getConstraintSeries().get(3), "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3", B88_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(4), "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3", B57_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(5), "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3", B54_BUSINESS_TYPE);
+
+        testCnecConstraintSeries(point.getConstraintSeries().get(6), "DDE1AA1  DDE2AA1  1 - N - preventive", B88_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(7), "DDE1AA1  DDE2AA1  1 - N - preventive", B57_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(8), "DDE1AA1  DDE2AA1  1 - N - preventive", B54_BUSINESS_TYPE);
+
+        testCnecConstraintSeries(point.getConstraintSeries().get(9), "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3", B88_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(10), "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3", B57_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(11), "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3", B54_BUSINESS_TYPE);
+        // test countries order
+        assertEquals("10YCB-GERMANY--8", point.getConstraintSeries().get(11).getPartyMarketParticipant().get(0).getMRID().getValue());
+        assertEquals("10YFR-RTE------C", point.getConstraintSeries().get(11).getPartyMarketParticipant().get(1).getMRID().getValue());
+
+        testCnecConstraintSeries(point.getConstraintSeries().get(12), "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3", B88_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(13), "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3", B57_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(14), "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3", B54_BUSINESS_TYPE);
+
+        testCnecConstraintSeries(point.getConstraintSeries().get(15), "FFR2AA1  DDE3AA1  1 - N - preventive", B88_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(16), "FFR2AA1  DDE3AA1  1 - N - preventive", B57_BUSINESS_TYPE);
+        testCnecConstraintSeries(point.getConstraintSeries().get(17), "FFR2AA1  DDE3AA1  1 - N - preventive", B54_BUSINESS_TYPE);
 
         List<ConstraintSeries> constraintSeriesList1 = point.getConstraintSeries().stream().filter(constraintSeries ->
             constraintSeries.getMRID().contains("FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3")).collect(Collectors.toList());
