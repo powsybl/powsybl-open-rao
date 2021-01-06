@@ -10,11 +10,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.json.serializers.network_action.TopologySerializer;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -29,18 +25,12 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("topology")
-@JsonSerialize(using = TopologySerializer.class)
 public final class Topology extends AbstractElementaryNetworkAction {
 
     private ActionType actionType;
 
-    @JsonCreator
-    public Topology(@JsonProperty("id") String id,
-                    @JsonProperty("name") String name,
-                    @JsonProperty("operator") String operator,
-                    @JsonProperty("usageRules") List<UsageRule> usageRules,
-                    @JsonProperty("networkElement") NetworkElement networkElement,
-                    @JsonProperty("actionType") ActionType actionType) {
+    public Topology(String id, String name, String operator, List<UsageRule> usageRules, NetworkElement networkElement,
+                    ActionType actionType) {
         super(id, name, operator, usageRules, networkElement);
         this.actionType = actionType;
     }
