@@ -34,6 +34,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
     private Set<String> variants;
     private String initialVariantId;
+    private String preOptimVariantId;
 
     /**
      * Default constructor
@@ -71,6 +72,14 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             throw new FaraoException("Impossible to set initial variant twice.");
         }
         this.initialVariantId = initialVariantId;
+    }
+
+    public String getPreOptimVariantId() {
+        return preOptimVariantId;
+    }
+
+    public void setPreOptimVariantId(String preOptimVariantId) {
+        this.preOptimVariantId = preOptimVariantId;
     }
 
     /**

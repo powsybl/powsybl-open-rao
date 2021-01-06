@@ -193,7 +193,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildRangeActionConstraints(RaoData raoData, LinearProblem linearProblem) {
-        String preOptimVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
+        String preOptimVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
         raoData.getAvailableRangeActions().forEach(rangeAction -> {
             double initialSetPoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId).getSetPoint(raoData.getOptimizedState().getId());
             MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
