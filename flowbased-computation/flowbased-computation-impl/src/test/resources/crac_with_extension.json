@@ -184,49 +184,7 @@
       "state": "none-N"
     }
   ],
-  "rangeActions" : [ {
-    "type" : "pst-with-range",
-    "id" : "SelectTapPST43",
-    "name" : "SelectTapPST43",
-    "operator" : "FR",
-    "usageRules" : [ {
-      "type" : "free-to-use",
-      "usageMethod" : "AVAILABLE",
-      "instant" : "N"
-    } ],
-    "networkElements" : [ "BE-NL" ],
-    "ranges" : [ {
-      "min" : 1.0,
-      "max" : 33.0,
-      "rangeType" : "ABSOLUTE_FIXED",
-      "rangeDefinition" : "STARTS_AT_ONE"
-    } ],
-    "extensions" : {
-      "RangeActionResultExtension" : {
-        "resultsPerVariant" : {
-          "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
-            "type" : "pst-range-result",
-            "tapPerStates" : {
-              "none-N" : -16
-            },
-            "setPointPerStates" : {
-              "none-N" : -6.22764253616333
-            }
-          },
-          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
-            "type" : "pst-range-result",
-            "tapPerStates" : {
-              "none-N" : 7
-            },
-            "setPointPerStates" : {
-              "none-N" : 2.3
-            }
-          }
-        }
-      }
-    }
-  } ],
-
+  "rangeActions" : [],
   "networkActions" : [ {
     "type" : "complex-network-action",
     "id" : "Close line FR-BE",
