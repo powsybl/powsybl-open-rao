@@ -12,12 +12,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
-import com.farao_community.farao.data.crac_impl.json.serializers.range_action.RangeActionSerializer;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
@@ -32,8 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-with-range")
-@JsonSerialize(using = RangeActionSerializer.class)
-public final class PstWithRange extends AbstractElementaryRangeAction implements PstRange {
+public final class PstWithRange extends AbstractRangeAction implements PstRange {
     private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
     private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;
@@ -48,13 +43,13 @@ public final class PstWithRange extends AbstractElementaryRangeAction implements
      *
      * @param networkElement: PST element to modify
      */
-    @JsonCreator
-    public PstWithRange(@JsonProperty("id") String id,
-                        @JsonProperty("name") String name,
-                        @JsonProperty("operator") String operator,
-                        @JsonProperty("usageRules") List<UsageRule> usageRules,
-                        @JsonProperty("ranges") List<Range> ranges,
-                        @JsonProperty("networkElement") NetworkElement networkElement) {
+    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges,
+                        NetworkElement networkElement, String groupId) {
+        super(id, name, operator, usageRules, ranges, networkElement, groupId);
+        initAttributes();
+    }
+
+    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges, NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
         initAttributes();
     }
