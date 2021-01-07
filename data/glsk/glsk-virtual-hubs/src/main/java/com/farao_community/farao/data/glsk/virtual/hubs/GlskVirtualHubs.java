@@ -15,6 +15,7 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
@@ -78,14 +79,17 @@ public final class GlskVirtualHubs {
     }
 
     private static List<Injection<?>> findInjectionsWithVirtualHubs(Network network) {
-        List<Injection<?>> danglingLinesWithVirtualHubs = network.getDanglingLineStream()
+        List<Injection<?>> injectionsWithVirtualHubs = network.getDanglingLineStream()
             .filter(danglingLine -> danglingLine.getExtension(AssignedVirtualHub.class) != null)
             .collect(Collectors.toList());
-        List<Injection<?>> generatorsWithVirtualHubs = network.getGeneratorStream()
+        injectionsWithVirtualHubs.addAll(network.getGeneratorStream()
             .filter(generator -> generator.getExtension(AssignedVirtualHub.class) != null)
-            .collect(Collectors.toList());
-        danglingLinesWithVirtualHubs.addAll(generatorsWithVirtualHubs);
-        return danglingLinesWithVirtualHubs;
+            .collect(Collectors.toList()));
+        injectionsWithVirtualHubs.addAll(network.getLoadStream()
+            .filter(generator -> generator.getExtension(AssignedVirtualHub.class) != null)
+            .collect(Collectors.toList()));
+
+        return injectionsWithVirtualHubs;
     }
 
     private static Optional<Injection<?>> identifyVirtualHub(String eiCode, List<Injection<?>> injectionsWithVirtualHubs) {
@@ -111,9 +115,13 @@ public final class GlskVirtualHubs {
     }
 
     private static String getGlskId(Injection<?> virtualHub) {
-        String generatorId;
-        if (virtualHub instanceof Generator) {
-            generatorId = virtualHub.getId();
+
+        if (virtualHub instanceof Load) {
+            LOGGER.debug("Load {} found for virtual hub {}", virtualHub.getId(), virtualHub.getId());
+            return virtualHub.getId();
+        } else if (virtualHub instanceof Generator) {
+            LOGGER.debug("Generator {} found for virtual hub {}", virtualHub.getId(), virtualHub.getId());
+            return virtualHub.getId();
         } else {
             Optional<Generator> generator = virtualHub.getTerminal().getVoltageLevel().getGeneratorStream().findFirst();
             if (generator.isEmpty()) {
@@ -121,9 +129,8 @@ public final class GlskVirtualHubs {
                 LOGGER.warn(message);
                 throw new FaraoException(message);
             }
-            generatorId = generator.get().getId();
+            LOGGER.debug("Generator {} found for virtual hub {}", generator.get().getId(), virtualHub.getId());
+            return generator.get().getId();
         }
-        LOGGER.debug("Generator {} found for virtual hub {}", generatorId, virtualHub.getId());
-        return generatorId;
     }
 }
