@@ -64,6 +64,9 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
+        // Restore initial variant at the end of the computation
+        network.getVariantManager().setWorkingVariant(initialNetworkId);
+
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
