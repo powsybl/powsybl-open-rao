@@ -95,6 +95,10 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
         return Optional.ofNullable(groupId);
     }
 
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
     public final List<Range> getRanges() {
         return ranges;
     }
