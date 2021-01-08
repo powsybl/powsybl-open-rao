@@ -243,7 +243,7 @@ class Leaf {
     /**
      * Says if a network action is close to a given set of countries, respecting the maximum number of boundaries
      */
-    protected boolean isNetworkActionCloseToLocations(NetworkAction networkAction, List<Optional<Country>> locations) {
+    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, List<Optional<Country>> locations) {
         if (locations.stream().anyMatch(country -> country.equals(Optional.empty()))) {
             return true;
         }
