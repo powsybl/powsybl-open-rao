@@ -64,26 +64,14 @@ public class FlowbasedComputationImplTest {
     @Test
     public void testRunPraWithForced() {
         crac = ExampleGenerator.crac("crac_with_forced.json");
-        network.getBranch("FR-BE").getTerminal1().disconnect();
-        network.getBranch("FR-BE").getTerminal2().disconnect();
-        assertFalse(network.getBranch("FR-BE").getTerminal1().isConnected());
-        assertFalse(network.getBranch("FR-BE").getTerminal2().isConnected());
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
-        assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
-        assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
         checkAssertions(result);
     }
 
     @Test
     public void testRunPraWithExtension() {
         crac = ExampleGenerator.crac("crac_with_extension.json");
-        network.getBranch("FR-BE").getTerminal1().disconnect();
-        network.getBranch("FR-BE").getTerminal2().disconnect();
-        assertFalse(network.getBranch("FR-BE").getTerminal1().isConnected());
-        assertFalse(network.getBranch("FR-BE").getTerminal2().isConnected());
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
-        assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
-        assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
         checkAssertions(result);
     }
 
