@@ -278,17 +278,21 @@ public class LeafTest {
     @Test
     public void testIsNetworkActionCloseToLocations() {
         raoParameters.setPtdfBoundariesFromCountryCodes(List.of("FR-DE", "DE-AT"));
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(0);
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.empty()), 0));
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.FR)), 0));
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.BE)), 0));
-        assertFalse(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.DE)), 0));
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.DE)), 1));
-        assertFalse(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT)), 1));
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT)), 2));
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.empty())));
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.FR))));
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.BE))));
+        assertFalse(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.DE))));
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(1);
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.DE))));
+        assertFalse(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT))));
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(2);
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT))));
 
         mockRaoUtil();
         PowerMockito.when(RaoUtil.getNetworkActionLocation(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> List.of(Optional.of(Country.FR), Optional.empty()));
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT)), 0));
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(0);
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT))));
     }
 }

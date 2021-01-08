@@ -230,7 +230,7 @@ class Leaf {
             return raoData.getAvailableNetworkActions()
                     .stream()
                     .filter(na -> !networkActions.contains(na)
-                            && isNetworkActionCloseToLocations(na, worstCnecLocation, searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions()))
+                            && isNetworkActionCloseToLocations(na, worstCnecLocation))
                     .collect(Collectors.toSet());
         } else {
             return raoData.getAvailableNetworkActions()
@@ -243,7 +243,7 @@ class Leaf {
     /**
      * Says if a network action is close to a given set of countries, respecting the maximum number of boundaries
      */
-    public boolean isNetworkActionCloseToLocations(NetworkAction networkAction, List<Optional<Country>> locations, int maxNumberOfBoundaries) {
+    protected boolean isNetworkActionCloseToLocations(NetworkAction networkAction, List<Optional<Country>> locations) {
         if (locations.stream().anyMatch(country -> country.equals(Optional.empty()))) {
             return true;
         }
@@ -251,20 +251,16 @@ class Leaf {
         if (networkActionCountries.stream().anyMatch(country -> country.equals(Optional.empty()))) {
             return true;
         }
-        boolean isClose = false;
+        SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         for (Optional<Country> location : locations) {
             for (Optional<Country> networkActionCountry : networkActionCountries) {
                 if (location.isPresent() && networkActionCountry.isPresent()
-                        && CountryUtil.areNeighbors(location.get(), networkActionCountry.get(), maxNumberOfBoundaries, raoParameters.getPtdfBoundaries())) {
-                    isClose = true;
-                    break;
+                        && CountryUtil.areNeighbors(location.get(), networkActionCountry.get(), searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions(), raoParameters.getPtdfBoundaries())) {
+                    return true;
                 }
             }
-            if (isClose) {
-                break;
-            }
         }
-        return isClose;
+        return false;
     }
 
     /**

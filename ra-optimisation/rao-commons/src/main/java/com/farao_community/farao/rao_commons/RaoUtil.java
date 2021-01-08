@@ -175,12 +175,9 @@ public final class RaoUtil {
 
     private static List<Optional<Country>> getNetworkElementLocation(NetworkElement networkElement, Network network) {
         Identifiable<?> ne = network.getIdentifiable(networkElement.getId());
-        if (ne instanceof Line) {
-            Line line = (Line) ne;
-            return Arrays.asList(line.getTerminal1().getVoltageLevel().getSubstation().getCountry(), line.getTerminal2().getVoltageLevel().getSubstation().getCountry());
-        } else if (ne instanceof TwoWindingsTransformer) {
-            TwoWindingsTransformer transformer = (TwoWindingsTransformer) ne;
-            return Arrays.asList(transformer.getTerminal1().getVoltageLevel().getSubstation().getCountry(), transformer.getTerminal2().getVoltageLevel().getSubstation().getCountry());
+        if (ne instanceof Branch) {
+            Branch branch = (Branch) ne;
+            return Arrays.asList(branch.getTerminal1().getVoltageLevel().getSubstation().getCountry(), branch.getTerminal2().getVoltageLevel().getSubstation().getCountry());
         } else if (ne instanceof Switch) {
             return Arrays.asList(((Switch) ne).getVoltageLevel().getSubstation().getCountry());
         } else {
