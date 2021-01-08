@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_api;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Optional;
+
 
 /**
  * Remedial action interface specifying an action of type range.
@@ -30,4 +32,6 @@ public interface RangeAction extends RemedialAction<RangeAction>, Synchronizable
 
     // The setpoint is computed by an optimiser.
     void apply(Network network, double setpoint);
+
+    Optional<String> getGroupId();
 }

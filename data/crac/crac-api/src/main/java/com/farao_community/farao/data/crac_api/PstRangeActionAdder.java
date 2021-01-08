@@ -22,6 +22,13 @@ public interface PstRangeActionAdder extends NetworkElementParent<PstRangeAction
     PstRangeActionAdder setOperator(String operator);
 
     /**
+     * Set the group ID if the PST is part of a group
+     * @param groupId: ID of the group
+     * @return the {@code PstRangeActionAdder} instance
+     */
+    PstRangeActionAdder setGroupId(String groupId);
+
+    /**
      * Set the unit of the PST
      * @param unit: unit to use
      * @return the {@code PstRangeActionAdder} instance
