@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-abstract public class AbstractElementaryRangeActionTest extends AbstractRemedialActionTest {
+abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest {
 
     protected List<Range> createRanges() {
         Range range = Mockito.mock(Range.class);
@@ -51,15 +51,23 @@ abstract public class AbstractElementaryRangeActionTest extends AbstractRemedial
     @Test
     public void abstractElementaryEquals() {
         Range range = new Range(1, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
-        AbstractElementaryRangeAction pst = new PstWithRange("pst_range_id", new NetworkElement("neID"));
+        AbstractRangeAction pst = new PstWithRange("pst_range_id", new NetworkElement("neID"));
         pst.addRange(range);
-        AbstractElementaryRangeAction pstRange1 = new PstWithRange("pst_range_id", new NetworkElement("neID"));
+        AbstractRangeAction pstRange1 = new PstWithRange("pst_range_id", new NetworkElement("neID"));
         pstRange1.addRange(range);
         assertEquals(pst.hashCode(), pstRange1.hashCode());
         assertEquals(pst, pstRange1);
-        AbstractElementaryRangeAction pstDifferent = new PstWithRange("pst_range_id_2", new NetworkElement("neOther"));
+        AbstractRangeAction pstDifferent = new PstWithRange("pst_range_id_2", new NetworkElement("neOther"));
         pstDifferent.addRange(new Range(1, 10, RangeType.RELATIVE_FIXED, RangeDefinition.STARTS_AT_ONE));
         assertNotEquals(pst.hashCode(), pstDifferent.hashCode());
         assertNotEquals(pst, pstDifferent);
+    }
+
+    @Test
+    public void testGroupId() {
+        AbstractRangeAction pst = new PstWithRange("pst_range_id", new NetworkElement("neID"));
+        pst.setGroupId("groupId");
+        assertTrue(pst.getGroupId().isPresent());
+        assertEquals("groupId", pst.getGroupId().get());
     }
 }

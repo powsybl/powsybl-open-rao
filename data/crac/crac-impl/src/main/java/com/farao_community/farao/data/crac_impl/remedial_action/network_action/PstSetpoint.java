@@ -11,11 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.json.serializers.network_action.PstSetPointSerializer;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 
@@ -30,24 +26,18 @@ import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-setpoint")
-@JsonSerialize(using = PstSetPointSerializer.class)
 public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
 
     private RangeDefinition rangeDefinition;
 
-    @JsonCreator
-    public PstSetpoint(@JsonProperty("id") String id,
-                       @JsonProperty("name") String name,
-                       @JsonProperty("operator") String operator,
-                       @JsonProperty("usageRules") List<UsageRule> usageRules,
-                       @JsonProperty("networkElement") NetworkElement networkElement,
-                       @JsonProperty("setpoint") double setpoint,
-                       @JsonProperty("rangeDefinition") RangeDefinition rangeDefinition) {
+    public PstSetpoint(String id, String name, String operator, List<UsageRule> usageRules,
+                       NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
         super(id, name, operator, usageRules, networkElement, setpoint);
         this.rangeDefinition = rangeDefinition;
     }
 
-    public PstSetpoint(String id, String name, String operator, NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
+    public PstSetpoint(String id, String name, String operator, NetworkElement networkElement, double setpoint,
+                       RangeDefinition rangeDefinition) {
         super(id, name, operator, networkElement, setpoint);
         this.rangeDefinition = rangeDefinition;
     }
