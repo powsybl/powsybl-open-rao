@@ -38,14 +38,14 @@ public class GlskVirtualHubsTest {
         // check data for virtual hub on generator
         assertNotNull(glsks.getData("15XGDYRHKLKAAAAS"));
         assertEquals(1, glsks.getData("15XGDYRHKLKAAAAS").getGLSKs().size());
-        assertTrue(glsks.getData("15XGDYRHKLKAAAAS").getGLSKs().containsKey("NNL1AA1 _generator"));
-        assertEquals(1., glsks.getData("15XGDYRHKLKAAAAS").getGLSKs().get("NNL1AA1 _generator").doubleValue(), DOUBLE_TOLERANCE);
+        assertTrue(glsks.getData("15XGDYRHKLKAAAAS").getGLSKs().containsKey("NNL3AA1 _load"));
+        assertEquals(1., glsks.getData("15XGDYRHKLKAAAAS").getGLSKs().get("NNL3AA1 _load").doubleValue(), DOUBLE_TOLERANCE);
 
         // check data for virtual hub on dangling line
         assertNotNull(glsks.getData("17YXTYUDHGKAAAAS"));
         assertEquals(1, glsks.getData("17YXTYUDHGKAAAAS").getGLSKs().size());
-        assertTrue(glsks.getData("17YXTYUDHGKAAAAS").getGLSKs().containsKey("FFR1AA1 _generator"));
-        assertEquals(1., glsks.getData("17YXTYUDHGKAAAAS").getGLSKs().get("FFR1AA1 _generator").doubleValue(), DOUBLE_TOLERANCE);
+        assertTrue(glsks.getData("17YXTYUDHGKAAAAS").getGLSKs().containsKey("FFR1AA1 _load"));
+        assertEquals(1., glsks.getData("17YXTYUDHGKAAAAS").getGLSKs().get("FFR1AA1 _load").doubleValue(), DOUBLE_TOLERANCE);
     }
 
     @Test

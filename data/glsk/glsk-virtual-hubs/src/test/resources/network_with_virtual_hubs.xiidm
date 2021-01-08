@@ -265,10 +265,10 @@
         <iidm:currentLimits1 permanentLimit="5000.0"/>
         <iidm:currentLimits2 permanentLimit="5000.0"/>
     </iidm:tieLine>
-    <iidm:extension id="FFR1AA1  X_GBFR1  1">
+    <iidm:extension id="FFR1AA1 _load">
         <farao:assignedVirtualHub code="code1" eic="17YXTYUDHGKAAAAS" isMcParticipant="true" nodeName="X_GBFR1 " relatedMa="FR"/>
     </iidm:extension>
-    <iidm:extension id="NNL1AA1 _generator">
+    <iidm:extension id="NNL3AA1 _load">
         <farao:assignedVirtualHub code="code2" eic="15XGDYRHKLKAAAAS" isMcParticipant="false" nodeName="NNL3AA1 "/>
     </iidm:extension>
 </iidm:network>

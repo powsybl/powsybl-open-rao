@@ -30,7 +30,7 @@ public final class AbsolutePtdfSumsComputation {
 
     public static Map<BranchCnec, Double> computeAbsolutePtdfSums(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
         Map<BranchCnec, Double> ptdfSums = new HashMap<>();
-        Map<String, Map<Country, Double>> ptdfMap = computePtdf(cnecs, glsk, getCountriesInBoundaries(boundaries), sensitivityResult);
+        Map<String, Map<Country, Double>> ptdfMap = buildPtdfMap(cnecs, glsk, getCountriesInBoundaries(boundaries), sensitivityResult);
         cnecs.forEach(cnec -> {
             double ptdfSum = 0;
             for (Pair<Country, Country> countryPair : boundaries) {
@@ -43,24 +43,21 @@ public final class AbsolutePtdfSumsComputation {
         return ptdfSums;
     }
 
-    private static Map<String, Map<Country, Double>> computePtdf(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<Country> countriesInBoundaries, SystematicSensitivityResult sensitivityResult) {
+    private static Map<String, Map<Country, Double>> buildPtdfMap(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<Country> countriesInBoundaries, SystematicSensitivityResult sensitivityResult) {
 
         Map<String, Map<Country, Double>> ptdfs = new HashMap<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
 
         for (LinearGlsk linearGlsk: mapCountryLinearGlsk.values()) {
-
-            if (!isGlskInBoundaries(linearGlsk.getId(), countriesInBoundaries)) {
-                continue;
-            }
-            Country country = glskIdToCountry(linearGlsk.getId());
-
-            for (BranchCnec cnec : cnecs) {
-                double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
-                if (!ptdfs.containsKey(cnec.getId())) {
-                    ptdfs.put(cnec.getId(), new HashMap<>());
+            if (isGlskInBoundaries(linearGlsk.getId(), countriesInBoundaries)) {
+                Country country = glskIdToCountry(linearGlsk.getId());
+                for (BranchCnec cnec : cnecs) {
+                    double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
+                    if (!ptdfs.containsKey(cnec.getId())) {
+                        ptdfs.put(cnec.getId(), new HashMap<>());
+                    }
+                    ptdfs.get(cnec.getId()).put(country, ptdfValue);
                 }
-                ptdfs.get(cnec.getId()).put(country, ptdfValue);
             }
         }
         return ptdfs;
@@ -73,7 +70,6 @@ public final class AbsolutePtdfSumsComputation {
         } catch (IllegalArgumentException | FaraoException e) {
             return false;
         }
-
     }
 
     private static Country glskIdToCountry(String glskId) {
