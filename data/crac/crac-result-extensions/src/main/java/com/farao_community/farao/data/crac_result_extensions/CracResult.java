@@ -39,6 +39,7 @@ public class CracResult implements Result {
     private NetworkSecurityStatus networkSecurityStatus;
     private double functionalCost;
     private double virtualCost;
+    private boolean relativePositiveMargins;
 
     public NetworkSecurityStatus getNetworkSecurityStatus() {
         return networkSecurityStatus;
@@ -73,13 +74,23 @@ public class CracResult implements Result {
         this.virtualCost += virtualCost;
     }
 
+    public boolean isRelativePositiveMargins() {
+        return relativePositiveMargins;
+    }
+
+    public void setRelativePositiveMargins(boolean relativePositiveMargins) {
+        this.relativePositiveMargins = relativePositiveMargins;
+    }
+
     @JsonCreator
     public CracResult(@JsonProperty("networkSecurityStatus") NetworkSecurityStatus networkSecurityStatus,
                       @JsonProperty("functionalCost") double functionalCost,
-                      @JsonProperty("virtualCost") double virtualCost) {
+                      @JsonProperty("virtualCost") double virtualCost,
+                      @JsonProperty("relativePositiveMargins") boolean relativePositiveMargins) {
         this.networkSecurityStatus = networkSecurityStatus;
         this.functionalCost = functionalCost;
         this.virtualCost = virtualCost;
+        this.relativePositiveMargins = relativePositiveMargins;
     }
 
     public CracResult(double functionalCost) {
@@ -87,8 +98,9 @@ public class CracResult implements Result {
         this.virtualCost = 0;
     }
 
-    public CracResult() {
+    public CracResult(boolean relativePositiveMargins) {
         this.functionalCost = Double.NaN;
         this.virtualCost = 0;
+        this.relativePositiveMargins = relativePositiveMargins;
     }
 }

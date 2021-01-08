@@ -25,8 +25,8 @@ public class CracResultExtensionTest {
         CracResultExtension cracResultExtension = new CracResultExtension();
 
         // test variant addition
-        cracResultExtension.addVariant("variant-before-opt", new CracResult());
-        cracResultExtension.addVariant("variant-after-opt", new CracResult());
+        cracResultExtension.addVariant("variant-before-opt", new CracResult(false));
+        cracResultExtension.addVariant("variant-after-opt", new CracResult(false));
 
         assertNotNull(cracResultExtension.getVariant("variant-before-opt"));
         assertNotNull(cracResultExtension.getVariant("variant-after-opt"));

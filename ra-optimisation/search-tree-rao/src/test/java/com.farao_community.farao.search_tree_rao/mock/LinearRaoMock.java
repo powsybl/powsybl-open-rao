@@ -33,8 +33,8 @@ public class LinearRaoMock implements RaoProvider {
             resultVariantManager = new ResultVariantManager();
             crac.addExtension(ResultVariantManager.class, resultVariantManager);
         }
-        resultVariantManager.createVariant("preOptimVariant");
-        resultVariantManager.createVariant("postOptimVariant");
+        resultVariantManager.createVariant("preOptimVariant", false);
+        resultVariantManager.createVariant("postOptimVariant", false);
 
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
         raoResult.setPreOptimVariantId("preOptimVariant");

@@ -59,7 +59,8 @@
             "minThresholdInA" : -3325.0,
             "maxThresholdInA" : 3325.0,
             "loopflowInMW" : -5.0,
-            "loopflowThresholdInMW" : 19.0
+            "loopflowThresholdInMW" : 19.0,
+            "absolutePtdfSum" : 0.5
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "cnec-result",
@@ -70,7 +71,8 @@
             "minThresholdInA" : -3325.0,
             "maxThresholdInA" : 3325.0,
             "loopflowInMW" : -13.0,
-            "loopflowThresholdInMW" : 19.0
+            "loopflowThresholdInMW" : 19.0,
+            "absolutePtdfSum" : 0.5
           }
         }
       }
@@ -203,13 +205,15 @@
           "type" : "crac-result",
           "networkSecurityStatus" : "SECURED",
           "functionalCost" : -25.64197836348194,
-          "virtualCost" : 0.0
+          "virtualCost" : 0.0,
+          "relativePositiveMargins" : true
         },
         "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
           "type" : "crac-result",
           "networkSecurityStatus" : "UNSECURED",
           "functionalCost" : 549.7274064021431,
-          "virtualCost" : 0.0
+          "virtualCost" : 0.0,
+          "relativePositiveMargins" : true
         }
       }
     }

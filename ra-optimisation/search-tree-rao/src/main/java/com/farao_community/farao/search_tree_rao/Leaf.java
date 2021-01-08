@@ -100,7 +100,7 @@ class Leaf {
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
-        raoData = RaoData.create(network, parentLeaf.getRaoData());
+        raoData = RaoData.create(network, parentLeaf.getRaoData(), raoParameters.getObjectiveFunction().relativePositiveMargins());
         initialVariantId = raoData.getInitialVariantId();
         activateNetworkActionInCracResult(initialVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,

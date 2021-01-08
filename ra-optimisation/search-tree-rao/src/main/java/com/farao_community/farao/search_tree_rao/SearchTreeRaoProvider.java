@@ -61,15 +61,28 @@ public class SearchTreeRaoProvider implements RaoProvider {
         RaoUtil.initData(raoInput, parameters);
 
         if (raoInput.getOptimizedState() != null) {
-            RaoData raoData = new RaoData(
-                    raoInput.getNetwork(),
-                    raoInput.getCrac(),
-                    raoInput.getOptimizedState(),
-                    raoInput.getPerimeter(),
-                    raoInput.getReferenceProgram(),
-                    raoInput.getGlskProvider(),
-                    raoInput.getBaseCracVariantId(),
-                    parameters.getLoopflowCountries());
+            RaoData raoData;
+            if (raoInput.getBaseCracVariantId() != null) {
+                raoData = new RaoData(
+                        raoInput.getNetwork(),
+                        raoInput.getCrac(),
+                        raoInput.getOptimizedState(),
+                        raoInput.getPerimeter(),
+                        raoInput.getReferenceProgram(),
+                        raoInput.getGlskProvider(),
+                        raoInput.getBaseCracVariantId(),
+                        parameters.getLoopflowCountries());
+            } else {
+                raoData = new RaoData(
+                        raoInput.getNetwork(),
+                        raoInput.getCrac(),
+                        raoInput.getOptimizedState(),
+                        raoInput.getPerimeter(),
+                        raoInput.getReferenceProgram(),
+                        raoInput.getGlskProvider(),
+                        parameters.getLoopflowCountries(),
+                        parameters.getObjectiveFunction().relativePositiveMargins());
+            }
             TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(parameters.getExtension(SearchTreeRaoParameters.class));
             return CompletableFuture.completedFuture(new SearchTree().run(raoData, parameters, treeParameters).join());
         }
@@ -97,25 +110,34 @@ public class SearchTreeRaoProvider implements RaoProvider {
             RaoResult mergedRaoResults = mergeRaoResults(raoInput.getCrac(), preventiveRaoResult, curativeResults);
             // For logs only
             if (mergedRaoResults.isSuccessful()) {
-                boolean relativePositiveMargins =
-                        parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
-                                parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-                SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), mergedRaoResults.getPostOptimVariantId(), parameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
+                SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), mergedRaoResults.getPostOptimVariantId(), parameters.getObjectiveFunction().getUnit(), parameters.getObjectiveFunction().relativePositiveMargins());
             }
             return CompletableFuture.completedFuture(mergedRaoResults);
         }
     }
 
     private CompletableFuture<RaoResult> optimizePreventivePerimeter(RaoInput raoInput, RaoParameters parameters) {
-        preventiveRaoData = new RaoData(
-                raoInput.getNetwork(),
-                raoInput.getCrac(),
-                raoInput.getCrac().getPreventiveState(),
-                stateTree.getPerimeter(raoInput.getCrac().getPreventiveState()),
-                raoInput.getReferenceProgram(),
-                raoInput.getGlskProvider(),
-                raoInput.getBaseCracVariantId(),
-                parameters.getLoopflowCountries());
+        if (raoInput.getBaseCracVariantId() != null) {
+            preventiveRaoData = new RaoData(
+                    raoInput.getNetwork(),
+                    raoInput.getCrac(),
+                    raoInput.getCrac().getPreventiveState(),
+                    stateTree.getPerimeter(raoInput.getCrac().getPreventiveState()),
+                    raoInput.getReferenceProgram(),
+                    raoInput.getGlskProvider(),
+                    raoInput.getBaseCracVariantId(),
+                    parameters.getLoopflowCountries());
+        } else {
+            preventiveRaoData = new RaoData(
+                    raoInput.getNetwork(),
+                    raoInput.getCrac(),
+                    raoInput.getCrac().getPreventiveState(),
+                    stateTree.getPerimeter(raoInput.getCrac().getPreventiveState()),
+                    raoInput.getReferenceProgram(),
+                    raoInput.getGlskProvider(),
+                    parameters.getLoopflowCountries(),
+                    parameters.getObjectiveFunction().relativePositiveMargins());
+        }
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(parameters.getExtension(SearchTreeRaoParameters.class));
         return new SearchTree().run(preventiveRaoData, parameters, preventiveTreeParameters);
     }

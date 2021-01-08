@@ -58,15 +58,28 @@ public class LinearRao implements RaoProvider {
         RaoUtil.initData(raoInput, raoParameters);
         // We assume that linear RAO only handles optimization on preventive state taking all the CNECs present in
         // the CRAC into account. So we artificially set these values here.
-        RaoData raoData = new RaoData(
-                raoInput.getNetwork(),
-                raoInput.getCrac(),
-                raoInput.getCrac().getPreventiveState(),
-                raoInput.getCrac().getStates(),
-                raoInput.getReferenceProgram(),
-                raoInput.getGlskProvider(),
-                raoInput.getBaseCracVariantId(),
-                raoParameters.getLoopflowCountries());
+        RaoData raoData;
+        if (raoInput.getBaseCracVariantId() != null) {
+            raoData = new RaoData(
+                    raoInput.getNetwork(),
+                    raoInput.getCrac(),
+                    raoInput.getCrac().getPreventiveState(),
+                    raoInput.getCrac().getStates(),
+                    raoInput.getReferenceProgram(),
+                    raoInput.getGlskProvider(),
+                    raoInput.getBaseCracVariantId(),
+                    raoParameters.getLoopflowCountries());
+        } else {
+            raoData = new RaoData(
+                    raoInput.getNetwork(),
+                    raoInput.getCrac(),
+                    raoInput.getCrac().getPreventiveState(),
+                    raoInput.getCrac().getStates(),
+                    raoInput.getReferenceProgram(),
+                    raoInput.getGlskProvider(),
+                    raoParameters.getLoopflowCountries(),
+                    raoParameters.getObjectiveFunction().relativePositiveMargins());
+        }
 
         return run(raoData, raoParameters);
     }
@@ -143,8 +156,8 @@ public class LinearRao implements RaoProvider {
         double minMargin = -raoData.getCracResult(postOptimVariantId).getFunctionalCost();
         double objFunctionValue = raoData.getCracResult(postOptimVariantId).getCost();
         LOGGER.info(format("LinearRaoResult: minimum margin = %.2f %s, security status = %s, optimisation criterion = %.2f",
-            minMargin, unit, raoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(),
-            objFunctionValue));
+                minMargin, unit, raoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(),
+                objFunctionValue));
 
         raoData.getCracVariantManager().clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), postOptimVariantId));
         return raoResult;

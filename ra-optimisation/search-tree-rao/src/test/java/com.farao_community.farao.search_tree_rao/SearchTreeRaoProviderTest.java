@@ -49,9 +49,9 @@ public class SearchTreeRaoProviderTest {
 
         ResultVariantManager resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
-        initialVariantId = resultVariantManager.createNewUniqueVariantId("initial");
-        postOptimPrevVariantId = resultVariantManager.createNewUniqueVariantId("postOptim-prev");
-        postOptimCurVariantId = resultVariantManager.createNewUniqueVariantId("postOptim-cur");
+        initialVariantId = resultVariantManager.createNewUniqueVariantId("initial", false);
+        postOptimPrevVariantId = resultVariantManager.createNewUniqueVariantId("postOptim-prev", false);
+        postOptimCurVariantId = resultVariantManager.createNewUniqueVariantId("postOptim-cur", false);
         resultVariantManager.setInitialVariantId(initialVariantId);
 
         crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(600);

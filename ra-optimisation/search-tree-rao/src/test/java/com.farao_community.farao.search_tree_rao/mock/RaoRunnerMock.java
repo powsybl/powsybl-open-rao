@@ -26,8 +26,8 @@ public class RaoRunnerMock extends Rao.Runner {
         String postOpt = "postOpt-".concat(raoInput.getNetworkVariantId());
 
         ResultVariantManager resultVariantManager = raoInput.getCrac().getExtension(ResultVariantManager.class);
-        resultVariantManager.createVariant(preOpt);
-        resultVariantManager.createVariant(postOpt);
+        resultVariantManager.createVariant(preOpt, false);
+        resultVariantManager.createVariant(postOpt, false);
 
         raoInput.getCrac().getExtension(CracResultExtension.class).getVariant(preOpt).setFunctionalCost(10);
         raoInput.getCrac().getExtension(CracResultExtension.class).getVariant(postOpt).setFunctionalCost(2);

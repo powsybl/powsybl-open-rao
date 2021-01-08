@@ -90,7 +90,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
      * of the Crac.
      */
     @SuppressWarnings("unchecked")
-    public synchronized void createVariant(String variantId) {
+    public synchronized void createVariant(String variantId, boolean relativePositiveMargins) {
 
         if (variants.contains(variantId)) {
             throw new FaraoException(String.format("Cannot create results variant with id [%s], as one with the same id already exists", variantId));
@@ -102,7 +102,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         if (getExtendable().getExtension(CracResultExtension.class) == null) {
             getExtendable().addExtension(CracResultExtension.class, new CracResultExtension());
         }
-        getExtendable().getExtension(CracResultExtension.class).addVariant(variantId, new CracResult());
+        getExtendable().getExtension(CracResultExtension.class).addVariant(variantId, new CracResult(relativePositiveMargins));
 
         // add CNEC result variant
         getExtendable().getBranchCnecs().forEach(cnec -> {
@@ -194,9 +194,9 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
     /**
      * Computes a string with a prefix that is not present in the set, creates a new variant from that string, and returns the string.
      */
-    public synchronized String createNewUniqueVariantId(String prefix) {
+    public synchronized String createNewUniqueVariantId(String prefix, boolean relativePositiveMargins) {
         String uniqueId = RandomizedString.getRandomizedString(prefix + "-", variants, 10);
-        createVariant(uniqueId);
+        createVariant(uniqueId, relativePositiveMargins);
         return uniqueId;
     }
 }

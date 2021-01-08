@@ -48,7 +48,7 @@ public class CracResultManagerTest {
         crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension2);
         crac.getBranchCnec("cnec2basecase").setReliabilityMargin(20);
 
-        raoData = RaoData.createOnPreventiveState(network, crac);
+        raoData = RaoData.createOnPreventiveState(network, crac, false);
 
         loopFlowResult = new LoopFlowResult();
         loopFlowResult.addCnecResult(crac.getBranchCnec("cnec1basecase"), -252, 128., -124.);
@@ -109,7 +109,7 @@ public class CracResultManagerTest {
         raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setCommercialFlowInMW(653.7);
         String var = raoData.getCracVariantManager().cloneWorkingVariant();
         raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(raoData.getInitialVariantId(), var);
-        assertEquals(150.6, raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(653.7, raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(150.6, raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), 0);
+        assertEquals(653.7, raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), 0);
     }
 }

@@ -28,7 +28,8 @@ import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
  */
 public final class CneClassCreator {
 
-    private CneClassCreator() { }
+    private CneClassCreator() {
+    }
 
     /*****************
      POINT
@@ -156,7 +157,7 @@ public final class CneClassCreator {
     /*****************
      MEASUREMENT
      *****************/
-    public static Analog newMeasurement(String measurementType, Unit unit, double flow) {
+    public static Analog newFlowMeasurement(String measurementType, Unit unit, double flow) {
         Analog measurement = new Analog();
         measurement.setMeasurementType(measurementType);
 
@@ -175,6 +176,14 @@ public final class CneClassCreator {
         }
         measurement.setAnalogValuesValue(limitFloatInterval(flow));
 
+        return measurement;
+    }
+
+    public static Analog newPtdfMeasurement(String measurementType, double value) {
+        Analog measurement = new Analog();
+        measurement.setMeasurementType(measurementType);
+        measurement.setUnitSymbol(DIMENSIONLESS_SYMBOL);
+        measurement.setAnalogValuesValue((float) (Math.round(value * 1e5) / 1e5));
         return measurement;
     }
 

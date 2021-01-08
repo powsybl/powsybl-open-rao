@@ -74,7 +74,7 @@ public class MinMarginObjectiveFunctionTest {
 
         ResultVariantManager resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
-        crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
+        crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT, false);
         crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
         Random rand = new Random();
         crac.getBranchCnecs().forEach(cnec ->

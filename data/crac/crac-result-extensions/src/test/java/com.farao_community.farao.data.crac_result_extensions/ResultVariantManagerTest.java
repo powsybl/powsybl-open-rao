@@ -42,8 +42,8 @@ public class ResultVariantManagerTest {
         assertTrue(variantManager.getVariants().isEmpty());
 
         // add 2 variants
-        variantManager.createVariant(variantId1);
-        variantManager.createVariant(variantId2);
+        variantManager.createVariant(variantId1, false);
+        variantManager.createVariant(variantId2, false);
 
         assertEquals(2, variantManager.getVariants().size());
 
@@ -88,8 +88,8 @@ public class ResultVariantManagerTest {
     @Test
     public void addAlreadyExistingVariantTest() {
         try {
-            variantManager.createVariant("variant1");
-            variantManager.createVariant("variant1");
+            variantManager.createVariant("variant1", false);
+            variantManager.createVariant("variant1", false);
             fail();
         } catch (FaraoException e) {
             // should throw
@@ -108,9 +108,9 @@ public class ResultVariantManagerTest {
 
     @Test
     public void deleteMultipleVariants() {
-        variantManager.createVariant("var1");
-        variantManager.createVariant("var2");
-        variantManager.createVariant("var3");
+        variantManager.createVariant("var1", false);
+        variantManager.createVariant("var2", false);
+        variantManager.createVariant("var3", false);
 
         assertEquals(3, variantManager.getVariants().size());
 

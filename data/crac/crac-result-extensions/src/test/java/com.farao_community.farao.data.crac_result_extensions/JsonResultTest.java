@@ -76,8 +76,8 @@ public class JsonResultTest {
         simpleCrac.addExtension(ResultVariantManager.class, new ResultVariantManager());
 
         // add variants
-        simpleCrac.getExtension(ResultVariantManager.class).createVariant("variant1");
-        simpleCrac.getExtension(ResultVariantManager.class).createVariant("variant2");
+        simpleCrac.getExtension(ResultVariantManager.class).createVariant("variant1", false);
+        simpleCrac.getExtension(ResultVariantManager.class).createVariant("variant2", false);
 
         // CracResult
         CracResultExtension cracResultExtension = simpleCrac.getExtension(CracResultExtension.class);

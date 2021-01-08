@@ -7,12 +7,15 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_result_extensions.CracResult;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
@@ -20,6 +23,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,6 +56,7 @@ public final class RaoData {
      * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
      * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
      * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
+     * It will copy the relativePositiveMargins from the existing variantc
      *
      * @param network:           Network object.
      * @param crac:              CRAC object.
@@ -62,7 +67,38 @@ public final class RaoData {
      * @param cracVariantId:     Existing variant of the CRAC on which RaoData will be based
      * @param loopflowCountries: countries for which we wish to check loopflows
      */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, String cracVariantId, Set<Country> loopflowCountries) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, @Nonnull String cracVariantId, Set<Country> loopflowCountries) {
+        this(network, crac, optimizedState, perimeter, referenceProgram, glsk, loopflowCountries);
+        Objects.requireNonNull(cracVariantId);
+        addRaoDataVariantManager(cracVariantId);
+
+        computePerimeterCnecs();
+        computeLoopflowCnecs();
+    }
+
+    /**
+     * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
+     * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
+     * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
+     *
+     * @param network:           Network object.
+     * @param crac:              CRAC object.
+     * @param optimizedState:    State in which the remedial actions are optimized
+     * @param perimeter:         set of State for which the Cnecs are monitored
+     * @param referenceProgram:  ReferenceProgram object (needed only for loopflows and relative margin)
+     * @param glsk:              GLSK provider (needed only for loopflows)
+     * @param loopflowCountries: countries for which we wish to check loopflows
+     * @param relativePositiveMargins: if positive margins are relative
+     */
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, Set<Country> loopflowCountries, boolean relativePositiveMargins) {
+        this(network, crac, optimizedState, perimeter, referenceProgram, glsk, loopflowCountries);
+        addRaoDataVariantManager(relativePositiveMargins);
+
+        computePerimeterCnecs();
+        computeLoopflowCnecs();
+    }
+
+    private RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, Set<Country> loopflowCountries) {
         Objects.requireNonNull(network, "Unable to build RAO data without network.");
         Objects.requireNonNull(crac, "Unable to build RAO data without CRAC.");
         Objects.requireNonNull(optimizedState, "Unable to build RAO data without optimized state.");
@@ -75,26 +111,22 @@ public final class RaoData {
         this.glsk = glsk;
         this.loopflowCountries = loopflowCountries;
         cracResultManager = new CracResultManager(this);
-        addRaoDataVariantManager(cracVariantId);
-
-        computePerimeterCnecs();
-        computeLoopflowCnecs();
     }
 
-    private void addRaoDataVariantManager(String cracVariantId) {
-        if (cracVariantId != null) {
-            cracVariantManager = new CracVariantManager(crac, cracVariantId);
-        } else {
-            cracVariantManager = new CracVariantManager(crac);
-            cracResultManager.fillRangeActionResultsWithNetworkValues();
-        }
+    private void addRaoDataVariantManager(boolean relativePositiveMargins) {
+        cracVariantManager = new CracVariantManager(crac, relativePositiveMargins);
+        cracResultManager.fillRangeActionResultsWithNetworkValues();
     }
 
-    public static RaoData createOnPreventiveState(Network network, Crac crac) {
-        return createOnPreventiveStateBasedOnExistingVariant(network, crac, null);
+    private void addRaoDataVariantManager(@Nonnull String cracVariantId) {
+        cracVariantManager = new CracVariantManager(crac, cracVariantId);
     }
 
-    public static RaoData createOnPreventiveStateBasedOnExistingVariant(Network network, Crac crac, String cracVariantId) {
+    public static RaoData createOnPreventiveState(Network network, Crac crac, boolean relativePositiveMargins) {
+        return create(network, crac, relativePositiveMargins);
+    }
+
+    public static RaoData createOnPreventiveStateBasedOnExistingVariant(Network network, Crac crac, @Nonnull String cracVariantId) {
         return new RaoData(
                 network,
                 crac,
@@ -106,7 +138,19 @@ public final class RaoData {
                 new HashSet<>());
     }
 
-    public static RaoData create(Network network, RaoData raoData) {
+    public static RaoData create(Network network, Crac crac, boolean relativePositiveMargins) {
+        return new RaoData(
+                network,
+                crac,
+                crac.getPreventiveState(),
+                Collections.singleton(crac.getPreventiveState()),
+                null,
+                null,
+                new HashSet<>(),
+                relativePositiveMargins);
+    }
+
+    public static RaoData create(Network network, RaoData raoData, boolean relativePositiveMargins) {
         return new RaoData(
                 network,
                 raoData.getCrac(),
@@ -114,8 +158,8 @@ public final class RaoData {
                 raoData.getPerimeter(),
                 raoData.getReferenceProgram(),
                 raoData.getGlskProvider(),
-                null,
-                raoData.getLoopflowCountries());
+                raoData.getLoopflowCountries(),
+                relativePositiveMargins);
     }
 
     public Network getNetwork() {

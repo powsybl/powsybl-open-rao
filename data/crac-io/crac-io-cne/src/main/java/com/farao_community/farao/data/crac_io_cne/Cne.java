@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_io_cne;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Identifiable;
+import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
@@ -98,8 +100,10 @@ public class Cne {
         Crac crac = cneHelper.getCrac();
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
+        String randomVariantId = crac.getExtension(ResultVariantManager.class).getVariants().iterator().next();
+        boolean relativePositiveMargins = crac.getExtension(CracResultExtension.class).getVariant(randomVariantId).isRelativePositiveMargins();
         crac.getBranchCnecs().stream().sorted(Comparator.comparing(Identifiable::getId))
-                .forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList));
+                .forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList, relativePositiveMargins));
 
         ConstraintSeries preventiveB56 = newConstraintSeries(generateRandomMRID(), B56_BUSINESS_TYPE);
         crac.getRangeActions().stream().sorted(Comparator.comparing(Identifiable::getId))

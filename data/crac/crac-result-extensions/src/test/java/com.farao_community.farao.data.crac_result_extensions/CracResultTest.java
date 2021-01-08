@@ -21,7 +21,7 @@ public class CracResultTest {
 
     @Test
     public void securedCracResult() {
-        CracResult securedCracResult = new CracResult(CracResult.NetworkSecurityStatus.SECURED, -5, 0);
+        CracResult securedCracResult = new CracResult(CracResult.NetworkSecurityStatus.SECURED, -5, 0, false);
 
         assertEquals(CracResult.NetworkSecurityStatus.SECURED, securedCracResult.getNetworkSecurityStatus());
         assertEquals(-5, securedCracResult.getCost(), epsilon);
@@ -43,7 +43,7 @@ public class CracResultTest {
 
     @Test
     public void securedCracResultWithPositiveCost() {
-        CracResult securedCracResult = new CracResult(CracResult.NetworkSecurityStatus.SECURED, -5, 10);
+        CracResult securedCracResult = new CracResult(CracResult.NetworkSecurityStatus.SECURED, -5, 10, false);
 
         assertEquals(CracResult.NetworkSecurityStatus.SECURED, securedCracResult.getNetworkSecurityStatus());
         assertEquals(5, securedCracResult.getCost(), epsilon);
@@ -53,7 +53,7 @@ public class CracResultTest {
 
     @Test
     public void updateCosts() {
-        CracResult cracResult = new CracResult();
+        CracResult cracResult = new CracResult(false);
         cracResult.setFunctionalCost(5);
         assertEquals(5, cracResult.getCost(), epsilon);
         cracResult.setVirtualCost(15);

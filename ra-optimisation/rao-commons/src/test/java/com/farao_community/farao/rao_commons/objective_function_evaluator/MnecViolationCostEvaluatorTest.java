@@ -93,10 +93,10 @@ public class MnecViolationCostEvaluatorTest {
                 .add();
         ResultVariantManager resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
-        crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
+        crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT, false);
         crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
 
-        raoData = RaoData.createOnPreventiveState(network, crac);
+        raoData = RaoData.createOnPreventiveState(network, crac, false);
 
         CracCleaner cracCleaner = new CracCleaner();
         cracCleaner.cleanCrac(crac, network);

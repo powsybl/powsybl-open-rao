@@ -20,22 +20,6 @@ public class CnecResultTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
-    public void testConstructorWithThreeArguments() {
-        CnecResult cnecResult = new CnecResult(50.0, 75.0, 0.7);
-        assertEquals(50.0, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(75.0, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
-        assertEquals(0.7, cnecResult.getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
-
-        cnecResult.setFlowInMW(150.0);
-        cnecResult.setFlowInA(175.0);
-        cnecResult.setAbsolutePtdfSum(0.9);
-
-        assertEquals(150.0, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(175.0, cnecResult.getFlowInA(), DOUBLE_TOLERANCE);
-        assertEquals(0.9, cnecResult.getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     public void testConstructorWithTwoArguments() {
         CnecResult cnecResult = new CnecResult(50.0, 75.0);
         assertEquals(50.0, cnecResult.getFlowInMW(), DOUBLE_TOLERANCE);

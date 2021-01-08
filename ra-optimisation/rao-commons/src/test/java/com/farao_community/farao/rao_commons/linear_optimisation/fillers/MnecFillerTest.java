@@ -69,7 +69,7 @@ public class MnecFillerTest extends AbstractFillerTest {
         String testVariant = "test-variant";
         ResultVariantManager resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
-        crac.getExtension(ResultVariantManager.class).createVariant(testVariant);
+        crac.getExtension(ResultVariantManager.class).createVariant(testVariant, false);
         crac.getExtension(ResultVariantManager.class).setInitialVariantId(testVariant);
         mnec1.getExtension(CnecResultExtension.class).getVariant(testVariant).setFlowInMW(900.);
         mnec2.getExtension(CnecResultExtension.class).getVariant(testVariant).setFlowInMW(-200.);

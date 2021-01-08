@@ -356,13 +356,15 @@
           "type" : "crac-result",
           "networkSecurityStatus" : "UNSECURED",
           "functionalCost" : 460.5489344039861,
-          "virtualCost" : 0.0
+          "virtualCost" : 0.0,
+          "relativePositiveMargins" : false
         },
         "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
           "type" : "crac-result",
           "networkSecurityStatus" : "UNSECURED",
           "functionalCost" : 287.1525720992986,
-          "virtualCost" : 0.0
+          "virtualCost" : 0.0,
+          "relativePositiveMargins" : false
         }
       }
     }
