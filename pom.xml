@@ -188,6 +188,8 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven.javadoc.version}</version>
                     <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <detectJavaApiLink>false</detectJavaApiLink>
                         <tags>
                             <tag>
                                 <name>TODO</name>
@@ -195,7 +197,7 @@
                                 <head>To do:</head>
                             </tag>
                         </tags>
-                        <excludePackageNames>xsd.*</excludePackageNames>
+                        <excludePackageNames>xsd.*:eu.entsoe.*</excludePackageNames>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -343,11 +345,8 @@
                         <version>${maven.javadoc.version}</version>
                         <executions>
                             <execution>
-                                <id>javadoc-aggregate-jar</id>
-                                <phase>package</phase>
-                                <inherited>false</inherited>
                                 <goals>
-                                    <goal>aggregate-jar</goal>
+                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
