@@ -35,7 +35,7 @@ public interface GlskDocument {
      * is not time-specific.
      *
      * @param network: Network on which to map GLSK document information.
-     * @return A {@link ZonalData<LinearGlsk>} extracted from the GLSK document.
+     * @return A {@link ZonalData} of {@link LinearGlsk} extracted from the GLSK document.
      */
     default ZonalData<LinearGlsk> getZonalGlsks(Network network) {
         return new ZonalDataFromGlskDocument<>(this, network, GlskPointLinearGlskConverter::convert);
@@ -43,11 +43,11 @@ public interface GlskDocument {
 
     /**
      * This method will produce a GLSK provider which is not time-specific. Only data that is available at the
-     * specified {@param instant} will be extracted.
+     * specified instant will be extracted.
      *
      * @param network: Network on which to map GLSK document information.
      * @param instant: Instant at which extracted data will be available.
-     * @return A {@link ZonalData<LinearGlsk>} extracted from the GLSK document.
+     * @return A {@link ZonalData} of {@link LinearGlsk} extracted from the GLSK document.
      */
     default ZonalData<LinearGlsk> getZonalGlsks(Network network, Instant instant) {
         return new ZonalDataFromGlskDocument<>(this, network, GlskPointLinearGlskConverter::convert, instant);
@@ -57,7 +57,7 @@ public interface GlskDocument {
      * This method will produce a time-specific GLSK provider. All time-related data will be extracted.
      *
      * @param network: Network on which to map GLSK document information.
-     * @return A {@link ZonalDataChronology<LinearGlsk>} extracted from the GLSK document.
+     * @return A {@link ZonalDataChronology} of {@link LinearGlsk} extracted from the GLSK document.
      */
     default ZonalDataChronology<LinearGlsk> getZonalGlsksChronology(Network network) {
         return new ZonalDataChronologyFromGlskDocument<>(this, network, GlskPointLinearGlskConverter::convert);
@@ -69,7 +69,7 @@ public interface GlskDocument {
      * document is not time-specific.
      *
      * @param network: Network on which to map GLSK document information.
-     * @return A {@link ZonalData<Scalable>} extracted from the GLSK document.
+     * @return A {@link ZonalData} of {@link Scalable} extracted from the GLSK document.
      */
     default ZonalData<Scalable> getZonalScalable(Network network) {
         return new ZonalDataFromGlskDocument<>(this, network, GlskPointScalableConverter::convert);
@@ -77,11 +77,11 @@ public interface GlskDocument {
 
     /**
      * This method will produce a scalable provider which is not time-specific. Only data that is available at the
-     * specified {@param instant} will be extracted.
+     * specified instant will be extracted.
      *
      * @param network: Network on which to map GLSK document information.
      * @param instant: Instant at which extracted data will be available.
-     * @return A {@link ZonalData<Scalable>} extracted from the GLSK document.
+     * @return A {@link ZonalData} of {@link Scalable} extracted from the GLSK document.
      */
     default ZonalData<Scalable> getZonalScalable(Network network, Instant instant) {
         return new ZonalDataFromGlskDocument<>(this, network, GlskPointScalableConverter::convert, instant);
@@ -91,7 +91,7 @@ public interface GlskDocument {
      * This method will produce a time-specific scalable provider. All time-related data will be extracted.
      *
      * @param network: Network on which to map GLSK document information.
-     * @return A {@link ZonalDataChronology<Scalable>} extracted from the GLSK document.
+     * @return A {@link ZonalDataChronology} of {@link Scalable} extracted from the GLSK document.
      */
     default ZonalDataChronology<Scalable> getZonalScalableChronology(Network network) {
         return new ZonalDataChronologyFromGlskDocument<>(this, network, GlskPointScalableConverter::convert);

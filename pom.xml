@@ -188,8 +188,6 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven.javadoc.version}</version>
                     <configuration>
-                        <detectJavaApiLink>false</detectJavaApiLink>
-                        <source>${maven.compiler.source}</source>
                         <tags>
                             <tag>
                                 <name>TODO</name>
@@ -345,9 +343,11 @@
                         <version>${maven.javadoc.version}</version>
                         <executions>
                             <execution>
+                                <id>javadoc-aggregate-jar</id>
                                 <phase>package</phase>
+                                <inherited>false</inherited>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>aggregate-jar</goal>
                                 </goals>
                             </execution>
                         </executions>
