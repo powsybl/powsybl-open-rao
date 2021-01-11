@@ -59,6 +59,7 @@ public final class CneConstants {
     public static final String B57_BUSINESS_TYPE = "B57";
     public static final String B88_BUSINESS_TYPE = "B88";
     // optimization_MarketObjectStatus.status
+    public static final String MONITORED_MARKET_STATUS = "A49";
     public static final String OPTIMIZED_MARKET_STATUS = "A52";
 
     /* Measurements */
