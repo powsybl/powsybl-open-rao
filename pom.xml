@@ -188,6 +188,8 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven.javadoc.version}</version>
                     <configuration>
+                        <detectJavaApiLink>false</detectJavaApiLink>
+                        <source>${maven.compiler.source}</source>
                         <tags>
                             <tag>
                                 <name>TODO</name>
