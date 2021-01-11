@@ -343,9 +343,11 @@
                         <version>${maven.javadoc.version}</version>
                         <executions>
                             <execution>
+                                <id>javadoc-aggregate-jar</id>
                                 <phase>package</phase>
+                                <inherited>false</inherited>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>aggregate-jar</goal>
                                 </goals>
                             </execution>
                         </executions>
