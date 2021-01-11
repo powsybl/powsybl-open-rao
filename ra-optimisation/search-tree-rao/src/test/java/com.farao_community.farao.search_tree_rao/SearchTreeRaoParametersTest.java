@@ -45,6 +45,15 @@ public class SearchTreeRaoParametersTest {
     }
 
     @Test
+    public void testMaxNumberOfBoundariesForSkippingNetworkActionsBounds() {
+        SearchTreeRaoParameters params = new SearchTreeRaoParameters();
+        params.setMaxNumberOfBoundariesForSkippingNetworkActions(300);
+        assertEquals(300, params.getMaxNumberOfBoundariesForSkippingNetworkActions());
+        params.setMaxNumberOfBoundariesForSkippingNetworkActions(-2);
+        assertEquals(0, params.getMaxNumberOfBoundariesForSkippingNetworkActions());
+    }
+
+    @Test
     public void testNegativeCurativeRaoMinObjImprovement() {
         SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
         parameters.setCurativeRaoMinObjImprovement(100);
