@@ -6,7 +6,7 @@
 
     <groupId>com.farao-community.farao</groupId>
     <artifactId>farao-core</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>2.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>FARAO</name>
@@ -188,6 +188,8 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven.javadoc.version}</version>
                     <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <detectJavaApiLink>false</detectJavaApiLink>
                         <tags>
                             <tag>
                                 <name>TODO</name>
@@ -343,11 +345,8 @@
                         <version>${maven.javadoc.version}</version>
                         <executions>
                             <execution>
-                                <id>javadoc-aggregate-jar</id>
-                                <phase>package</phase>
-                                <inherited>false</inherited>
                                 <goals>
-                                    <goal>aggregate-jar</goal>
+                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
