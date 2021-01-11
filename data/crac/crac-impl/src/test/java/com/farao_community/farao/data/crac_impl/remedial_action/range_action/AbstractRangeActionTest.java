@@ -62,4 +62,12 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
         assertNotEquals(pst.hashCode(), pstDifferent.hashCode());
         assertNotEquals(pst, pstDifferent);
     }
+
+    @Test
+    public void testGroupId() {
+        AbstractRangeAction pst = new PstWithRange("pst_range_id", new NetworkElement("neID"));
+        pst.setGroupId("groupId");
+        assertTrue(pst.getGroupId().isPresent());
+        assertEquals("groupId", pst.getGroupId().get());
+    }
 }
