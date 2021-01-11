@@ -8,14 +8,13 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,15 +122,15 @@ public class CracResultManager {
         });
     }
 
-    public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, Network network, double loopFlowAcceptableAugmentation) {
+    public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, double loopFlowAcceptableAugmentation) {
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
 
             if (!Objects.isNull(cnecLoopFlowExtension)) {
-                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT, network));
+                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT));
                 double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
 
-                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow + loopFlowAcceptableAugmentation, loopFlowThreshold - cnec.getFrm()));
+                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow + loopFlowAcceptableAugmentation, loopFlowThreshold - cnec.getReliabilityMargin()));
             }
         });
     }
@@ -158,10 +157,8 @@ public class CracResultManager {
         });
     }
 
-    public void fillCnecResultsWithAbsolutePtdfSums(Map<Cnec, Double> ptdfSums) {
-        ptdfSums.entrySet().forEach(entry ->
-                entry.getKey().getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(entry.getValue())
-        );
+    public void fillCnecResultsWithAbsolutePtdfSums(Map<BranchCnec, Double> ptdfSums) {
+        ptdfSums.forEach((key, value) -> key.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(value));
     }
 
     public void copyCommercialFlowsBetweenVariants(String originVariant, String destinationVariant) {

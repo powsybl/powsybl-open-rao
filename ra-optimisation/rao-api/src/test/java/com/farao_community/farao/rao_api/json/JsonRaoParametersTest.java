@@ -69,6 +69,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR-ES", "ES-PT"));
         parameters.setPtdfBoundariesFromCountryCodes(stringBoundaries);
         parameters.setPtdfSumLowerBound(0.05);
+        parameters.setPerimetersInParallel(15);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
 
@@ -80,7 +81,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readExtension() throws IOException {
+    public void readExtension() {
         RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
@@ -88,7 +89,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
     }
 
     @Test(expected = FaraoException.class)
-    public void readError() throws IOException {
+    public void readError() {
         JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParametersError.json"));
     }
 
@@ -119,7 +120,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         }
 
         @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
             return new DummyExtension();
         }
 

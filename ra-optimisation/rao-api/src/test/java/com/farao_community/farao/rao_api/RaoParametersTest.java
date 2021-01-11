@@ -79,7 +79,7 @@ public class RaoParametersTest {
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
 
-        assertEquals(false, parameters.isRaoWithLoopFlowLimitation());
+        assertFalse(parameters.isRaoWithLoopFlowLimitation());
     }
 
     @Test
@@ -148,6 +148,17 @@ public class RaoParametersTest {
     }
 
     @Test
+    public void checkPerimetersParallelConfig() {
+        MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
+        moduleConfig.setStringProperty("perimeters-in-parallel", Objects.toString(10));
+
+        RaoParameters parameters = new RaoParameters();
+        RaoParameters.load(parameters, platformCfg);
+
+        assertEquals(10, parameters.getPerimetersInParallel());
+    }
+
+    @Test
     public void testUpdatePtdfWithTopo() {
         assertFalse(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF.shouldUpdatePtdfWithTopologicalChange());
         assertTrue(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithTopologicalChange());
@@ -205,7 +216,7 @@ public class RaoParametersTest {
 
     private void testWrongBoundary(String boundary) {
         RaoParameters parameters = new RaoParameters();
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList(boundary));
+        List<String> stringBoundaries = Arrays.asList(boundary);
         parameters.setPtdfBoundariesFromCountryCodes(stringBoundaries);
     }
 

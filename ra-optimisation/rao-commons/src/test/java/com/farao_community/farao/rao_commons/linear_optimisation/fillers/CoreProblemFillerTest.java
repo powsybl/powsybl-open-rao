@@ -7,6 +7,8 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -337,6 +339,48 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         //      - 2 per range action (absolute variation constraints)
         assertEquals(3, linearProblem.getSolver().numVariables());
         assertEquals(3, linearProblem.getSolver().numConstraints());
+    }
+
+    @Test
+    public void testFillerWithRangeActionGroup() {
+        crac.newPstRangeAction()
+                .setId("pst1-group1")
+                .setGroupId("group1")
+                .newNetworkElement().setId("BBE2AA1  BBE3AA1  1").add()
+                .setUnit(Unit.TAP)
+                .setMinValue(-2.)
+                .setMaxValue(5.)
+                .setOperator("RTE")
+                .add();
+        crac.newPstRangeAction()
+                .setId("pst2-group1")
+                .setGroupId("group1")
+                .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
+                .setUnit(Unit.TAP)
+                .setMinValue(-5.)
+                .setMaxValue(10.)
+                .setOperator("RTE")
+                .add();
+
+        network = NetworkImportsUtil.import12NodesWith2PstsNetwork();
+        crac.desynchronize();
+        crac.synchronize(network);
+        initRaoData(crac.getPreventiveState());
+
+        // fill a first time the linearRaoProblem with some data
+        coreProblemFiller.fill(raoData, linearProblem);
+
+        // check the number of variables and constraints
+        // total number of variables 8 :
+        //      - 1 per CNEC (flow)
+        //      - 2 per range action (set-point and variation) x 3
+        //      - 1 per group
+        // total number of constraints 9 :
+        //      - 1 per CNEC (flow constraint)
+        //      - 2 per range action (absolute variation constraints) x 3
+        //      - 1 per range action in a group (group constraint) x 2
+        assertEquals(8, linearProblem.getSolver().numVariables());
+        assertEquals(9, linearProblem.getSolver().numConstraints());
     }
 
     @Test

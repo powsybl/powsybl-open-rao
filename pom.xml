@@ -101,12 +101,15 @@
         <assertj.version>3.17.2</assertj.version>
         <commons.cli.version>1.3.1</commons.cli.version>
         <ejml.version>0.39</ejml.version>
+        <farao.virtualhubs.version>0.0.2</farao.virtualhubs.version>
         <google.autoservice.version>1.0-rc7</google.autoservice.version>
         <google.guava.version>29.0-jre</google.guava.version>
         <google.ortools.version>7.8.7959</google.ortools.version>
         <jackson.version>2.11.2</jackson.version>
         <java.version>11</java.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
+        <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
+        <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
         <jimfs.version>1.1</jimfs.version>
         <jgrapht.core.version>1.4.0</jgrapht.core.version>
         <junit.version>4.13.1</junit.version>
@@ -127,8 +130,8 @@
         <maven.templating.version>1.0.0</maven.templating.version>
         <mockito.version>3.5.10</mockito.version>
         <powermock.version>2.0.7</powermock.version>
-        <powsybl.core.version>3.7.1</powsybl.core.version>
-        <powsybl.hades2.version>2.14.1</powsybl.hades2.version>
+        <powsybl.core.version>3.8.0</powsybl.core.version>
+        <powsybl.hades2.version>2.15.0</powsybl.hades2.version>
         <slf4j.version>1.7.30</slf4j.version>
         <threeten.version>1.5.0</threeten.version>
     </properties>
@@ -395,6 +398,11 @@
                 <version>${google.guava.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>farao-virtual-hubs-network-extension</artifactId>
+                <version>${farao.virtualhubs.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.farao-community.ortools</groupId>
                 <artifactId>ortools-java</artifactId>
                 <version>${google.ortools.version}</version>
@@ -470,6 +478,11 @@
                 <version>${javax.validation.version}</version>
             </dependency>
             <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb-api.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.threeten</groupId>
                 <artifactId>threeten-extra</artifactId>
                 <version>${threeten.version}</version>
@@ -504,6 +517,12 @@
                 <groupId>com.rte-france.powsybl</groupId>
                 <artifactId>powsybl-hades2-integration</artifactId>
                 <version>${powsybl.hades2.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb-runtime.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>

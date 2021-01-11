@@ -10,10 +10,10 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.UsageMethod;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -44,7 +44,7 @@ public class SearchTreeRaoProviderTest {
         State curativeState = crac.getState("Contingency FR1 FR3", "curative");
 
         crac.addNetworkAction(new Topology("open BE2-FR3", "open BE2-FR3", "FR",
-            List.of(new OnState(UsageMethod.AVAILABLE, curativeState)),
+            List.of(new OnStateImpl(UsageMethod.AVAILABLE, curativeState)),
             crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN));
 
         ResultVariantManager resultVariantManager = new ResultVariantManager();
@@ -54,12 +54,12 @@ public class SearchTreeRaoProviderTest {
         postOptimCurVariantId = resultVariantManager.createNewUniqueVariantId("postOptim-cur");
         resultVariantManager.setInitialVariantId(initialVariantId);
 
-        crac.getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(600);
-        crac.getCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(postOptimPrevVariantId).setFlowInMW(300);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(600);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(postOptimPrevVariantId).setFlowInMW(300);
 
-        crac.getCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
+        crac.getBranchCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
             .getVariant(postOptimPrevVariantId).setFlowInMW(400);
-        crac.getCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
+        crac.getBranchCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
             .getVariant(postOptimCurVariantId).setFlowInMW(200);
 
         ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
@@ -107,9 +107,9 @@ public class SearchTreeRaoProviderTest {
 
         assertEquals(RaoResult.Status.SUCCESS, mergedRaoResult.getStatus());
         assertEquals(postOptimPrevVariantId, mergedRaoResult.getPostOptimVariantId());
-        assertEquals(300, crac.getCnec("cnec1basecase").getExtension(CnecResultExtension.class)
+        assertEquals(300, crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class)
             .getVariant(postOptimPrevVariantId).getFlowInMW(), 0.1);
-        assertEquals(200, crac.getCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
+        assertEquals(200, crac.getBranchCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
             .getVariant(postOptimPrevVariantId).getFlowInMW(), 0.1);
         assertEquals(Integer.valueOf(5), ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
             .getVariant(postOptimPrevVariantId)).getTap(crac.getPreventiveState().getId()));

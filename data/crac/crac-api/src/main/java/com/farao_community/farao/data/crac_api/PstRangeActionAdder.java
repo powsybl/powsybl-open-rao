@@ -12,14 +12,7 @@ import com.farao_community.farao.commons.Unit;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface PstRangeActionAdder extends NetworkElementParent<PstRangeActionAdder> {
-
-    /**
-     * Set the id of the new PastRangeAction
-     * @param id: the id to set
-     * @return the {@code PstRangeActionAdder} instance
-     */
-    PstRangeActionAdder setId(String id);
+public interface PstRangeActionAdder extends NetworkElementParent<PstRangeActionAdder>, IdentifiableAdder<PstRangeActionAdder> {
 
     /**
      * Set the operator of the PST
@@ -27,6 +20,13 @@ public interface PstRangeActionAdder extends NetworkElementParent<PstRangeAction
      * @return the {@code PstRangeActionAdder} instance
      */
     PstRangeActionAdder setOperator(String operator);
+
+    /**
+     * Set the group ID if the PST is part of a group
+     * @param groupId: ID of the group
+     * @return the {@code PstRangeActionAdder} instance
+     */
+    PstRangeActionAdder setGroupId(String groupId);
 
     /**
      * Set the unit of the PST

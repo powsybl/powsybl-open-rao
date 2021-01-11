@@ -1,78 +1,55 @@
-componentDefaultConfig:
-    SensitivityComputationFactory: com.rte_france.powsybl.hades2.sensitivity.Hades2SensitivityFactory
-    SensitivityFactorsProviderFactory: com.powsybl.sensitivity.JsonSensitivityFactorsProviderFactory
-    FlowDecompositionFactory: com.farao_community.farao.flow_decomposition.full_line_decomposition.FullLineDecompositionFactory
-    RaoComputationFactory: com.farao_community.farao.closed_optimisation_rao.ClosedOptimisationRaoFactory
-    FlowBasedComputationFactory: com.farao_community.farao.flowbased_computation.FlowBasedComputationFactoryImpl
-
 hades2:
     homeDir: $HOME/farao-dep/runtime/hades2
     timeout: -1
     debug: false
 
-hades2-default-parameters:
-    dcMode: true
-    balanceType: PROPORTIONAL_TO_GENERATION_P
-    countriesToBalance: AL,AT,BA,BE,BG,CH,CZ,DE,ES,FR,GR,HR,HU,IT,ME,MK,NL,PL,PT,RO,RS,SI,SK,TR,UA
-
-hades2-default-sensitivity-parameters:
-    computeInitialLoadflow: true
-    computeSensitivityToPsts: true
-    computeSensitivityToInjections: true
-    equationTypePst: ANGLE_SHIFT_EQ
-    resultsThreshold: -1
-    hubPtdf: -1
-
-closed-optimisation-rao-parameters:
-    solver-type: CBC_MIXED_INTEGER_PROGRAMMING
-    problem-fillers:
-        - com.farao_community.farao.closed_optimisation_rao.fillers.BranchMarginsPositivityConstraintFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.BranchMarginsVariablesFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.GeneratorRedispatchCostsFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.GeneratorRedispatchVariablesFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.PstAngleImpactOnBranchFlowFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.PstAngleVariablesFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchEquilibriumConstraintFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchImpactOnBranchFlowFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.RedispatchCostMinimizationObjectiveFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.BranchOverloadVariablesFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.MinimizationObjectiveFiller
-        - com.farao_community.farao.closed_optimisation_rao.fillers.OverloadPenaltyCostFiller
-    pre-processors:
-        - com.farao_community.farao.closed_optimisation_rao.pre_processors.SensitivityPreProcessor
-    post-processors:
-        - com.farao_community.farao.closed_optimisation_rao.post_processors.BranchResultsPostProcessor
-        - com.farao_community.farao.closed_optimisation_rao.post_processors.PstElementResultsPostProcessor
-        - com.farao_community.farao.closed_optimisation_rao.post_processors.RedispatchElementResultsPostProcessor
+load-flow:
+    default-impl-name: Hades2
 
 load-flow-default-parameters:
     voltageInitMode: DC_VALUES
     transformerVoltageControlOn: false
-    t2wtSplitShuntAdmittance: true
+    dcMode: true
+    balanceType: PROPORTIONAL_TO_GENERATION_P
 
-local-app-file-system:
-    drive-name: Local
-    root-dir: $HOME
+hades2-default-parameters:
+    countriesToBalance: AL,AT,BA,BE,BG,CH,CZ,DE,ES,FR,GR,HR,HU,IT,ME,MK,NL,PL,PT,RO,RS,SI,SK,TR,UA
 
-mapdb-app-file-system:
-    drive-name: Database
-    db-file: $HOME/farao.db
+sensitivity-analysis:
+    default-impl-name: Sensi2
+
+hades2-default-sensitivity-parameters:
+    computeInitialLoadflow: true
+    computeSensitivityToPsts: true
+    computeSensitivityToInjections: false
+    equationTypePst: ANGLE_SHIFT_EQ
+    resultsThreshold: -1
+    hubPtdf: -1
 
 rao:
     default: SearchTreeRao
 
 rao-parameters:
+    objective-function: MAX_MIN_MARGIN_IN_MEGAWATT
+    max-number-of-iterations: 5
+    pst-penalty-cost: 0.01
+    pst-sensitivity-threshold : 0.0
+    sensitivity-fallback-overcost: 0
     rao-with-loop-flow-limitation: false
-    loop-flow-approximation: true
+    loop-flow-approximation: FIXED_PTDF
     loop-flow-constraint-adjustment-coefficient: 0.0
     loop-flow-violation-cost: 0.0
-    max-number-of-iterations: 10
+    mnec-acceptable-margin-diminution: 50.0
+    mnec-violation-cost: 10.0
+    mnec-constraint-adjustment-coefficient: 0.0
+
+search-tree-rao-parameters:
+    preventive-rao-stop-criterion: SECURE
+    curative-rao-stop-criterion: SECURE
+    maximum-search-depth: 5
+    relative-network-action-minimum-impact-threshold: 0
+    absolute-network-action-minimum-impact-threshold: 0
+    leaves-in-parallel: 2
 
 linear-rao-parameters:
     security-analysis-without-rao: false
-
-search-tree-rao-parameters:
-    stop-criterion : POSITIVE_MARGIN
-    maximum-search-depth : 20
-    relative-network-action-minimum-impact-threshold : 0
-    absolute-network-action-minimum-impact-threshold : 0

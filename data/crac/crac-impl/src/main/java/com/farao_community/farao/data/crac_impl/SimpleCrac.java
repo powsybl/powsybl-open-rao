@@ -10,8 +10,14 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
-import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCnecSerializer;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.adder.BranchCnecAdder;
+import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
+import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
+import com.farao_community.farao.data.crac_impl.cnec.adder.FlowCnecAdderImpl;
+import com.farao_community.farao.data.crac_impl.json.serializers.FlowCnecImplSerializer;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
@@ -39,7 +45,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private Map<String, Instant> instants;
     private Map<String, Contingency> contingencies;
     private Map<String, State> states;
-    private Map<String, Cnec> cnecs;
+    private Map<String, BranchCnec> branchCnecs;
     private Map<String, RangeAction> rangeActions;
     private Map<String, NetworkAction> networkActions;
     private boolean isSynchronized;
@@ -52,14 +58,14 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
                        @JsonProperty("instants") Set<Instant> instants,
                        @JsonProperty("contingencies") Set<Contingency> contingencies,
                        @JsonProperty("states") Set<State> states,
-                       @JsonProperty("cnecs") Set<Cnec> cnecs,
+                       @JsonProperty("cnecs") Set<BranchCnec> branchCnecs,
                        @JsonProperty("rangeActions") Set<RangeAction> rangeActions,
                        @JsonProperty("networkActions") Set<NetworkAction> networkActions) {
         super(id, name);
         this.networkElements = turnIntoMap(networkElements);
         this.instants = turnIntoMap(instants);
         this.states = turnIntoMapForState(states);
-        this.cnecs = turnIntoMap(cnecs);
+        this.branchCnecs = turnIntoMap(branchCnecs);
         this.contingencies = turnIntoMap(contingencies);
         this.rangeActions = turnIntoMap(rangeActions);
         this.networkActions = turnIntoMap(networkActions);
@@ -67,7 +73,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         this.networkDate = null;
     }
 
-    private <T extends Identifiable> Map<String, T> turnIntoMap(Set<T> initialSet) {
+    private <T extends Identifiable<T>> Map<String, T> turnIntoMap(Set<T> initialSet) {
         return initialSet.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
     }
 
@@ -93,8 +99,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public NetworkElementAdder newNetworkElement() {
-        return new NetworkElementAdderImpl<SimpleCrac>(this);
+    public NetworkElementAdder<Crac> newNetworkElement() {
+        return new NetworkElementAdderImpl<>(this);
     }
 
     @Override
@@ -107,8 +113,9 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public NetworkElement addNetworkElement(NetworkElement networkElement) {
-        return addNetworkElement(networkElement.getId(), networkElement.getName());
+    public Crac addNetworkElement(NetworkElement networkElement) {
+        addNetworkElement(networkElement.getId(), networkElement.getName());
+        return this;
     }
 
     /**
@@ -143,7 +150,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public final Set<Instant> getInstants() {
-        return new HashSet(instants.values());
+        return new HashSet<>(instants.values());
     }
 
     @Override
@@ -177,7 +184,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<Contingency> getContingencies() {
-        return new HashSet(contingencies.values());
+        return new HashSet<>(contingencies.values());
     }
 
     @Override
@@ -230,7 +237,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     public final Set<State> getStates() {
-        return new HashSet(states.values());
+        return new HashSet<>(states.values());
     }
 
     public final State getState(String id) {
@@ -240,7 +247,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     @JsonIgnore
     public State getPreventiveState() {
-        return states.values().stream().filter(state -> !state.getContingency().isPresent()).findAny().orElse(null);
+        return states.values().stream().filter(state -> state.getContingency().isEmpty()).findAny().orElse(null);
     }
 
     @Override
@@ -346,71 +353,66 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public CnecAdder newCnec() {
-        return new SimpleCnecAdder(this);
+    public BranchCnecAdder newBranchCnec() {
+        return new FlowCnecAdderImpl(this);
     }
 
     @Override
-    public Cnec getCnec(String id) {
-        return cnecs.get(id);
+    public BranchCnec getBranchCnec(String id) {
+        return branchCnecs.get(id);
     }
 
-    @JsonSerialize(contentUsing = SimpleCnecSerializer.class)
+    @JsonSerialize(contentUsing = FlowCnecImplSerializer.class)
     @Override
-    public Set<Cnec> getCnecs() {
-        return new HashSet<>(cnecs.values());
+    public Set<BranchCnec> getBranchCnecs() {
+        return new HashSet<>(branchCnecs.values());
     }
 
     @Override
-    public Set<Cnec> getCnecs(State state) {
-        return cnecs.values().stream()
+    public Set<BranchCnec> getBranchCnecs(State state) {
+        return branchCnecs.values().stream()
             .filter(cnec -> cnec.getState().equals(state))
             .collect(Collectors.toSet());
     }
 
     @Override
     public void removeCnec(String cnecId) {
-        cnecs.remove(cnecId);
+        branchCnecs.remove(cnecId);
     }
 
-    public Cnec addCnec(String id, NetworkElement networkElement, Set<AbstractThreshold> abstractThresholds, State state) {
-        if (!networkElements.containsKey(networkElement.getId()) || !states.containsKey(state.getId())) {
-            throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElement.getId(), state.getId()));
-        }
-        Cnec cnec = new SimpleCnec(id, networkElement, abstractThresholds, state);
-        cnecs.put(id, cnec);
-        return cnec;
-    }
-
-    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId, double frm, boolean optimized, boolean monitored) {
+    public BranchCnec addCnec(String id, String name, String networkElementId, Set<BranchThreshold> branchThresholds, String stateId, double frm, boolean optimized, boolean monitored) {
         if (getNetworkElement(networkElementId) == null || getState(stateId) == null) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
         }
-        Cnec cnec = new SimpleCnec(id, name, getNetworkElement(networkElementId), abstractThresholds, getState(stateId), frm, optimized, monitored);
-        cnecs.put(id, cnec);
+        BranchCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), getState(stateId), optimized, monitored, branchThresholds, frm);
+        branchCnecs.put(id, cnec);
         return cnec;
     }
 
-    public Cnec addCnec(String id, String name, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId, double frm) {
-        return this.addCnec(id, name, networkElementId, abstractThresholds, stateId, frm, true, false);
+    public BranchCnec addCnec(String id, String name, String networkElementId, Set<BranchThreshold> branchThresholds, String stateId, double frm) {
+        return this.addCnec(id, name, networkElementId, branchThresholds, stateId, frm, true, false);
     }
 
-    public Cnec addCnec(String id, String networkElementId, Set<AbstractThreshold> abstractThresholds, String stateId) {
-        return this.addCnec(id, id, networkElementId, abstractThresholds, stateId, 0);
+    public BranchCnec addCnec(String id, String networkElementId, Set<BranchThreshold> branchThresholds, String stateId) {
+        return this.addCnec(id, id, networkElementId, branchThresholds, stateId, 0);
     }
 
     @Override
-    public void addCnec(Cnec cnec) {
-        addState(cnec.getState());
-        NetworkElement networkElement = addNetworkElement(cnec.getNetworkElement());
-
+    public void addCnec(Cnec<?> cnec) {
         // add cnec
-        cnecs.put(cnec.getId(), ((SimpleCnec) cnec).copy(networkElement, getState(cnec.getState().getId()), ((SimpleCnec) cnec).getFrm(), cnec.isOptimized(), cnec.isMonitored()));
+        if (cnec instanceof BranchCnec) {
+            addState(cnec.getState());
+            addNetworkElement(cnec.getNetworkElement());
+            NetworkElement networkElement = getNetworkElement(cnec.getNetworkElement().getId());
+            BranchCnec branchCnec = (BranchCnec) cnec;
 
-        // add extensions
-        if (!cnec.getExtensions().isEmpty()) {
-            Cnec cnecInCrac = getCnec(cnec.getId());
-            ExtensionsHandler.getExtensionsSerializers().addExtensions(cnecInCrac, cnec.getExtensions());
+            branchCnecs.put(cnec.getId(), branchCnec.copy(networkElement, getState(cnec.getState().getId())));
+
+            // add extensions
+            if (!cnec.getExtensions().isEmpty()) {
+                BranchCnec cnecInCrac = getBranchCnec(cnec.getId());
+                ExtensionsHandler.getExtensionsSerializers().addExtensions(cnecInCrac, branchCnec.getExtensions());
+            }
         }
     }
 
@@ -430,13 +432,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     public void addNetworkAction(NetworkAction networkAction) {
-        networkAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         networkAction.getNetworkElements().forEach(this::addNetworkElement);
         networkActions.put(networkAction.getId(), networkAction);
     }
 
     public void addRangeAction(RangeAction rangeAction) {
-        rangeAction.getUsageRules().forEach(usageRule -> addState(usageRule.getState()));
         rangeActions.put(rangeAction.getId(), rangeAction);
     }
 
@@ -479,7 +479,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         if (isSynchronized) {
             throw new AlreadySynchronizedException(format("Crac %s has already been synchronized", getId()));
         }
-        cnecs.values().forEach(cnec -> cnec.synchronize(network));
+        branchCnecs.values().forEach(cnec -> cnec.synchronize(network));
         rangeActions.values().forEach(rangeAction -> rangeAction.synchronize(network));
         networkDate = network.getCaseDate();
         isSynchronized = true;
@@ -487,7 +487,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void desynchronize() {
-        cnecs.values().forEach(Synchronizable::desynchronize);
+        branchCnecs.values().forEach(Synchronizable::desynchronize);
         rangeActions.values().forEach(Synchronizable::desynchronize);
         networkDate = null;
         isSynchronized = false;

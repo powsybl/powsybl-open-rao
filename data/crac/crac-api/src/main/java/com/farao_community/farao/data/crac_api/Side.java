@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.powsybl.iidm.network.Branch;
+
 /**
  * Side
  *
@@ -14,7 +16,16 @@ package com.farao_community.farao.data.crac_api;
  */
 
 public enum Side {
-    LEFT,
-    RIGHT,
-    BOTH
+    LEFT(Branch.Side.ONE),
+    RIGHT(Branch.Side.TWO);
+
+    private final Branch.Side iidmSide;
+
+    Side(Branch.Side iidmSide) {
+        this.iidmSide = iidmSide;
+    }
+
+    public Branch.Side iidmSide() {
+        return iidmSide;
+    }
 }

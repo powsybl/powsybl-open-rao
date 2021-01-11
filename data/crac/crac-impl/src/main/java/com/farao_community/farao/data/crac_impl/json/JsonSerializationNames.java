@@ -22,6 +22,8 @@ public final class JsonSerializationNames {
     public static final String NETWORK_ELEMENT = "networkElement";
     public static final String NETWORK_ELEMENTS = "networkElements";
 
+    public static final String GROUP_ID = "groupId";
+
     public static final String CONTINGENCY = "contingency";
     public static final String CONTINGENCIES = "contingencies";
 
@@ -63,7 +65,7 @@ public final class JsonSerializationNames {
 
     public static final String COMPLEX_CONTINGENCY_TYPE = "complex-contingency";
 
-    public static final String SIMPLE_CNEC_TYPE = "simple-cnec";
+    public static final String FLOW_CNEC_TYPE = "flow-cnec";
 
     public static final String PST_WITH_RANGE_TYPE = "pst-with-range";
     public static final String ALIGNED_RANGE_ACTIONS_TYPE = "aligned-range-action";

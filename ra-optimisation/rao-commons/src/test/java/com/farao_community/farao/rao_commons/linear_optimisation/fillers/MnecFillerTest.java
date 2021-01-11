@@ -7,11 +7,12 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Cnec;
-import com.farao_community.farao.data.crac_api.Direction;
-import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -30,8 +31,8 @@ import static org.junit.Assert.*;
 public class MnecFillerTest extends AbstractFillerTest {
 
     private MnecFiller mnecFiller;
-    private Cnec mnec1;
-    private Cnec mnec2;
+    private BranchCnec mnec1;
+    private BranchCnec mnec2;
     private double mnec1MaxFlow = 1000 - 3.5;
     private double mnec1MinFlow = -1000 + 3.5;
     private double mnec2MaxFlow = 100 - 3.5;
@@ -42,24 +43,25 @@ public class MnecFillerTest extends AbstractFillerTest {
         init();
         coreProblemFiller = new CoreProblemFiller();
 
-        crac.newCnec().setId("MNEC1 - N - preventive")
+        crac.newBranchCnec().setId("MNEC1 - N - preventive")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(1000.0).setUnit(Unit.MEGAWATT).add()
-                .setOptimized(false).setMonitored(true)
+                .newThreshold().setMin(-1000.).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setUnit(Unit.MEGAWATT).add()
+                .optimized().monitored()
                 .setInstant(crac.getInstant("N"))
                 .add();
-        mnec1 = crac.getCnec("MNEC1 - N - preventive");
+        mnec1 = crac.getBranchCnec("MNEC1 - N - preventive");
 
-        crac.newCnec().setId("MNEC2 - N - preventive")
+        crac.newBranchCnec().setId("MNEC2 - N - preventive")
                 .newNetworkElement().setId("NNL2AA1  BBE3AA1  1").add()
-                .newThreshold().setDirection(Direction.BOTH).setSide(Side.LEFT).setMaxValue(100.0).setUnit(Unit.MEGAWATT).add()
-                .setOptimized(false).setMonitored(true)
+                .newThreshold().setMin(-100.).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(100.0).setUnit(Unit.MEGAWATT).add()
+                .optimized().monitored()
                 .setInstant(crac.getInstant("N"))
                 .add();
-        mnec2 = crac.getCnec("MNEC2 - N - preventive");
+        mnec2 = crac.getBranchCnec("MNEC2 - N - preventive");
 
         crac.desynchronize();
-        RaoInputHelper.cleanCrac(crac, network);
+        CracCleaner cracCleaner = new CracCleaner();
+        cracCleaner.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
         initRaoData(crac.getPreventiveState());
@@ -77,6 +79,7 @@ public class MnecFillerTest extends AbstractFillerTest {
         // fill the problem : the core filler is required
         mnecFiller = new MnecFiller(unit, 50, 10, 3.5);
         initRaoData(crac.getPreventiveState());
+        raoData.getCrac().getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getInitialVariantId());
         coreProblemFiller.fill(raoData, linearProblem);
         mnecFiller.fill(raoData, linearProblem);
     }
@@ -84,7 +87,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     @Test
     public void testAddMnecViolationVariables() {
         fillProblemWithFiller(Unit.MEGAWATT);
-        crac.getCnecs().forEach(cnec -> {
+        crac.getBranchCnecs().forEach(cnec -> {
             MPVariable variable = linearProblem.getMnecViolationVariable(cnec);
             if (cnec.isMonitored()) {
                 assertNotNull(variable);
@@ -100,7 +103,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     public void testAddMnecMinFlowConstraints() {
         fillProblemWithFiller(Unit.MEGAWATT);
 
-        crac.getCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> {
+        crac.getBranchCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> {
             assertNull(linearProblem.getMnecFlowConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD));
         });
 
@@ -136,7 +139,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     @Test
     public void testAddMnecPenaltyCostMW() {
         fillProblemWithFiller(Unit.MEGAWATT);
-        crac.getCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> {
+        crac.getBranchCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> {
             MPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec);
             assertEquals(10.0, linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         });
@@ -145,7 +148,7 @@ public class MnecFillerTest extends AbstractFillerTest {
     @Test
     public void testAddMnecPenaltyCostA() {
         fillProblemWithFiller(Unit.AMPERE);
-        crac.getCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> {
+        crac.getBranchCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> {
             MPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec);
             assertEquals(10.0 / 0.658, linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         });

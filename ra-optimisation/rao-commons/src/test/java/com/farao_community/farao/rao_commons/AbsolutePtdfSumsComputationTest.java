@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -52,21 +52,21 @@ public class AbsolutePtdfSumsComputationTest {
                 new ImmutablePair<>(Country.NL, Country.BE),
                 new ImmutablePair<>(Country.NL, Country.DE));
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.any(Cnec.class))).thenReturn(0.1);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.eq(crac.getCnec("cnec1basecase")))).thenReturn(.1, .2, .3, .4);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.eq(crac.getCnec("cnec2basecase")))).thenReturn(.3, .3, .2, .1);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.any(BranchCnec.class))).thenReturn(0.1);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.eq(crac.getBranchCnec("cnec1basecase")))).thenReturn(.1, .2, .3, .4);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.eq(crac.getBranchCnec("cnec2basecase")))).thenReturn(.3, .3, .2, .1);
 
     }
 
     @Test
     public void testComputation() {
-        Map<Cnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getCnecs(), glskProvider, boundaries, systematicSensitivityResult);
-        assertEquals(0.8, ptdfSums.get(crac.getCnec("cnec1basecase")), DOUBLE_TOLERANCE);
-        assertEquals(0.6, ptdfSums.get(crac.getCnec("cnec2basecase")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getCnec("cnec1stateCurativeContingency1")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getCnec("cnec1stateCurativeContingency2")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getCnec("cnec2stateCurativeContingency1")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getCnec("cnec2stateCurativeContingency2")), DOUBLE_TOLERANCE);
+        Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getBranchCnecs(), glskProvider, boundaries, systematicSensitivityResult);
+        assertEquals(0.8, ptdfSums.get(crac.getBranchCnec("cnec1basecase")), DOUBLE_TOLERANCE);
+        assertEquals(0.6, ptdfSums.get(crac.getBranchCnec("cnec2basecase")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec1stateCurativeContingency1")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec1stateCurativeContingency2")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec2stateCurativeContingency1")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec2stateCurativeContingency2")), DOUBLE_TOLERANCE);
 
     }
 }

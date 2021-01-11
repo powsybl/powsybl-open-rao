@@ -8,10 +8,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
@@ -25,7 +23,7 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("redispatching")
-public final class Redispatching extends AbstractElementaryRangeAction {
+public final class Redispatching extends AbstractRangeAction {
 
     public static final int TEMP_VALUE_REDISPATCH = 0;
 
@@ -35,24 +33,21 @@ public final class Redispatching extends AbstractElementaryRangeAction {
     private double startupCost;
     private double marginalCost;
 
-    @JsonCreator
-    public Redispatching(@JsonProperty("id") String id,
-                         @JsonProperty("name") String name,
-                         @JsonProperty("operator") String operator,
-                         @JsonProperty("usageRules") List<UsageRule> usageRules,
-                         @JsonProperty("ranges") List<Range> ranges,
-                         @JsonProperty("minimumPower") double minimumPower,
-                         @JsonProperty("maximumPower") double maximumPower,
-                         @JsonProperty("targetPower") double targetPower,
-                         @JsonProperty("startupCost") double startupCost,
-                         @JsonProperty("marginalCost") double marginalCost,
-                         @JsonProperty("generator") NetworkElement generator) {
-        super(id, name, operator, usageRules, ranges, generator);
+    public Redispatching(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges,
+                         double minimumPower, double maximumPower, double targetPower, double startupCost,
+                         double marginalCost, NetworkElement generator, String groupId) {
+        super(id, name, operator, usageRules, ranges, generator, groupId);
         this.minimumPower = minimumPower;
         this.maximumPower = maximumPower;
         this.targetPower = targetPower;
         this.startupCost = startupCost;
         this.marginalCost = marginalCost;
+    }
+
+    public Redispatching(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges,
+                         double minimumPower, double maximumPower, double targetPower, double startupCost,
+                         double marginalCost, NetworkElement networkElement) {
+        this(id, name, operator, usageRules, ranges, minimumPower, maximumPower, targetPower, startupCost, marginalCost, networkElement, null);
     }
 
     public Redispatching(String id, String name, String operator, double anyValue, NetworkElement generator) {

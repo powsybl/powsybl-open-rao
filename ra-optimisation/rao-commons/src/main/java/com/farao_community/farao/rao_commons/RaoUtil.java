@@ -8,7 +8,16 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.PhysicalParameter;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -20,15 +29,14 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
 import static java.lang.String.format;
@@ -55,17 +63,24 @@ public final class RaoUtil {
     }
 
     public static void initCrac(Crac crac, Network network) {
-        RaoInputHelper.cleanCrac(crac, network);
+        CracCleaner cracCleaner = new CracCleaner();
+        cracCleaner.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
     }
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
+
+        if (raoParameters.getObjectiveFunction().getUnit().equals(Unit.AMPERE)
+            && raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+            throw new FaraoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunction().toString()));
+        }
+
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             if (raoInput.getGlskProvider() == null) {
-                throw new FaraoException("Relative margin objective function requires a GLSK provider.");
+                throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunction()));
             }
             if (raoParameters.getPtdfBoundaries().isEmpty()) {
-                throw new FaraoException("Relative margin objective function requires a list of pairs of country boundaries to compute PTDF sums upon.");
+                throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunction()));
             }
         }
 
@@ -87,14 +102,20 @@ public final class RaoUtil {
 
     public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData, boolean withPtdfSensitivitiesForLoopFlows) {
 
+        Set<Unit> flowUnits = new HashSet<>();
+        flowUnits.add(Unit.MEGAWATT);
+        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+            flowUnits.add(Unit.AMPERE);
+        }
+
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
             .builder()
             .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
             .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
-            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs());
+            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs(), flowUnits);
 
         if (raoParameters.isRaoWithLoopFlowLimitation() && withPtdfSensitivitiesForLoopFlows) {
-            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs());
+            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs(), flowUnits);
         }
 
         return builder.build();
@@ -104,11 +125,11 @@ public final class RaoUtil {
         List<ProblemFiller> fillers = new ArrayList<>();
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold()));
         if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
-                || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
+            || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         } else if (raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
-                || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
+            || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getPtdfSumLowerBound()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
@@ -117,7 +138,7 @@ public final class RaoUtil {
             // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
             fillers.add(createMaxLoopFlowFiller(raoParameters));
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityInterface,
-                    createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
+                createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
         } else {
             return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
         }
@@ -133,7 +154,7 @@ public final class RaoUtil {
 
     private static IteratingLinearOptimizerWithLoopFLowsParameters createIteratingLoopFlowsParameters(RaoParameters raoParameters) {
         return new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
-                raoParameters.getFallbackOverCost(), raoParameters.getLoopFlowApproximationLevel(), raoParameters.getLoopFlowViolationCost());
+            raoParameters.getFallbackOverCost(), raoParameters.getLoopFlowApproximationLevel(), raoParameters.getLoopFlowViolationCost());
     }
 
     public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters) {
@@ -145,6 +166,51 @@ public final class RaoUtil {
                 return new MinMarginObjectiveFunction(raoParameters);
             default:
                 throw new NotImplementedException("Not implemented objective function");
+        }
+    }
+
+    public static List<Optional<Country>> getCnecLocation(BranchCnec cnec, Network network) {
+        return getNetworkElementLocation(cnec.getNetworkElement(), network);
+    }
+
+    private static List<Optional<Country>> getNetworkElementLocation(NetworkElement networkElement, Network network) {
+        Identifiable<?> ne = network.getIdentifiable(networkElement.getId());
+        if (ne instanceof Branch) {
+            Branch branch = (Branch) ne;
+            return Arrays.asList(branch.getTerminal1().getVoltageLevel().getSubstation().getCountry(), branch.getTerminal2().getVoltageLevel().getSubstation().getCountry());
+        } else if (ne instanceof Switch) {
+            return Arrays.asList(((Switch) ne).getVoltageLevel().getSubstation().getCountry());
+        } else {
+            throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
+        }
+    }
+
+    public static List<Optional<Country>> getNetworkActionLocation(NetworkAction networkAction, Network network) {
+        List<List<Optional<Country>>> listOfLists = networkAction.getNetworkElements().stream()
+                .map(networkElement -> getNetworkElementLocation(networkElement, network))
+                .collect(Collectors.toList());
+        List<Optional<Country>> result = new ArrayList<>();
+        listOfLists.forEach(result::addAll);
+        return result;
+    }
+
+    public static BranchCnec getMostLimitingElement(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
+        List<BranchCnec> sortedCnecs = cnecs.stream().
+                filter(BranchCnec::isOptimized).
+                sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
+                collect(Collectors.toList());
+        return sortedCnecs.get(0);
+    }
+
+    public static double computeCnecMargin(BranchCnec cnec, String variantId, Unit unit, boolean relativePositiveMargins) {
+        CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
+        unit.checkPhysicalParameter(PhysicalParameter.FLOW);
+        double actualValue = unit.equals(Unit.MEGAWATT) ? cnecResult.getFlowInMW() : cnecResult.getFlowInA();
+        double absoluteMargin = cnec.computeMargin(actualValue, Side.LEFT, unit);
+        if (relativePositiveMargins && (absoluteMargin > 0)) {
+            return absoluteMargin / cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum();
+        } else {
+            return absoluteMargin;
         }
     }
 }

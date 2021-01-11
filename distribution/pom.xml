@@ -54,6 +54,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-crac-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -85,6 +90,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-glsk-quality-check-ucte</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-glsk-virtual-hubs</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -6,10 +6,13 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.data.crac_api.Cnec;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,17 +21,37 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivityProvider {
-    protected Set<Cnec> cnecs;
 
-    AbstractSimpleSensitivityProvider() {
-        cnecs = new HashSet<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSimpleSensitivityProvider.class);
+
+    protected Set<BranchCnec> cnecs;
+    protected boolean factorsInMegawatt;
+    protected boolean factorsInAmpere;
+
+    AbstractSimpleSensitivityProvider(Set<BranchCnec> cnecs, Set<Unit> requestedUnits) {
+        this.cnecs = cnecs;
+        factorsInMegawatt = false;
+        factorsInAmpere = false;
+
+        for (Unit unit : requestedUnits) {
+            switch (unit) {
+                case MEGAWATT:
+                    factorsInMegawatt = true;
+                    break;
+                case AMPERE:
+                    factorsInAmpere = true;
+                    break;
+                default:
+                    LOGGER.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
+            }
+        }
+
+        if (!factorsInAmpere && !factorsInMegawatt) {
+            LOGGER.error("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
+        }
     }
 
-    public void addCnecs(Set<Cnec> cnecs) {
-        this.cnecs.addAll(cnecs);
-    }
-
-    public Set<Cnec> getCnecs() {
+    public Set<BranchCnec> getBranchCnecs() {
         return cnecs;
     }
 

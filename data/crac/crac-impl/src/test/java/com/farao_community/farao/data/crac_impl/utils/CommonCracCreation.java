@@ -9,15 +9,14 @@ package com.farao_community.farao.data.crac_impl.utils;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
-import com.farao_community.farao.data.crac_impl.threshold.AbsoluteFlowThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.AbstractThreshold;
-import com.farao_community.farao.data.crac_impl.threshold.RelativeFlowThreshold;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnState;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 
 import java.util.*;
 
@@ -41,9 +40,8 @@ public final class CommonCracCreation {
         crac.addContingency(contingency2);
 
         // Instant
-        Instant basecase = new Instant("initial", 0);
-        Instant defaut = new Instant("default", 60);
-        Instant curative = new Instant("curative", 1200);
+        Instant basecase = crac.newInstant().setId("initial").setSeconds(0).add();
+        Instant curative = crac.newInstant().setId("curative").setSeconds(1200).add();
 
         //NetworkElement
         NetworkElement monitoredElement1 = new NetworkElement("BBE2AA1  FFR3AA1  1");
@@ -54,33 +52,60 @@ public final class CommonCracCreation {
         State stateCurativeContingency1 = new SimpleState(Optional.of(contingency1), curative);
         State stateCurativeContingency2 = new SimpleState(Optional.of(contingency2), curative);
 
-        // Thresholds
-        AbsoluteFlowThreshold thresholdAbsFlow = new AbsoluteFlowThreshold(Unit.MEGAWATT, Side.LEFT, Direction.BOTH, 1500);
-        RelativeFlowThreshold thresholdRelativeFlow = new RelativeFlowThreshold(Side.LEFT, Direction.BOTH, 30);
+        crac.newBranchCnec()
+            .setId("cnec1basecase")
+            .addNetworkElement(monitoredElement1)
+            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
+            .setInstant(stateBasecase.getInstant())
+            .optimized()
+            .add();
 
-        Set<AbstractThreshold> thresholdsAbsFlow = Collections.singleton(thresholdAbsFlow);
-        Set<AbstractThreshold> thresholdsRelativeFlow = Collections.singleton(thresholdRelativeFlow);
-        // CNECs
-        SimpleCnec cnec1basecase = new SimpleCnec("cnec1basecase", "", monitoredElement1, thresholdsAbsFlow, stateBasecase);
-        SimpleCnec cnec1stateCurativeContingency1 = new SimpleCnec("cnec1stateCurativeContingency1", "", monitoredElement1, thresholdsAbsFlow, stateCurativeContingency1);
-        SimpleCnec cnec1stateCurativeContingency2 = new SimpleCnec("cnec1stateCurativeContingency2", "", monitoredElement1, thresholdsAbsFlow, stateCurativeContingency2);
-        cnec1basecase.setThresholds(thresholdsAbsFlow);
-        cnec1stateCurativeContingency1.setThresholds(thresholdsAbsFlow);
-        cnec1stateCurativeContingency2.setThresholds(thresholdsAbsFlow);
+        crac.newBranchCnec()
+            .setId("cnec1stateCurativeContingency1")
+            .addNetworkElement(monitoredElement1)
+            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
+            .setInstant(stateCurativeContingency1.getInstant())
+            .setContingency(stateCurativeContingency1.getContingency().orElseThrow())
+            .optimized()
+            .add();
 
-        SimpleCnec cnec2basecase = new SimpleCnec("cnec2basecase", "", monitoredElement2, thresholdsAbsFlow, stateBasecase);
-        SimpleCnec cnec2stateCurativeContingency1 = new SimpleCnec("cnec2stateCurativeContingency1", "", monitoredElement2, thresholdsAbsFlow, stateCurativeContingency1);
-        SimpleCnec cnec2stateCurativeContingency2 = new SimpleCnec("cnec2stateCurativeContingency2", "", monitoredElement2, thresholdsAbsFlow, stateCurativeContingency2);
-        cnec2basecase.setThresholds(thresholdsRelativeFlow);
-        cnec2stateCurativeContingency1.setThresholds(thresholdsRelativeFlow);
-        cnec2stateCurativeContingency2.setThresholds(thresholdsRelativeFlow);
+        crac.newBranchCnec()
+            .setId("cnec1stateCurativeContingency2")
+            .addNetworkElement(monitoredElement1)
+            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
+            .setInstant(stateCurativeContingency2.getInstant())
+            .setContingency(stateCurativeContingency2.getContingency().orElseThrow())
+            .optimized()
+            .add();
 
-        crac.addCnec(cnec1basecase);
-        crac.addCnec(cnec1stateCurativeContingency1);
-        crac.addCnec(cnec1stateCurativeContingency2);
-        crac.addCnec(cnec2basecase);
-        crac.addCnec(cnec2stateCurativeContingency1);
-        crac.addCnec(cnec2stateCurativeContingency2);
+        crac.newBranchCnec()
+            .setId("cnec2basecase")
+            .addNetworkElement(monitoredElement2)
+            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
+            .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).setMax(0.3).add()
+            .setInstant(stateBasecase.getInstant())
+            .optimized()
+            .add();
+
+        crac.newBranchCnec()
+            .setId("cnec2stateCurativeContingency1")
+            .addNetworkElement(monitoredElement2)
+            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
+            .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).setMax(0.3).add()
+            .setInstant(stateCurativeContingency1.getInstant())
+            .setContingency(stateCurativeContingency1.getContingency().orElseThrow())
+            .optimized()
+            .add();
+
+        crac.newBranchCnec()
+            .setId("cnec2stateCurativeContingency2")
+            .addNetworkElement(monitoredElement2)
+            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
+            .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).setMax(0.3).add()
+            .setInstant(stateCurativeContingency2.getInstant())
+            .setContingency(stateCurativeContingency2.getContingency().orElseThrow())
+            .optimized()
+            .add();
 
         return crac;
     }
@@ -92,8 +117,19 @@ public final class CommonCracCreation {
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
 
         PstWithRange pstWithRange = new PstWithRange("pst", pstElement);
-        pstWithRange.addUsageRule(new OnState(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        pstWithRange.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         crac.addRangeAction(pstWithRange);
+
+        return crac;
+    }
+
+    public static SimpleCrac createWithSwitch() {
+        SimpleCrac crac = create();
+
+        NetworkElement switchElement = new NetworkElement("NNL3AA11 NNL3AA12 1", "NNL3AA11 NNL3AA12 1 name");
+        Topology topology = new Topology("switch_ra", "switch_ra_name", "OPERATOR", switchElement, ActionType.OPEN);
+        topology.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        crac.addNetworkAction(topology);
 
         return crac;
     }

@@ -8,12 +8,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.UsageRule;
-import com.farao_community.farao.data.crac_impl.json.serializers.network_action.ComplexNetworkActionSerializer;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
@@ -26,16 +22,11 @@ import java.util.Set;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("complex-network-action")
-@JsonSerialize(using = ComplexNetworkActionSerializer.class)
 public class ComplexNetworkAction extends AbstractNetworkAction {
     private Set<AbstractElementaryNetworkAction> elementaryNetworkActions;
 
-    @JsonCreator
-    public ComplexNetworkAction(@JsonProperty("id") String id,
-                                @JsonProperty("name") String name,
-                                @JsonProperty("operator") String operator,
-                                @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                @JsonProperty("elementaryNetworkActions") Set<AbstractElementaryNetworkAction> elementaryNetworkActions) {
+    public ComplexNetworkAction(String id, String name, String operator, List<UsageRule> usageRules,
+                                Set<AbstractElementaryNetworkAction> elementaryNetworkActions) {
         super(id, name, operator, usageRules);
         this.elementaryNetworkActions = new HashSet<>(elementaryNetworkActions);
     }

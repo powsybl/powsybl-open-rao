@@ -9,11 +9,15 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.farao_community.farao.data.crac_io_cne.CneClassCreator.*;
 import static com.farao_community.farao.data.crac_io_cne.CneCnecsCreator.createConstraintSeriesOfACnec;
@@ -94,11 +98,15 @@ public class Cne {
         Crac crac = cneHelper.getCrac();
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
-        crac.getCnecs().forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList));
+        crac.getBranchCnecs().stream().sorted(Comparator.comparing(Identifiable::getId))
+                .forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList));
 
         ConstraintSeries preventiveB56 = newConstraintSeries(generateRandomMRID(), B56_BUSINESS_TYPE);
-        crac.getRangeActions().forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, cneHelper, constraintSeriesList, preventiveB56));
-        crac.getNetworkActions().forEach(networkAction -> createNetworkRemedialActionSeries(networkAction, cneHelper, preventiveB56));
+        crac.getRangeActions().stream().sorted(Comparator.comparing(Identifiable::getId))
+                .forEach(rangeAction -> createRangeRemedialActionSeries(rangeAction, cneHelper, constraintSeriesList, preventiveB56));
+        crac.getNetworkActions().stream().sorted(Comparator.comparing(Identifiable::getId))
+                .forEach(networkAction -> createNetworkRemedialActionSeries(networkAction, cneHelper, preventiveB56));
+
         // Add the remedial action series to B54 and B57
         addRemedialActionsToOtherConstraintSeries(preventiveB56.getRemedialActionSeries(), constraintSeriesList);
         constraintSeriesList.add(preventiveB56);

@@ -64,121 +64,121 @@
   ],
   "cnecs": [
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "FR-BE - N-1 - N-1 FR-BE",
       "name": "Tieline FR-BE in N-1",
       "networkElement": "FR-BE",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "DIRECT",
-        "maxValue": 100
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
       "state": "N-1 FR-BE-N-1"
     },
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "FR-DE - N-1 - N-1 FR-BE",
       "name": "Tieline FR-DE in N-1",
       "networkElement": "FR-DE",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "DIRECT",
-        "maxValue": 100
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
       "state": "N-1 FR-BE-N-1"
     },
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "BE-NL - N-1 - N-1 FR-BE",
       "name": "Tieline BE-NL in N-1",
       "networkElement": "BE-NL",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "DIRECT",
-        "maxValue": 100
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
       "state": "N-1 FR-BE-N-1"
     },
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "DE-NL - N-1 - N-1 FR-BE",
       "name": "Tieline DE-NL in N-1",
       "networkElement": "DE-NL",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "DIRECT",
-        "maxValue": 100
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
       "state": "N-1 FR-BE-N-1"
     },
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "FR-BE - N - preventive",
       "name": "Tieline FR-BE in N",
       "networkElement": "FR-BE",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "BOTH",
-        "maxValue": 100
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
       "state": "none-N"
     },
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "FR-DE - N - preventive",
       "name": "Tieline FR-DE in N",
       "networkElement": "FR-DE",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "BOTH",
-        "maxValue": 100
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
       "state": "none-N"
     },
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "BE-NL - N - preventive",
       "name": "Tieline BE-NL in N",
       "networkElement": "BE-NL",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "BOTH",
-        "maxValue": 100
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
       "state": "none-N"
     },
     {
-      "type": "simple-cnec",
+      "type": "flow-cnec",
       "id": "DE-NL - N - preventive",
       "name": "Tieline DE-NL in N",
       "networkElement": "DE-NL",
       "thresholds": [ {
-        "type": "absolute-flow-threshold",
+        "type": "branch-threshold",
         "unit": "MW",
-        "side": "LEFT",
-        "direction": "BOTH",
-        "maxValue": 100
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
       "state": "none-N"

@@ -8,6 +8,9 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
@@ -40,8 +43,8 @@ public final class RaoData {
     private final CracResultManager cracResultManager;
     private final Set<Country> loopflowCountries;
 
-    private Set<Cnec> perimeterCnecs;
-    private Set<Cnec> loopflowCnecs;
+    private Set<BranchCnec> perimeterCnecs;
+    private Set<BranchCnec> loopflowCnecs;
 
     private CracVariantManager cracVariantManager;
 
@@ -55,7 +58,7 @@ public final class RaoData {
      * @param optimizedState:    State in which the remedial actions are optimized
      * @param perimeter:         set of State for which the Cnecs are monitored
      * @param referenceProgram:  ReferenceProgram object (needed only for loopflows and relative margin)
-     * @param glsk:      GLSK provider (needed only for loopflows)
+     * @param glsk:              GLSK provider (needed only for loopflows)
      * @param cracVariantId:     Existing variant of the CRAC on which RaoData will be based
      * @param loopflowCountries: countries for which we wish to check loopflows
      */
@@ -93,26 +96,26 @@ public final class RaoData {
 
     public static RaoData createOnPreventiveStateBasedOnExistingVariant(Network network, Crac crac, String cracVariantId) {
         return new RaoData(
-            network,
-            crac,
-            crac.getPreventiveState(),
-            Collections.singleton(crac.getPreventiveState()),
-            null,
-            null,
-            cracVariantId,
-            new HashSet<>());
+                network,
+                crac,
+                crac.getPreventiveState(),
+                Collections.singleton(crac.getPreventiveState()),
+                null,
+                null,
+                cracVariantId,
+                new HashSet<>());
     }
 
     public static RaoData create(Network network, RaoData raoData) {
         return new RaoData(
-            network,
-            raoData.getCrac(),
-            raoData.getOptimizedState(),
-            raoData.getPerimeter(),
-            raoData.getReferenceProgram(),
-            raoData.getGlskProvider(),
-            null,
-            raoData.getLoopflowCountries());
+                network,
+                raoData.getCrac(),
+                raoData.getOptimizedState(),
+                raoData.getPerimeter(),
+                raoData.getReferenceProgram(),
+                raoData.getGlskProvider(),
+                null,
+                raoData.getLoopflowCountries());
     }
 
     public Network getNetwork() {
@@ -135,17 +138,17 @@ public final class RaoData {
         return loopflowCountries;
     }
 
-    public Set<Cnec> getCnecs() {
+    public Set<BranchCnec> getCnecs() {
         return perimeterCnecs;
     }
 
     private void computePerimeterCnecs() {
-        Set<Cnec> cnecs = new HashSet<>();
-        perimeter.forEach(state -> cnecs.addAll(crac.getCnecs(state)));
+        Set<BranchCnec> cnecs = new HashSet<>();
+        perimeter.forEach(state -> cnecs.addAll(crac.getBranchCnecs(state)));
         perimeterCnecs = cnecs;
     }
 
-    public Set<Cnec> getLoopflowCnecs() {
+    public Set<BranchCnec> getLoopflowCnecs() {
         return loopflowCnecs;
     }
 
@@ -153,22 +156,22 @@ public final class RaoData {
         //TODO: when we start computing loopflows for N-1 cnecs, adapt this part of code
         if (!loopflowCountries.isEmpty()) {
             loopflowCnecs = perimeterCnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isEmpty())
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, loopflowCountries))
-                .collect(Collectors.toSet());
+                    .filter(cnec -> cnec.getState().getContingency().isEmpty())
+                    .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, loopflowCountries))
+                    .collect(Collectors.toSet());
         } else {
             loopflowCnecs = perimeterCnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isEmpty())
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)))
-                .collect(Collectors.toSet());
+                    .filter(cnec -> cnec.getState().getContingency().isEmpty())
+                    .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)))
+                    .collect(Collectors.toSet());
         }
     }
 
-    private static boolean cnecIsInCountryList(Cnec cnec, Network network, Set<Country> loopflowCountries) {
+    private static boolean cnecIsInCountryList(Cnec<?> cnec, Network network, Set<Country> loopflowCountries) {
         Line line = (Line) network.getIdentifiable(cnec.getNetworkElement().getId());
         Optional<Country> country1 = line.getTerminal1().getVoltageLevel().getSubstation().getCountry();
         Optional<Country> country2 = line.getTerminal2().getVoltageLevel().getSubstation().getCountry();
-        return (!country1.isEmpty() && loopflowCountries.contains(country1.get())) || (!country2.isEmpty() && loopflowCountries.contains(country2.get()));
+        return (country1.isPresent() && loopflowCountries.contains(country1.get())) || (country2.isPresent() && loopflowCountries.contains(country2.get()));
     }
 
     public Set<RangeAction> getAvailableRangeActions() {
@@ -224,11 +227,11 @@ public final class RaoData {
         return getSystematicSensitivityResult() != null;
     }
 
-    public double getReferenceFlow(Cnec cnec) {
+    public double getReferenceFlow(Cnec<?> cnec) {
         return getSystematicSensitivityResult().getReferenceFlow(cnec);
     }
 
-    public double getSensitivity(Cnec cnec, RangeAction rangeAction) {
+    public double getSensitivity(Cnec<?> cnec, RangeAction rangeAction) {
         return getSystematicSensitivityResult().getSensitivityOnFlow(rangeAction, cnec);
     }
 }

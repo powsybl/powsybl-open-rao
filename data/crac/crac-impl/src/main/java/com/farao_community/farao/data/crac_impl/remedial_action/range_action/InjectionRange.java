@@ -8,10 +8,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.UsageRule;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
@@ -23,17 +21,16 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("injection-range")
-public final class InjectionRange extends AbstractElementaryRangeAction {
+public final class InjectionRange extends AbstractRangeAction {
 
     protected static int injectionRangeTempValue = 0;
 
-    @JsonCreator
-    public InjectionRange(@JsonProperty("id") String id,
-                          @JsonProperty("name") String name,
-                          @JsonProperty("operator") String operator,
-                          @JsonProperty("usageRules") List<UsageRule> usageRules,
-                          @JsonProperty("ranges") List<Range> ranges,
-                          @JsonProperty("networkElement") NetworkElement networkElement) {
+    public InjectionRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges,
+                          NetworkElement networkElement, String groupId) {
+        super(id, name, operator, usageRules, ranges, networkElement, groupId);
+    }
+
+    public InjectionRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges, NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
     }
 

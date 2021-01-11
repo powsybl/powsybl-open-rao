@@ -25,11 +25,15 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
     @Override
     public void serialize(SearchTreeRaoParameters searchTreeRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeObjectField("stop-criterion", searchTreeRaoParameters.getStopCriterion());
         jsonGenerator.writeNumberField("maximum-search-depth", searchTreeRaoParameters.getMaximumSearchDepth());
         jsonGenerator.writeNumberField("relative-network-action-minimum-impact-threshold", searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold());
         jsonGenerator.writeNumberField("absolute-network-action-minimum-impact-threshold", searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold());
         jsonGenerator.writeNumberField("leaves-in-parallel", searchTreeRaoParameters.getLeavesInParallel());
+        jsonGenerator.writeObjectField("preventive-rao-stop-criterion", searchTreeRaoParameters.getPreventiveRaoStopCriterion());
+        jsonGenerator.writeObjectField("curative-rao-stop-criterion", searchTreeRaoParameters.getCurativeRaoStopCriterion());
+        jsonGenerator.writeNumberField("curative-rao-min-obj-improvement", searchTreeRaoParameters.getCurativeRaoMinObjImprovement());
+        jsonGenerator.writeBooleanField("skip-network-actions-far-from-most-limiting-element", searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement());
+        jsonGenerator.writeNumberField("max-number-of-boundaries-for-skipping-network-actions", searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
         jsonGenerator.writeEndObject();
     }
 
@@ -42,9 +46,6 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
     public SearchTreeRaoParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, SearchTreeRaoParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "stop-criterion":
-                    parameters.setStopCriterion(getStopCriterionFromString(jsonParser.nextTextValue()));
-                    break;
                 case "maximum-search-depth":
                     parameters.setMaximumSearchDepth(jsonParser.getValueAsInt());
                     break;
@@ -56,6 +57,21 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                     break;
                 case "leaves-in-parallel":
                     parameters.setLeavesInParallel(jsonParser.getValueAsInt());
+                    break;
+                case "preventive-rao-stop-criterion":
+                    parameters.setPreventiveRaoStopCriterion(getPreventiveRaoStopCriterionFromString(jsonParser.nextTextValue()));
+                    break;
+                case "curative-rao-stop-criterion":
+                    parameters.setCurativeRaoStopCriterion(getCurativeRaoStopCriterionFromString(jsonParser.nextTextValue()));
+                    break;
+                case "curative-rao-min-obj-improvement":
+                    parameters.setCurativeRaoMinObjImprovement(jsonParser.getValueAsDouble());
+                    break;
+                case "skip-network-actions-far-from-most-limiting-element":
+                    parameters.setSkipNetworkActionsFarFromMostLimitingElement(jsonParser.getValueAsBoolean());
+                    break;
+                case "max-number-of-boundaries-for-skipping-network-actions":
+                    parameters.setMaxNumberOfBoundariesForSkippingNetworkActions(jsonParser.getValueAsInt());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -80,17 +96,19 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         return SearchTreeRaoParameters.class;
     }
 
-    private SearchTreeRaoParameters.StopCriterion getStopCriterionFromString(String stopCriterion) {
-        switch (stopCriterion) {
+    private SearchTreeRaoParameters.PreventiveRaoStopCriterion getPreventiveRaoStopCriterionFromString(String stopCriterion) {
+        try {
+            return SearchTreeRaoParameters.PreventiveRaoStopCriterion.valueOf(stopCriterion);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown preventive RAO stop criterion: %s", stopCriterion));
+        }
+    }
 
-            case "POSITIVE_MARGIN":
-                return SearchTreeRaoParameters.StopCriterion.POSITIVE_MARGIN;
-
-            case "MAXIMUM_MARGIN":
-                return SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN;
-
-            default:
-                throw new FaraoException("Unexpected field: " + stopCriterion);
+    private SearchTreeRaoParameters.CurativeRaoStopCriterion getCurativeRaoStopCriterionFromString(String string) {
+        try {
+            return SearchTreeRaoParameters.CurativeRaoStopCriterion.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", string));
         }
     }
 }

@@ -28,11 +28,15 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
         Optional<ModuleConfig> configOptional = platformConfig.getOptionalModuleConfig(MODULE_NAME);
         if (configOptional.isPresent()) {
             ModuleConfig config = configOptional.get();
-            parameters.setStopCriterion(config.getEnumProperty("stop-criterion", SearchTreeRaoParameters.StopCriterion.class, SearchTreeRaoParameters.DEFAULT_STOP_CRITERION));
             parameters.setMaximumSearchDepth(config.getIntProperty("maximum-search-depth", SearchTreeRaoParameters.DEFAULT_MAXIMUM_SEARCH_DEPTH));
             parameters.setRelativeNetworkActionMinimumImpactThreshold(config.getDoubleProperty("relative-network-action-minimum-impact-threshold", SearchTreeRaoParameters.DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD));
             parameters.setAbsoluteNetworkActionMinimumImpactThreshold(config.getDoubleProperty("absolute-network-action-minimum-impact-threshold", SearchTreeRaoParameters.DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD));
             parameters.setLeavesInParallel(config.getIntProperty("leaves-in-parallel", SearchTreeRaoParameters.DEFAULT_LEAVES_IN_PARALLEL));
+            parameters.setSkipNetworkActionsFarFromMostLimitingElement(config.getBooleanProperty("skip-network-actions-far-from-most-limiting-element", SearchTreeRaoParameters.DEFAULT_SKIP_NETWORK_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT));
+            parameters.setMaxNumberOfBoundariesForSkippingNetworkActions(config.getIntProperty("max-number-of-boundaries-for-skipping-network-actions", SearchTreeRaoParameters.DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_NETWORK_ACTIONS));
+            parameters.setPreventiveRaoStopCriterion(config.getEnumProperty("preventive-rao-stop-criterion", SearchTreeRaoParameters.PreventiveRaoStopCriterion.class, SearchTreeRaoParameters.DEFAULT_PREVENTIVE_RAO_STOP_CRITERION));
+            parameters.setCurativeRaoStopCriterion(config.getEnumProperty("curative-rao-stop-criterion", SearchTreeRaoParameters.CurativeRaoStopCriterion.class, SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_STOP_CRITERION));
+            parameters.setCurativeRaoMinObjImprovement(config.getDoubleProperty("curative-rao-min-obj-improvement", SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT));
         }
         return parameters;
     }

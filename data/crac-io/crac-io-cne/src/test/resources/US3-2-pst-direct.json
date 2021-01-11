@@ -69,18 +69,18 @@
     "instant" : "Défaut"
   } ],
   "cnecs" : [ {
-    "type" : "simple-cnec",
+    "type" : "flow-cnec",
     "id" : "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3",
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
     "state" : "Contingency FR1 FR3-Curatif",
     "frm" : 0.0,
     "thresholds" : [ {
-      "type" : "absolute-flow-threshold",
+      "type" : "branch-threshold",
       "unit" : "A",
-      "side" : "LEFT",
-      "direction" : "DIRECT",
-      "maxValue" : 1500.0
+      "min" : null,
+      "max" : 1500.0,
+      "rule" : "ON_LEFT_SIDE"
     } ],
     "extensions" : {
       "CnecResultExtension" : {
@@ -107,18 +107,18 @@
       }
     }
   }, {
-    "type" : "simple-cnec",
+    "type" : "flow-cnec",
     "id" : "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3",
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
     "state" : "Contingency FR1 FR3-Défaut",
     "frm" : -1.0,
     "thresholds" : [ {
-      "type" : "absolute-flow-threshold",
+      "type" : "branch-threshold",
       "unit" : "A",
-      "side" : "LEFT",
-      "direction" : "BOTH",
-      "maxValue" : 1500.0
+      "min" : -1500,
+      "max" : 1500.0,
+      "rule": "ON_LEFT_SIDE"
     } ],
     "extensions" : {
       "CnecResultExtension" : {
@@ -145,18 +145,18 @@
       }
     }
   }, {
-    "type" : "simple-cnec",
+    "type" : "flow-cnec",
     "id" : "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3",
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
     "state" : "Contingency FR1 FR3-Curatif",
     "frm" : 2.0,
     "thresholds" : [ {
-      "type" : "absolute-flow-threshold",
+      "type" : "branch-threshold",
       "unit" : "A",
-      "side" : "LEFT",
-      "direction" : "BOTH",
-      "maxValue" : 1500.0
+      "min" : -1500,
+      "max" : 1500.0,
+      "rule" : "ON_LEFT_SIDE"
     } ],
     "extensions" : {
       "CnecResultExtension" : {
@@ -183,18 +183,18 @@
       }
     }
   }, {
-    "type" : "simple-cnec",
+    "type" : "flow-cnec",
     "id" : "DDE1AA1  DDE2AA1  1 - N - preventive",
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
     "state" : "none-N",
     "frm" : 3.0,
     "thresholds" : [ {
-      "type" : "absolute-flow-threshold",
+      "type" : "branch-threshold",
       "unit" : "A",
-      "side" : "LEFT",
-      "direction" : "BOTH",
-      "maxValue" : 1500.0
+      "min" : -1500,
+      "max" : 1500.0,
+      "rule" : "ON_LEFT_SIDE"
     } ],
     "extensions" : {
       "CnecResultExtension" : {
@@ -221,18 +221,18 @@
       }
     }
   }, {
-    "type" : "simple-cnec",
+    "type" : "flow-cnec",
     "id" : "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3",
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
     "state" : "Contingency FR1 FR3-Défaut",
     "frm" : 4.0,
     "thresholds" : [ {
-      "type" : "absolute-flow-threshold",
+      "type" : "branch-threshold",
       "unit" : "A",
-      "side" : "LEFT",
-      "direction" : "DIRECT",
-      "maxValue" : 1500.0
+      "min" : -1500,
+      "max" : 1500.0,
+      "rule" : "ON_LEFT_SIDE"
     } ],
     "extensions" : {
       "CnecResultExtension" : {
@@ -259,18 +259,18 @@
       }
     }
   }, {
-    "type" : "simple-cnec",
+    "type" : "flow-cnec",
     "id" : "FFR2AA1  DDE3AA1  1 - N - preventive",
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
     "state" : "none-N",
     "frm" : 5.0,
     "thresholds" : [ {
-      "type" : "absolute-flow-threshold",
+      "type" : "branch-threshold",
       "unit" : "A",
-      "side" : "LEFT",
-      "direction" : "DIRECT",
-      "maxValue" : 1500.0
+      "min" : -1500,
+      "max" : 1500.0,
+      "rule" : "ON_LEFT_SIDE"
     } ],
     "extensions" : {
       "CnecResultExtension" : {
@@ -305,7 +305,7 @@
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "state" : "none-N"
+      "instant" : "N"
     } ],
     "networkElements" : [ "BBE2AA1  BBE3AA1  1" ],
     "ranges" : [ {

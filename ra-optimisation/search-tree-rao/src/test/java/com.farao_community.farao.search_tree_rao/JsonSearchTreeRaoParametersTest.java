@@ -26,7 +26,9 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
     public void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
-        parameters.getExtension(SearchTreeRaoParameters.class).setStopCriterion(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN);
+        parameters.getExtension(SearchTreeRaoParameters.class).setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE);
+        parameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
+        parameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoMinObjImprovement(983);
         parameters.getExtension(SearchTreeRaoParameters.class).setMaximumSearchDepth(10);
         parameters.getExtension(SearchTreeRaoParameters.class).setRelativeNetworkActionMinimumImpactThreshold(0.1);
         parameters.getExtension(SearchTreeRaoParameters.class).setAbsoluteNetworkActionMinimumImpactThreshold(20);
@@ -50,10 +52,22 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update.json"));
         SearchTreeRaoParameters extension = parameters.getExtension(SearchTreeRaoParameters.class);
         assertNotNull(extension);
-        assertEquals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN, extension.getStopCriterion());
+        assertEquals(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE, extension.getPreventiveRaoStopCriterion());
         assertEquals(5, extension.getMaximumSearchDepth());
         assertEquals(0, extension.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(1, extension.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(8, extension.getLeavesInParallel());
+        assertTrue(extension.getSkipNetworkActionsFarFromMostLimitingElement());
+        assertEquals(2, extension.getMaxNumberOfBoundariesForSkippingNetworkActions());
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testWrongStopCriterionError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersStopCriterionError.json"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void curativeRaoStopCriterionError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersCurativeStopCriterionError.json"));
     }
 }

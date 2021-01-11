@@ -10,39 +10,47 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.crac_api.UsageMethod.AVAILABLE;
+import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeActionAdderImpl> implements PstRangeActionAdder {
+public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeActionAdder> implements PstRangeActionAdder {
     private SimpleCrac parent;
     private Unit unit;
     private Double minValue;
     private Double maxValue;
     private NetworkElement networkElement;
     private String operator;
+    private String groupId = null;
     private List<UsageRule> usageRules = new ArrayList<>();
 
     public PstRangeActionAdderImpl(SimpleCrac parent) {
         Objects.requireNonNull(parent);
         this.parent = parent;
-        this.usageRules.add(new FreeToUse(AVAILABLE, parent.getPreventiveState()));
+        this.usageRules.add(new FreeToUseImpl(AVAILABLE, parent.getPreventiveState().getInstant()));
     }
 
     @Override
     public PstRangeActionAdder setOperator(String operator) {
         this.operator = operator;
+        return this;
+    }
+
+    @Override
+    public PstRangeActionAdder setGroupId(String groupId) {
+        this.groupId = groupId;
         return this;
     }
 
@@ -65,15 +73,15 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     }
 
     @Override
-    public NetworkElement addNetworkElement(NetworkElement networkElement) {
+    public PstRangeActionAdder addNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
-        return networkElement;
+        return this;
     }
 
     @Override
-    public NetworkElementAdder newNetworkElement() {
+    public NetworkElementAdder<PstRangeActionAdder> newNetworkElement() {
         if (networkElement == null) {
-            return new NetworkElementAdderImpl<PstRangeActionAdder>(this);
+            return new NetworkElementAdderImpl<>(this);
         } else {
             throw new FaraoException("You can only add one network element to a PstRangeAction.");
         }
@@ -105,9 +113,9 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
          * This is done here because it is too complicated to do in
          * SimpleCrac.addRangeAction, which handles abstract RangeActions
          */
-        NetworkElement newNetworkElement = parent.addNetworkElement(this.networkElement);
+        NetworkElement newNetworkElement = parent.addNetworkElement(networkElement.getId(), networkElement.getName());
 
-        PstWithRange pstWithRange = new PstWithRange(this.id, this.name, this.operator, this.usageRules, ranges, newNetworkElement);
+        PstWithRange pstWithRange = new PstWithRange(this.id, this.name, this.operator, this.usageRules, ranges, newNetworkElement, groupId);
         this.parent.addRangeAction(pstWithRange);
 
         return parent;

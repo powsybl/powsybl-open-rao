@@ -9,11 +9,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.UsageRule;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 
 import java.util.List;
 
@@ -21,23 +17,12 @@ import java.util.List;
  * This abstract class gathers methods and attributes commons to {@link HvdcSetpoint}s and {@link PstSetpoint}s.
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = PstSetpoint.class, name = "pst-setpoint"),
-        @JsonSubTypes.Type(value = HvdcSetpoint.class, name = "hvdc-setpoint"),
-        @JsonSubTypes.Type(value = InjectionSetpoint.class, name = "injection-setpoint")
-    })
 public abstract class AbstractSetpointElementaryNetworkAction extends AbstractElementaryNetworkAction {
 
     protected double setpoint;
 
-    @JsonCreator
-    public AbstractSetpointElementaryNetworkAction(@JsonProperty("id") String id,
-                                                   @JsonProperty("name") String name,
-                                                   @JsonProperty("operator") String operator,
-                                                   @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                                   @JsonProperty("networkElement") NetworkElement networkElement,
-                                                   @JsonProperty("setpoint") double setpoint) {
+    public AbstractSetpointElementaryNetworkAction(String id, String name, String operator, List<UsageRule> usageRules,
+                                                   NetworkElement networkElement, double setpoint) {
         super(id, name, operator, usageRules, networkElement);
         this.setpoint = setpoint;
     }

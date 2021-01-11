@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.Crac;
@@ -19,31 +20,36 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class PtdfSensitivityProviderTest {
-    private static final double EPSILON = 1e-3;
-    private Network network;
-    private Crac crac;
-    private ZonalData<LinearGlsk> glskMock;
-    private PtdfSensitivityProvider ptdfSensitivityProvider;
+
+    Network network;
+    Crac crac;
+    ZonalData<LinearGlsk> glskMock;
 
     @Before
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
+        glskMock = glsk();
+    }
 
-        glskMock = glskProvider();
-        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock);
+    private static ZonalData<LinearGlsk> glsk() {
+        Map<String, LinearGlsk> glsks = new HashMap<>();
+        glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
+        glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
+        glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
+        glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
+        return new ZonalDataImpl<>(glsks);
     }
 
     @Test
-    public void testGetFactors() {
-        ptdfSensitivityProvider.addCnecs(crac.getCnecs());
+    public void getFactorsOnCommonCrac() {
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT));
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getFactors(network);
 
         assertEquals(8, sensitivityFactors.size());
@@ -51,12 +57,10 @@ public class PtdfSensitivityProviderTest {
                                                                           && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
     }
 
-    static ZonalData<LinearGlsk> glskProvider() {
-        Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
-        glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
-        return new ZonalDataImpl<>(glsks);
+    @Test
+    public void testDoNotHandleAmpere() {
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getBranchCnecs(), Collections.singleton(Unit.AMPERE));
+        assertFalse(ptdfSensitivityProvider.factorsInAmpere);
+        assertTrue(ptdfSensitivityProvider.factorsInMegawatt);
     }
 }

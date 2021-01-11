@@ -8,11 +8,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.UsageRule;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,22 +19,11 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = PstSetpoint.class, name = "pst-setpoint"),
-        @JsonSubTypes.Type(value = HvdcSetpoint.class, name = "hvdc-setpoint"),
-        @JsonSubTypes.Type(value = InjectionSetpoint.class, name = "injection-setpoint"),
-        @JsonSubTypes.Type(value = Topology.class, name = "topology")
-    })
 public abstract class AbstractElementaryNetworkAction extends AbstractNetworkAction {
     protected NetworkElement networkElement;
 
-    @JsonCreator
-    public AbstractElementaryNetworkAction(@JsonProperty("id") String id,
-                                           @JsonProperty("name") String name,
-                                           @JsonProperty("operator") String operator,
-                                           @JsonProperty("usageRules") List<UsageRule> usageRules,
-                                           @JsonProperty("networkElement") NetworkElement networkElement) {
+    public AbstractElementaryNetworkAction(String id, String name, String operator, List<UsageRule> usageRules,
+                                           NetworkElement networkElement) {
         super(id, name, operator, usageRules);
         this.networkElement = networkElement;
     }
