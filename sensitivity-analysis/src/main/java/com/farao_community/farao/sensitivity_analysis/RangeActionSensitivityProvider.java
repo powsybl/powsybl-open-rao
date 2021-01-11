@@ -12,11 +12,8 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFunction;
 import com.powsybl.sensitivity.SensitivityVariable;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,11 +27,6 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     RangeActionSensitivityProvider(Set<RangeAction> rangeActions, Set<BranchCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
         this.rangeActions = rangeActions;
-    }
-
-    public void addSensitivityFactors(Set<RangeAction> rangeActions, Set<Cnec> cnecs) {
-        this.rangeActions.addAll(rangeActions);
-        super.addCnecs(cnecs);
     }
 
     private List<SensitivityVariable> rangeActionToSensitivityVariables(Network network, RangeAction rangeAction) {

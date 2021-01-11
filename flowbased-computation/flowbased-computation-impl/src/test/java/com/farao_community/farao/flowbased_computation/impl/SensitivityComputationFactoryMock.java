@@ -8,7 +8,6 @@ package com.farao_community.farao.flowbased_computation.impl;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
@@ -157,9 +156,9 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     }
 
     @Override
-    public CompletableFuture<SensitivityAnalysisResult> run(Network network, String s, SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager) {
+    public CompletableFuture<SensitivityAnalysisResult> run(Network network, String s, SensitivityFactorsProvider sensitivityFactorsProvider, List<Contingency> contingencies, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager) {
         List<SensitivityValue> preContingencySensitivityValues = getPreContingencySensitivityValues(sensitivityFactorsProvider, network);
-        Map<String, List<SensitivityValue>> postContingencySensitivityValues = contingenciesProvider.getContingencies(network).stream()
+        Map<String, List<SensitivityValue>> postContingencySensitivityValues = contingencies.stream()
                 .collect(Collectors.toMap(Contingency::getId, co -> getPostContingencySensitivityValues(sensitivityFactorsProvider, network)));
         return CompletableFuture.completedFuture(new SensitivityAnalysisResult(true, Collections.emptyMap(), "", preContingencySensitivityValues, postContingencySensitivityValues));
     }

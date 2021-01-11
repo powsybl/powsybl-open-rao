@@ -38,6 +38,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
     LoadflowProvider(Set<BranchCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
     }
+
     private boolean willBeKeptInSensi(TwoWindingsTransformer twoWindingsTransformer) {
         return twoWindingsTransformer.getTerminal1().isConnected() && twoWindingsTransformer.getTerminal1().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
             twoWindingsTransformer.getTerminal2().isConnected() && twoWindingsTransformer.getTerminal2().getBusBreakerView().getBus().isInMainSynchronousComponent() &&
