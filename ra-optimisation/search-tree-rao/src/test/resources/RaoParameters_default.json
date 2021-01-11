@@ -25,7 +25,9 @@
       "maximum-search-depth": 5,
       "relative-network-action-minimum-impact-threshold": 0.0,
       "absolute-network-action-minimum-impact-threshold": 0.0,
-      "leaves-in-parallel": 8
+      "leaves-in-parallel": 8,
+      "skip-network-actions-far-from-most-limiting-element" : false,
+      "max-number-of-boundaries-for-skipping-network-actions" : 2
     }
   }
 }
