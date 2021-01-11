@@ -21,5 +21,6 @@
         <module>glsk-document-io-api</module>
         <module>glsk-document-ucte</module>
         <module>glsk-quality-check-ucte</module>
+        <module>glsk-virtual-hubs</module>
     </modules>
 </project>
