@@ -23,4 +23,8 @@ public class ZonalDataImpl<I> implements ZonalData<I> {
     public final Map<String, I> getDataPerZone() {
         return dataPerZone;
     }
+
+    public final void addAll(ZonalData<I> otherData) {
+        dataPerZone.putAll(otherData.getDataPerZone());
+    }
 }
