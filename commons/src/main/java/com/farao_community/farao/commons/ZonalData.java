@@ -21,4 +21,6 @@ public interface ZonalData<I> {
         Objects.requireNonNull(zone, "Zone has to be specified to query zonal data.");
         return getDataPerZone().get(zone);
     }
+
+    void addAll(ZonalData<I> otherData);
 }
