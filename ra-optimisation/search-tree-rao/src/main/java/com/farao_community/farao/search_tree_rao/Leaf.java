@@ -244,11 +244,11 @@ class Leaf {
      * Says if a network action is close to a given set of countries, respecting the maximum number of boundaries
      */
     boolean isNetworkActionCloseToLocations(NetworkAction networkAction, List<Optional<Country>> locations) {
-        if (locations.stream().anyMatch(country -> country.equals(Optional.empty()))) {
+        if (locations.stream().anyMatch(Optional::isEmpty)) {
             return true;
         }
         List<Optional<Country>> networkActionCountries = RaoUtil.getNetworkActionLocation(networkAction, raoData.getNetwork());
-        if (networkActionCountries.stream().anyMatch(country -> country.equals(Optional.empty()))) {
+        if (networkActionCountries.stream().anyMatch(Optional::isEmpty)) {
             return true;
         }
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
