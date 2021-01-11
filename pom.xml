@@ -197,7 +197,7 @@
                                 <head>To do:</head>
                             </tag>
                         </tags>
-                        <excludePackageNames>xsd.*</excludePackageNames>
+                        <excludePackageNames>xsd.*:eu.entsoe.*</excludePackageNames>
                     </configuration>
                 </plugin>
                 <plugin>
