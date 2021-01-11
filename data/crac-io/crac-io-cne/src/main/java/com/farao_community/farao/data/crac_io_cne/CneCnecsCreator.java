@@ -42,7 +42,6 @@ public final class CneCnecsCreator {
     static void createConstraintSeriesOfACnec(BranchCnec cnec, CneHelper cneHelper, List<ConstraintSeries> constraintSeriesList) {
 
         Network network = cneHelper.getNetwork();
-        String measurementType = cneHelper.instantToCodeConverter(cnec.getState().getInstant());
         String preOptimVariantId = cneHelper.getPreOptimVariantId();
         String postOptimVariantId = cneHelper.getPostOptimVariantId();
 
