@@ -117,13 +117,14 @@ public class SearchTree {
         final Set<NetworkAction> networkActions = optimalLeaf.bloom();
         if (networkActions.isEmpty()) {
             LOGGER.info("No new leaves to evaluate");
+            return;
         } else {
             LOGGER.info("Leaves to evaluate: {}", networkActions.size());
         }
         AtomicInteger remainingLeaves = new AtomicInteger(networkActions.size());
         Network network = rootLeaf.getRaoData().getNetwork(); // NetworkPool starts from root leaf network to keep initial optimization of range actions
         LOGGER.debug("Evaluating {} leaves in parallel", treeParameters.getLeavesInParallel());
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), treeParameters.getLeavesInParallel())) {
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), Math.min(treeParameters.getLeavesInParallel(), networkActions.size()))) {
             networkActions.forEach(networkAction ->
                     networkPool.submit(() -> {
                         try {
