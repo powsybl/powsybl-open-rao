@@ -78,6 +78,7 @@ public class SearchTree {
         rootLeaf.optimize();
         LOGGER.info("{}", rootLeaf);
         SearchTreeRaoLogger.logRangeActions(optimalLeaf);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
         if (stopCriterionReached(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
         }
