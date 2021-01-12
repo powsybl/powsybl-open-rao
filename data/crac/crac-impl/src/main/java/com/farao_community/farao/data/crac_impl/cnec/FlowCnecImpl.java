@@ -77,7 +77,7 @@ public class FlowCnecImpl extends AbstractBranchCnec implements BranchCnec {
     public Optional<Double> getLowerBound(Side side, Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
         if (!bounds.isLowerBoundComputed(side, requestedUnit)) {
-            LOGGER.debug("Lower bound computed for {} in {}", getId(), requestedUnit);
+            //LOGGER.debug("Lower bound computed for {} in {}", getId(), requestedUnit);
             Set<BranchThreshold> limitingThresholds = thresholds.stream()
                     .filter(Threshold::limitsByMin)
                     .collect(Collectors.toSet());
@@ -104,7 +104,7 @@ public class FlowCnecImpl extends AbstractBranchCnec implements BranchCnec {
     public Optional<Double> getUpperBound(Side side, Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
         if (!bounds.isUpperBoundComputed(side, requestedUnit)) {
-            LOGGER.debug("Upper bound computed for {} in {}", getId(), requestedUnit);
+            //LOGGER.debug("Upper bound computed for {} in {}", getId(), requestedUnit);
             Set<BranchThreshold> limitingThresholds = thresholds.stream()
                     .filter(Threshold::limitsByMax)
                     .collect(Collectors.toSet());

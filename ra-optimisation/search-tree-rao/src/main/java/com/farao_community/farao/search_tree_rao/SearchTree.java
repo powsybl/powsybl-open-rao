@@ -85,7 +85,7 @@ public class SearchTree {
         iterateOnTree();
 
         //TODO: refactor output format
-        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
+        //SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
         return CompletableFuture.completedFuture(buildOutput());
     }
 
@@ -106,6 +106,7 @@ public class SearchTree {
             }
             LOGGER.info("Optimal leaf - {}", optimalLeaf);
             SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Optimal leaf");
+            SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
             depth += 1;
         }
     }
