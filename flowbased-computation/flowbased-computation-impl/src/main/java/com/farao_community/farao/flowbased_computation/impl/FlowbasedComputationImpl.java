@@ -63,7 +63,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         String initialNetworkId = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().cloneVariant(initialNetworkId, INITIAL_STATE_WITH_PRA);
         network.getVariantManager().setWorkingVariant(INITIAL_STATE_WITH_PRA);
-        CracResultUtil.applyRemedialActionsForState(network, crac);
+        CracResultUtil.applyRemedialActionsForState(network, crac, crac.getPreventiveState());
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 

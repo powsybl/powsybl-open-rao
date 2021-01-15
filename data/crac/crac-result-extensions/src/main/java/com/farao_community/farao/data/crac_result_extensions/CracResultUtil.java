@@ -30,22 +30,23 @@ public final class CracResultUtil {
     }
 
     /**
-     * Apply preventive remedial actions saved in CRAC result extension on current working variant of given network,
-     * with automatically selected cracVariantId.
+     * Apply remedial actions saved in CRAC result extension on current working variant of given network,
+     * with automatically selected cracVariantId, at a given state.
      *
      * @param network Network on which remedial actions should be applied
      * @param crac CRAC that should contain result extension
+     * @param state State for which the RAs should be applied
      */
-    public static void applyRemedialActionsForState(Network network, Crac crac) {
+    public static void applyRemedialActionsForState(Network network, Crac crac, State state) {
         CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager != null && cracExtension != null) { // Results from RAO
             LOGGER.debug("Remedial Actions selected from RAO results.");
             String cracVariantId = findPostOptimVariant(resultVariantManager, cracExtension);
-            applyRemedialActionsForState(network, crac, cracVariantId, crac.getPreventiveState());
+            applyRemedialActionsForState(network, crac, cracVariantId, state);
         } else { // Apply all RAs from CRAC
             LOGGER.debug("No RAO results found. All Remedial Actions from CRAC are applied.");
-            applyAllNetworkRemedialActionsForState(network, crac, crac.getPreventiveState());
+            applyAllNetworkRemedialActionsForState(network, crac, state);
         }
     }
 
