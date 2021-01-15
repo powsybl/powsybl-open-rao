@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_result_extensions;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,42 @@ public final class CracResultUtil {
 
     private CracResultUtil() {
         throw new AssertionError("Utility class should not be instantiated");
+    }
+
+    /**
+     * Apply preventive remedial actions saved in CRAC result extension on current working variant of given network,
+     * with automatically selected cracVariantId.
+     *
+     * @param network Network on which remedial actions should be applied
+     * @param crac CRAC that should contain result extension
+     */
+    public static void applyPreventiveRemedialActions(Network network, Crac crac) {
+        CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+        if (resultVariantManager != null && cracExtension != null) { // Results from RAO
+            LOGGER.debug("Remedial Actions selected from RAO results.");
+            String cracVariantId = findPostOptimVariant(resultVariantManager, cracExtension);
+            applyPreventiveRemedialActions(network, crac, cracVariantId);
+        } else { // Apply all RAs from CRAC
+            LOGGER.debug("No RAO results found. All Remedial Actions from CRAC are applied.");
+            applyAllPreventiveNetworkRemedialActions(network, crac);
+        }
+    }
+
+    // Find post optim variant if any
+    // this comes from CNEHelper (until String cracVariantId) ...
+    private static String findPostOptimVariant(ResultVariantManager resultVariantManager, CracResultExtension cracExtension) {
+        List<String> variants = new ArrayList<>(resultVariantManager.getVariants());
+        String postOptimVariantId = variants.get(0);
+
+        double minCost = cracExtension.getVariant(variants.get(0)).getCost();
+        for (String variant : variants) {
+            if (cracExtension.getVariant(variant).getCost() <= minCost) {
+                minCost = cracExtension.getVariant(variant).getCost();
+                postOptimVariantId = variant;
+            }
+        }
+        return postOptimVariantId;
     }
 
     /**
@@ -75,49 +112,17 @@ public final class CracResultUtil {
     }
 
     /**
-     * Apply preventive remedial actions saved in CRAC result extension on current working variant of given network,
-     * with automatically selected cracVariantId.
-     *
-     * @param network Network on which remedial actions should be applied
-     * @param crac CRAC that should contain result extension
-     */
-    public static void applyPreventiveRemedialActions(Network network, Crac crac) {
-
-        CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
-        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        if (resultVariantManager != null && cracExtension != null) {
-            LOGGER.debug("Remedial Actions selected from RAO results.");
-            String cracVariantId = findPostOptimVariant(resultVariantManager, cracExtension);
-            applyPreventiveRemedialActions(network, crac, cracVariantId);
-        } else {
-            LOGGER.debug("No RAO results found. All Remedial Actions from CRAC are applied.");
-            applyAllPreventiveNetworkRemedialActions(network, crac);
-        }
-    }
-
-    // Find post optim variant if any
-    // this comes from CNEHelper (until String cracVariantId) ...
-    private static String findPostOptimVariant(ResultVariantManager resultVariantManager, CracResultExtension cracExtension) {
-        List<String> variants = new ArrayList<>(resultVariantManager.getVariants());
-        String postOptimVariantId = variants.get(0);
-
-        double minCost = cracExtension.getVariant(variants.get(0)).getCost();
-        for (String variant : variants) {
-            if (cracExtension.getVariant(variant).getCost() <= minCost) {
-                minCost = cracExtension.getVariant(variant).getCost();
-                postOptimVariantId = variant;
-            }
-        }
-        return postOptimVariantId;
-    }
-
-    /**
      * Apply all preventive remedial actions saved in CRAC, on a given network.
      *
      * @param network Network on which remedial actions should be applied
      * @param crac CRAC that should contain result extension
      */
     public static void applyAllPreventiveNetworkRemedialActions(Network network, Crac crac) {
-        crac.getNetworkActions().forEach(na -> na.apply(network));
+        crac.getNetworkActions().forEach(na -> {
+            UsageMethod usageMethod = na.getUsageMethod(network, crac.getPreventiveState());
+            if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                na.apply(network);
+            }
+        });
     }
 }
