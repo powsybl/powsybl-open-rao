@@ -453,6 +453,11 @@
                 <artifactId>powsybl-loadflow-api</artifactId>
                 <version>${powsybl.core.version}</version>
             </dependency>
+            <!--dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-loadflow-scripting</artifactId>
+                <version>{powsybl.core.version}</version>
+            </dependency-->
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-math</artifactId>
@@ -461,6 +466,11 @@
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-sensitivity-analysis-api</artifactId>
+                <version>${powsybl.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-scripting</artifactId>
                 <version>${powsybl.core.version}</version>
             </dependency>
             <dependency>

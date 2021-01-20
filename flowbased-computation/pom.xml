@@ -18,6 +18,7 @@
     <modules>
         <module>flowbased-computation-api</module>
         <module>flowbased-computation-impl</module>
+        <module>flowbased-computation-scripting</module>
     </modules>
 
 </project>
