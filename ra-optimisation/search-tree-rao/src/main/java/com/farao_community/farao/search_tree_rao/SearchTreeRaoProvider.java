@@ -8,9 +8,15 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.rao_api.*;
+import com.farao_community.farao.rao_api.RaoInput;
+import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.RaoProvider;
+import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -21,7 +27,8 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -282,9 +289,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
     private void deleteCurativeVariants(Crac crac, String postOptimVariantId) {
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        resultVariantManager.getVariants().stream().
+        List<String> variantToDelete = resultVariantManager.getVariants().stream().
                 filter(name -> !name.equals(resultVariantManager.getInitialVariantId())).
                 filter(name -> !name.equals(postOptimVariantId)).
-                forEach(variantId -> crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
+                collect(Collectors.toList());
+        variantToDelete.forEach(variantId -> crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
     }
 }
