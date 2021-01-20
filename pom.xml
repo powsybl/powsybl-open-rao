@@ -453,11 +453,6 @@
                 <artifactId>powsybl-loadflow-api</artifactId>
                 <version>${powsybl.core.version}</version>
             </dependency>
-            <!--dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-loadflow-scripting</artifactId>
-                <version>{powsybl.core.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-math</artifactId>
