@@ -33,16 +33,19 @@ public final class TreeParameters {
     private double absoluteNetworkActionMinimumImpactThreshold;
     private int leavesInParallel;
 
+    private boolean shouldComputeInitialSensitivity;
+
     private TreeParameters() {
     }
 
-    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue) {
+    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, boolean shouldComputeInitialSensitivity) {
         this.maximumSearchDepth = searchTreeRaoParameters.getMaximumSearchDepth();
         this.relativeNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold();
         this.absoluteNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold();
         this.leavesInParallel = searchTreeRaoParameters.getLeavesInParallel();
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
+        this.shouldComputeInitialSensitivity = shouldComputeInitialSensitivity;
     }
 
     public StopCriterion getStopCriterion() {
@@ -53,13 +56,17 @@ public final class TreeParameters {
         return targetObjectiveValue;
     }
 
-    public static TreeParameters buildForPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters) {
+    public boolean getShouldComputeInitialSensitivity() {
+        return shouldComputeInitialSensitivity;
+    }
+
+    public static TreeParameters buildForPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters, boolean shouldComputeInitialSensitivity) {
         SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
         switch (parameters.getPreventiveRaoStopCriterion()) {
             case MIN_OBJECTIVE:
-                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0);
+                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0, shouldComputeInitialSensitivity);
             case SECURE:
-                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0);
+                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, shouldComputeInitialSensitivity);
             default:
                 throw new FaraoException("Unknown preventive RAO stop criterion: " + parameters.getPreventiveRaoStopCriterion());
         }
@@ -69,15 +76,15 @@ public final class TreeParameters {
         SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
         switch (parameters.getCurativeRaoStopCriterion()) {
             case MIN_OBJECTIVE:
-                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0);
+                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0, true);
             case SECURE:
-                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0);
+                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, true);
             case PREVENTIVE_OBJECTIVE:
                 return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                        preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement());
+                        preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement(), true);
             case PREVENTIVE_OBJECTIVE_AND_SECURE:
                 return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                        Math.min(preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement(), 0));
+                        Math.min(preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement(), 0), true);
             default:
                 throw new FaraoException("Unknown curative RAO stop criterion: " + parameters.getCurativeRaoStopCriterion());
         }

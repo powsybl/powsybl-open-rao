@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.*;
+import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.util.FaraoNetworkPool;
@@ -71,7 +72,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                     raoInput.getGlskProvider(),
                     raoInput.getBaseCracVariantId(),
                     parameters.getLoopflowCountries());
-            TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(parameters.getExtension(SearchTreeRaoParameters.class));
+            TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(parameters.getExtension(SearchTreeRaoParameters.class), true);
             return CompletableFuture.completedFuture(new SearchTree().run(raoData, parameters, treeParameters).join());
         }
 
@@ -79,14 +80,24 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         if (stateTree.getOptimizedStates().size() == 1) {
             // only preventive optimization
-            return optimizePreventivePerimeter(raoInput, parameters);
+            return optimizePreventivePerimeter(raoInput, parameters, null, true);
         } else {
+            // Compute initial sensitivity on all CNECs (preventive and curative)
+            // This is necessary to have initial flows for MNEC and loopflow constraints on CNECs in the curative perimeter
+            // No need to recompute the sensitivities in the beginning of the preventive RAO
+            new InitialSensitivityAnalysis(
+                    raoInput.getNetwork(),
+                    raoInput.getCrac(),
+                    raoInput.getReferenceProgram(),
+                    raoInput.getGlskProvider(),
+                    parameters).run();
+
             // optimize preventive perimeter then all curative perimeters
             Network network = raoInput.getNetwork();
             network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_STATE);
             network.getVariantManager().setWorkingVariant(PREVENTIVE_STATE);
 
-            RaoResult preventiveRaoResult = optimizePreventivePerimeter(raoInput, parameters).join();
+            RaoResult preventiveRaoResult = optimizePreventivePerimeter(raoInput, parameters, raoInput.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId(), false).join();
             LOGGER.info("Preventive perimeter has been optimized.");
 
             double preventiveOptimalCost = raoInput.getCrac().getExtension(CracResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId()).getCost();
@@ -107,7 +118,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
         }
     }
 
-    private CompletableFuture<RaoResult> optimizePreventivePerimeter(RaoInput raoInput, RaoParameters parameters) {
+    private CompletableFuture<RaoResult> optimizePreventivePerimeter(RaoInput raoInput, RaoParameters parameters, String variantId, boolean shouldComputeInitialSensitivity) {
+        String baseVariantId = variantId == null ? raoInput.getBaseCracVariantId() : variantId;
         preventiveRaoData = new RaoData(
                 raoInput.getNetwork(),
                 raoInput.getCrac(),
@@ -115,9 +127,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 stateTree.getPerimeter(raoInput.getCrac().getPreventiveState()),
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
-                raoInput.getBaseCracVariantId(),
+                baseVariantId,
                 parameters.getLoopflowCountries());
-        TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(parameters.getExtension(SearchTreeRaoParameters.class));
+        TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(parameters.getExtension(SearchTreeRaoParameters.class), shouldComputeInitialSensitivity);
         return new SearchTree().run(preventiveRaoData, parameters, preventiveTreeParameters);
     }
 
@@ -269,14 +281,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     private void deleteCurativeVariants(Crac crac, String postOptimVariantId) {
-
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-
-        List<String> variantToDelete = resultVariantManager.getVariants().stream().
-            filter(name -> !name.equals(resultVariantManager.getInitialVariantId())).
-            filter(name -> !name.equals(postOptimVariantId)).
-            collect(Collectors.toList());
-
-        variantToDelete.forEach(variantId -> crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
+        resultVariantManager.getVariants().stream().
+                filter(name -> !name.equals(resultVariantManager.getInitialVariantId())).
+                filter(name -> !name.equals(postOptimVariantId)).
+                forEach(variantId -> crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
     }
 }

@@ -65,7 +65,7 @@ public class SearchTree {
         this.treeParameters = treeParameters;
 
         LOGGER.info("Evaluate root leaf");
-        rootLeaf.evaluate();
+        rootLeaf.evaluateRootLeaf(treeParameters.getShouldComputeInitialSensitivity());
         LOGGER.debug("{}", rootLeaf);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
