@@ -7,7 +7,10 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -15,6 +18,8 @@ import com.farao_community.farao.rao_commons.objective_function_evaluator.Object
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +39,10 @@ public class InitialSensitivityAnalysis {
     private RaoData raoData;
     private RaoParameters raoParameters;
     private SystematicSensitivityInterface systematicSensitivityInterface;
+
+    public InitialSensitivityAnalysis(Network network, Crac crac, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, RaoParameters raoParameters) {
+        this(new RaoData(network, crac, crac.getPreventiveState(), null, referenceProgram, glsk, null, raoParameters.getLoopflowCountries()), raoParameters);
+    }
 
     public InitialSensitivityAnalysis(RaoData raoData, RaoParameters raoParameters) {
         this.raoData = raoData;

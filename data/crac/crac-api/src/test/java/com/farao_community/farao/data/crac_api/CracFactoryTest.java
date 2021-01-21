@@ -44,7 +44,7 @@ public class CracFactoryTest {
         assertEquals(cf.getClass(), MockCracFactory1.class);
     }
 
-    // TO DO : test different default configs : empty (should throw),
+    // TODO : test different default configs : empty (should throw),
     // with MockCracFactory2, with wrong implem name (should throw)
     // (this is not yet possible with PowSyBl's TestPlatformConfigProvider)
 }
