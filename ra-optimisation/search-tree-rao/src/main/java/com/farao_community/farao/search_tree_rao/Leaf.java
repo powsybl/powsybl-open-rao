@@ -164,7 +164,7 @@ class Leaf {
                     LOGGER.debug("Evaluating leaf...");
                     new InitialSensitivityAnalysis(raoData, raoParameters).run();
                     status = Status.EVALUATED;
-                    // TO DO : in curative RAO, we don't need to recompute PTDFs if we already did it before preventive RAO for all CNECs
+                    // TODO : in curative RAO, we don't need to recompute PTDFs if we already did it before preventive RAO for all CNECs
                 } catch (FaraoException e) {
                     LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
                     status = Status.ERROR;
