@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -170,7 +171,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         mergeRaoResultStatus(preventiveRaoResult, curativeRaoResults);
         mergeCnecResults(crac, preventiveRaoResult, curativeRaoResults);
         mergeRemedialActionsResults(crac, preventiveRaoResult, curativeRaoResults);
-        deleteCurativeVariants(crac, preventiveRaoResult.getPostOptimVariantId(), curativeRaoResults);
+        deleteCurativeVariants(crac, preventiveRaoResult.getPostOptimVariantId());
         return preventiveRaoResult;
     }
 
@@ -227,10 +228,15 @@ public class SearchTreeRaoProvider implements RaoProvider {
         });
     }
 
-    private void deleteCurativeVariants(Crac crac, String preventivePostOptimVariantId, Map<State, RaoResult> curativeRaoResults) {
-        curativeRaoResults.values().stream()
-                .map(RaoResult::getPostOptimVariantId)
-                .filter(variantId -> !variantId.equals(preventivePostOptimVariantId))
-                .forEach(variantId -> crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
+    private void deleteCurativeVariants(Crac crac, String postOptimVariantId) {
+
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+
+        List<String> variantToDelete = resultVariantManager.getVariants().stream().
+            filter(name -> !name.equals(resultVariantManager.getInitialVariantId())).
+            filter(name -> !name.equals(postOptimVariantId)).
+            collect(Collectors.toList());
+
+        variantToDelete.forEach(variantId -> crac.getExtension(ResultVariantManager.class).deleteVariant(variantId));
     }
 }
