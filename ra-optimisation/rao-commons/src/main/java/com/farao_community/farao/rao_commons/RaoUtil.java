@@ -134,7 +134,7 @@ public final class RaoUtil {
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            // TO DO : add relative margins to IteratingLinearOptimizerWithLoopFlows
+            // TODO : add relative margins to IteratingLinearOptimizerWithLoopFlows
             // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
             fillers.add(createMaxLoopFlowFiller(raoParameters));
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityInterface,
