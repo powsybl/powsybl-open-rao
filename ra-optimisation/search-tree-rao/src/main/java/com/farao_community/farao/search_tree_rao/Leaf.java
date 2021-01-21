@@ -151,30 +151,53 @@ class Leaf {
     }
 
     /**
+     * This method performs an initial sensitivity computation on the root leaf only if it has not been done previously.
+     * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
+     */
+    void evaluateRootLeaf(boolean shouldComputeInitialSensitivity) {
+        if (!isRoot()) {
+            throw new FaraoException("Method evaluateRootLeaf should only be called on root leaf.");
+        }
+        if (status.equals(Status.CREATED)) {
+            if (shouldComputeInitialSensitivity) {
+                try {
+                    LOGGER.debug("Evaluating leaf...");
+                    new InitialSensitivityAnalysis(raoData, raoParameters).run();
+                    status = Status.EVALUATED;
+                    // TODO : in curative RAO, we don't need to recompute PTDFs if we already did it before preventive RAO for all CNECs
+                } catch (FaraoException e) {
+                    LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
+                    status = Status.ERROR;
+                }
+            } else {
+                LOGGER.debug("Initial sensitivity analysis has been skipped");
+                status = Status.EVALUATED;
+            }
+        }
+    }
+
+    /**
      * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
     void evaluate() {
+        if (isRoot()) {
+            throw new FaraoException("Method evaluate should not be called on root leaf.");
+        }
         if (status.equals(Status.CREATED)) {
             try {
                 LOGGER.debug("Evaluating leaf...");
+                raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
 
-                if (isRoot()) {
-                    new InitialSensitivityAnalysis(raoData, raoParameters).run();
-                } else {
-
-                    raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
-
-                    if (raoParameters.isRaoWithLoopFlowLimitation()) {
-                        LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,
-                                !raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
-                    }
-
-                    ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
-                    raoData.getCracResultManager().fillCnecResultWithFlows();
-                    raoData.getCracResultManager().fillCracResultWithCosts(
-                            objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
+                if (raoParameters.isRaoWithLoopFlowLimitation()) {
+                    LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,
+                            !raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
                 }
+
+                ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+                raoData.getCracResultManager().fillCnecResultWithFlows();
+                raoData.getCracResultManager().fillCracResultWithCosts(
+                        objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
 
                 status = Status.EVALUATED;
             } catch (FaraoException e) {

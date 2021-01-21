@@ -139,9 +139,13 @@ public final class RaoData {
     }
 
     private void computePerimeterCnecs() {
-        Set<BranchCnec> cnecs = new HashSet<>();
-        perimeter.forEach(state -> cnecs.addAll(crac.getBranchCnecs(state)));
-        perimeterCnecs = cnecs;
+        if (perimeter != null) {
+            Set<BranchCnec> cnecs = new HashSet<>();
+            perimeter.forEach(state -> cnecs.addAll(crac.getBranchCnecs(state)));
+            perimeterCnecs = cnecs;
+        } else {
+            perimeterCnecs = crac.getBranchCnecs();
+        }
     }
 
     public Set<BranchCnec> getLoopflowCnecs() {
