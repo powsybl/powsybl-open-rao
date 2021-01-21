@@ -123,6 +123,19 @@ public final class CommonCracCreation {
         return crac;
     }
 
+    public static SimpleCrac createWithCurativePstRange() {
+        SimpleCrac crac = create();
+
+        //NetworkElement
+        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
+
+        PstWithRange pstWithRange = new PstWithRange("pst", pstElement);
+        pstWithRange.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3-curative")));
+        crac.addRangeAction(pstWithRange);
+
+        return crac;
+    }
+
     public static SimpleCrac createWithSwitch() {
         SimpleCrac crac = create();
 
