@@ -1,0 +1,3 @@
+moduleName = farao-rao-scripting-module
+moduleVersion = 1.0
+extensionClasses = com.farao_community.farao.rao_scripting.RaoGroovyScriptExtension

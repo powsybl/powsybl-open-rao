@@ -1,0 +1,3 @@
+moduleName = farao-crac-scripting-module
+moduleVersion = 1.0
+extensionClasses = com.farao_community.farao.crac_scripting.CracGroovyScriptExtension
