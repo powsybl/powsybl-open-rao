@@ -22,7 +22,6 @@ import com.powsybl.commons.extensions.AbstractExtension;
 public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
 
     /*
-    INPUTS
      - if the unit is PERCENT_IMAX, the input flow threshold should be between 0 and 100
      - in the loop-flow threshold, PERCENT_IMAX is considered as a percentage of the Cnec
        threshold (retrieved from the Crac, without considering the frm), and NOT as a percentage
@@ -31,9 +30,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
     private double inputThreshold;
     private Unit inputThresholdUnit;
 
-    // ATTRIBUTES USED BY THE RAO to temporarily store some data about the loop-flows
-    private double loopFlowConstraintInMW; // loop-flow upper bound, usually = max (Abs(inputThreshold), Abs(initial loopflow)) - frm
-
     public CnecLoopFlowExtension(double inputThreshold, Unit inputThresholdUnit) {
         if (inputThresholdUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
             throw new FaraoException("Loopflow thresholds can only be defined in AMPERE, MEGAWATT or PERCENT_IMAX");
@@ -41,8 +37,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
 
         this.inputThreshold = inputThreshold;
         this.inputThresholdUnit = inputThresholdUnit;
-
-        this.loopFlowConstraintInMW = Double.NaN;
     }
 
     public double getInputThreshold() {
@@ -51,23 +45,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
 
     public Unit getInputThresholdUnit() {
         return inputThresholdUnit;
-    }
-
-    /**
-     * return loop flow constraint used in linear optimization
-     */
-    public double getLoopFlowConstraintInMW() {
-        return loopFlowConstraintInMW;
-    }
-
-    /**
-     * set loop flow constraint used during optimization.
-     * The value is equal to MAX value of initial loop flow calculated from network and
-     * loop flow threshold which is a input parameter from TSO
-     * @param loopFlowConstraint = Max(init_Loop_flow, input loop flow)
-     */
-    public void setLoopFlowConstraintInMW(double loopFlowConstraint) {
-        this.loopFlowConstraintInMW = loopFlowConstraint;
     }
 
     public double getInputThreshold(Unit requestedUnit) {
@@ -105,7 +82,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
         }
 
         throw new FaraoException(String.format("Cannot convert %s into %s", inputThresholdUnit, requestedUnit));
-
     }
 
     @Override
@@ -122,14 +98,14 @@ public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
     }
 
     private double convertAToPercentImax(double valueInA) {
-        return valueInA * 100 / getCnecThresholdInA();
+        return valueInA * 100 / getCnecFmaxWithoutFrmInA();
     }
 
     private double convertPercentImaxToA(double valueInPercent) {
-        return valueInPercent * getCnecThresholdInA() / 100;
+        return valueInPercent * getCnecFmaxWithoutFrmInA() / 100;
     }
 
-    private double getCnecThresholdInA() {
+    private double getCnecFmaxWithoutFrmInA() {
         return Math.min(
                 getExtendable().getUpperBound(Side.LEFT, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
                 -getExtendable().getLowerBound(Side.LEFT, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY))

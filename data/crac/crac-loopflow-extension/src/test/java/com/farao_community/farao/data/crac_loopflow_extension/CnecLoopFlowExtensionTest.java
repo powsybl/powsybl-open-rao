@@ -45,8 +45,6 @@ public class CnecLoopFlowExtensionTest {
     public void basicSetterAndGetterTest() {
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100, Unit.PERCENT_IMAX);
 
-        cnecLoopFlowExtension.setLoopFlowConstraintInMW(200);
-        Assert.assertEquals(200, cnecLoopFlowExtension.getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
         Assert.assertEquals(100, cnecLoopFlowExtension.getInputThreshold(), DOUBLE_TOLERANCE);
         Assert.assertEquals(Unit.PERCENT_IMAX, cnecLoopFlowExtension.getInputThresholdUnit());
     }
