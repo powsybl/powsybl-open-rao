@@ -73,6 +73,18 @@ public class RaoDataTest {
     }
 
     @Test
+    public void curativeRangeActionsInitializationTest() {
+        Crac crac1 = CommonCracCreation.createWithCurativePstRange();
+        crac1.synchronize(network);
+        RaoData raoData1 = RaoData.createOnPreventiveState(network, crac1);
+        raoData1.getCracResultManager().fillRangeActionResultsWithNetworkValues();
+        RangeActionResult rangeActionResult = crac1.getRangeAction("pst").getExtension(RangeActionResultExtension.class).getVariant(raoData1.getWorkingVariantId());
+        assertNotNull(rangeActionResult);
+        Assert.assertEquals(0, rangeActionResult.getSetPoint("none-initial"), 0.1);
+        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("none-initial"));
+    }
+
+    @Test
     public void differentIdsForTwoClonedVariants() {
         String clonedVariantId1 = raoData.getCracVariantManager().cloneWorkingVariant();
         String clonedVariantId2 = raoData.getCracVariantManager().cloneWorkingVariant();
@@ -175,5 +187,28 @@ public class RaoDataTest {
 
         Set<BranchCnec> loopflowCnecs = raoData.getLoopflowCnecs();
         assertEquals(1, loopflowCnecs.size());
+    }
+
+    @Test
+    public void testCreateFromExistingVariant() {
+        Crac crac1 = CommonCracCreation.createWithCurativePstRange();
+        crac1.synchronize(network);
+        RaoData preventiveRaoData = RaoData.createOnPreventiveState(network, crac1);
+        String variantId = preventiveRaoData.getInitialVariantId();
+        RaoData curativeRaoData = new RaoData(
+                network,
+                crac1,
+                crac1.getState("Contingency FR1 FR3", "curative"),
+                Set.of(crac1.getState("Contingency FR1 FR3", "curative")),
+                null,
+                null,
+                variantId,
+                new HashSet<>());
+        RangeActionResult rangeActionResult = curativeRaoData.getCrac().getRangeAction("pst").getExtension(RangeActionResultExtension.class).getVariant(curativeRaoData.getWorkingVariantId());
+        assertNotNull(rangeActionResult);
+        Assert.assertEquals(0, rangeActionResult.getSetPoint("none-initial"), 0.1);
+        Assert.assertEquals(0, rangeActionResult.getSetPoint("Contingency FR1 FR3-curative"), 0.1);
+        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("none-initial"));
+        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("Contingency FR1 FR3-curative"));
     }
 }

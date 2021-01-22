@@ -171,7 +171,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                             curativeResults.put(optimizedState, curativeResult);
                             networkPool.releaseUsedNetwork(networkClone);
                             LOGGER.info("Curative state {} has been optimized.", optimizedState.getId());
-                        } catch (InterruptedException | NotImplementedException | FaraoException e) {
+                        } catch (InterruptedException | NotImplementedException | FaraoException | NullPointerException e) {
                             LOGGER.error("Curative state {} could not be optimized.", optimizedState.getId());
                             Thread.currentThread().interrupt();
                         }
