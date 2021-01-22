@@ -49,6 +49,12 @@ public class RaoDataTest {
     }
 
     @Test
+    public void testNoPerimeter() {
+        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), null, null, null, null, new HashSet<>());
+        assertEquals(crac.getBranchCnecs().size(), raoData.getCnecs().size());
+    }
+
+    @Test
     public void variantIdsInitializationTest() {
         assertEquals(1, raoData.getCracVariantManager().getVariantIds().size());
         assertNotNull(crac.getExtension(CracResultExtension.class));
