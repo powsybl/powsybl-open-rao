@@ -63,7 +63,7 @@ public class CracResultManagerTest {
         assertEquals(-252., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
         assertEquals(24, raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
         assertEquals(100., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
-        assertEquals(100. -20., raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+        assertEquals(100. - 20., raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
         assertEquals(128., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(45., raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
     }
