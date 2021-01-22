@@ -47,6 +47,19 @@ public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
         return inputThresholdUnit;
     }
 
+    public double getThresholdWithReliabilityMargin(Unit requestedUnit) {
+        switch (requestedUnit) {
+            case MEGAWATT:
+                return getInputThreshold(requestedUnit) - this.getExtendable().getReliabilityMargin();
+            case AMPERE:
+                return getInputThreshold(requestedUnit) - convertMWToA(this.getExtendable().getReliabilityMargin());
+            case PERCENT_IMAX:
+                return getInputThreshold(requestedUnit) - convertAToPercentImax(convertMWToA(this.getExtendable().getReliabilityMargin()));
+            default:
+                throw new FaraoException("Loopflow thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
+        }
+    }
+
     public double getInputThreshold(Unit requestedUnit) {
 
         if (requestedUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {

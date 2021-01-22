@@ -78,4 +78,15 @@ public class CnecLoopFlowExtensionTest {
         assertEquals(1000 * 1000 / (nominalV * sqrt(3)), cnecLoopFlowExtension.getInputThreshold(Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(1000, cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    public void getThresholdWithFrm() {
+        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(1000, Unit.MEGAWATT);
+        cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        cnec.setReliabilityMargin(95.);
+
+        assertEquals(905. * 1000 * 100 / (nominalV * sqrt(3) * iMax), cnecLoopFlowExtension.getThresholdWithReliabilityMargin(Unit.PERCENT_IMAX), DOUBLE_TOLERANCE);
+        assertEquals(905. * 1000 / (nominalV * sqrt(3)), cnecLoopFlowExtension.getThresholdWithReliabilityMargin(Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(905., cnecLoopFlowExtension.getThresholdWithReliabilityMargin(Unit.MEGAWATT), DOUBLE_TOLERANCE);
+    }
 }

@@ -58,7 +58,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     private double getLoopFlowUpperBound(BranchCnec cnec, String initialVariantId) {
-        double loopFlowThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getInputThreshold(Unit.MEGAWATT);
+        double loopFlowThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
         double initialLoopFlow = cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getLoopflowInMW();
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }
