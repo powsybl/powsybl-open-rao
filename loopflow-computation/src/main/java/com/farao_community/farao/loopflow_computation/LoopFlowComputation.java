@@ -48,10 +48,10 @@ public class LoopFlowComputation {
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
 
-        return buildLoopFlowsFromReferenceFlowAndPtdf(network, ptdfsAndRefFlows, cnecs);
+        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, cnecs);
     }
 
-    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(Network network, SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
+    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
 
         LoopFlowResult results = new LoopFlowResult();
         Map<ReferenceProgramArea, LinearGlsk> refProgGlskMap = buildRefProgGlskMap();

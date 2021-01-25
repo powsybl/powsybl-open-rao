@@ -73,18 +73,18 @@ public class ReferenceProgram {
     }
 
     private Set<ReferenceProgramArea> buildReferenceProgramAreas(List<ReferenceExchangeData> referenceExchangeDataList) {
-        Set<ReferenceProgramArea> referenceProgramAreas = new HashSet<>();
+        Set<ReferenceProgramArea> setOfRefProgAreas = new HashSet<>();
 
         referenceExchangeDataList.forEach(referenceExchangeData -> {
             if (referenceExchangeData.getAreaOut() != null) {
-                referenceProgramAreas.add(referenceExchangeData.getAreaOut());
+                setOfRefProgAreas.add(referenceExchangeData.getAreaOut());
             }
             if (referenceExchangeData.getAreaIn() != null) {
-                referenceProgramAreas.add(referenceExchangeData.getAreaIn());
+                setOfRefProgAreas.add(referenceExchangeData.getAreaIn());
             }
         });
 
-        return referenceProgramAreas;
+        return setOfRefProgAreas;
     }
 
 }
