@@ -82,12 +82,8 @@ public final class RaoData {
     }
 
     private void addRaoDataVariantManager(String cracVariantId) {
-        if (cracVariantId != null) {
-            cracVariantManager = new CracVariantManager(crac, cracVariantId);
-        } else {
-            cracVariantManager = new CracVariantManager(crac);
-            cracResultManager.fillRangeActionResultsWithNetworkValues();
-        }
+        cracVariantManager = new CracVariantManager(crac, cracVariantId);
+        cracResultManager.fillRangeActionResultsWithNetworkValues();
     }
 
     public static RaoData createOnPreventiveState(Network network, Crac crac) {
