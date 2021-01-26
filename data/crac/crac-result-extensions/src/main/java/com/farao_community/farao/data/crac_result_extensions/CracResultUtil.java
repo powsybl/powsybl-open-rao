@@ -8,9 +8,16 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -23,40 +30,102 @@ public final class CracResultUtil {
     }
 
     /**
-     * Apply preventive remedial actions saved in CRAC result extension on current working variant of given network.
+     * Apply remedial actions saved in CRAC result extension on current working variant of given network,
+     * with automatically selected cracVariantId, at a given state.
+     *
+     * @param network Network on which remedial actions should be applied
+     * @param crac CRAC that should contain result extension
+     * @param state State for which the RAs should be applied
+     */
+    public static void applyRemedialActionsForState(Network network, Crac crac, State state) {
+        CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+        if (resultVariantManager != null && cracExtension != null) { // Results from RAO
+            LOGGER.debug("Remedial Actions selected from RAO results.");
+            String cracVariantId = findPostOptimVariant(resultVariantManager, cracExtension);
+            applyRemedialActionsForState(network, crac, cracVariantId, state);
+        } else { // Apply all RAs from CRAC
+            LOGGER.debug("No RAO results found. All Remedial Actions from CRAC are applied.");
+            applyAllNetworkRemedialActionsForState(network, crac, state);
+        }
+    }
+
+    // Find post optim variant if any
+    // this comes from CNEHelper (until String cracVariantId) ...
+    private static String findPostOptimVariant(ResultVariantManager resultVariantManager, CracResultExtension cracExtension) {
+        List<String> variants = new ArrayList<>(resultVariantManager.getVariants());
+        String postOptimVariantId = variants.get(0);
+
+        double minCost = cracExtension.getVariant(variants.get(0)).getCost();
+        for (String variant : variants) {
+            if (cracExtension.getVariant(variant).getCost() <= minCost) {
+                minCost = cracExtension.getVariant(variant).getCost();
+                postOptimVariantId = variant;
+            }
+        }
+        return postOptimVariantId;
+    }
+
+    /**
+     * Apply remedial actions saved in CRAC result extension on current working variant of given network, at a given state.
      *
      * @param network Network on which remedial actions should be applied
      * @param crac CRAC that should contain result extension
      * @param cracVariantId CRAC variant to get active remedial actions from
+     * @param state State for which the RAs should be applied
      */
-    public static void applyPreventiveRemedialActions(Network network, Crac crac, String cracVariantId) {
-        String preventiveStateId = crac.getPreventiveState().getId();
-        crac.getNetworkActions().forEach(na -> {
-            NetworkActionResultExtension resultExtension = na.getExtension(NetworkActionResultExtension.class);
-            if (resultExtension == null) {
-                LOGGER.error(String.format("Could not find results on network action %s", na.getId()));
-                return;
-            }
+    public static void applyRemedialActionsForState(Network network, Crac crac, String cracVariantId, State state) {
+        String preventiveStateId = state.getId();
+        crac.getNetworkActions().forEach(na -> applyNetworkAction(na, network, cracVariantId, preventiveStateId));
+        crac.getRangeActions().forEach(ra -> applyRangeAction(ra, network, cracVariantId, preventiveStateId));
+    }
+
+    private static void applyNetworkAction(NetworkAction networkAction, Network network, String cracVariantId, String preventiveStateId) {
+        NetworkActionResultExtension resultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
+        if (resultExtension == null) {
+            LOGGER.error("Could not find results on network action {}", networkAction.getId());
+        } else {
             NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
             if (networkActionResult != null) {
                 if (networkActionResult.isActivated(preventiveStateId)) {
-                    na.apply(network);
+                    LOGGER.debug("Applying network action {}", networkAction.getName());
+                    networkAction.apply(network);
                 }
             } else {
-                LOGGER.error(String.format("Could not find results for variant %s on network action %s", cracVariantId, na.getId()));
+                LOGGER.error("Could not find results for variant {} on network action {}", cracVariantId, networkAction.getId());
             }
-        });
-        crac.getRangeActions().forEach(ra -> {
-            RangeActionResultExtension resultExtension = ra.getExtension(RangeActionResultExtension.class);
-            if (resultExtension == null) {
-                LOGGER.error(String.format("Could not find results on range action %s", ra.getId()));
-                return;
-            }
+        }
+    }
+
+    private static void applyRangeAction(RangeAction rangeAction, Network network, String cracVariantId, String preventiveStateId) {
+        RangeActionResultExtension resultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+        if (resultExtension == null) {
+            LOGGER.error("Could not find results on range action {}", rangeAction.getId());
+        } else {
             RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
             if (rangeActionResult != null) {
-                ra.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
+                if (!Double.isNaN(rangeActionResult.getSetPoint(preventiveStateId))) {
+                    LOGGER.debug("Applying range action {}: tap {}", rangeAction.getName(), ((PstRangeResult) rangeActionResult).getTap(preventiveStateId));
+                }
+                rangeAction.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
             } else {
-                LOGGER.error(String.format("Could not find results for variant %s on range action %s", cracVariantId, ra.getId()));
+                LOGGER.error("Could not find results for variant {} on range action {}", cracVariantId, rangeAction.getId());
+            }
+        }
+    }
+
+    /**
+     * Apply all remedial actions saved in CRAC, on a given network, at a given state.
+     *
+     * @param network Network on which remedial actions should be applied
+     * @param crac CRAC that should contain result extension
+     * @param state State for which the RAs should be applied
+     */
+    public static void applyAllNetworkRemedialActionsForState(Network network, Crac crac, State state) {
+        crac.getNetworkActions().forEach(na -> {
+            UsageMethod usageMethod = na.getUsageMethod(network, state);
+            if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                na.apply(network);
             }
         });
     }
