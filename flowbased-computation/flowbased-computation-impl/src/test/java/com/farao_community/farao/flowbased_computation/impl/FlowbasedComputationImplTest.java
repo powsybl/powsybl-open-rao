@@ -38,7 +38,6 @@ public class FlowbasedComputationImplTest {
     public void setUp() {
         flowBasedComputationProvider = new FlowbasedComputationImpl();
         network = ExampleGenerator.network();
-        crac = ExampleGenerator.crac();
         glsk = ExampleGenerator.glskProvider();
         parameters = FlowbasedComputationParameters.load();
     }
@@ -54,8 +53,29 @@ public class FlowbasedComputationImplTest {
     }
 
     @Test
-    public void testRun() {
+    public void testRunWithoutPra() {
+        crac = ExampleGenerator.crac("crac.json");
+        assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
+        assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        checkAssertions(result);
+    }
+
+    @Test
+    public void testRunPraWithForced() {
+        crac = ExampleGenerator.crac("crac_with_forced.json");
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        checkAssertions(result);
+    }
+
+    @Test
+    public void testRunPraWithExtension() {
+        crac = ExampleGenerator.crac("crac_with_extension.json");
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        checkAssertions(result);
+    }
+
+    private void checkAssertions(FlowbasedComputationResult result) {
         assertEquals(FlowbasedComputationResult.Status.SUCCESS, result.getStatus());
 
         assertEquals(50, getPreventiveFref(result, "FR-BE - N - preventive"), EPSILON);
