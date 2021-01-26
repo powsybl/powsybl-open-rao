@@ -153,7 +153,6 @@ public final class RaoData {
     }
 
     private void computeLoopflowCnecs() {
-        //TODO: when we start computing loopflows for N-1 cnecs, adapt this part of code
         if (!loopflowCountries.isEmpty()) {
             loopflowCnecs = perimeterCnecs.stream()
                     .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, loopflowCountries))
