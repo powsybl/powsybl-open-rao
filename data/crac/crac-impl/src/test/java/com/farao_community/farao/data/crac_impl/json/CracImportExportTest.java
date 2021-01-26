@@ -15,10 +15,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.AbstractElementaryNetworkAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.threshold.*;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
@@ -74,6 +71,7 @@ public class CracImportExportTest {
         usageRules.add(new OnStateImpl(UsageMethod.FORCED, postContingencyState));
 
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
+        simpleCrac.addNetworkElement(new NetworkElement("injection"));
         simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15, CENTERED_ON_ZERO));
 
         Set<AbstractElementaryNetworkAction> elementaryNetworkActions = new HashSet<>();
@@ -105,6 +103,16 @@ public class CracImportExportTest {
         );
         simpleCrac.addNetworkAction(complexNetworkAction);
 
+        InjectionSetpoint injectionSetpoint = new InjectionSetpoint(
+                "injectionSetpointId",
+                "injectioSetpointName",
+                "RTE",
+                new ArrayList<>(),
+                simpleCrac.getNetworkElement("injection"),
+                150
+        );
+        simpleCrac.addNetworkAction(injectionSetpoint);
+
         simpleCrac.addRangeAction(new PstWithRange(
                 "pstRangeId",
                 "pstRangeName",
@@ -130,16 +138,17 @@ public class CracImportExportTest {
 
         Crac crac = roundTrip(simpleCrac, SimpleCrac.class);
 
-        assertEquals(5, crac.getNetworkElements().size());
+        assertEquals(6, crac.getNetworkElements().size());
         assertEquals(2, crac.getInstants().size());
         assertEquals(2, crac.getContingencies().size());
         assertEquals(5, crac.getBranchCnecs().size());
         assertEquals(2, crac.getRangeActions().size());
-        assertEquals(2, crac.getNetworkActions().size());
+        assertEquals(3, crac.getNetworkActions().size());
         assertEquals(4, crac.getBranchCnec("cnec2prev").getThresholds().size());
         assertFalse(crac.getBranchCnec("cnec3prevId").isOptimized());
         assertTrue(crac.getBranchCnec("cnec4prevId").isMonitored());
         assertTrue(crac.getNetworkAction("pstSetpointId") instanceof PstSetpoint);
+        assertTrue(crac.getNetworkAction("injectionSetpointId") instanceof InjectionSetpoint);
         assertEquals("1", crac.getRangeAction("pstRangeId2").getGroupId().orElseThrow());
         assertTrue(crac.getRangeAction("pstRangeId").getGroupId().isEmpty());
         assertEquals(CENTERED_ON_ZERO, ((PstSetpoint) crac.getNetworkAction("pstSetpointId")).getRangeDefinition());

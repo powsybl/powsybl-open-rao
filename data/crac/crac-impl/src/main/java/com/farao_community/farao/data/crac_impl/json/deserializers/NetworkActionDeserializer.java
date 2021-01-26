@@ -11,10 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.AbstractElementaryNetworkAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -58,8 +55,8 @@ final class NetworkActionDeserializer {
             String type = jsonParser.nextTextValue();
             switch (type) {
                 case TOPOLOGY_TYPE:
-
                 case PST_SETPOINT_TYPE:
+                case INJECTION_SETPOINT_TYPE:
 
                     networkAction = deserializeSingleNetworkAction(jsonParser, simpleCrac, deserializationContext, type);
                     break;
@@ -156,6 +153,10 @@ final class NetworkActionDeserializer {
         switch (type) {
             case TOPOLOGY_TYPE:
                 networkAction = new Topology(id, name, operator, usageRules, ne, actionType);
+                break;
+
+            case INJECTION_SETPOINT_TYPE:
+                networkAction = new InjectionSetpoint(id, name, operator, usageRules, ne, setPoint);
                 break;
 
             case PST_SETPOINT_TYPE:
