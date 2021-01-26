@@ -7,10 +7,7 @@
 package com.farao_community.farao.data.crac_impl.utils;
 
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -90,6 +87,26 @@ public final class NetworkImportsUtil {
             .setConverterStationId1("C1")
             .setConverterStationId2("C2")
             .add();
+    }
+
+    public static void addDanglingLine(Network network) {
+        VoltageLevel vl1 = network.getVoltageLevel("FFR1AA1");
+        vl1.getBusBreakerView().newBus().setId("B1").add();
+        DanglingLine danglingLine = vl1.newDanglingLine()
+                .setId("DL1")
+                .setName("DL1")
+                .setConnectableBus("B1")
+                .setBus("B1")
+                .setR(0.5)
+                .setX(0.5)
+                .setB(0.5)
+                .setG(0.5)
+                .setP0(0.)
+                .setQ0(0.)
+                .add();
+        danglingLine.getTerminal()
+                .setP(0.)
+                .setQ(0.);
     }
 
 }

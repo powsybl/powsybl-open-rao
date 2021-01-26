@@ -257,8 +257,8 @@ final class ExampleGenerator {
         return network;
     }
 
-    static Crac crac() {
-        return CracImporters.importCrac("crac.json", ExampleGenerator.class.getResourceAsStream("/crac.json"));
+    static Crac crac(String fileName) {
+        return CracImporters.importCrac(fileName, ExampleGenerator.class.getResourceAsStream("/" + fileName));
     }
 
     static ZonalData<LinearGlsk> glskProvider() {
