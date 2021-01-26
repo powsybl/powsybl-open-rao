@@ -34,7 +34,7 @@ public class CracResultUtilTest {
         assertTrue(testNetwork.getBranch("NNL1AA1  NNL2AA1  1").getTerminal1().isConnected());
         assertTrue(testNetwork.getBranch("NNL1AA1  NNL2AA1  1").getTerminal2().isConnected());
         assertEquals(0, testNetwork.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
-        CracResultUtil.applyPreventiveRemedialActions(testNetwork, testCracWithResult, "postOptimisationResults-d98e1bba-05ef-46d9-8f47-fae6752991ea");
+        CracResultUtil.applyRemedialActionsForState(testNetwork, testCracWithResult, "postOptimisationResults-d98e1bba-05ef-46d9-8f47-fae6752991ea", testCracWithResult.getPreventiveState());
         assertFalse(testNetwork.getBranch("NNL1AA1  NNL2AA1  1").getTerminal1().isConnected());
         assertFalse(testNetwork.getBranch("NNL1AA1  NNL2AA1  1").getTerminal2().isConnected());
         assertEquals(-16, testNetwork.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());

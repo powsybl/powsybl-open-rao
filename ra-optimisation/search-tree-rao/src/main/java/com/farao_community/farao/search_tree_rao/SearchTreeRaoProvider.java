@@ -9,8 +9,6 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -109,7 +107,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
             double preventiveOptimalCost = raoInput.getCrac().getExtension(CracResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId()).getCost();
             TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(parameters.getExtension(SearchTreeRaoParameters.class), preventiveOptimalCost);
-            applyPreventiveRemedialActions(raoInput.getNetwork(), raoInput.getCrac(), preventiveRaoResult.getPostOptimVariantId());
+            CracResultUtil.applyRemedialActionsForState(raoInput.getNetwork(), raoInput.getCrac(), preventiveRaoResult.getPostOptimVariantId(), raoInput.getCrac().getPreventiveState());
             Map<State, RaoResult> curativeResults = optimizeCurativePerimeters(raoInput, parameters, curativeTreeParameters, network);
 
             LOGGER.info("Merging preventive and curative RAO results.");
@@ -184,46 +182,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
             Thread.currentThread().interrupt();
         }
         return curativeResults;
-    }
-
-    private static void applyPreventiveRemedialActions(Network network, Crac crac, String cracVariantId) {
-        String preventiveStateId = crac.getPreventiveState().getId();
-        crac.getNetworkActions().forEach(na -> applyNetworkAction(na, network, cracVariantId, preventiveStateId));
-        crac.getRangeActions().forEach(ra -> applyRangeAction(ra, network, cracVariantId, preventiveStateId));
-    }
-
-    private static void applyNetworkAction(NetworkAction networkAction, Network network, String cracVariantId, String preventiveStateId) {
-        NetworkActionResultExtension resultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
-        if (resultExtension == null) {
-            LOGGER.error("Could not find results on network action {}", networkAction.getId());
-        } else {
-            NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
-            if (networkActionResult != null) {
-                if (networkActionResult.isActivated(preventiveStateId)) {
-                    LOGGER.debug("Applying network action {}", networkAction.getName());
-                    networkAction.apply(network);
-                }
-            } else {
-                LOGGER.error("Could not find results for variant {} on network action {}", cracVariantId, networkAction.getId());
-            }
-        }
-    }
-
-    private static void applyRangeAction(RangeAction rangeAction, Network network, String cracVariantId, String preventiveStateId) {
-        RangeActionResultExtension resultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
-        if (resultExtension == null) {
-            LOGGER.error("Could not find results on range action {}", rangeAction.getId());
-        } else {
-            RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
-            if (rangeActionResult != null) {
-                if (!Double.isNaN(rangeActionResult.getSetPoint(preventiveStateId))) {
-                    LOGGER.debug("Applying range action {}: tap {}", rangeAction.getName(), ((PstRangeResult) rangeActionResult).getTap(preventiveStateId));
-                }
-                rangeAction.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
-            } else {
-                LOGGER.error("Could not find results for variant {} on range action {}", cracVariantId, rangeAction.getId());
-            }
-        }
     }
 
     RaoResult mergeRaoResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
