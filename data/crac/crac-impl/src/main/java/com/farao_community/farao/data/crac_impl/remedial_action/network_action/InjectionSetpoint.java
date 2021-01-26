@@ -10,7 +10,8 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
 
@@ -37,6 +38,18 @@ public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAc
 
     @Override
     public void apply(Network network) {
-        throw new UnsupportedOperationException();
+        Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
+        if (identifiable instanceof Generator) {
+            Generator generator = (Generator) identifiable;
+            generator.setTargetP(setpoint);
+        } else if (identifiable instanceof Load) {
+            Load load = (Load) identifiable;
+            load.setP0(setpoint);
+        } else if (identifiable instanceof DanglingLine) {
+            DanglingLine danglingLine = (DanglingLine) identifiable;
+            danglingLine.setP0(setpoint);
+        } else {
+            throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");
+        }
     }
 }
