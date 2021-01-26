@@ -185,39 +185,4 @@ public class FlowbasedComputationImplTest {
                 ))
             ));
     }
-
-    /* MOCKED ANYWAY...
-    @Test
-    public void testRunPraWithForcedAlternative() {
-        crac = ExampleGenerator.crac("crac_with_pra_no_co.json");
-        assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
-        assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
-        assertFalse(network.getBranch("FR-BE").getTerminal1().isConnected());
-        assertFalse(network.getBranch("FR-BE").getTerminal2().isConnected());
-        assertEquals(0, getPreventiveFref(result, "FR-BE - N - preventive"), EPSILON);
-        assertEquals(100, getPreventiveFmax(result, "FR-BE - N - preventive"), EPSILON);
-        assertEquals(0., getPreventivePtdf(result, "FR-BE - N - preventive", "10YFR-RTE------C"), EPSILON);
-        assertEquals(0., getPreventivePtdf(result, "FR-BE - N - preventive", "10YBE----------2"), EPSILON);
-        assertEquals(0., getPreventivePtdf(result, "FR-BE - N - preventive", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(0., getPreventivePtdf(result, "FR-BE - N - preventive", "10YNL----------L"), EPSILON);
-        assertEquals(100, getPreventiveFref(result, "FR-DE - N - preventive"), EPSILON);
-        assertEquals(100, getPreventiveFmax(result, "FR-DE - N - preventive"), EPSILON);
-        assertEquals(0.75, getPreventivePtdf(result, "FR-DE - N - preventive", "10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "FR-DE - N - preventive", "10YBE----------2"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "FR-DE - N - preventive", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "FR-DE - N - preventive", "10YNL----------L"), EPSILON);
-        assertEquals(0, getPreventiveFref(result, "BE-NL - N - preventive"), EPSILON);
-        assertEquals(100, getPreventiveFmax(result, "BE-NL - N - preventive"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "BE-NL - N - preventive", "10YFR-RTE------C"), EPSILON);
-        assertEquals(0.75, getPreventivePtdf(result, "BE-NL - N - preventive", "10YBE----------2"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "BE-NL - N - preventive", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.25, getPreventivePtdf(result, "BE-NL - N - preventive", "10YNL----------L"), EPSILON);
-        assertEquals(10, getPreventiveFref(result, "DE-NL - N - preventive"), EPSILON);
-        assertEquals(100, getPreventiveFmax(result, "FR-BE - N - preventive"), EPSILON);
-        assertEquals(0.5, getPreventivePtdf(result, "DE-NL - N - preventive", "10YFR-RTE------C"), EPSILON);
-        assertEquals(-0.5, getPreventivePtdf(result, "DE-NL - N - preventive", "10YBE----------2"), EPSILON);
-        assertEquals(0.5, getPreventivePtdf(result, "DE-NL - N - preventive", "10YCB-GERMANY--8"), EPSILON);
-        assertEquals(-0.5, getPreventivePtdf(result, "DE-NL - N - preventive", "10YNL----------L"), EPSILON);
-    }*/
 }
