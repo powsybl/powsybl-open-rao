@@ -145,7 +145,10 @@ public final class RaoUtil {
     }
 
     private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
-        return new MaxLoopFlowFiller(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowApproximationLevel());
+        return new MaxLoopFlowFiller(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(),
+            raoParameters.getLoopFlowViolationCost(),
+            raoParameters.getLoopFlowApproximationLevel(),
+            raoParameters.getLoopFlowAcceptableAugmentation());
     }
 
     private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {

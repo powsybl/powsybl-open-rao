@@ -56,22 +56,14 @@ public class CracResultManagerTest {
     }
 
     @Test
-    public void testFillCnecLoopExtensionsWithInitialResults() {
-        raoData.getCracResultManager().fillCnecLoopFlowExtensionsWithInitialResults(loopFlowResult, 0.0);
-        assertEquals(252., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
-        assertEquals(80, raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     public void testFillCracResultsWithLoopFlows() {
-        raoData.getCracResultManager().fillCnecLoopFlowExtensionsWithInitialResults(loopFlowResult, 0.0);
         raoData.getCracResultManager().fillCnecResultsWithLoopFlows(loopFlowResult);
         String var = raoData.getWorkingVariantId();
 
         assertEquals(-252., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
         assertEquals(24, raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(252., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
-        assertEquals(80, raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+        assertEquals(100., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+        assertEquals(100. - 20., raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
         assertEquals(128., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(45., raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
     }
@@ -83,7 +75,6 @@ public class CracResultManagerTest {
         Mockito.when(sensiResults.getReferenceFlow(raoData.getCrac().getBranchCnec("cnec1basecase"))).thenReturn(-162.);
         Mockito.when(sensiResults.getReferenceFlow(raoData.getCrac().getBranchCnec("cnec2basecase"))).thenReturn(47.);
 
-        raoData.getCracResultManager().fillCnecLoopFlowExtensionsWithInitialResults(loopFlowResult, 50.0);
         raoData.getCracResultManager().fillCnecResultsWithLoopFlows(loopFlowResult);
         raoData.setSystematicSensitivityResult(sensiResults);
         raoData.getCracResultManager().fillCnecResultsWithApproximatedLoopFlows();
@@ -91,8 +82,8 @@ public class CracResultManagerTest {
 
         assertEquals(-162 - 128., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
         assertEquals(47. - 45., raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(252. + 50., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
-        assertEquals(80, raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+        assertEquals(100., raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
+        assertEquals(100. - 20., raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getLoopflowThresholdInMW(), DOUBLE_TOLERANCE);
     }
 
     @Test

@@ -7,9 +7,11 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -19,26 +21,19 @@ import com.google.ortools.linearsolver.MPVariable;
 import java.util.Objects;
 
 /**
- * Filler of loopflow constraint in linear rao problem.
- * - Current loopflow will only be checked for preventive state cnec.
- * - This constraint is set at the beginning of the linear rao. It is not updated during optimization. It could be updated
- * by re-computing loopflow's constraint bound following each network's update.
- * - NOTE: It should note that the pst tap changer positions are considered as continuous variables by the solver
- * so that the loopflow constraint used during optimization is satisfied for a network situation where pst tap changers
- * are not all integers. We do not currently re-check the loopflow constraint on integer pst tap changer network. This
- * is a (hopefully-) reasonable approximation (considering input data quality, and measuring errors etc.).
- *
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MaxLoopFlowFiller implements ProblemFiller {
     private double loopFlowConstraintAdjustmentCoefficient;
+    private double loopFlowAcceptableAugmentation;
     private double loopFlowViolationCost;
     private RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
 
-    public MaxLoopFlowFiller(double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost, RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel) {
+    public MaxLoopFlowFiller(double loopFlowConstraintAdjustmentCoefficient, double loopFlowViolationCost, RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel, double loopFlowAcceptableAugmentation) {
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
         this.loopFlowViolationCost = loopFlowViolationCost;
         this.loopFlowApproximationLevel = loopFlowApproximationLevel;
+        this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
     }
 
     @Override
@@ -76,17 +71,17 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * and a "virtual cost" is added to objective function as "loopflowViolationVariable * Loopflow violation cost"
      */
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(RaoData raoData, LinearProblem linearProblem) {
-        for (BranchCnec cnec : raoData.getLoopflowCnecs()) {
-            //get and update MapLoopFlowLimit with loopflowConstraintAdjustmentCoefficient
-            double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
 
-            if (maxLoopFlowLimit == Double.POSITIVE_INFINITY) {
+        String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
+        for (BranchCnec cnec : raoData.getLoopflowCnecs()) {
+
+            // build loopFlow upper bound, with inputThreshold, initial loop-flows, and configuration parameters
+            double loopFlowUpperBound = getLoopFlowUpperBound(cnec, initialVariantId);
+            if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
                 continue;
             }
 
-            maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
-
-            //get MPVariable: flowVariable
+            // get loop-flow variable
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
             if (Objects.isNull(flowVariable)) {
                 throw new FaraoException(String.format("Flow variable on %s has not been defined yet.", cnec.getId()));
@@ -98,10 +93,14 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                     cnec
             );
 
-            double commercialFlow = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).getCommercialFlowInMW();
+            // build constraint which defines the loopFlow :
             // - MaxLoopFlow + commercialFlow <= flowVariable + loopflowViolationVariable <= POSITIVE_INF
+            // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + commercialFlow
+
+            double commercialFlow = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).getCommercialFlowInMW();
+
             MPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
-                    -maxLoopFlowLimit + commercialFlow,
+                    -loopFlowUpperBound + commercialFlow,
                     linearProblem.infinity(),
                     cnec,
                     LinearProblem.BoundExtension.LOWER_BOUND
@@ -109,10 +108,9 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
             positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1);
 
-            // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + commercialFlow
             MPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -linearProblem.infinity(),
-                    maxLoopFlowLimit + commercialFlow,
+                    loopFlowUpperBound + commercialFlow,
                     cnec,
                     LinearProblem.BoundExtension.UPPER_BOUND
             );
@@ -122,33 +120,43 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             //update objective function with loopflowViolationCost
             linearProblem.getObjective().setCoefficient(loopflowViolationVariable, loopFlowViolationCost);
         }
-    } // end cnec loop
+    }
 
     /**
      * Update LoopFlow constraints' bounds when commercial flows have changed
      */
     private void updateLoopFlowConstraints(RaoData raoData, LinearProblem linearProblem) {
+
+        if (!loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange()) {
+            return;
+        }
+
+        String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         for (BranchCnec cnec : raoData.getLoopflowCnecs()) {
 
-            double maxLoopFlowLimit = cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW();
-            if (maxLoopFlowLimit == Double.POSITIVE_INFINITY) {
+            double loopFlowUpperBound = getLoopFlowUpperBound(cnec, initialVariantId);
+            if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
                 continue;
             }
-            maxLoopFlowLimit = Math.max(0.0, maxLoopFlowLimit - loopFlowConstraintAdjustmentCoefficient);
-
             double commercialFlow = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).getCommercialFlowInMW();
 
             MPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.LOWER_BOUND);
             if (positiveLoopflowViolationConstraint == null) {
                 throw new FaraoException(String.format("Positive LoopFlow violation constraint on %s has not been defined yet.", cnec.getId()));
             }
-            positiveLoopflowViolationConstraint.setLb(-maxLoopFlowLimit + commercialFlow);
+            positiveLoopflowViolationConstraint.setLb(-loopFlowUpperBound + commercialFlow);
 
             MPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.UPPER_BOUND);
             if (negativeLoopflowViolationConstraint == null) {
                 throw new FaraoException(String.format("Negative LoopFlow violation constraint on %s has not been defined yet.", cnec.getId()));
             }
-            negativeLoopflowViolationConstraint.setUb(maxLoopFlowLimit + commercialFlow);
+            negativeLoopflowViolationConstraint.setUb(loopFlowUpperBound + commercialFlow);
         }
+    }
+
+    private double getLoopFlowUpperBound(BranchCnec cnec, String initialVariantId) {
+        double loopFlowThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
+        double initialLoopFlow = cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getLoopflowInMW();
+        return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient);
     }
 }

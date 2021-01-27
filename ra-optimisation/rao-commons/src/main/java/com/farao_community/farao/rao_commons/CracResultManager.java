@@ -130,25 +130,12 @@ public class CracResultManager {
         });
     }
 
-    public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, double loopFlowAcceptableAugmentation) {
-        raoData.getLoopflowCnecs().forEach(cnec -> {
-            CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
-
-            if (!Objects.isNull(cnecLoopFlowExtension)) {
-                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT));
-                double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
-
-                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow + loopFlowAcceptableAugmentation, loopFlowThreshold - cnec.getReliabilityMargin()));
-            }
-        });
-    }
-
     public void fillCnecResultsWithLoopFlows(LoopFlowResult loopFlowResult) {
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
                 cnecResult.setLoopflowInMW(loopFlowResult.getLoopFlow(cnec));
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
                 cnecResult.setCommercialFlowInMW(loopFlowResult.getCommercialFlow(cnec));
             }
         });
@@ -160,7 +147,7 @@ public class CracResultManager {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
                 double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnecResult.getCommercialFlowInMW();
                 cnecResult.setLoopflowInMW(loopFLow);
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
             }
         });
     }
