@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -25,6 +26,9 @@ import static org.junit.Assert.assertEquals;
 public class LoopFlowViolationCostEvaluatorTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
+    private static final String INITIAL = "initial";
+    private static final String CURRENT = "current";
+
     private Network network;
     private Crac crac;
 
@@ -32,68 +36,109 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
+        crac.addExtension(ResultVariantManager.class, new ResultVariantManager());
+        crac.getExtension(ResultVariantManager.class).createVariant("initial");
+        crac.getExtension(ResultVariantManager.class).createVariant("current");
+        crac.getExtension(ResultVariantManager.class).setInitialVariantId("initial");
     }
 
     @Test
     public void testLoopFlowViolationCostEvaluator1() {
         // no loop-flow violation for both cnecs
-        addLoopFlowExtensions(crac);
-        RaoData raoData = RaoData.createOnPreventiveState(network, crac);
+        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(10.);
+        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(100.);
 
-        String var = raoData.getWorkingVariantId();
-        raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(0.);
-        raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowThresholdInMW(100.);
-        raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(100.);
-        raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowThresholdInMW(100.);
+        RaoData raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, "current");
 
-        // assertEquals(0., new LoopFlowViolationCostEvaluator(0.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(0., new LoopFlowViolationCostEvaluator(15.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(0., new LoopFlowViolationCostEvaluator(95.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(0., new LoopFlowViolationCostEvaluator(0., 0.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(0., new LoopFlowViolationCostEvaluator(15., 0.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(0., new LoopFlowViolationCostEvaluator(95., 0.).getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testLoopFlowViolationCostEvaluator2() {
         // 90 MW loop-flow violation for cnec1
         // no loop-flow violation for cnec2
-        addLoopFlowExtensions(crac);
-        RaoData raoData = RaoData.createOnPreventiveState(network, crac);
+        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(190.);
+        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(9);
 
-        String var = raoData.getWorkingVariantId();
-        raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(190.);
-        raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowThresholdInMW(100.);
-        raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(9.);
-        raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowThresholdInMW(100.);
+        RaoData raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, "current");
 
-        // assertEquals(0., new LoopFlowViolationCostEvaluator(0.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(15. * 90., new LoopFlowViolationCostEvaluator(15.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(95. * 90., new LoopFlowViolationCostEvaluator(95.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(0., new LoopFlowViolationCostEvaluator(0., 0.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(15. * 90., new LoopFlowViolationCostEvaluator(15., 0.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(95. * 90., new LoopFlowViolationCostEvaluator(95., 0.).getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testLoopFlowViolationCostEvaluator3() {
         // no loop-flow violation for cnec1
         // 10 MW of loop-flow violation for cnec2
-        addLoopFlowExtensions(crac);
-        RaoData raoData = RaoData.createOnPreventiveState(network, crac);
 
-        String var = raoData.getWorkingVariantId();
-        raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(99.);
-        raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowThresholdInMW(100.);
-        raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowInMW(-110.);
-        raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).setLoopflowThresholdInMW(100.);
+        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(99.);
+        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-110.);
 
-        // assertEquals(0., new LoopFlowViolationCostEvaluator(0.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(15. * 10., new LoopFlowViolationCostEvaluator(15.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(95. * 10., new LoopFlowViolationCostEvaluator(95.).getCost(raoData), DOUBLE_TOLERANCE);
+        RaoData raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, "current");
+
+        assertEquals(0., new LoopFlowViolationCostEvaluator(0., 0.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(15. * 10., new LoopFlowViolationCostEvaluator(15., 0.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(95. * 10., new LoopFlowViolationCostEvaluator(95., 0.).getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testLoopFlowViolationCostEvaluator4() {
+        // 20 MW no loop-flow violation for cnec1, loopflow = initialLoopFlow + acceptableAugmentation (50) + 20
+        // 10 MW of loop-flow violation for cnec2, constrained by threshold and not initial loop-flow
+        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(200.);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(270.);
+        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-110.);
+
+        RaoData raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, "current");
+
+        assertEquals(0., new LoopFlowViolationCostEvaluator(0., 50.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(15. * 30., new LoopFlowViolationCostEvaluator(15., 50.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(95. * 30., new LoopFlowViolationCostEvaluator(95., 50.).getCost(raoData), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testLoopFlowViolationCostEvaluator5() {
+        // 0 MW no loop-flow violation for cnec1, loop flow below initial loopFlow + acceptable augmentation (50)
+        // 10 MW of loop-flow violation for cnec2, loopflow = initialLoopFlow + acceptableAugmentation (50) + 10
+        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(230., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(200.);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-245.);
+        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(50., Unit.MEGAWATT));
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(100.);
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-160.);
+
+        RaoData raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, "current");
+
+        assertEquals(0., new LoopFlowViolationCostEvaluator(0., 50.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(15. * 10., new LoopFlowViolationCostEvaluator(15., 50.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(95. * 10., new LoopFlowViolationCostEvaluator(95., 50.).getCost(raoData), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testLoopFlowViolationCostEvaluator6() {
         // no cnec with LF extension
         // assertEquals(0., new LoopFlowViolationCostEvaluator(0.).getCost(raoData), DOUBLE_TOLERANCE);
-        RaoData raoData = RaoData.createOnPreventiveState(network, crac);
-        assertEquals(0., new LoopFlowViolationCostEvaluator(15.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(0., new LoopFlowViolationCostEvaluator(95.).getCost(raoData), DOUBLE_TOLERANCE);
+        RaoData raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, "current");
+        assertEquals(0., new LoopFlowViolationCostEvaluator(15., 0.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(0., new LoopFlowViolationCostEvaluator(95., 0.).getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     private void addLoopFlowExtensions(Crac crac) {

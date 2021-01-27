@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,8 +46,7 @@ public class LoopFlowComputationTest {
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(crac, glsk);
 
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(glsk, referenceProgram);
-        Network mockedNetwork = Mockito.mock(Network.class);
-        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(mockedNetwork, ptdfsAndFlows, crac.getBranchCnecs());
+        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getBranchCnecs());
 
         assertEquals(-50., loopFlowResult.getLoopFlow(crac.getBranchCnec("FR-BE1")), DOUBLE_TOLERANCE);
         assertEquals(200., loopFlowResult.getLoopFlow(crac.getBranchCnec("BE1-BE2")), DOUBLE_TOLERANCE);

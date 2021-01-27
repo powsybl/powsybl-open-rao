@@ -21,11 +21,7 @@ public class ReferenceProgram {
 
     public ReferenceProgram(List<ReferenceExchangeData> referenceExchangeDataList) {
         this.referenceExchangeDataList = referenceExchangeDataList;
-        this.referenceProgramAreas = new HashSet<>();
-        this.referenceExchangeDataList.stream().forEach(referenceExchangeData -> {
-            referenceProgramAreas.add(referenceExchangeData.getAreaOut());
-            referenceProgramAreas.add(referenceExchangeData.getAreaIn());
-        });
+        this.referenceProgramAreas = buildReferenceProgramAreas(referenceExchangeDataList);
         netPositions = new HashMap<>();
         referenceProgramAreas.forEach(country -> netPositions.put(country, computeGlobalNetPosition(country)));
     }
@@ -41,13 +37,13 @@ public class ReferenceProgram {
     private double computeGlobalNetPosition(ReferenceProgramArea referenceProgramArea) {
         double netPosition = 0.;
         netPosition += referenceExchangeDataList.stream()
-                .filter(referenceExchangeData -> referenceExchangeData.getAreaOut() != null &&
-                        referenceExchangeData.getAreaOut().equals(referenceProgramArea))
-                .mapToDouble(ReferenceExchangeData::getFlow).sum();
+            .filter(referenceExchangeData -> referenceExchangeData.getAreaOut() != null &&
+                referenceExchangeData.getAreaOut().equals(referenceProgramArea))
+            .mapToDouble(ReferenceExchangeData::getFlow).sum();
         netPosition -= referenceExchangeDataList.stream()
-                .filter(referenceExchangeData -> referenceExchangeData.getAreaIn() != null &&
-                        referenceExchangeData.getAreaIn().equals(referenceProgramArea))
-                .mapToDouble(ReferenceExchangeData::getFlow).sum();
+            .filter(referenceExchangeData -> referenceExchangeData.getAreaIn() != null &&
+                referenceExchangeData.getAreaIn().equals(referenceProgramArea))
+            .mapToDouble(ReferenceExchangeData::getFlow).sum();
         return netPosition;
     }
 
@@ -74,6 +70,21 @@ public class ReferenceProgram {
 
     public Map<ReferenceProgramArea, Double> getAllGlobalNetPositions() {
         return netPositions;
+    }
+
+    private Set<ReferenceProgramArea> buildReferenceProgramAreas(List<ReferenceExchangeData> referenceExchangeDataList) {
+        Set<ReferenceProgramArea> setOfRefProgAreas = new HashSet<>();
+
+        referenceExchangeDataList.forEach(referenceExchangeData -> {
+            if (referenceExchangeData.getAreaOut() != null) {
+                setOfRefProgAreas.add(referenceExchangeData.getAreaOut());
+            }
+            if (referenceExchangeData.getAreaIn() != null) {
+                setOfRefProgAreas.add(referenceExchangeData.getAreaIn());
+            }
+        });
+
+        return setOfRefProgAreas;
     }
 
 }
