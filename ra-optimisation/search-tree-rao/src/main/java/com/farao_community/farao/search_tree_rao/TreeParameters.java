@@ -20,6 +20,7 @@ import java.util.Objects;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class TreeParameters {
+
     public enum StopCriterion {
         MIN_OBJECTIVE,
         AT_TARGET_OBJECTIVE_VALUE

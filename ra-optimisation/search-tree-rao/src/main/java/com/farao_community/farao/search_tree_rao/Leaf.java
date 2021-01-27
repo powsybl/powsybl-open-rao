@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -42,7 +41,7 @@ class Leaf {
     private static final Logger LOGGER = LoggerFactory.getLogger(Leaf.class);
 
     private final RaoData raoData;
-    private final String initialVariantId;
+    private final String preOptimVariantId;
     private String optimizedVariantId;
     private final RaoParameters raoParameters;
     private SystematicSensitivityInterface systematicSensitivityInterface;
@@ -84,9 +83,10 @@ class Leaf {
         this.networkActions = new HashSet<>(); // Root leaf has no network action
         this.raoParameters = raoParameters;
         this.raoData = raoData;
-        initialVariantId = raoData.getInitialVariantId();
+        preOptimVariantId = raoData.getPreOptimVariantId();
+        // TODO : create the interface in this class
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
-                raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
+            raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
 
         if (raoData.hasSensitivityValues()) {
             status = Status.EVALUATED;
@@ -107,13 +107,13 @@ class Leaf {
         networkActions.forEach(na -> na.apply(network));
         // It creates a new CRAC variant
         raoData = RaoData.create(network, parentLeaf.getRaoData());
-        initialVariantId = raoData.getInitialVariantId();
-        activateNetworkActionInCracResult(initialVariantId);
+        preOptimVariantId = raoData.getPreOptimVariantId();
+        activateNetworkActionInCracResult(preOptimVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
-                raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
-        copyAbsolutePtdfSumsBetweenVariants(parentLeaf.getRaoData().getInitialVariantId(), initialVariantId);
+            raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
+        copyAbsolutePtdfSumsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
         if (!raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
-            raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(parentLeaf.getRaoData().getInitialVariantId(), initialVariantId);
+            raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
         }
         status = Status.CREATED;
     }
@@ -126,15 +126,15 @@ class Leaf {
         return status;
     }
 
-    String getInitialVariantId() {
-        return initialVariantId;
+    String getPreOptimVariantId() {
+        return preOptimVariantId;
     }
 
     String getBestVariantId() {
         if (status.equals(Status.OPTIMIZED)) {
             return optimizedVariantId;
         } else {
-            return initialVariantId;
+            return preOptimVariantId;
         }
     }
 
@@ -151,59 +151,32 @@ class Leaf {
     }
 
     /**
-     * This method performs an initial sensitivity computation on the root leaf only if it has not been done previously.
-     * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
-     */
-    void evaluateRootLeaf(boolean shouldComputeInitialSensitivity) {
-        if (!isRoot()) {
-            throw new FaraoException("Method evaluateRootLeaf should only be called on root leaf.");
-        }
-        if (status.equals(Status.CREATED)) {
-            if (shouldComputeInitialSensitivity) {
-                try {
-                    LOGGER.debug("Evaluating leaf...");
-                    new InitialSensitivityAnalysis(raoData, raoParameters).run();
-                    status = Status.EVALUATED;
-                    // TODO : in curative RAO, we don't need to recompute PTDFs if we already did it before preventive RAO for all CNECs
-                } catch (FaraoException e) {
-                    LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
-                    status = Status.ERROR;
-                }
-            } else {
-                LOGGER.debug("Initial sensitivity analysis has been skipped");
-                status = Status.EVALUATED;
-            }
-        }
-    }
-
-    /**
      * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
     void evaluate() {
-        if (isRoot()) {
-            throw new FaraoException("Method evaluate should not be called on root leaf.");
+        if (status.equals(Status.EVALUATED)) {
+            LOGGER.debug("Leaf has already been evaluated");
+            return;
         }
-        if (status.equals(Status.CREATED)) {
-            try {
-                LOGGER.debug("Evaluating leaf...");
-                raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
 
-                if (raoParameters.isRaoWithLoopFlowLimitation()) {
-                    LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,
-                            !raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
-                }
+        try {
+            LOGGER.debug("Evaluating leaf...");
+            raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
+            raoData.getCracResultManager().fillCnecResultWithFlows();
 
-                ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
-                raoData.getCracResultManager().fillCnecResultWithFlows();
-                raoData.getCracResultManager().fillCracResultWithCosts(
-                        objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
-
-                status = Status.EVALUATED;
-            } catch (FaraoException e) {
-                LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
-                status = Status.ERROR;
+            if (raoParameters.isRaoWithLoopFlowLimitation()) {
+                LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,
+                    !raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
             }
+            ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+            raoData.getCracResultManager().fillCracResultWithCosts(
+                objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
+
+            status = Status.EVALUATED;
+        } catch (FaraoException e) {
+            LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
+            status = Status.ERROR;
         }
     }
 
@@ -226,11 +199,11 @@ class Leaf {
                 IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, linearOptimizerSystematicSensitivityInterface);
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
-                copyAbsolutePtdfSumsBetweenVariants(initialVariantId, optimizedVariantId);
+                copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
                 activateNetworkActionInCracResult(optimizedVariantId);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");
-                optimizedVariantId = initialVariantId;
+                optimizedVariantId = preOptimVariantId;
             }
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
@@ -292,9 +265,9 @@ class Leaf {
      * is necessary to keep this variant for algorithm results purpose.
      */
     void clearAllVariantsExceptOptimizedOne() {
-        if (status.equals(Status.OPTIMIZED) && !initialVariantId.equals(optimizedVariantId)) {
-            copyAbsolutePtdfSumsBetweenVariants(initialVariantId, optimizedVariantId);
-            raoData.getCracVariantManager().deleteVariant(initialVariantId, false);
+        if (status.equals(Status.OPTIMIZED) && !preOptimVariantId.equals(optimizedVariantId)) {
+            copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
+            raoData.getCracVariantManager().deleteVariant(preOptimVariantId, false);
         }
     }
 
@@ -319,8 +292,8 @@ class Leaf {
     void clearAllVariantsExceptInitialOne() {
         HashSet<String> variantIds = new HashSet<>();
         variantIds.addAll(raoData.getCracVariantManager().getVariantIds());
-        variantIds.remove(initialVariantId);
-        raoData.getCracVariantManager().setWorkingVariant(initialVariantId);
+        variantIds.remove(preOptimVariantId);
+        raoData.getCracVariantManager().setWorkingVariant(preOptimVariantId);
         variantIds.forEach(variantId -> raoData.getCracVariantManager().deleteVariant(variantId, false));
     }
 

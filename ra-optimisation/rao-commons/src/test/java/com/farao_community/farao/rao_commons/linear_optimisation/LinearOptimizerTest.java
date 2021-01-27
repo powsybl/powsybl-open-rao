@@ -233,7 +233,7 @@ public class LinearOptimizerTest {
         String preventiveState = raoData.getCrac().getPreventiveState().getId();
 
         RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
-        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getInitialVariantId());
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getPreOptimVariantId());
         Assert.assertEquals(0, pstRangeResult.getSetPoint(preventiveState), 0.1);
         Assert.assertEquals(0, pstRangeResult.getTap(preventiveState), 0.1);
 

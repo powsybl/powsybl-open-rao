@@ -94,7 +94,7 @@ public class LeafTest {
         Mockito.doNothing().when(spiedCracResultManager).fillCnecResultWithFlows();
 
         raoDataMock = Mockito.mock(RaoData.class);
-        Mockito.when(raoDataMock.getInitialVariantId()).thenReturn(INITIAL_VARIANT_ID);
+        Mockito.when(raoDataMock.getPreOptimVariantId()).thenReturn(INITIAL_VARIANT_ID);
         Mockito.when(raoDataMock.hasSensitivityValues()).thenReturn(true);
 
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
@@ -139,7 +139,7 @@ public class LeafTest {
         Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
         assertTrue(rootLeaf.getNetworkActions().isEmpty());
         assertTrue(rootLeaf.isRoot());
-        assertEquals(INITIAL_VARIANT_ID, rootLeaf.getInitialVariantId());
+        assertEquals(INITIAL_VARIANT_ID, rootLeaf.getPreOptimVariantId());
     }
 
     @Test
@@ -163,25 +163,16 @@ public class LeafTest {
 
     @Test
     public void testLeafDefinition() {
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.5);
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.4);
+        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.5);
+        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.4);
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
         Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters);
         assertEquals(1, leaf.getNetworkActions().size());
         assertTrue(leaf.getNetworkActions().contains(na1));
         assertFalse(leaf.isRoot());
         assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertEquals(0.5, leaf.getRaoData().getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
-        assertEquals(0.4, leaf.getRaoData().getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testErrorOnLeafEvaluateRootLeaf() {
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.5);
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.4);
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters);
-        leaf.evaluateRootLeaf(false);
+        assertEquals(0.5, leaf.getRaoData().getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
+        assertEquals(0.4, leaf.getRaoData().getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -225,7 +216,7 @@ public class LeafTest {
         mockRaoUtil();
 
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        rootLeaf.evaluateRootLeaf(true);
+        rootLeaf.evaluate();
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
@@ -237,7 +228,7 @@ public class LeafTest {
         Mockito.doThrow(new SensitivityAnalysisException("mock")).when(systematicSensitivityInterface).run(any());
 
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        rootLeaf.evaluateRootLeaf(true);
+        rootLeaf.evaluate();
 
         assertEquals(Leaf.Status.ERROR, rootLeaf.getStatus());
         assertFalse(rootLeaf.getRaoData().hasSensitivityValues());
@@ -249,7 +240,7 @@ public class LeafTest {
         Mockito.doThrow(new SensitivityAnalysisException("mock")).when(systematicSensitivityInterface).run(any());
 
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        rootLeaf.evaluateRootLeaf(false);
+        rootLeaf.evaluate();
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertFalse(rootLeaf.getRaoData().hasSensitivityValues());
@@ -266,9 +257,9 @@ public class LeafTest {
     public void testOptimizeWithoutRangeActions() {
         mockRaoUtil();
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        rootLeaf.evaluateRootLeaf(true);
+        rootLeaf.evaluate();
         rootLeaf.optimize();
-        assertEquals(rootLeaf.getInitialVariantId(), rootLeaf.getBestVariantId());
+        assertEquals(rootLeaf.getPreOptimVariantId(), rootLeaf.getBestVariantId());
         assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
     }
 
@@ -285,7 +276,7 @@ public class LeafTest {
 
         mockRaoUtil();
 
-        rootLeaf.evaluateRootLeaf(true);
+        rootLeaf.evaluate();
         rootLeaf.optimize();
         assertEquals(newVariant, rootLeaf.getBestVariantId());
         assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
@@ -294,7 +285,7 @@ public class LeafTest {
     @Test
     public void testClearAllVariantsExceptInitialOne() {
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        String initialVariantId = rootLeaf.getInitialVariantId();
+        String initialVariantId = rootLeaf.getPreOptimVariantId();
         rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();
         rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();
         rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();

@@ -8,7 +8,6 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
@@ -19,7 +18,6 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -104,8 +102,8 @@ public class CracResultManager {
                     LOGGER.debug("Range action {} has been set to tap {}", pstRange.getName(), approximatedPostOptimTap);
                 } else {
                     // For range actions that are not available in the perimeter, copy their setpoint from the initial variant
-                    approximatedPostOptimTap = ((PstRangeResult) pstRangeResultMap.getVariant(raoData.getInitialVariantId())).getTap(raoData.getOptimizedState().getId());
-                    approximatedPostOptimAngle = pstRangeResultMap.getVariant(raoData.getInitialVariantId()).getSetPoint(raoData.getOptimizedState().getId());
+                    approximatedPostOptimTap = ((PstRangeResult) pstRangeResultMap.getVariant(raoData.getPreOptimVariantId())).getTap(raoData.getOptimizedState().getId());
+                    approximatedPostOptimAngle = pstRangeResultMap.getVariant(raoData.getPreOptimVariantId()).getSetPoint(raoData.getOptimizedState().getId());
                 }
                 PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
                 pstRangeResult.setSetPoint(raoData.getOptimizedState().getId(), approximatedPostOptimAngle);
@@ -163,10 +161,6 @@ public class CracResultManager {
                 cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
             }
         });
-    }
-
-    public void fillCnecResultsWithAbsolutePtdfSums(Map<BranchCnec, Double> ptdfSums) {
-        ptdfSums.forEach((key, value) -> key.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(value));
     }
 
     public void copyCommercialFlowsBetweenVariants(String originVariant, String destinationVariant) {

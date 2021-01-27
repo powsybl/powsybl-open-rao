@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
@@ -41,7 +42,7 @@ public final class RaoData {
     private final ReferenceProgram referenceProgram;
     private final ZonalData<LinearGlsk> glsk;
     private final CracResultManager cracResultManager;
-    private final Set<Country> loopflowCountries;
+    private final RaoParameters raoParameters;
 
     private Set<BranchCnec> perimeterCnecs;
     private Set<BranchCnec> loopflowCnecs;
@@ -59,10 +60,10 @@ public final class RaoData {
      * @param perimeter:         set of State for which the Cnecs are monitored
      * @param referenceProgram:  ReferenceProgram object (needed only for loopflows and relative margin)
      * @param glsk:              GLSK provider (needed only for loopflows)
-     * @param cracVariantId:     Existing variant of the CRAC on which RaoData will be based
-     * @param loopflowCountries: countries for which we wish to check loopflows
+     * @param baseCracVariantId: Existing variant of the CRAC on which RaoData will be based
+     * @param raoParameters:     Configuration of the RAO
      */
-    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, String cracVariantId, Set<Country> loopflowCountries) {
+    public RaoData(Network network, Crac crac, State optimizedState, Set<State> perimeter, ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk, String baseCracVariantId, RaoParameters raoParameters) {
         Objects.requireNonNull(network, "Unable to build RAO data without network.");
         Objects.requireNonNull(crac, "Unable to build RAO data without CRAC.");
         Objects.requireNonNull(optimizedState, "Unable to build RAO data without optimized state.");
@@ -73,16 +74,20 @@ public final class RaoData {
         this.perimeter = perimeter;
         this.referenceProgram = referenceProgram;
         this.glsk = glsk;
-        this.loopflowCountries = loopflowCountries;
+        this.raoParameters = raoParameters;
         cracResultManager = new CracResultManager(this);
-        addRaoDataVariantManager(cracVariantId);
+        addRaoDataVariantManager(baseCracVariantId);
 
         computePerimeterCnecs();
         computeLoopflowCnecs();
     }
 
     private void addRaoDataVariantManager(String cracVariantId) {
-        cracVariantManager = new CracVariantManager(crac, cracVariantId);
+        if (cracVariantId != null) {
+            cracVariantManager = new CracVariantManager(crac, cracVariantId);
+        } else {
+            cracVariantManager = new CracVariantManager(crac);
+        }
         cracResultManager.fillRangeActionResultsWithNetworkValues();
     }
 
@@ -99,7 +104,7 @@ public final class RaoData {
                 null,
                 null,
                 cracVariantId,
-                new HashSet<>());
+                new RaoParameters());
     }
 
     public static RaoData create(Network network, RaoData raoData) {
@@ -111,7 +116,7 @@ public final class RaoData {
                 raoData.getReferenceProgram(),
                 raoData.getGlskProvider(),
                 null,
-                raoData.getLoopflowCountries());
+                raoData.getRaoParameters());
     }
 
     public Network getNetwork() {
@@ -130,8 +135,8 @@ public final class RaoData {
         return glsk;
     }
 
-    public Set<Country> getLoopflowCountries() {
-        return loopflowCountries;
+    public RaoParameters getRaoParameters() {
+        return raoParameters;
     }
 
     public Set<BranchCnec> getCnecs() {
@@ -154,10 +159,10 @@ public final class RaoData {
 
     private void computeLoopflowCnecs() {
         //TODO: when we start computing loopflows for N-1 cnecs, adapt this part of code
-        if (!loopflowCountries.isEmpty()) {
+        if (!raoParameters.getLoopflowCountries().isEmpty()) {
             loopflowCnecs = perimeterCnecs.stream()
                     .filter(cnec -> cnec.getState().getContingency().isEmpty())
-                    .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, loopflowCountries))
+                    .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
                     .collect(Collectors.toSet());
         } else {
             loopflowCnecs = perimeterCnecs.stream()
@@ -203,8 +208,8 @@ public final class RaoData {
         return getCracVariantManager().getWorkingVariantId();
     }
 
-    public String getInitialVariantId() {
-        return getCracVariantManager().getInitialVariantId();
+    public String getPreOptimVariantId() {
+        return getCracVariantManager().getPreOptimVariantId();
     }
 
     public CracResult getCracResult(String variantId) {

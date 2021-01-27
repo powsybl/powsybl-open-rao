@@ -168,7 +168,7 @@ public class RaoUtilTest {
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
                 raoInput.getBaseCracVariantId(),
-                raoParameters.getLoopflowCountries());
+                raoParameters);
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, false);
         assertNotNull(systematicSensitivityInterface);
     }
@@ -215,7 +215,7 @@ public class RaoUtilTest {
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
                 raoInput.getBaseCracVariantId(),
-                raoParameters.getLoopflowCountries());
+                raoParameters);
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, true);
         assertNotNull(systematicSensitivityInterface);
     }

@@ -67,7 +67,7 @@ public class MinMarginEvaluatorTest {
     }
 
     private void setPtdfSum(String cnecId, double ptdfSum) {
-        crac.getBranchCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(ptdfSum);
+        crac.getBranchCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(ptdfSum);
     }
 
     @Test

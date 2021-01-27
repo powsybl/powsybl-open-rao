@@ -12,6 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.slf4j.Logger;
@@ -64,19 +65,21 @@ public class MinMarginEvaluator implements CostEvaluator {
         }
     }
 
-    private double getRelativeCoef(BranchCnec cnec, RaoData raoData) {
-        return relative ? 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), ptdfSumLowerBound) : 1;
+    private double getRelativeCoef(BranchCnec cnec, String initialVariantId) {
+        return relative ? 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getAbsolutePtdfSum(), ptdfSumLowerBound) : 1;
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {
+        String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         return raoData.getCnecs().stream().filter(BranchCnec::isOptimized).
-            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), Side.LEFT, MEGAWATT) * getRelativeCoef(cnec, raoData)).
+            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), Side.LEFT, MEGAWATT) * getRelativeCoef(cnec, initialVariantId)).
             min(Double::compareTo).orElseThrow(NoSuchElementException::new);
     }
 
     private double getMinMarginInAmpere(RaoData raoData) {
+        String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         List<Double> marginsInAmpere = raoData.getCnecs().stream().filter(BranchCnec::isOptimized).
-            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Side.LEFT, Unit.AMPERE) * getRelativeCoef(cnec, raoData)
+            map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Side.LEFT, Unit.AMPERE) * getRelativeCoef(cnec, initialVariantId)
         ).collect(Collectors.toList());
 
         if (marginsInAmpere.contains(Double.NaN) && raoData.getSystematicSensitivityResult().getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK) {
@@ -91,10 +94,11 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private List<Double> getMarginsInAmpereFromMegawattConversion(RaoData raoData) {
+        String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         return raoData.getCnecs().stream().filter(BranchCnec::isOptimized).map(cnec -> {
                 double leftFlowInMW = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec);
                 double leftNominalVoltage = cnec.getNominalVoltage(Side.LEFT);
-                return cnec.computeMargin(leftFlowInMW * 1000 / (Math.sqrt(3) * leftNominalVoltage), Side.LEFT, Unit.AMPERE) * getRelativeCoef(cnec, raoData);
+                return cnec.computeMargin(leftFlowInMW * 1000 / (Math.sqrt(3) * leftNominalVoltage), Side.LEFT, Unit.AMPERE) * getRelativeCoef(cnec, initialVariantId);
             }
         ).collect(Collectors.toList());
     }

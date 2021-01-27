@@ -109,7 +109,7 @@ public class SearchTreeTest {
         when(mockLeaf.getBestCost()).thenReturn(0.);
         PowerMockito.doNothing().when(mockLeaf).evaluate();
 
-        InitialSensitivityAnalysis mockSensi = Mockito.spy(new InitialSensitivityAnalysis(raoData, raoParameters));
+        InitialSensitivityAnalysis mockSensi = Mockito.spy(new InitialSensitivityAnalysis(raoData));
         PowerMockito.whenNew(InitialSensitivityAnalysis.class).withAnyArguments().thenReturn(mockSensi);
         PowerMockito.doNothing().when(mockSensi).run();
 
