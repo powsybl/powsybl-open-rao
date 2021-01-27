@@ -27,7 +27,7 @@ public class DataPostContingency {
     private String contingencyId;
     @NotNull(message = "contingency.dataMonitoredBranches.empty")
     @Valid
-    private final List<DataMonitoredBranch> dataMonitoredBranches;
+    private List<DataMonitoredBranch> dataMonitoredBranches;
 
     @ConstructorProperties({"contingencyId", "dataMonitoredBranches"})
     public DataPostContingency(final String contingencyId, final List<DataMonitoredBranch> dataMonitoredBranches) {
@@ -40,5 +40,9 @@ public class DataPostContingency {
                 .filter(dataMonitoredBranch -> dataMonitoredBranch.getId().equals(monitoredBranchId))
                 .findAny()
                 .orElse(null);
+    }
+
+    public void replaceDataMonitoredBranches(List<DataMonitoredBranch> newData) {
+        dataMonitoredBranches = newData;
     }
 }

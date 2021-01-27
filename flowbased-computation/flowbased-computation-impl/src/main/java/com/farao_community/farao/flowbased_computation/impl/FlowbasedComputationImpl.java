@@ -6,13 +6,11 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_result_extensions.CracResultUtil;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
@@ -67,10 +65,42 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
+        // Curative perimeter
+        String curativeStateId = findCurativeStateId(crac.getInstants());
+        crac.getStatesFromInstant(curativeStateId).forEach(state -> {
+            String variantName = "State" + state.getId();
+            network.getVariantManager().cloneVariant(INITIAL_STATE_WITH_PRA, variantName);
+            network.getVariantManager().setWorkingVariant(variantName);
+            CracResultUtil.applyRemedialActionsForState(network, crac, state);
+            SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(network);
+            FlowbasedComputationResult newFbRes = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, sensitivityResult));
+            Optional<Contingency> contingencyOptional = state.getContingency();
+            String contingencyId = "";
+            if (contingencyOptional.isPresent()) {
+                contingencyId = contingencyOptional.get().getId();
+            } else {
+                throw new FaraoException("Contingency shouldn't be empty in curative.");
+            }
+            List<DataMonitoredBranch> updatedMonitoredBranches = newFbRes.getFlowBasedDomain().findContingencyById(contingencyId).getDataMonitoredBranches();
+            flowBasedComputationResult.getFlowBasedDomain().findContingencyById(contingencyId).replaceDataMonitoredBranches(updatedMonitoredBranches);
+        });
+
         // Restore initial variant at the end of the computation
         network.getVariantManager().setWorkingVariant(initialNetworkId);
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
+    }
+
+    private String findCurativeStateId(Set<Instant> instants) {
+        String curativeStateId = "";
+        double seconds = -1;
+        for (Instant instant : instants) {
+            if (instant.getSeconds() > seconds) {
+                seconds = instant.getSeconds();
+                curativeStateId = instant.getId();
+            }
+        }
+        return curativeStateId;
     }
 
     private DataDomain buildFlowbasedDomain(Crac crac, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {

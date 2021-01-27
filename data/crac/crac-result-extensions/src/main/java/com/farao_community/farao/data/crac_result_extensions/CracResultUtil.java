@@ -41,11 +41,13 @@ public final class CracResultUtil {
         CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager != null && cracExtension != null) { // Results from RAO
-            LOGGER.debug("Remedial Actions selected from RAO results.");
+            String raFromRaoMessage = String.format("Remedial Actions selected from RAO results for state %s.", state.getId());
+            LOGGER.debug(raFromRaoMessage);
             String cracVariantId = findPostOptimVariant(resultVariantManager, cracExtension);
             applyRemedialActionsForState(network, crac, cracVariantId, state);
         } else { // Apply all RAs from CRAC
-            LOGGER.debug("No RAO results found. All Remedial Actions from CRAC are applied.");
+            String allRaMessage = String.format("No RAO results found. All Remedial Actions from CRAC are applied for state %s.", state.getId());
+            LOGGER.debug(allRaMessage);
             applyAllNetworkRemedialActionsForState(network, crac, state);
         }
     }
@@ -75,19 +77,19 @@ public final class CracResultUtil {
      * @param state State for which the RAs should be applied
      */
     public static void applyRemedialActionsForState(Network network, Crac crac, String cracVariantId, State state) {
-        String preventiveStateId = state.getId();
-        crac.getNetworkActions().forEach(na -> applyNetworkAction(na, network, cracVariantId, preventiveStateId));
-        crac.getRangeActions().forEach(ra -> applyRangeAction(ra, network, cracVariantId, preventiveStateId));
+        String stateId = state.getId();
+        crac.getNetworkActions().forEach(na -> applyNetworkAction(na, network, cracVariantId, stateId));
+        crac.getRangeActions().forEach(ra -> applyRangeAction(ra, network, cracVariantId, stateId));
     }
 
-    private static void applyNetworkAction(NetworkAction networkAction, Network network, String cracVariantId, String preventiveStateId) {
+    private static void applyNetworkAction(NetworkAction networkAction, Network network, String cracVariantId, String stateId) {
         NetworkActionResultExtension resultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
         if (resultExtension == null) {
             LOGGER.error("Could not find results on network action {}", networkAction.getId());
         } else {
             NetworkActionResult networkActionResult = resultExtension.getVariant(cracVariantId);
-            if (networkActionResult != null) {
-                if (networkActionResult.isActivated(preventiveStateId)) {
+            if (networkActionResult != null && networkActionResult.activationMap.containsKey(stateId)) {
+                if (networkActionResult.isActivated(stateId)) {
                     LOGGER.debug("Applying network action {}", networkAction.getName());
                     networkAction.apply(network);
                 }
@@ -97,17 +99,17 @@ public final class CracResultUtil {
         }
     }
 
-    private static void applyRangeAction(RangeAction rangeAction, Network network, String cracVariantId, String preventiveStateId) {
+    private static void applyRangeAction(RangeAction rangeAction, Network network, String cracVariantId, String stateId) {
         RangeActionResultExtension resultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
         if (resultExtension == null) {
             LOGGER.error("Could not find results on range action {}", rangeAction.getId());
         } else {
             RangeActionResult rangeActionResult = resultExtension.getVariant(cracVariantId);
             if (rangeActionResult != null) {
-                if (!Double.isNaN(rangeActionResult.getSetPoint(preventiveStateId))) {
-                    LOGGER.debug("Applying range action {}: tap {}", rangeAction.getName(), ((PstRangeResult) rangeActionResult).getTap(preventiveStateId));
+                if (!Double.isNaN(rangeActionResult.getSetPoint(stateId))) {
+                    LOGGER.debug("Applying range action {}: tap {}", rangeAction.getName(), ((PstRangeResult) rangeActionResult).getTap(stateId));
                 }
-                rangeAction.apply(network, rangeActionResult.getSetPoint(preventiveStateId));
+                rangeAction.apply(network, rangeActionResult.getSetPoint(stateId));
             } else {
                 LOGGER.error("Could not find results for variant {} on range action {}", cracVariantId, rangeAction.getId());
             }
