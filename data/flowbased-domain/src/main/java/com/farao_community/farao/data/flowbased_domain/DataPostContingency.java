@@ -37,9 +37,9 @@ public class DataPostContingency {
         this.dataMonitoredBranches = Collections.unmodifiableList(dataMonitoredBranches);
     }
 
-    public DataMonitoredBranch findMonitoredBranchById(String monitoredBranchId) {
+    public DataMonitoredBranch findMonitoredBranchByIdAndInstant(String monitoredBranchId, String instantId) {
         return dataMonitoredBranches.stream()
-                .filter(dataMonitoredBranch -> dataMonitoredBranch.getId().equals(monitoredBranchId))
+                .filter(dataMonitoredBranch -> dataMonitoredBranch.getId().equals(monitoredBranchId) && dataMonitoredBranch.getInstantId().equals(instantId))
                 .findAny()
                 .orElse(null);
     }
