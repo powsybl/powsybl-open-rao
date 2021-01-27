@@ -77,6 +77,7 @@ public final class RaoData {
         this.raoParameters = raoParameters;
         cracResultManager = new CracResultManager(this);
         addRaoDataVariantManager(baseCracVariantId);
+        cracResultManager.fillRangeActionResultsWithNetworkValues();
 
         computePerimeterCnecs();
         computeLoopflowCnecs();
@@ -88,7 +89,6 @@ public final class RaoData {
         } else {
             cracVariantManager = new CracVariantManager(crac);
         }
-        cracResultManager.fillRangeActionResultsWithNetworkValues();
     }
 
     public static RaoData createOnPreventiveState(Network network, Crac crac) {
@@ -160,7 +160,7 @@ public final class RaoData {
     private void computeLoopflowCnecs() {
         if (!raoParameters.getLoopflowCountries().isEmpty()) {
             loopflowCnecs = perimeterCnecs.stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, loopflowCountries))
+                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
                 .collect(Collectors.toSet());
         } else {
             loopflowCnecs = perimeterCnecs.stream()

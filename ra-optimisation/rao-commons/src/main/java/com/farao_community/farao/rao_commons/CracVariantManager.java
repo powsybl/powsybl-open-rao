@@ -85,7 +85,6 @@ public class CracVariantManager {
             variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
         }
 
-        resultVariantManager.setPreOptimVariantId(variantId);
         setWorkingVariant(variantId);
     }
 

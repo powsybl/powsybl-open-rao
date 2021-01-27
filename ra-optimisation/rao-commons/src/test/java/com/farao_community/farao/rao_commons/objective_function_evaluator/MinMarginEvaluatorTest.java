@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -35,6 +36,7 @@ public class MinMarginEvaluatorTest {
     private RaoData raoData;
     private SystematicSensitivityResult systematicSensitivityResult;
     private Network network;
+    private String initialVariant;
 
     @Before
     public void setUp() {
@@ -42,6 +44,8 @@ public class MinMarginEvaluatorTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
         raoData = RaoData.createOnPreventiveState(network, crac);
+        initialVariant = raoData.getPreOptimVariantId();
+        crac.getExtension(ResultVariantManager.class).setInitialVariantId(initialVariant);
 
         setPtdfSum("cnec1basecase", 0.5);
         setPtdfSum("cnec1stateCurativeContingency1", 0.95);
@@ -67,7 +71,7 @@ public class MinMarginEvaluatorTest {
     }
 
     private void setPtdfSum(String cnecId, double ptdfSum) {
-        crac.getBranchCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(ptdfSum);
+        crac.getBranchCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(initialVariant).setAbsolutePtdfSum(ptdfSum);
     }
 
     @Test

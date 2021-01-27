@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -155,12 +154,6 @@ public class LeafTest {
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
     }
 
-    @Test(expected = FaraoException.class)
-    public void testErrorOnRootLeafEvaluate() {
-        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
-        rootLeaf.evaluate();
-    }
-
     @Test
     public void testLeafDefinition() {
         crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.5);
@@ -231,18 +224,6 @@ public class LeafTest {
         rootLeaf.evaluate();
 
         assertEquals(Leaf.Status.ERROR, rootLeaf.getStatus());
-        assertFalse(rootLeaf.getRaoData().hasSensitivityValues());
-    }
-
-    @Test
-    public void testSkipInitialSensitivity() {
-        Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(false);
-        Mockito.doThrow(new SensitivityAnalysisException("mock")).when(systematicSensitivityInterface).run(any());
-
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        rootLeaf.evaluate();
-
-        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertFalse(rootLeaf.getRaoData().hasSensitivityValues());
     }
 

@@ -44,7 +44,7 @@ public class InitialSensitivityAnalysis {
 
     public InitialSensitivityAnalysis(RaoData raoData) {
         // it is actually quite strange to ask for a RaoData here, but it is required in
-        // order to use the fillResultsWithXXX() methods.
+        // order to use the fillResultsWithXXX() methods of the CracResultManager.
 
         this.raoData = raoData;
         this.raoParameters = raoData.getRaoParameters();
@@ -57,7 +57,14 @@ public class InitialSensitivityAnalysis {
         // run sensitivity analysis
         SystematicSensitivityResult sensitivityResult = runSensitivityComputation();
 
+        // tag initial variant
+        raoData.getCrac().getExtension(ResultVariantManager.class).setInitialVariantId(raoData.getWorkingVariantId());
+        raoData.getCrac().getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getWorkingVariantId());
+
         // fill results of initial variant
+        LOGGER.info("Initial systematic analysis [...] - fill initial range actions values");
+        raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
+
         LOGGER.info("Initial systematic analysis [...] - fill reference flow values");
         raoData.getCracResultManager().fillCnecResultWithFlows();
 
@@ -71,9 +78,6 @@ public class InitialSensitivityAnalysis {
         }
 
         fillObjectiveFunction();
-
-        // tag variant as initial
-        raoData.getCrac().getExtension(ResultVariantManager.class).setInitialVariantId(raoData.getWorkingVariantId());
 
         LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getFunctionalCost());
     }

@@ -113,7 +113,7 @@ public class SearchTreeTest {
         PowerMockito.whenNew(InitialSensitivityAnalysis.class).withAnyArguments().thenReturn(mockSensi);
         PowerMockito.doNothing().when(mockSensi).run();
 
-        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), true);
+        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         RaoResult result = searchTree.run(raoData, raoParameters, treeParameters).join();
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());

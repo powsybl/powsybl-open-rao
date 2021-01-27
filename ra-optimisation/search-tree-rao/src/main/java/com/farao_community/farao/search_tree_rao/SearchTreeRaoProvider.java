@@ -18,6 +18,7 @@ import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
+import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
@@ -74,7 +75,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         // compute initial sensitivity on all CNECs
         // this is necessary to have initial flows for MNEC and loopflow constraints on CNECs, in preventive and curative perimeters
-        initialSensitivityAnalysisOnAllPerimeters(raoInput, parameters);
+        try {
+            initialSensitivityAnalysisOnAllPerimeters(raoInput, parameters);
+        } catch (SensitivityAnalysisException e) {
+            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+        }
 
         // optimize preventive perimeter
         stateTree = new StateTree(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getCrac().getPreventiveState());
@@ -85,7 +90,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         RaoResult preventiveRaoResult = optimizePreventivePerimeter(raoInput, parameters).join();
 
         if (stateTree.getOptimizedStates().size() == 1) {
-            return optimizePreventivePerimeter(raoInput, parameters);
+            return CompletableFuture.completedFuture(preventiveRaoResult);
         }
 
         LOGGER.info("Preventive perimeter has been optimized.");
@@ -115,14 +120,14 @@ public class SearchTreeRaoProvider implements RaoProvider {
         RaoData raoData = new  RaoData(
             raoInput.getNetwork(),
             raoInput.getCrac(),
-            raoInput.getCrac().getPreventiveState(),
+            raoInput.getOptimizedState(),
             raoInput.getPerimeter(),
             raoInput.getReferenceProgram(),
             raoInput.getGlskProvider(),
             raoInput.getBaseCracVariantId(),
             raoParameters);
         new InitialSensitivityAnalysis(raoData).run();
-        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), true);
+        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         return CompletableFuture.completedFuture(new SearchTree().run(raoData, raoParameters, treeParameters).join());
     }
 
@@ -151,7 +156,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             baseVariantId,
             parameters);
         // TODO: remove useless shouldCOmputeInitialBlabla parameter
-        TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(parameters.getExtension(SearchTreeRaoParameters.class), false);
+        TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(parameters.getExtension(SearchTreeRaoParameters.class));
         return new SearchTree().run(preventiveRaoData, parameters, preventiveTreeParameters);
     }
 
