@@ -20,6 +20,8 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResul
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -34,6 +36,9 @@ import java.util.stream.Collectors;
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
+    String onOutageInstantId = "";
+    String afterCraInstantId = "";
+    final Logger logger = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
     public String getName() {
@@ -52,6 +57,8 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         Objects.requireNonNull(glsk);
         Objects.requireNonNull(parameters);
 
+        sortInstants(crac.getInstants());
+
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
                 .withPtdfSensitivities(glsk, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT))
@@ -66,24 +73,27 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
         // Curative perimeter
-        String curativeStateId = findCurativeStateId(crac.getInstants());
-        crac.getStatesFromInstant(curativeStateId).forEach(state -> {
-            String variantName = "State" + state.getId();
-            network.getVariantManager().cloneVariant(INITIAL_STATE_WITH_PRA, variantName);
-            network.getVariantManager().setWorkingVariant(variantName);
-            CracResultUtil.applyRemedialActionsForState(network, crac, state);
-            SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(network);
-            FlowbasedComputationResult newFbRes = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, sensitivityResult));
-            Optional<Contingency> contingencyOptional = state.getContingency();
-            String contingencyId = "";
-            if (contingencyOptional.isPresent()) {
-                contingencyId = contingencyOptional.get().getId();
-            } else {
-                throw new FaraoException("Contingency shouldn't be empty in curative.");
-            }
-            List<DataMonitoredBranch> updatedMonitoredBranches = newFbRes.getFlowBasedDomain().findContingencyById(contingencyId).getDataMonitoredBranches();
-            flowBasedComputationResult.getFlowBasedDomain().findContingencyById(contingencyId).replaceDataMonitoredBranches(updatedMonitoredBranches);
-        });
+        if (!afterCraInstantId.equals("")) {
+            crac.getStatesFromInstant(afterCraInstantId).forEach(state -> {
+                String variantName = "State" + state.getId();
+                network.getVariantManager().cloneVariant(INITIAL_STATE_WITH_PRA, variantName);
+                network.getVariantManager().setWorkingVariant(variantName);
+                CracResultUtil.applyRemedialActionsForState(network, crac, state);
+                SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(network);
+                FlowbasedComputationResult newFbRes = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, sensitivityResult));
+                Optional<Contingency> contingencyOptional = state.getContingency();
+                String contingencyId = "";
+                if (contingencyOptional.isPresent()) {
+                    contingencyId = contingencyOptional.get().getId();
+                } else {
+                    throw new FaraoException("Contingency shouldn't be empty in curative.");
+                }
+                List<DataMonitoredBranch> updatedMonitoredBranches = newFbRes.getFlowBasedDomain().findContingencyById(contingencyId).getDataMonitoredBranches();
+                flowBasedComputationResult.getFlowBasedDomain().findContingencyById(contingencyId).updateCurativeDataMonitoredBranches(updatedMonitoredBranches, afterCraInstantId);
+            });
+        } else {
+            logger.info("No curative computation in flowbased.");
+        }
 
         // Restore initial variant at the end of the computation
         network.getVariantManager().setWorkingVariant(initialNetworkId);
@@ -91,16 +101,30 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
-    private String findCurativeStateId(Set<Instant> instants) {
-        String curativeStateId = "";
-        double seconds = -1;
+    private void sortInstants(Set<Instant> instants) {
+        Map<Integer, String> instantMap = new HashMap<>();
+
         for (Instant instant : instants) {
-            if (instant.getSeconds() > seconds) {
-                seconds = instant.getSeconds();
-                curativeStateId = instant.getId();
-            }
+            instantMap.put(instant.getSeconds(), instant.getId());
         }
-        return curativeStateId;
+        List<Integer> seconds = new ArrayList<>(instantMap.keySet());
+        Collections.sort(seconds);
+
+        if (instants.size() == 1) {
+            logger.info("Only Preventive instant is present for flowbased computation.");
+            return;
+        } else if (instants.size() == 2) {
+            logger.info("Only Preventive and On outage instants are present for flowbased computation.");
+        } else if (instants.size() == 3) {
+            logger.debug("All instants are defined for flowbased computation.");
+            // last instant
+            afterCraInstantId = instantMap.get(seconds.get(seconds.size() - 1));
+        } else {
+            throw new FaraoException(String.format("Incorrect number of instants for flowbased computation. It is %s, but should be 1, 2 or 3.", instants.size()));
+        }
+        // 2nd instant
+        onOutageInstantId = instantMap.get(seconds.get(1));
+
     }
 
     private DataDomain buildFlowbasedDomain(Crac crac, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
@@ -152,6 +176,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         return new DataMonitoredBranch(
                 cnec.getId(),
                 cnec.getName(),
+                cnec.getState().getInstant().getId(),
                 cnec.getNetworkElement().getId(),
                 Math.min(maxThreshold, -minThreshold),
                 zeroIfNaN(result.getReferenceFlow(cnec)),

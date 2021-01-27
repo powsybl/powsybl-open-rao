@@ -26,19 +26,22 @@ public class DataMonitoredBranch {
     private final String id;
     @NotNull(message = "monitoredBranch.name.empty")
     private final String name;
+    @NotNull(message = "instant.id.empty")
+    private String instantId;
     @NotNull(message = "monitoredBranch.branchId.empty")
     private final String branchId;
     private double fmax;
     @NotNull(message = "dataMonitoredBranch.fref.empty")
-    private final double fref;
+    private double fref;
 
     @NotNull(message = "dataMonitoredBranch.ptdfList.empty")
-    private final List<DataPtdfPerCountry> ptdfList;
+    private List<DataPtdfPerCountry> ptdfList;
 
-    @ConstructorProperties({"id", "name", "branchId", "fmax", "fref", "ptdfList"})
-    public DataMonitoredBranch(final String id, final String name, final String branchId, final double fmax, final double fref, final List<DataPtdfPerCountry> ptdfList) {
+    @ConstructorProperties({"id", "name", "instantId", "branchId", "fmax", "fref", "ptdfList"})
+    public DataMonitoredBranch(final String id, final String name, final String instantId, final String branchId, final double fmax, final double fref, final List<DataPtdfPerCountry> ptdfList) {
         this.id = id;
         this.name = name;
+        this.instantId = instantId;
         this.branchId = branchId;
         this.fmax = fmax;
         this.fref = fref;
@@ -50,5 +53,18 @@ public class DataMonitoredBranch {
                 .filter(ptdf -> ptdf.getCountry().equals(country))
                 .findAny()
                 .orElse(null);
+    }
+
+    public boolean correspondsTo(DataMonitoredBranch other) {
+        return this.getId().equals(other.getId())
+            && this.getName().equals(other.getName())
+            && this.getInstantId().equals(other.getInstantId())
+            && this.getBranchId().equals(other.getBranchId());
+    }
+
+    public void updateDataMonitoredBranch(DataMonitoredBranch other) {
+        this.fmax = other.fmax;
+        this.fref = other.fref;
+        this.ptdfList = other.ptdfList;
     }
 }
