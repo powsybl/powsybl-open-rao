@@ -156,7 +156,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
             raoInput.getGlskProvider(),
             baseVariantId,
             parameters);
-        // TODO: remove useless shouldCOmputeInitialBlabla parameter
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(parameters.getExtension(SearchTreeRaoParameters.class));
         return new SearchTree().run(preventiveRaoData, parameters, preventiveTreeParameters);
     }

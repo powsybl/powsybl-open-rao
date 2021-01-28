@@ -84,7 +84,6 @@ class Leaf {
         this.raoParameters = raoParameters;
         this.raoData = raoData;
         preOptimVariantId = raoData.getPreOptimVariantId();
-        // TODO : create the interface in this class
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
             raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
 
