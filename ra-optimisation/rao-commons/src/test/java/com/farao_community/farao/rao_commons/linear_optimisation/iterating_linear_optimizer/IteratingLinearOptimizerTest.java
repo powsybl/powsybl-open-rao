@@ -153,10 +153,17 @@ public class IteratingLinearOptimizerTest {
         assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(preOptimVariant));
         assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(1)));
         assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(0)));
+
+        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+            .getVariant(preOptimVariant)
+            .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
+        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+            .getVariant(preOptimVariant)
+            .getSetPoint("N-1 NL1-NL3-Défaut"), DOUBLE_TOLERANCE);
+
         assertEquals(3, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
             .getVariant(bestVariantId)
             .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
-
     }
 
     @Test
@@ -181,5 +188,12 @@ public class IteratingLinearOptimizerTest {
         // In the end CRAC should contain results only for pre-optim variant and post-optim variant
         assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(preOptimVariant));
         assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(0)));
+
+        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+            .getVariant(preOptimVariant)
+            .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
+        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+            .getVariant(preOptimVariant)
+            .getSetPoint("N-1 NL1-NL3-Défaut"), DOUBLE_TOLERANCE);
     }
 }
