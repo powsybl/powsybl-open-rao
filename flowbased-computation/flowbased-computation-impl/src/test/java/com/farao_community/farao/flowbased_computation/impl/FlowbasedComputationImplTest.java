@@ -59,35 +59,7 @@ public class FlowbasedComputationImplTest {
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
         checkAssertions(result);
-
-        String afterCraId = "AfterCra";
-        assertEquals(0., getCurativeFref(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
-        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
-        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
-        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YBE----------2", afterCraId), EPSILON);
-        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YCB-GERMANY--8", afterCraId), EPSILON);
-        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YNL----------L", afterCraId), EPSILON);
-
-        assertEquals(100, getCurativeFref(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
-        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
-        assertEquals(0.75, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", "10YBE----------2", afterCraId), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", "10YCB-GERMANY--8", afterCraId), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", "10YNL----------L", afterCraId), EPSILON);
-
-        assertEquals(0, getCurativeFref(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
-        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
-        assertEquals(0.75, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", "10YBE----------2", afterCraId), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", "10YCB-GERMANY--8", afterCraId), EPSILON);
-        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", "10YNL----------L", afterCraId), EPSILON);
-
-        assertEquals(100, getCurativeFref(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
-        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
-        assertEquals(0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
-        assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", "10YBE----------2", afterCraId), EPSILON);
-        assertEquals(0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", "10YCB-GERMANY--8", afterCraId), EPSILON);
-        assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", "10YNL----------L", afterCraId), EPSILON);
+        checkCurativeAssertions(result);
     }
 
     @Test
@@ -163,6 +135,37 @@ public class FlowbasedComputationImplTest {
         assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YBE----------2", onOutageId), EPSILON);
         assertEquals(0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YCB-GERMANY--8", onOutageId), EPSILON);
         assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - N-1 - N-1 FR-BE", "10YNL----------L", onOutageId), EPSILON);
+    }
+
+    private void checkCurativeAssertions(FlowbasedComputationResult result) {
+        String afterCraId = "AfterCra";
+        assertEquals(0., getCurativeFref(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
+        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
+        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
+        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YBE----------2", afterCraId), EPSILON);
+        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YCB-GERMANY--8", afterCraId), EPSILON);
+        assertEquals(0., getCurativePtdf(result, "N-1 FR-BE", "FR-BE - AfterCra - N-1 FR-BE", "10YNL----------L", afterCraId), EPSILON);
+
+        assertEquals(100, getCurativeFref(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
+        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
+        assertEquals(0.75, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", "10YBE----------2", afterCraId), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", "10YCB-GERMANY--8", afterCraId), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "FR-DE - AfterCra - N-1 FR-BE", "10YNL----------L", afterCraId), EPSILON);
+
+        assertEquals(0, getCurativeFref(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
+        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
+        assertEquals(0.75, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", "10YBE----------2", afterCraId), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", "10YCB-GERMANY--8", afterCraId), EPSILON);
+        assertEquals(-0.25, getCurativePtdf(result, "N-1 FR-BE", "BE-NL - AfterCra - N-1 FR-BE", "10YNL----------L", afterCraId), EPSILON);
+
+        assertEquals(100, getCurativeFref(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
+        assertEquals(100, getCurativeFmax(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", afterCraId), EPSILON);
+        assertEquals(0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", "10YFR-RTE------C", afterCraId), EPSILON);
+        assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", "10YBE----------2", afterCraId), EPSILON);
+        assertEquals(0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", "10YCB-GERMANY--8", afterCraId), EPSILON);
+        assertEquals(-0.5, getCurativePtdf(result, "N-1 FR-BE", "DE-NL - AfterCra - N-1 FR-BE", "10YNL----------L", afterCraId), EPSILON);
     }
 
     private double getPreventiveFref(FlowbasedComputationResult result, String monitoredBranch) {

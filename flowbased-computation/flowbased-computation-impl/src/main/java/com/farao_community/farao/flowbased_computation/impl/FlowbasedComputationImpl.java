@@ -115,12 +115,12 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             return;
         } else if (instants.size() == 2) {
             logger.info("Only Preventive and On outage instants are present for flowbased computation.");
-        } else if (instants.size() == 3) {
+        } else if (instants.size() >= 3) {
             logger.debug("All instants are defined for flowbased computation.");
             // last instant
             afterCraInstantId = instantMap.get(seconds.get(seconds.size() - 1));
         } else {
-            throw new FaraoException(String.format("Incorrect number of instants for flowbased computation. It is %s, but should be 1, 2 or 3.", instants.size()));
+            throw new FaraoException("No instant defined for flowbased computation");
         }
         // 2nd instant
         onOutageInstantId = instantMap.get(seconds.get(1));
