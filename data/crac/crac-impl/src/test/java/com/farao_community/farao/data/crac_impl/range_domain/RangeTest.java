@@ -26,13 +26,13 @@ public class RangeTest extends AbstractRemedialActionTest {
     private final double absMin = 1;
     private final double absMax = 32;
 
-    private Range relativeFixedRange;
-    private Range absoluteFixedRange;
+    private PstRange relativeFixedRange;
+    private PstRange absoluteFixedRange;
 
     @Before
     public void setUp() throws Exception {
-        relativeFixedRange = new Range(relMin, relMax, RangeType.RELATIVE_FIXED, RangeDefinition.CENTERED_ON_ZERO);
-        absoluteFixedRange = new Range(absMin, absMax, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
+        relativeFixedRange = new PstRange(relMin, relMax, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO);
+        absoluteFixedRange = new PstRange(absMin, absMax, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
     }
 
     @Test
@@ -49,8 +49,8 @@ public class RangeTest extends AbstractRemedialActionTest {
 
     @Test
     public void getRangeType() {
-        assertEquals(RangeType.RELATIVE_FIXED, relativeFixedRange.getRangeType());
-        assertEquals(RangeType.ABSOLUTE_FIXED, absoluteFixedRange.getRangeType());
+        assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, relativeFixedRange.getRangeType());
+        assertEquals(RangeType.ABSOLUTE, absoluteFixedRange.getRangeType());
     }
 
     @Test
@@ -61,16 +61,16 @@ public class RangeTest extends AbstractRemedialActionTest {
 
     @Test
     public void testEquals() {
-        Range range1 = new Range(0, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
-        Range range2 = new Range(0, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
+        PstRange range1 = new PstRange(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        PstRange range2 = new PstRange(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
 
         assertEquals(range1, range2);
     }
 
     @Test
     public void testHashCode() {
-        Range range1 = new Range(0, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
-        Range range2 = new Range(0, 10, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE);
+        PstRange range1 = new PstRange(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        PstRange range2 = new PstRange(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
 
         assertEquals(range1.hashCode(), range2.hashCode());
     }

@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -89,8 +90,13 @@ final class RangeActionDeserializer {
 
                 case RANGES:
                     jsonParser.nextToken();
-                    ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
-                    });
+                    if (type.equals(PST_WITH_RANGE_TYPE)) {
+                        ranges = jsonParser.readValueAs(new TypeReference<List<PstRange>>() {
+                        });
+                    } else {
+                        ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
+                        });
+                    }
                     break;
 
                 case NETWORK_ELEMENTS:
@@ -118,7 +124,15 @@ final class RangeActionDeserializer {
         RangeAction rangeAction;
         switch (type) {
             case PST_WITH_RANGE_TYPE:
-                rangeAction = new PstWithRange(id, name, operator, usageRules, ranges, networkElements.iterator().next(), groupId);
+                List<PstRange> pstRanges = new ArrayList<>();
+                for (Range range : ranges) {
+                    if (range instanceof PstRange) {
+                        pstRanges.add((PstRange) range);
+                    } else {
+                        throw new FaraoException(String.format("Type of range action [%s] should have ranges of type PstRange.", type));
+                    }
+                }
+                rangeAction = new PstWithRange(id, name, operator, usageRules, pstRanges, networkElements.iterator().next(), groupId);
                 break;
             default:
                 throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));

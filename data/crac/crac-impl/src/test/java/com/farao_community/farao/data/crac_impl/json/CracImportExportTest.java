@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.*;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
@@ -118,8 +118,8 @@ public class CracImportExportTest {
                 "pstRangeName",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
-                Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
-                        new Range(-3, 3, RangeType.RELATIVE_FIXED, CENTERED_ON_ZERO)),
+                Arrays.asList(new PstRange(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
+                        new PstRange(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.getNetworkElement("pst")
         ));
 
@@ -128,8 +128,8 @@ public class CracImportExportTest {
                 "pstRangeName2",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
-                Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
-                        new Range(-3, 3, RangeType.RELATIVE_FIXED, CENTERED_ON_ZERO)),
+                Arrays.asList(new PstRange(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
+                        new PstRange(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.addNetworkElement("pst2"),
                 "1"
         ));

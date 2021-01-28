@@ -125,7 +125,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             if (rangeAction.getExtension(RangeActionResultExtension.class) == null) {
                 rangeAction.addExtension(RangeActionResultExtension.class, new RangeActionResultExtension());
             }
-            if (rangeAction instanceof PstRange) {
+            if (rangeAction instanceof PstRangeAction) {
                 rangeAction.getExtension(RangeActionResultExtension.class).addVariant(variantId, new PstRangeResult(stateIds));
             } else {
                 rangeAction.getExtension(RangeActionResultExtension.class).addVariant(variantId, new RangeActionResult(stateIds));

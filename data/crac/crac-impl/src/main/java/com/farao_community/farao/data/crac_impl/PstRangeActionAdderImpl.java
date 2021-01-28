@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
@@ -105,7 +105,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
         if (this.networkElement == null) {
             throw new FaraoException("Cannot add a PstRangeAction without a network element. Please use newNetworkElement.");
         }
-        List<Range> ranges = Collections.singletonList(new Range(this.minValue, this.maxValue, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
+        List<PstRange> ranges = Collections.singletonList(new PstRange(this.minValue, this.maxValue, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
         /*
          * First we add the network element to the crac
          * If it already exists, it will send us back the reference to the

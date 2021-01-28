@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.*;
 
@@ -28,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-with-range")
-public final class PstWithRange extends AbstractRangeAction implements PstRange {
+public final class PstWithRange extends AbstractRangeAction implements PstRangeAction {
     private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
     private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;
@@ -43,13 +44,13 @@ public final class PstWithRange extends AbstractRangeAction implements PstRange 
      *
      * @param networkElement: PST element to modify
      */
-    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges,
+    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges,
                         NetworkElement networkElement, String groupId) {
         super(id, name, operator, usageRules, ranges, networkElement, groupId);
         initAttributes();
     }
 
-    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges, NetworkElement networkElement) {
+    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges, NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
         initAttributes();
     }
@@ -207,9 +208,10 @@ public final class PstWithRange extends AbstractRangeAction implements PstRange 
     }
 
     private double getExtremumValueWithRange(Range range, double currentTapPosition, double extremumValue) {
-        switch (range.getRangeType()) {
-            case ABSOLUTE_FIXED:
-                switch (range.getRangeDefinition()) {
+        PstRange pstRange = (PstRange) range;
+        switch (pstRange.getRangeType()) {
+            case ABSOLUTE:
+                switch (pstRange.getRangeDefinition()) {
                     case STARTS_AT_ONE:
                         return lowTapPosition + extremumValue - 1;
                     case CENTERED_ON_ZERO:
@@ -217,9 +219,9 @@ public final class PstWithRange extends AbstractRangeAction implements PstRange 
                     default:
                         throw new FaraoException("Unknown range definition");
                 }
-            case RELATIVE_FIXED:
+            case RELATIVE_TO_INITIAL_NETWORK:
                 return initialTapPosition + extremumValue;
-            case RELATIVE_DYNAMIC:
+            case RELATIVE_TO_PREVIOUS_INSTANT:
                 return currentTapPosition + extremumValue;
             default:
                 throw new FaraoException("Unknown range type");

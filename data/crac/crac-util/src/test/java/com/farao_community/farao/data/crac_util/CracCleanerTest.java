@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
@@ -115,7 +115,7 @@ public class CracCleanerTest {
             "pstRangeName",
             "RTE",
             Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
-            Collections.singletonList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE)),
+            Collections.singletonList(new PstRange(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("pst")
         );
 
@@ -232,7 +232,7 @@ public class CracCleanerTest {
             "pstRangeName",
             "RTE",
             usageRules,
-            Collections.singletonList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE)),
+            Collections.singletonList(new PstRange(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
             new NetworkElement("BBE1AA1  BBE2AA1  1")
         );
 

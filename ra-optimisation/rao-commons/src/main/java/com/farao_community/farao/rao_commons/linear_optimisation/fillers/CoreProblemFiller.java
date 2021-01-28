@@ -157,7 +157,7 @@ public class CoreProblemFiller implements ProblemFiller {
         }
 
         raoData.getAvailableRangeActions().forEach(rangeAction -> {
-            if (rangeAction instanceof PstRange) {
+            if (rangeAction instanceof PstRangeAction) {
                 addImpactOfPstOnCnec(raoData, linearProblem, rangeAction, cnec, flowConstraint);
             } else {
                 throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
