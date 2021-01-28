@@ -184,4 +184,16 @@ public class CracResultManager {
                         .setCommercialFlowInMW(cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getCommercialFlowInMW())
         );
     }
+
+    /**
+     * This method copies absolute PTDF sums from a variant's CNEC result extension to another variant's
+     * @param originVariant: the origin variant containing the PTDF sums
+     * @param destinationVariant: the destination variant
+     */
+    public void copyAbsolutePtdfSumsBetweenVariants(String originVariant, String destinationVariant) {
+        raoData.getCnecs().forEach(cnec ->
+            cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant).setAbsolutePtdfSum(
+                cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getAbsolutePtdfSum()
+            ));
+    }
 }

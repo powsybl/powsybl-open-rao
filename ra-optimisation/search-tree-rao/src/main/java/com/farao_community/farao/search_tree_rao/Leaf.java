@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.CountryUtil;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
@@ -110,7 +109,7 @@ class Leaf {
         activateNetworkActionInCracResult(preOptimVariantId);
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
             raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
-        copyAbsolutePtdfSumsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
+        raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
         if (!raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
             raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
         }
@@ -200,7 +199,7 @@ class Leaf {
                 IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, linearOptimizerSystematicSensitivityInterface);
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
-                copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
+                raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
                 activateNetworkActionInCracResult(optimizedVariantId);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");
@@ -267,21 +266,9 @@ class Leaf {
      */
     void clearAllVariantsExceptOptimizedOne() {
         if (status.equals(Status.OPTIMIZED) && !preOptimVariantId.equals(optimizedVariantId)) {
-            copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
+            raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
             raoData.getCracVariantManager().deleteVariant(preOptimVariantId, false);
         }
-    }
-
-    /**
-     * This method copies absolute PTDF sums from a variant's CNEC result extension to another variant's
-     * @param originVariant: the origin variant containing the PTDF sums
-     * @param destinationVariant: the destination variant
-     */
-    void copyAbsolutePtdfSumsBetweenVariants(String originVariant, String destinationVariant) {
-        raoData.getCnecs().forEach(cnec ->
-                cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant).setAbsolutePtdfSum(
-                        cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getAbsolutePtdfSum()
-                ));
     }
 
     /**
@@ -312,6 +299,7 @@ class Leaf {
      * to avoid calling directly rao data as a leaf user.
      */
     void applyRangeActionResultsOnNetwork() {
+        //TODO : remove not used
         getRaoData().getCracVariantManager().setWorkingVariant(getBestVariantId());
         getRaoData().getCracResultManager().applyRangeActionResultsOnNetwork();
     }

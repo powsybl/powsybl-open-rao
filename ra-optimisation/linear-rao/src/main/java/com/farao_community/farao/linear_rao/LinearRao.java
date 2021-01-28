@@ -90,6 +90,7 @@ public class LinearRao implements RaoProvider {
         try {
             initialSensitivityAnalysis.run();
         } catch (SensitivityAnalysisException e) {
+            LOGGER.error("Initial sensitivity analysis failed :", e);
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
         }
 
