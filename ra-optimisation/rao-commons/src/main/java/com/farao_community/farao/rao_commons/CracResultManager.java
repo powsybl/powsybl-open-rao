@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -127,11 +129,12 @@ public class CracResultManager {
      * This method returns a set of State which are equal or after a given state.
      */
     private Set<State> getStatesAfter(State referenceState) {
-        if (referenceState.getContingency().isEmpty()) {
+        Optional<Contingency> referenceContingency = referenceState.getContingency();
+        if (referenceContingency.isEmpty()) {
             return raoData.getCrac().getStates();
         } else {
             return  raoData.getCrac().
-                getStates(referenceState.getContingency().get()).stream().
+                getStates(referenceContingency.get()).stream().
                 filter(state -> state.getInstant().getSeconds() >= referenceState.getInstant().getSeconds())
                 .collect(Collectors.toSet());
         }
