@@ -155,8 +155,12 @@ class Leaf {
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
     void evaluate() {
+        ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+
         if (status.equals(Status.EVALUATED)) {
             LOGGER.debug("Leaf has already been evaluated");
+            raoData.getCracResultManager().fillCracResultWithCosts(
+                objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
             return;
         }
 
@@ -169,10 +173,8 @@ class Leaf {
                 LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,
                     !raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
             }
-            ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
             raoData.getCracResultManager().fillCracResultWithCosts(
                 objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
-
             status = Status.EVALUATED;
         } catch (FaraoException e) {
             LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
