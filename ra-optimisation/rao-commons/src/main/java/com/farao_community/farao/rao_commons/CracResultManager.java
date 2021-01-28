@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
@@ -19,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -37,13 +40,16 @@ public class CracResultManager {
      * with values in network of the working variant.
      */
     public void fillRangeActionResultsWithNetworkValues() {
+        Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
         for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
-            double valueInNetwork = rangeAction.getCurrentValue(raoData.getNetwork());
+            double setPointValueInNetwork = rangeAction.getCurrentValue(raoData.getNetwork());
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(raoData.getWorkingVariantId());
-            rangeActionResult.setSetPoint(raoData.getOptimizedState().getId(), valueInNetwork);
+            statesAfterOptimizedState.forEach(state -> rangeActionResult.setSetPoint(state.getId(), setPointValueInNetwork));
             if (rangeAction instanceof PstRange) {
-                ((PstRangeResult) rangeActionResult).setTap(raoData.getOptimizedState().getId(), ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
+                PstRangeResult pstRangeResult = (PstRangeResult) rangeActionResult;
+                int tapValueInNetwork = ((PstRange) rangeAction).computeTapPosition(setPointValueInNetwork);
+                statesAfterOptimizedState.forEach(state -> pstRangeResult.setTap(state.getId(), tapValueInNetwork));
             }
         }
     }
@@ -85,6 +91,8 @@ public class CracResultManager {
             LOGGER.debug(String.format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
             LOGGER.debug(String.format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
         }
+        Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
+
         for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRange) {
                 RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
@@ -105,10 +113,27 @@ public class CracResultManager {
                     approximatedPostOptimTap = ((PstRangeResult) pstRangeResultMap.getVariant(raoData.getPreOptimVariantId())).getTap(raoData.getOptimizedState().getId());
                     approximatedPostOptimAngle = pstRangeResultMap.getVariant(raoData.getPreOptimVariantId()).getSetPoint(raoData.getOptimizedState().getId());
                 }
+
                 PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
-                pstRangeResult.setSetPoint(raoData.getOptimizedState().getId(), approximatedPostOptimAngle);
-                pstRangeResult.setTap(raoData.getOptimizedState().getId(), approximatedPostOptimTap);
+                statesAfterOptimizedState.forEach(state -> {
+                    pstRangeResult.setSetPoint(state.getId(), approximatedPostOptimAngle);
+                    pstRangeResult.setTap(state.getId(), approximatedPostOptimTap);
+                });
             }
+        }
+    }
+
+    /**
+     * This method returns a set of State which are equal or after a given state.
+     */
+    private Set<State> getStatesAfter(State referenceState) {
+        if (referenceState.getContingency().isEmpty()) {
+            return raoData.getCrac().getStates();
+        } else {
+            return  raoData.getCrac().
+                getStates(referenceState.getContingency().get()).stream().
+                filter(state -> state.getInstant().getSeconds() >= referenceState.getInstant().getSeconds())
+                .collect(Collectors.toSet());
         }
     }
 

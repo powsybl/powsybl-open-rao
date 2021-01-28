@@ -51,7 +51,7 @@ public class InitialSensitivityAnalysis {
         this.systematicSensitivityInterface = getSystematicSensitivityInterface();
     }
 
-    public void run() {
+    public SystematicSensitivityResult run() {
         LOGGER.info("Initial systematic analysis [start]");
 
         // run sensitivity analysis
@@ -80,6 +80,8 @@ public class InitialSensitivityAnalysis {
         fillObjectiveFunction();
 
         LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -raoData.getCracResult().getFunctionalCost());
+
+        return sensitivityResult;
     }
 
     private SystematicSensitivityResult runSensitivityComputation() {
