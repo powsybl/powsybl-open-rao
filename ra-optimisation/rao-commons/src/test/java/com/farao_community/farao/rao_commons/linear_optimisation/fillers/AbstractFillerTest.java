@@ -109,6 +109,6 @@ abstract class AbstractFillerTest {
         raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
         raoData.setSystematicSensitivityResult(systematicSensitivityResult);
         raoData.getCrac().getExtension(ResultVariantManager.class).setInitialVariantId(raoData.getWorkingVariantId());
-        raoData.getCrac().getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getWorkingVariantId());
+        raoData.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(raoData.getWorkingVariantId());
     }
 }

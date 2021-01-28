@@ -55,10 +55,9 @@ public class CracVariantManager {
         }
 
         variantIds.add(cracVariantId);
-        // TODO : strange, shouldn't we copy some sensi result here ?
         systematicSensitivityResultMap.put(cracVariantId, null);
         setWorkingVariant(cracVariantId);
-        resultVariantManager.setPreOptimVariantId(cracVariantId);
+        // resultVariantManager.setPrePerimeterVariantId(cracVariantId);
 
     }
 

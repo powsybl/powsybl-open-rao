@@ -59,7 +59,7 @@ public class InitialSensitivityAnalysis {
 
         // tag initial variant
         raoData.getCrac().getExtension(ResultVariantManager.class).setInitialVariantId(raoData.getWorkingVariantId());
-        raoData.getCrac().getExtension(ResultVariantManager.class).setPreOptimVariantId(raoData.getWorkingVariantId());
+        raoData.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(raoData.getWorkingVariantId());
 
         // fill results of initial variant
         LOGGER.info("Initial systematic analysis [...] - fill initial range actions values");
