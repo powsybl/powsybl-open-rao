@@ -225,7 +225,7 @@ class Leaf {
             if (!raoData.getAvailableRangeActions().isEmpty()) {
                 SystematicSensitivityInterface linearOptimizerSystematicSensitivityInterface =
                         RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
-                        raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
+                                raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
                 IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, linearOptimizerSystematicSensitivityInterface);
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
@@ -250,7 +250,10 @@ class Leaf {
      * @return A set of available network actions after this leaf.
      */
     Set<NetworkAction> bloom() {
-        Set<NetworkAction> availableNetworkActions = removeNetworkActionsFarFromMostLimitingElement(raoData.getAvailableNetworkActions());
+        Set<NetworkAction> availableNetworkActions = raoData.getAvailableNetworkActions().stream()
+                .filter(na -> !networkActions.contains(na))
+                .collect(Collectors.toSet());
+        availableNetworkActions = removeNetworkActionsFarFromMostLimitingElement(availableNetworkActions);
         availableNetworkActions = removeNetworkActionsIfMaxNumberReached(availableNetworkActions);
         return availableNetworkActions;
     }
@@ -258,6 +261,7 @@ class Leaf {
     /**
      * Removes network actions far from most limiting element, using the user's parameters for activating/deactivating this
      * feature, and setting the number of boundaries allowed between the netwrk action and the limiting element
+     *
      * @param networkActions: the set of network actions to reduce
      * @return the reduced set of network actions
      */
@@ -265,19 +269,21 @@ class Leaf {
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement()) {
             List<Optional<Country>> worstCnecLocation = getMostLimitingElementLocation();
-            return networkActions.stream()
-                    .filter(na -> !networkActions.contains(na)
-                            && isNetworkActionCloseToLocations(na, worstCnecLocation))
+            Set<NetworkAction> filteredNetworkActions = networkActions.stream()
+                    .filter(na -> isNetworkActionCloseToLocations(na, worstCnecLocation))
                     .collect(Collectors.toSet());
+            if (networkActions.size() > filteredNetworkActions.size()) {
+                LOGGER.debug("{} network actions have been filtered out because they are far from the most limiting element", networkActions.size() - filteredNetworkActions.size());
+            }
+            return filteredNetworkActions;
         } else {
-            return networkActions.stream()
-                    .filter(na -> !networkActions.contains(na))
-                    .collect(Collectors.toSet());
+            return networkActions;
         }
     }
 
     /**
      * Removes network actions for whom the maximum number of network actions has been reached
+     *
      * @param networkActions: the set of network actions to reduce
      * @return the reduced set of network actions
      */
@@ -289,6 +295,9 @@ class Leaf {
                 filteredNetworkActions.removeIf(networkAction -> networkAction.getOperator().equals(tso));
             }
         });
+        if (networkActions.size() > filteredNetworkActions.size()) {
+            LOGGER.debug("{} network actions have been filtered out because the maximum number of network actions for their TSO has been reached", networkActions.size() - filteredNetworkActions.size());
+        }
         return filteredNetworkActions;
     }
 
@@ -329,7 +338,8 @@ class Leaf {
 
     /**
      * This method copies absolute PTDF sums from a variant's CNEC result extension to another variant's
-     * @param originVariant: the origin variant containing the PTDF sums
+     *
+     * @param originVariant:      the origin variant containing the PTDF sums
      * @param destinationVariant: the destination variant
      */
     void copyAbsolutePtdfSumsBetweenVariants(String originVariant, String destinationVariant) {

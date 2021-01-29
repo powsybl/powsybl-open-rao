@@ -60,9 +60,9 @@ public class SearchTree {
     }
 
     public CompletableFuture<RaoResult> run(RaoData raoData, RaoParameters raoParameters, TreeParameters treeParameters) {
+        this.treeParameters = treeParameters;
         initParameters(raoParameters);
         initLeaves(raoData);
-        this.treeParameters = treeParameters;
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluateRootLeaf(treeParameters.getShouldComputeInitialSensitivity());
