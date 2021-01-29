@@ -45,6 +45,7 @@ class Leaf {
     private final String initialVariantId;
     private String optimizedVariantId;
     private final RaoParameters raoParameters;
+    private final TreeParameters treeParameters;
     private SystematicSensitivityInterface systematicSensitivityInterface;
 
     /**
@@ -80,9 +81,10 @@ class Leaf {
      * Root Leaf constructors
      * It is built directly from a RaoData on which a systematic sensitivity analysis could have already been run or not.
      */
-    Leaf(RaoData raoData, RaoParameters raoParameters) {
+    Leaf(RaoData raoData, RaoParameters raoParameters, TreeParameters treeParameters) {
         this.networkActions = new HashSet<>(); // Root leaf has no network action
         this.raoParameters = raoParameters;
+        this.treeParameters = treeParameters;
         this.raoData = raoData;
         initialVariantId = raoData.getInitialVariantId();
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
@@ -98,10 +100,11 @@ class Leaf {
     /**
      * Leaf constructorthis.iteratingLinearOptimizer = iteratingLinearOptimizer;
      */
-    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters) {
+    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters, TreeParameters treeParameters) {
         networkActions = new HashSet<>(parentLeaf.networkActions);
         networkActions.add(networkAction);
         this.raoParameters = raoParameters;
+        this.treeParameters = treeParameters;
 
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
@@ -247,20 +250,46 @@ class Leaf {
      * @return A set of available network actions after this leaf.
      */
     Set<NetworkAction> bloom() {
+        Set<NetworkAction> availableNetworkActions = removeNetworkActionsFarFromMostLimitingElement(raoData.getAvailableNetworkActions());
+        availableNetworkActions = removeNetworkActionsIfMaxNumberReached(availableNetworkActions);
+        return availableNetworkActions;
+    }
+
+    /**
+     * Removes network actions far from most limiting element, using the user's parameters for activating/deactivating this
+     * feature, and setting the number of boundaries allowed between the netwrk action and the limiting element
+     * @param networkActions: the set of network actions to reduce
+     * @return the reduced set of network actions
+     */
+    private Set<NetworkAction> removeNetworkActionsFarFromMostLimitingElement(Set<NetworkAction> networkActions) {
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement()) {
             List<Optional<Country>> worstCnecLocation = getMostLimitingElementLocation();
-            return raoData.getAvailableNetworkActions()
-                    .stream()
+            return networkActions.stream()
                     .filter(na -> !networkActions.contains(na)
                             && isNetworkActionCloseToLocations(na, worstCnecLocation))
                     .collect(Collectors.toSet());
         } else {
-            return raoData.getAvailableNetworkActions()
-                    .stream()
+            return networkActions.stream()
                     .filter(na -> !networkActions.contains(na))
                     .collect(Collectors.toSet());
         }
+    }
+
+    /**
+     * Removes network actions for whom the maximum number of network actions has been reached
+     * @param networkActions: the set of network actions to reduce
+     * @return the reduced set of network actions
+     */
+    private Set<NetworkAction> removeNetworkActionsIfMaxNumberReached(Set<NetworkAction> networkActions) {
+        Set<NetworkAction> filteredNetworkActions = new HashSet<>(networkActions);
+        treeParameters.getMaxTopoPerTso().forEach((String tso, Integer maxTopo) -> {
+            long alreadyAppliedForTso = networkActions.stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
+            if (alreadyAppliedForTso >= maxTopo) {
+                filteredNetworkActions.removeIf(networkAction -> networkAction.getOperator().equals(tso));
+            }
+        });
+        return filteredNetworkActions;
     }
 
     /**

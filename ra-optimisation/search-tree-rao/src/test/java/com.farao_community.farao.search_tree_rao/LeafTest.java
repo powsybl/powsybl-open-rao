@@ -64,6 +64,7 @@ public class LeafTest {
     private RaoData raoData;
     private RaoData raoDataMock;
     private RaoParameters raoParameters;
+    private TreeParameters treeParameters;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
 
     private SystematicSensitivityInterface systematicSensitivityInterface;
@@ -119,6 +120,8 @@ public class LeafTest {
         raoParameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
+
+        treeParameters = TreeParameters.buildForPreventivePerimeter(searchTreeRaoParameters, true);
     }
 
     private void mockRaoUtil() {
@@ -136,7 +139,7 @@ public class LeafTest {
 
     @Test
     public void testRootLeafDefinition() {
-        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters, treeParameters);
         assertTrue(rootLeaf.getNetworkActions().isEmpty());
         assertTrue(rootLeaf.isRoot());
         assertEquals(INITIAL_VARIANT_ID, rootLeaf.getInitialVariantId());
@@ -144,20 +147,20 @@ public class LeafTest {
 
     @Test
     public void testRootLeafDefinitionWithSensitivityValues() {
-        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters, treeParameters);
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
 
     @Test
     public void testRootLeafDefinitionWithoutSensitivityValues() {
         Mockito.when(raoDataMock.hasSensitivityValues()).thenReturn(false);
-        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters, treeParameters);
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
     }
 
     @Test(expected = FaraoException.class)
     public void testErrorOnRootLeafEvaluate() {
-        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters);
+        Leaf rootLeaf = new Leaf(raoDataMock, raoParameters, treeParameters);
         rootLeaf.evaluate();
     }
 
@@ -165,8 +168,8 @@ public class LeafTest {
     public void testLeafDefinition() {
         crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.5);
         crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.4);
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
+        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters);
         assertEquals(1, leaf.getNetworkActions().size());
         assertTrue(leaf.getNetworkActions().contains(na1));
         assertFalse(leaf.isRoot());
@@ -179,16 +182,16 @@ public class LeafTest {
     public void testErrorOnLeafEvaluateRootLeaf() {
         crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.5);
         crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.4);
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
+        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters);
         leaf.evaluateRootLeaf(false);
     }
 
     @Test
     public void testMultipleLeafDefinition() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters);
-        Leaf leaf2 = new Leaf(leaf1, na2, network, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
+        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters);
+        Leaf leaf2 = new Leaf(leaf1, na2, network, raoParameters, treeParameters);
         assertEquals(2, leaf2.getNetworkActions().size());
         assertTrue(leaf2.getNetworkActions().contains(na1));
         assertTrue(leaf2.getNetworkActions().contains(na2));
@@ -197,9 +200,9 @@ public class LeafTest {
 
     @Test
     public void testMultipleLeafDefinitionWithSameNetworkAction() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters);
-        Leaf leaf2 = new Leaf(leaf1, na1, network, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
+        Leaf leaf1 = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters);
+        Leaf leaf2 = new Leaf(leaf1, na1, network, raoParameters, treeParameters);
         assertEquals(1, leaf2.getNetworkActions().size());
         assertTrue(leaf2.getNetworkActions().contains(na1));
         assertFalse(leaf2.isRoot());
@@ -207,7 +210,7 @@ public class LeafTest {
 
     @Test
     public void testBloom() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         Set<NetworkAction> networkActions = rootLeaf.bloom();
         assertEquals(2, networkActions.size());
         assertTrue(networkActions.contains(na1));
@@ -224,7 +227,7 @@ public class LeafTest {
 
         mockRaoUtil();
 
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluateRootLeaf(true);
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
@@ -236,7 +239,7 @@ public class LeafTest {
         Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(false);
         Mockito.doThrow(new SensitivityAnalysisException("mock")).when(systematicSensitivityInterface).run(any());
 
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluateRootLeaf(true);
 
         assertEquals(Leaf.Status.ERROR, rootLeaf.getStatus());
@@ -248,7 +251,7 @@ public class LeafTest {
         Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(false);
         Mockito.doThrow(new SensitivityAnalysisException("mock")).when(systematicSensitivityInterface).run(any());
 
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluateRootLeaf(false);
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
@@ -257,7 +260,7 @@ public class LeafTest {
 
     @Test
     public void testOptimizeWithoutEvaluation() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.optimize();
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
     }
@@ -265,7 +268,7 @@ public class LeafTest {
     @Test
     public void testOptimizeWithoutRangeActions() {
         mockRaoUtil();
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluateRootLeaf(true);
         rootLeaf.optimize();
         assertEquals(rootLeaf.getInitialVariantId(), rootLeaf.getBestVariantId());
@@ -280,7 +283,7 @@ public class LeafTest {
 
         String newVariant = raoData.getCracVariantManager().cloneWorkingVariant();
         Mockito.doAnswer(invocationOnMock -> newVariant).when(iteratingLinearOptimizer).optimize(any());
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         Mockito.doAnswer(invocationOnMock -> systematicSensitivityResult).when(systematicSensitivityInterface).run(any());
 
         mockRaoUtil();
@@ -293,7 +296,7 @@ public class LeafTest {
 
     @Test
     public void testClearAllVariantsExceptInitialOne() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         String initialVariantId = rootLeaf.getInitialVariantId();
         rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();
         rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();
@@ -307,7 +310,7 @@ public class LeafTest {
     public void testIsNetworkActionCloseToLocations() {
         raoParameters.setPtdfBoundariesFromCountryCodes(List.of("FR-DE", "DE-AT"));
         raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(0);
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.empty())));
         assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.FR))));
         assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.BE))));

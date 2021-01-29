@@ -11,6 +11,9 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -49,6 +52,9 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private PreventiveRaoStopCriterion preventiveRaoStopCriterion = DEFAULT_PREVENTIVE_RAO_STOP_CRITERION;
     private CurativeRaoStopCriterion curativeRaoStopCriterion = DEFAULT_CURATIVE_RAO_STOP_CRITERION;
     private double curativeRaoMinObjImprovement = DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT; // used for CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE and CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
+    private Map<String, Integer> maxCurativeTopoPerTso = new HashMap<>();
+    private Map<String, Integer> maxCurativePstPerTso = new HashMap<>();
+    private Map<String, Integer> maxCurativeRaPerTso = new HashMap<>();
 
     @Override
     public String getName() {
@@ -141,5 +147,29 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
             LOGGER.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
         }
         this.curativeRaoMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
+    }
+
+    public Map<String, Integer> getMaxCurativeTopoPerTso() {
+        return maxCurativeTopoPerTso;
+    }
+
+    public void setMaxCurativeTopoPerTso(Map<String, Integer> maxCurativeTopoPerTso) {
+        this.maxCurativeTopoPerTso = maxCurativeTopoPerTso;
+    }
+
+    public Map<String, Integer> getMaxCurativePstPerTso() {
+        return maxCurativePstPerTso;
+    }
+
+    public void setMaxCurativePstPerTso(Map<String, Integer> maxCurativePstPerTso) {
+        this.maxCurativePstPerTso = maxCurativePstPerTso;
+    }
+
+    public Map<String, Integer> getMaxCurativeRaPerTso() {
+        return maxCurativeRaPerTso;
+    }
+
+    public void setMaxCurativeRaPerTso(Map<String, Integer> maxCurativeRaPerTso) {
+        this.maxCurativeRaPerTso = maxCurativeRaPerTso;
     }
 }

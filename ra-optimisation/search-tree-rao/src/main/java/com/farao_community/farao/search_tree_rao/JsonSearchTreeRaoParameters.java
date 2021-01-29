@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -34,7 +36,16 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeNumberField("curative-rao-min-obj-improvement", searchTreeRaoParameters.getCurativeRaoMinObjImprovement());
         jsonGenerator.writeBooleanField("skip-network-actions-far-from-most-limiting-element", searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement());
         jsonGenerator.writeNumberField("max-number-of-boundaries-for-skipping-network-actions", searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
+        serializeMap(jsonGenerator, "max-curative-topo-per-tso", searchTreeRaoParameters.getMaxCurativeTopoPerTso());
+        serializeMap(jsonGenerator, "max-curative-pst-per-tso", searchTreeRaoParameters.getMaxCurativePstPerTso());
+        serializeMap(jsonGenerator, "max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
         jsonGenerator.writeEndObject();
+    }
+
+    private void serializeMap(JsonGenerator jsonGenerator, String fieldName, Map<String, Integer> map) throws IOException {
+        if (!map.isEmpty()) {
+            jsonGenerator.writeObjectField(fieldName, map);
+        }
     }
 
     @Override
@@ -73,12 +84,38 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                 case "max-number-of-boundaries-for-skipping-network-actions":
                     parameters.setMaxNumberOfBoundariesForSkippingNetworkActions(jsonParser.getValueAsInt());
                     break;
+                case "max-curative-topo-per-tso":
+                    jsonParser.nextToken();
+                    parameters.setMaxCurativeTopoPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case "max-curative-pst-per-tso":
+                    jsonParser.nextToken();
+                    parameters.setMaxCurativePstPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case "max-curative-ra-per-tso":
+                    jsonParser.nextToken();
+                    parameters.setMaxCurativeRaPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
 
         return parameters;
+    }
+
+    private Map<String, Integer> readStringToPositiveIntMap(JsonParser jsonParser) throws IOException {
+        HashMap<String, Integer> map = jsonParser.readValueAs(HashMap.class);
+        // Check types
+        map.forEach((Object o, Object o2) -> {
+            if (!(o instanceof String) || !(o2 instanceof Integer)) {
+                throw new FaraoException("Unexpected key or value type in a Map<String, Integer> parameter!");
+            }
+            if ((int) o2 < 0) {
+                throw new FaraoException("Unexpected negative integer!");
+            }
+        });
+        return map;
     }
 
     @Override

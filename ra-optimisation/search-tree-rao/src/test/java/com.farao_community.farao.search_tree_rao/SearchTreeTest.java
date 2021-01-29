@@ -104,7 +104,8 @@ public class SearchTreeTest {
 
         PowerMockito.mockStatic(SearchTreeRaoLogger.class);
 
-        Leaf mockLeaf = Mockito.spy(new Leaf(raoData, raoParameters));
+        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), true);
+        Leaf mockLeaf = Mockito.spy(new Leaf(raoData, raoParameters, treeParameters));
         PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(mockLeaf);
         when(mockLeaf.getBestCost()).thenReturn(0.);
         PowerMockito.doNothing().when(mockLeaf).evaluate();
@@ -113,7 +114,6 @@ public class SearchTreeTest {
         PowerMockito.whenNew(InitialSensitivityAnalysis.class).withAnyArguments().thenReturn(mockSensi);
         PowerMockito.doNothing().when(mockSensi).run();
 
-        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), true);
         RaoResult result = searchTree.run(raoData, raoParameters, treeParameters).join();
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
