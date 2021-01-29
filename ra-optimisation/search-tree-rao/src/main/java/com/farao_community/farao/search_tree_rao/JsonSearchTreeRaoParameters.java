@@ -36,16 +36,10 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeNumberField("curative-rao-min-obj-improvement", searchTreeRaoParameters.getCurativeRaoMinObjImprovement());
         jsonGenerator.writeBooleanField("skip-network-actions-far-from-most-limiting-element", searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement());
         jsonGenerator.writeNumberField("max-number-of-boundaries-for-skipping-network-actions", searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
-        serializeMap(jsonGenerator, "max-curative-topo-per-tso", searchTreeRaoParameters.getMaxCurativeTopoPerTso());
-        serializeMap(jsonGenerator, "max-curative-pst-per-tso", searchTreeRaoParameters.getMaxCurativePstPerTso());
-        serializeMap(jsonGenerator, "max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
+        jsonGenerator.writeObjectField("max-curative-topo-per-tso", searchTreeRaoParameters.getMaxCurativeTopoPerTso());
+        jsonGenerator.writeObjectField("max-curative-pst-per-tso", searchTreeRaoParameters.getMaxCurativePstPerTso());
+        jsonGenerator.writeObjectField("max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
         jsonGenerator.writeEndObject();
-    }
-
-    private void serializeMap(JsonGenerator jsonGenerator, String fieldName, Map<String, Integer> map) throws IOException {
-        if (!map.isEmpty()) {
-            jsonGenerator.writeObjectField(fieldName, map);
-        }
     }
 
     @Override
