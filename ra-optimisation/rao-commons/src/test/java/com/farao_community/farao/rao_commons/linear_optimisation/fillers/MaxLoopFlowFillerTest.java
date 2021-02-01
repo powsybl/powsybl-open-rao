@@ -33,14 +33,13 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
+        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
+        cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
         initRaoData(crac.getPreventiveState());
     }
 
     @Test
     public void testFill1() {
-        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
-        cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
-        initRaoData(crac.getPreventiveState());
         cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
         cnec1.getExtension(CnecResultExtension.class).getVariant(crac.getExtension(ResultVariantManager.class).getInitialVariantId()).setLoopflowInMW(0.);
 
@@ -71,9 +70,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testFill2() {
-        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
-        cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
-        initRaoData(crac.getPreventiveState());
         cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
         cnec1.getExtension(CnecResultExtension.class).getVariant(crac.getExtension(ResultVariantManager.class).getInitialVariantId()).setLoopflowInMW(80.);
 
@@ -104,9 +100,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testShouldUpdate() {
-        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
-        cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
-        initRaoData(crac.getPreventiveState());
         cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
         cnec1.getExtension(CnecResultExtension.class).getVariant(crac.getExtension(ResultVariantManager.class).getInitialVariantId()).setLoopflowInMW(0.);
 
@@ -138,9 +131,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testShouldNotUpdate() {
-        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
-        cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
-        initRaoData(crac.getPreventiveState());
         cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
         cnec1.getExtension(CnecResultExtension.class).getVariant(crac.getExtension(ResultVariantManager.class).getInitialVariantId()).setLoopflowInMW(0.);
 

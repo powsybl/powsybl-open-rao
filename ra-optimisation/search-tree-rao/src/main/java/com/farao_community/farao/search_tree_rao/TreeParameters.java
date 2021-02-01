@@ -20,6 +20,7 @@ import java.util.Objects;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class TreeParameters {
+
     public enum StopCriterion {
         MIN_OBJECTIVE,
         AT_TARGET_OBJECTIVE_VALUE
@@ -33,19 +34,16 @@ public final class TreeParameters {
     private double absoluteNetworkActionMinimumImpactThreshold;
     private int leavesInParallel;
 
-    private boolean shouldComputeInitialSensitivity;
-
     private TreeParameters() {
     }
 
-    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, boolean shouldComputeInitialSensitivity) {
+    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue) {
         this.maximumSearchDepth = searchTreeRaoParameters.getMaximumSearchDepth();
         this.relativeNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold();
         this.absoluteNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold();
         this.leavesInParallel = searchTreeRaoParameters.getLeavesInParallel();
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
-        this.shouldComputeInitialSensitivity = shouldComputeInitialSensitivity;
     }
 
     public StopCriterion getStopCriterion() {
@@ -56,17 +54,13 @@ public final class TreeParameters {
         return targetObjectiveValue;
     }
 
-    public boolean getShouldComputeInitialSensitivity() {
-        return shouldComputeInitialSensitivity;
-    }
-
-    public static TreeParameters buildForPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters, boolean shouldComputeInitialSensitivity) {
+    public static TreeParameters buildForPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters) {
         SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
         switch (parameters.getPreventiveRaoStopCriterion()) {
             case MIN_OBJECTIVE:
-                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0, shouldComputeInitialSensitivity);
+                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0);
             case SECURE:
-                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, shouldComputeInitialSensitivity);
+                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0);
             default:
                 throw new FaraoException("Unknown preventive RAO stop criterion: " + parameters.getPreventiveRaoStopCriterion());
         }
@@ -76,15 +70,15 @@ public final class TreeParameters {
         SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
         switch (parameters.getCurativeRaoStopCriterion()) {
             case MIN_OBJECTIVE:
-                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0, true);
+                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0);
             case SECURE:
-                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, true);
+                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0);
             case PREVENTIVE_OBJECTIVE:
                 return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                        preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement(), true);
+                        preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement());
             case PREVENTIVE_OBJECTIVE_AND_SECURE:
                 return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                        Math.min(preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement(), 0), true);
+                        Math.min(preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement(), 0));
             default:
                 throw new FaraoException("Unknown curative RAO stop criterion: " + parameters.getCurativeRaoStopCriterion());
         }

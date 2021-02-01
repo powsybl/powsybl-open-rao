@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
@@ -32,6 +33,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -68,7 +70,7 @@ public class IteratingLinearOptimizerTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = RaoData.createOnPreventiveState(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
         parameters = new IteratingLinearOptimizerParameters(10, 0);
 
         workingVariants = new ArrayList<>();
@@ -132,7 +134,7 @@ public class IteratingLinearOptimizerTest {
 
     @Test
     public void optimize() {
-        String preOptimVariant = raoData.getWorkingVariantId();
+        String preOptimVariant = raoData.getPreOptimVariantId();
 
         Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("OPTIMAL");
         Mockito.when(costEvaluator.getFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
@@ -153,13 +155,17 @@ public class IteratingLinearOptimizerTest {
         assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(preOptimVariant));
         assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(1)));
         assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(0)));
+
         assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
             .getVariant(preOptimVariant)
             .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
+        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+            .getVariant(preOptimVariant)
+            .getSetPoint("N-1 NL1-NL3-Défaut"), DOUBLE_TOLERANCE);
+
         assertEquals(3, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
             .getVariant(bestVariantId)
             .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
-
     }
 
     @Test
@@ -184,8 +190,12 @@ public class IteratingLinearOptimizerTest {
         // In the end CRAC should contain results only for pre-optim variant and post-optim variant
         assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(preOptimVariant));
         assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(0)));
+
         assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
             .getVariant(preOptimVariant)
             .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
+        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
+            .getVariant(preOptimVariant)
+            .getSetPoint("N-1 NL1-NL3-Défaut"), DOUBLE_TOLERANCE);
     }
 }

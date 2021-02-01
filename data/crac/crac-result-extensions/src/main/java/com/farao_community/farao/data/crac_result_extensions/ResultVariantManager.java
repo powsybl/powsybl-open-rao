@@ -74,11 +74,11 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         this.initialVariantId = initialVariantId;
     }
 
-    public String getPreOptimVariantId() {
+    public String getPrePerimeterVariantId() {
         return preOptimVariantId;
     }
 
-    public void setPreOptimVariantId(String preOptimVariantId) {
+    public void setPrePerimeterVariantId(String preOptimVariantId) {
         this.preOptimVariantId = preOptimVariantId;
     }
 

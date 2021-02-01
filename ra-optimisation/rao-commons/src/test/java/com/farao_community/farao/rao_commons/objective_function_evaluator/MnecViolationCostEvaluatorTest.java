@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.crac_util.CracCleaner;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -22,6 +23,8 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -96,13 +99,13 @@ public class MnecViolationCostEvaluatorTest {
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
 
-        raoData = RaoData.createOnPreventiveState(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
 
         CracCleaner cracCleaner = new CracCleaner();
         cracCleaner.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
 
-        raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, TEST_VARIANT);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, TEST_VARIANT, new RaoParameters());
         sensiResult = Mockito.mock(SystematicSensitivityResult.class);
         raoData.setSystematicSensitivityResult(sensiResult);
     }

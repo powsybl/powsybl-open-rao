@@ -65,7 +65,7 @@ public class SearchTree {
         this.treeParameters = treeParameters;
 
         LOGGER.info("Evaluate root leaf");
-        rootLeaf.evaluateRootLeaf(treeParameters.getShouldComputeInitialSensitivity());
+        rootLeaf.evaluate();
         SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
         LOGGER.debug("{}", rootLeaf);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -220,7 +220,7 @@ public class SearchTree {
 
     private RaoResult buildOutput() {
         RaoResult raoResult = new RaoResult(optimalLeaf.getStatus().equals(Leaf.Status.ERROR) ? RaoResult.Status.FAILURE : RaoResult.Status.SUCCESS);
-        raoResult.setPreOptimVariantId(rootLeaf.getInitialVariantId());
+        raoResult.setPreOptimVariantId(rootLeaf.getPreOptimVariantId());
         raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
         return raoResult;
     }
