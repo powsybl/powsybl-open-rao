@@ -57,7 +57,6 @@ public class TreeParametersTest {
         searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE);
         TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(searchTreeRaoParameters);
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
-        assertTrue(treeParameters.getShouldComputeInitialSensitivity());
         assertTrue(treeParameters.getMaxTopoPerTso().isEmpty());
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());
@@ -67,7 +66,6 @@ public class TreeParametersTest {
         treeParameters = TreeParameters.buildForPreventivePerimeter(searchTreeRaoParameters);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(0, treeParameters.getTargetObjectiveValue(), 1e-6);
-        assertFalse(treeParameters.getShouldComputeInitialSensitivity());
         assertTrue(treeParameters.getMaxTopoPerTso().isEmpty());
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());

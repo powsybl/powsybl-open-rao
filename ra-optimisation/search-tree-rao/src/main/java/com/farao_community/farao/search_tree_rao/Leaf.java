@@ -96,7 +96,12 @@ class Leaf {
     }
 
     /**
-     * Leaf constructorthis.iteratingLinearOptimizer = iteratingLinearOptimizer;
+     * Leaf constructor from a parent leaf
+     * @param parentLeaf: the parent leaf
+     * @param networkAction: the leaf's specific network action (to be added to the parent leaf's network actions)
+     * @param network: the Network object
+     * @param raoParameters: the RAO parameters
+     * @param treeParameters: the Tree parameters
      */
     Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters, TreeParameters treeParameters) {
         networkActions = new HashSet<>(parentLeaf.networkActions);

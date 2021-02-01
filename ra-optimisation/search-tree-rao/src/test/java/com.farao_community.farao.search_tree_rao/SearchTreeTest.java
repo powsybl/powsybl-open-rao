@@ -16,6 +16,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.CracResultManager;
+import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -104,17 +105,16 @@ public class SearchTreeTest {
 
         PowerMockito.mockStatic(SearchTreeRaoLogger.class);
 
-        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), true);
+        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         Leaf mockLeaf = Mockito.spy(new Leaf(raoData, raoParameters, treeParameters));
         PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(mockLeaf);
         when(mockLeaf.getBestCost()).thenReturn(0.);
         PowerMockito.doNothing().when(mockLeaf).evaluate();
 
-        InitialSensitivityAnalysis mockSensi = Mockito.spy(new InitialSensitivityAnalysis(raoData, raoParameters));
+        InitialSensitivityAnalysis mockSensi = Mockito.spy(new InitialSensitivityAnalysis(raoData));
         PowerMockito.whenNew(InitialSensitivityAnalysis.class).withAnyArguments().thenReturn(mockSensi);
         PowerMockito.doNothing().when(mockSensi).run();
 
-        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         RaoResult result = searchTree.run(raoData, raoParameters, treeParameters).join();
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());

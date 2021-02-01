@@ -95,6 +95,7 @@ public class LeafTest {
         raoParameters = new RaoParameters();
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
+        treeParameters = TreeParameters.buildForPreventivePerimeter(searchTreeRaoParameters);
 
         CracCleaner cracCleaner = new CracCleaner();
         cracCleaner.cleanCrac(crac, network);
@@ -176,8 +177,8 @@ public class LeafTest {
     public void testLeafDefinition() {
         crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.5);
         crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.4);
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
-        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
+        Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters);
         assertEquals(1, leaf.getNetworkActions().size());
         assertTrue(leaf.getNetworkActions().contains(na1));
         assertFalse(leaf.isRoot());
@@ -221,7 +222,7 @@ public class LeafTest {
         mockSensitivityComputation();
         mockRaoUtil();
 
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
@@ -233,7 +234,7 @@ public class LeafTest {
         mockSensitivityComputation();
         mockRaoUtil();
 
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
         double bestCost = rootLeaf.getBestCost();
 
@@ -253,7 +254,7 @@ public class LeafTest {
         Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(false);
         Mockito.doThrow(new SensitivityAnalysisException("mock")).when(systematicSensitivityInterface).run(any());
 
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
 
         assertEquals(Leaf.Status.ERROR, rootLeaf.getStatus());
@@ -277,7 +278,7 @@ public class LeafTest {
         cnec1result.setCommercialFlowInMW(10.0);
         cnec2result.setCommercialFlowInMW(-25.0);
 
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
@@ -296,7 +297,7 @@ public class LeafTest {
     @Test
     public void testOptimizeWithoutRangeActions() {
         mockRaoUtil();
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
         rootLeaf.optimize();
         assertEquals(rootLeaf.getPreOptimVariantId(), rootLeaf.getBestVariantId());
@@ -324,7 +325,7 @@ public class LeafTest {
 
     @Test
     public void testClearAllVariantsExceptInitialOne() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         String initialVariantId = rootLeaf.getPreOptimVariantId();
         rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();
         rootLeaf.getRaoData().getCracVariantManager().cloneWorkingVariant();
@@ -369,7 +370,7 @@ public class LeafTest {
         String mockPostCurativeVariantId = curativeRaoData.getCracVariantManager().cloneWorkingVariant();
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenAnswer(invocationOnMock -> mockPostCurativeVariantId);
 
-        Leaf rootLeaf = new Leaf(curativeRaoData, raoParameters);
+        Leaf rootLeaf = new Leaf(curativeRaoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
         rootLeaf.optimize();
         curativeRaoData.getCracVariantManager().setWorkingVariant(mockPostCurativeVariantId);

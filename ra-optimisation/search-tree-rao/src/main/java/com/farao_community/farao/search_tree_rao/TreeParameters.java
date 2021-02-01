@@ -56,7 +56,7 @@ public final class TreeParameters {
     }
 
     private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue) {
-        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, shouldComputeInitialSensitivity, new HashMap<>(), new HashMap<>(), new HashMap<>());
+        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, new HashMap<>(), new HashMap<>(), new HashMap<>());
     }
 
     public StopCriterion getStopCriterion() {
