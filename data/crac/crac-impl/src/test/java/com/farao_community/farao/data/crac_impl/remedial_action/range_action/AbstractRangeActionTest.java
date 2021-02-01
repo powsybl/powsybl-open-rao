@@ -1,11 +1,12 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
-import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
+import com.farao_community.farao.data.crac_impl.range_domain.RangeImpl;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -21,7 +22,7 @@ import static org.junit.Assert.*;
 abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest {
 
     protected List<Range> createRanges() {
-        Range range = Mockito.mock(Range.class);
+        RangeImpl range = Mockito.mock(RangeImpl.class);
         List<Range> ranges = new ArrayList<>();
         ranges.add(range);
         return ranges;
@@ -31,8 +32,8 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
     public void getMinAndMaxValueWithMultipleRanges() {
         HvdcRange mockedHvdcRange = Mockito.mock(HvdcRange.class);
 
-        Range range1 = Mockito.mock(Range.class);
-        Range range2 = Mockito.mock(Range.class);
+        Range range1 = Mockito.mock(RangeImpl.class);
+        Range range2 = Mockito.mock(RangeImpl.class);
         mockedHvdcRange.addRange(range1);
         mockedHvdcRange.addRange(range2);
 

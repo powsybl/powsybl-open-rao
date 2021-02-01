@@ -10,6 +10,7 @@
 package com.farao_community.farao.data.crac_impl.range_domain;
 
 import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class RangeTest extends AbstractRemedialActionTest {
+public class RangeImplTest extends AbstractRemedialActionTest {
 
     private final double relMin = -4;
     private final double relMax = 4;

@@ -9,20 +9,22 @@
 
 package com.farao_community.farao.data.crac_impl.range_domain;
 
+import com.farao_community.farao.data.crac_api.Range;
+import com.farao_community.farao.data.crac_api.RangeType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class Range {
+public class RangeImpl implements Range {
 
     private RangeType rangeType;
     private double min;
     private double max;
 
     @JsonCreator
-    public Range(@JsonProperty("min") double min,
+    public RangeImpl(@JsonProperty("min") double min,
                     @JsonProperty("max") double max,
                     @JsonProperty("rangeType") RangeType rangeType) {
         this.min = min;
@@ -51,9 +53,9 @@ public class Range {
             return false;
         }
         Range otherRange = (Range) o;
-        return rangeType.equals(otherRange.rangeType)
-                && min == otherRange.min
-                && max == otherRange.max;
+        return rangeType.equals(otherRange.getRangeType())
+                && min == otherRange.getMin()
+                && max == otherRange.getMax();
     }
 
     @Override

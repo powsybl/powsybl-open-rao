@@ -7,7 +7,7 @@
  *
  */
 
-package com.farao_community.farao.data.crac_impl.range_domain;
+package com.farao_community.farao.data.crac_api;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
