@@ -295,16 +295,6 @@ class Leaf {
     }
 
     /**
-     * This method applies on the rao data network the optimized positions of range actions. It is a delegate method
-     * to avoid calling directly rao data as a leaf user.
-     */
-    void applyRangeActionResultsOnNetwork() {
-        //TODO : remove not used
-        getRaoData().getCracVariantManager().setWorkingVariant(getBestVariantId());
-        getRaoData().getCracResultManager().applyRangeActionResultsOnNetwork();
-    }
-
-    /**
      * This method activates network actions related to this leaf in the CRAC results. This action has to be done
      * every time a new variant is created inside this leaf to ensure results consistency.
      *
