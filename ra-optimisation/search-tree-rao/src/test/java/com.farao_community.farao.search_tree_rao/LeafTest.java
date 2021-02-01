@@ -7,10 +7,12 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
@@ -18,6 +20,8 @@ import com.farao_community.farao.data.crac_impl.remedial_action.range_action.Pst
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -38,12 +42,14 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -64,6 +70,7 @@ public class LeafTest {
     private RaoData raoDataMock;
     private RaoParameters raoParameters;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
+    ObjectiveFunctionEvaluator costEvaluatorMock;
 
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private SystematicSensitivityResult systematicSensitivityResult;
@@ -83,13 +90,18 @@ public class LeafTest {
         crac.addNetworkAction(na1);
         crac.addNetworkAction(na2);
 
+        // rao parameters
+        raoParameters = new RaoParameters();
+        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
+        raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
+
         CracCleaner cracCleaner = new CracCleaner();
         cracCleaner.cleanCrac(crac, network);
         RaoInputHelper.synchronize(crac, network);
-        raoData = Mockito.spy(RaoData.createOnPreventiveState(network, crac));
+        raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(),
+                Collections.singleton(crac.getPreventiveState()), null, null, null, raoParameters));
         CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());
         Mockito.when(raoData.getCracResultManager()).thenReturn(spiedCracResultManager);
-        Mockito.doNothing().when(spiedCracResultManager).fillCracResultWithCosts(anyDouble(), anyDouble());
         Mockito.doNothing().when(spiedCracResultManager).fillCnecResultWithFlows();
 
         raoDataMock = Mockito.mock(RaoData.class);
@@ -113,11 +125,6 @@ public class LeafTest {
             e.printStackTrace();
         }
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-
-        // rao parameters
-        raoParameters = new RaoParameters();
-        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
-        raoParameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
     }
 
     private void mockRaoUtil() {
@@ -128,9 +135,19 @@ public class LeafTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        ObjectiveFunctionEvaluator costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
-        Mockito.when(costEvaluator.getCost(raoData)).thenAnswer(invocationOnMock -> 0.);
-        Mockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenAnswer(invocationOnMock -> costEvaluator);
+        costEvaluatorMock = Mockito.mock(ObjectiveFunctionEvaluator.class);
+        Mockito.when(costEvaluatorMock.getCost(raoData)).thenAnswer(invocationOnMock -> 0.);
+        Mockito.when(costEvaluatorMock.getFunctionalCost(raoData)).thenAnswer(invocationOnMock -> 0.);
+        Mockito.when(costEvaluatorMock.getVirtualCost(raoData)).thenAnswer(invocationOnMock -> 0.);
+        Mockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenAnswer(invocationOnMock -> costEvaluatorMock);
+    }
+
+    private void mockSensitivityComputation() {
+        Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(true);
+        Mockito.doAnswer(invocationOnMock -> {
+            raoData.setSystematicSensitivityResult(systematicSensitivityResult);
+            return systematicSensitivityResult;
+        }).when(systematicSensitivityInterface).run(any());
     }
 
     @Test
@@ -200,12 +217,7 @@ public class LeafTest {
 
     @Test
     public void testEvaluateOk() {
-        Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(true);
-        Mockito.doAnswer(invocationOnMock -> {
-            raoData.setSystematicSensitivityResult(systematicSensitivityResult);
-            return systematicSensitivityResult;
-        }).when(systematicSensitivityInterface).run(any());
-
+        mockSensitivityComputation();
         mockRaoUtil();
 
         Leaf rootLeaf = new Leaf(raoData, raoParameters);
@@ -213,6 +225,26 @@ public class LeafTest {
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
+    }
+
+    @Test
+    public void testReevaluate() {
+        mockSensitivityComputation();
+        mockRaoUtil();
+
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        rootLeaf.evaluate();
+        double bestCost = rootLeaf.getBestCost();
+
+        rootLeaf.evaluate();
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertEquals(bestCost, rootLeaf.getBestCost(), DOUBLE_TOLERANCE);
+
+        Mockito.when(costEvaluatorMock.getFunctionalCost(raoData)).thenAnswer(invocationOnMock -> 10.);
+        Mockito.when(costEvaluatorMock.getVirtualCost(raoData)).thenAnswer(invocationOnMock -> 2.);
+        rootLeaf.evaluate();
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertEquals(12, rootLeaf.getBestCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -225,6 +257,32 @@ public class LeafTest {
 
         assertEquals(Leaf.Status.ERROR, rootLeaf.getStatus());
         assertFalse(rootLeaf.getRaoData().hasSensitivityValues());
+    }
+
+    @Test
+    public void testEvaluateWithLoopflows() {
+        mockSensitivityComputation();
+
+        raoParameters.setRaoWithLoopFlowLimitation(true);
+        for (BranchCnec cnec : crac.getBranchCnecs(crac.getPreventiveState())) {
+            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100, Unit.PERCENT_IMAX);
+            cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        }
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, raoParameters);
+
+        mockRaoUtil();
+        CnecResult cnec1result = crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
+        CnecResult cnec2result = crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
+        cnec1result.setCommercialFlowInMW(10.0);
+        cnec2result.setCommercialFlowInMW(-25.0);
+
+        Leaf rootLeaf = new Leaf(raoData, raoParameters);
+        rootLeaf.evaluate();
+
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
+        assertEquals(-10, cnec1result.getLoopflowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(25, cnec2result.getLoopflowInMW(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -294,5 +352,29 @@ public class LeafTest {
         PowerMockito.when(RaoUtil.getNetworkActionLocation(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> List.of(Optional.of(Country.FR), Optional.empty()));
         raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(0);
         assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT))));
+    }
+
+    @Test
+    public void testClearAllVariantsExceptOptimizedOne() {
+        mockSensitivityComputation();
+        mockRaoUtil();
+
+        crac = CommonCracCreation.createWithPstRange();
+        crac.synchronize(network);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, raoParameters);
+
+        String mockPostPreventiveVariantId = raoData.getCracVariantManager().cloneWorkingVariant();
+        RaoData curativeRaoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, mockPostPreventiveVariantId, raoParameters);
+        String mockPostCurativeVariantId = curativeRaoData.getCracVariantManager().cloneWorkingVariant();
+        Mockito.when(iteratingLinearOptimizer.optimize(any())).thenAnswer(invocationOnMock -> mockPostCurativeVariantId);
+
+        Leaf rootLeaf = new Leaf(curativeRaoData, raoParameters);
+        rootLeaf.evaluate();
+        rootLeaf.optimize();
+        curativeRaoData.getCracVariantManager().setWorkingVariant(mockPostCurativeVariantId);
+
+        rootLeaf.clearAllVariantsExceptOptimizedOne();
+        assertEquals(1, curativeRaoData.getCracVariantManager().getVariantIds().size());
+        assertEquals(mockPostCurativeVariantId, curativeRaoData.getCracVariantManager().getVariantIds().get(0));
     }
 }

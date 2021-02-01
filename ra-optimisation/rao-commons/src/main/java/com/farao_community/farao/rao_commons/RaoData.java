@@ -91,22 +91,6 @@ public final class RaoData {
         }
     }
 
-    public static RaoData createOnPreventiveState(Network network, Crac crac) {
-        return createOnPreventiveStateBasedOnExistingVariant(network, crac, null);
-    }
-
-    public static RaoData createOnPreventiveStateBasedOnExistingVariant(Network network, Crac crac, String cracVariantId) {
-        return new RaoData(
-                network,
-                crac,
-                crac.getPreventiveState(),
-                Collections.singleton(crac.getPreventiveState()),
-                null,
-                null,
-                cracVariantId,
-                new RaoParameters());
-    }
-
     public static RaoData create(Network network, RaoData raoData) {
         return new RaoData(
                 network,

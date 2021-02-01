@@ -93,7 +93,7 @@ public class MinMarginEvaluator implements CostEvaluator {
         return marginsInAmpere.stream().min(Double::compareTo).orElseThrow(NoSuchElementException::new);
     }
 
-    private List<Double> getMarginsInAmpereFromMegawattConversion(RaoData raoData) {
+    List<Double> getMarginsInAmpereFromMegawattConversion(RaoData raoData) {
         String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         return raoData.getCnecs().stream().filter(BranchCnec::isOptimized).map(cnec -> {
                 double leftFlowInMW = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec);

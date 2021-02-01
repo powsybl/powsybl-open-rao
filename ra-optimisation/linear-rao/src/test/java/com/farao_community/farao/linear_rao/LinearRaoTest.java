@@ -29,6 +29,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -60,7 +62,7 @@ public class LinearRaoTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = Mockito.spy(RaoData.createOnPreventiveState(network, crac));
+        raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters()));
         CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());
         Mockito.when(raoData.getCracResultManager()).thenReturn(spiedCracResultManager);
         Mockito.doNothing().when(spiedCracResultManager).fillCnecResultWithFlows();

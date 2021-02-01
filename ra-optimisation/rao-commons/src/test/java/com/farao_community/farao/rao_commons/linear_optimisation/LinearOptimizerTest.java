@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.CracResultManager;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -33,6 +34,8 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -73,7 +76,7 @@ public class LinearOptimizerTest {
         crac = CommonCracCreation.create();
         crac.synchronize(network);
 
-        raoData = RaoData.createOnPreventiveState(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
         raoData = Mockito.spy(raoData);
         cracResultManager = raoData.getCracResultManager();
 
@@ -152,7 +155,7 @@ public class LinearOptimizerTest {
         crac = CommonCracCreation.create();
         crac.addRangeAction(rangeAction);
         crac.synchronize(network);
-        raoData = RaoData.createOnPreventiveState(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
         cracResultManager = raoData.getCracResultManager();
         Mockito.when(linearProblemMock.getRangeActionSetPointVariable(rangeAction)).thenReturn(rangeActionSetPoint);
         Mockito.when(linearProblemMock.getAbsoluteRangeActionVariationVariable(rangeAction)).thenReturn(rangeActionAbsoluteVariation);
