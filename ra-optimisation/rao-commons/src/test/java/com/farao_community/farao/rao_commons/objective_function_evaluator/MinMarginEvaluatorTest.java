@@ -14,6 +14,8 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -21,6 +23,9 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,13 +40,16 @@ public class MinMarginEvaluatorTest {
     private RaoData raoData;
     private SystematicSensitivityResult systematicSensitivityResult;
     private Network network;
+    private String initialVariant;
 
     @Before
     public void setUp() {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = RaoData.createOnPreventiveState(network, crac);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
+        initialVariant = raoData.getPreOptimVariantId();
+        crac.getExtension(ResultVariantManager.class).setInitialVariantId(initialVariant);
 
         setPtdfSum("cnec1basecase", 0.5);
         setPtdfSum("cnec1stateCurativeContingency1", 0.95);
@@ -67,7 +75,7 @@ public class MinMarginEvaluatorTest {
     }
 
     private void setPtdfSum(String cnecId, double ptdfSum) {
-        crac.getBranchCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(ptdfSum);
+        crac.getBranchCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(initialVariant).setAbsolutePtdfSum(ptdfSum);
     }
 
     @Test
@@ -145,5 +153,13 @@ public class MinMarginEvaluatorTest {
     @Test(expected = FaraoException.class)
     public void testRequirePtdfSumLb() {
         new MinMarginEvaluator(Unit.MEGAWATT, true);
+    }
+
+    @Test
+    public void testMarginsInAmpereFromMegawattConversion() {
+        List<Double> margins = new MinMarginEvaluator(Unit.MEGAWATT, true, 0.001).getMarginsInAmpereFromMegawattConversion(raoData);
+        assertEquals(2, margins.size());
+        assertEquals(2990, margins.get(0), DOUBLE_TOLERANCE);
+        assertEquals(4254, margins.get(1), DOUBLE_TOLERANCE);
     }
 }
