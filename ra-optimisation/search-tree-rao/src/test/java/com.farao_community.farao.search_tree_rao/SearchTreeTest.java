@@ -16,7 +16,6 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.farao_community.farao.rao_commons.CracResultManager;
-import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -68,7 +67,7 @@ public class SearchTreeTest {
         Crac crac = CracImporters.importCrac("small-crac-with-network-actions.json", getClass().getResourceAsStream("/small-crac-with-network-actions.json"));
         RaoUtil.initCrac(crac, network);
 
-        raoData = Mockito.spy(RaoData.createOnPreventiveState(network, crac));
+        raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters()));
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParameters.json"));
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
@@ -91,6 +90,7 @@ public class SearchTreeTest {
 
         CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());
         Mockito.when(raoData.getCracResultManager()).thenReturn(spiedCracResultManager);
+        Mockito.when(raoData.getSystematicSensitivityResult()).thenReturn(Mockito.mock(SystematicSensitivityResult.class));
         Mockito.doNothing().when(spiedCracResultManager).fillCracResultWithCosts(anyDouble(), anyDouble());
         Mockito.doNothing().when(spiedCracResultManager).fillCnecResultWithFlows();
 
@@ -114,6 +114,7 @@ public class SearchTreeTest {
         PowerMockito.whenNew(InitialSensitivityAnalysis.class).withAnyArguments().thenReturn(mockSensi);
         PowerMockito.doNothing().when(mockSensi).run();
 
+        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         RaoResult result = searchTree.run(raoData, raoParameters, treeParameters).join();
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());

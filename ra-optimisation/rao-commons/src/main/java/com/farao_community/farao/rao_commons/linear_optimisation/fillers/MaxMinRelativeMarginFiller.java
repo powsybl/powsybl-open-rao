@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -70,12 +71,15 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
      * Define the minimum relative margin (like absolute margin but by dividing by sum of PTDFs)
      */
     private void buildMinimumRelativeMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
+
+        String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
+
         MPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
         if (minRelMarginVariable == null) {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
         raoData.getCnecs().stream().filter(BranchCnec::isOptimized).forEach(cnec -> {
-            double marginCoef = 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).getAbsolutePtdfSum(), ptdfSumLowerBound);
+            double marginCoef = 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getAbsolutePtdfSum(), ptdfSumLowerBound);
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {

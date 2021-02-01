@@ -22,6 +22,7 @@ import java.util.Objects;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class TreeParameters {
+
     public enum StopCriterion {
         MIN_OBJECTIVE,
         AT_TARGET_OBJECTIVE_VALUE
@@ -38,12 +39,10 @@ public final class TreeParameters {
     private Map<String, Integer> maxPstPerTso;
     private Map<String, Integer> maxRaPerTso;
 
-    private boolean shouldComputeInitialSensitivity;
-
     private TreeParameters() {
     }
 
-    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, boolean shouldComputeInitialSensitivity,
+    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue,
                            Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso) {
         this.maximumSearchDepth = searchTreeRaoParameters.getMaximumSearchDepth();
         this.relativeNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold();
@@ -51,13 +50,12 @@ public final class TreeParameters {
         this.leavesInParallel = searchTreeRaoParameters.getLeavesInParallel();
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
-        this.shouldComputeInitialSensitivity = shouldComputeInitialSensitivity;
         this.maxTopoPerTso = maxTopoPerTso;
         this.maxPstPerTso = maxPstPerTso;
         this.maxRaPerTso = maxRaPerTso;
     }
 
-    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, boolean shouldComputeInitialSensitivity) {
+    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue) {
         this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, shouldComputeInitialSensitivity, new HashMap<>(), new HashMap<>(), new HashMap<>());
     }
 
@@ -69,17 +67,13 @@ public final class TreeParameters {
         return targetObjectiveValue;
     }
 
-    public boolean getShouldComputeInitialSensitivity() {
-        return shouldComputeInitialSensitivity;
-    }
-
-    public static TreeParameters buildForPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters, boolean shouldComputeInitialSensitivity) {
+    public static TreeParameters buildForPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters) {
         SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
         switch (parameters.getPreventiveRaoStopCriterion()) {
             case MIN_OBJECTIVE:
-                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0, shouldComputeInitialSensitivity);
+                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0);
             case SECURE:
-                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, shouldComputeInitialSensitivity);
+                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0);
             default:
                 throw new FaraoException("Unknown preventive RAO stop criterion: " + parameters.getPreventiveRaoStopCriterion());
         }
@@ -109,7 +103,7 @@ public final class TreeParameters {
             default:
                 throw new FaraoException("Unknown curative RAO stop criterion: " + parameters.getCurativeRaoStopCriterion());
         }
-        return new TreeParameters(parameters, stopCriterion, targetObjectiveValue, true,
+        return new TreeParameters(parameters, stopCriterion, targetObjectiveValue,
                 parameters.getMaxCurativeTopoPerTso(), parameters.getMaxCurativePstPerTso(), parameters.getMaxCurativeRaPerTso());
     }
 
