@@ -7,16 +7,12 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.PstRangeResult;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.rao_commons.RaoUtil;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -63,14 +59,14 @@ final class SearchTreeRaoLogger {
     static void logMostLimitingElementsResults(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
         List<BranchCnec> sortedCnecs = cnecs.stream().
                 filter(Cnec::isOptimized).
-                sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
+                sorted(Comparator.comparingDouble(cnec -> RaoUtil.computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
                 collect(Collectors.toList());
 
         for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
             BranchCnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
-            double cnecMargin = computeCnecMargin(cnec, variantId, unit, relativePositiveMargins);
+            double cnecMargin = RaoUtil.computeCnecMargin(cnec, variantId, unit, relativePositiveMargins);
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format("(PTDF %f)", cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum()) : "";
@@ -82,18 +78,6 @@ final class SearchTreeRaoLogger {
                     margin,
                     unit,
                     ptdfIfRelative);
-        }
-    }
-
-    private static double computeCnecMargin(BranchCnec cnec, String variantId, Unit unit, boolean relativePositiveMargins) {
-        CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
-        unit.checkPhysicalParameter(PhysicalParameter.FLOW);
-        double actualValue = unit.equals(Unit.MEGAWATT) ? cnecResult.getFlowInMW() : cnecResult.getFlowInA();
-        double absoluteMargin = cnec.computeMargin(actualValue, Side.LEFT, unit);
-        if (relativePositiveMargins && (absoluteMargin > 0)) {
-            return absoluteMargin / cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum();
-        } else {
-            return absoluteMargin;
         }
     }
 }
