@@ -49,8 +49,8 @@ public class HvdcRangeTest extends AbstractRangeActionTest {
     public void getMinAndMaxValueWithSingleRange() {
         Network mockedNetwork = Mockito.mock(Network.class);
         Range anyRange = Mockito.mock(Range.class);
-        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMaxValueWithRange(mockedNetwork, anyRange), 0);
-        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMinValueWithRange(mockedNetwork, anyRange), 0);
+        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMaxValueWithRange(mockedNetwork, anyRange, 5), 0);
+        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMinValueWithRange(mockedNetwork, anyRange, 5), 0);
     }
 
     @Test(expected = UnsupportedOperationException.class)

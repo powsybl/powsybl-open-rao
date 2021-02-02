@@ -25,9 +25,9 @@ import java.util.Optional;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface RangeAction extends RemedialAction<RangeAction>, Synchronizable {
 
-    double getMinValue(Network network);
+    double getMinValue(Network network, double prePerimeterValue);
 
-    double getMaxValue(Network network);
+    double getMaxValue(Network network, double prePerimeterValue);
 
     double getCurrentValue(Network network);
 

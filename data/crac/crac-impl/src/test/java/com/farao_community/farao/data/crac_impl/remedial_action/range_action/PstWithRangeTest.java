@@ -110,16 +110,16 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
     public void pstWithoutSpecificRange() {
         PstWithRange pstRangeWithoutSpecificRange = new PstWithRange("id", networkElement);
         pstRangeWithoutSpecificRange.synchronize(network);
-        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition()).getAlpha(), pstRangeWithoutSpecificRange.getMinValue(network), 0);
-        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getHighTapPosition()).getAlpha(), pstRangeWithoutSpecificRange.getMaxValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition()).getAlpha(), pstRangeWithoutSpecificRange.getMinValue(network, pstRangeWithoutSpecificRange.getCurrentValue(network)), 0);
+        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getHighTapPosition()).getAlpha(), pstRangeWithoutSpecificRange.getMaxValue(network, pstRangeWithoutSpecificRange.getCurrentValue(network)), 0);
     }
 
     @Test
     public void pstWithAbsoluteStartOneRange() {
         pst.addRange(new PstRange(3, 13, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE));
         pst.synchronize(network);
-        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 2).getAlpha(), pst.getMinValue(network), 0);
-        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 12).getAlpha(), pst.getMaxValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 2).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
+        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 12).getAlpha(), pst.getMaxValue(network, pst.getCurrentValue(network)), 0);
     }
 
     @Test
@@ -127,8 +127,8 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
         pst.addRange(new PstRange(-3, 3, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         int neutralTap = (phaseTapChanger.getHighTapPosition() + phaseTapChanger.getLowTapPosition()) / 2;
-        assertEquals(phaseTapChanger.getStep(neutralTap - 3).getAlpha(), pst.getMinValue(network), 0);
-        assertEquals(phaseTapChanger.getStep(neutralTap + 3).getAlpha(), pst.getMaxValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(neutralTap - 3).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
+        assertEquals(phaseTapChanger.getStep(neutralTap + 3).getAlpha(), pst.getMaxValue(network, pst.getCurrentValue(network)), 0);
     }
 
     @Test
@@ -136,13 +136,13 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
         pst.addRange(new PstRange(-3, 3, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         int initialTapPosition = phaseTapChanger.getTapPosition();
-        assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
-        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network, pst.getCurrentValue(network)), 0);
 
         int newTapPosition = initialTapPosition + 5;
         phaseTapChanger.setTapPosition(newTapPosition);
-        assertEquals(phaseTapChanger.getStep(newTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
-        assertEquals(phaseTapChanger.getStep(newTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(newTapPosition - 3).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
+        assertEquals(phaseTapChanger.getStep(newTapPosition + 3).getAlpha(), pst.getMaxValue(network, pst.getCurrentValue(network)), 0);
     }
 
     @Test
@@ -150,13 +150,13 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
         pst.addRange(new PstRange(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         int initialTapPosition = phaseTapChanger.getTapPosition();
-        assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
-        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network, pst.getCurrentValue(network)), 0);
 
         int newTapPosition = initialTapPosition + 5;
         phaseTapChanger.setTapPosition(newTapPosition);
-        assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network), 0);
-        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network, pst.getCurrentValue(network)), 0);
     }
 
     @Test
@@ -164,14 +164,14 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
         pst.addRange(new PstRange(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         int initialTapPosition = phaseTapChanger.getTapPosition();
-        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network), 0);
+        assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network, pst.getCurrentValue(network)), 0);
         pst.desynchronize();
 
         try {
-            pst.getMaxValue(network);
+            pst.getMaxValue(network, pst.getCurrentValue(network));
             fail();
         } catch (FaraoException e) {
-            assertEquals("PST pst_range_id have not been synchronized so its max value cannot be accessed", e.getMessage());
+            assertEquals("PST pst_range_id have not been synchronized so tap cannot be converted to angle", e.getMessage());
         }
     }
 
@@ -244,10 +244,10 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
     @Test
     public void getMinValueWithNoSynchronizationFails() {
         try {
-            pst.getMinValue(network);
+            pst.getMinValue(network, pst.getCurrentValue(network));
             fail();
         } catch (FaraoException e) {
-            assertEquals("PST pst_range_id have not been synchronized so its min value cannot be accessed", e.getMessage());
+            assertEquals("PST pst_range_id have not been synchronized so tap cannot be converted to angle", e.getMessage());
         }
     }
 
@@ -267,7 +267,7 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
         pst.addRange(new PstRange(-10.0, 10.0, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         assertTrue("Failed to compute min and max tap values for PST with negative deltaU",
-                pst.getMinValue(network) <= pst.getMaxValue(network));
+                pst.getMinValue(network, pst.getCurrentValue(network)) <= pst.getMaxValue(network, pst.getCurrentValue(network)));
 
         // Then load a new case with a positive delta U and test min and max values
         Network network2 = Importers.loadNetwork("utils/TestCase12NodesWithPositiveDeltaUPST.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12NodesWithPositiveDeltaUPST.uct"));
@@ -277,6 +277,6 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
         pst2.addRange(new PstRange(-10.0, 10.0, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
         pst2.synchronize(network2);
         assertTrue("Failed to compute min and max tap values for PST with positive deltaU",
-                pst2.getMinValue(network) <= pst2.getMaxValue(network));
+                pst2.getMinValue(network, pst2.getCurrentValue(network2)) <= pst2.getMaxValue(network, pst2.getCurrentValue(network2)));
     }
 }

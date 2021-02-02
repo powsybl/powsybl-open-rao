@@ -44,7 +44,9 @@ public class CoreProblemFiller implements ProblemFiller {
         // add variables
         buildFlowVariables(raoData, linearProblem);
         raoData.getAvailableRangeActions().forEach(rangeAction -> {
-            buildRangeActionSetPointVariables(raoData.getNetwork(), rangeAction, linearProblem);
+            String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
+            double prePerimeterValue = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(prePerimeterVariantId).getSetPoint(raoData.getOptimizedState().getId());
+            buildRangeActionSetPointVariables(raoData.getNetwork(), rangeAction, prePerimeterValue, linearProblem);
             buildRangeActionAbsoluteVariationVariables(rangeAction, linearProblem);
             buildRangeActionGroupConstraint(rangeAction, linearProblem);
         });
@@ -83,9 +85,9 @@ public class CoreProblemFiller implements ProblemFiller {
      * initialSetPoint[r] - maxNegativeVariation[r] <= S[r]
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
-    private void buildRangeActionSetPointVariables(Network network, RangeAction rangeAction, LinearProblem linearProblem) {
-        double minSetPoint = rangeAction.getMinValue(network);
-        double maxSetPoint = rangeAction.getMaxValue(network);
+    private void buildRangeActionSetPointVariables(Network network, RangeAction rangeAction, double prePerimeterValue, LinearProblem linearProblem) {
+        double minSetPoint = rangeAction.getMinValue(network, prePerimeterValue);
+        double maxSetPoint = rangeAction.getMaxValue(network, prePerimeterValue);
         linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
     }
 

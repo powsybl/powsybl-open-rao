@@ -38,13 +38,14 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
         mockedHvdcRange.addRange(range2);
 
         Network mockedNetwork = Mockito.mock(Network.class);
+        double randomPrePerimeterValue = 5;
 
         double expectedMinRange1 = -5;
-        Mockito.when(mockedHvdcRange.getMinValueWithRange(mockedNetwork, range1)).thenReturn(expectedMinRange1);
-        assertEquals(mockedHvdcRange.getMinValueWithRange(mockedNetwork, range1), expectedMinRange1, 0);
+        Mockito.when(mockedHvdcRange.getMinValueWithRange(mockedNetwork, range1, randomPrePerimeterValue)).thenReturn(expectedMinRange1);
+        assertEquals(mockedHvdcRange.getMinValueWithRange(mockedNetwork, range1, randomPrePerimeterValue), expectedMinRange1, 0);
 
         double expectedMinRange2 = -10;
-        Mockito.when(mockedHvdcRange.getMinValueWithRange(mockedNetwork, range2)).thenReturn(expectedMinRange2);
+        Mockito.when(mockedHvdcRange.getMinValueWithRange(mockedNetwork, range2, randomPrePerimeterValue)).thenReturn(expectedMinRange2);
 
         // doesnt work for the moment!!! don't know how to test it...
         // assertEquals(Math.max(expectedMinRange1, expectedMinRange2), mockedHvdcRange.getMinValue(mockedNetwork), 0);

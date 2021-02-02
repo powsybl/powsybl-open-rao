@@ -59,8 +59,8 @@ public class RedispatchingTest extends AbstractRangeActionTest {
     public void getMinAndMaxValueWithRange() {
         Range mockedRange = Mockito.mock(Range.class);
         Network mockedNetwork = Mockito.mock(Network.class);
-        assertEquals(0, redispatching.getMinValueWithRange(mockedNetwork, mockedRange), 0);
-        assertEquals(0, redispatching.getMaxValueWithRange(mockedNetwork, mockedRange), 0);
+        assertEquals(0, redispatching.getMinValueWithRange(mockedNetwork, mockedRange, 5), 0);
+        assertEquals(0, redispatching.getMaxValueWithRange(mockedNetwork, mockedRange, 5), 0);
     }
 
     @Test

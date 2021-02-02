@@ -109,13 +109,13 @@ public final class Redispatching extends AbstractRangeAction {
     }
 
     @Override
-    protected double getMinValueWithRange(Network network, Range range) {
+    protected double getMinValueWithRange(Network network, Range range, double prePerimeterValue) {
         // to implement - specific to Redispatching
         return 0;
     }
 
     @Override
-    public double getMaxValueWithRange(Network network, Range range) {
+    public double getMaxValueWithRange(Network network, Range range, double prePerimeterValue) {
         // to implement - specific to Redispatching
         return 0;
     }

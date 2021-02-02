@@ -144,18 +144,22 @@ public class CracCleaner {
         report.forEach(LOGGER::warn);
 
         // remove PstRanges with a RELATIVE_TO_PREVIOUS_INSTANT for preventive PST RAs
-        crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(ra -> {
+        List<RangeAction> removedRangeActions = new ArrayList<>();
+        crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(ra -> ra.getUsageRules().size() == 1).forEach(ra -> {
+            List<Range> removedRanges = new ArrayList<>();
             ra.getRanges().forEach(range -> {
                 if (range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_INSTANT) {
                     report.add(String.format("[REMOVED] Range Action %s is a preventive range action with a range relative to previous instant. That range has been removed.", ra.getId()));
-                    ra.removeRange(range);
+                    removedRanges.add(range);
                 }
             });
+            removedRanges.forEach(range -> ra.removeRange(range));
             if (ra.getRanges().isEmpty()) {
                 report.add(String.format("[REMOVED] Range Action %s has no ranges. It has been removed from the Crac.", ra.getId()));
-                crac.removeRangeAction(ra.getId());
+                removedRangeActions.add(ra);
             }
         });
+        removedRangeActions.forEach(ra -> crac.removeRangeAction(ra.getId()));
 
         return report;
     }

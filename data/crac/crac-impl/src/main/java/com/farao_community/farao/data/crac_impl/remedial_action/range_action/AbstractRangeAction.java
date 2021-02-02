@@ -63,24 +63,24 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
         throw new UnsupportedOperationException();
     }
 
-    protected abstract double getMinValueWithRange(Network network, Range range);
+    protected abstract double getMinValueWithRange(Network network, Range range, double prePerimeterValue);
 
     @Override
-    public double getMinValue(Network network) {
+    public double getMinValue(Network network, double prePerimeterValue) {
         double minValue = Double.NEGATIVE_INFINITY;
         for (Range range: ranges) {
-            minValue = Math.max(getMinValueWithRange(network, range), minValue);
+            minValue = Math.max(getMinValueWithRange(network, range, prePerimeterValue), minValue);
         }
         return minValue;
     }
 
-    protected abstract double getMaxValueWithRange(Network network, Range range);
+    protected abstract double getMaxValueWithRange(Network network, Range range, double prePerimeterValue);
 
     @Override
-    public double getMaxValue(Network network) {
+    public double getMaxValue(Network network, double prePerimeterValue) {
         double maxValue = Double.POSITIVE_INFINITY;
         for (Range range: ranges) {
-            maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
+            maxValue = Math.min(getMaxValueWithRange(network, range, prePerimeterValue), maxValue);
         }
         return maxValue;
     }

@@ -40,13 +40,13 @@ public final class HvdcRange extends AbstractRangeAction {
     }
 
     @Override
-    protected double getMinValueWithRange(Network network, Range range) {
+    protected double getMinValueWithRange(Network network, Range range, double prePerimeterValue) {
         // to implement - specific to HvdcRange
         return hvdcRangeTempValue;
     }
 
     @Override
-    public double getMaxValueWithRange(Network network, Range range) {
+    public double getMaxValueWithRange(Network network, Range range, double prePerimeterValue) {
         // to implement - specific to HvdcRange
         return hvdcRangeTempValue;
     }
