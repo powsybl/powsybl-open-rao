@@ -66,6 +66,7 @@ public class SearchTree {
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
+        SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
         LOGGER.debug("{}", rootLeaf);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
@@ -85,6 +86,7 @@ public class SearchTree {
         iterateOnTree();
 
         //TODO: refactor output format
+        LOGGER.info("Search-tree RAO completed with status {}", optimalLeaf.getStatus());
         SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
         return CompletableFuture.completedFuture(buildOutput());
     }
@@ -103,9 +105,12 @@ public class SearchTree {
                 } else {
                     previousDepthOptimalLeaf.clearAllVariants();
                 }
+            } else {
+                LOGGER.debug("Objective function value has not improved");
             }
             LOGGER.info("Optimal leaf - {}", optimalLeaf);
             SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Optimal leaf");
+            SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
             depth += 1;
         }
     }
@@ -215,7 +220,7 @@ public class SearchTree {
 
     private RaoResult buildOutput() {
         RaoResult raoResult = new RaoResult(optimalLeaf.getStatus().equals(Leaf.Status.ERROR) ? RaoResult.Status.FAILURE : RaoResult.Status.SUCCESS);
-        raoResult.setPreOptimVariantId(rootLeaf.getInitialVariantId());
+        raoResult.setPreOptimVariantId(rootLeaf.getPreOptimVariantId());
         raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
         return raoResult;
     }

@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.Random;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
@@ -81,7 +82,7 @@ public class MinMarginObjectiveFunctionTest {
                 cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setAbsolutePtdfSum(rand.nextDouble())
         );
 
-        raoData = RaoData.createOnPreventiveStateBasedOnExistingVariant(network, crac, TEST_VARIANT);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, TEST_VARIANT, new RaoParameters());
 
         sensiResult = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(sensiResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);

@@ -10,8 +10,11 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -20,14 +23,15 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import org.apache.commons.compress.utils.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -164,7 +168,7 @@ public class RaoUtilTest {
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
                 raoInput.getBaseCracVariantId(),
-                raoParameters.getLoopflowCountries());
+                raoParameters);
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, false);
         assertNotNull(systematicSensitivityInterface);
     }
@@ -211,7 +215,7 @@ public class RaoUtilTest {
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
                 raoInput.getBaseCracVariantId(),
-                raoParameters.getLoopflowCountries());
+                raoParameters);
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, true);
         assertNotNull(systematicSensitivityInterface);
     }
@@ -221,6 +225,89 @@ public class RaoUtilTest {
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().setDc(true);
         RaoUtil.checkParameters(raoParameters, raoInput);
+    }
+
+    @Test
+    public void testGetCnecLocation() {
+        List<Optional<Country>> countries = RaoUtil.getCnecLocation(crac.getBranchCnec("cnec1basecase"), network);
+        assertEquals(2, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.FR)));
+        assertTrue(countries.contains(Optional.of(Country.BE)));
+
+        countries = RaoUtil.getCnecLocation(crac.getBranchCnec("cnec2basecase"), network);
+        assertEquals(2, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.FR)));
+        assertTrue(countries.contains(Optional.of(Country.DE)));
+    }
+
+    @Test
+    public void testGetNetworkActionsLocation() {
+        Network networkWithSwitch = NetworkImportsUtil.import12NodesNetworkWithSwitch();
+        Crac cracWithSwitch = CommonCracCreation.createWithSwitch();
+        List<Optional<Country>> countries = RaoUtil.getNetworkActionLocation(cracWithSwitch.getNetworkAction("switch_ra"), networkWithSwitch);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.NL)));
+    }
+
+    @Test
+    public void testComputeCnecMargin() {
+        CnecResult result = Mockito.mock(CnecResult.class);
+        Mockito.when(result.getAbsolutePtdfSum()).thenReturn(0.5);
+        CnecResultExtension resultExtension = Mockito.mock(CnecResultExtension.class);
+        Mockito.when(resultExtension.getVariant(Mockito.anyString())).thenReturn(result);
+        BranchCnec cnec = Mockito.mock(BranchCnec.class);
+        Mockito.when(cnec.getExtension(Mockito.eq(CnecResultExtension.class))).thenReturn(resultExtension);
+
+        Mockito.when(cnec.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(1000.0);
+        Mockito.when(cnec.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(100.0);
+        assertEquals(1000, RaoUtil.computeCnecMargin(cnec, variantId, MEGAWATT, false), DOUBLE_TOLERANCE);
+        assertEquals(100, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, false), DOUBLE_TOLERANCE);
+        assertEquals(2000, RaoUtil.computeCnecMargin(cnec, variantId, MEGAWATT, true), DOUBLE_TOLERANCE);
+        assertEquals(200, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, true), DOUBLE_TOLERANCE);
+
+        Mockito.when(cnec.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(-1000.0);
+        Mockito.when(cnec.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(-100.0);
+        assertEquals(-1000, RaoUtil.computeCnecMargin(cnec, variantId, MEGAWATT, false), DOUBLE_TOLERANCE);
+        assertEquals(-100, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, false), DOUBLE_TOLERANCE);
+        assertEquals(-1000, RaoUtil.computeCnecMargin(cnec, variantId, MEGAWATT, true), DOUBLE_TOLERANCE);
+        assertEquals(-100, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, true), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testGetMostLimitingElement() {
+        // CNEC 1 : margin of 1000 MW / 100 A, sum of PTDFs = 1
+        CnecResult result1 = Mockito.mock(CnecResult.class);
+        Mockito.when(result1.getAbsolutePtdfSum()).thenReturn(1.0);
+        CnecResultExtension resultExtension1 = Mockito.mock(CnecResultExtension.class);
+        Mockito.when(resultExtension1.getVariant(Mockito.anyString())).thenReturn(result1);
+
+        BranchCnec cnec1 = Mockito.mock(BranchCnec.class);
+        Mockito.when(cnec1.isOptimized()).thenReturn(true);
+        Mockito.when(cnec1.getExtension(Mockito.eq(CnecResultExtension.class))).thenReturn(resultExtension1);
+        Mockito.when(cnec1.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(1000.);
+        Mockito.when(cnec1.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(100.);
+
+        // CNEC 2 : margin of 600 MW / 60 A, sum of PTDFs = 0.5
+        CnecResult result2 = Mockito.mock(CnecResult.class);
+        Mockito.when(result2.getAbsolutePtdfSum()).thenReturn(0.5);
+        CnecResultExtension resultExtension2 = Mockito.mock(CnecResultExtension.class);
+        Mockito.when(resultExtension2.getVariant(Mockito.anyString())).thenReturn(result2);
+
+        BranchCnec cnec2 = Mockito.mock(BranchCnec.class);
+        Mockito.when(cnec2.isOptimized()).thenReturn(true);
+        Mockito.when(cnec2.getExtension(Mockito.eq(CnecResultExtension.class))).thenReturn(resultExtension2);
+        Mockito.when(cnec2.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(600.);
+        Mockito.when(cnec2.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(60.);
+
+        Set<BranchCnec> cnecs = Sets.newHashSet(cnec1, cnec2);
+
+        // In absolute margins, cnec2 is most limiting
+        assertSame(cnec2, RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, false));
+        assertSame(cnec2, RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, false));
+
+        // In relative margins, cnec1 is most limiting
+        assertSame(cnec1, RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, true));
+        assertSame(cnec1, RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, true));
     }
 }
 

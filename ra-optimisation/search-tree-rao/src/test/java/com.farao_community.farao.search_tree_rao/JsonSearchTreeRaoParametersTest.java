@@ -57,6 +57,8 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         assertEquals(0, extension.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(1, extension.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(8, extension.getLeavesInParallel());
+        assertTrue(extension.getSkipNetworkActionsFarFromMostLimitingElement());
+        assertEquals(2, extension.getMaxNumberOfBoundariesForSkippingNetworkActions());
     }
 
     @Test(expected = FaraoException.class)

@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

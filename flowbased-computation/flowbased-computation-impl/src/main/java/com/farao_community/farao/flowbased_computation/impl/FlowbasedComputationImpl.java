@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_result_extensions.CracResultUtil;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.commons.RandomizedString;
@@ -33,6 +34,8 @@ import java.util.stream.Collectors;
  */
 @AutoService(FlowbasedComputationProvider.class)
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
+
+    static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
 
     @Override
     public String getName() {
@@ -56,8 +59,16 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .withPtdfSensitivities(glsk, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .build();
 
+        // Preventive perimeter
+        String initialNetworkId = network.getVariantManager().getWorkingVariantId();
+        network.getVariantManager().cloneVariant(initialNetworkId, INITIAL_STATE_WITH_PRA);
+        network.getVariantManager().setWorkingVariant(INITIAL_STATE_WITH_PRA);
+        CracResultUtil.applyRemedialActionsForState(network, crac, crac.getPreventiveState());
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
+
+        // Restore initial variant at the end of the computation
+        network.getVariantManager().setWorkingVariant(initialNetworkId);
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
