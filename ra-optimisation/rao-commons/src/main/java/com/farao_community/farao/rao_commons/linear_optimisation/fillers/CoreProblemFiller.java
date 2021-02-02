@@ -9,16 +9,22 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD;
 import static java.lang.String.format;
@@ -28,22 +34,29 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CoreProblemFiller implements ProblemFiller {
-    private final double pstSensitivityThreshold;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreProblemFiller.class);
 
-    public CoreProblemFiller(double pstSensitivityThreshold) {
+    private final double pstSensitivityThreshold;
+    private final Map<String, Integer> maxPstPerTso;
+    private Set<RangeAction> availableRangeActions;
+
+    public CoreProblemFiller(double pstSensitivityThreshold, Map<String, Integer> maxPstPerTso) {
         this.pstSensitivityThreshold = pstSensitivityThreshold;
+        this.maxPstPerTso = maxPstPerTso;
     }
 
     // Method for tests
     public CoreProblemFiller() {
-        this(DEFAULT_PST_SENSITIVITY_THRESHOLD);
+        this(DEFAULT_PST_SENSITIVITY_THRESHOLD, null);
     }
 
     @Override
     public void fill(RaoData raoData, LinearProblem linearProblem) {
+        // chose range actions to use
+        computeAvailableRangeActions(raoData);
         // add variables
         buildFlowVariables(raoData, linearProblem);
-        raoData.getAvailableRangeActions().forEach(rangeAction -> {
+        availableRangeActions.forEach(rangeAction -> {
             buildRangeActionSetPointVariables(raoData.getNetwork(), rangeAction, linearProblem);
             buildRangeActionAbsoluteVariationVariables(rangeAction, linearProblem);
             buildRangeActionGroupConstraint(rangeAction, linearProblem);
@@ -56,8 +69,37 @@ public class CoreProblemFiller implements ProblemFiller {
 
     @Override
     public void update(RaoData raoData, LinearProblem linearProblem) {
+        // chose range actions to use
+        computeAvailableRangeActions(raoData);
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints(raoData, linearProblem);
+    }
+
+    /**
+     * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
+     * the least impact on the most limiting element
+     */
+    private void computeAvailableRangeActions(RaoData raoData) {
+        availableRangeActions = raoData.getAvailableRangeActions();
+        if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
+            RaoParameters.ObjectiveFunction objFunction = raoData.getRaoParameters().getObjectiveFunction();
+            BranchCnec mostLimitingElement = RaoUtil.getMostLimitingElement(raoData.getCnecs(), raoData.getWorkingVariantId(), objFunction.getUnit(), objFunction.relativePositiveMargins());
+            maxPstPerTso.forEach((String tso, Integer maxPst) -> {
+                Set<RangeAction> rangeActionsForTso = availableRangeActions.stream().filter(rangeAction -> rangeAction.getOperator().equals(tso)).collect(Collectors.toSet());
+                if (rangeActionsForTso.size() > maxPst) {
+                    LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", rangeActionsForTso.size() - maxPst, maxPst, tso);
+                    rangeActionsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra2, ra1, mostLimitingElement, raoData))
+                            .collect(Collectors.toList()).subList(0, rangeActionsForTso.size() - maxPst)
+                            .forEach(rangeAction -> availableRangeActions.remove(rangeAction));
+                }
+            });
+        }
+    }
+
+    int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, RaoData raoData) {
+        Double sensi1 = Math.abs(raoData.getSensitivity(cnec, ra1));
+        Double sensi2 = Math.abs(raoData.getSensitivity(cnec, ra2));
+        return sensi1.compareTo(sensi2);
     }
 
     /**
@@ -156,7 +198,7 @@ public class CoreProblemFiller implements ProblemFiller {
             throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
         }
 
-        raoData.getAvailableRangeActions().forEach(rangeAction -> {
+        availableRangeActions.forEach(rangeAction -> {
             if (rangeAction instanceof PstRange) {
                 addImpactOfPstOnCnec(raoData, linearProblem, rangeAction, cnec, flowConstraint);
             } else {
@@ -194,7 +236,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void buildRangeActionConstraints(RaoData raoData, LinearProblem linearProblem) {
         String preOptimVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
-        raoData.getAvailableRangeActions().forEach(rangeAction -> {
+        availableRangeActions.forEach(rangeAction -> {
             double initialSetPoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId).getSetPoint(raoData.getOptimizedState().getId());
             MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
             MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.POSITIVE);

@@ -240,40 +240,40 @@ class Leaf {
      * Removes network actions far from most limiting element, using the user's parameters for activating/deactivating this
      * feature, and setting the number of boundaries allowed between the netwrk action and the limiting element
      *
-     * @param networkActions: the set of network actions to reduce
+     * @param networkActionsToFilter: the set of network actions to reduce
      * @return the reduced set of network actions
      */
-    private Set<NetworkAction> removeNetworkActionsFarFromMostLimitingElement(Set<NetworkAction> networkActions) {
+    private Set<NetworkAction> removeNetworkActionsFarFromMostLimitingElement(Set<NetworkAction> networkActionsToFilter) {
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement()) {
             List<Optional<Country>> worstCnecLocation = getMostLimitingElementLocation();
-            Set<NetworkAction> filteredNetworkActions = networkActions.stream()
+            Set<NetworkAction> filteredNetworkActions = networkActionsToFilter.stream()
                     .filter(na -> isNetworkActionCloseToLocations(na, worstCnecLocation))
                     .collect(Collectors.toSet());
-            if (networkActions.size() > filteredNetworkActions.size()) {
-                LOGGER.debug("{} network actions have been filtered out because they are far from the most limiting element", networkActions.size() - filteredNetworkActions.size());
+            if (networkActionsToFilter.size() > filteredNetworkActions.size()) {
+                LOGGER.debug("{} network actions have been filtered out because they are far from the most limiting element", networkActionsToFilter.size() - filteredNetworkActions.size());
             }
             return filteredNetworkActions;
         } else {
-            return networkActions;
+            return networkActionsToFilter;
         }
     }
 
     /**
      * Removes network actions for whom the maximum number of network actions has been reached
      *
-     * @param networkActions: the set of network actions to reduce
+     * @param networkActionsToFilter: the set of network actions to reduce
      * @return the reduced set of network actions
      */
-    private Set<NetworkAction> removeNetworkActionsIfMaxNumberReached(Set<NetworkAction> networkActions) {
-        Set<NetworkAction> filteredNetworkActions = new HashSet<>(networkActions);
+    private Set<NetworkAction> removeNetworkActionsIfMaxNumberReached(Set<NetworkAction> networkActionsToFilter) {
+        Set<NetworkAction> filteredNetworkActions = new HashSet<>(networkActionsToFilter);
         treeParameters.getMaxTopoPerTso().forEach((String tso, Integer maxTopo) -> {
-            long alreadyAppliedForTso = networkActions.stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
+            long alreadyAppliedForTso = this.networkActions.stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
             if (alreadyAppliedForTso >= maxTopo) {
                 filteredNetworkActions.removeIf(networkAction -> networkAction.getOperator().equals(tso));
             }
         });
-        if (networkActions.size() > filteredNetworkActions.size()) {
+        if (networkActionsToFilter.size() > filteredNetworkActions.size()) {
             LOGGER.debug("{} network actions have been filtered out because the maximum number of network actions for their TSO has been reached", networkActions.size() - filteredNetworkActions.size());
         }
         return filteredNetworkActions;

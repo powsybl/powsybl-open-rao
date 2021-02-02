@@ -8,14 +8,34 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
+import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
+import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
+import com.powsybl.iidm.import_.Importers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -25,19 +45,23 @@ import static org.mockito.Mockito.when;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
+@PrepareForTest({RaoUtil.class})
 public class CoreProblemFillerTest extends AbstractFillerTest {
+
+    RangeAction rangeAction1;
+    RangeAction rangeAction2;
 
     @Before
     public void setUp() {
         init();
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        coreProblemFiller = new CoreProblemFiller(2.5);
+        coreProblemFiller = new CoreProblemFiller(2.5, null);
     }
 
     @Test
     public void fillTestOnPreventive() {
-        coreProblemFiller = new CoreProblemFiller(0);
+        coreProblemFiller = new CoreProblemFiller(0, null);
         initRaoData(crac.getPreventiveState());
         coreProblemFiller.fill(raoData, linearProblem);
 
@@ -103,7 +127,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillTestOnPreventiveFiltered() {
-        coreProblemFiller = new CoreProblemFiller(2.5);
+        coreProblemFiller = new CoreProblemFiller(2.5, null);
         initRaoData(crac.getPreventiveState());
         coreProblemFiller.fill(raoData, linearProblem);
 
@@ -169,7 +193,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillTestOnCurative() {
-        coreProblemFiller = new CoreProblemFiller(0);
+        coreProblemFiller = new CoreProblemFiller(0, null);
         initRaoData(crac.getState("N-1 NL1-NL3", "Défaut"));
         coreProblemFiller.fill(raoData, linearProblem);
 
@@ -392,5 +416,156 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         } catch (FaraoException e) {
             // should throw
         }
+    }
+
+    /**
+     * Create a situation with 2 PSTs of the same operator
+     */
+    private void setUpWithTwoPsts() {
+        network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        crac = CommonCracCreation.create();
+
+        rangeAction1 = new PstWithRange("PST_FR_1", "PST_FR_1", "FR", new NetworkElement("FFR1AA1  FFR2AA1  2"));
+        rangeAction1.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        ((SimpleCrac) crac).addRangeAction(rangeAction1);
+
+        rangeAction2 = new PstWithRange("PST_FR_2", "PST_FR_2", "FR", new NetworkElement("BBE1AA1  BBE3AA1  2"));
+        rangeAction2.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        ((SimpleCrac) crac).addRangeAction(rangeAction2);
+
+        crac.synchronize(network);
+
+        cnec1 = crac.getBranchCnec("cnec1basecase");
+        cnec2 = crac.getBranchCnec("cnec2basecase");
+
+        systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction1, cnec1)).thenReturn(10.0);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction2, cnec1)).thenReturn(-40.0);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction1, cnec2)).thenReturn(-30.0);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction2, cnec2)).thenReturn(-25.0);
+
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
+        raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
+        raoData.setSystematicSensitivityResult(systematicSensitivityResult);
+        raoData.getCrac().getExtension(ResultVariantManager.class).setInitialVariantId(raoData.getWorkingVariantId());
+        raoData.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(raoData.getWorkingVariantId());
+
+        PowerMockito.mockStatic(RaoUtil.class);
+        PowerMockito.when(RaoUtil.getMostLimitingElement(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyBoolean())).thenAnswer(invocationOnMock -> cnec2);
+    }
+
+    @Test
+    public void testCompareAbsoluteSensitivities() {
+        setUpWithTwoPsts();
+        coreProblemFiller = new CoreProblemFiller(0, Map.of("BE", 1));
+
+        assertEquals(-1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec1, raoData));
+        assertEquals(1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec1, raoData));
+        assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction1, cnec1, raoData));
+        assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction2, cnec1, raoData));
+
+        assertEquals(1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec2, raoData));
+        assertEquals(-1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec2, raoData));
+        assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction1, cnec2, raoData));
+        assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction2, cnec2, raoData));
+    }
+
+    @Test
+    public void testFilterTwoPsts() {
+        setUpWithTwoPsts();
+        // Both PSTs should be filtered out
+        coreProblemFiller = new CoreProblemFiller(0, Map.of("FR", 0));
+        coreProblemFiller.fill(raoData, linearProblem);
+        assertNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction1));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction2));
+        assertNull(linearProblem.getRangeActionSetPointVariable(rangeAction1));
+        assertNull(linearProblem.getRangeActionSetPointVariable(rangeAction2));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.POSITIVE));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.NEGATIVE));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.POSITIVE));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.NEGATIVE));
+    }
+
+    @Test
+    public void testFilterPst1() {
+        setUpWithTwoPsts();
+        // One PST can be used, cnec2 is most limiting, rangeAction2 has a larger sensitivity on cnec2
+        // Thus rangeAction2 can be used, rangeAction1 should be filtered out
+        coreProblemFiller = new CoreProblemFiller(0, Map.of("FR", 1));
+        coreProblemFiller.fill(raoData, linearProblem);
+        assertNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction1));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction2));
+        assertNull(linearProblem.getRangeActionSetPointVariable(rangeAction1));
+        assertNotNull(linearProblem.getRangeActionSetPointVariable(rangeAction2));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.POSITIVE));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.NEGATIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.POSITIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.NEGATIVE));
+    }
+
+    @Test
+    public void testFilterPst2() {
+        setUpWithTwoPsts();
+        PowerMockito.when(RaoUtil.getMostLimitingElement(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyBoolean())).thenAnswer(invocationOnMock -> cnec1);
+        // One PST can be used, cnec1 is most limiting, rangeAction1 has a larger sensitivity on cnec1
+        // Thus rangeAction1 can be used, rangeAction2 should be filtered out
+        coreProblemFiller = new CoreProblemFiller(0, Map.of("FR", 1));
+        coreProblemFiller.fill(raoData, linearProblem);
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction1));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction2));
+        assertNotNull(linearProblem.getRangeActionSetPointVariable(rangeAction1));
+        assertNull(linearProblem.getRangeActionSetPointVariable(rangeAction2));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.POSITIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.NEGATIVE));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.POSITIVE));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.NEGATIVE));
+    }
+
+    @Test
+    public void testDontFilterPst1() {
+        setUpWithTwoPsts();
+        // no need to filter out PSTs
+        coreProblemFiller = new CoreProblemFiller(0, Map.of("FR", 2));
+        coreProblemFiller.fill(raoData, linearProblem);
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction1));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction2));
+        assertNotNull(linearProblem.getRangeActionSetPointVariable(rangeAction1));
+        assertNotNull(linearProblem.getRangeActionSetPointVariable(rangeAction2));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.POSITIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.NEGATIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.POSITIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.NEGATIVE));
+    }
+
+    @Test
+    public void testDontFilterPst2() {
+        setUpWithTwoPsts();
+        // no need to filter out PSTs
+        coreProblemFiller = new CoreProblemFiller(0, null);
+        coreProblemFiller.fill(raoData, linearProblem);
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction1));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction2));
+        assertNotNull(linearProblem.getRangeActionSetPointVariable(rangeAction1));
+        assertNotNull(linearProblem.getRangeActionSetPointVariable(rangeAction2));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.POSITIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.NEGATIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.POSITIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.NEGATIVE));
+    }
+
+    @Test
+    public void testDontFilterPst3() {
+        setUpWithTwoPsts();
+        // no need to filter out PSTs
+        coreProblemFiller = new CoreProblemFiller(0, new HashMap<>());
+        coreProblemFiller.fill(raoData, linearProblem);
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction1));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction2));
+        assertNotNull(linearProblem.getRangeActionSetPointVariable(rangeAction1));
+        assertNotNull(linearProblem.getRangeActionSetPointVariable(rangeAction2));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.POSITIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.NEGATIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.POSITIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.NEGATIVE));
     }
 }
