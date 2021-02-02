@@ -153,7 +153,7 @@ public class CracCleaner {
                     removedRanges.add(range);
                 }
             });
-            removedRanges.forEach(range -> ra.removeRange(range));
+            removedRanges.forEach(ra::removeRange);
             if (ra.getRanges().isEmpty()) {
                 report.add(String.format("[REMOVED] Range Action %s has no ranges. It has been removed from the Crac.", ra.getId()));
                 removedRangeActions.add(ra);

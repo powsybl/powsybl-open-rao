@@ -168,7 +168,7 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
         pst.desynchronize();
 
         try {
-            pst.getMaxValue(network, pst.getCurrentValue(network));
+            pst.getCurrentValue(network);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST pst_range_id have not been synchronized so tap cannot be converted to angle", e.getMessage());
@@ -244,7 +244,7 @@ public class PstWithRangeTest extends AbstractRangeActionTest {
     @Test
     public void getMinValueWithNoSynchronizationFails() {
         try {
-            pst.getMinValue(network, pst.getCurrentValue(network));
+            pst.getCurrentValue(network);
             fail();
         } catch (FaraoException e) {
             assertEquals("PST pst_range_id have not been synchronized so tap cannot be converted to angle", e.getMessage());
