@@ -145,14 +145,11 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     @Test
     public void fillWithMissingRangeActionVariables() {
         // FlowVariables present , but not the absoluteRangeActionVariables present,
+        // This should work since range actions can be filtered out by the CoreProblemFiller if their number
+        // exceeds the max-pst-per-tso parameter
         linearProblem.addFlowVariable(0.0, 0.0, cnec1);
         linearProblem.addFlowVariable(0.0, 0.0, cnec2);
-        try {
-            maxMinMarginFiller.fill(raoData, linearProblem);
-            fail();
-        } catch (FaraoException e) {
-            assertTrue(e.getMessage().contains("Range action variable"));
-        }
+        maxMinMarginFiller.fill(raoData, linearProblem);
     }
 
     @Test

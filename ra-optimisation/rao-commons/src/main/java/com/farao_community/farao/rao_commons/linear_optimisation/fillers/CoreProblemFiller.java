@@ -88,7 +88,7 @@ public class CoreProblemFiller implements ProblemFiller {
                 Set<RangeAction> rangeActionsForTso = availableRangeActions.stream().filter(rangeAction -> rangeAction.getOperator().equals(tso)).collect(Collectors.toSet());
                 if (rangeActionsForTso.size() > maxPst) {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", rangeActionsForTso.size() - maxPst, maxPst, tso);
-                    rangeActionsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra2, ra1, mostLimitingElement, raoData))
+                    rangeActionsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, raoData))
                             .collect(Collectors.toList()).subList(0, rangeActionsForTso.size() - maxPst)
                             .forEach(rangeAction -> availableRangeActions.remove(rangeAction));
                 }

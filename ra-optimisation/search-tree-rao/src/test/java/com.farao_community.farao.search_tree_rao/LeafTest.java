@@ -379,4 +379,24 @@ public class LeafTest {
         assertEquals(1, curativeRaoData.getCracVariantManager().getVariantIds().size());
         assertEquals(mockPostCurativeVariantId, curativeRaoData.getCracVariantManager().getVariantIds().get(0));
     }
+
+    @Test
+    public void testRemoveNetworkActionsIfMaxNumberReached() {
+        // TODO
+    }
+
+    @Test
+    public void testGetMaxPstPerTso() {
+        // TODO
+    }
+
+    @Test
+    public void testGetMaxTopoPerTso() {
+        // TODO
+    }
+
+    @Test
+    public void testIsRangeActionActivated() {
+        // TODO
+    }
 }

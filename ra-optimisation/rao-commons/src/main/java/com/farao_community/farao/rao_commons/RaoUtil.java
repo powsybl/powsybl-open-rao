@@ -122,9 +122,13 @@ public final class RaoUtil {
     }
 
     public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface) {
+        return createLinearOptimizer(raoParameters, systematicSensitivityInterface, null);
+    }
+
+    public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface, Map<String, Integer> maxPstPerTso) {
         List<ProblemFiller> fillers = new ArrayList<>();
         // TODO : add max pst per tso parameter here
-        fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold(), null));
+        fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold(), maxPstPerTso));
         if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
             || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));

@@ -9,8 +9,11 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.CountryUtil;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
 import com.farao_community.farao.rao_commons.RaoData;
@@ -23,10 +26,7 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -189,6 +189,47 @@ class Leaf {
     }
 
     /**
+     * This function computes the allowed number of PSTs for each TSO, as the minimum between the given parameter
+     * and the maximum number of RA reduced by the number of network actions already used
+     */
+    Map<String, Integer> getMaxPstPerTso() {
+        Map<String, Integer> maxPstPerTso = treeParameters.getMaxPstPerTso();
+        treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
+            int appliedNetworkActionsForTso = (int) this.networkActions.stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
+            int pstLimit =  raLimit - appliedNetworkActionsForTso;
+            maxPstPerTso.put(tso, Math.min(pstLimit, maxPstPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
+        });
+        return maxPstPerTso;
+    }
+
+    /**
+     * This function computes the allowed number of network actions for each TSO, as the minimum between the given
+     * parameter and the maximum number of RA reduced by the number of PSTs already used
+     */
+    Map<String, Integer> getMaxTopoPerTso() {
+        Map<String, Integer> maxTopoPerTso = treeParameters.getMaxTopoPerTso();
+        treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
+            int appliedRangeActionsForTso = (int) raoData.getAvailableRangeActions().stream().filter(this::isRangeActionActivated).count();
+            int topoLimit =  raLimit - appliedRangeActionsForTso;
+            maxTopoPerTso.put(tso, Math.min(topoLimit, maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
+        });
+        return maxTopoPerTso;
+    }
+
+    boolean isRangeActionActivated(RangeAction rangeAction) {
+        double setpoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(raoData.getWorkingVariantId()).getSetPoint(raoData.getOptimizedState().getId());
+        String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
+        double initialSetpoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(prePerimeterVariantId).getSetPoint(raoData.getOptimizedState().getId());
+        if (Double.isNaN(setpoint)) {
+            return false;
+        } else if (Double.isNaN(initialSetpoint)) {
+            return true;
+        } else {
+            return Math.abs(initialSetpoint - setpoint) > 1e-6;
+        }
+    }
+
+    /**
      * This method tries to optimize range actions on an already evaluated leaf since range action optimization
      * requires computed sensitivity values. Therefore, the leaf is not optimized if leaf status is either ERROR
      * or CREATED (because it means no sensitivity values have already been computed). Once it is performed the status
@@ -204,7 +245,7 @@ class Leaf {
                 SystematicSensitivityInterface linearOptimizerSystematicSensitivityInterface =
                         RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
                                 raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
-                IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, linearOptimizerSystematicSensitivityInterface);
+                IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, linearOptimizerSystematicSensitivityInterface, getMaxPstPerTso());
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
                 raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
@@ -267,14 +308,14 @@ class Leaf {
      */
     private Set<NetworkAction> removeNetworkActionsIfMaxNumberReached(Set<NetworkAction> networkActionsToFilter) {
         Set<NetworkAction> filteredNetworkActions = new HashSet<>(networkActionsToFilter);
-        treeParameters.getMaxTopoPerTso().forEach((String tso, Integer maxTopo) -> {
+        getMaxTopoPerTso().forEach((String tso, Integer maxTopo) -> {
             long alreadyAppliedForTso = this.networkActions.stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
             if (alreadyAppliedForTso >= maxTopo) {
                 filteredNetworkActions.removeIf(networkAction -> networkAction.getOperator().equals(tso));
             }
         });
         if (networkActionsToFilter.size() > filteredNetworkActions.size()) {
-            LOGGER.debug("{} network actions have been filtered out because the maximum number of network actions for their TSO has been reached", networkActions.size() - filteredNetworkActions.size());
+            LOGGER.debug("{} network actions have been filtered out because the maximum number of network actions for their TSO has been reached", networkActionsToFilter.size() - filteredNetworkActions.size());
         }
         return filteredNetworkActions;
     }

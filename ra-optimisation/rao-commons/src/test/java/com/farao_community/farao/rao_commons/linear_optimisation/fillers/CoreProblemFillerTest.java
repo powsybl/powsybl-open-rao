@@ -439,10 +439,10 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         cnec2 = crac.getBranchCnec("cnec2basecase");
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction1, cnec1)).thenReturn(10.0);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction2, cnec1)).thenReturn(-40.0);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction1, cnec2)).thenReturn(-30.0);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction2, cnec2)).thenReturn(-25.0);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction1, cnec1)).thenReturn(-30.0);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction2, cnec1)).thenReturn(-25.0);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction1, cnec2)).thenReturn(10.0);
+        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction2, cnec2)).thenReturn(-40.0);
 
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
         raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
@@ -459,13 +459,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         setUpWithTwoPsts();
         coreProblemFiller = new CoreProblemFiller(0, Map.of("BE", 1));
 
-        assertEquals(-1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec1, raoData));
-        assertEquals(1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec1, raoData));
+        assertEquals(1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec1, raoData));
+        assertEquals(-1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec1, raoData));
         assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction1, cnec1, raoData));
         assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction2, cnec1, raoData));
 
-        assertEquals(1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec2, raoData));
-        assertEquals(-1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec2, raoData));
+        assertEquals(-1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec2, raoData));
+        assertEquals(1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec2, raoData));
         assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction1, cnec2, raoData));
         assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction2, cnec2, raoData));
     }

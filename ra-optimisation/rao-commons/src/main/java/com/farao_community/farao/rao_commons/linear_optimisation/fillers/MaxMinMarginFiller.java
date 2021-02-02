@@ -142,11 +142,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
-            if (absoluteVariationVariable == null) {
-                throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
-            }
-
-            if (rangeAction instanceof PstRange) {
+            // If the PST has been filtered out, then absoluteVariationVariable is null
+            if (absoluteVariationVariable != null && rangeAction instanceof PstRange) {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
             }
         });
