@@ -7,7 +7,6 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
@@ -15,14 +14,13 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
@@ -30,7 +28,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.util.Collections;
-import java.util.HashSet;
 
 import static org.mockito.Mockito.*;
 
@@ -79,24 +76,13 @@ abstract class AbstractFillerTest {
     RaoData raoData;
     Crac crac;
     Network network;
-    ResultVariantManager resultVariantManager;
-
-    private ReferenceProgram referenceProgram;
-    private ZonalData<LinearGlsk> glsk;
 
     void init() {
-        init(null, null);
-    }
-
-    void init(ReferenceProgram referenceProgram, ZonalData<LinearGlsk> glsk) {
-
         // arrange some data for all fillers test
         // crac and network
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        this.glsk = glsk;
-        this.referenceProgram = referenceProgram;
 
         // get cnec and rangeAction
         cnec1 = crac.getBranchCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
@@ -119,8 +105,10 @@ abstract class AbstractFillerTest {
     }
 
     void initRaoData(State state) {
-        raoData = new RaoData(network, crac, state, Collections.singleton(state), referenceProgram, glsk, null, new HashSet<>());
+        raoData = new RaoData(network, crac, state, Collections.singleton(state), null, null, null, new RaoParameters());
         raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
         raoData.setSystematicSensitivityResult(systematicSensitivityResult);
+        raoData.getCrac().getExtension(ResultVariantManager.class).setInitialVariantId(raoData.getWorkingVariantId());
+        raoData.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(raoData.getWorkingVariantId());
     }
 }

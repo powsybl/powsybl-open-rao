@@ -53,8 +53,8 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         // this is almost a copy of fillWithMaxMinMarginInMegawatt()
         // only the coefficients in the MinMargin constraint should be different
         fillProblemWithCoreFiller();
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.9);
-        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.7);
+        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.9);
+        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.7);
         maxMinRelativeMarginFiller.fill(raoData, linearProblem);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
@@ -100,8 +100,8 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         // this is almost a copy of fillWithMaxMinMarginInAmpere()
         // only the objective function should be different
         fillProblemWithCoreFiller();
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.005);
-        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(0.1);
+        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.005);
+        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.1);
         maxMinRelativeMarginFiller.setUnit(AMPERE);
         maxMinRelativeMarginFiller.fill(raoData, linearProblem);
 

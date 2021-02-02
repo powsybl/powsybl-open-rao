@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
@@ -44,13 +45,13 @@ public class RaoDataTest {
         crac.synchronize(network);
         crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
         crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
-        raoData = RaoData.createOnPreventiveState(network, crac);
-        initialVariantId  = raoData.getWorkingVariantId();
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
+        initialVariantId = raoData.getWorkingVariantId();
     }
 
     @Test
     public void testNoPerimeter() {
-        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), null, null, null, null, new HashSet<>());
+        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), null, null, null, null, new RaoParameters());
         assertEquals(crac.getBranchCnecs().size(), raoData.getCnecs().size());
     }
 
@@ -76,7 +77,7 @@ public class RaoDataTest {
     public void curativeRangeActionsInitializationTest() {
         Crac crac1 = CommonCracCreation.createWithCurativePstRange();
         crac1.synchronize(network);
-        RaoData raoData1 = RaoData.createOnPreventiveState(network, crac1);
+        RaoData raoData1 = new RaoData(network, crac1, crac1.getPreventiveState(), Collections.singleton(crac1.getPreventiveState()), null, null, null, new RaoParameters());
         raoData1.getCracResultManager().fillRangeActionResultsWithNetworkValues();
         RangeActionResult rangeActionResult = crac1.getRangeAction("pst").getExtension(RangeActionResultExtension.class).getVariant(raoData1.getWorkingVariantId());
         assertNotNull(rangeActionResult);
@@ -169,7 +170,7 @@ public class RaoDataTest {
 
     @Test
     public void loopflowCountries() {
-        Set<Country> loopflowCountries = raoData.getLoopflowCountries();
+        Set<Country> loopflowCountries = raoData.getRaoParameters().getLoopflowCountries();
         assertEquals(0, loopflowCountries.size());
 
         Set<BranchCnec> loopflowCnecs = raoData.getLoopflowCnecs();
@@ -178,11 +179,14 @@ public class RaoDataTest {
 
     @Test
     public void loopflowSingleCountry() {
+        RaoParameters raoParameters = new RaoParameters();
         Set<Country> countrySet = new HashSet<>();
         countrySet.add(Country.DE);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, countrySet);
+        raoParameters.setLoopflowCountries(countrySet);
 
-        Set<Country> loopflowCountries = raoData.getLoopflowCountries();
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, raoParameters);
+
+        Set<Country> loopflowCountries = raoData.getRaoParameters().getLoopflowCountries();
         assertEquals(1, loopflowCountries.size());
 
         Set<BranchCnec> loopflowCnecs = raoData.getLoopflowCnecs();
@@ -193,17 +197,17 @@ public class RaoDataTest {
     public void testCreateFromExistingVariant() {
         Crac crac1 = CommonCracCreation.createWithCurativePstRange();
         crac1.synchronize(network);
-        RaoData preventiveRaoData = RaoData.createOnPreventiveState(network, crac1);
-        String variantId = preventiveRaoData.getInitialVariantId();
+        RaoData preventiveRaoData = new RaoData(network, crac1, crac1.getPreventiveState(), Collections.singleton(crac1.getPreventiveState()), null, null, null, new RaoParameters());
+        String variantId = preventiveRaoData.getPreOptimVariantId();
         RaoData curativeRaoData = new RaoData(
                 network,
                 crac1,
                 crac1.getState("Contingency FR1 FR3", "curative"),
-                Set.of(crac1.getState("Contingency FR1 FR3", "curative")),
+                Collections.singleton(crac1.getState("Contingency FR1 FR3", "curative")),
                 null,
                 null,
                 variantId,
-                new HashSet<>());
+                new RaoParameters());
         RangeActionResult rangeActionResult = curativeRaoData.getCrac().getRangeAction("pst").getExtension(RangeActionResultExtension.class).getVariant(curativeRaoData.getWorkingVariantId());
         assertNotNull(rangeActionResult);
         Assert.assertEquals(0, rangeActionResult.getSetPoint("none-initial"), 0.1);

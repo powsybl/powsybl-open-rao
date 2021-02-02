@@ -44,7 +44,7 @@ public class CoreProblemFiller implements ProblemFiller {
         // add variables
         buildFlowVariables(raoData, linearProblem);
         raoData.getAvailableRangeActions().forEach(rangeAction -> {
-            String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
+            String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
             double prePerimeterValue = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(prePerimeterVariantId).getSetPoint(raoData.getOptimizedState().getId());
             buildRangeActionSetPointVariables(raoData.getNetwork(), rangeAction, prePerimeterValue, linearProblem);
             buildRangeActionAbsoluteVariationVariables(rangeAction, linearProblem);
@@ -195,7 +195,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildRangeActionConstraints(RaoData raoData, LinearProblem linearProblem) {
-        String preOptimVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPreOptimVariantId();
+        String preOptimVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
         raoData.getAvailableRangeActions().forEach(rangeAction -> {
             double initialSetPoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId).getSetPoint(raoData.getOptimizedState().getId());
             MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
