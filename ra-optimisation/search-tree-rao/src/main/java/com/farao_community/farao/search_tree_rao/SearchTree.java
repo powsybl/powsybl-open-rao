@@ -38,7 +38,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SearchTree {
     static final Logger LOGGER = LoggerFactory.getLogger(SearchTree.class);
-    private static final int NUMBER_LOGGED_ELEMENTS = 4;
+    private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
+    private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
 
     private RaoParameters raoParameters;
     private Leaf rootLeaf;
@@ -68,20 +69,22 @@ public class SearchTree {
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
         LOGGER.info("{}", rootLeaf);
-        SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
             RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
             return CompletableFuture.completedFuture(raoResult);
         } else if (stopCriterionReached(rootLeaf)) {
+            SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_END_TREE);
             return CompletableFuture.completedFuture(buildOutput());
+        } else {
+            SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_DURING_TREE);
         }
 
         LOGGER.info("Linear optimization on root leaf");
         rootLeaf.optimize();
         LOGGER.info("{}", rootLeaf);
         SearchTreeRaoLogger.logRangeActions(optimalLeaf);
-        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         if (stopCriterionReached(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
@@ -90,6 +93,9 @@ public class SearchTree {
         iterateOnTree();
 
         LOGGER.info("Search-tree RAO completed with status {}", optimalLeaf.getStatus());
+        LOGGER.info("Best leaf - {}", optimalLeaf);
+        SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Best leaf");
+        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_END_TREE);
         return CompletableFuture.completedFuture(buildOutput());
     }
 
@@ -110,7 +116,7 @@ public class SearchTree {
                 LOGGER.info("Research depth: {} - [end]", depth + 1);
                 LOGGER.info("Best leaf so far - {}", optimalLeaf);
                 SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Best leaf so far");
-                SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS);
+                SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
             } else {
                 LOGGER.info("End of search tree : no network action of depth {} improve the objective function", depth + 1);
