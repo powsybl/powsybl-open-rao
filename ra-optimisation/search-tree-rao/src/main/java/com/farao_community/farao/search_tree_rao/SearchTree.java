@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SearchTree {
     static final Logger LOGGER = LoggerFactory.getLogger(SearchTree.class);
+    private static final int NUMBER_LOGGED_ELEMENTS = 4;
 
     private RaoParameters raoParameters;
     private Leaf rootLeaf;
@@ -66,28 +67,29 @@ public class SearchTree {
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
-        SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
-        LOGGER.debug("{}", rootLeaf);
+        LOGGER.info("{}", rootLeaf);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
             RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
             return CompletableFuture.completedFuture(raoResult);
         } else if (stopCriterionReached(rootLeaf)) {
-            SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
             return CompletableFuture.completedFuture(buildOutput());
         }
+
+        LOGGER.info("Linear optimization on root leaf");
         rootLeaf.optimize();
         LOGGER.info("{}", rootLeaf);
         SearchTreeRaoLogger.logRangeActions(optimalLeaf);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS);
+
         if (stopCriterionReached(rootLeaf)) {
             return CompletableFuture.completedFuture(buildOutput());
         }
 
         iterateOnTree();
 
-        //TODO: refactor output format
         LOGGER.info("Search-tree RAO completed with status {}", optimalLeaf.getStatus());
-        SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
         return CompletableFuture.completedFuture(buildOutput());
     }
 
@@ -95,7 +97,7 @@ public class SearchTree {
         int depth = 0;
         boolean hasImproved = true;
         while (depth < treeParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
-            LOGGER.info("Research depth: {} - [start]", depth);
+            LOGGER.info("Research depth: {} - [start]", depth + 1);
             previousDepthOptimalLeaf = optimalLeaf;
             updateOptimalLeafWithNextDepthBestLeaf();
             hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
@@ -105,13 +107,18 @@ public class SearchTree {
                 } else {
                     previousDepthOptimalLeaf.clearAllVariants();
                 }
+                LOGGER.info("Research depth: {} - [end]", depth + 1);
+                LOGGER.info("Best leaf so far - {}", optimalLeaf);
+                SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Best leaf so far");
+                SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS);
+
             } else {
-                LOGGER.debug("Objective function value has not improved");
+                LOGGER.info("End of search tree : no network action of depth {} improve the objective function", depth + 1);
             }
-            LOGGER.info("Optimal leaf - {}", optimalLeaf);
-            SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Optimal leaf");
-            SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
             depth += 1;
+            if (depth >= treeParameters.getMaximumSearchDepth()) {
+                LOGGER.info("End of search tree : maximum depth has been reached");
+            }
         }
     }
 
@@ -121,7 +128,8 @@ public class SearchTree {
     private void updateOptimalLeafWithNextDepthBestLeaf() {
         final Set<NetworkAction> networkActions = optimalLeaf.bloom();
         if (networkActions.isEmpty()) {
-            LOGGER.info("No new leaves to evaluate");
+            LOGGER.info("No more network action available");
+            return;
         } else {
             LOGGER.info("Leaves to evaluate: {}", networkActions.size());
         }
