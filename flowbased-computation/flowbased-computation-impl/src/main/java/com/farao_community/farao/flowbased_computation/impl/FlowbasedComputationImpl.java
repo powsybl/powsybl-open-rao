@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CracResultUtil;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
@@ -79,8 +80,12 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 network.getVariantManager().cloneVariant(INITIAL_STATE_WITH_PRA, variantName);
                 network.getVariantManager().setWorkingVariant(variantName);
                 CracResultUtil.applyRemedialActionsForState(network, crac, state);
-                SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(network);
-                FlowbasedComputationResult newFbRes = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, sensitivityResult));
+
+                SystematicSensitivityInterface newSystematicSensitivityInterface = SystematicSensitivityInterface.builder()
+                    .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
+                    .withPtdfSensitivities(glsk, crac.getBranchCnecs(state), Collections.singleton(Unit.MEGAWATT))
+                    .build();
+                SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
                 Optional<Contingency> contingencyOptional = state.getContingency();
                 String contingencyId = "";
                 if (contingencyOptional.isPresent()) {
@@ -88,8 +93,28 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 } else {
                     throw new FaraoException("Contingency shouldn't be empty in curative.");
                 }
-                List<DataMonitoredBranch> updatedMonitoredBranches = newFbRes.getFlowBasedDomain().findContingencyById(contingencyId).getDataMonitoredBranches();
-                flowBasedComputationResult.getFlowBasedDomain().findContingencyById(contingencyId).updateCurativeDataMonitoredBranches(updatedMonitoredBranches, afterCraInstantId);
+
+                List<DataMonitoredBranch> dataMonitoredBranches = flowBasedComputationResult.getFlowBasedDomain().findContingencyById(contingencyId).getDataMonitoredBranches();
+                dataMonitoredBranches.forEach(dataMonitoredBranch -> {
+                    if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
+                        Cnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
+                        dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
+                        glsk.getDataPerZone().forEach((zone, zonalData) -> {
+                            List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
+                            if (ptdfs.size() == 1) {
+                                double newPtdf = sensitivityResult.getSensitivityOnFlow(zonalData, cnec);
+                                if (!Double.isNaN(newPtdf)) {
+                                    ptdfs.get(0).setPtdf(newPtdf);
+                                } else {
+                                    ptdfs.get(0).setPtdf(0.0);
+                                }
+                            } else {
+                                logger.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
+                            }
+                        });
+
+                    }
+                });
             });
         } else {
             logger.info("No curative computation in flowbased.");

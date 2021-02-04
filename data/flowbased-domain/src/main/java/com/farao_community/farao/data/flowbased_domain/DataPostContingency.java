@@ -12,10 +12,8 @@ import lombok.Data;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.beans.ConstructorProperties;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Business Object of the FlowBased DataPostContingency
@@ -42,26 +40,5 @@ public class DataPostContingency {
                 .filter(dataMonitoredBranch -> dataMonitoredBranch.getId().equals(monitoredBranchId) && dataMonitoredBranch.getInstantId().equals(instantId))
                 .findAny()
                 .orElse(null);
-    }
-
-    public void updateCurativeDataMonitoredBranches(List<DataMonitoredBranch> newData, String afterCraInstantId) {
-        List<DataMonitoredBranch> newCurativeData = new ArrayList<>();
-        newData.forEach(newBranch -> {
-            if (newBranch.getInstantId().equals(afterCraInstantId)) {
-                newCurativeData.add(newBranch);
-            }
-        });
-
-        dataMonitoredBranches.forEach(dataMonitoredBranch -> {
-            if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
-                List<DataMonitoredBranch> correspondingData = newCurativeData.stream().filter(newCurativeBranch ->
-                    newCurativeBranch.correspondsTo(dataMonitoredBranch)).collect(Collectors.toList());
-                if (correspondingData.size() == 1) {
-                    dataMonitoredBranch.updateDataMonitoredBranch(correspondingData.get(0));
-                } else {
-                    throw new UnsupportedOperationException(String.format("Too many curative results for branch %s", dataMonitoredBranch.getBranchId()));
-                }
-            }
-        });
     }
 }
