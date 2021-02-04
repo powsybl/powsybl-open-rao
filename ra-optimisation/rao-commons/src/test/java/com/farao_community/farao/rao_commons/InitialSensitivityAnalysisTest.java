@@ -14,8 +14,6 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
-import java.util.HashSet;
-
 import static junit.framework.TestCase.assertNotNull;
 
 /**
@@ -28,10 +26,9 @@ public class InitialSensitivityAnalysisTest {
 
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.create();
-        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), crac.getStates(), null, null, null, new HashSet<>());
-        RaoParameters raoParameters = new RaoParameters();
+        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), crac.getStates(), null, null, null, new RaoParameters());
 
-        InitialSensitivityAnalysis initialSensitivityAnalysis = new InitialSensitivityAnalysis(raoData, raoParameters);
+        InitialSensitivityAnalysis initialSensitivityAnalysis = new InitialSensitivityAnalysis(raoData);
         assertNotNull(initialSensitivityAnalysis);
     }
 }

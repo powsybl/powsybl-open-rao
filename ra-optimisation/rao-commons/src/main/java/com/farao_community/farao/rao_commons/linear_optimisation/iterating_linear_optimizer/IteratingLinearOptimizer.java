@@ -76,7 +76,7 @@ public class IteratingLinearOptimizer {
     public String optimize(RaoData raoData) {
         this.raoData = raoData;
         cracVariantManager = raoData.getCracVariantManager();
-        bestVariantId = raoData.getInitialVariantId();
+        bestVariantId = raoData.getPreOptimVariantId();
         if (!raoData.hasSensitivityValues()) {
             runSensitivityAndUpdateResults();
         }
@@ -158,7 +158,7 @@ public class IteratingLinearOptimizer {
 
     private String getBestVariantWithSafeDelete(String variantToDelete) {
         cracVariantManager.setWorkingVariant(bestVariantId);
-        if (!variantToDelete.equals(raoData.getInitialVariantId())) {
+        if (!variantToDelete.equals(raoData.getPreOptimVariantId())) {
             cracVariantManager.deleteVariant(variantToDelete, false);
         }
         return bestVariantId;
@@ -166,7 +166,7 @@ public class IteratingLinearOptimizer {
 
     private void updateBestVariantId(String optimizedVariantId) {
         cracVariantManager.setWorkingVariant(optimizedVariantId);
-        if (!bestVariantId.equals(raoData.getInitialVariantId())) {
+        if (!bestVariantId.equals(raoData.getPreOptimVariantId())) {
             cracVariantManager.deleteVariant(bestVariantId, false);
         }
         bestVariantId = optimizedVariantId;
