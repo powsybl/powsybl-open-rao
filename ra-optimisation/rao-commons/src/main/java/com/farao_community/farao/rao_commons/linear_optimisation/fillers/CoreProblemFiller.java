@@ -69,8 +69,6 @@ public class CoreProblemFiller implements ProblemFiller {
 
     @Override
     public void update(RaoData raoData, LinearProblem linearProblem) {
-        // chose range actions to use
-        computeAvailableRangeActions(raoData);
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints(raoData, linearProblem);
     }
@@ -85,11 +83,13 @@ public class CoreProblemFiller implements ProblemFiller {
             RaoParameters.ObjectiveFunction objFunction = raoData.getRaoParameters().getObjectiveFunction();
             BranchCnec mostLimitingElement = RaoUtil.getMostLimitingElement(raoData.getCnecs(), raoData.getWorkingVariantId(), objFunction.getUnit(), objFunction.relativePositiveMargins());
             maxPstPerTso.forEach((String tso, Integer maxPst) -> {
-                Set<RangeAction> rangeActionsForTso = availableRangeActions.stream().filter(rangeAction -> rangeAction.getOperator().equals(tso)).collect(Collectors.toSet());
-                if (rangeActionsForTso.size() > maxPst) {
-                    LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", rangeActionsForTso.size() - maxPst, maxPst, tso);
-                    rangeActionsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, raoData))
-                            .collect(Collectors.toList()).subList(0, rangeActionsForTso.size() - maxPst)
+                Set<RangeAction> pstsForTso = availableRangeActions.stream()
+                        .filter(rangeAction -> (rangeAction instanceof PstRange) && rangeAction.getOperator().equals(tso))
+                        .collect(Collectors.toSet());
+                if (pstsForTso.size() > maxPst) {
+                    LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
+                    pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, raoData))
+                            .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
                             .forEach(rangeAction -> availableRangeActions.remove(rangeAction));
                 }
             });

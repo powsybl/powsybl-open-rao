@@ -43,6 +43,9 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final PreventiveRaoStopCriterion DEFAULT_PREVENTIVE_RAO_STOP_CRITERION = PreventiveRaoStopCriterion.SECURE;
     static final CurativeRaoStopCriterion DEFAULT_CURATIVE_RAO_STOP_CRITERION = CurativeRaoStopCriterion.MIN_OBJECTIVE;
     static final double DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT = 0;
+    static final Map<String, Integer> DEFAULT_MAX_CURATIVE_TOPO_PER_TSO = new HashMap<>();
+    static final Map<String, Integer> DEFAULT_MAX_CURATIVE_PST_PER_TSO = new HashMap<>();
+    static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
 
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
@@ -53,9 +56,9 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private PreventiveRaoStopCriterion preventiveRaoStopCriterion = DEFAULT_PREVENTIVE_RAO_STOP_CRITERION;
     private CurativeRaoStopCriterion curativeRaoStopCriterion = DEFAULT_CURATIVE_RAO_STOP_CRITERION;
     private double curativeRaoMinObjImprovement = DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT; // used for CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE and CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
-    private Map<String, Integer> maxCurativeTopoPerTso = new HashMap<>();
-    private Map<String, Integer> maxCurativePstPerTso = new HashMap<>();
-    private Map<String, Integer> maxCurativeRaPerTso = new HashMap<>();
+    private Map<String, Integer> maxCurativeTopoPerTso = DEFAULT_MAX_CURATIVE_TOPO_PER_TSO;
+    private Map<String, Integer> maxCurativePstPerTso = DEFAULT_MAX_CURATIVE_PST_PER_TSO;
+    private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
 
     @Override
     public String getName() {
