@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -154,7 +155,11 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     }
 
     public void setMaxCurativeTopoPerTso(Map<String, Integer> maxCurativeTopoPerTso) {
-        this.maxCurativeTopoPerTso = maxCurativeTopoPerTso;
+        if (Objects.isNull(maxCurativeTopoPerTso)) {
+            this.maxCurativeTopoPerTso = new HashMap<>();
+        } else {
+            this.maxCurativeTopoPerTso = maxCurativeTopoPerTso;
+        }
     }
 
     public Map<String, Integer> getMaxCurativePstPerTso() {
@@ -162,7 +167,11 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     }
 
     public void setMaxCurativePstPerTso(Map<String, Integer> maxCurativePstPerTso) {
-        this.maxCurativePstPerTso = maxCurativePstPerTso;
+        if (Objects.isNull(maxCurativePstPerTso)) {
+            this.maxCurativePstPerTso = new HashMap<>();
+        } else {
+            this.maxCurativePstPerTso = maxCurativePstPerTso;
+        }
     }
 
     public Map<String, Integer> getMaxCurativeRaPerTso() {
@@ -170,6 +179,10 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     }
 
     public void setMaxCurativeRaPerTso(Map<String, Integer> maxCurativeRaPerTso) {
-        this.maxCurativeRaPerTso = maxCurativeRaPerTso;
+        if (Objects.isNull(maxCurativeRaPerTso)) {
+            this.maxCurativeRaPerTso = new HashMap<>();
+        } else {
+            this.maxCurativeRaPerTso = maxCurativeRaPerTso;
+        }
     }
 }

@@ -193,7 +193,7 @@ class Leaf {
      * and the maximum number of RA reduced by the number of network actions already used
      */
     Map<String, Integer> getMaxPstPerTso() {
-        Map<String, Integer> maxPstPerTso = treeParameters.getMaxPstPerTso();
+        Map<String, Integer> maxPstPerTso = new HashMap<>(treeParameters.getMaxPstPerTso());
         treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
             int appliedNetworkActionsForTso = (int) this.networkActions.stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
             int pstLimit =  raLimit - appliedNetworkActionsForTso;
@@ -207,7 +207,7 @@ class Leaf {
      * parameter and the maximum number of RA reduced by the number of PSTs already used
      */
     Map<String, Integer> getMaxTopoPerTso() {
-        Map<String, Integer> maxTopoPerTso = treeParameters.getMaxTopoPerTso();
+        Map<String, Integer> maxTopoPerTso = new HashMap<>(treeParameters.getMaxTopoPerTso());
         treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
             int appliedRangeActionsForTso = (int) raoData.getAvailableRangeActions().stream().filter(this::isRangeActionActivated).count();
             int topoLimit =  raLimit - appliedRangeActionsForTso;
@@ -306,7 +306,7 @@ class Leaf {
      * @param networkActionsToFilter: the set of network actions to reduce
      * @return the reduced set of network actions
      */
-    private Set<NetworkAction> removeNetworkActionsIfMaxNumberReached(Set<NetworkAction> networkActionsToFilter) {
+    Set<NetworkAction> removeNetworkActionsIfMaxNumberReached(Set<NetworkAction> networkActionsToFilter) {
         Set<NetworkAction> filteredNetworkActions = new HashSet<>(networkActionsToFilter);
         getMaxTopoPerTso().forEach((String tso, Integer maxTopo) -> {
             long alreadyAppliedForTso = this.networkActions.stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();

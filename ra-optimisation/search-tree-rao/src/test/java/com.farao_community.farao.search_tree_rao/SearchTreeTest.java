@@ -86,7 +86,7 @@ public class SearchTreeTest {
         mockNativeLibraryLoader();
         PowerMockito.doReturn("successful").when(iteratingLinearOptimizer).optimize(any());
         PowerMockito.mockStatic(RaoUtil.class);
-        PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
+        PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
 
         CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());
         Mockito.when(raoData.getCracResultManager()).thenReturn(spiedCracResultManager);
