@@ -43,6 +43,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
     private static final String PREVENTIVE_STATE = "PreventiveState";
     private static final String CURATIVE_STATE = "CurativeState";
+    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
+
     private RaoData preventiveRaoData;
 
     private StateTree stateTree;
@@ -85,6 +87,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
         }
 
         // optimize preventive perimeter
+        LOGGER.info("Preventive perimeter optimization [start]");
+
         stateTree = new StateTree(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getCrac().getPreventiveState());
         Network network = raoInput.getNetwork();
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_STATE);
@@ -95,7 +99,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         }
 
         RaoResult preventiveRaoResult = optimizePreventivePerimeter(raoInput, parameters, initialSensitivityResult).join();
-        LOGGER.info("Preventive perimeter has been optimized.");
+        LOGGER.info("Preventive perimeter optimization [end]");
 
         // optimize curative perimeters
         double preventiveOptimalCost = raoInput.getCrac().getExtension(CracResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId()).getCost();
@@ -113,7 +117,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             boolean relativePositiveMargins =
                 parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
                     parameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-            SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), mergedRaoResults.getPostOptimVariantId(), parameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
+            SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), mergedRaoResults.getPostOptimVariantId(), parameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
         return CompletableFuture.completedFuture(mergedRaoResults);
 

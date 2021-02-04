@@ -24,7 +24,6 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 final class SearchTreeRaoLogger {
-    private static final int MAX_LOGS_LIMITING_ELEMENTS = 10;
 
     private SearchTreeRaoLogger() {
     }
@@ -52,17 +51,17 @@ final class SearchTreeRaoLogger {
         SearchTree.LOGGER.info(rangeActionsLog);
     }
 
-    static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins) {
-        logMostLimitingElementsResults(leaf.getRaoData().getCnecs(), leaf.getBestVariantId(), unit, relativePositiveMargins);
+    static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins, int numberOfLoggedElements) {
+        logMostLimitingElementsResults(leaf.getRaoData().getCnecs(), leaf.getBestVariantId(), unit, relativePositiveMargins, numberOfLoggedElements);
     }
 
-    static void logMostLimitingElementsResults(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
+    static void logMostLimitingElementsResults(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins, int numberOfLoggedElements) {
         List<BranchCnec> sortedCnecs = cnecs.stream().
                 filter(Cnec::isOptimized).
                 sorted(Comparator.comparingDouble(cnec -> RaoUtil.computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
                 collect(Collectors.toList());
 
-        for (int i = 0; i < Math.min(MAX_LOGS_LIMITING_ELEMENTS, sortedCnecs.size()); i++) {
+        for (int i = 0; i < Math.min(numberOfLoggedElements, sortedCnecs.size()); i++) {
             BranchCnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();

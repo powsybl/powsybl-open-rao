@@ -149,11 +149,14 @@ public class InitialSensitivityAnalysis {
     private ZonalData<LinearGlsk> getGlskForEic(Set<String> listEicCode) {
         Map<String, LinearGlsk> glskBoundaries = new HashMap<>();
 
-        raoData.getGlskProvider().getDataPerZone().forEach((k, v) -> {
-            if (listEicCode.contains(k)) {
-                glskBoundaries.put(k, v);
+        for (String eiCode : listEicCode) {
+            LinearGlsk linearGlsk = raoData.getGlskProvider().getData(eiCode);
+            if (Objects.isNull(linearGlsk)) {
+                LOGGER.warn("No GLSK found for EICode {}", eiCode);
+            } else {
+                glskBoundaries.put(eiCode, linearGlsk);
             }
-        });
+        }
 
         return new ZonalDataImpl<>(glskBoundaries);
     }
