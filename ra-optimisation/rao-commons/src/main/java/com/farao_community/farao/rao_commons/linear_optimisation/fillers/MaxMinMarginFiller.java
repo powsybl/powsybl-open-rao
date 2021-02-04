@@ -139,7 +139,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void fillObjectiveWithRangeActionPenaltyCost(RaoData raoData, LinearProblem linearProblem) {
         raoData.getAvailableRangeActions().forEach(rangeAction -> {
-
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
             // If the PST has been filtered out, then absoluteVariationVariable is null

@@ -142,7 +142,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         }
     }
 
-    @Test
+    @Test(expected = Test.None.class /* no exception expected */)
     public void fillWithMissingRangeActionVariables() {
         // FlowVariables present , but not the absoluteRangeActionVariables present,
         // This should work since range actions can be filtered out by the CoreProblemFiller if their number
