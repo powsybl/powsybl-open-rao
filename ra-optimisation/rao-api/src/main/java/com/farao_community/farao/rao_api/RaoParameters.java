@@ -54,6 +54,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         public boolean doesRequirePtdf() {
             return requirePtdf;
         }
+
+        public boolean relativePositiveMargins() {
+            return this.equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) || this.equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
+        }
     }
 
     public enum LoopFlowApproximationLevel {

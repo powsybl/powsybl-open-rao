@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -32,6 +33,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(SearchTreeRaoParameters.class).setMaximumSearchDepth(10);
         parameters.getExtension(SearchTreeRaoParameters.class).setRelativeNetworkActionMinimumImpactThreshold(0.1);
         parameters.getExtension(SearchTreeRaoParameters.class).setAbsoluteNetworkActionMinimumImpactThreshold(20);
+        parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeRaPerTso(Map.of("RTE", 5));
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SearchTreeRaoParameters.json");
     }
 
@@ -59,6 +61,15 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         assertEquals(8, extension.getLeavesInParallel());
         assertTrue(extension.getSkipNetworkActionsFarFromMostLimitingElement());
         assertEquals(2, extension.getMaxNumberOfBoundariesForSkippingNetworkActions());
+
+        assertEquals(2, extension.getMaxCurativeTopoPerTso().size());
+        assertEquals(3, extension.getMaxCurativeTopoPerTso().get("RTE").intValue());
+        assertEquals(5, extension.getMaxCurativeTopoPerTso().get("Elia").intValue());
+        assertEquals(1, extension.getMaxCurativePstPerTso().size());
+        assertEquals(0, extension.getMaxCurativePstPerTso().get("Amprion").intValue());
+        assertEquals(2, extension.getMaxCurativeRaPerTso().size());
+        assertEquals(1, extension.getMaxCurativeRaPerTso().get("Tennet").intValue());
+        assertEquals(9, extension.getMaxCurativeRaPerTso().get("50Hz").intValue());
     }
 
     @Test(expected = FaraoException.class)
@@ -69,5 +80,15 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
     @Test(expected = FaraoException.class)
     public void curativeRaoStopCriterionError() {
         JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersCurativeStopCriterionError.json"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testMapTypeError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersMapError.json"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testMapNegativeError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersMapError2.json"));
     }
 }

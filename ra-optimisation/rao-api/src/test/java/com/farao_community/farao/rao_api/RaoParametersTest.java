@@ -246,4 +246,12 @@ public class RaoParametersTest {
         assertTrue(parameters.getPtdfBoundariesAsString().contains("BE-FR"));
         assertTrue(parameters.getPtdfBoundariesAsString().contains("DE-AT"));
     }
+
+    @Test
+    public void testRelativePositiveMargins() {
+        assertTrue(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE.relativePositiveMargins());
+        assertTrue(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT.relativePositiveMargins());
+        assertFalse(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE.relativePositiveMargins());
+        assertFalse(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT.relativePositiveMargins());
+    }
 }

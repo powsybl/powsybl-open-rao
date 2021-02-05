@@ -126,14 +126,16 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, RaoParameters raoParameters) {
         RaoData raoData = new  RaoData(
             raoInput.getNetwork(),
-            raoInput.getCrac(),
-            raoInput.getOptimizedState(),
-            raoInput.getPerimeter(),
-            raoInput.getReferenceProgram(),
-            raoInput.getGlskProvider(),
-            raoInput.getBaseCracVariantId(),
-            raoParameters);
-        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
+                raoInput.getCrac(),
+                raoInput.getOptimizedState(),
+                raoInput.getPerimeter(),
+                raoInput.getReferenceProgram(),
+                raoInput.getGlskProvider(),
+                raoInput.getBaseCracVariantId(),
+                raoParameters);
+        TreeParameters treeParameters = raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState()) ?
+                TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)) :
+                TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
         new InitialSensitivityAnalysis(raoData).run();
         return new SearchTree().run(raoData, raoParameters, treeParameters);
     }
