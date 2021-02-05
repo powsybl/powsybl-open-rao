@@ -56,15 +56,15 @@ public class SearchTree {
     }
 
     void initLeaves(RaoData raoData) {
-        rootLeaf = new Leaf(raoData, raoParameters);
+        rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
 
     public CompletableFuture<RaoResult> run(RaoData raoData, RaoParameters raoParameters, TreeParameters treeParameters) {
+        this.treeParameters = treeParameters;
         initParameters(raoParameters);
         initLeaves(raoData);
-        this.treeParameters = treeParameters;
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
@@ -166,7 +166,7 @@ public class SearchTree {
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
         try {
-            leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters);
+            leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters, treeParameters);
         } catch (NotImplementedException e) {
             networkPool.releaseUsedNetwork(network);
             throw e;
