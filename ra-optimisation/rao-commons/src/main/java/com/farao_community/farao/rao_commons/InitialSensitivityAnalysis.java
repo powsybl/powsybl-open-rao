@@ -6,20 +6,16 @@
  */
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.commons.ZonalDataImpl;
+import com.farao_community.farao.commons.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.farao_community.farao.util.EICode;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,13 +132,13 @@ public class InitialSensitivityAnalysis {
     private Set<String> getEicForObjectiveFunction() {
         return raoParameters.getPtdfBoundaries().stream().
             flatMap(pair -> Stream.of(pair.getLeft(), pair.getRight())).
-            map(country -> new EICode(country).getCode()).
+            map(country -> new CountryEICode(country).getCode()).
             collect(Collectors.toSet());
     }
 
     private Set<String> getEicForLoopFlows() {
         return raoData.getReferenceProgram().getListOfAreas().stream().
-            map(ReferenceProgramArea::getAreaCode).
+            map(EICode::getAreaCode).
             collect(Collectors.toSet());
     }
 
@@ -152,7 +148,7 @@ public class InitialSensitivityAnalysis {
         for (String eiCode : listEicCode) {
             LinearGlsk linearGlsk = raoData.getGlskProvider().getData(eiCode);
             if (Objects.isNull(linearGlsk)) {
-                LOGGER.warn("No GLSK found for EICode {}", eiCode);
+                LOGGER.warn("No GLSK found for CountryEICode {}", eiCode);
             } else {
                 glskBoundaries.put(eiCode, linearGlsk);
             }

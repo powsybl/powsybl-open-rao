@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.refprog.reference_program;
 
+import com.farao_community.farao.commons.EICode;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
@@ -45,7 +46,7 @@ public final class ReferenceProgramBuilder {
 
     public static ReferenceProgram buildReferenceProgram(Network network, LoadFlowParameters loadFlowParameters) {
         computeRefFlowOnCurrentNetwork(network, loadFlowParameters);
-        Map<ReferenceProgramArea, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
+        Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         List<ReferenceExchangeData> referenceExchangeDataList = new ArrayList<>();
 
         // warning: only the net positions are properly filled. With the use of the "null" in the

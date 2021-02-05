@@ -6,11 +6,12 @@
  */
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.commons.CountryEICode;
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.apache.commons.lang3.tuple.Pair;
@@ -73,10 +74,10 @@ public final class AbsolutePtdfSumsComputation {
     }
 
     private static Country glskIdToCountry(String glskId) {
-        if (glskId.length() < EICode.LENGTH) {
+        if (glskId.length() < EICode.EIC_LENGTH) {
             throw new IllegalArgumentException(String.format("GlskId [%s] should starts with an EI Code", glskId));
         }
-        EICode eiCode = new EICode(glskId.substring(0, EICode.LENGTH));
+        CountryEICode eiCode = new CountryEICode(glskId.substring(0, EICode.EIC_LENGTH));
         return eiCode.getCountry();
     }
 

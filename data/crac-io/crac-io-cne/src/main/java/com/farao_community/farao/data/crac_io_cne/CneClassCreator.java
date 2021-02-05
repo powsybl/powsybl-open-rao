@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.data.crac_io_cne;
 
+import com.farao_community.farao.commons.CountryEICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
 import org.joda.time.DateTime;
 
@@ -90,7 +90,7 @@ public final class CneClassCreator {
     public static ConstraintSeries newConstraintSeries(String id, String businessType, Set<Country> countries, String optimStatus) {
         ConstraintSeries constraintSeries = newConstraintSeries(id, businessType, optimStatus);
         if (!countries.isEmpty()) {
-            countries.stream().sorted(Comparator.comparing((Country c) -> new EICode(c).getCode())).forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
+            countries.stream().sorted(Comparator.comparing((Country c) -> new CountryEICode(c).getCode())).forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
         }
 
         return constraintSeries;
@@ -98,7 +98,7 @@ public final class CneClassCreator {
 
     public static PartyMarketParticipant newPartyMarketParticipant(Country country) {
         PartyMarketParticipant partyMarketParticipant = new PartyMarketParticipant();
-        partyMarketParticipant.setMRID(createPartyIDString("A01", new EICode(country).getCode()));
+        partyMarketParticipant.setMRID(createPartyIDString("A01", new CountryEICode(country).getCode()));
         return partyMarketParticipant;
     }
 

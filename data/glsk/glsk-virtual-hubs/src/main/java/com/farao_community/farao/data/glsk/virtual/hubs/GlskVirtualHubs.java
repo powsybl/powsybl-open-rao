@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -47,8 +47,8 @@ public final class GlskVirtualHubs {
      */
     public static ZonalData<LinearGlsk> getVirtualHubGlsks(Network network, ReferenceProgram referenceProgram) {
         List<String> countryCodes = referenceProgram.getListOfAreas().stream()
-            .filter(ReferenceProgramArea::isVirtualHub)
-            .map(ReferenceProgramArea::getAreaCode)
+            .filter(EICode::isVirtualHub)
+            .map(EICode::getAreaCode)
             .collect(Collectors.toList());
         return getVirtualHubGlsks(network, countryCodes);
     }
