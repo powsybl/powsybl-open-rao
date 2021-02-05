@@ -220,19 +220,24 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             if (contingencies.values().stream().anyMatch(cracContingency -> cracContingency.getId().equals(contingency.getId()))) {
                 throw new FaraoException(format(SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE, contingency.getId()));
             }
-            /*
-             * A contingency contains several network elements to trip. When adding a contingency, all the contained
-             * network elements have to be in the networkElements list of the crac.
-             * Here we go through all the network elements of the contingency, if an equal element is already present in
-             * the crac list we can directly pick its reference, if not we first have to create a new element of the
-             * list copying the network element contained in the contingency.
-             * Then we can create a new contingency referring to network elements already presents in the crac.
-             */
-            Set<NetworkElement> networkElementsFromInternalSet = new HashSet<>();
-            for (NetworkElement networkElement : contingency.getNetworkElements()) {
-                networkElementsFromInternalSet.add(addNetworkElement(networkElement.getId(), networkElement.getName()));
+            if (contingency instanceof XnodeContingency) {
+                // We cannot iterate through a virtual contingency's network element before it is synchronized
+                contingencies.put(contingency.getId(), contingency);
+            } else {
+                /*
+                 * A contingency contains several network elements to trip. When adding a contingency, all the contained
+                 * network elements have to be in the networkElements list of the crac.
+                 * Here we go through all the network elements of the contingency, if an equal element is already present in
+                 * the crac list we can directly pick its reference, if not we first have to create a new element of the
+                 * list copying the network element contained in the contingency.
+                 * Then we can create a new contingency referring to network elements already presents in the crac.
+                 */
+                Set<NetworkElement> networkElementsFromInternalSet = new HashSet<>();
+                for (NetworkElement networkElement : contingency.getNetworkElements()) {
+                    networkElementsFromInternalSet.add(addNetworkElement(networkElement.getId(), networkElement.getName()));
+                }
+                contingencies.put(contingency.getId(), new ComplexContingency(contingency.getId(), contingency.getName(), networkElementsFromInternalSet));
             }
-            contingencies.put(contingency.getId(), new ComplexContingency(contingency.getId(), contingency.getName(), networkElementsFromInternalSet));
         }
     }
 
@@ -481,6 +486,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         }
         branchCnecs.values().forEach(cnec -> cnec.synchronize(network));
         rangeActions.values().forEach(rangeAction -> rangeAction.synchronize(network));
+        contingencies.values().forEach(contingency -> contingency.synchronize(network));
+        // TODO : add network elements of xnode contingencies to crac ?
+        /*contingencies.values().forEach(contingency -> {
+            contingency.getNetworkElements().forEach(ne -> this.addNetworkElement(ne));
+        });*/
         networkDate = network.getCaseDate();
         isSynchronized = true;
     }
@@ -489,6 +499,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     public void desynchronize() {
         branchCnecs.values().forEach(Synchronizable::desynchronize);
         rangeActions.values().forEach(Synchronizable::desynchronize);
+        contingencies.values().forEach(Synchronizable::desynchronize);
         networkDate = null;
         isSynchronized = false;
     }

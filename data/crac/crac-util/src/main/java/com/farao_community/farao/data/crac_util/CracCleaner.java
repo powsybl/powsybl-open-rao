@@ -84,6 +84,15 @@ public class CracCleaner {
         // list Contingencies whose NetworkElement is absent from the network or does not fit a valid Powsybl Contingency
         Set<Contingency> removedContingencies = new HashSet<>();
         for (Contingency contingency : crac.getContingencies()) {
+            if (!contingency.isSynchronized()) {
+                // It is necessary to skip XnodeContingencies that have not been synchronized since we don't know their
+                // network elements yet
+                // However, this means that we cannot clean out wrong XnodeContingencies
+                // When Crac import is refactored, we should be able to access the network at the time of creation
+                // of the contingencies. Then the network elements can be found from the start
+                // TODO : remove this when CRAC importer can use network
+                continue;
+            }
             contingency.getNetworkElements().forEach(networkElement -> {
                 Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
                 if (identifiable == null) {
