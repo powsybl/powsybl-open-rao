@@ -54,17 +54,4 @@ public class DataMonitoredBranch {
                 .findAny()
                 .orElse(null);
     }
-
-    public boolean correspondsTo(DataMonitoredBranch other) {
-        return this.getId().equals(other.getId())
-            && this.getName().equals(other.getName())
-            && this.getInstantId().equals(other.getInstantId())
-            && this.getBranchId().equals(other.getBranchId());
-    }
-
-    public void updateDataMonitoredBranch(DataMonitoredBranch other) {
-        this.fmax = other.fmax;
-        this.fref = other.fref;
-        this.ptdfList = other.ptdfList;
-    }
 }
