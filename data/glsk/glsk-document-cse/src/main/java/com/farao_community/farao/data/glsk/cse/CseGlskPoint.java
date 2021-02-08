@@ -55,13 +55,16 @@ public class CseGlskPoint extends AbstractGlskPoint {
 
     private void importMeritOrderBlock(Element blockElement, String businessType) {
         // Merit order scaling is not symmetrical, a feature not yet released of PowSyBl.
-        // TODO : create UpDownScalable with up block and down block when available in PowSYBl
         Element upBlockElement = (Element) blockElement.getElementsByTagName("Up").item(0);
-        NodeList nodesList = upBlockElement.getElementsByTagName("Node");
-        for (int j = 0; j < nodesList.getLength(); j++) {
-            glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID, j));
+        NodeList upNodesList = upBlockElement.getElementsByTagName("Node");
+        for (int j = 0; j < upNodesList.getLength(); j++) {
+            glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID, j + 1));
         }
-
+        Element downBlockElement = (Element) blockElement.getElementsByTagName("Down").item(0);
+        NodeList downNodesList = downBlockElement.getElementsByTagName("Node");
+        for (int j = 0; j < downNodesList.getLength(); j++) {
+            glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID, -j - 1));
+        }
     }
 
     private void importStandardBlock(Element blockElement, String businessType) {

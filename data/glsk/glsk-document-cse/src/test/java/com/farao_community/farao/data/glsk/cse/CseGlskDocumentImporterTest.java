@@ -60,7 +60,7 @@ public class CseGlskDocumentImporterTest {
     }
 
     @Test
-    public void checkCseGlskDocumentImporterCorrectlyConvertReserveGskBlocks() {
+    public void checkCseGlskDocumentImporterCorrectlyConvertReserveGskBlocksDown() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
@@ -72,6 +72,21 @@ public class CseGlskDocumentImporterTest {
         reserveScalable.scale(network, -900.);
         assertEquals(1400., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(1700., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+    }
+
+    @Test
+    public void checkCseGlskDocumentImporterCorrectlyConvertReserveGskBlocksUp() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
+
+        assertNotNull(reserveScalable);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+
+        reserveScalable.scale(network, 1000.);
+        assertEquals(2600., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2400., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
     }
 
     @Test
@@ -139,25 +154,45 @@ public class CseGlskDocumentImporterTest {
         List<AbstractGlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
-        assertEquals(4, list.get(0).getGlskShiftKeys().size());
+        assertEquals(7, list.get(0).getGlskShiftKeys().size());
         assertEquals(1, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(1).getRegisteredResourceArrayList().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(2).getRegisteredResourceArrayList().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(3).getRegisteredResourceArrayList().size());
         assertEquals(1, list.get(0).getGlskShiftKeys().get(1).getRegisteredResourceArrayList().size());
         assertEquals(1, list.get(0).getGlskShiftKeys().get(2).getRegisteredResourceArrayList().size());
         assertEquals(1, list.get(0).getGlskShiftKeys().get(3).getRegisteredResourceArrayList().size());
     }
 
     @Test
-    public void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocks() {
+    public void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksDown() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        Scalable propGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
 
-        assertNotNull(propGskScalable);
+        assertNotNull(meritOrderGskScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        propGskScalable.scale(network, 5000.);
+        meritOrderGskScalable.scale(network, -4000.);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(1000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(0., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
+    }
+
+    @Test
+    public void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksUp() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
+
+        assertNotNull(meritOrderGskScalable);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
+
+        meritOrderGskScalable.scale(network, 5000.);
         assertEquals(5000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(4000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);

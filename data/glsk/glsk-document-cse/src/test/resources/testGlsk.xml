@@ -127,15 +127,15 @@
                 <Factor v="1"/>
                 <Node>
                     <Name v="FFR3AA1 "/>
-                    <Pmax v="0"/>
+                    <Pmin v="0"/>
                 </Node>
                 <Node>
                     <Name v="FFR2AA1 "/>
-                    <Pmax v="0"/>
+                    <Pmin v="0"/>
                 </Node>
                 <Node>
                     <Name v="FFR1AA1 "/>
-                    <Pmax v="0"/>
+                    <Pmin v="0"/>
                 </Node>
             </Down>
         </MeritOrderGSKBlock>

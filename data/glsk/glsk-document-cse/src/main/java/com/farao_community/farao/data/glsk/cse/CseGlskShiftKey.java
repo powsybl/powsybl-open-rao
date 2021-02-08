@@ -67,11 +67,27 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
 
         if ("MeritOrderGSKBlock".equals(glskBlockElement.getTagName())) {
             this.businessType = "B45";
-            Element nodeElement = (Element) glskBlockElement.getElementsByTagName("Node").item(position);
+            Element nodeElement = getNodeElement(glskBlockElement, position);
             CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
             registeredResourceArrayList.add(cseRegisteredResource);
         } else {
             throw new GlskException("Unknown UCTE Block type");
+        }
+    }
+
+    private Element getNodeElement(Element glskBlockElement, int position) {
+        if (position > 0) {
+            // Up scalable element
+            // Position is 1 to N for up scalable
+            // Though, in XML file, we have to get child position - 1
+            Element upBlockElement = (Element) glskBlockElement.getElementsByTagName("Up").item(0);
+            return (Element) upBlockElement.getElementsByTagName("Node").item(position - 1);
+        } else {
+            // Down scalable element
+            // Position is -1 to -N for down scalable
+            // Though, in XML file, we have to get child -position - 1
+            Element downBlockElement = (Element) glskBlockElement.getElementsByTagName("Down").item(0);
+            return (Element) downBlockElement.getElementsByTagName("Node").item(-position - 1);
         }
     }
 

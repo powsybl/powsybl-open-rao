@@ -78,19 +78,44 @@ public final class GlskPointScalableConverter {
         // Remaining capacity algorithm is supposed to put all generators at Pmin at the same time when decreasing
         // generation, and to put all generators at Pmax at the same time when increasing generation.
         // Though the scaling is not symmetrical, a feature not yet released of PowSyBl.
-        // TODO : create UpDownScalable with remaining capacity down and remaining capacity up when available in PowSYBl
 
         List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
                 .filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId()) != null)
                 .filter(generatorResource -> NetworkUtil.isCorrectGenerator(network.getGenerator(generatorResource.getGeneratorId())))
                 .collect(Collectors.toList());
 
-        double totalFactor = generatorResources.stream().mapToDouble(resource -> GlskPointScalableConverter.getRemainingCapacityDown(resource, network)).sum();
+        Scalable upScalable = createUpScalable(network, glskShiftKey, generatorResources);
+        Scalable downScalable = createDownScalable(network, glskShiftKey, generatorResources);
+        percentages.add(100.f);
+        scalables.add(Scalable.upDown(upScalable, downScalable));
+    }
 
+    private static Scalable createUpScalable(Network network, AbstractGlskShiftKey glskShiftKey, List<AbstractGlskRegisteredResource> generatorResources) {
+        List<Float> percentages = new ArrayList<>();
+        List<Scalable> scalables = new ArrayList<>();
+        double totalFactor = generatorResources.stream().mapToDouble(resource -> GlskPointScalableConverter.getRemainingCapacityUp(resource, network)).sum();
+        generatorResources.forEach(generatorResource -> {
+            percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) GlskPointScalableConverter.getRemainingCapacityUp(generatorResource, network) / (float) totalFactor);
+            scalables.add(Scalable.onGenerator(generatorResource.getGeneratorId()));
+        });
+        return Scalable.proportional(percentages, scalables);
+    }
+
+    private static double getRemainingCapacityUp(AbstractGlskRegisteredResource resource, Network network) {
+        Generator generator = network.getGenerator(resource.getGeneratorId());
+        double maxP = resource.getMaximumCapacity().orElse(generator.getMaxP());
+        return maxP - NetworkUtil.pseudoTargetP(generator);
+    }
+
+    private static Scalable createDownScalable(Network network, AbstractGlskShiftKey glskShiftKey, List<AbstractGlskRegisteredResource> generatorResources) {
+        List<Float> percentages = new ArrayList<>();
+        List<Scalable> scalables = new ArrayList<>();
+        double totalFactor = generatorResources.stream().mapToDouble(resource -> GlskPointScalableConverter.getRemainingCapacityDown(resource, network)).sum();
         generatorResources.forEach(generatorResource -> {
             percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) GlskPointScalableConverter.getRemainingCapacityDown(generatorResource, network) / (float) totalFactor);
             scalables.add(Scalable.onGenerator(generatorResource.getGeneratorId()));
         });
+        return Scalable.proportional(percentages, scalables);
     }
 
     private static double getRemainingCapacityDown(AbstractGlskRegisteredResource resource, Network network) {
@@ -108,7 +133,8 @@ public final class GlskPointScalableConverter {
     private static Scalable convertMeritOrder(Network network, AbstractGlskPoint glskPoint) {
         Objects.requireNonNull(network);
 
-        return Scalable.stack(glskPoint.getGlskShiftKeys().stream()
+        Scalable upScalable = Scalable.stack(glskPoint.getGlskShiftKeys().stream()
+                .filter(abstractGlskShiftKey -> abstractGlskShiftKey.getMeritOrderPosition() > 0)
                 .sorted(Comparator.comparingInt(AbstractGlskShiftKey::getMeritOrderPosition))
                 .map(glskShiftKey -> {
                     AbstractGlskRegisteredResource generatorRegisteredResource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
@@ -117,6 +143,18 @@ public final class GlskPointScalableConverter {
                     double incomingMinP = generatorRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
                     return (Scalable) Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
                 }).toArray(Scalable[]::new));
+
+        Scalable downScalable = Scalable.stack(glskPoint.getGlskShiftKeys().stream()
+                .filter(abstractGlskShiftKey -> abstractGlskShiftKey.getMeritOrderPosition() < 0)
+                .sorted(Comparator.comparingInt(AbstractGlskShiftKey::getMeritOrderPosition).reversed())
+                .map(glskShiftKey -> {
+                    AbstractGlskRegisteredResource generatorRegisteredResource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
+                    String generatorId = generatorRegisteredResource.getGeneratorId();
+                    double incomingMaxP = generatorRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
+                    double incomingMinP = generatorRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
+                    return (Scalable) Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
+                }).toArray(Scalable[]::new));
+        return Scalable.upDown(upScalable, downScalable);
     }
 
     /**
