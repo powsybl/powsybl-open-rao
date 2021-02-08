@@ -11,6 +11,10 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -39,6 +43,9 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final PreventiveRaoStopCriterion DEFAULT_PREVENTIVE_RAO_STOP_CRITERION = PreventiveRaoStopCriterion.SECURE;
     static final CurativeRaoStopCriterion DEFAULT_CURATIVE_RAO_STOP_CRITERION = CurativeRaoStopCriterion.MIN_OBJECTIVE;
     static final double DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT = 0;
+    static final Map<String, Integer> DEFAULT_MAX_CURATIVE_TOPO_PER_TSO = new HashMap<>();
+    static final Map<String, Integer> DEFAULT_MAX_CURATIVE_PST_PER_TSO = new HashMap<>();
+    static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
 
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
@@ -49,6 +56,9 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private PreventiveRaoStopCriterion preventiveRaoStopCriterion = DEFAULT_PREVENTIVE_RAO_STOP_CRITERION;
     private CurativeRaoStopCriterion curativeRaoStopCriterion = DEFAULT_CURATIVE_RAO_STOP_CRITERION;
     private double curativeRaoMinObjImprovement = DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT; // used for CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE and CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
+    private Map<String, Integer> maxCurativeTopoPerTso = DEFAULT_MAX_CURATIVE_TOPO_PER_TSO;
+    private Map<String, Integer> maxCurativePstPerTso = DEFAULT_MAX_CURATIVE_PST_PER_TSO;
+    private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
 
     @Override
     public String getName() {
@@ -141,5 +151,41 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
             LOGGER.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
         }
         this.curativeRaoMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
+    }
+
+    public Map<String, Integer> getMaxCurativeTopoPerTso() {
+        return maxCurativeTopoPerTso;
+    }
+
+    public void setMaxCurativeTopoPerTso(Map<String, Integer> maxCurativeTopoPerTso) {
+        if (Objects.isNull(maxCurativeTopoPerTso)) {
+            this.maxCurativeTopoPerTso = new HashMap<>();
+        } else {
+            this.maxCurativeTopoPerTso = maxCurativeTopoPerTso;
+        }
+    }
+
+    public Map<String, Integer> getMaxCurativePstPerTso() {
+        return maxCurativePstPerTso;
+    }
+
+    public void setMaxCurativePstPerTso(Map<String, Integer> maxCurativePstPerTso) {
+        if (Objects.isNull(maxCurativePstPerTso)) {
+            this.maxCurativePstPerTso = new HashMap<>();
+        } else {
+            this.maxCurativePstPerTso = maxCurativePstPerTso;
+        }
+    }
+
+    public Map<String, Integer> getMaxCurativeRaPerTso() {
+        return maxCurativeRaPerTso;
+    }
+
+    public void setMaxCurativeRaPerTso(Map<String, Integer> maxCurativeRaPerTso) {
+        if (Objects.isNull(maxCurativeRaPerTso)) {
+            this.maxCurativeRaPerTso = new HashMap<>();
+        } else {
+            this.maxCurativeRaPerTso = maxCurativeRaPerTso;
+        }
     }
 }
