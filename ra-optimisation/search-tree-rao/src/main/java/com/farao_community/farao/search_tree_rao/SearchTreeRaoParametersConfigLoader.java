@@ -10,6 +10,8 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -19,6 +21,7 @@ import java.util.Optional;
  */
 @AutoService(RaoParameters.ConfigLoader.class)
 public class SearchTreeRaoParametersConfigLoader implements RaoParameters.ConfigLoader<SearchTreeRaoParameters> {
+    static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoParametersConfigLoader.class);
 
     private static final String MODULE_NAME = "search-tree-rao-parameters";
 
@@ -37,8 +40,18 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
             parameters.setPreventiveRaoStopCriterion(config.getEnumProperty("preventive-rao-stop-criterion", SearchTreeRaoParameters.PreventiveRaoStopCriterion.class, SearchTreeRaoParameters.DEFAULT_PREVENTIVE_RAO_STOP_CRITERION));
             parameters.setCurativeRaoStopCriterion(config.getEnumProperty("curative-rao-stop-criterion", SearchTreeRaoParameters.CurativeRaoStopCriterion.class, SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_STOP_CRITERION));
             parameters.setCurativeRaoMinObjImprovement(config.getDoubleProperty("curative-rao-min-obj-improvement", SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT));
+            // TODO : read the following three parameters when it's possible in ModuleConfig
+            logMapReadError(config, "max-curative-topo-per-tso");
+            logMapReadError(config, "max-curative-pst-per-tso");
+            logMapReadError(config, "max-curative-ra-per-tso");
         }
         return parameters;
+    }
+
+    private void logMapReadError(ModuleConfig config, String property) {
+        if (config.hasProperty(property)) {
+            LOGGER.error("ModuleConfig cannot read maps. The parameter {} you set will not be read. Set it in a json file instead.", property);
+        }
     }
 
     @Override
