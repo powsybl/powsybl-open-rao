@@ -59,6 +59,11 @@ public class EICode {
     }
 
     @Override
+    public String toString() {
+        return isCountryCode ? new CountryEICode(areaCode).getCountry().toString() : areaCode;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

@@ -110,7 +110,7 @@ public class RaoParametersTest {
     @Test
     public void checkPtdfConfig() {
         MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
-        moduleConfig.setStringListProperty("ptdf-boundaries", new ArrayList<>(Arrays.asList("FR:ES", "ES:PT")));
+        moduleConfig.setStringListProperty("relative-margin-ptdf-boundaries", new ArrayList<>(Arrays.asList("FR/ES", "ES/PT")));
         moduleConfig.setStringProperty("ptdf-sum-lower-bound", Objects.toString(5.0));
 
         RaoParameters parameters = new RaoParameters();
@@ -208,7 +208,7 @@ public class RaoParametersTest {
     @Test
     public void testSetBoundariesFromCountryCodes() {
         RaoParameters parameters = new RaoParameters();
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR:ES", "ES:PT"));
+        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR/ES", "ES/PT"));
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
         assertEquals(2, parameters.getRelativeMarginPtdfBoundaries().size());
         assertTrue(parameters.getRelativeMarginPtdfBoundaries().contains(new ImmutablePair<>(new EICode(Country.FR), new EICode(Country.ES))));
@@ -218,7 +218,7 @@ public class RaoParametersTest {
     @Test
     public void testSetBoundariesFromEiCodes() {
         RaoParameters parameters = new RaoParameters();
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("10YBE----------2:10YFR-RTE------C", "10YBE----------2:22Y201903144---9"));
+        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("10YBE----------2/10YFR-RTE------C", "10YBE----------2/22Y201903144---9"));
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
         assertEquals(2, parameters.getRelativeMarginPtdfBoundaries().size());
         assertTrue(parameters.getRelativeMarginPtdfBoundaries().contains(new ImmutablePair<>(new EICode("10YBE----------2"), new EICode("10YFR-RTE------C"))));
@@ -228,7 +228,7 @@ public class RaoParametersTest {
     @Test
     public void testSetBoundariesFromMixOfCodes() {
         RaoParameters parameters = new RaoParameters();
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("BE:FR", "BE:22Y201903144---9", "22Y201903145---4:DE", "22Y201903144---9:22Y201903145---4"));
+        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("BE/FR", "BE/22Y201903144---9", "22Y201903145---4/DE", "22Y201903144---9/22Y201903145---4"));
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
         assertEquals(4, parameters.getRelativeMarginPtdfBoundaries().size());
         assertTrue(parameters.getRelativeMarginPtdfBoundaries().contains(new ImmutablePair<>(new EICode(Country.BE), new EICode(Country.FR))));
@@ -245,17 +245,17 @@ public class RaoParametersTest {
 
     @Test (expected = FaraoException.class)
     public void testSetBoundariesFromCountryCodesException1() {
-        testWrongBoundary("FRANCE:SPAIN");
+        testWrongBoundary("FRANCE/SPAIN");
     }
 
     @Test (expected = FaraoException.class)
     public void testSetBoundariesFromCountryCodesException2() {
-        testWrongBoundary("FR:ES:");
+        testWrongBoundary("FR/ES/");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void testSetBoundariesFromCountryCodesException3() {
-        testWrongBoundary("FR:YY");
+        testWrongBoundary("FR/YY");
     }
 
     @Test (expected = FaraoException.class)
@@ -274,9 +274,9 @@ public class RaoParametersTest {
 
         parameters.setRelativeMarginPtdfBoundaries(countryBoundaries);
         assertEquals(3, parameters.getRelativeMarginPtdfBoundaries().size());
-        assertTrue(parameters.getRelativeMarginPtdfBoundariesAsString().contains("10YBE----------2:10YFR-RTE------C"));
-        assertTrue(parameters.getRelativeMarginPtdfBoundariesAsString().contains("10YCB-GERMANY--8:22Y201903145---4"));
-        assertTrue(parameters.getRelativeMarginPtdfBoundariesAsString().contains("22Y201903144---9:22Y201903145---4"));
+        assertTrue(parameters.getRelativeMarginPtdfBoundariesAsString().contains("BE/FR"));
+        assertTrue(parameters.getRelativeMarginPtdfBoundariesAsString().contains("DE/22Y201903145---4"));
+        assertTrue(parameters.getRelativeMarginPtdfBoundariesAsString().contains("22Y201903144---9/22Y201903145---4"));
     }
 
     @Test

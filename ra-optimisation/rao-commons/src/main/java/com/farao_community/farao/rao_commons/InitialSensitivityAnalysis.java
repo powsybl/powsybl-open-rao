@@ -99,7 +99,7 @@ public class InitialSensitivityAnalysis {
     }
 
     private void fillAbsolutePtdfSums(SystematicSensitivityResult sensitivityResult) {
-        Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getGlskProvider(), raoParameters.getPtdfBoundaries(), sensitivityResult);
+        Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getGlskProvider(), raoParameters.getRelativeMarginPtdfBoundaries(), sensitivityResult);
         ptdfSums.forEach((key, value) -> key.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setAbsolutePtdfSum(value));
     }
 
@@ -130,9 +130,9 @@ public class InitialSensitivityAnalysis {
     }
 
     private Set<String> getEicForObjectiveFunction() {
-        return raoParameters.getPtdfBoundaries().stream().
+        return raoParameters.getRelativeMarginPtdfBoundaries().stream().
             flatMap(pair -> Stream.of(pair.getLeft(), pair.getRight())).
-            map(country -> new CountryEICode(country).getCode()).
+            map(EICode::getAreaCode).
             collect(Collectors.toSet());
     }
 

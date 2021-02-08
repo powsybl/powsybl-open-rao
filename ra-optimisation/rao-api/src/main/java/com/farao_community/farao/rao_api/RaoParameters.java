@@ -76,26 +76,26 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         }
     }
 
-    private static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
-    private static final int DEFAULT_MAX_ITERATIONS = 10;
-    private static final double DEFAULT_FALLBACK_OVER_COST = 0;
-    private static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
+    public static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
+    public static final int DEFAULT_MAX_ITERATIONS = 10;
+    public static final double DEFAULT_FALLBACK_OVER_COST = 0;
+    public static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
     public static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
     public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
-    private static final double DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION = 0.0;
-    private static final LoopFlowApproximationLevel DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL = LoopFlowApproximationLevel.FIXED_PTDF;
-    private static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    private static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
-    private static final double DEFAULT_PST_PENALTY_COST = 0.01;
-    private static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
-    private static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
-    private static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    private static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
-    private static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
-    private static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
+    public static final double DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION = 0.0;
+    public static final LoopFlowApproximationLevel DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL = LoopFlowApproximationLevel.FIXED_PTDF;
+    public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
+    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
+    public static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
+    public static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
+    public static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    public static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
+    public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
+    public static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
 
-    private static final String BOUNDARIES_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'Code1:Code2' where Code1 and Code2 are 16-characters EI codes or 2-characters country codes";
-    private static final String BOUNDARIES_CODE_SEPARATOR = ":";
+    private static final String BOUNDARIES_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'Code1/Code2' where Code1 and Code2 are 16-characters EI codes or 2-characters country codes";
+    private static final String BOUNDARIES_CODE_SEPARATOR = "/";
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -286,7 +286,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public List<String> getRelativeMarginPtdfBoundariesAsString() {
         return relativeMarginPtdfBoundaries.stream()
-                .map(countryPair -> countryPair.getLeft().getAreaCode() + BOUNDARIES_CODE_SEPARATOR + countryPair.getRight().getAreaCode())
+                .map(countryPair -> countryPair.getLeft().toString() + BOUNDARIES_CODE_SEPARATOR + countryPair.getRight().toString())
                 .collect(Collectors.toList());
     }
 
