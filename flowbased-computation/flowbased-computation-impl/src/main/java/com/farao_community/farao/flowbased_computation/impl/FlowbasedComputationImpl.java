@@ -36,10 +36,10 @@ import java.util.stream.Collectors;
 @AutoService(FlowbasedComputationProvider.class)
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
-    static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
-    String onOutageInstantId = "";
-    String afterCraInstantId = "";
-    final Logger logger = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
+    private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
+    private String onOutageInstantId = "";
+    private String afterCraInstantId = "";
+    private final Logger logger = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
     public String getName() {
