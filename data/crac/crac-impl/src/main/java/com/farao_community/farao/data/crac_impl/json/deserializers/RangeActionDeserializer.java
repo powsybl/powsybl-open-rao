@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -132,7 +132,7 @@ final class RangeActionDeserializer {
                         throw new FaraoException(String.format("Type of range action [%s] should have ranges of type PstRange.", type));
                     }
                 }
-                rangeAction = new PstWithRange(id, name, operator, usageRules, pstRanges, networkElements.iterator().next(), groupId);
+                rangeAction = new PstRangeActionImpl(id, name, operator, usageRules, pstRanges, networkElements.iterator().next(), groupId);
                 break;
             default:
                 throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));

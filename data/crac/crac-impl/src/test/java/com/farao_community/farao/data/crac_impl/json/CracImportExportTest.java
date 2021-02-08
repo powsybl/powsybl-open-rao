@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
 import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.threshold.*;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
@@ -113,7 +113,7 @@ public class CracImportExportTest {
         );
         simpleCrac.addNetworkAction(injectionSetpoint);
 
-        simpleCrac.addRangeAction(new PstWithRange(
+        simpleCrac.addRangeAction(new PstRangeActionImpl(
                 "pstRangeId",
                 "pstRangeName",
                 "RTE",
@@ -123,7 +123,7 @@ public class CracImportExportTest {
                 simpleCrac.getNetworkElement("pst")
         ));
 
-        simpleCrac.addRangeAction(new PstWithRange(
+        simpleCrac.addRangeAction(new PstRangeActionImpl(
                 "pstRangeId2",
                 "pstRangeName2",
                 "RTE",

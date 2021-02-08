@@ -17,7 +17,7 @@ import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.powsybl.iidm.network.Network;
@@ -64,6 +64,7 @@ public class CracCleanerTest {
         simpleCrac.addNetworkElement("neId1");
         simpleCrac.addNetworkElement("neId2");
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
+        simpleCrac.addNetworkElement(new NetworkElement("BBE2AA1  BBE3AA1  1"));
 
         simpleCrac.newBranchCnec()
                 .setId("cnec1prev").optimized().monitored()
@@ -109,7 +110,7 @@ public class CracCleanerTest {
             ActionType.CLOSE
         );
         ComplexNetworkAction complexNetworkAction = new ComplexNetworkAction("complexNextworkActionId", "RTE");
-        PstWithRange pstWithRange = new PstWithRange(
+        PstRangeActionImpl pstRangeAction1 = new PstRangeActionImpl(
             "pstRangeId",
             "pstRangeName",
             "RTE",
@@ -117,14 +118,23 @@ public class CracCleanerTest {
             Collections.singletonList(new PstRange(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("pst")
         );
+        PstRangeActionImpl pstRangeAction2 = new PstRangeActionImpl(
+            "pstRangeId2",
+            "pstRangeName2",
+            "RTE",
+            Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
+            Collections.singletonList(new PstRange(0, 16, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.STARTS_AT_ONE)),
+            simpleCrac.getNetworkElement("BBE2AA1  BBE3AA1  1")
+        );
 
         simpleCrac.addNetworkAction(topology1);
         simpleCrac.addNetworkAction(topology2);
         simpleCrac.addNetworkAction(complexNetworkAction);
-        simpleCrac.addRangeAction(pstWithRange);
+        simpleCrac.addRangeAction(pstRangeAction1);
+        simpleCrac.addRangeAction(pstRangeAction2);
         assertEquals(4, simpleCrac.getBranchCnecs().size());
         assertEquals(3, simpleCrac.getNetworkActions().size());
-        assertEquals(1, simpleCrac.getRangeActions().size());
+        assertEquals(2, simpleCrac.getRangeActions().size());
         assertEquals(3, simpleCrac.getContingencies().size());
         assertEquals(3, simpleCrac.getStates().size());
 
@@ -137,14 +147,14 @@ public class CracCleanerTest {
         assertEquals(2, simpleCrac.getContingencies().size());
         assertEquals(2, simpleCrac.getStates().size());
 
-        assertEquals(8, qualityReport.size());
+        assertEquals(10, qualityReport.size());
         int removedCount = 0;
         for (String line : qualityReport) {
             if (line.contains("[REMOVED]")) {
                 removedCount++;
             }
         }
-        assertEquals(8, removedCount);
+        assertEquals(10, removedCount);
     }
 
     private Crac createTestCrac() {
@@ -226,7 +236,7 @@ public class CracCleanerTest {
             ActionType.OPEN
         );
 
-        PstWithRange pstWithRange = new PstWithRange(
+        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl(
             "pstRangeId",
             "pstRangeName",
             "RTE",
@@ -236,7 +246,7 @@ public class CracCleanerTest {
         );
 
         crac.addNetworkAction(topoRa);
-        crac.addRangeAction(pstWithRange);
+        crac.addRangeAction(pstRangeAction);
 
         CracCleaner cracCleaner = new CracCleaner();
         List<String> qualityReport = cracCleaner.cleanCrac(crac, network);

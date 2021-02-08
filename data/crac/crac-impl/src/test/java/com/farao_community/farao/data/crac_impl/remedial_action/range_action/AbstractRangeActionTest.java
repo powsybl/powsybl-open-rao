@@ -54,13 +54,13 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
     @Test
     public void abstractElementaryEquals() {
         PstRange range = new PstRange(1, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
-        AbstractRangeAction pst = new PstWithRange("pst_range_id", new NetworkElement("neID"));
+        AbstractRangeAction pst = new PstRangeActionImpl("pst_range_id", new NetworkElement("neID"));
         pst.addRange(range);
-        AbstractRangeAction pstRange1 = new PstWithRange("pst_range_id", new NetworkElement("neID"));
+        AbstractRangeAction pstRange1 = new PstRangeActionImpl("pst_range_id", new NetworkElement("neID"));
         pstRange1.addRange(range);
         assertEquals(pst.hashCode(), pstRange1.hashCode());
         assertEquals(pst, pstRange1);
-        AbstractRangeAction pstDifferent = new PstWithRange("pst_range_id_2", new NetworkElement("neOther"));
+        AbstractRangeAction pstDifferent = new PstRangeActionImpl("pst_range_id_2", new NetworkElement("neOther"));
         pstDifferent.addRange(new PstRange(1, 10, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.STARTS_AT_ONE));
         assertNotEquals(pst.hashCode(), pstDifferent.hashCode());
         assertNotEquals(pst, pstDifferent);
@@ -68,7 +68,7 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
 
     @Test
     public void testGroupId() {
-        AbstractRangeAction pst = new PstWithRange("pst_range_id", new NetworkElement("neID"));
+        AbstractRangeAction pst = new PstRangeActionImpl("pst_range_id", new NetworkElement("neID"));
         pst.setGroupId("groupId");
         assertTrue(pst.getGroupId().isPresent());
         assertEquals("groupId", pst.getGroupId().get());

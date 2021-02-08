@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-with-range")
-public final class PstWithRange extends AbstractRangeAction implements PstRangeAction {
+public final class PstRangeActionImpl extends AbstractRangeAction implements PstRangeAction {
     private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
     private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;
@@ -43,23 +43,23 @@ public final class PstWithRange extends AbstractRangeAction implements PstRangeA
      *
      * @param networkElement: PST element to modify
      */
-    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges,
+    public PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges,
                         NetworkElement networkElement, String groupId) {
         super(id, name, operator, usageRules, ranges, networkElement, groupId);
         initAttributes();
     }
 
-    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges, NetworkElement networkElement) {
+    public PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges, NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
         initAttributes();
     }
 
-    public PstWithRange(String id, String name, String operator, NetworkElement networkElement) {
+    public PstRangeActionImpl(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator, networkElement);
         initAttributes();
     }
 
-    public PstWithRange(String id, NetworkElement networkElement) {
+    public PstRangeActionImpl(String id, NetworkElement networkElement) {
         super(id, networkElement);
         initAttributes();
     }
