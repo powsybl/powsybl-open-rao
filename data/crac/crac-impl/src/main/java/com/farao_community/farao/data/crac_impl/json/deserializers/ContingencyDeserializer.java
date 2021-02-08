@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
@@ -82,7 +83,7 @@ final class ContingencyDeserializer {
             Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
 
             Contingency contingency;
-            if (type.equals(XNODE_CONTINGENCY_TYPE)) {
+            if (!Objects.isNull(type) && type.equals(XNODE_CONTINGENCY_TYPE)) {
                 if (!networkElements.isEmpty()) {
                     // the xnode contingency has already been synced
                     contingency = new XnodeContingency(id, name, xnodeIds, networkElements);
