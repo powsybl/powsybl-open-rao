@@ -312,7 +312,7 @@
     }
   } ],
   "rangeActions" : [ {
-    "type" : "pst-with-range",
+    "type" : "pst-range-action-impl",
     "id" : "PST1",
     "name" : "PST1",
     "operator" : "FR",

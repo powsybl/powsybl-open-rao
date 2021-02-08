@@ -77,7 +77,7 @@
     }
   } ],
   "rangeActions" : [ {
-    "type" : "pst-with-range",
+    "type" : "pst-range-action-impl",
     "id" : "SelectTapPST43",
     "name" : "SelectTapPST43",
     "operator" : "FR",

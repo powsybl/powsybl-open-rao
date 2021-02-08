@@ -78,7 +78,7 @@
   } ],
   "cnecs" : [ ],
   "rangeActions" : [ {
-    "type" : "pst-with-range",
+    "type" : "pst-range-action-impl",
     "id" : "PRA_PST_BE",
     "name" : "PRA_PST_BE",
     "operator" : "BE",

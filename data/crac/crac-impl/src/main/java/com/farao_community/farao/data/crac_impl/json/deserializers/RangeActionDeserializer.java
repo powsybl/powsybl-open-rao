@@ -90,7 +90,7 @@ final class RangeActionDeserializer {
 
                 case RANGES:
                     jsonParser.nextToken();
-                    if (type.equals(PST_WITH_RANGE_TYPE)) {
+                    if (type.equals(PST_RANGE_ACTION_IMPL_TYPE)) {
                         ranges = jsonParser.readValueAs(new TypeReference<List<PstRange>>() {
                         });
                     } else {
@@ -123,7 +123,7 @@ final class RangeActionDeserializer {
         Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
         RangeAction rangeAction;
         switch (type) {
-            case PST_WITH_RANGE_TYPE:
+            case PST_RANGE_ACTION_IMPL_TYPE:
                 List<PstRange> pstRanges = new ArrayList<>();
                 for (Range range : ranges) {
                     if (range instanceof PstRange) {
