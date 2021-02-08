@@ -221,7 +221,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
                 throw new FaraoException(format(SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE, contingency.getId()));
             }
             if (contingency instanceof XnodeContingency) {
-                // We cannot iterate through a virtual contingency's network element before it is synchronized
+                // We cannot iterate through an XnodeContingency's network elements before it is synchronized
                 contingencies.put(contingency.getId(), contingency);
             } else {
                 /*
