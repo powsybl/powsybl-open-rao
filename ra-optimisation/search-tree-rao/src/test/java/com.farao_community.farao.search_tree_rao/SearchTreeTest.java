@@ -86,7 +86,7 @@ public class SearchTreeTest {
         mockNativeLibraryLoader();
         PowerMockito.doReturn("successful").when(iteratingLinearOptimizer).optimize(any());
         PowerMockito.mockStatic(RaoUtil.class);
-        PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
+        PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
 
         CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());
         Mockito.when(raoData.getCracResultManager()).thenReturn(spiedCracResultManager);
@@ -104,12 +104,12 @@ public class SearchTreeTest {
 
         PowerMockito.mockStatic(SearchTreeRaoLogger.class);
 
-        Leaf mockLeaf = Mockito.spy(new Leaf(raoData, raoParameters));
+        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
+        Leaf mockLeaf = Mockito.spy(new Leaf(raoData, raoParameters, treeParameters));
         PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(mockLeaf);
         when(mockLeaf.getBestCost()).thenReturn(0.);
         PowerMockito.doNothing().when(mockLeaf).evaluate();
 
-        TreeParameters treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         RaoResult result = searchTree.run(raoData, raoParameters, treeParameters).join();
         assertNotNull(result);
         assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
