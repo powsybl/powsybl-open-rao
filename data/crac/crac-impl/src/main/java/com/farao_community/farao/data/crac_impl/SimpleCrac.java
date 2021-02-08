@@ -199,7 +199,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public ContingencyAdder newContingency() {
-        return new ComplexContingencyAdder(this);
+        return new SimpleContingencyAdder(this);
     }
 
     public Contingency addContingency(String id, String... networkElementIds) {
@@ -487,10 +487,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         branchCnecs.values().forEach(cnec -> cnec.synchronize(network));
         rangeActions.values().forEach(rangeAction -> rangeAction.synchronize(network));
         contingencies.values().forEach(contingency -> contingency.synchronize(network));
-        // TODO : add network elements of xnode contingencies to crac ?
-        /*contingencies.values().forEach(contingency -> {
-            contingency.getNetworkElements().forEach(ne -> this.addNetworkElement(ne));
-        });*/
+        // TODO : add network elements of xnode contingencies to crac ? for the moment it doesn't seem necessary
         networkDate = network.getCaseDate();
         isSynchronized = true;
     }

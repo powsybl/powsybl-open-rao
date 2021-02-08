@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
@@ -91,5 +92,57 @@ public class XnodeContingencyTest {
         xnodeContingency.apply(network, computationManager);
         assertTrue(network.getDanglingLine("DDE3AA1  XLI_OB1A 1").getTerminal().connect());
         assertTrue(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().connect());
+    }
+
+    @Test
+    public void testEquals() {
+        assertTrue(xnodeContingency.equals(xnodeContingency));
+        assertFalse(xnodeContingency.equals(null));
+        assertFalse(xnodeContingency.equals(new ComplexContingency(xnodeContingency.getId())));
+        assertFalse(xnodeContingency.equals(new XnodeContingency("alegro1", Set.of("XLI_OB1A", "XLI_OB1B"))));
+        assertFalse(xnodeContingency.equals(new XnodeContingency("alegro", Set.of("XLI_OB1C", "XLI_OB1B"))));
+
+        XnodeContingency xnodeContingency2;
+        xnodeContingency2 = new XnodeContingency("alegro", Set.of("XLI_OB1B", "XLI_OB1A"));
+        assertTrue(xnodeContingency.equals(xnodeContingency2));
+
+        xnodeContingency2.synchronize(network);
+        assertFalse(xnodeContingency.equals(xnodeContingency2));
+
+        xnodeContingency.synchronize(network);
+        xnodeContingency2.desynchronize();
+        assertFalse(xnodeContingency.equals(xnodeContingency2));
+
+        xnodeContingency2.synchronize(network);
+        assertTrue(xnodeContingency.equals(xnodeContingency2));
+
+        xnodeContingency2 = new XnodeContingency("alegro", Set.of("XLI_OB1A"));
+        xnodeContingency2.synchronize(network);
+        assertFalse(xnodeContingency.equals(xnodeContingency2));
+    }
+
+    @Test
+    public void testAddXnode() {
+        xnodeContingency = new XnodeContingency("alegro", Set.of("XLI_OB1A"));
+        xnodeContingency.synchronize(network);
+        assertTrue(xnodeContingency.isSynchronized());
+        assertEquals(1, xnodeContingency.getNetworkElements().size());
+        xnodeContingency.addXnode("XLI_OB1B");
+        assertFalse(xnodeContingency.isSynchronized());
+        xnodeContingency.synchronize(network);
+        assertEquals(2, xnodeContingency.getNetworkElements().size());
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testApplyException() {
+        xnodeContingency.apply(network, computationManager);
+    }
+
+    @Test
+    public void testWrongDanglingLine() {
+        xnodeContingency = new XnodeContingency("alegro", Set.of("XLI_OB1A_WRONG"));
+        xnodeContingency.synchronize(network);
+        assertTrue(xnodeContingency.isSynchronized());
+        assertEquals(0, xnodeContingency.getNetworkElements().size());
     }
 }

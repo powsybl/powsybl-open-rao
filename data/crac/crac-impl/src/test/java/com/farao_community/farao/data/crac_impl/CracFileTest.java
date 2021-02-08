@@ -174,6 +174,16 @@ public class CracFileTest {
     }
 
     @Test
+    public void testAddXnodeContingency() {
+        assertEquals(0, simpleCrac.getContingencies().size());
+        assertEquals(0, simpleCrac.getNetworkElements().size());
+        simpleCrac.newContingency().setId("xnode-contingency").addXnode("xnode").add();
+        assertEquals(1, simpleCrac.getContingencies().size());
+        assertNotNull(simpleCrac.getContingency("xnode-contingency"));
+        assertEquals(0, simpleCrac.getNetworkElements().size());
+    }
+
+    @Test
     public void addStatesWithIdFail() {
         try {
             simpleCrac.addState("contingency", "instant");

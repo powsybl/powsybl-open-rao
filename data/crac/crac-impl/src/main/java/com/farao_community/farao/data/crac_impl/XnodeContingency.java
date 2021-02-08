@@ -35,7 +35,7 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
 
     public XnodeContingency(String id, String name, final Set<String> xnodeIds) {
         super(id, name);
-        this.xnodeIds = xnodeIds;
+        this.xnodeIds = new HashSet<>(xnodeIds);
     }
 
     public XnodeContingency(String id, final Set<String> xnodeIds) {
@@ -90,8 +90,6 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
         }
         this.realContingency = new ComplexContingency(getId() + "_onDanglingLines", networkElements);
         isSynchronized = true;
-        // should we replace the object in the crac with referenced network elements from the crac ?
-        // 'like what is done in SimpleCrac.addContingency for ComplexContingency)
     }
 
     private DanglingLine findDanglingLine(String xnode, Network network) {
@@ -106,5 +104,38 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
     @Override
     public boolean isSynchronized() {
         return isSynchronized;
+    }
+
+    /**
+     * Check if xnode contingencies are equals. Xnode contingencies are considered equals when IDs are equals,
+     * synchronization status is the same, and all the contained network elements are also equals.
+     * So if they are not synchronized, Xnode IDs should be equals.
+     * If they are synchronized, network elements should be equals (we can  check that the underlying
+     * ComplexContingencies are equals)
+     *
+     * @param o: If it's null or another object than XnodeContingency it will return false.
+     * @return A boolean true if objects are equals, otherwise false.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        XnodeContingency contingency = (XnodeContingency) o;
+        if (this.isSynchronized != contingency.isSynchronized) {
+            return false;
+        } else if (!this.isSynchronized) {
+            return super.equals(o) && new HashSet<>(contingency.getXnodeIds()).equals(new HashSet<>(xnodeIds));
+        } else {
+            return super.equals(o) && this.realContingency.equals(contingency.realContingency);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }
