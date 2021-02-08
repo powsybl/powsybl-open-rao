@@ -100,7 +100,7 @@ public class CracResultManager {
                 RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
                 int approximatedPostOptimTap;
                 double approximatedPostOptimAngle;
-                if (raoData.getAvailableRangeActions().contains(rangeAction)) {
+                if (raoData.getAvailableRangeActions().contains(rangeAction) && linearProblem.getRangeActionSetPointVariable(rangeAction) != null) {
                     String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
                     double rangeActionVal = linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
                     PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
@@ -111,7 +111,7 @@ public class CracResultManager {
 
                     LOGGER.debug("Range action {} has been set to tap {}", pstRangeAction.getName(), approximatedPostOptimTap);
                 } else {
-                    // For range actions that are not available in the perimeter, copy their setpoint from the initial variant
+                    // For range actions that are not available in the perimeter or filtered out of optimization, copy their setpoint from the initial variant
                     approximatedPostOptimTap = ((PstRangeResult) pstRangeResultMap.getVariant(raoData.getPreOptimVariantId())).getTap(raoData.getOptimizedState().getId());
                     approximatedPostOptimAngle = pstRangeResultMap.getVariant(raoData.getPreOptimVariantId()).getSetPoint(raoData.getOptimizedState().getId());
                 }
