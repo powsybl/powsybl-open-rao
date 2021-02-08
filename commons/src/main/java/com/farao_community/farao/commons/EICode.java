@@ -50,14 +50,6 @@ public class EICode {
         return isCountryCode;
     }
 
-    /**
-     * @deprecated all EIC which are not country code might not necessary be virtual hubs
-     *             prefer using !{@link #isCountryCode()} instead.
-     */
-    public boolean isVirtualHub() {
-        return !isCountryCode;
-    }
-
     @Override
     public String toString() {
         return isCountryCode ? new CountryEICode(areaCode).getCountry().toString() : areaCode;

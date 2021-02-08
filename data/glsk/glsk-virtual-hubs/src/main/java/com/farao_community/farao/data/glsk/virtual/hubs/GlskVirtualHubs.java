@@ -47,7 +47,7 @@ public final class GlskVirtualHubs {
      */
     public static ZonalData<LinearGlsk> getVirtualHubGlsks(Network network, ReferenceProgram referenceProgram) {
         List<String> countryCodes = referenceProgram.getListOfAreas().stream()
-            .filter(EICode::isVirtualHub)
+            .filter(eiCode -> !eiCode.isCountryCode())
             .map(EICode::getAreaCode)
             .collect(Collectors.toList());
         return getVirtualHubGlsks(network, countryCodes);
