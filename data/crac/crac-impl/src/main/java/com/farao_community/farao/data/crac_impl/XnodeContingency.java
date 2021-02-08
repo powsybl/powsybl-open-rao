@@ -124,7 +124,6 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
         return isSynchronized;
     }
 
-
     private void createRealContingency(Set<NetworkElement> networkElements) {
         this.realContingency = new ComplexContingency(getId() + "_onDanglingLines", networkElements);
     }
