@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Country;
  */
 public class CountryEICode {
     //EIC = Energy Identification Code
-    //CountryEICode = Energy Identification Code
 
     /**
      * code string

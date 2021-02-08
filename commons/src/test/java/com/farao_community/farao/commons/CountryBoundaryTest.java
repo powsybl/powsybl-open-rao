@@ -32,13 +32,6 @@ public class CountryBoundaryTest {
     }
 
     @Test
-    public void testContains() {
-        assertTrue(boundaryFrBe.contains(Country.FR));
-        assertTrue(boundaryFrBe.contains(Country.BE));
-        assertFalse(boundaryFrBe.contains(Country.DE));
-    }
-
-    @Test
     public void testEquals() {
         assertEquals(boundaryFrBe, new CountryBoundary(Country.FR, Country.BE));
         assertEquals(boundaryFrBe, new CountryBoundary(Country.BE, Country.FR));

@@ -55,21 +55,15 @@ public class CountryGraph {
     }
 
     public boolean areNeighbors(Country country1, Country country2) {
-        if (country1.equals(country2)) {
-            return true;
-        }
-        return boundaries.stream().anyMatch(boundary -> boundary.contains(country1) && boundary.contains(country2));
+        return areNeighbors(country1, country2, 1);
     }
 
     public boolean areNeighbors(Country country1, Country country2, int maxNumberOfBoundaries) {
-        if (maxNumberOfBoundaries < 0) {
+        if (country1.equals(country2)) {
+            return true;
+        }
+        if (maxNumberOfBoundaries <= 0) {
             return false;
-        }
-        if (maxNumberOfBoundaries == 0) {
-            return country1.equals(country2);
-        }
-        if (maxNumberOfBoundaries == 1) {
-            return areNeighbors(country1, country2);
         }
 
         for (CountryBoundary boundary : boundaries) {

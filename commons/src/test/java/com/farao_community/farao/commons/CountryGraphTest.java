@@ -26,22 +26,24 @@ public class CountryGraphTest {
         CountryGraph graph = new CountryGraph(network);
 
         // FR-FR
+        assertTrue(graph.areNeighbors(Country.FR, Country.FR, 0));
         assertTrue(graph.areNeighbors(Country.FR, Country.FR));
         assertTrue(graph.areNeighbors(Country.FR, Country.FR, 1));
         assertTrue(graph.areNeighbors(Country.FR, Country.FR, 2));
 
         // FR-BE
+        assertFalse(graph.areNeighbors(Country.FR, Country.BE, 0));
         assertTrue(graph.areNeighbors(Country.FR, Country.BE));
         assertTrue(graph.areNeighbors(Country.FR, Country.BE, 1));
         assertTrue(graph.areNeighbors(Country.FR, Country.BE, 2));
 
         // FR-NL
+        assertFalse(graph.areNeighbors(Country.FR, Country.NL, 0));
         assertFalse(graph.areNeighbors(Country.FR, Country.NL));
         assertFalse(graph.areNeighbors(Country.FR, Country.NL, 1));
         assertTrue(graph.areNeighbors(Country.FR, Country.NL, 2));
 
-        // 0 or negative max number of boundaries
-        assertFalse(graph.areNeighbors(Country.FR, Country.BE, 0));
+        // negative max number of boundaries
         assertFalse(graph.areNeighbors(Country.FR, Country.BE, -10));
     }
 }

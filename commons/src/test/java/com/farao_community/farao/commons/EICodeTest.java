@@ -48,4 +48,13 @@ public class EICodeTest {
         new EICode(Country.NP);
     }
 
+    @Test
+    public void toStringTest() {
+        EICode eiCodeNotACountry = new EICode("RANDOM_EIC_CODE_");
+        assertEquals("RANDOM_EIC_CODE_", eiCodeNotACountry.toString());
+
+        EICode eiCodeCountry = new EICode("10YFR-RTE------C");
+        assertEquals("FR", eiCodeCountry.toString());
+    }
+
 }

@@ -292,7 +292,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public RaoParameters setRelativeMarginPtdfBoundariesFromString(List<String> boundaries) {
         /*
-        Expected strings : "Code1:Code2"
+        Expected strings : "Code1/Code2"
         Where Code1 and Code2 are EICodes or CountryCodes
          */
         this.relativeMarginPtdfBoundaries = boundaries.stream()

@@ -33,10 +33,6 @@ public class CountryBoundary {
         return new ImmutablePair<>(country1, country2);
     }
 
-    public boolean contains(Country country) {
-        return country.equals(country1) || country.equals(country2);
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(country1, country2);
