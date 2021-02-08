@@ -487,9 +487,18 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         branchCnecs.values().forEach(cnec -> cnec.synchronize(network));
         rangeActions.values().forEach(rangeAction -> rangeAction.synchronize(network));
         contingencies.values().forEach(contingency -> contingency.synchronize(network));
-        // TODO : add network elements of xnode contingencies to crac ? for the moment it doesn't seem necessary
+        addXnodeContingenciesNetworkElements();
         networkDate = network.getCaseDate();
         isSynchronized = true;
+    }
+
+    private void addXnodeContingenciesNetworkElements() {
+        contingencies.values().stream().filter(contingency -> contingency instanceof XnodeContingency)
+                .forEach(contingency -> contingency.getNetworkElements().forEach(networkElement -> {
+                    if (getNetworkElement(networkElement.getId()) == null) {
+                        addNetworkElement(networkElement);
+                    }
+                }));
     }
 
     @Override

@@ -7,9 +7,13 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_impl.json.serializers.XnodeContingencySerializer;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
@@ -27,6 +31,8 @@ import java.util.Set;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
+@JsonTypeName("xnode-contingency")
+@JsonSerialize(using = XnodeContingencySerializer.class)
 public class XnodeContingency extends AbstractIdentifiable<Contingency> implements Contingency {
     static final Logger LOGGER = LoggerFactory.getLogger(XnodeContingency.class);
     private Set<String> xnodeIds;
@@ -40,6 +46,22 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
 
     public XnodeContingency(String id, final Set<String> xnodeIds) {
         this(id, id, xnodeIds);
+    }
+
+    /**
+     * This constructor can be used if the XnodeContingency has already been synchronized, for example in a json importer
+     * @param id: ID of the contingency
+     * @param name: name of the contingency
+     * @param xnodeIds: the Xnodes
+     * @param networkElements: the NetworkElements corresponding to the Xnodes
+     */
+    public XnodeContingency(String id, String name, final Set<String> xnodeIds, final Set<NetworkElement> networkElements) {
+        this(id, name, xnodeIds);
+        if (xnodeIds.size() != networkElements.size()) {
+            throw new FaraoException("You should provide the network elements corresponding to the Xnodes");
+        }
+        createRealContingency(networkElements);
+        isSynchronized = true;
     }
 
     public XnodeContingency(String id) {
@@ -88,12 +110,8 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
                 LOGGER.error("Xnode {} in contingency {} could not be mapped to a dangling line in the given network. It will be ignored when applying the contingency.", xnode, getId());
             }
         }
-        this.realContingency = new ComplexContingency(getId() + "_onDanglingLines", networkElements);
+        createRealContingency(networkElements);
         isSynchronized = true;
-    }
-
-    private DanglingLine findDanglingLine(String xnode, Network network) {
-        return network.getDanglingLineStream().filter(danglingLine -> danglingLine.getUcteXnodeCode().equals(xnode)).findFirst().orElse(null);
     }
 
     @Override
@@ -104,6 +122,15 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
     @Override
     public boolean isSynchronized() {
         return isSynchronized;
+    }
+
+
+    private void createRealContingency(Set<NetworkElement> networkElements) {
+        this.realContingency = new ComplexContingency(getId() + "_onDanglingLines", networkElements);
+    }
+
+    private DanglingLine findDanglingLine(String xnode, Network network) {
+        return network.getDanglingLineStream().filter(danglingLine -> danglingLine.getUcteXnodeCode().equals(xnode)).findFirst().orElse(null);
     }
 
     /**
