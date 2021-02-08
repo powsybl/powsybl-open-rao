@@ -39,8 +39,7 @@ public final class CneCnecsCreator {
 
     }
 
-    static void createConstraintSeriesOfACnec(BranchCnec cnec, CneHelper cneHelper, List<ConstraintSeries> constraintSeriesList) {
-
+    static void createConstraintSeriesOfACnec(BranchCnec cnec, CneHelper cneHelper, List<ConstraintSeries> constraintSeriesList, boolean relativePositiveMargins) {
         Network network = cneHelper.getNetwork();
         String preOptimVariantId = cneHelper.getPreOptimVariantId();
         String postOptimVariantId = cneHelper.getPostOptimVariantId();
@@ -70,9 +69,9 @@ public final class CneCnecsCreator {
 
         CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
         if (cnecResultExtension != null) {
-            CneCnecsCreator.createB88Measurements(cnec, preOptimVariantId, measurementsB88);
-            CneCnecsCreator.createB57Measurements(cnec, postOptimVariantId, measurementsB57);
-            CneCnecsCreator.createB54Measurements(cnec, postOptimVariantId, measurementsB54);
+            CneCnecsCreator.createB88Measurements(cnec, preOptimVariantId, measurementsB88, relativePositiveMargins);
+            CneCnecsCreator.createB57Measurements(cnec, preOptimVariantId, postOptimVariantId, measurementsB57, relativePositiveMargins);
+            CneCnecsCreator.createB54Measurements(cnec, preOptimVariantId, postOptimVariantId, measurementsB54, relativePositiveMargins);
 
             MonitoredRegisteredResource monitoredRegisteredResourceB88 = createMonitoredRegisteredResource(cnec, network, measurementsB88);
             constraintSeriesB88.monitoredSeries.add(newMonitoredSeries(cnec.getId(), cnec.getName(), monitoredRegisteredResourceB88));
@@ -121,27 +120,30 @@ public final class CneCnecsCreator {
         return countries;
     }
 
-    private static void createB88Measurements(BranchCnec cnec, String preOptimVariantId, List<Analog> measurements) {
-        createB88B57B54Measurements(cnec, preOptimVariantId, measurements, true, true);
+    private static void createB88Measurements(BranchCnec cnec, String preOptimVariantId, List<Analog> measurements, boolean relativePositiveMargins) {
+        createB88B57B54Measurements(cnec, preOptimVariantId, preOptimVariantId, measurements, relativePositiveMargins, true, true);
     }
 
-    private static void createB57Measurements(BranchCnec cnec, String postOptimVariantId, List<Analog> measurements) {
-        createB88B57B54Measurements(cnec, postOptimVariantId, measurements, false, true);
+    private static void createB57Measurements(BranchCnec cnec, String preOptimVariantId, String postOptimVariantId, List<Analog> measurements, boolean relativePositiveMargins) {
+        createB88B57B54Measurements(cnec, preOptimVariantId, postOptimVariantId, measurements, relativePositiveMargins, false, true);
     }
 
-    private static void createB54Measurements(BranchCnec cnec, String postOptimVariantId, List<Analog> measurements) {
-        createB88B57B54Measurements(cnec, postOptimVariantId, measurements, true, false);
+    private static void createB54Measurements(BranchCnec cnec, String preOptimVariantId, String postOptimVariantId, List<Analog> measurements, boolean relativePositiveMargins) {
+        createB88B57B54Measurements(cnec, preOptimVariantId, postOptimVariantId, measurements, relativePositiveMargins, true, false);
     }
 
-    private static void createB88B57B54Measurements(BranchCnec cnec, String variantId, List<Analog> measurements, boolean withPatl, boolean withTatl) {
+    private static void createB88B57B54Measurements(BranchCnec cnec, String preOptimVariantId, String variantId, List<Analog> measurements, boolean relativePositiveMargins, boolean withPatl, boolean withTatl) {
         CnecResultExtension cnecResultExtension = cnec.getExtension(CnecResultExtension.class);
         // The check of the existence of the CnecResultExtension was done in another method
         assert cnecResultExtension != null;
 
+        CnecResult initialCnecResult = cnecResultExtension.getVariant(preOptimVariantId);
         CnecResult cnecResult = cnecResultExtension.getVariant(variantId);
         if (cnecResult == null) {
             return;
         }
+        // Z11
+        double absPtdfSum = addSumPtdf(initialCnecResult, measurements);
         for (Unit unit : List.of(Unit.AMPERE, Unit.MEGAWATT)) {
             // A01
             double flow = addFlow(cnecResult, unit, measurements);
@@ -151,7 +153,7 @@ public final class CneCnecsCreator {
                 // Z12
                 double patlMargin = addMargin(flow, patlThreshold, unit, ABS_MARG_PATL_MEASUREMENT_TYPE, measurements);
                 // Z13
-                addObjectiveFunction(patlMargin, unit, OBJ_FUNC_PATL_MEASUREMENT_TYPE, measurements);
+                addObjectiveFunction(patlMargin, absPtdfSum, relativePositiveMargins, unit, OBJ_FUNC_PATL_MEASUREMENT_TYPE, measurements);
             }
             if (withTatl) {
                 // A07
@@ -159,13 +161,11 @@ public final class CneCnecsCreator {
                 // Z14
                 double tatlMargin = addMargin(flow, tatlThreshold, unit, ABS_MARG_TATL_MEASUREMENT_TYPE, measurements);
                 // Z15
-                addObjectiveFunction(tatlMargin, unit, OBJ_FUNC_TATL_MEASUREMENT_TYPE, measurements);
+                addObjectiveFunction(tatlMargin, absPtdfSum, relativePositiveMargins, unit, OBJ_FUNC_TATL_MEASUREMENT_TYPE, measurements);
             }
         }
         // A03
         addFrm(cnec, measurements);
-        // Z11
-        addSumPtdf();
         // Z16 & Z17
         addLoopflow(cnecResult, measurements);
     }
@@ -180,7 +180,7 @@ public final class CneCnecsCreator {
             throw new FaraoException(String.format(UNHANDLED_UNIT, unit.toString()));
         }
         if (!Double.isNaN(flow)) {
-            measurements.add(newMeasurement(FLOW_MEASUREMENT_TYPE, unit, flow));
+            measurements.add(newFlowMeasurement(FLOW_MEASUREMENT_TYPE, unit, flow));
         }
         return flow;
     }
@@ -188,20 +188,21 @@ public final class CneCnecsCreator {
     private static double addThreshold(CnecResult cnecResult, Unit unit, String measurementType, List<Analog> measurements) {
         double threshold = getClosestThreshold(cnecResult, unit);
         if (!Double.isNaN(threshold)) {
-            measurements.add(newMeasurement(measurementType, unit, threshold));
+            measurements.add(newFlowMeasurement(measurementType, unit, threshold));
         }
         return threshold;
     }
 
     private static double addMargin(double flow, double threshold, Unit unit, String measurementType, List<Analog> measurements) {
         double margin = Math.signum(threshold) * (threshold - flow);
-        measurements.add(newMeasurement(measurementType, unit, margin));
+        measurements.add(newFlowMeasurement(measurementType, unit, margin));
         return margin;
     }
 
-    private static double addObjectiveFunction(double margin, Unit unit, String measurementType, List<Analog> measurements) {
-        measurements.add(newMeasurement(measurementType, unit, -margin));
-        return -margin;
+    private static double addObjectiveFunction(double margin, double absPtdfSum, boolean relativePositiveMargins, Unit unit, String measurementType, List<Analog> measurements) {
+        double objValue = relativePositiveMargins && margin > 0 ? -margin / absPtdfSum : -margin;
+        measurements.add(newFlowMeasurement(measurementType, unit, objValue));
+        return objValue;
     }
 
     /**
@@ -230,22 +231,23 @@ public final class CneCnecsCreator {
 
     private static void addFrm(BranchCnec cnec, List<Analog> measurements) {
         if (!Double.isNaN(cnec.getReliabilityMargin())) {
-            measurements.add(newMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, cnec.getReliabilityMargin()));
+            measurements.add(newFlowMeasurement(FRM_MEASUREMENT_TYPE, Unit.MEGAWATT, cnec.getReliabilityMargin()));
         }
     }
 
-    private static void addSumPtdf() {
-        // TODO: develop this once relative margin is handled
-        // factor used to convert absolute margin to relative margin
-        // PTDF = sumPTDF = |z2zPTDFS|: zone-to-zone PTDF means the power distribution factor of a commercial exchange between two bidding zones
-
+    private static double addSumPtdf(CnecResult cnecResult, List<Analog> measurements) {
+        double absPtdfSum = cnecResult.getAbsolutePtdfSum();
+        if (!Double.isNaN(absPtdfSum)) {
+            measurements.add(newPtdfMeasurement(SUM_PTDF_MEASUREMENT_TYPE, absPtdfSum));
+        }
+        return absPtdfSum;
     }
 
     private static void addLoopflow(CnecResult cnecResult, List<Analog> measurements) {
         if (!Double.isNaN(cnecResult.getLoopflowInMW()) && !Double.isNaN(cnecResult.getLoopflowThresholdInMW())) {
-            measurements.add(newMeasurement(LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResult.getLoopflowInMW()));
+            measurements.add(newFlowMeasurement(LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, cnecResult.getLoopflowInMW()));
             double threshold = Math.signum(cnecResult.getLoopflowInMW()) * cnecResult.getLoopflowThresholdInMW();
-            measurements.add(newMeasurement(MAX_LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, threshold));
+            measurements.add(newFlowMeasurement(MAX_LOOPFLOW_MEASUREMENT_TYPE, Unit.MEGAWATT, threshold));
         }
     }
 
