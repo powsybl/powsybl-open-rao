@@ -69,21 +69,6 @@ public class XnodeContingencyTest {
         xnodeContingency.getNetworkElements();
     }
 
-    @Test(expected = AlreadySynchronizedException.class)
-    public void testResynchronizeException() {
-        xnodeContingency.synchronize(network);
-        xnodeContingency.synchronize(network);
-    }
-
-    @Test
-    public void testResynchronizeOk() {
-        xnodeContingency.synchronize(network);
-        xnodeContingency.desynchronize();
-        assertFalse(xnodeContingency.isSynchronized());
-        xnodeContingency.synchronize(network);
-        assertTrue(xnodeContingency.isSynchronized());
-    }
-
     @Test
     public void testApply() {
         xnodeContingency.synchronize(network);
@@ -163,5 +148,33 @@ public class XnodeContingencyTest {
     public void testFourArgumentConstructorError() {
         NetworkElement ne = new NetworkElement("ne");
         xnodeContingency = new XnodeContingency("alegro", "alegro", Set.of("XLI_OB1B", "XLI_OB1A"), Set.of(ne));
+    }
+
+    @Test
+    public void testResynchronize1() {
+        NetworkElement ne1 = new NetworkElement("ne1");
+        NetworkElement ne2 = new NetworkElement("ne2");
+        xnodeContingency = new XnodeContingency("alegro", "alegro", Set.of("XLI_OB1B", "XLI_OB1A"), Set.of(ne1, ne2));
+        assertTrue(xnodeContingency.isSynchronized());
+        xnodeContingency.synchronize(network);
+        assertTrue(xnodeContingency.isSynchronized());
+        assertEquals(2, xnodeContingency.getNetworkElements().size());
+        assertTrue(xnodeContingency.getNetworkElements().contains(ne1));
+        assertTrue(xnodeContingency.getNetworkElements().contains(ne2));
+    }
+
+    @Test
+    public void testResynchronize2() {
+        NetworkElement ne1 = new NetworkElement("ne1");
+        NetworkElement ne2 = new NetworkElement("ne2");
+        xnodeContingency = new XnodeContingency("alegro", "alegro", Set.of("XLI_OB1B", "XLI_OB1A"), Set.of(ne1, ne2));
+        assertTrue(xnodeContingency.isSynchronized());
+        xnodeContingency.desynchronize();
+        assertFalse(xnodeContingency.isSynchronized());
+        xnodeContingency.synchronize(network);
+        assertTrue(xnodeContingency.isSynchronized());
+        assertEquals(2, xnodeContingency.getNetworkElements().size());
+        assertTrue(xnodeContingency.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("DDE3AA1  XLI_OB1A 1")));
+        assertTrue(xnodeContingency.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("BBE2AA1  XLI_OB1B 1")));
     }
 }

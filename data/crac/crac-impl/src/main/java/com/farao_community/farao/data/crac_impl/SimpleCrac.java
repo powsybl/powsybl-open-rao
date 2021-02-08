@@ -492,6 +492,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         isSynchronized = true;
     }
 
+    /**
+     * This method adds network elements from XnodeContingencies to the crac.
+     * For ComplexContingencies, they are added when the contingencies are added to the crac. This is not possible for
+     * XnodeContingencies since they have to be synchronized with the network first in order to find the network elements
+     * corresponding to the xnodes.
+     */
     private void addXnodeContingenciesNetworkElements() {
         contingencies.values().stream().filter(contingency -> contingency instanceof XnodeContingency)
                 .forEach(contingency -> contingency.getNetworkElements().forEach(networkElement -> {

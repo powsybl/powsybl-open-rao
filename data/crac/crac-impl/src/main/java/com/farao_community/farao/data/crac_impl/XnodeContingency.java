@@ -99,7 +99,9 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
     @Override
     public void synchronize(Network network) {
         if (isSynchronized) {
-            throw new AlreadySynchronizedException(String.format("Xnode contingency %s has already been synchronized", getId()));
+            // Don't throw an exception if it's already synchronized since it can happen that some contingencies are synced after json import
+            // Just do nothing
+            return;
         }
         Set<NetworkElement> networkElements = new HashSet<>();
         for (String xnode : this.xnodeIds) {
