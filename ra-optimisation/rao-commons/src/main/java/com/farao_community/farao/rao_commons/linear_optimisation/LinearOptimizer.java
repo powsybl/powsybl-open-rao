@@ -105,6 +105,7 @@ public class LinearOptimizer {
         if (getSolverResultStatusString().equals("OPTIMAL")) {
             raoData.getCracResultManager().fillRangeActionResultsWithLinearProblem(linearProblem);
             raoData.getCracResultManager().applyRangeActionResultsOnNetwork();
+            raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
         }
     }
 
