@@ -20,9 +20,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -100,10 +98,13 @@ public class CracResultManager {
                 RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
                 int approximatedPostOptimTap;
                 double approximatedPostOptimAngle;
-                if (raoData.getAvailableRangeActions().contains(rangeAction) && linearProblem.getRangeActionSetPointVariable(rangeAction) != null) {
-                    String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
-                    double rangeActionVal = linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
-                    PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
+                Optional<RangeAction> sameNetworkElementRangeAction = raoData.getAvailableRangeActions().stream()
+                    .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && linearProblem.getRangeActionSetPointVariable(ra) != null)
+                    .findFirst();
+                if (sameNetworkElementRangeAction.isPresent()) {
+                    double rangeActionVal = linearProblem.getRangeActionSetPointVariable(sameNetworkElementRangeAction.get()).solutionValue();
+                    PstRangeAction pstRangeAction = (PstRangeAction) sameNetworkElementRangeAction.get();
                     TwoWindingsTransformer transformer = raoData.getNetwork().getTwoWindingsTransformer(networkElementId);
 
                     approximatedPostOptimTap = pstRangeAction.computeTapPosition(rangeActionVal);
