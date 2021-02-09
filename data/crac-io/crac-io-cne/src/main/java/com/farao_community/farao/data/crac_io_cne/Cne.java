@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_io_cne;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Identifiable;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
@@ -99,7 +100,7 @@ public class Cne {
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
         crac.getBranchCnecs().stream().sorted(Comparator.comparing(Identifiable::getId))
-                .forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList));
+                .forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList, isRelativePositiveMargins()));
 
         ConstraintSeries preventiveB56 = newConstraintSeries(generateRandomMRID(), B56_BUSINESS_TYPE);
         crac.getRangeActions().stream().sorted(Comparator.comparing(Identifiable::getId))
@@ -113,5 +114,17 @@ public class Cne {
 
         /* Add all constraint series to the CNE */
         point.constraintSeries = constraintSeriesList;
+    }
+
+    /**
+     * This method figures out if positive margins should be exported as relative margins in the objective function
+     * This is necessary since we don't have access to RaoParameters in this exporter
+     * If things change in the future, this should be changed
+     */
+    // TODO : change this if RaoParameters is added to RaoResult, and RaoResult accessible in exporter
+    private boolean isRelativePositiveMargins() {
+        return cneHelper.getCrac().getBranchCnecs().stream().anyMatch(branchCnec ->
+            !Double.isNaN(branchCnec.getExtension(CnecResultExtension.class).getVariant(cneHelper.getPreOptimVariantId()).getAbsolutePtdfSum())
+        );
     }
 }
