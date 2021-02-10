@@ -26,9 +26,9 @@ public class CountryBoundaryTest {
     }
 
     @Test
-    public void testGetCountryPair() {
-        assertTrue(boundaryFrBe.getCountryPair().getLeft().equals(Country.FR) || boundaryFrBe.getCountryPair().getRight().equals(Country.FR));
-        assertTrue(boundaryFrBe.getCountryPair().getLeft().equals(Country.BE) || boundaryFrBe.getCountryPair().getRight().equals(Country.BE));
+    public void testGetCountry() {
+        assertTrue(boundaryFrBe.getCountryLeft().equals(Country.FR) || boundaryFrBe.getCountryRight().equals(Country.FR));
+        assertTrue(boundaryFrBe.getCountryLeft().equals(Country.BE) || boundaryFrBe.getCountryRight().equals(Country.BE));
     }
 
     @Test

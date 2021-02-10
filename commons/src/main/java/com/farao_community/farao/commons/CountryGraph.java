@@ -8,7 +8,6 @@ package com.farao_community.farao.commons;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,9 +66,8 @@ public class CountryGraph {
         }
 
         for (CountryBoundary boundary : boundaries) {
-            Pair<Country, Country> countryPair = boundary.getCountryPair();
-            if ((countryPair.getLeft().equals(country1) && areNeighbors(countryPair.getRight(), country2, maxNumberOfBoundaries - 1))
-                || (countryPair.getRight().equals(country1) && areNeighbors(countryPair.getLeft(), country2, maxNumberOfBoundaries - 1))) {
+            if ((boundary.getCountryLeft().equals(country1) && areNeighbors(boundary.getCountryRight(), country2, maxNumberOfBoundaries - 1))
+                || (boundary.getCountryRight().equals(country1) && areNeighbors(boundary.getCountryLeft(), country2, maxNumberOfBoundaries - 1))) {
                 return true;
             }
         }

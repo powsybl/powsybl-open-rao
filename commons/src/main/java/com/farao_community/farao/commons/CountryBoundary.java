@@ -8,8 +8,6 @@ package com.farao_community.farao.commons;
 
 import com.google.common.collect.Sets;
 import com.powsybl.iidm.network.Country;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
 
@@ -29,8 +27,12 @@ public class CountryBoundary {
         this.country2 = country2;
     }
 
-    public Pair<Country, Country> getCountryPair() {
-        return new ImmutablePair<>(country1, country2);
+    public Country getCountryLeft() {
+        return country1;
+    }
+
+    public Country getCountryRight() {
+        return country2;
     }
 
     @Override
