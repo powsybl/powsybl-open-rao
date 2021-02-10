@@ -66,8 +66,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
-        final double minAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
-        final double maxAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
+        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
@@ -132,8 +132,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
-        final double minAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
-        final double maxAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
+        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
@@ -198,8 +198,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
-        final double minAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MIN_TAP).getAlpha();
-        final double maxAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getStep(MAX_TAP).getAlpha();
+        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
@@ -457,17 +457,16 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Test
     public void testCompareAbsoluteSensitivities() {
         setUpWithTwoPsts();
-        coreProblemFiller = new CoreProblemFiller(0, Map.of("BE", 1));
 
-        assertEquals(1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec1, raoData));
-        assertEquals(-1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec1, raoData));
-        assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction1, cnec1, raoData));
-        assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction2, cnec1, raoData));
+        assertEquals(1, CoreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec1, raoData));
+        assertEquals(-1, CoreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec1, raoData));
+        assertEquals(0, CoreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction1, cnec1, raoData));
+        assertEquals(0, CoreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction2, cnec1, raoData));
 
-        assertEquals(-1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec2, raoData));
-        assertEquals(1, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec2, raoData));
-        assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction1, cnec2, raoData));
-        assertEquals(0, coreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction2, cnec2, raoData));
+        assertEquals(-1, CoreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction2, cnec2, raoData));
+        assertEquals(1, CoreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction1, cnec2, raoData));
+        assertEquals(0, CoreProblemFiller.compareAbsoluteSensitivities(rangeAction1, rangeAction1, cnec2, raoData));
+        assertEquals(0, CoreProblemFiller.compareAbsoluteSensitivities(rangeAction2, rangeAction2, cnec2, raoData));
     }
 
     @Test
@@ -567,5 +566,47 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.NEGATIVE));
         assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.POSITIVE));
         assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.NEGATIVE));
+    }
+
+    private void testFilterWrongRangeActions(int initialTapPosition, boolean shouldBeFiltered) {
+        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(initialTapPosition);
+        initRaoData(crac.getPreventiveState());
+        coreProblemFiller.fill(raoData, linearProblem);
+        MPVariable variable = linearProblem.getAbsoluteRangeActionVariationVariable(crac.getRangeAction(RANGE_ACTION_ID));
+        if (shouldBeFiltered) {
+            assertNull(variable);
+        } else {
+            assertNotNull(variable);
+        }
+    }
+
+    @Test
+    public void testFilterWrongRangeActions1() {
+        // PST has tap limits of -15 / +15
+        testFilterWrongRangeActions(-15, false);
+    }
+
+    @Test
+    public void testFilterWrongRangeActions2() {
+        // PST has tap limits of -15 / +15
+        testFilterWrongRangeActions(15, false);
+    }
+
+    @Test
+    public void testFilterWrongRangeActions3() {
+        // PST has tap limits of -15 / +15
+        testFilterWrongRangeActions(-1, false);
+    }
+
+    @Test
+    public void testFilterWrongRangeActions4() {
+        // PST has tap limits of -15 / +15
+        testFilterWrongRangeActions(-16, true);
+    }
+
+    @Test
+    public void testFilterWrongRangeActions5() {
+        // PST has tap limits of -15 / +15
+        testFilterWrongRangeActions(16, true);
     }
 }
