@@ -56,9 +56,9 @@ public class PstRangeActionAdderImplTest {
         assertEquals(networkElementId, crac.getRangeAction("id1").getNetworkElements().iterator().next().getId());
         assertEquals("RTE", crac.getRangeAction("id1").getOperator());
         crac.getRangeAction("id1").synchronize(network);
-        assertEquals(0.0, crac.getRangeAction("id1").getMinValue(network), DOUBLE_TOLERANCE);
+        assertEquals(0.0, crac.getRangeAction("id1").getMinValue(network, 5), DOUBLE_TOLERANCE);
         // TAP position 10 should be converted to 3.894 degrees
-        assertEquals(3.894, crac.getRangeAction("id1").getMaxValue(network), DOUBLE_TOLERANCE);
+        assertEquals(3.894, crac.getRangeAction("id1").getMaxValue(network, 5), DOUBLE_TOLERANCE);
         // Verify that the PST is free to use
         // TODO : change this when usage rules are implemented
         assertEquals(1, crac.getRangeAction("id1").getUsageRules().size());

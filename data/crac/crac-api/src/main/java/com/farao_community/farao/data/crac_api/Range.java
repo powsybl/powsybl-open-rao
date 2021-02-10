@@ -7,8 +7,12 @@
 
 package com.farao_community.farao.data.crac_api;
 
-public interface PstRange extends Range {
+public interface Range {
 
-    public RangeDefinition getRangeDefinition();
+    public double getMin();
+
+    public double getMax();
+
+    public RangeType getRangeType();
 
 }
