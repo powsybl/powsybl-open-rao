@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -342,10 +342,10 @@ final class ExampleGenerator {
     }
 
     static ReferenceProgram referenceProgram() {
-        ReferenceProgramArea areaFrance = new ReferenceProgramArea(Country.FR);
-        ReferenceProgramArea areaBelgium = new ReferenceProgramArea(Country.BE);
-        ReferenceProgramArea areaNetherlands = new ReferenceProgramArea(Country.NL);
-        ReferenceProgramArea areaGermany = new ReferenceProgramArea(Country.DE);
+        EICode areaFrance = new EICode(Country.FR);
+        EICode areaBelgium = new EICode(Country.BE);
+        EICode areaNetherlands = new EICode(Country.NL);
+        EICode areaGermany = new EICode(Country.DE);
         List<ReferenceExchangeData> exchangeDataList = Arrays.asList(
             new ReferenceExchangeData(areaFrance, areaBelgium, 50),
             new ReferenceExchangeData(areaFrance, areaGermany, 50),

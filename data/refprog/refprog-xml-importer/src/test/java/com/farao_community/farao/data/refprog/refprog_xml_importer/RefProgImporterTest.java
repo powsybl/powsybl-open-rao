@@ -8,7 +8,7 @@ package com.farao_community.farao.data.refprog.refprog_xml_importer;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
+import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
@@ -98,13 +98,13 @@ public class RefProgImporterTest {
         ReferenceProgram referenceProgram = RefProgImporter.importRefProg(getClass().getResourceAsStream("/large_refProg.xml"), offsetDateTime);
         assertEquals(77, referenceProgram.getReferenceExchangeDataList().size());
         assertEquals(54, referenceProgram.getListOfAreas().size());
-        ReferenceProgramArea areaCh = new ReferenceProgramArea(Country.CH);
-        ReferenceProgramArea areaFr = new ReferenceProgramArea(Country.FR);
-        ReferenceProgramArea areaBa = new ReferenceProgramArea(Country.BA);
-        ReferenceProgramArea areaRs = new ReferenceProgramArea(Country.RS);
-        ReferenceProgramArea areaCz = new ReferenceProgramArea(Country.CZ);
-        ReferenceProgramArea areaSk = new ReferenceProgramArea(Country.SK);
-        ReferenceProgramArea areaEs = new ReferenceProgramArea(Country.ES);
+        EICode areaCh = new EICode(Country.CH);
+        EICode areaFr = new EICode(Country.FR);
+        EICode areaBa = new EICode(Country.BA);
+        EICode areaRs = new EICode(Country.RS);
+        EICode areaCz = new EICode(Country.CZ);
+        EICode areaSk = new EICode(Country.SK);
+        EICode areaEs = new EICode(Country.ES);
         assertEquals(-1397, referenceProgram.getExchange(areaCh, areaFr), DOUBLE_TOLERANCE);
         assertEquals(-147, referenceProgram.getExchange(areaBa, areaRs), DOUBLE_TOLERANCE);
         assertEquals(288, referenceProgram.getExchange("10YCS-CG-TSO---S", "10YCB-ALBANIA--1"), DOUBLE_TOLERANCE);
