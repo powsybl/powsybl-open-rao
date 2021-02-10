@@ -13,10 +13,10 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.*;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
+import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.threshold.*;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
@@ -113,23 +113,23 @@ public class CracImportExportTest {
         );
         simpleCrac.addNetworkAction(injectionSetpoint);
 
-        simpleCrac.addRangeAction(new PstWithRange(
+        simpleCrac.addRangeAction(new PstRangeActionImpl(
                 "pstRangeId",
                 "pstRangeName",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
-                Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
-                        new Range(-3, 3, RangeType.RELATIVE_FIXED, CENTERED_ON_ZERO)),
+                Arrays.asList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
+                        new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.getNetworkElement("pst")
         ));
 
-        simpleCrac.addRangeAction(new PstWithRange(
+        simpleCrac.addRangeAction(new PstRangeActionImpl(
                 "pstRangeId2",
                 "pstRangeName2",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
-                Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
-                        new Range(-3, 3, RangeType.RELATIVE_FIXED, CENTERED_ON_ZERO)),
+                Arrays.asList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
+                        new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.addNetworkElement("pst2"),
                 "1"
         ));

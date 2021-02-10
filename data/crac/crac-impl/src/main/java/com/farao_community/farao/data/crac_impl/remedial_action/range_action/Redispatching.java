@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
@@ -109,13 +109,13 @@ public final class Redispatching extends AbstractRangeAction {
     }
 
     @Override
-    protected double getMinValueWithRange(Network network, Range range) {
+    protected double getMinValueWithRange(Network network, Range range, double prePerimeterValue) {
         // to implement - specific to Redispatching
         return 0;
     }
 
     @Override
-    public double getMaxValueWithRange(Network network, Range range) {
+    public double getMaxValueWithRange(Network network, Range range, double prePerimeterValue) {
         // to implement - specific to Redispatching
         return 0;
     }

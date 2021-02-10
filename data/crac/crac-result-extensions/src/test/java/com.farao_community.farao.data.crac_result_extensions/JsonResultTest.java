@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
@@ -58,8 +58,8 @@ public class JsonResultTest {
         // RangeActions : PstWithRange
         NetworkElement networkElement1 = new NetworkElement("pst1networkElement");
         simpleCrac.addNetworkElement("pst1networkElement");
-        PstWithRange pstWithRange1 = new PstWithRange("pst1", networkElement1);
-        simpleCrac.addRangeAction(pstWithRange1);
+        PstRangeActionImpl pstRangeAction1 = new PstRangeActionImpl("pst1", networkElement1);
+        simpleCrac.addRangeAction(pstRangeAction1);
 
         // NetworkActions:
         // Topology

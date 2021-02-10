@@ -310,7 +310,7 @@
     }
   } ],
   "rangeActions" : [ {
-    "type" : "pst-with-range",
+    "type" : "pst-range-action-impl",
     "id" : "PST1",
     "name" : "PST1",
     "operator" : "FR",
@@ -323,7 +323,7 @@
     "ranges" : [ {
       "min" : 1.0,
       "max" : 33.0,
-      "rangeType" : "ABSOLUTE_FIXED",
+      "rangeType" : "ABSOLUTE",
       "rangeDefinition" : "STARTS_AT_ONE"
     } ],
     "extensions" : {

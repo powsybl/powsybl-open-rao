@@ -91,7 +91,7 @@
   ],
   "rangeActions": [
     {
-      "type": "pst-with-range",
+      "type": "pst-range-action-impl",
       "id": "PRA_PST_BE",
       "name": "PRA_PST_BE",
       "operator": "BE",
@@ -106,7 +106,7 @@
         {
           "min": 1,
           "max": 33,
-          "rangeType": "ABSOLUTE_FIXED",
+          "rangeType": "ABSOLUTE",
           "rangeDefinition": "STARTS_AT_ONE"
         }
       ],

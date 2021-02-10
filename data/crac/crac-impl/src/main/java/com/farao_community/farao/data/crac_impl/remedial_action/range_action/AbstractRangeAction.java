@@ -1,10 +1,10 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.remedial_action.AbstractRemedialAction;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -18,7 +18,7 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
     protected String groupId = null;
 
     public AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules,
-                                         List<Range> ranges, NetworkElement networkElement, String groupId) {
+                               List<? extends Range> ranges, NetworkElement networkElement, String groupId) {
         super(id, name, operator, usageRules);
         this.ranges = new ArrayList<>(ranges);
         this.networkElement = networkElement;
@@ -26,7 +26,7 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
     }
 
     public AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules,
-                                         List<Range> ranges, NetworkElement networkElement) {
+                               List<? extends Range> ranges, NetworkElement networkElement) {
         this(id, name, operator, usageRules, ranges, networkElement, null);
     }
 
@@ -63,24 +63,24 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
         throw new UnsupportedOperationException();
     }
 
-    protected abstract double getMinValueWithRange(Network network, Range range);
+    protected abstract double getMinValueWithRange(Network network, Range range, double prePerimeterValue);
 
     @Override
-    public double getMinValue(Network network) {
+    public double getMinValue(Network network, double prePerimeterValue) {
         double minValue = Double.NEGATIVE_INFINITY;
         for (Range range: ranges) {
-            minValue = Math.max(getMinValueWithRange(network, range), minValue);
+            minValue = Math.max(getMinValueWithRange(network, range, prePerimeterValue), minValue);
         }
         return minValue;
     }
 
-    protected abstract double getMaxValueWithRange(Network network, Range range);
+    protected abstract double getMaxValueWithRange(Network network, Range range, double prePerimeterValue);
 
     @Override
-    public double getMaxValue(Network network) {
+    public double getMaxValue(Network network, double prePerimeterValue) {
         double maxValue = Double.POSITIVE_INFINITY;
         for (Range range: ranges) {
-            maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
+            maxValue = Math.min(getMaxValueWithRange(network, range, prePerimeterValue), maxValue);
         }
         return maxValue;
     }
@@ -99,8 +99,14 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
         this.groupId = groupId;
     }
 
+    @Override
     public final List<Range> getRanges() {
         return ranges;
+    }
+
+    @Override
+    public void removeRange(Range range) {
+        ranges.remove(range);
     }
 
     public void addRange(Range range) {

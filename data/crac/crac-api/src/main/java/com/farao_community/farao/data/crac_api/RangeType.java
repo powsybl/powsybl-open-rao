@@ -7,13 +7,13 @@
  *
  */
 
-package com.farao_community.farao.data.crac_impl.range_domain;
+package com.farao_community.farao.data.crac_api;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 public enum RangeType {
-    ABSOLUTE_FIXED,
-    RELATIVE_DYNAMIC,
-    RELATIVE_FIXED
+    ABSOLUTE,
+    RELATIVE_TO_PREVIOUS_INSTANT,
+    RELATIVE_TO_INITIAL_NETWORK
 }
