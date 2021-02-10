@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.google.common.base.Supplier;
@@ -17,6 +18,7 @@ import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -85,14 +87,15 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
     public static final double DEFAULT_PST_PENALTY_COST = 0.01;
-    private static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
-    private static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
-    private static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    private static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
+    public static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
+    public static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
+    public static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    public static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
     public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
-    private static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
+    public static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
 
-    private static final String COUNTRY_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'XX-YY' where XX and YY are the 2-character country codes";
+    private static final String BOUNDARIES_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'Code1/Code2' where Code1 and Code2 are 16-characters EI codes or 2-characters country codes";
+    private static final String BOUNDARIES_CODE_SEPARATOR = "/";
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -111,9 +114,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
     private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityAnalysisParameters();
     private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
-    private List<Pair<Country, Country>> ptdfBoundaries = new ArrayList<>();
+    private List<Pair<EICode, EICode>> relativeMarginPtdfBoundaries = new ArrayList<>();
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
-
     private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
 
     public ObjectiveFunction getObjectiveFunction() {
@@ -200,8 +202,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return loopFlowViolationCost;
     }
 
-    public void setLoopFlowViolationCost(double loopflowViolationCost) {
+    public RaoParameters setLoopFlowViolationCost(double loopflowViolationCost) {
         this.loopFlowViolationCost = loopflowViolationCost;
+        return this;
     }
 
     public SensitivityAnalysisParameters getDefaultSensitivityAnalysisParameters() {
@@ -226,75 +229,96 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return mnecAcceptableMarginDiminution;
     }
 
-    public void setMnecAcceptableMarginDiminution(double mnecAcceptableMarginDiminution) {
+    public RaoParameters setMnecAcceptableMarginDiminution(double mnecAcceptableMarginDiminution) {
         this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
+        return this;
     }
 
     public double getMnecConstraintAdjustmentCoefficient() {
         return mnecConstraintAdjustmentCoefficient;
     }
 
-    public void setMnecConstraintAdjustmentCoefficient(double mnecConstraintAdjustmentCoefficient) {
+    public RaoParameters setMnecConstraintAdjustmentCoefficient(double mnecConstraintAdjustmentCoefficient) {
         this.mnecConstraintAdjustmentCoefficient = mnecConstraintAdjustmentCoefficient;
+        return this;
     }
 
     public double getMnecViolationCost() {
         return mnecViolationCost;
     }
 
-    public void setMnecViolationCost(double mnecViolationCost) {
+    public RaoParameters setMnecViolationCost(double mnecViolationCost) {
         this.mnecViolationCost = mnecViolationCost;
+        return this;
     }
 
     public double getNegativeMarginObjectiveCoefficient() {
         return negativeMarginObjectiveCoefficient;
     }
 
-    public void setNegativeMarginObjectiveCoefficient(double negativeMarginObjectiveCoefficient) {
+    public RaoParameters setNegativeMarginObjectiveCoefficient(double negativeMarginObjectiveCoefficient) {
         this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
+        return this;
     }
 
     public Set<Country> getLoopflowCountries() {
         return loopflowCountries;
     }
 
-    public void setLoopflowCountries(Set<Country> loopflowCountries) {
+    public RaoParameters setLoopflowCountries(Set<Country> loopflowCountries) {
         this.loopflowCountries = loopflowCountries;
+        return this;
     }
 
-    public void setLoopflowCountries(List<String> countryStrings) {
+    public RaoParameters setLoopflowCountries(List<String> countryStrings) {
         this.loopflowCountries = convertToCountrySet(countryStrings);
+        return this;
     }
 
-    public List<Pair<Country, Country>> getPtdfBoundaries() {
-        return ptdfBoundaries;
+    public List<Pair<EICode, EICode>> getRelativeMarginPtdfBoundaries() {
+        return relativeMarginPtdfBoundaries;
     }
 
-    public void setPtdfBoundaries(List<Pair<Country, Country>> boundaries) {
-        this.ptdfBoundaries = boundaries;
+    public RaoParameters setRelativeMarginPtdfBoundaries(List<Pair<EICode, EICode>> boundaries) {
+        this.relativeMarginPtdfBoundaries = boundaries;
+        return this;
     }
 
-    public List<String> getPtdfBoundariesAsString() {
-        return ptdfBoundaries.stream()
-                .map(countryPair -> countryPair.getLeft().toString() + "-" + countryPair.getRight().toString())
+    public List<String> getRelativeMarginPtdfBoundariesAsString() {
+        return relativeMarginPtdfBoundaries.stream()
+                .map(countryPair -> countryPair.getLeft().toString() + BOUNDARIES_CODE_SEPARATOR + countryPair.getRight().toString())
                 .collect(Collectors.toList());
     }
 
-    public void setPtdfBoundariesFromCountryCodes(List<String> boundaries) {
-        this.ptdfBoundaries = boundaries.stream()
-                .map(stringPair -> {
-                    if (stringPair.length() != 5) {
-                        throw new FaraoException(COUNTRY_CODES_FORMAT_EXCEPTION);
-                    }
-                    try {
-                        Country left = Country.valueOf(stringPair.substring(0, 2));
-                        Country right = Country.valueOf(stringPair.substring(3, 5));
-                        return new ImmutablePair<>(left, right);
-                    } catch (IllegalArgumentException e) {
-                        throw new FaraoException(COUNTRY_CODES_FORMAT_EXCEPTION);
-                    }
-                })
-                .collect(Collectors.toList());
+    public RaoParameters setRelativeMarginPtdfBoundariesFromString(List<String> boundaries) {
+        /*
+        Expected strings : "Code1/Code2"
+        Where Code1 and Code2 are EICodes or CountryCodes
+         */
+        this.relativeMarginPtdfBoundaries = boundaries.stream()
+            .map(stringPair -> {
+
+                if (StringUtils.countMatches(stringPair, BOUNDARIES_CODE_SEPARATOR) != 1) {
+                    throw new FaraoException(BOUNDARIES_CODES_FORMAT_EXCEPTION);
+                }
+
+                String leftPart = stringPair.split(BOUNDARIES_CODE_SEPARATOR)[0];
+                String rightPart = stringPair.split(BOUNDARIES_CODE_SEPARATOR)[1];
+                return new ImmutablePair<>(getEICodeFromString(leftPart), getEICodeFromString(rightPart));
+            })
+            .collect(Collectors.toList());
+
+        return this;
+    }
+
+    private EICode getEICodeFromString(String code) {
+        if (code.length() == 16) {
+            return new EICode(code);
+        } else if (code.length() == 2) {
+            return new EICode(Country.valueOf(code));
+        } else {
+            throw new FaraoException(BOUNDARIES_CODES_FORMAT_EXCEPTION);
+        }
     }
 
     public double getPtdfSumLowerBound() {
@@ -367,7 +391,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setMnecViolationCost(config.getDoubleProperty("mnec-violation-cost", DEFAULT_MNEC_VIOLATION_COST));
                 parameters.setMnecConstraintAdjustmentCoefficient(config.getDoubleProperty("mnec-constraint-adjustment-coefficient", DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
                 parameters.setNegativeMarginObjectiveCoefficient(config.getDoubleProperty("negative-margin-objective-coefficient", DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT));
-                parameters.setPtdfBoundariesFromCountryCodes(config.getStringListProperty("ptdf-boundaries", new ArrayList<>()));
+                parameters.setRelativeMarginPtdfBoundariesFromString(config.getStringListProperty("relative-margin-ptdf-boundaries", new ArrayList<>()));
                 parameters.setPtdfSumLowerBound(config.getDoubleProperty("ptdf-sum-lower-bound", DEFAULT_PTDF_SUM_LOWER_BOUND));
                 parameters.setPerimetersInParallel(config.getIntProperty("perimeters-in-parallel", DEFAULT_PERIMETERS_IN_PARALLEL));
             });
