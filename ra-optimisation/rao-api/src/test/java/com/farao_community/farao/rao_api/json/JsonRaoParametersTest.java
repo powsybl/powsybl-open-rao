@@ -66,8 +66,8 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setMnecAcceptableMarginDiminution(30);
         parameters.setMnecConstraintAdjustmentCoefficient(3);
         parameters.setNegativeMarginObjectiveCoefficient(100);
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR-ES", "ES-PT"));
-        parameters.setPtdfBoundariesFromCountryCodes(stringBoundaries);
+        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("FR/ES", "ES/PT", "BE/22Y201903144---9"));
+        parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
         parameters.setPtdfSumLowerBound(0.05);
         parameters.setPerimetersInParallel(15);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");

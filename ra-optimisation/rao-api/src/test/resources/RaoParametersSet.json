@@ -15,7 +15,7 @@
   "mnec-violation-cost" : 20.0,
   "mnec-constraint-adjustment-coefficient" : 3.0,
   "negative-margin-objective-coefficient" : 100.0,
-  "ptdf-boundaries" : [ "FR-ES", "ES-PT" ],
+  "relative-margin-ptdf-boundaries" : [ "FR/ES", "ES/PT", "BE/22Y201903144---9" ],
   "ptdf-sum-lower-bound" : 0.05,
   "perimeters-in-parallel" : 15,
   "sensitivity-parameters" : {

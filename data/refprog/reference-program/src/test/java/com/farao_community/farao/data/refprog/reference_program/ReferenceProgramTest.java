@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.refprog.reference_program;
 
+import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,35 +23,35 @@ import static org.junit.Assert.assertEquals;
 public class ReferenceProgramTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
-    private ReferenceProgramArea referenceProgramAreaFrance;
-    private ReferenceProgramArea referenceProgramAreaBelgium;
-    private ReferenceProgramArea referenceProgramAreaDk;
-    private ReferenceProgramArea referenceProgramAreaSk;
-    private ReferenceProgramArea referenceProgramAreaGermany;
+    private EICode eiCodeFrance;
+    private EICode eiCodeBelgium;
+    private EICode eiCodeDk;
+    private EICode eiCodeSk;
+    private EICode eiCodeGermany;
 
     @Before
-    public void setUp() throws Exception {
-        referenceProgramAreaFrance = new ReferenceProgramArea(Country.FR);
-        referenceProgramAreaBelgium = new ReferenceProgramArea(Country.BE);
-        referenceProgramAreaDk = new ReferenceProgramArea(Country.DK);
-        referenceProgramAreaSk = new ReferenceProgramArea(Country.SK);
-        referenceProgramAreaGermany = new ReferenceProgramArea(Country.DE);
+    public void setUp() {
+        eiCodeFrance = new EICode(Country.FR);
+        eiCodeBelgium = new EICode(Country.BE);
+        eiCodeDk = new EICode(Country.DK);
+        eiCodeSk = new EICode(Country.SK);
+        eiCodeGermany = new EICode(Country.DE);
     }
 
     @Test
     public void testGlobalNetPositionMap() {
         List<ReferenceExchangeData> list = Arrays.asList(
-                new ReferenceExchangeData(referenceProgramAreaFrance, referenceProgramAreaBelgium, 100),
-                new ReferenceExchangeData(referenceProgramAreaFrance, referenceProgramAreaGermany, -250),
-                new ReferenceExchangeData(referenceProgramAreaDk, referenceProgramAreaSk, 100));
+                new ReferenceExchangeData(eiCodeFrance, eiCodeBelgium, 100),
+                new ReferenceExchangeData(eiCodeFrance, eiCodeGermany, -250),
+                new ReferenceExchangeData(eiCodeDk, eiCodeSk, 100));
         ReferenceProgram referenceProgram = new ReferenceProgram(list);
-        Map<ReferenceProgramArea, Double> netPositions = referenceProgram.getAllGlobalNetPositions();
+        Map<EICode, Double> netPositions = referenceProgram.getAllGlobalNetPositions();
         assertEquals(5, referenceProgram.getListOfAreas().size());
         assertEquals(5, netPositions.size());
-        assertEquals(-150, netPositions.get(referenceProgramAreaFrance), DOUBLE_TOLERANCE);
-        assertEquals(-100, netPositions.get(referenceProgramAreaBelgium), DOUBLE_TOLERANCE);
-        assertEquals(250, netPositions.get(referenceProgramAreaGermany), DOUBLE_TOLERANCE);
-        assertEquals(100, netPositions.get(referenceProgramAreaDk), DOUBLE_TOLERANCE);
-        assertEquals(-100, netPositions.get(referenceProgramAreaSk), DOUBLE_TOLERANCE);
+        assertEquals(-150, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
+        assertEquals(-100, netPositions.get(eiCodeBelgium), DOUBLE_TOLERANCE);
+        assertEquals(250, netPositions.get(eiCodeGermany), DOUBLE_TOLERANCE);
+        assertEquals(100, netPositions.get(eiCodeDk), DOUBLE_TOLERANCE);
+        assertEquals(-100, netPositions.get(eiCodeSk), DOUBLE_TOLERANCE);
     }
 }

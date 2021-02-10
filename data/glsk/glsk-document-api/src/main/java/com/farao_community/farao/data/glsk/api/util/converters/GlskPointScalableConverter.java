@@ -6,11 +6,11 @@
  */
 package com.farao_community.farao.data.glsk.api.util.converters;
 
+import com.farao_community.farao.commons.CountryEICode;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
 import com.farao_community.farao.data.glsk.api.GlskException;
-import com.farao_community.farao.util.EICode;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
@@ -115,7 +115,7 @@ public final class GlskPointScalableConverter {
      * @param scalables list of scalable
      */
     private static void convertCountryProportional(Network network, AbstractGlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
-        Country country = new EICode(glskShiftKey.getSubjectDomainmRID()).getCountry();
+        Country country = new CountryEICode(glskShiftKey.getSubjectDomainmRID()).getCountry();
 
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GSK");

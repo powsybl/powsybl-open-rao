@@ -45,10 +45,10 @@ public class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private RaoParameters raoParameters;
     private RaoData raoData;
-    RaoInput raoInput;
-    Network network;
-    Crac crac;
-    String variantId;
+    private RaoInput raoInput;
+    private Network network;
+    private Crac crac;
+    private String variantId;
 
     @Before
     public void setUp() {
@@ -175,7 +175,7 @@ public class RaoUtilTest {
 
     @Test (expected = FaraoException.class)
     public void testExceptionForGlskOnRelativeMargin() {
-        raoParameters.setPtdfBoundariesFromCountryCodes(new ArrayList<>(Arrays.asList("FR-ES", "ES-PT")));
+        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("FR:ES", "ES:PT")));
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
@@ -197,14 +197,14 @@ public class RaoUtilTest {
     @Test(expected = FaraoException.class)
     public void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
-        raoParameters.setPtdfBoundariesFromCountryCodes(new ArrayList<>());
+        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>());
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
     @Test
     public void testCreateSystematicSensitivityInterfaceOnRelativeMargin() {
-        raoParameters.setPtdfBoundariesFromCountryCodes(new ArrayList<>(Arrays.asList("FR-BE", "BE-NL", "FR-DE", "DE-NL")));
+        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("FR/BE", "BE/NL", "FR/DE", "DE/NL")));
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoData =  new RaoData(

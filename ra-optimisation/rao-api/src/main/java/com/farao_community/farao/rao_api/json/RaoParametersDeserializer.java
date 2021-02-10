@@ -120,13 +120,13 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     }
                     JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
                     break;
-                case "ptdf-boundaries":
+                case "relative-margin-ptdf-boundaries":
                     if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
                         List<String> boundaries = new ArrayList<>();
                         while (parser.nextToken() != JsonToken.END_ARRAY) {
                             boundaries.add(parser.getValueAsString());
                         }
-                        parameters.setPtdfBoundariesFromCountryCodes(boundaries);
+                        parameters.setRelativeMarginPtdfBoundariesFromString(boundaries);
                     }
                     break;
                 case "ptdf-sum-lower-bound":

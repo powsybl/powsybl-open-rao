@@ -6,12 +6,14 @@
  */
 package com.farao_community.farao.data.refprog.reference_program;
 
+import com.farao_community.farao.commons.EICode;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class ReferenceExchangeData {
-    private ReferenceProgramArea areaOut;
-    private ReferenceProgramArea areaIn;
+    private EICode areaOut;
+    private EICode areaIn;
     private double flow;
 
     /**
@@ -19,17 +21,17 @@ public class ReferenceExchangeData {
      * @param areaIn destination country
      * @param flow flow exchanged from origin country to destination country in MW
      */
-    public ReferenceExchangeData(ReferenceProgramArea areaOut, ReferenceProgramArea areaIn, double flow) {
+    public ReferenceExchangeData(EICode areaOut, EICode areaIn, double flow) {
         this.areaOut = areaOut;
         this.areaIn = areaIn;
         this.flow = flow;
     }
 
-    public ReferenceProgramArea getAreaOut() {
+    public EICode getAreaOut() {
         return areaOut;
     }
 
-    public ReferenceProgramArea getAreaIn() {
+    public EICode getAreaIn() {
         return areaIn;
     }
 
@@ -37,11 +39,11 @@ public class ReferenceExchangeData {
         return flow;
     }
 
-    public void setAreaOut(ReferenceProgramArea areaOut) {
+    public void setAreaOut(EICode areaOut) {
         this.areaOut = areaOut;
     }
 
-    public void setAreaIn(ReferenceProgramArea areaIn) {
+    public void setAreaIn(EICode areaIn) {
         this.areaIn = areaIn;
     }
 
@@ -49,11 +51,7 @@ public class ReferenceExchangeData {
         this.flow = flow;
     }
 
-    boolean isAreaOutToAreaInExchange(ReferenceProgramArea areaOut, ReferenceProgramArea areaIn) {
+    boolean isAreaOutToAreaInExchange(EICode areaOut, EICode areaIn) {
         return this.areaIn != null && this.areaOut != null && this.areaIn.equals(areaIn) && this.areaOut.equals(areaOut);
-    }
-
-    public boolean involvesVirtualHub() {
-        return (areaIn != null && areaIn.isVirtualHub()) || (areaOut != null && areaOut.isVirtualHub());
     }
 }

@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
+import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
@@ -65,10 +65,10 @@ public class RaoInputTest {
 
     @Test
     public void testBuildWithRefProg() {
-        ReferenceProgramArea areaFrance = new ReferenceProgramArea(Country.FR);
-        ReferenceProgramArea areaBelgium = new ReferenceProgramArea(Country.BE);
-        ReferenceProgramArea areaNetherlands = new ReferenceProgramArea(Country.NL);
-        ReferenceProgramArea areaGermany = new ReferenceProgramArea(Country.DE);
+        EICode areaFrance = new EICode(Country.FR);
+        EICode areaBelgium = new EICode(Country.BE);
+        EICode areaNetherlands = new EICode(Country.NL);
+        EICode areaGermany = new EICode(Country.DE);
         List<ReferenceExchangeData> referenceExchangeDataList = Arrays.asList(
                 new ReferenceExchangeData(areaFrance, areaBelgium, 100),
                 new ReferenceExchangeData(areaGermany, areaNetherlands, -200));

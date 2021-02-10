@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -54,7 +54,7 @@ public class LoopFlowComputation {
     public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
 
         LoopFlowResult results = new LoopFlowResult();
-        Map<ReferenceProgramArea, LinearGlsk> refProgGlskMap = buildRefProgGlskMap();
+        Map<EICode, LinearGlsk> refProgGlskMap = buildRefProgGlskMap();
 
         for (BranchCnec cnec : cnecs) {
             double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(cnec);
@@ -66,11 +66,11 @@ public class LoopFlowComputation {
         return results;
     }
 
-    private Map<ReferenceProgramArea, LinearGlsk> buildRefProgGlskMap() {
+    private Map<EICode, LinearGlsk> buildRefProgGlskMap() {
 
-        Map<ReferenceProgramArea, LinearGlsk> refProgGlskMap = new HashMap<>();
+        Map<EICode, LinearGlsk> refProgGlskMap = new HashMap<>();
 
-        for (ReferenceProgramArea area : referenceProgram.getListOfAreas()) {
+        for (EICode area : referenceProgram.getListOfAreas()) {
             LinearGlsk glskForArea = glsk.getData(area.getAreaCode());
             if (glskForArea == null) {
                 LOGGER.warn("No GLSK found for reference area {}", area.getAreaCode());

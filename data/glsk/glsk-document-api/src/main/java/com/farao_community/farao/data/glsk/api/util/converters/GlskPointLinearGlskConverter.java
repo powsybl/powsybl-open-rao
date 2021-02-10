@@ -6,11 +6,11 @@
  */
 package com.farao_community.farao.data.glsk.api.util.converters;
 
+import com.farao_community.farao.commons.CountryEICode;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
 import com.farao_community.farao.data.glsk.api.GlskException;
-import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
@@ -88,7 +88,7 @@ public final class GlskPointLinearGlskConverter {
      * @param linearGlskMap linearGlsk to be filled
      */
     private static void convertCountryProportional(Network network, AbstractGlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap) {
-        Country country = new EICode(glskShiftKey.getSubjectDomainmRID()).getCountry();
+        Country country = new CountryEICode(glskShiftKey.getSubjectDomainmRID()).getCountry();
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04

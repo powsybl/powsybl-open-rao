@@ -9,7 +9,7 @@ package com.farao_community.farao.data.refprog.refprog_xml_importer;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramArea;
+import com.farao_community.farao.commons.EICode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +47,9 @@ public final class RefProgImporter {
         List<ReferenceExchangeData> exchangeDataList = new ArrayList<>();
         document.getPublicationTimeSeries().forEach(timeSeries -> {
             String outAreaValue = timeSeries.getOutArea().getV();
-            ReferenceProgramArea outArea = new ReferenceProgramArea(outAreaValue);
+            EICode outArea = new EICode(outAreaValue);
             String inAreaValue = timeSeries.getInArea().getV();
-            ReferenceProgramArea inArea = new ReferenceProgramArea(inAreaValue);
+            EICode inArea = new EICode(inAreaValue);
             double flow = getFlow(dateTime, timeSeries);
             exchangeDataList.add(new ReferenceExchangeData(outArea, inArea, flow));
         });
