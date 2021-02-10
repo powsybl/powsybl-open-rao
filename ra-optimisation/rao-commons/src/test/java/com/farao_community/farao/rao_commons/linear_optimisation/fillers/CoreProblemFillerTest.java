@@ -199,7 +199,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
         // some additional data
         final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
-        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0g);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
