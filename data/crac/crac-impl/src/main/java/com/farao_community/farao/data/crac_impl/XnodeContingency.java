@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -28,6 +27,7 @@ import java.util.Set;
  * These kind of contingencies are defined between 2 Xnodes (branch absent from the network)
  * and should be synchronized with the network in order to map them to the existing branches
  * Xnode1-Xnode2 = RealNode1-Xnode1 + Xnode2-RealNode2
+ * This is typically how N-1 on HVDC can be defined in input Crac formats.
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -46,22 +46,6 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
 
     public XnodeContingency(String id, final Set<String> xnodeIds) {
         this(id, id, xnodeIds);
-    }
-
-    /**
-     * This constructor can be used if the XnodeContingency has already been synchronized, for example in a json importer
-     * @param id: ID of the contingency
-     * @param name: name of the contingency
-     * @param xnodeIds: the Xnodes
-     * @param networkElements: the NetworkElements corresponding to the Xnodes
-     */
-    public XnodeContingency(String id, String name, final Set<String> xnodeIds, final Set<NetworkElement> networkElements) {
-        this(id, name, xnodeIds);
-        if (xnodeIds.size() != networkElements.size()) {
-            throw new FaraoException("You should provide the network elements corresponding to the Xnodes");
-        }
-        createRealContingency(networkElements);
-        isSynchronized = true;
     }
 
     public XnodeContingency(String id) {
@@ -99,9 +83,7 @@ public class XnodeContingency extends AbstractIdentifiable<Contingency> implemen
     @Override
     public void synchronize(Network network) {
         if (isSynchronized) {
-            // Don't throw an exception if it's already synchronized since it can happen that some contingencies are synced after json import
-            // Just do nothing
-            return;
+            throw new AlreadySynchronizedException(String.format("Xnode contingency %s has already been synchronized", getId()));
         }
         Set<NetworkElement> networkElements = new HashSet<>();
         for (String xnode : this.xnodeIds) {

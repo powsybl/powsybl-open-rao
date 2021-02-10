@@ -199,7 +199,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public ContingencyAdder newContingency() {
-        return new SimpleContingencyAdder(this);
+        return new ContingencyAdderImpl(this);
     }
 
     public Contingency addContingency(String id, String... networkElementIds) {

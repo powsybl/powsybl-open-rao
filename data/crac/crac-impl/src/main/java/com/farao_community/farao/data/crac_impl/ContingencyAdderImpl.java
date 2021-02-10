@@ -20,12 +20,12 @@ import java.util.Set;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SimpleContingencyAdder extends AbstractIdentifiableAdder<ContingencyAdder> implements ContingencyAdder {
+public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyAdder> implements ContingencyAdder {
     SimpleCrac parent;
     private final Set<NetworkElement> networkElements = new HashSet<>();
     private final Set<String> xnodeIds = new HashSet<>();
 
-    public SimpleContingencyAdder(SimpleCrac parent) {
+    public ContingencyAdderImpl(SimpleCrac parent) {
         Objects.requireNonNull(parent);
         this.parent = parent;
     }

@@ -8,7 +8,6 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.XnodeContingency;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
@@ -34,13 +33,6 @@ public class XnodeContingencySerializer extends JsonSerializer<XnodeContingency>
             gen.writeObject(xnodeId);
         }
         gen.writeEndArray();
-        if (value.isSynchronized()) {
-            gen.writeArrayFieldStart(NETWORK_ELEMENTS);
-            for (NetworkElement networkElement : value.getNetworkElements()) {
-                gen.writeObject(networkElement.getId());
-            }
-            gen.writeEndArray();
-        }
     }
 
     @Override

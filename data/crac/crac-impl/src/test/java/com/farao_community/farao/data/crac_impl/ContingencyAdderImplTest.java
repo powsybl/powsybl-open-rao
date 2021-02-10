@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SimpleContingencyAdderTest {
+public class ContingencyAdderImplTest {
 
     private Crac crac;
 
@@ -91,7 +91,7 @@ public class SimpleContingencyAdderTest {
 
     @Test(expected = NullPointerException.class)
     public void testNullParentFail() {
-        SimpleContingencyAdder tmp = new SimpleContingencyAdder(null);
+        ContingencyAdderImpl tmp = new ContingencyAdderImpl(null);
     }
 
     @Test

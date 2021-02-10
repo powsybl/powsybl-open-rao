@@ -84,13 +84,7 @@ final class ContingencyDeserializer {
 
             Contingency contingency;
             if (!Objects.isNull(type) && type.equals(XNODE_CONTINGENCY_TYPE)) {
-                if (!networkElements.isEmpty()) {
-                    // the xnode contingency has already been synced
-                    contingency = new XnodeContingency(id, name, xnodeIds, networkElements);
-                } else {
-                    // the xnode contingency has not been synced
-                    contingency = new XnodeContingency(id, name, xnodeIds);
-                }
+                contingency = new XnodeContingency(id, name, xnodeIds);
             } else {
                 contingency = new ComplexContingency(id, name, networkElements);
             }
