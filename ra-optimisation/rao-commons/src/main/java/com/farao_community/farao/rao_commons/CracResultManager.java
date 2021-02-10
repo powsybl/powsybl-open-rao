@@ -101,7 +101,7 @@ public class CracResultManager {
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
                 Optional<RangeAction> sameNetworkElementRangeAction = raoData.getAvailableRangeActions().stream()
                     .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && linearProblem.getRangeActionSetPointVariable(ra) != null)
-                    .findFirst();
+                    .findAny();
                 if (sameNetworkElementRangeAction.isPresent()) {
                     double rangeActionVal = linearProblem.getRangeActionSetPointVariable(sameNetworkElementRangeAction.get()).solutionValue();
                     PstRangeAction pstRangeAction = (PstRangeAction) sameNetworkElementRangeAction.get();
