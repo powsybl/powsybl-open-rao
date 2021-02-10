@@ -23,7 +23,8 @@ public class TreeParametersTest {
     public void setUp() {
         searchTreeRaoParameters = new SearchTreeRaoParameters();
         searchTreeRaoParameters.setMaximumSearchDepth(6);
-        searchTreeRaoParameters.setLeavesInParallel(4);
+        searchTreeRaoParameters.setPreventiveLeavesInParallel(4);
+        searchTreeRaoParameters.setCurativeLeavesInParallel(2);
         searchTreeRaoParameters.setRelativeNetworkActionMinimumImpactThreshold(0.1);
         searchTreeRaoParameters.setAbsoluteNetworkActionMinimumImpactThreshold(2);
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("Elia", 3, "Amprion", 0));
@@ -33,7 +34,6 @@ public class TreeParametersTest {
 
     private void compareCommonParameters(TreeParameters treeParameters, SearchTreeRaoParameters searchTreeRaoParameters) {
         assertEquals(searchTreeRaoParameters.getMaximumSearchDepth(), treeParameters.getMaximumSearchDepth());
-        assertEquals(searchTreeRaoParameters.getLeavesInParallel(), treeParameters.getLeavesInParallel());
         assertEquals(searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(), treeParameters.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), treeParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
     }
@@ -42,6 +42,7 @@ public class TreeParametersTest {
         compareMaps(searchTreeRaoParameters.getMaxCurativeTopoPerTso(), treeParameters.getMaxTopoPerTso());
         compareMaps(searchTreeRaoParameters.getMaxCurativePstPerTso(), treeParameters.getMaxPstPerTso());
         compareMaps(searchTreeRaoParameters.getMaxCurativeRaPerTso(), treeParameters.getMaxRaPerTso());
+        assertEquals(searchTreeRaoParameters.getCurativeLeavesInParallel(), treeParameters.getLeavesInParallel());
     }
 
     private void compareMaps(Map expected, Map actual) {
