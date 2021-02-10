@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.RangeType;
-import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -116,7 +116,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
 
     @Test
     public void pstWithAbsoluteStartOneRange() {
-        pst.addRange(new PstRange(3, 13, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE));
+        pst.addRange(new PstRangeImpl(3, 13, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE));
         pst.synchronize(network);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 2).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 12).getAlpha(), pst.getMaxValue(network, pst.getCurrentValue(network)), 0);
@@ -124,7 +124,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
 
     @Test
     public void pstWithAbsoluteCenteredZeroRange() {
-        pst.addRange(new PstRange(-3, 3, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
+        pst.addRange(new PstRangeImpl(-3, 3, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         int neutralTap = (phaseTapChanger.getHighTapPosition() + phaseTapChanger.getLowTapPosition()) / 2;
         assertEquals(phaseTapChanger.getStep(neutralTap - 3).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
@@ -133,7 +133,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
 
     @Test
     public void pstWithRelativeDynamicRange() {
-        pst.addRange(new PstRange(-3, 3, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.CENTERED_ON_ZERO));
+        pst.addRange(new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         int initialTapPosition = phaseTapChanger.getTapPosition();
         assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
@@ -147,7 +147,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
 
     @Test
     public void pstWithRelativeFixedRange() {
-        pst.addRange(new PstRange(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO));
+        pst.addRange(new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         int initialTapPosition = phaseTapChanger.getTapPosition();
         assertEquals(phaseTapChanger.getStep(initialTapPosition - 3).getAlpha(), pst.getMinValue(network, pst.getCurrentValue(network)), 0);
@@ -161,7 +161,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
 
     @Test
     public void desynchronize() {
-        pst.addRange(new PstRange(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO));
+        pst.addRange(new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         int initialTapPosition = phaseTapChanger.getTapPosition();
         assertEquals(phaseTapChanger.getStep(initialTapPosition + 3).getAlpha(), pst.getMaxValue(network, pst.getCurrentValue(network)), 0);
@@ -264,7 +264,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
     @Test
     public void handleDecreasingAnglesMinMax() {
         // First test case where deltaU is negative
-        pst.addRange(new PstRange(-10.0, 10.0, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
+        pst.addRange(new PstRangeImpl(-10.0, 10.0, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
         pst.synchronize(network);
         assertTrue("Failed to compute min and max tap values for PST with negative deltaU",
                 pst.getMinValue(network, pst.getCurrentValue(network)) <= pst.getMaxValue(network, pst.getCurrentValue(network)));
@@ -274,7 +274,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
         String networkElementId2 = "BBE2AA1  BBE3AA1  1";
         NetworkElement networkElement2 = new NetworkElement(networkElementId2);
         PstRangeActionImpl pst2 = new PstRangeActionImpl("pst_range_id", networkElement2);
-        pst2.addRange(new PstRange(-10.0, 10.0, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
+        pst2.addRange(new PstRangeImpl(-10.0, 10.0, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
         pst2.synchronize(network2);
         assertTrue("Failed to compute min and max tap values for PST with positive deltaU",
                 pst2.getMinValue(network, pst2.getCurrentValue(network2)) <= pst2.getMaxValue(network, pst2.getCurrentValue(network2)));

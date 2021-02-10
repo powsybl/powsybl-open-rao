@@ -27,13 +27,13 @@ public class RangeImplTest extends AbstractRemedialActionTest {
     private final double absMin = 1;
     private final double absMax = 32;
 
-    private PstRange relativeFixedRange;
-    private PstRange absoluteFixedRange;
+    private PstRangeImpl relativeFixedRange;
+    private PstRangeImpl absoluteFixedRange;
 
     @Before
     public void setUp() throws Exception {
-        relativeFixedRange = new PstRange(relMin, relMax, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO);
-        absoluteFixedRange = new PstRange(absMin, absMax, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        relativeFixedRange = new PstRangeImpl(relMin, relMax, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO);
+        absoluteFixedRange = new PstRangeImpl(absMin, absMax, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
     }
 
     @Test
@@ -62,16 +62,16 @@ public class RangeImplTest extends AbstractRemedialActionTest {
 
     @Test
     public void testEquals() {
-        PstRange range1 = new PstRange(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
-        PstRange range2 = new PstRange(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        PstRangeImpl range1 = new PstRangeImpl(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        PstRangeImpl range2 = new PstRangeImpl(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
 
         assertEquals(range1, range2);
     }
 
     @Test
     public void testHashCode() {
-        PstRange range1 = new PstRange(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
-        PstRange range2 = new PstRange(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        PstRangeImpl range1 = new PstRangeImpl(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        PstRangeImpl range2 = new PstRangeImpl(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
 
         assertEquals(range1.hashCode(), range2.hashCode());
     }

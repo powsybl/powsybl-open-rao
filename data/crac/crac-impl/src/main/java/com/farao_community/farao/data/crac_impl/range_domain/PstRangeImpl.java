@@ -9,6 +9,7 @@
 
 package com.farao_community.farao.data.crac_impl.range_domain;
 
+import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.RangeType;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -17,12 +18,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class PstRange extends RangeImpl {
+public class PstRangeImpl extends RangeImpl implements PstRange {
 
     private RangeDefinition rangeDefinition;
 
     @JsonCreator
-    public PstRange(@JsonProperty("min") double min,
+    public PstRangeImpl(@JsonProperty("min") double min,
                     @JsonProperty("max") double max,
                     @JsonProperty("rangeType") RangeType rangeType,
                     @JsonProperty("rangeDefinition") RangeDefinition rangeDefinition) {
@@ -42,7 +43,7 @@ public class PstRange extends RangeImpl {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PstRange otherRange = (PstRange) o;
+        PstRangeImpl otherRange = (PstRangeImpl) o;
         return rangeDefinition.equals(otherRange.rangeDefinition)
             && super.equals(otherRange);
     }

@@ -8,13 +8,10 @@
 package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.Range;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -91,7 +88,7 @@ final class RangeActionDeserializer {
                 case RANGES:
                     jsonParser.nextToken();
                     if (type.equals(PST_RANGE_ACTION_IMPL_TYPE)) {
-                        ranges = jsonParser.readValueAs(new TypeReference<List<PstRange>>() {
+                        ranges = jsonParser.readValueAs(new TypeReference<List<PstRangeImpl>>() {
                         });
                     } else {
                         ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {

@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
@@ -115,7 +115,7 @@ public class CracCleanerTest {
             "pstRangeName",
             "RTE",
             Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
-            Collections.singletonList(new PstRange(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
+            Collections.singletonList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("pst")
         );
         PstRangeActionImpl pstRangeAction2 = new PstRangeActionImpl(
@@ -123,7 +123,7 @@ public class CracCleanerTest {
             "pstRangeName2",
             "RTE",
             Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
-            Collections.singletonList(new PstRange(0, 16, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.STARTS_AT_ONE)),
+            Collections.singletonList(new PstRangeImpl(0, 16, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("BBE2AA1  BBE3AA1  1")
         );
 
@@ -241,7 +241,7 @@ public class CracCleanerTest {
             "pstRangeName",
             "RTE",
             usageRules,
-            Collections.singletonList(new PstRange(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
+            Collections.singletonList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
             new NetworkElement("BBE1AA1  BBE2AA1  1")
         );
 

@@ -5,7 +5,7 @@ import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
-import com.farao_community.farao.data.crac_impl.range_domain.PstRange;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.range_domain.RangeImpl;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -53,7 +53,7 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
 
     @Test
     public void abstractElementaryEquals() {
-        PstRange range = new PstRange(1, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        PstRangeImpl range = new PstRangeImpl(1, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
         AbstractRangeAction pst = new PstRangeActionImpl("pst_range_id", new NetworkElement("neID"));
         pst.addRange(range);
         AbstractRangeAction pstRange1 = new PstRangeActionImpl("pst_range_id", new NetworkElement("neID"));
@@ -61,7 +61,7 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
         assertEquals(pst.hashCode(), pstRange1.hashCode());
         assertEquals(pst, pstRange1);
         AbstractRangeAction pstDifferent = new PstRangeActionImpl("pst_range_id_2", new NetworkElement("neOther"));
-        pstDifferent.addRange(new PstRange(1, 10, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.STARTS_AT_ONE));
+        pstDifferent.addRange(new PstRangeImpl(1, 10, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.STARTS_AT_ONE));
         assertNotEquals(pst.hashCode(), pstDifferent.hashCode());
         assertNotEquals(pst, pstDifferent);
     }
