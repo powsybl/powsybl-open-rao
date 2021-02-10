@@ -6,10 +6,10 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.commons.CountryUtil;
+import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
@@ -211,7 +211,7 @@ class Leaf {
         Map<String, Integer> maxTopoPerTso = new HashMap<>(treeParameters.getMaxTopoPerTso());
         treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
             int activatedPstsForTso = (int) raoData.getAvailableRangeActions().stream()
-                    .filter(rangeAction -> (rangeAction instanceof PstRange) && isRangeActionActivated(rangeAction))
+                    .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && isRangeActionActivated(rangeAction))
                     .count();
             int topoLimit =  raLimit - activatedPstsForTso;
             maxTopoPerTso.put(tso, Math.min(topoLimit, maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
@@ -288,11 +288,12 @@ class Leaf {
      * @return the reduced set of network actions
      */
     private Set<NetworkAction> removeNetworkActionsFarFromMostLimitingElement(Set<NetworkAction> networkActionsToFilter) {
+        CountryGraph countryGraph = new CountryGraph(raoData.getNetwork());
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement()) {
             List<Optional<Country>> worstCnecLocation = getMostLimitingElementLocation();
             Set<NetworkAction> filteredNetworkActions = networkActionsToFilter.stream()
-                    .filter(na -> isNetworkActionCloseToLocations(na, worstCnecLocation))
+                    .filter(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph))
                     .collect(Collectors.toSet());
             if (networkActionsToFilter.size() > filteredNetworkActions.size()) {
                 LOGGER.debug("{} network actions have been filtered out because they are far from the most limiting element", networkActionsToFilter.size() - filteredNetworkActions.size());
@@ -326,7 +327,7 @@ class Leaf {
     /**
      * Says if a network action is close to a given set of countries, respecting the maximum number of boundaries
      */
-    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, List<Optional<Country>> locations) {
+    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, List<Optional<Country>> locations, CountryGraph countryGraph) {
         if (locations.stream().anyMatch(Optional::isEmpty)) {
             return true;
         }
@@ -338,7 +339,7 @@ class Leaf {
         for (Optional<Country> location : locations) {
             for (Optional<Country> networkActionCountry : networkActionCountries) {
                 if (location.isPresent() && networkActionCountry.isPresent()
-                        && CountryUtil.areNeighbors(location.get(), networkActionCountry.get(), searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions(), raoParameters.getPtdfBoundaries())) {
+                        && countryGraph.areNeighbors(location.get(), networkActionCountry.get(), searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions())) {
                     return true;
                 }
             }

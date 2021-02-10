@@ -57,7 +57,9 @@ public class CoreProblemFiller implements ProblemFiller {
         // add variables
         buildFlowVariables(raoData, linearProblem);
         availableRangeActions.forEach(rangeAction -> {
-            buildRangeActionSetPointVariables(raoData.getNetwork(), rangeAction, linearProblem);
+            String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
+            double prePerimeterValue = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(prePerimeterVariantId).getSetPoint(raoData.getOptimizedState().getId());
+            buildRangeActionSetPointVariables(raoData.getNetwork(), rangeAction, prePerimeterValue, linearProblem);
             buildRangeActionAbsoluteVariationVariables(rangeAction, linearProblem);
             buildRangeActionGroupConstraint(rangeAction, linearProblem);
         });
@@ -84,7 +86,7 @@ public class CoreProblemFiller implements ProblemFiller {
             BranchCnec mostLimitingElement = RaoUtil.getMostLimitingElement(raoData.getCnecs(), raoData.getWorkingVariantId(), objFunction.getUnit(), objFunction.relativePositiveMargins());
             maxPstPerTso.forEach((String tso, Integer maxPst) -> {
                 Set<RangeAction> pstsForTso = availableRangeActions.stream()
-                        .filter(rangeAction -> (rangeAction instanceof PstRange) && rangeAction.getOperator().equals(tso))
+                        .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
                         .collect(Collectors.toSet());
                 if (pstsForTso.size() > maxPst) {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
@@ -125,9 +127,9 @@ public class CoreProblemFiller implements ProblemFiller {
      * initialSetPoint[r] - maxNegativeVariation[r] <= S[r]
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
-    private void buildRangeActionSetPointVariables(Network network, RangeAction rangeAction, LinearProblem linearProblem) {
-        double minSetPoint = rangeAction.getMinValue(network);
-        double maxSetPoint = rangeAction.getMaxValue(network);
+    private void buildRangeActionSetPointVariables(Network network, RangeAction rangeAction, double prePerimeterValue, LinearProblem linearProblem) {
+        double minSetPoint = rangeAction.getMinValue(network, prePerimeterValue);
+        double maxSetPoint = rangeAction.getMaxValue(network, prePerimeterValue);
         linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
     }
 
@@ -199,7 +201,7 @@ public class CoreProblemFiller implements ProblemFiller {
         }
 
         availableRangeActions.forEach(rangeAction -> {
-            if (rangeAction instanceof PstRange) {
+            if (rangeAction instanceof PstRangeAction) {
                 addImpactOfPstOnCnec(raoData, linearProblem, rangeAction, cnec, flowConstraint);
             } else {
                 throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");

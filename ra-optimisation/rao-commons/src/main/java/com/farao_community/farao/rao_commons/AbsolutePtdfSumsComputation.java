@@ -6,12 +6,11 @@
  */
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.farao_community.farao.util.EICode;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -28,14 +27,14 @@ import java.util.stream.Stream;
 public final class AbsolutePtdfSumsComputation {
     private AbsolutePtdfSumsComputation() { }
 
-    public static Map<BranchCnec, Double> computeAbsolutePtdfSums(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<Pair<Country, Country>> boundaries, SystematicSensitivityResult sensitivityResult) {
+    public static Map<BranchCnec, Double> computeAbsolutePtdfSums(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<Pair<EICode, EICode>> boundaries, SystematicSensitivityResult sensitivityResult) {
         Map<BranchCnec, Double> ptdfSums = new HashMap<>();
-        Map<String, Map<Country, Double>> ptdfMap = buildPtdfMap(cnecs, glsk, getCountriesInBoundaries(boundaries), sensitivityResult);
+        Map<String, Map<EICode, Double>> ptdfMap = buildPtdfMap(cnecs, glsk, getEICodesInBoundaries(boundaries), sensitivityResult);
         cnecs.forEach(cnec -> {
             double ptdfSum = 0;
-            for (Pair<Country, Country> countryPair : boundaries) {
-                if (ptdfMap.get(cnec.getId()).containsKey(countryPair.getLeft()) && ptdfMap.get(cnec.getId()).containsKey(countryPair.getRight())) {
-                    ptdfSum += Math.abs(ptdfMap.get(cnec.getId()).get(countryPair.getLeft()) - ptdfMap.get(cnec.getId()).get(countryPair.getRight()));
+            for (Pair<EICode, EICode> eiCodePair : boundaries) {
+                if (ptdfMap.get(cnec.getId()).containsKey(eiCodePair.getLeft()) && ptdfMap.get(cnec.getId()).containsKey(eiCodePair.getRight())) {
+                    ptdfSum += Math.abs(ptdfMap.get(cnec.getId()).get(eiCodePair.getLeft()) - ptdfMap.get(cnec.getId()).get(eiCodePair.getRight()));
                 }
             }
             ptdfSums.put(cnec, ptdfSum);
@@ -43,46 +42,45 @@ public final class AbsolutePtdfSumsComputation {
         return ptdfSums;
     }
 
-    private static Map<String, Map<Country, Double>> buildPtdfMap(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<Country> countriesInBoundaries, SystematicSensitivityResult sensitivityResult) {
+    private static Map<String, Map<EICode, Double>> buildPtdfMap(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult) {
 
-        Map<String, Map<Country, Double>> ptdfs = new HashMap<>();
+        Map<String, Map<EICode, Double>> ptdfs = new HashMap<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
 
         for (LinearGlsk linearGlsk: mapCountryLinearGlsk.values()) {
-            if (isGlskInBoundaries(linearGlsk.getId(), countriesInBoundaries)) {
-                Country country = glskIdToCountry(linearGlsk.getId());
+            if (isGlskInBoundaries(linearGlsk.getId(), eiCodesInBoundaries)) {
+                EICode area = glskToEic(linearGlsk.getId());
                 for (BranchCnec cnec : cnecs) {
                     double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
                     if (!ptdfs.containsKey(cnec.getId())) {
                         ptdfs.put(cnec.getId(), new HashMap<>());
                     }
-                    ptdfs.get(cnec.getId()).put(country, ptdfValue);
+                    ptdfs.get(cnec.getId()).put(area, ptdfValue);
                 }
             }
         }
         return ptdfs;
     }
 
-    private static boolean isGlskInBoundaries(String glskId, List<Country> countriesInBoundaries) {
+    private static boolean isGlskInBoundaries(String glskId, List<EICode> countriesInBoundaries) {
         try {
-            Country glskCountry = glskIdToCountry(glskId);
-            return countriesInBoundaries.contains(glskCountry);
+            EICode glskEic = glskToEic(glskId);
+            return countriesInBoundaries.contains(glskEic);
         } catch (IllegalArgumentException | FaraoException e) {
             return false;
         }
     }
 
-    private static Country glskIdToCountry(String glskId) {
-        if (glskId.length() < EICode.LENGTH) {
+    private static EICode glskToEic(String glskId) {
+        if (glskId.length() < EICode.EIC_LENGTH) {
             throw new IllegalArgumentException(String.format("GlskId [%s] should starts with an EI Code", glskId));
         }
-        EICode eiCode = new EICode(glskId.substring(0, EICode.LENGTH));
-        return eiCode.getCountry();
+        return new EICode(glskId.substring(0, EICode.EIC_LENGTH));
     }
 
-    private static List<Country> getCountriesInBoundaries(List<Pair<Country, Country>> boundaries) {
+    private static List<EICode> getEICodesInBoundaries(List<Pair<EICode, EICode>> boundaries) {
         return boundaries.stream()
-            .flatMap(countryPair -> Stream.of(countryPair.getLeft(), countryPair.getRight()))
+            .flatMap(eiCodePair -> Stream.of(eiCodePair.getLeft(), eiCodePair.getRight()))
             .distinct()
             .collect(Collectors.toList());
     }

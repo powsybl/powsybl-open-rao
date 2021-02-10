@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.CountryBoundary;
+import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkAction;
@@ -16,7 +18,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -44,8 +46,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -150,12 +151,12 @@ public class LeafTest {
 
     private RangeAction addPst() {
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-        PstWithRange pstWithRange = new PstWithRange("pst", pstElement);
-        pstWithRange.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        crac.addRangeAction(pstWithRange);
+        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
+        pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        crac.addRangeAction(pstRangeAction);
         crac.desynchronize();
         crac.synchronize(network);
-        return pstWithRange;
+        return pstRangeAction;
     }
 
     @Test
@@ -341,23 +342,29 @@ public class LeafTest {
 
     @Test
     public void testIsNetworkActionCloseToLocations() {
-        raoParameters.setPtdfBoundariesFromCountryCodes(List.of("FR-DE", "DE-AT"));
+
+        HashSet<CountryBoundary> boundaries = new HashSet<>();
+        boundaries.add(new CountryBoundary(Country.FR, Country.BE));
+        boundaries.add(new CountryBoundary(Country.FR, Country.DE));
+        boundaries.add(new CountryBoundary(Country.DE, Country.AT));
+        CountryGraph countryGraph = new CountryGraph(boundaries);
+
         raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(0);
         Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.empty())));
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.FR))));
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.BE))));
-        assertFalse(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.DE))));
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.empty()), countryGraph));
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.FR)), countryGraph));
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.BE)), countryGraph));
+        assertFalse(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.DE)), countryGraph));
         raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(1);
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.DE))));
-        assertFalse(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT))));
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.DE)), countryGraph));
+        assertFalse(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT)), countryGraph));
         raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(2);
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT))));
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT)), countryGraph));
 
         mockRaoUtil();
         PowerMockito.when(RaoUtil.getNetworkActionLocation(Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> List.of(Optional.of(Country.FR), Optional.empty()));
         raoParameters.getExtension(SearchTreeRaoParameters.class).setMaxNumberOfBoundariesForSkippingNetworkActions(0);
-        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT))));
+        assertTrue(rootLeaf.isNetworkActionCloseToLocations(na1, List.of(Optional.of(Country.AT)), countryGraph));
     }
 
     @Test
