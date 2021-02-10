@@ -18,7 +18,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -151,12 +151,12 @@ public class LeafTest {
 
     private RangeAction addPst() {
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-        PstWithRange pstWithRange = new PstWithRange("pst", pstElement);
-        pstWithRange.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        crac.addRangeAction(pstWithRange);
+        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
+        pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        crac.addRangeAction(pstRangeAction);
         crac.desynchronize();
         crac.synchronize(network);
-        return pstWithRange;
+        return pstRangeAction;
     }
 
     @Test

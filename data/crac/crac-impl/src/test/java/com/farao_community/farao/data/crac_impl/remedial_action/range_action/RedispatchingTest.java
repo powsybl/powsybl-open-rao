@@ -1,7 +1,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_api.Range;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,8 +59,8 @@ public class RedispatchingTest extends AbstractRangeActionTest {
     public void getMinAndMaxValueWithRange() {
         Range mockedRange = Mockito.mock(Range.class);
         Network mockedNetwork = Mockito.mock(Network.class);
-        assertEquals(0, redispatching.getMinValueWithRange(mockedNetwork, mockedRange), 0);
-        assertEquals(0, redispatching.getMaxValueWithRange(mockedNetwork, mockedRange), 0);
+        assertEquals(0, redispatching.getMinValueWithRange(mockedNetwork, mockedRange, 5), 0);
+        assertEquals(0, redispatching.getMaxValueWithRange(mockedNetwork, mockedRange, 5), 0);
     }
 
     @Test

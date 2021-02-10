@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
 import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.*;
 
@@ -27,8 +26,8 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("pst-with-range")
-public final class PstWithRange extends AbstractRangeAction implements PstRange {
+@JsonTypeName("pst-range-action-impl")
+public final class PstRangeActionImpl extends AbstractRangeAction implements PstRangeAction {
     private int lowTapPosition; // min value of PST in the Network (with implicit RangeDefinition)
     private int highTapPosition; // max value of PST in the Network (with implicit RangeDefinition)
     private int initialTapPosition;
@@ -43,23 +42,23 @@ public final class PstWithRange extends AbstractRangeAction implements PstRange 
      *
      * @param networkElement: PST element to modify
      */
-    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges,
+    public PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges,
                         NetworkElement networkElement, String groupId) {
         super(id, name, operator, usageRules, ranges, networkElement, groupId);
         initAttributes();
     }
 
-    public PstWithRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges, NetworkElement networkElement) {
+    public PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges, NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
         initAttributes();
     }
 
-    public PstWithRange(String id, String name, String operator, NetworkElement networkElement) {
+    public PstRangeActionImpl(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator, networkElement);
         initAttributes();
     }
 
-    public PstWithRange(String id, NetworkElement networkElement) {
+    public PstRangeActionImpl(String id, NetworkElement networkElement) {
         super(id, networkElement);
         initAttributes();
     }
@@ -98,13 +97,13 @@ public final class PstWithRange extends AbstractRangeAction implements PstRange 
      * Min angle value allowed by all ranges and the physical limitations of the PST itself
      */
     @Override
-    public double getMinValue(Network network) {
+    public double getMinValue(Network network, double prePerimeterValue) {
         if (!isSynchronized) {
             throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its min value cannot be accessed", getId()));
         }
         double minValue = Math.min(convertTapToAngle(lowTapPosition), convertTapToAngle(highTapPosition));
         for (Range range: ranges) {
-            minValue = Math.max(getMinValueWithRange(network, range), minValue);
+            minValue = Math.max(getMinValueWithRange(network, range, prePerimeterValue), minValue);
         }
         return minValue;
     }
@@ -113,43 +112,45 @@ public final class PstWithRange extends AbstractRangeAction implements PstRange 
      * Max angle value allowed by all ranges and the physical limitations of the PST itself
      */
     @Override
-    public double getMaxValue(Network network) {
+    public double getMaxValue(Network network, double prePerimeterValue) {
         if (!isSynchronized) {
             throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its max value cannot be accessed", getId()));
         }
         double maxValue = Math.max(convertTapToAngle(lowTapPosition), convertTapToAngle(highTapPosition));
         for (Range range: ranges) {
-            maxValue = Math.min(getMaxValueWithRange(network, range), maxValue);
+            maxValue = Math.min(getMaxValueWithRange(network, range, prePerimeterValue), maxValue);
         }
         return maxValue;
     }
 
     // Min value allowed by a range (from Crac)
     @Override
-    protected double getMinValueWithRange(Network network, Range range) {
-        return Math.min(lowTapPositionRangeIntersection(network, range), highTapPositionRangeIntersection(network, range));
+    protected double getMinValueWithRange(Network network, Range range, double prePerimeterValue) {
+        int prePerimeterTapPosition = computeTapPosition(prePerimeterValue);
+        return Math.min(lowTapPositionRangeIntersection(prePerimeterTapPosition, range), highTapPositionRangeIntersection(prePerimeterTapPosition, range));
     }
 
     // Max value allowed by a range (from Crac)
     @Override
-    protected double getMaxValueWithRange(Network network, Range range) {
-        return Math.max(lowTapPositionRangeIntersection(network, range), highTapPositionRangeIntersection(network, range));
+    protected double getMaxValueWithRange(Network network, Range range, double prePerimeterValue) {
+        int prePerimeterTapPosition = computeTapPosition(prePerimeterValue);
+        return Math.max(lowTapPositionRangeIntersection(prePerimeterTapPosition, range), highTapPositionRangeIntersection(prePerimeterTapPosition, range));
     }
 
     /**
     Maximum value between lowTapPosition and lower range bound
      */
-    private double lowTapPositionRangeIntersection(Network network, Range range) {
+    private double lowTapPositionRangeIntersection(int prePerimeterTapPosition, Range range) {
         double minValue = range.getMin();
-        return convertTapToAngle(Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), minValue)));
+        return convertTapToAngle(Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, prePerimeterTapPosition, minValue)));
     }
 
     /**
      Minimum value between highTapPosition and upper range bound
      */
-    private double highTapPositionRangeIntersection(Network network, Range range) {
+    private double highTapPositionRangeIntersection(int prePerimeterTapPosition, Range range) {
         double maxValue = range.getMax();
-        return convertTapToAngle(Math.min(highTapPosition, (int) getExtremumValueWithRange(range, getCurrentTapPosition(network), maxValue)));
+        return convertTapToAngle(Math.min(highTapPosition, (int) getExtremumValueWithRange(range, prePerimeterTapPosition, maxValue)));
     }
 
     @Override
@@ -206,10 +207,11 @@ public final class PstWithRange extends AbstractRangeAction implements PstRange 
         return phaseTapChanger.getStep(tap).getAlpha();
     }
 
-    private double getExtremumValueWithRange(Range range, double currentTapPosition, double extremumValue) {
-        switch (range.getRangeType()) {
-            case ABSOLUTE_FIXED:
-                switch (range.getRangeDefinition()) {
+    private double getExtremumValueWithRange(Range range, double prePerimeterTapPosition, double extremumValue) {
+        PstRange pstRange = (PstRange) range;
+        switch (pstRange.getRangeType()) {
+            case ABSOLUTE:
+                switch (pstRange.getRangeDefinition()) {
                     case STARTS_AT_ONE:
                         return lowTapPosition + extremumValue - 1;
                     case CENTERED_ON_ZERO:
@@ -217,10 +219,10 @@ public final class PstWithRange extends AbstractRangeAction implements PstRange 
                     default:
                         throw new FaraoException("Unknown range definition");
                 }
-            case RELATIVE_FIXED:
+            case RELATIVE_TO_INITIAL_NETWORK:
                 return initialTapPosition + extremumValue;
-            case RELATIVE_DYNAMIC:
-                return currentTapPosition + extremumValue;
+            case RELATIVE_TO_PREVIOUS_INSTANT:
+                return prePerimeterTapPosition + extremumValue;
             default:
                 throw new FaraoException("Unknown range type");
         }

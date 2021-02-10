@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
@@ -211,7 +211,7 @@ class Leaf {
         Map<String, Integer> maxTopoPerTso = new HashMap<>(treeParameters.getMaxTopoPerTso());
         treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
             int activatedPstsForTso = (int) raoData.getAvailableRangeActions().stream()
-                    .filter(rangeAction -> (rangeAction instanceof PstRange) && isRangeActionActivated(rangeAction))
+                    .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && isRangeActionActivated(rangeAction))
                     .count();
             int topoLimit =  raLimit - activatedPstsForTso;
             maxTopoPerTso.put(tso, Math.min(topoLimit, maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
