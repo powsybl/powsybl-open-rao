@@ -4,7 +4,7 @@
  *  License, v. 2.0. If a copy of the MPL was not distributed with this
  *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.util;
+package com.farao_community.farao.commons;
 
 import com.powsybl.iidm.network.Country;
 
@@ -12,14 +12,8 @@ import com.powsybl.iidm.network.Country;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * EIC = Energy Identification Code
  */
-public class EICode {
+public class CountryEICode {
     //EIC = Energy Identification Code
-    //EICode = Energy Identification Code
-
-    /**
-     * number of character in an EI Code
-     */
-    public static final int LENGTH = 16;
 
     /**
      * code string
@@ -34,7 +28,7 @@ public class EICode {
     /**
      * @param codeString default constructor
      */
-    public EICode(String codeString) {
+    public CountryEICode(String codeString) {
         this.codeString = codeString;
         this.country = getCountry();
     }
@@ -42,7 +36,7 @@ public class EICode {
     /**
      * @param country default constructor
      */
-    public EICode(Country country) {
+    public CountryEICode(Country country) {
         this.country = country;
         this.codeString = getCode();
     }
@@ -94,7 +88,7 @@ public class EICode {
             case "10YIT-GRTN-----B" :
                 return Country.IT;
             case "10YDK-1--------W" : return Country.DK;
-            default: throw new IllegalArgumentException(String.format("Unknown EICode: %s.", codeString));
+            default: throw new IllegalArgumentException(String.format("Unknown CountryEICode: %s.", codeString));
         }
     }
 
@@ -126,7 +120,7 @@ public class EICode {
             case GR : return "10YGR-HTSO-----Y";
             case IT : return "10YIT-GRTN-----B";
             case DK : return "10YDK-1--------W";
-            default: throw new IllegalArgumentException(String.format("Unknown Country %s.", country.toString()));
+            default: throw new IllegalArgumentException(String.format("Unknown CountryEICode for Country %s.", country.toString()));
         }
     }
 
