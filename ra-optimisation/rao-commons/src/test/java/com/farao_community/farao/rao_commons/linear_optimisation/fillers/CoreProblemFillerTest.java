@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -425,11 +425,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         crac = CommonCracCreation.create();
 
-        rangeAction1 = new PstWithRange("PST_FR_1", "PST_FR_1", "FR", new NetworkElement("FFR1AA1  FFR2AA1  2"));
+        rangeAction1 = new PstRangeActionImpl("PST_FR_1", "PST_FR_1", "FR", new NetworkElement("FFR1AA1  FFR2AA1  2"));
         rangeAction1.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         ((SimpleCrac) crac).addRangeAction(rangeAction1);
 
-        rangeAction2 = new PstWithRange("PST_FR_2", "PST_FR_2", "FR", new NetworkElement("BBE1AA1  BBE3AA1  2"));
+        rangeAction2 = new PstRangeActionImpl("PST_FR_2", "PST_FR_2", "FR", new NetworkElement("BBE1AA1  BBE3AA1  2"));
         rangeAction2.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         ((SimpleCrac) crac).addRangeAction(rangeAction2);
 
