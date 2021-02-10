@@ -117,7 +117,7 @@ public class CoreProblemFiller implements ProblemFiller {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
                     pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, raoData))
                             .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
-                            .forEach(rangeAction -> filteredRangeActions.remove(rangeAction));
+                            .forEach(filteredRangeActions::remove);
                 }
             });
         }
