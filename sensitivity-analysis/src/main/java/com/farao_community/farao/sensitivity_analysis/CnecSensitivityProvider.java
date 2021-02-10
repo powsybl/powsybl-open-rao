@@ -8,8 +8,11 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFactorsProvider;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,4 +21,10 @@ import java.util.Set;
 public interface CnecSensitivityProvider extends SensitivityFactorsProvider, ContingenciesProvider {
 
     Set<BranchCnec> getBranchCnecs();
+
+    default List<SensitivityFactor> getAllFactors(Network network) {
+        List<SensitivityFactor> factors = getCommonFactors(network);
+        factors.addAll(getAdditionalFactors(network));
+        return factors;
+    }
 }

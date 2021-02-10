@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityVariable;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,7 +48,8 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network) {
+    public List<SensitivityFactor> getCommonFactors(Network network) {
+        // TODO : keep only common factors
         List<SensitivityFactor> factors = new ArrayList<>();
         List<SensitivityVariable> sensitivityVariables = rangeActions.stream()
             .map(ra -> rangeActionToSensitivityVariables(network, ra))
@@ -64,7 +66,13 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network, String contingencyId) {
+    public List<SensitivityFactor> getAdditionalFactors(Network network) {
+        // TODO
+        throw new NotImplementedException(String.format("getAdditionalFactors(Network network) not implemented in %s", this.getClass().getName()));
+    }
+
+    @Override
+    public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
         List<SensitivityFactor> factors = new ArrayList<>();
         List<SensitivityVariable> sensitivityVariables = rangeActions.stream()
             .map(ra -> rangeActionToSensitivityVariables(network, ra))

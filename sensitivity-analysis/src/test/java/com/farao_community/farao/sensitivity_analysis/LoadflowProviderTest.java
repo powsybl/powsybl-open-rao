@@ -35,7 +35,7 @@ public class LoadflowProviderTest {
         LoadflowProvider provider = new LoadflowProvider(crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
-        List<SensitivityFactor> factorList = provider.getFactors(network);
+        List<SensitivityFactor> factorList = provider.getAllFactors(network);
         assertEquals(4, factorList.size());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
@@ -48,7 +48,7 @@ public class LoadflowProviderTest {
         LoadflowProvider provider = new LoadflowProvider(crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT));
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
-        List<SensitivityFactor> factorList = provider.getFactors(network);
+        List<SensitivityFactor> factorList = provider.getAllFactors(network);
         assertEquals(2, factorList.size());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
     }

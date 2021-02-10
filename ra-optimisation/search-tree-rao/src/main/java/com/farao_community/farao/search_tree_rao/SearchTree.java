@@ -164,11 +164,24 @@ public class SearchTree {
     }
 
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
+        Leaf leaf;
         try {
             leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network, raoParameters, treeParameters);
         } catch (NotImplementedException e) {
             networkPool.releaseUsedNetwork(network);
             throw e;
+        }
+        leaf.evaluate();
+        LOGGER.debug("{}", leaf);
+        if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
+            leaf.clearAllVariants();
+        } else {
+            if (!stopCriterionReached(leaf)) {
+                leaf.optimize();
+                LOGGER.info("{}", leaf);
+            }
+            leaf.clearAllVariantsExceptOptimizedOne();
+            updateOptimalLeafAndCleanVariants(leaf);
         }
     }
 

@@ -36,17 +36,17 @@ public class MultipleSensitivityProviderTest {
         SensitivityFactor factor2 = Mockito.mock(SensitivityFactor.class);
         SensitivityFactor factor3 = Mockito.mock(SensitivityFactor.class);
 
-        Mockito.when(provider1.getFactors(any())).thenReturn(Collections.singletonList(factor1));
-        Mockito.when(provider2.getFactors(any())).thenReturn(Arrays.asList(factor2, factor3));
+        Mockito.when(provider1.getAllFactors(any())).thenReturn(Collections.singletonList(factor1));
+        Mockito.when(provider2.getAllFactors(any())).thenReturn(Arrays.asList(factor2, factor3));
 
         MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
 
         // with one provider
         multipleSensitivityProvider.addProvider(provider1);
-        assertEquals(1, multipleSensitivityProvider.getFactors(network).size());
+        assertEquals(1, multipleSensitivityProvider.getAllFactors(network).size());
 
         // with two provider
         multipleSensitivityProvider.addProvider(provider2);
-        assertEquals(3, multipleSensitivityProvider.getFactors(network).size());
+        assertEquals(3, multipleSensitivityProvider.getAllFactors(network).size());
     }
 }

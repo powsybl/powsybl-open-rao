@@ -15,6 +15,7 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,8 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network) {
+    public List<SensitivityFactor> getCommonFactors(Network network) {
+        // TODO : keep only common factors
         List<SensitivityFactor> factors = new ArrayList<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
 
@@ -55,7 +57,13 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network, String contingencyId) {
+    public List<SensitivityFactor> getAdditionalFactors(Network network) {
+        // TODO
+        throw new NotImplementedException(String.format("getAdditionalFactors(Network network) not implemented in %s", this.getClass().getName()));
+    }
+
+    @Override
+    public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
         List<SensitivityFactor> factors = new ArrayList<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
 

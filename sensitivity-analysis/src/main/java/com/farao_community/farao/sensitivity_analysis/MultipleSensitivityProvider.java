@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 
@@ -47,21 +48,28 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network) {
+    public List<SensitivityFactor> getCommonFactors(Network network) {
+        // TODO : keep only common factors
         //using a set to avoid duplicates
         Set<SensitivityFactor> factors = new HashSet<>();
         for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
-            factors.addAll(cnecSensitivityProvider.getFactors(network));
+            factors.addAll(cnecSensitivityProvider.getCommonFactors(network));
         }
         return new ArrayList<>(factors);
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network, String contingencyId) {
+    public List<SensitivityFactor> getAdditionalFactors(Network network) {
+        // TODO
+        throw new NotImplementedException(String.format("getAdditionalFactors(Network network) not implemented in %s", this.getClass().getName()));
+    }
+
+    @Override
+    public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
         //using a set to avoid duplicates
         Set<SensitivityFactor> factors = new HashSet<>();
         for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
-            factors.addAll(cnecSensitivityProvider.getFactors(network, contingencyId));
+            factors.addAll(cnecSensitivityProvider.getAdditionalFactors(network, contingencyId));
         }
         return new ArrayList<>(factors);
     }

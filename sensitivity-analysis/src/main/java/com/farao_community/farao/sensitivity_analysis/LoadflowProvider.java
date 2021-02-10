@@ -21,6 +21,7 @@ import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
 import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -144,7 +145,8 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network) {
+    public List<SensitivityFactor> getCommonFactors(Network network) {
+        // TODO : keep only common factors
         List<SensitivityFactor> factors = new ArrayList<>();
         SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
         getSensitivityFunctions(network).forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
@@ -152,7 +154,13 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network, String contingencyId) {
+    public List<SensitivityFactor> getAdditionalFactors(Network network) {
+        // TODO
+        throw new NotImplementedException(String.format("getAdditionalFactors(Network network) not implemented in %s", this.getClass().getName()));
+    }
+
+    @Override
+    public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
         List<SensitivityFactor> factors = new ArrayList<>();
         SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
         getSensitivityFunctions(network, contingencyId).forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
