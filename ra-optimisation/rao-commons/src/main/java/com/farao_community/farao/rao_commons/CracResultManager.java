@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
@@ -20,9 +20,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -48,9 +46,9 @@ public class CracResultManager {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(raoData.getWorkingVariantId());
             statesAfterOptimizedState.forEach(state -> rangeActionResult.setSetPoint(state.getId(), setPointValueInNetwork));
-            if (rangeAction instanceof PstRange) {
+            if (rangeAction instanceof PstRangeAction) {
                 PstRangeResult pstRangeResult = (PstRangeResult) rangeActionResult;
-                int tapValueInNetwork = ((PstRange) rangeAction).computeTapPosition(setPointValueInNetwork);
+                int tapValueInNetwork = ((PstRangeAction) rangeAction).computeTapPosition(setPointValueInNetwork);
                 statesAfterOptimizedState.forEach(state -> pstRangeResult.setTap(state.getId(), tapValueInNetwork));
             }
         }
@@ -96,17 +94,17 @@ public class CracResultManager {
         Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
 
         for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
-            if (rangeAction instanceof PstRange) {
+            if (rangeAction instanceof PstRangeAction) {
                 RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
                 int approximatedPostOptimTap;
                 double approximatedPostOptimAngle;
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
                 Optional<RangeAction> sameNetworkElementRangeAction = raoData.getAvailableRangeActions().stream()
-                        .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && linearProblem.getRangeActionSetPointVariable(ra) != null)
-                        .findAny();
+                    .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && linearProblem.getRangeActionSetPointVariable(ra) != null)
+                    .findAny();
                 if (sameNetworkElementRangeAction.isPresent()) {
                     double rangeActionVal = linearProblem.getRangeActionSetPointVariable(sameNetworkElementRangeAction.get()).solutionValue();
-                    PstRange pstRangeAction = (PstRange) sameNetworkElementRangeAction.get();
+                    PstRangeAction pstRangeAction = (PstRangeAction) sameNetworkElementRangeAction.get();
                     TwoWindingsTransformer transformer = raoData.getNetwork().getTwoWindingsTransformer(networkElementId);
 
                     approximatedPostOptimTap = pstRangeAction.computeTapPosition(rangeActionVal);
