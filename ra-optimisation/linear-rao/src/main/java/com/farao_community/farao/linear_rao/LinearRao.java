@@ -66,8 +66,7 @@ public class LinearRao implements RaoProvider {
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
                 raoInput.getBaseCracVariantId(),
-                raoParameters.getLoopflowCountries());
-
+                raoParameters);
         return run(raoData, raoParameters);
     }
 
@@ -80,8 +79,9 @@ public class LinearRao implements RaoProvider {
 
         this.unit = raoParameters.getObjectiveFunction().getUnit();
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
+        // TODO : add max pst per tso parameter here if it should be supported in LinearRao
         IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
-        return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData, raoParameters), raoParameters);
+        return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData), raoParameters);
     }
 
     // This method is useful for testing to be able to mock systematicSensitivityComputation
@@ -91,6 +91,7 @@ public class LinearRao implements RaoProvider {
         try {
             initialSensitivityAnalysis.run();
         } catch (SensitivityAnalysisException e) {
+            LOGGER.error("Initial sensitivity analysis failed :", e);
             return CompletableFuture.completedFuture(buildFailedRaoResultAndClearVariants(raoData, e));
         }
 
@@ -98,7 +99,7 @@ public class LinearRao implements RaoProvider {
         StringBuilder skipReason = new StringBuilder();
         if (skipOptim(raoParameters, raoData, skipReason)) {
             LOGGER.warn(format("Linear optimization is skipped. Cause: %s", skipReason));
-            return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getInitialVariantId(), systematicSensitivityInterface));
+            return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getPreOptimVariantId(), systematicSensitivityInterface));
         }
 
         String bestVariantId = iteratingLinearOptimizer.optimize(raoData);
@@ -131,7 +132,7 @@ public class LinearRao implements RaoProvider {
     private RaoResult buildSuccessfulRaoResultAndClearVariants(RaoData raoData, String postOptimVariantId, SystematicSensitivityInterface systematicSensitivityInterface) {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
-        raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
+        raoResult.setPreOptimVariantId(raoData.getPreOptimVariantId());
         raoResult.setPostOptimVariantId(postOptimVariantId);
 
         // build extension
@@ -146,7 +147,7 @@ public class LinearRao implements RaoProvider {
             minMargin, unit, raoData.getCracResult(postOptimVariantId).getNetworkSecurityStatus(),
             objFunctionValue));
 
-        raoData.getCracVariantManager().clearWithKeepingCracResults(Arrays.asList(raoData.getInitialVariantId(), postOptimVariantId));
+        raoData.getCracVariantManager().clearWithKeepingCracResults(Arrays.asList(raoData.getPreOptimVariantId(), postOptimVariantId));
         return raoResult;
     }
 
@@ -156,8 +157,8 @@ public class LinearRao implements RaoProvider {
     private RaoResult buildFailedRaoResultAndClearVariants(RaoData raoData, Exception e) {
         // build RaoResult
         RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
-        raoResult.setPreOptimVariantId(raoData.getInitialVariantId());
-        raoResult.setPostOptimVariantId(raoData.getInitialVariantId());
+        raoResult.setPreOptimVariantId(raoData.getPreOptimVariantId());
+        raoResult.setPostOptimVariantId(raoData.getPreOptimVariantId());
 
         // build extension
         LinearRaoResult resultExtension = new LinearRaoResult();
@@ -165,7 +166,7 @@ public class LinearRao implements RaoProvider {
         resultExtension.setErrorMessage(e.getMessage());
         raoResult.addExtension(LinearRaoResult.class, resultExtension);
 
-        raoData.getCracVariantManager().clearWithKeepingCracResults(Collections.singletonList(raoData.getInitialVariantId()));
+        raoData.getCracVariantManager().clearWithKeepingCracResults(Collections.singletonList(raoData.getPreOptimVariantId()));
 
         return raoResult;
     }

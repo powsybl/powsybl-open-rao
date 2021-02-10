@@ -8,13 +8,11 @@
 package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -89,8 +87,13 @@ final class RangeActionDeserializer {
 
                 case RANGES:
                     jsonParser.nextToken();
-                    ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
-                    });
+                    if (type.equals(PST_RANGE_ACTION_IMPL_TYPE)) {
+                        ranges = jsonParser.readValueAs(new TypeReference<List<PstRangeImpl>>() {
+                        });
+                    } else {
+                        ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
+                        });
+                    }
                     break;
 
                 case NETWORK_ELEMENTS:
@@ -117,8 +120,16 @@ final class RangeActionDeserializer {
         Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
         RangeAction rangeAction;
         switch (type) {
-            case PST_WITH_RANGE_TYPE:
-                rangeAction = new PstWithRange(id, name, operator, usageRules, ranges, networkElements.iterator().next(), groupId);
+            case PST_RANGE_ACTION_IMPL_TYPE:
+                List<PstRange> pstRanges = new ArrayList<>();
+                for (Range range : ranges) {
+                    if (range instanceof PstRange) {
+                        pstRanges.add((PstRange) range);
+                    } else {
+                        throw new FaraoException(String.format("Type of range action [%s] should have ranges of type PstRange.", type));
+                    }
+                }
+                rangeAction = new PstRangeActionImpl(id, name, operator, usageRules, pstRanges, networkElements.iterator().next(), groupId);
                 break;
             default:
                 throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));

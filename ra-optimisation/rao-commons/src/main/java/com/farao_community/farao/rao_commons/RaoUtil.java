@@ -79,7 +79,7 @@ public final class RaoUtil {
             if (raoInput.getGlskProvider() == null) {
                 throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunction()));
             }
-            if (raoParameters.getPtdfBoundaries().isEmpty()) {
+            if (raoParameters.getRelativeMarginPtdfBoundaries().isEmpty()) {
                 throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunction()));
             }
         }
@@ -122,8 +122,12 @@ public final class RaoUtil {
     }
 
     public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface) {
+        return createLinearOptimizer(raoParameters, systematicSensitivityInterface, null);
+    }
+
+    public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface, Map<String, Integer> maxPstPerTso) {
         List<ProblemFiller> fillers = new ArrayList<>();
-        fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold()));
+        fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold(), maxPstPerTso));
         if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
             || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
@@ -134,7 +138,7 @@ public final class RaoUtil {
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            // TO DO : add relative margins to IteratingLinearOptimizerWithLoopFlows
+            // TODO : add relative margins to IteratingLinearOptimizerWithLoopFlows
             // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
             fillers.add(createMaxLoopFlowFiller(raoParameters));
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityInterface,
@@ -145,7 +149,10 @@ public final class RaoUtil {
     }
 
     private static MaxLoopFlowFiller createMaxLoopFlowFiller(RaoParameters raoParameters) {
-        return new MaxLoopFlowFiller(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowApproximationLevel());
+        return new MaxLoopFlowFiller(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(),
+            raoParameters.getLoopFlowViolationCost(),
+            raoParameters.getLoopFlowApproximationLevel(),
+            raoParameters.getLoopFlowAcceptableAugmentation());
     }
 
     private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {

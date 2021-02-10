@@ -67,11 +67,12 @@ public final class JsonSerializationNames {
 
     public static final String FLOW_CNEC_TYPE = "flow-cnec";
 
-    public static final String PST_WITH_RANGE_TYPE = "pst-with-range";
+    public static final String PST_RANGE_ACTION_IMPL_TYPE = "pst-range-action-impl";
     public static final String ALIGNED_RANGE_ACTIONS_TYPE = "aligned-range-action";
 
     public static final String TOPOLOGY_TYPE = "topology";
     public static final String PST_SETPOINT_TYPE = "pst-setpoint";
+    public static final String INJECTION_SETPOINT_TYPE = "injection-setpoint";
     public static final String COMPLEX_NETWORK_ACTION_TYPE = "complex-network-action";
 
     public static final String FREE_TO_USE_TYPE = "free-to-use";

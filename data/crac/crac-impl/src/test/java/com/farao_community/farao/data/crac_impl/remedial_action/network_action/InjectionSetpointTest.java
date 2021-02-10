@@ -12,12 +12,14 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -58,10 +60,50 @@ public class InjectionSetpointTest extends AbstractRemedialActionTest {
         assertEquals(newValue, injectionSetpoint.getSetpoint(), 0);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void apply() {
-        Network mockedNetwork = Mockito.mock(Network.class);
-        injectionSetpoint.apply(mockedNetwork);
+    @Test
+    public void applyOnGenerator() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        InjectionSetpoint generatorSetpoint = new InjectionSetpoint(
+                "id",
+                "name",
+                "RTE",
+                Collections.emptyList(),
+                new NetworkElement("FFR1AA1 _generator"),
+                100
+        );
+        generatorSetpoint.apply(network);
+        assertEquals(100., network.getGenerator("FFR1AA1 _generator").getTargetP(), 1e-3);
+    }
+
+    @Test
+    public void applyOnLoad() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        InjectionSetpoint loadSetpoint = new InjectionSetpoint(
+                "id",
+                "name",
+                "RTE",
+                Collections.emptyList(),
+                new NetworkElement("FFR1AA1 _load"),
+                100
+        );
+        loadSetpoint.apply(network);
+        assertEquals(100., network.getLoad("FFR1AA1 _load").getP0(), 1e-3);
+    }
+
+    @Test
+    public void applyOnDanglingLine() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        NetworkImportsUtil.addDanglingLine(network);
+        InjectionSetpoint danglingLineSetpoint = new InjectionSetpoint(
+                "id",
+                "name",
+                "RTE",
+                Collections.emptyList(),
+                new NetworkElement("DL1"),
+                100
+        );
+        danglingLineSetpoint.apply(network);
+        assertEquals(100., network.getDanglingLine("DL1").getP0(), 1e-3);
     }
 
     @Test

@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.data.crac_io_cne;
 
+import com.farao_community.farao.commons.CountryEICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.util.EICode;
 import com.powsybl.iidm.network.Country;
 import org.joda.time.DateTime;
 
@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.*;
+import static com.farao_community.farao.data.crac_io_cne.CneConstants.DIMENSIONLESS_SYMBOL;
 import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
 
 /**
@@ -28,7 +29,8 @@ import static com.farao_community.farao.data.crac_io_cne.CneUtil.*;
  */
 public final class CneClassCreator {
 
-    private CneClassCreator() { }
+    private CneClassCreator() {
+    }
 
     /*****************
      POINT
@@ -90,7 +92,7 @@ public final class CneClassCreator {
     public static ConstraintSeries newConstraintSeries(String id, String businessType, Set<Country> countries, String optimStatus) {
         ConstraintSeries constraintSeries = newConstraintSeries(id, businessType, optimStatus);
         if (!countries.isEmpty()) {
-            countries.stream().sorted(Comparator.comparing((Country c) -> new EICode(c).getCode())).forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
+            countries.stream().sorted(Comparator.comparing((Country c) -> new CountryEICode(c).getCode())).forEach(country -> constraintSeries.partyMarketParticipant.add(newPartyMarketParticipant(country)));
         }
 
         return constraintSeries;
@@ -98,7 +100,7 @@ public final class CneClassCreator {
 
     public static PartyMarketParticipant newPartyMarketParticipant(Country country) {
         PartyMarketParticipant partyMarketParticipant = new PartyMarketParticipant();
-        partyMarketParticipant.setMRID(createPartyIDString("A01", new EICode(country).getCode()));
+        partyMarketParticipant.setMRID(createPartyIDString("A01", new CountryEICode(country).getCode()));
         return partyMarketParticipant;
     }
 
@@ -156,7 +158,7 @@ public final class CneClassCreator {
     /*****************
      MEASUREMENT
      *****************/
-    public static Analog newMeasurement(String measurementType, Unit unit, double flow) {
+    public static Analog newFlowMeasurement(String measurementType, Unit unit, double flow) {
         Analog measurement = new Analog();
         measurement.setMeasurementType(measurementType);
 
@@ -175,6 +177,14 @@ public final class CneClassCreator {
         }
         measurement.setAnalogValuesValue(limitFloatInterval(flow));
 
+        return measurement;
+    }
+
+    public static Analog newPtdfMeasurement(String measurementType, double value) {
+        Analog measurement = new Analog();
+        measurement.setMeasurementType(measurementType);
+        measurement.setUnitSymbol(DIMENSIONLESS_SYMBOL);
+        measurement.setAnalogValuesValue((float) (Math.round(value * 1e5) / 1e5));
         return measurement;
     }
 

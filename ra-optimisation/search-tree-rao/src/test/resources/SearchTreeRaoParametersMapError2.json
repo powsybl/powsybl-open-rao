@@ -1,0 +1,52 @@
+{
+  "version" : "1.0",
+  "objective-function" : "MAX_MIN_MARGIN_IN_MEGAWATT",
+  "max-number-of-iterations" : 10,
+  "pst-penalty-cost" : 0.01,
+  "pst-sensitivity-threshold" : 0.0,
+  "sensitivity-fallback-over-cost" : 0.0,
+  "rao-with-loop-flow-limitation" : false,
+  "loop-flow-acceptable-augmentation" : 0.0,
+  "loop-flow-approximation" : "FIXED_PTDF",
+  "loop-flow-constraint-adjustment-coefficient" : 0.0,
+  "loop-flow-violation-cost" : 0.0,
+  "loop-flow-countries" : [ ],
+  "mnec-acceptable-margin-diminution" : 50.0,
+  "mnec-violation-cost" : 10.0,
+  "mnec-constraint-adjustment-coefficient" : 0.0,
+  "negative-margin-objective-coefficient" : 1000.0,
+  "relative-margin-ptdf-boundaries" : [ ],
+  "ptdf-sum-lower-bound" : 0.01,
+  "perimeters-in-parallel" : 1,
+  "sensitivity-parameters" : {
+    "version" : "1.0",
+    "load-flow-parameters" : {
+      "version" : "1.4",
+      "voltageInitMode" : "UNIFORM_VALUES",
+      "transformerVoltageControlOn" : false,
+      "phaseShifterRegulationOn" : false,
+      "noGeneratorReactiveLimits" : false,
+      "twtSplitShuntAdmittance" : false,
+      "simulShunt" : false,
+      "readSlackBus" : false,
+      "writeSlackBus" : false,
+      "dc" : false,
+      "distributedSlack" : true,
+      "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX"
+    }
+  },
+  "extensions" : {
+    "SearchTreeRaoParameters" : {
+      "maximum-search-depth" : 10,
+      "relative-network-action-minimum-impact-threshold" : 0.1,
+      "absolute-network-action-minimum-impact-threshold" : 20.0,
+      "leaves-in-parallel" : 1,
+      "preventive-rao-stop-criterion" : "MIN_OBJECTIVE",
+      "curative-rao-stop-criterion" : "PREVENTIVE_OBJECTIVE_AND_SECURE",
+      "curative-rao-min-obj-improvement" : 983.0,
+      "skip-network-actions-far-from-most-limiting-element" : false,
+      "max-number-of-boundaries-for-skipping-network-actions" : 2,
+      "max-curative-pst-per-tso" : { "Amprion" : -1 }
+    }
+  }
+}

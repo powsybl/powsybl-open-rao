@@ -9,9 +9,9 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.PstRange;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -139,14 +139,10 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void fillObjectiveWithRangeActionPenaltyCost(RaoData raoData, LinearProblem linearProblem) {
         raoData.getAvailableRangeActions().forEach(rangeAction -> {
-
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
-            if (absoluteVariationVariable == null) {
-                throw new FaraoException(String.format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
-            }
-
-            if (rangeAction instanceof PstRange) {
+            // If the PST has been filtered out, then absoluteVariationVariable is null
+            if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
             }
         });

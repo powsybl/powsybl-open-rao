@@ -59,7 +59,8 @@
             "minThresholdInA" : -3325.0,
             "maxThresholdInA" : 3325.0,
             "loopflowInMW" : -5.0,
-            "loopflowThresholdInMW" : 19.0
+            "loopflowThresholdInMW" : 19.0,
+            "absolutePtdfSum" : 0.5
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "cnec-result",
@@ -70,14 +71,15 @@
             "minThresholdInA" : -3325.0,
             "maxThresholdInA" : 3325.0,
             "loopflowInMW" : -13.0,
-            "loopflowThresholdInMW" : 19.0
+            "loopflowThresholdInMW" : 19.0,
+            "absolutePtdfSum" : 0.5
           }
         }
       }
     }
   } ],
   "rangeActions" : [ {
-    "type" : "pst-with-range",
+    "type" : "pst-range-action-impl",
     "id" : "SelectTapPST43",
     "name" : "SelectTapPST43",
     "operator" : "FR",
@@ -90,7 +92,7 @@
     "ranges" : [ {
       "min" : 1.0,
       "max" : 33.0,
-      "rangeType" : "ABSOLUTE_FIXED",
+      "rangeType" : "ABSOLUTE",
       "rangeDefinition" : "STARTS_AT_ONE"
     } ],
     "extensions" : {

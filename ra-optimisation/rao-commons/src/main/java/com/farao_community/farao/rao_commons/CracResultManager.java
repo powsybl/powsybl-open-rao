@@ -8,9 +8,10 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.PstRange;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
@@ -19,8 +20,8 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -39,13 +40,16 @@ public class CracResultManager {
      * with values in network of the working variant.
      */
     public void fillRangeActionResultsWithNetworkValues() {
-        for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
-            double valueInNetwork = rangeAction.getCurrentValue(raoData.getNetwork());
+        Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
+        for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
+            double setPointValueInNetwork = rangeAction.getCurrentValue(raoData.getNetwork());
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(raoData.getWorkingVariantId());
-            rangeActionResult.setSetPoint(raoData.getOptimizedState().getId(), valueInNetwork);
-            if (rangeAction instanceof PstRange) {
-                ((PstRangeResult) rangeActionResult).setTap(raoData.getOptimizedState().getId(), ((PstRange) rangeAction).computeTapPosition(valueInNetwork));
+            statesAfterOptimizedState.forEach(state -> rangeActionResult.setSetPoint(state.getId(), setPointValueInNetwork));
+            if (rangeAction instanceof PstRangeAction) {
+                PstRangeResult pstRangeResult = (PstRangeResult) rangeActionResult;
+                int tapValueInNetwork = ((PstRangeAction) rangeAction).computeTapPosition(setPointValueInNetwork);
+                statesAfterOptimizedState.forEach(state -> pstRangeResult.setTap(state.getId(), tapValueInNetwork));
             }
         }
     }
@@ -87,22 +91,53 @@ public class CracResultManager {
             LOGGER.debug(String.format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
             LOGGER.debug(String.format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
         }
-        for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
-            if (rangeAction instanceof PstRange) {
-                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
-                double rangeActionVal = linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue();
-                PstRange pstRange = (PstRange) rangeAction;
-                TwoWindingsTransformer transformer = raoData.getNetwork().getTwoWindingsTransformer(networkElementId);
+        Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
 
-                int approximatedPostOptimTap = pstRange.computeTapPosition(rangeActionVal);
-                double approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
-
+        for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
+            if (rangeAction instanceof PstRangeAction) {
                 RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+                int approximatedPostOptimTap;
+                double approximatedPostOptimAngle;
+                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
+                Optional<RangeAction> sameNetworkElementRangeAction = raoData.getAvailableRangeActions().stream()
+                    .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && linearProblem.getRangeActionSetPointVariable(ra) != null)
+                    .findAny();
+                if (sameNetworkElementRangeAction.isPresent()) {
+                    double rangeActionVal = linearProblem.getRangeActionSetPointVariable(sameNetworkElementRangeAction.get()).solutionValue();
+                    PstRangeAction pstRangeAction = (PstRangeAction) sameNetworkElementRangeAction.get();
+                    TwoWindingsTransformer transformer = raoData.getNetwork().getTwoWindingsTransformer(networkElementId);
+
+                    approximatedPostOptimTap = pstRangeAction.computeTapPosition(rangeActionVal);
+                    approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
+
+                    LOGGER.debug("Range action {} has been set to tap {}", pstRangeAction.getName(), approximatedPostOptimTap);
+                } else {
+                    // For range actions that are not available in the perimeter or filtered out of optimization, copy their setpoint from the initial variant
+                    approximatedPostOptimTap = ((PstRangeResult) pstRangeResultMap.getVariant(raoData.getPreOptimVariantId())).getTap(raoData.getOptimizedState().getId());
+                    approximatedPostOptimAngle = pstRangeResultMap.getVariant(raoData.getPreOptimVariantId()).getSetPoint(raoData.getOptimizedState().getId());
+                }
+
                 PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
-                pstRangeResult.setSetPoint(raoData.getOptimizedState().getId(), approximatedPostOptimAngle);
-                pstRangeResult.setTap(raoData.getOptimizedState().getId(), approximatedPostOptimTap);
-                LOGGER.debug("Range action {} has been set to tap {}", pstRange.getName(), approximatedPostOptimTap);
+                statesAfterOptimizedState.forEach(state -> {
+                    pstRangeResult.setSetPoint(state.getId(), approximatedPostOptimAngle);
+                    pstRangeResult.setTap(state.getId(), approximatedPostOptimTap);
+                });
             }
+        }
+    }
+
+    /**
+     * This method returns a set of State which are equal or after a given state.
+     */
+    private Set<State> getStatesAfter(State referenceState) {
+        Optional<Contingency> referenceContingency = referenceState.getContingency();
+        if (referenceContingency.isEmpty()) {
+            return raoData.getCrac().getStates();
+        } else {
+            return  raoData.getCrac().
+                getStates(referenceContingency.get()).stream().
+                filter(state -> state.getInstant().getSeconds() >= referenceState.getInstant().getSeconds())
+                .collect(Collectors.toSet());
         }
     }
 
@@ -122,25 +157,12 @@ public class CracResultManager {
         });
     }
 
-    public void fillCnecLoopFlowExtensionsWithInitialResults(LoopFlowResult loopFlowResult, double loopFlowAcceptableAugmentation) {
-        raoData.getLoopflowCnecs().forEach(cnec -> {
-            CnecLoopFlowExtension cnecLoopFlowExtension = cnec.getExtension(CnecLoopFlowExtension.class);
-
-            if (!Objects.isNull(cnecLoopFlowExtension)) {
-                double loopFlowThreshold = Math.abs(cnecLoopFlowExtension.getInputThreshold(Unit.MEGAWATT));
-                double initialLoopFlow = Math.abs(loopFlowResult.getLoopFlow(cnec));
-
-                cnecLoopFlowExtension.setLoopFlowConstraintInMW(Math.max(initialLoopFlow + loopFlowAcceptableAugmentation, loopFlowThreshold - cnec.getReliabilityMargin()));
-            }
-        });
-    }
-
     public void fillCnecResultsWithLoopFlows(LoopFlowResult loopFlowResult) {
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
                 cnecResult.setLoopflowInMW(loopFlowResult.getLoopFlow(cnec));
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
                 cnecResult.setCommercialFlowInMW(loopFlowResult.getCommercialFlow(cnec));
             }
         });
@@ -152,13 +174,9 @@ public class CracResultManager {
             if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
                 double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnecResult.getCommercialFlowInMW();
                 cnecResult.setLoopflowInMW(loopFLow);
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getLoopFlowConstraintInMW());
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
             }
         });
-    }
-
-    public void fillCnecResultsWithAbsolutePtdfSums(Map<BranchCnec, Double> ptdfSums) {
-        ptdfSums.forEach((key, value) -> key.getExtension(CnecResultExtension.class).getVariant(raoData.getInitialVariantId()).setAbsolutePtdfSum(value));
     }
 
     public void copyCommercialFlowsBetweenVariants(String originVariant, String destinationVariant) {
@@ -166,5 +184,17 @@ public class CracResultManager {
                 cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant)
                         .setCommercialFlowInMW(cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getCommercialFlowInMW())
         );
+    }
+
+    /**
+     * This method copies absolute PTDF sums from a variant's CNEC result extension to another variant's
+     * @param originVariant: the origin variant containing the PTDF sums
+     * @param destinationVariant: the destination variant
+     */
+    public void copyAbsolutePtdfSumsBetweenVariants(String originVariant, String destinationVariant) {
+        raoData.getCnecs().forEach(cnec ->
+            cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant).setAbsolutePtdfSum(
+                cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getAbsolutePtdfSum()
+            ));
     }
 }

@@ -9,6 +9,8 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.FaraoException;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -20,6 +22,7 @@ import java.util.Objects;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class TreeParameters {
+
     public enum StopCriterion {
         MIN_OBJECTIVE,
         AT_TARGET_OBJECTIVE_VALUE
@@ -32,17 +35,28 @@ public final class TreeParameters {
     private double relativeNetworkActionMinimumImpactThreshold;
     private double absoluteNetworkActionMinimumImpactThreshold;
     private int leavesInParallel;
+    private Map<String, Integer> maxTopoPerTso;
+    private Map<String, Integer> maxPstPerTso;
+    private Map<String, Integer> maxRaPerTso;
 
     private TreeParameters() {
     }
 
-    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue) {
+    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue,
+                           Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso) {
         this.maximumSearchDepth = searchTreeRaoParameters.getMaximumSearchDepth();
         this.relativeNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold();
         this.absoluteNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold();
         this.leavesInParallel = searchTreeRaoParameters.getLeavesInParallel();
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
+        this.maxTopoPerTso = maxTopoPerTso;
+        this.maxPstPerTso = maxPstPerTso;
+        this.maxRaPerTso = maxRaPerTso;
+    }
+
+    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue) {
+        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, new HashMap<>(), new HashMap<>(), new HashMap<>());
     }
 
     public StopCriterion getStopCriterion() {
@@ -67,20 +81,30 @@ public final class TreeParameters {
 
     public static TreeParameters buildForCurativePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters, Double preventiveOptimizedCost) {
         SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
+        StopCriterion stopCriterion;
+        double targetObjectiveValue;
         switch (parameters.getCurativeRaoStopCriterion()) {
             case MIN_OBJECTIVE:
-                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0);
+                stopCriterion = StopCriterion.MIN_OBJECTIVE;
+                targetObjectiveValue = 0.0;
+                break;
             case SECURE:
-                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0);
+                stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
+                targetObjectiveValue = 0.0;
+                break;
             case PREVENTIVE_OBJECTIVE:
-                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                        preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement());
+                stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
+                targetObjectiveValue = preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement();
+                break;
             case PREVENTIVE_OBJECTIVE_AND_SECURE:
-                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
-                        Math.min(preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement(), 0));
+                stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
+                targetObjectiveValue = Math.min(preventiveOptimizedCost - parameters.getCurativeRaoMinObjImprovement(), 0);
+                break;
             default:
                 throw new FaraoException("Unknown curative RAO stop criterion: " + parameters.getCurativeRaoStopCriterion());
         }
+        return new TreeParameters(parameters, stopCriterion, targetObjectiveValue,
+                parameters.getMaxCurativeTopoPerTso(), parameters.getMaxCurativePstPerTso(), parameters.getMaxCurativeRaPerTso());
     }
 
     public int getMaximumSearchDepth() {
@@ -97,5 +121,17 @@ public final class TreeParameters {
 
     public int getLeavesInParallel() {
         return leavesInParallel;
+    }
+
+    public Map<String, Integer> getMaxTopoPerTso() {
+        return maxTopoPerTso;
+    }
+
+    public Map<String, Integer> getMaxPstPerTso() {
+        return maxPstPerTso;
+    }
+
+    public Map<String, Integer> getMaxRaPerTso() {
+        return maxRaPerTso;
     }
 }
