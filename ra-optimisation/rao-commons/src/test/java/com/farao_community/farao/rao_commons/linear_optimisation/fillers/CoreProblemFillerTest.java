@@ -66,8 +66,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
-        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network);
-        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network);
+        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
@@ -132,8 +132,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
-        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network);
-        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network);
+        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
@@ -198,8 +198,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
-        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network);
-        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network);
+        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0g);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
