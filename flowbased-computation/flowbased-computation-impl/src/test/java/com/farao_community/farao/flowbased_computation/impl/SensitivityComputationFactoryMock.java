@@ -144,13 +144,13 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     }
 
     private List<SensitivityValue> getPreContingencySensitivityValues(SensitivityFactorsProvider sensitivityFactorsProvider, Network network) {
-        return sensitivityFactorsProvider.getCommonFactors(network).stream()
+        return sensitivityFactorsProvider.getAdditionalFactors(network).stream()
                 .map(factor -> new SensitivityValue(factor, preContingencyPtdf.get(factor.getFunction().getId()).get(factor.getVariable().getId()), preContingencyFref.get(factor.getFunction().getId()), Double.NaN))
                 .collect(Collectors.toList());
     }
 
     private List<SensitivityValue> getPostContingencySensitivityValues(SensitivityFactorsProvider sensitivityFactorsProvider, Network network) {
-        return sensitivityFactorsProvider.getCommonFactors(network).stream()
+        return sensitivityFactorsProvider.getAdditionalFactors(network).stream()
                 .map(factor -> new SensitivityValue(factor, postContingencyPtdf.get(factor.getFunction().getId()).get(factor.getVariable().getId()), postContingencyFref.get(factor.getFunction().getId()), Double.NaN))
                 .collect(Collectors.toList());
     }
