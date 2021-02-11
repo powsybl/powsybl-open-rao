@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import com.farao_community.farao.data.crac_impl.threshold.BranchThresholdImpl;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +22,9 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -171,6 +174,29 @@ public class CracFileTest {
         assertEquals(3, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getContingency("contingency-3"));
         assertNull(simpleCrac.getContingency("contingency-fail"));
+    }
+
+    @Test
+    public void testAddXnodeContingency() {
+        assertEquals(0, simpleCrac.getContingencies().size());
+        assertEquals(0, simpleCrac.getNetworkElements().size());
+        simpleCrac.newContingency().setId("xnode-contingency").addXnode("xnode").add();
+        assertEquals(1, simpleCrac.getContingencies().size());
+        assertNotNull(simpleCrac.getContingency("xnode-contingency"));
+        assertEquals(0, simpleCrac.getNetworkElements().size());
+    }
+
+    @Test
+    public void testSyncXnodeContingency() {
+        Network network = Importers.loadNetwork("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/TestCase12NodesHvdc.uct"));
+        XnodeContingency xnodeContingency = (XnodeContingency) simpleCrac.newContingency().setId("xnode-cont").addXnode("XLI_OB1A").addXnode("XLI_OB1B").add();
+        simpleCrac.synchronize(network);
+        assertTrue(xnodeContingency.isSynchronized());
+        assertEquals(2, xnodeContingency.getNetworkElements().size());
+        assertTrue(xnodeContingency.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("DDE3AA1  XLI_OB1A 1")));
+        assertTrue(xnodeContingency.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("BBE2AA1  XLI_OB1B 1")));
+        assertTrue(simpleCrac.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("DDE3AA1  XLI_OB1A 1")));
+        assertTrue(simpleCrac.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("BBE2AA1  XLI_OB1B 1")));
     }
 
     @Test
