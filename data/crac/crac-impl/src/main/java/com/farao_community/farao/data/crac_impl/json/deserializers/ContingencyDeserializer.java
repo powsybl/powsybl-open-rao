@@ -8,15 +8,18 @@
 package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.XnodeContingency;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
@@ -34,16 +37,19 @@ final class ContingencyDeserializer {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
+            String type = null;
             String id = null;
             String name = null;
             Set<String> networkElementsIds = new HashSet<>();
+            Set<String> xnodeIds = new HashSet<>();
 
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
 
                     case TYPE:
-                        if (!jsonParser.nextTextValue().equals(COMPLEX_CONTINGENCY_TYPE)) {
-                            throw new FaraoException(String.format("SimpleCrac cannot deserialize other contingencies types than %s", COMPLEX_CONTINGENCY_TYPE));
+                        type = jsonParser.nextTextValue();
+                        if (!type.equals(COMPLEX_CONTINGENCY_TYPE) && !type.equals(XNODE_CONTINGENCY_TYPE)) {
+                            throw new FaraoException(String.format("SimpleCrac can only deserialize %s and %s contingency types", COMPLEX_CONTINGENCY_TYPE, XNODE_CONTINGENCY_TYPE));
                         }
                         break;
 
@@ -61,6 +67,12 @@ final class ContingencyDeserializer {
                         });
                         break;
 
+                    case XNODE_IDS:
+                        jsonParser.nextToken();
+                        xnodeIds = jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
+                        });
+                        break;
+
                     default:
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
                 }
@@ -70,7 +82,13 @@ final class ContingencyDeserializer {
 
             Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
 
-            simpleCrac.addContingency(new ComplexContingency(id, name, networkElements));
+            Contingency contingency;
+            if (!Objects.isNull(type) && type.equals(XNODE_CONTINGENCY_TYPE)) {
+                contingency = new XnodeContingency(id, name, xnodeIds);
+            } else {
+                contingency = new ComplexContingency(id, name, networkElements);
+            }
+            simpleCrac.addContingency(contingency);
         }
     }
 }

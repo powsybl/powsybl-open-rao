@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.XnodeContingency;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
@@ -25,13 +26,9 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -254,5 +251,18 @@ public class CracCleanerTest {
         assertEquals(4, qualityReport.size());
         assertEquals(1, crac.getNetworkAction("topologyId1").getUsageRules().size());
         assertEquals(1, crac.getRangeAction("pstRangeId").getUsageRules().size());
+    }
+
+    @Test
+    public void testIgnoreUnsyncedContingencies() {
+        Crac crac = createTestCrac();
+        crac.newContingency().setId("cont_unknown").newNetworkElement().setId("unknown").add().add();
+        crac.addContingency(new XnodeContingency("xnodecont_unknown", Set.of("unknown")));
+
+        CracCleaner cracCleaner = new CracCleaner();
+        cracCleaner.cleanCrac(crac, network);
+
+        assertNull(crac.getContingency("cont_unknown"));
+        assertNotNull(crac.getContingency("xnodecont_unknown"));
     }
 }

@@ -60,10 +60,13 @@ public final class JsonSerializationNames {
     public static final String OPERATOR = "operator";
     public static final String ACTION_TYPE = "actionType";
 
+    public static final String XNODE_IDS = "xnodeIds";
+
     // implementation class types
     public static final String SIMPLE_STATE_TYPE = "simple-state";
 
     public static final String COMPLEX_CONTINGENCY_TYPE = "complex-contingency";
+    public static final String XNODE_CONTINGENCY_TYPE = "xnode-contingency";
 
     public static final String FLOW_CNEC_TYPE = "flow-cnec";
 

@@ -136,11 +136,14 @@ public class CracImportExportTest {
 
         simpleCrac.setNetworkDate(new DateTime(2020, 5, 14, 11, 35));
 
+        simpleCrac.addContingency(new XnodeContingency("unsynced-xnode-cont-id", "unsynced-xnode-cont-name",
+                Set.of("xnode1", "xnode2")));
+
         Crac crac = roundTrip(simpleCrac, SimpleCrac.class);
 
         assertEquals(6, crac.getNetworkElements().size());
         assertEquals(2, crac.getInstants().size());
-        assertEquals(2, crac.getContingencies().size());
+        assertEquals(3, crac.getContingencies().size());
         assertEquals(5, crac.getBranchCnecs().size());
         assertEquals(2, crac.getRangeActions().size());
         assertEquals(3, crac.getNetworkActions().size());
@@ -152,5 +155,10 @@ public class CracImportExportTest {
         assertEquals("1", crac.getRangeAction("pstRangeId2").getGroupId().orElseThrow());
         assertTrue(crac.getRangeAction("pstRangeId").getGroupId().isEmpty());
         assertEquals(CENTERED_ON_ZERO, ((PstSetpoint) crac.getNetworkAction("pstSetpointId")).getRangeDefinition());
+
+        assertTrue(crac.getContingency("unsynced-xnode-cont-id") instanceof XnodeContingency);
+        XnodeContingency xnodeContingency = (XnodeContingency) crac.getContingency("unsynced-xnode-cont-id");
+        assertFalse(xnodeContingency.isSynchronized());
+        assertEquals(2, xnodeContingency.getXnodeIds().size());
     }
 }

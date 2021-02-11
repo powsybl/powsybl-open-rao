@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class ComplexContingencyAdderTest {
+public class ContingencyAdderImplTest {
 
     private Crac crac;
 
@@ -91,6 +91,46 @@ public class ComplexContingencyAdderTest {
 
     @Test(expected = NullPointerException.class)
     public void testNullParentFail() {
-        ComplexContingencyAdder tmp = new ComplexContingencyAdder(null);
+        ContingencyAdderImpl tmp = new ContingencyAdderImpl(null);
+    }
+
+    @Test
+    public void testAddXnodeContingency() {
+        crac.newContingency().setId("cont").setName("cont-name").addXnode("xnode1").addXnode("xnode2").add();
+        assertEquals(1, crac.getContingencies().size());
+        assertNotNull(crac.getContingency("cont"));
+        assertTrue(crac.getContingency("cont") instanceof XnodeContingency);
+        XnodeContingency contingency = (XnodeContingency) crac.getContingency("cont");
+        assertEquals("cont", contingency.getId());
+        assertEquals("cont-name", contingency.getName());
+        assertFalse(contingency.isSynchronized());
+        assertEquals(2, contingency.getXnodeIds().size());
+        assertTrue(contingency.getXnodeIds().contains("xnode1"));
+        assertTrue(contingency.getXnodeIds().contains("xnode2"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testAddXnodeToNetworkElementsError() {
+        crac.newContingency().setId("cont")
+                .newNetworkElement().setId("neId1").add()
+                .addXnode("xnode1")
+                .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testAddNetworkElementToXnodesError() {
+        crac.newContingency().setId("cont")
+                .addXnode("xnode1")
+                .newNetworkElement().setId("neId1").add()
+                .add();
+    }
+
+    @Test
+    public void testAddEmptyContingency() {
+        crac.newContingency().setId("cont").add();
+        assertEquals(1, crac.getContingencies().size());
+        assertNotNull(crac.getContingency("cont"));
+        assertTrue(crac.getContingency("cont") instanceof ComplexContingency);
+        assertEquals(0, crac.getContingency("cont").getNetworkElements().size());
     }
 }

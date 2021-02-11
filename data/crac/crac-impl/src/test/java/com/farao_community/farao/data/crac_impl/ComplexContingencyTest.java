@@ -108,4 +108,14 @@ public class ComplexContingencyTest {
         assertFalse(network.getGenerator("GENERATOR_FR_2").getTerminal().isConnected());
     }
 
+    @Test
+    public void testSynchronize() {
+        ComplexContingency complexContingency = new ComplexContingency("contingency");
+        assertTrue(complexContingency.isSynchronized());
+        complexContingency.desynchronize();
+        assertTrue(complexContingency.isSynchronized());
+        complexContingency.synchronize(network);
+        assertTrue(complexContingency.isSynchronized());
+    }
+
 }
