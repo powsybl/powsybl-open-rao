@@ -42,7 +42,8 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("maximum-search-depth"), anyInt())).thenReturn(2);
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("relative-network-action-minimum-impact-threshold"), anyDouble())).thenReturn(0.1);
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("absolute-network-action-minimum-impact-threshold"), anyDouble())).thenReturn(20.0);
-        Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("leaves-in-parallel"), anyInt())).thenReturn(4);
+        Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("preventive-leaves-in-parallel"), anyInt())).thenReturn(4);
+        Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("curative-leaves-in-parallel"), anyInt())).thenReturn(2);
         Mockito.when(searchTreeRaoParametersModule.getBooleanProperty(eq("skip-network-actions-far-from-most-limiting-element"), anyBoolean())).thenReturn(true);
         Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("max-number-of-boundaries-for-skipping-network-actions"), anyInt())).thenReturn(1);
         Mockito.when(searchTreeRaoParametersModule.getEnumProperty(eq("curative-rao-stop-criterion"), eq(SearchTreeRaoParameters.CurativeRaoStopCriterion.class), any())).thenReturn(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
@@ -55,7 +56,8 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         assertEquals(2, parameters.getMaximumSearchDepth());
         assertEquals(0.1, parameters.getRelativeNetworkActionMinimumImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(20.0, parameters.getAbsoluteNetworkActionMinimumImpactThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(4, parameters.getLeavesInParallel());
+        assertEquals(4, parameters.getPreventiveLeavesInParallel());
+        assertEquals(2, parameters.getCurativeLeavesInParallel());
         assertTrue(parameters.getSkipNetworkActionsFarFromMostLimitingElement());
         assertEquals(1, parameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
         assertEquals(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE, parameters.getCurativeRaoStopCriterion());

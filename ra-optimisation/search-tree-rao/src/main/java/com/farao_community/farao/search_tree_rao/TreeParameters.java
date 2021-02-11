@@ -43,11 +43,11 @@ public final class TreeParameters {
     }
 
     private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue,
-                           Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso) {
+                           Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso, int leavesInParallel) {
         this.maximumSearchDepth = searchTreeRaoParameters.getMaximumSearchDepth();
         this.relativeNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold();
         this.absoluteNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold();
-        this.leavesInParallel = searchTreeRaoParameters.getLeavesInParallel();
+        this.leavesInParallel = leavesInParallel;
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
         this.maxTopoPerTso = maxTopoPerTso;
@@ -55,8 +55,8 @@ public final class TreeParameters {
         this.maxRaPerTso = maxRaPerTso;
     }
 
-    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue) {
-        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, new HashMap<>(), new HashMap<>(), new HashMap<>());
+    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, int leavesInParallel) {
+        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, new HashMap<>(), new HashMap<>(), new HashMap<>(), leavesInParallel);
     }
 
     public StopCriterion getStopCriterion() {
@@ -69,11 +69,12 @@ public final class TreeParameters {
 
     public static TreeParameters buildForPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters) {
         SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
+
         switch (parameters.getPreventiveRaoStopCriterion()) {
             case MIN_OBJECTIVE:
-                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0);
+                return new TreeParameters(parameters, StopCriterion.MIN_OBJECTIVE, 0.0, parameters.getPreventiveLeavesInParallel());
             case SECURE:
-                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0);
+                return new TreeParameters(parameters, StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, parameters.getPreventiveLeavesInParallel());
             default:
                 throw new FaraoException("Unknown preventive RAO stop criterion: " + parameters.getPreventiveRaoStopCriterion());
         }
@@ -104,7 +105,8 @@ public final class TreeParameters {
                 throw new FaraoException("Unknown curative RAO stop criterion: " + parameters.getCurativeRaoStopCriterion());
         }
         return new TreeParameters(parameters, stopCriterion, targetObjectiveValue,
-                parameters.getMaxCurativeTopoPerTso(), parameters.getMaxCurativePstPerTso(), parameters.getMaxCurativeRaPerTso());
+                parameters.getMaxCurativeTopoPerTso(), parameters.getMaxCurativePstPerTso(), parameters.getMaxCurativeRaPerTso(),
+                parameters.getCurativeLeavesInParallel());
     }
 
     public int getMaximumSearchDepth() {

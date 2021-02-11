@@ -58,7 +58,8 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         assertEquals(5, extension.getMaximumSearchDepth());
         assertEquals(0, extension.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(1, extension.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
-        assertEquals(8, extension.getLeavesInParallel());
+        assertEquals(8, extension.getPreventiveLeavesInParallel());
+        assertEquals(3, extension.getCurativeLeavesInParallel());
         assertTrue(extension.getSkipNetworkActionsFarFromMostLimitingElement());
         assertEquals(2, extension.getMaxNumberOfBoundariesForSkippingNetworkActions());
 
