@@ -30,7 +30,7 @@ public class SystematicSensitivityResult {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityResult.class);
 
-    private class StateResult {
+    private static class StateResult {
         private final Map<String, Double> referenceFlows = new HashMap<>();
         private final Map<String, Double> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Double>> flowSensitivities = new HashMap<>();

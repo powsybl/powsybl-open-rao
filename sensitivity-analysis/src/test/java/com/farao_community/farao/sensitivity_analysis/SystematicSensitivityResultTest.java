@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
@@ -75,7 +75,7 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testCompleteRaResultManipulation() {
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), rangeActionSensitivityProvider, rangeActionSensitivityProvider, SensitivityAnalysisParameters.load());
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), rangeActionSensitivityProvider, rangeActionSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityAnalysisResult);
 
         // Then
@@ -97,7 +97,7 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testCompletePtdfResultManipulation() {
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), ptdfSensitivityProvider, ptdfSensitivityProvider, SensitivityAnalysisParameters.load());
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), ptdfSensitivityProvider, ptdfSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityAnalysisResult);
 
         // Then
@@ -126,8 +126,8 @@ public class SystematicSensitivityResultTest {
     @AutoService(SensitivityAnalysisProvider.class)
     public static final class MockSensiProvider implements SensitivityAnalysisProvider {
         @Override
-        public CompletableFuture<SensitivityAnalysisResult> run(Network network, String s, SensitivityFactorsProvider sensitivityFactorsProvider, ContingenciesProvider contingenciesProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager) {
-            List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getFactors(network).stream()
+        public CompletableFuture<SensitivityAnalysisResult> run(Network network, String s, SensitivityFactorsProvider sensitivityFactorsProvider, List<Contingency> contingencies, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager) {
+            List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getCommonFactors(network).stream()
                     .map(factor -> {
                         if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
                             return new SensitivityValue(factor, 0.5, 10, 10);
@@ -140,10 +140,10 @@ public class SystematicSensitivityResultTest {
                         }
                     })
                     .collect(Collectors.toList());
-            Map<String, List<SensitivityValue>> contingenciesValues = contingenciesProvider.getContingencies(network).stream()
+            Map<String, List<SensitivityValue>> contingenciesValues = contingencies.stream()
                     .collect(Collectors.toMap(
                         contingency -> contingency.getId(),
-                        contingency -> sensitivityFactorsProvider.getFactors(network).stream()
+                        contingency -> sensitivityFactorsProvider.getCommonFactors(network).stream()
                                 .map(factor -> {
                                     if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
                                         return new SensitivityValue(factor, -5, -20, 20);
