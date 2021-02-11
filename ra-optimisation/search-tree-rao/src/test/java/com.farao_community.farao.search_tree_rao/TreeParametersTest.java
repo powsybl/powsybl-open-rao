@@ -61,15 +61,18 @@ public class TreeParametersTest {
         assertTrue(treeParameters.getMaxTopoPerTso().isEmpty());
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());
+        assertEquals(4, treeParameters.getLeavesInParallel());
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
 
         searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE);
+        searchTreeRaoParameters.setPreventiveLeavesInParallel(8);
         treeParameters = TreeParameters.buildForPreventivePerimeter(searchTreeRaoParameters);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(0, treeParameters.getTargetObjectiveValue(), 1e-6);
         assertTrue(treeParameters.getMaxTopoPerTso().isEmpty());
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());
+        assertEquals(8, treeParameters.getLeavesInParallel());
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
     }
 
@@ -85,6 +88,7 @@ public class TreeParametersTest {
     @Test
     public void testCurative2() {
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.SECURE);
+        searchTreeRaoParameters.setCurativeLeavesInParallel(16);
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(0, treeParameters.getTargetObjectiveValue(), 1e-6);
@@ -135,6 +139,7 @@ public class TreeParametersTest {
         assertTrue(treeParameters.getMaxTopoPerTso().isEmpty());
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());
+        assertEquals(1, treeParameters.getLeavesInParallel());
         treeParameters = TreeParameters.buildForCurativePerimeter(null, 0.);
         compareCommonParameters(treeParameters, defaultParameters);
         compareCurativeParameters(treeParameters, defaultParameters);
