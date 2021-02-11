@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -100,7 +100,7 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithOneRemedialActionOnOutage() {
-        PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement("pst1"));
+        PstRangeAction pstRange = new PstRangeActionImpl("pst-ra", crac.addNetworkElement("pst1"));
         pstRange.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Outage")));
         crac.addRangeAction(pstRange);
         stateTree = new StateTree(crac, network, crac.getPreventiveState());
@@ -111,7 +111,7 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithOneRemedialActionOnCurative() {
-        PstRange pstRange = new PstWithRange("pst-ra", crac.addNetworkElement("pst1"));
+        PstRangeAction pstRange = new PstRangeActionImpl("pst-ra", crac.addNetworkElement("pst1"));
         pstRange.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Curative")));
         crac.addRangeAction(pstRange);
         stateTree = new StateTree(crac, network, crac.getPreventiveState());
@@ -122,10 +122,10 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithTwoRemedialActions() {
-        PstRange pstRange1 = new PstWithRange("pst-ra1", crac.addNetworkElement("pst1"));
+        PstRangeAction pstRange1 = new PstRangeActionImpl("pst-ra1", crac.addNetworkElement("pst1"));
         pstRange1.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-1", "Curative")));
         crac.addRangeAction(pstRange1);
-        PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement("pst1"));
+        PstRangeAction pstRange2 = new PstRangeActionImpl("pst-ra2", crac.addNetworkElement("pst1"));
         pstRange2.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
         stateTree = new StateTree(crac, network, crac.getPreventiveState());
@@ -135,10 +135,10 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithTwoRemedialActionsOnSameContingency() {
-        PstRange pstRange1 = new PstWithRange("pst-ra1", crac.addNetworkElement("pst1"));
+        PstRangeAction pstRange1 = new PstRangeActionImpl("pst-ra1", crac.addNetworkElement("pst1"));
         pstRange1.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Curative")));
         crac.addRangeAction(pstRange1);
-        PstRange pstRange2 = new PstWithRange("pst-ra2", crac.addNetworkElement("pst1"));
+        PstRangeAction pstRange2 = new PstRangeActionImpl("pst-ra2", crac.addNetworkElement("pst1"));
         pstRange2.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("contingency-2", "Outage")));
         crac.addRangeAction(pstRange2);
         stateTree = new StateTree(crac, network, crac.getPreventiveState());

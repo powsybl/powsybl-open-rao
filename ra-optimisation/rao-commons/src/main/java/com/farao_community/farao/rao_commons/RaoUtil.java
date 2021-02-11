@@ -79,7 +79,7 @@ public final class RaoUtil {
             if (raoInput.getGlskProvider() == null) {
                 throw new FaraoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunction()));
             }
-            if (raoParameters.getPtdfBoundaries().isEmpty()) {
+            if (raoParameters.getRelativeMarginPtdfBoundaries().isEmpty()) {
                 throw new FaraoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunction()));
             }
         }

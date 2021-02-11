@@ -13,10 +13,10 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.*;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
+import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.threshold.*;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
@@ -113,34 +113,37 @@ public class CracImportExportTest {
         );
         simpleCrac.addNetworkAction(injectionSetpoint);
 
-        simpleCrac.addRangeAction(new PstWithRange(
+        simpleCrac.addRangeAction(new PstRangeActionImpl(
                 "pstRangeId",
                 "pstRangeName",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
-                Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
-                        new Range(-3, 3, RangeType.RELATIVE_FIXED, CENTERED_ON_ZERO)),
+                Arrays.asList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
+                        new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.getNetworkElement("pst")
         ));
 
-        simpleCrac.addRangeAction(new PstWithRange(
+        simpleCrac.addRangeAction(new PstRangeActionImpl(
                 "pstRangeId2",
                 "pstRangeName2",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
-                Arrays.asList(new Range(0, 16, RangeType.ABSOLUTE_FIXED, RangeDefinition.STARTS_AT_ONE),
-                        new Range(-3, 3, RangeType.RELATIVE_FIXED, CENTERED_ON_ZERO)),
+                Arrays.asList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
+                        new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.addNetworkElement("pst2"),
                 "1"
         ));
 
         simpleCrac.setNetworkDate(new DateTime(2020, 5, 14, 11, 35));
 
+        simpleCrac.addContingency(new XnodeContingency("unsynced-xnode-cont-id", "unsynced-xnode-cont-name",
+                Set.of("xnode1", "xnode2")));
+
         Crac crac = roundTrip(simpleCrac, SimpleCrac.class);
 
         assertEquals(6, crac.getNetworkElements().size());
         assertEquals(2, crac.getInstants().size());
-        assertEquals(2, crac.getContingencies().size());
+        assertEquals(3, crac.getContingencies().size());
         assertEquals(5, crac.getBranchCnecs().size());
         assertEquals(2, crac.getRangeActions().size());
         assertEquals(3, crac.getNetworkActions().size());
@@ -152,5 +155,10 @@ public class CracImportExportTest {
         assertEquals("1", crac.getRangeAction("pstRangeId2").getGroupId().orElseThrow());
         assertTrue(crac.getRangeAction("pstRangeId").getGroupId().isEmpty());
         assertEquals(CENTERED_ON_ZERO, ((PstSetpoint) crac.getNetworkAction("pstSetpointId")).getRangeDefinition());
+
+        assertTrue(crac.getContingency("unsynced-xnode-cont-id") instanceof XnodeContingency);
+        XnodeContingency xnodeContingency = (XnodeContingency) crac.getContingency("unsynced-xnode-cont-id");
+        assertFalse(xnodeContingency.isSynchronized());
+        assertEquals(2, xnodeContingency.getXnodeIds().size());
     }
 }

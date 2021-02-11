@@ -10,8 +10,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,8 +49,8 @@ public class InjectionRangeTest extends AbstractRangeActionTest {
     public void getMinAndMaxValueWithRange() {
         Network mockedNetwork = Mockito.mock(Network.class);
         Range anyRange = Mockito.mock(Range.class);
-        assertEquals(InjectionRange.injectionRangeTempValue, injectionRange.getMaxValueWithRange(mockedNetwork, anyRange), 0);
-        assertEquals(InjectionRange.injectionRangeTempValue, injectionRange.getMinValueWithRange(mockedNetwork, anyRange), 0);
+        assertEquals(InjectionRange.injectionRangeTempValue, injectionRange.getMaxValueWithRange(mockedNetwork, anyRange, 5), 0);
+        assertEquals(InjectionRange.injectionRangeTempValue, injectionRange.getMinValueWithRange(mockedNetwork, anyRange, 5), 0);
     }
 
     @Test(expected = UnsupportedOperationException.class)

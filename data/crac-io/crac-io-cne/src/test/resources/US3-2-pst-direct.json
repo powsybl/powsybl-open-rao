@@ -92,7 +92,8 @@
             "minThresholdInMW" : -Infinity,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -Infinity,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           },
           "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
             "type" : "cnec-result",
@@ -101,7 +102,8 @@
             "minThresholdInMW" : -Infinity,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -Infinity,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           }
         }
       }
@@ -130,7 +132,8 @@
             "minThresholdInMW" : -1039.2304845413264,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -1500.0,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           },
           "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
             "type" : "cnec-result",
@@ -139,7 +142,8 @@
             "minThresholdInMW" : -1039.2304845413264,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -1500.0,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           }
         }
       }
@@ -168,7 +172,8 @@
             "minThresholdInMW" : -1039.2304845413264,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -1500.0,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           },
           "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
             "type" : "cnec-result",
@@ -177,7 +182,8 @@
             "minThresholdInMW" : -1039.2304845413264,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -1500.0,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           }
         }
       }
@@ -206,7 +212,8 @@
             "minThresholdInMW" : -1039.2304845413264,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -1500.0,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           },
           "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
             "type" : "cnec-result",
@@ -215,7 +222,8 @@
             "minThresholdInMW" : -1039.2304845413264,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -1500.0,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           }
         }
       }
@@ -244,7 +252,8 @@
             "minThresholdInMW" : -Infinity,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -Infinity,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           },
           "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
             "type" : "cnec-result",
@@ -253,7 +262,8 @@
             "minThresholdInMW" : -Infinity,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -Infinity,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           }
         }
       }
@@ -282,7 +292,8 @@
             "minThresholdInMW" : -Infinity,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -Infinity,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           },
           "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
             "type" : "cnec-result",
@@ -291,14 +302,15 @@
             "minThresholdInMW" : -Infinity,
             "maxThresholdInMW" : 1039.2304845413264,
             "minThresholdInA" : -Infinity,
-            "maxThresholdInA" : 1500.0
+            "maxThresholdInA" : 1500.0,
+            "absolutePtdfSum" : NaN
           }
         }
       }
     }
   } ],
   "rangeActions" : [ {
-    "type" : "pst-with-range",
+    "type" : "pst-range-action-impl",
     "id" : "PST1",
     "name" : "PST1",
     "operator" : "FR",
@@ -311,7 +323,7 @@
     "ranges" : [ {
       "min" : 1.0,
       "max" : 33.0,
-      "rangeType" : "ABSOLUTE_FIXED",
+      "rangeType" : "ABSOLUTE",
       "rangeDefinition" : "STARTS_AT_ONE"
     } ],
     "extensions" : {

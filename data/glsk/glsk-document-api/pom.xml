@@ -21,12 +21,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-action-util</artifactId>
         </dependency>
@@ -38,8 +32,6 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-sensitivity-analysis-api</artifactId>
         </dependency>
-
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

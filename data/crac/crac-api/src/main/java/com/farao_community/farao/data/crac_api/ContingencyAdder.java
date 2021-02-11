@@ -17,4 +17,11 @@ public interface ContingencyAdder extends NetworkElementParent<ContingencyAdder>
      * @return the created {@code Contingency} instance
      */
     Contingency add();
+
+    /**
+     * Add an xnode to the contingency, using its ID
+     * @param xnodeId: the Xnode's ID
+     * @return the {@code ContingencyAdder} instance
+     */
+    ContingencyAdder addXnode(String xnodeId);
 }

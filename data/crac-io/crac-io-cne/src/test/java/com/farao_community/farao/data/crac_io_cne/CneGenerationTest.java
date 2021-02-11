@@ -29,7 +29,6 @@ public class CneGenerationTest {
 
     @Test
     public void testExport1() {
-
         Crac crac = CracImporters.importCrac("US2-3-crac1-standard.json", getClass().getResourceAsStream("/US2-3-crac1-standard.json"));
         Network network = Importers.loadNetwork("US2-3-case1-standard.uct", getClass().getResourceAsStream("/US2-3-case1-standard.uct"));
 
@@ -66,17 +65,17 @@ public class CneGenerationTest {
             // Constraint series B54
             assertEquals(1, constraintSeriesB54.get().getMonitoredSeries().size());
             assertEquals(2, constraintSeriesB54.get().getRemedialActionSeries().size());
-            assertEquals(11, constraintSeriesB54.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size());
+            assertEquals(12, constraintSeriesB54.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size());
             assertNotSame(constraintSeriesB54.get().getRemedialActionSeries().get(0).getMRID(), constraintSeriesB54.get().getRemedialActionSeries().get(1).getMRID());
             // Constraint series B57
             assertEquals(1, constraintSeriesB57.get().getMonitoredSeries().size());
             assertEquals(2, constraintSeriesB57.get().getRemedialActionSeries().size());
-            assertEquals(11, constraintSeriesB57.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size());
+            assertEquals(12, constraintSeriesB57.get().getMonitoredSeries().get(0).getRegisteredResource().get(0).getMeasurements().size());
             // Constraint series B88
             assertEquals("10YFR-RTE------C", constraintSeriesB88.get().getPartyMarketParticipant().get(0).getMRID().getValue());
             assertEquals(0, constraintSeriesB88.get().getContingencySeries().size());
             MonitoredRegisteredResource monitoredRegisteredResource = constraintSeriesB88.get().getMonitoredSeries().get(0).getRegisteredResource().get(0);
-            assertEquals(17, monitoredRegisteredResource.getMeasurements().size());
+            assertEquals(18, monitoredRegisteredResource.getMeasurements().size());
             assertEquals("FFR1AA1  FFR2AA1  1 - N - preventive", monitoredRegisteredResource.getMRID().getValue().substring(0, 36));
             assertEquals("Threshold12", monitoredRegisteredResource.getName());
             assertEquals("FFR1AA1 ", monitoredRegisteredResource.getInAggregateNodeMRID().getValue());
@@ -115,10 +114,13 @@ public class CneGenerationTest {
         double tolerance = 1.0;
         double flowA = preOptim ? 16540 : 13186;
         double flowMW = preOptim ? 2853 : 2278;
+        double absPtdfSum = 0.5;
         double thresholdA = 3325;
         double thresholdMW = 2304;
         double marginA = thresholdA - flowA;
         double marginMW = thresholdMW - flowMW;
+        double objA = marginA > 0 ? -marginA / absPtdfSum : -marginA;
+        double objMW = marginMW > 0 ? -marginMW / absPtdfSum : -marginMW;
         double loopflow = preOptim ? 13.0 : 5.0;
         int iMeasure = 0;
         // Measurement A01 - AMP
@@ -166,6 +168,11 @@ public class CneGenerationTest {
             assertEquals(DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
             assertEquals(thresholdMW, measurements.get(iMeasure).getAnalogValuesValue(), tolerance);
         }
+        // Z11
+        iMeasure++;
+        assertEquals(SUM_PTDF_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
+        assertEquals(DIMENSIONLESS_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
+        assertEquals(absPtdfSum, measurements.get(iMeasure).getAnalogValuesValue(), 0);
         if (withPatl) {
             // Measurement Z12 - AMP
             iMeasure++;
@@ -183,14 +190,14 @@ public class CneGenerationTest {
             iMeasure++;
             assertEquals(OBJ_FUNC_PATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
             assertEquals(AMP_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
-            assertEquals(marginA > 0 ? OPPOSITE_POSITIVE_FLOW_IN : DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
-            assertEquals(Math.abs(marginA), measurements.get(iMeasure).getAnalogValuesValue(), tolerance);
+            assertEquals(objA < 0 ? OPPOSITE_POSITIVE_FLOW_IN : DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(Math.abs(objA), measurements.get(iMeasure).getAnalogValuesValue(), tolerance);
             // Measurement Z13 - MAW
             iMeasure++;
             assertEquals(OBJ_FUNC_PATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
             assertEquals(MAW_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
-            assertEquals(marginMW > 0 ? OPPOSITE_POSITIVE_FLOW_IN : DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
-            assertEquals(Math.abs(marginMW), measurements.get(iMeasure).getAnalogValuesValue(), tolerance);
+            assertEquals(objMW < 0 ? OPPOSITE_POSITIVE_FLOW_IN : DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(Math.abs(objMW), measurements.get(iMeasure).getAnalogValuesValue(), tolerance);
         }
         if (withTatl) {
             // Measurement Z14 - AMP
@@ -209,14 +216,14 @@ public class CneGenerationTest {
             iMeasure++;
             assertEquals(OBJ_FUNC_TATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
             assertEquals(AMP_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
-            assertEquals(marginA > 0 ? OPPOSITE_POSITIVE_FLOW_IN : DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
-            assertEquals(Math.abs(marginA), measurements.get(iMeasure).getAnalogValuesValue(), tolerance);
+            assertEquals(objA < 0 ? OPPOSITE_POSITIVE_FLOW_IN : DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(Math.abs(objA), measurements.get(iMeasure).getAnalogValuesValue(), tolerance);
             // Measurement Z15 - MAW
             iMeasure++;
             assertEquals(OBJ_FUNC_TATL_MEASUREMENT_TYPE, measurements.get(iMeasure).getMeasurementType());
             assertEquals(MAW_UNIT_SYMBOL, measurements.get(iMeasure).getUnitSymbol());
-            assertEquals(marginMW > 0 ? OPPOSITE_POSITIVE_FLOW_IN : DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
-            assertEquals(Math.abs(marginMW), measurements.get(iMeasure).getAnalogValuesValue(), tolerance);
+            assertEquals(objMW < 0 ? OPPOSITE_POSITIVE_FLOW_IN : DIRECT_POSITIVE_FLOW_IN, measurements.get(iMeasure).getPositiveFlowIn());
+            assertEquals(Math.abs(objMW), measurements.get(iMeasure).getAnalogValuesValue(), tolerance);
         }
         // Measurement Z16 - MAW
         iMeasure++;
