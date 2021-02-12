@@ -53,13 +53,12 @@ public class CoreProblemFiller implements ProblemFiller {
     @Override
     public void fill(RaoData raoData, LinearProblem linearProblem) {
         // chose range actions to use
-        computeAvailableRangeActions(raoData);
+        availableRangeActions = computeAvailableRangeActions(raoData, maxPstPerTso);
         // add variables
         buildFlowVariables(raoData, linearProblem);
         availableRangeActions.forEach(rangeAction -> {
-            String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
-            double prePerimeterValue = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(prePerimeterVariantId).getSetPoint(raoData.getOptimizedState().getId());
-            buildRangeActionSetPointVariables(raoData.getNetwork(), rangeAction, prePerimeterValue, linearProblem);
+            double prePerimeterSetpoint = getRangeActionPreperimeterSetpoint(rangeAction, raoData);
+            buildRangeActionSetPointVariables(raoData.getNetwork(), rangeAction, prePerimeterSetpoint, linearProblem);
             buildRangeActionAbsoluteVariationVariables(rangeAction, linearProblem);
             buildRangeActionGroupConstraint(rangeAction, linearProblem);
         });
@@ -76,29 +75,57 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     /**
+     * Filters out range actions that should not be used in the optimization, even if they are available in the perimeter
+     */
+    private static Set<RangeAction> computeAvailableRangeActions(RaoData raoData, Map<String, Integer> maxPstPerTso) {
+        Set<RangeAction> rangeActions = removeRangeActionsWithWrongInitialSetpoint(raoData.getAvailableRangeActions(), raoData);
+        rangeActions = removeRangeActionsIfMaxNumberReached(rangeActions, raoData, maxPstPerTso);
+        return rangeActions;
+    }
+
+    /**
+     * If range action's initial setpoint does not respect its allowed range, this function filters it out
+     */
+    private static Set<RangeAction> removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActionsToFilter, RaoData raoData) {
+        Set<RangeAction> filteredRangeActions = new HashSet<>(rangeActionsToFilter);
+        rangeActionsToFilter.stream().forEach(rangeAction -> {
+            double preperimeterSetPoint = getRangeActionPreperimeterSetpoint(rangeAction, raoData);
+            double minSetPoint = rangeAction.getMinValue(raoData.getNetwork(), preperimeterSetPoint);
+            double maxSetPoint = rangeAction.getMaxValue(raoData.getNetwork(), preperimeterSetPoint);
+            if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
+                LOGGER.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
+                        rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
+                filteredRangeActions.remove(rangeAction);
+            }
+        });
+        return filteredRangeActions;
+    }
+
+    /**
      * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
      * the least impact on the most limiting element
      */
-    private void computeAvailableRangeActions(RaoData raoData) {
-        availableRangeActions = raoData.getAvailableRangeActions();
+    private static Set<RangeAction> removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActionsToFilter, RaoData raoData, Map<String, Integer> maxPstPerTso) {
+        Set<RangeAction> filteredRangeActions = new HashSet<>(rangeActionsToFilter);
         if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
             RaoParameters.ObjectiveFunction objFunction = raoData.getRaoParameters().getObjectiveFunction();
             BranchCnec mostLimitingElement = RaoUtil.getMostLimitingElement(raoData.getCnecs(), raoData.getWorkingVariantId(), objFunction.getUnit(), objFunction.relativePositiveMargins());
             maxPstPerTso.forEach((String tso, Integer maxPst) -> {
-                Set<RangeAction> pstsForTso = availableRangeActions.stream()
+                Set<RangeAction> pstsForTso = rangeActionsToFilter.stream()
                         .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
                         .collect(Collectors.toSet());
                 if (pstsForTso.size() > maxPst) {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
                     pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, raoData))
                             .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
-                            .forEach(rangeAction -> availableRangeActions.remove(rangeAction));
+                            .forEach(filteredRangeActions::remove);
                 }
             });
         }
+        return filteredRangeActions;
     }
 
-    int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, RaoData raoData) {
+    static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, RaoData raoData) {
         Double sensi1 = Math.abs(raoData.getSensitivity(cnec, ra1));
         Double sensi2 = Math.abs(raoData.getSensitivity(cnec, ra2));
         return sensi1.compareTo(sensi2);
@@ -237,11 +264,10 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildRangeActionConstraints(RaoData raoData, LinearProblem linearProblem) {
-        String preOptimVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
         availableRangeActions.forEach(rangeAction -> {
-            double initialSetPoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId).getSetPoint(raoData.getOptimizedState().getId());
-            MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
-            MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(initialSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.POSITIVE);
+            double preperimeterSetPoint = getRangeActionPreperimeterSetpoint(rangeAction, raoData);
+            MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-preperimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
+            MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(preperimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.POSITIVE);
 
             MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -252,6 +278,11 @@ public class CoreProblemFiller implements ProblemFiller {
             varConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
             varConstraintPositive.setCoefficient(setPointVariable, 1);
         });
+    }
+
+    private static double getRangeActionPreperimeterSetpoint(RangeAction rangeAction, RaoData raoData) {
+        String preOptimVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
+        return rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId).getSetPoint(raoData.getOptimizedState().getId());
     }
 
     private static void buildRangeActionGroupConstraint(RangeAction rangeAction, LinearProblem linearProblem) {
