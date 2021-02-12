@@ -55,7 +55,17 @@ provided by PowSyBl framework.
 
 Two options are available:
 1.  First, you can use the one provided by FARAO. It is saved in the *etc* directory of the installation, and is called *config.yml*.
-You just have to copy-paste it in **$HOME/.itools** directory. 
+You just have to copy-paste it in **$HOME/.itools** directory. You can also use one of the provided network post-processor scripts 
+saved in the *etc* directory by copy-pasting them in the same directory and adding these lines to your *config.yml* file :
+
+```$yml
+import:
+  postProcessors: groovyScript
+
+groovy-post-processor:
+    script: $HOME/.itools/core-cc-ucte-postProcessor.groovy
+
+``` 
 
 2.  Expert users can also adapt it to their own needs.
 
