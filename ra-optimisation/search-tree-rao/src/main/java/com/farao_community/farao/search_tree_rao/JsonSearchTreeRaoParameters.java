@@ -30,7 +30,8 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeNumberField("maximum-search-depth", searchTreeRaoParameters.getMaximumSearchDepth());
         jsonGenerator.writeNumberField("relative-network-action-minimum-impact-threshold", searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold());
         jsonGenerator.writeNumberField("absolute-network-action-minimum-impact-threshold", searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold());
-        jsonGenerator.writeNumberField("leaves-in-parallel", searchTreeRaoParameters.getLeavesInParallel());
+        jsonGenerator.writeNumberField("preventive-leaves-in-parallel", searchTreeRaoParameters.getPreventiveLeavesInParallel());
+        jsonGenerator.writeNumberField("curative-leaves-in-parallel", searchTreeRaoParameters.getCurativeLeavesInParallel());
         jsonGenerator.writeObjectField("preventive-rao-stop-criterion", searchTreeRaoParameters.getPreventiveRaoStopCriterion());
         jsonGenerator.writeObjectField("curative-rao-stop-criterion", searchTreeRaoParameters.getCurativeRaoStopCriterion());
         jsonGenerator.writeNumberField("curative-rao-min-obj-improvement", searchTreeRaoParameters.getCurativeRaoMinObjImprovement());
@@ -60,8 +61,11 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                 case "absolute-network-action-minimum-impact-threshold":
                     parameters.setAbsoluteNetworkActionMinimumImpactThreshold(jsonParser.getValueAsDouble());
                     break;
-                case "leaves-in-parallel":
-                    parameters.setLeavesInParallel(jsonParser.getValueAsInt());
+                case "preventive-leaves-in-parallel":
+                    parameters.setPreventiveLeavesInParallel(jsonParser.getValueAsInt());
+                    break;
+                case "curative-leaves-in-parallel":
+                    parameters.setCurativeLeavesInParallel(jsonParser.getValueAsInt());
                     break;
                 case "preventive-rao-stop-criterion":
                     parameters.setPreventiveRaoStopCriterion(getPreventiveRaoStopCriterionFromString(jsonParser.nextTextValue()));
