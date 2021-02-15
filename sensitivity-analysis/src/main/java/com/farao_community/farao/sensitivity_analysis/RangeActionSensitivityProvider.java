@@ -30,7 +30,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network) {
+    public List<SensitivityFactor> getCommonFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
         List<SensitivityVariable> sensitivityVariables = rangeActions.stream()
             .map(ra -> rangeActionToSensitivityVariables(network, ra))
