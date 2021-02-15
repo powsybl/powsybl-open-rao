@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Map;
+
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,5 +44,54 @@ public class SearchTreeRaoParametersTest {
         assertEquals(0, params.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
         params.setRelativeNetworkActionMinimumImpactThreshold(1.1);
         assertEquals(1, params.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
+    }
+
+    @Test
+    public void testMaxNumberOfBoundariesForSkippingNetworkActionsBounds() {
+        SearchTreeRaoParameters params = new SearchTreeRaoParameters();
+        params.setMaxNumberOfBoundariesForSkippingNetworkActions(300);
+        assertEquals(300, params.getMaxNumberOfBoundariesForSkippingNetworkActions());
+        params.setMaxNumberOfBoundariesForSkippingNetworkActions(-2);
+        assertEquals(0, params.getMaxNumberOfBoundariesForSkippingNetworkActions());
+    }
+
+    @Test
+    public void testNegativeCurativeRaoMinObjImprovement() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setCurativeRaoMinObjImprovement(100);
+        assertEquals(100, parameters.getCurativeRaoMinObjImprovement(), 1e-6);
+        parameters.setCurativeRaoMinObjImprovement(-100);
+        assertEquals(100, parameters.getCurativeRaoMinObjImprovement(), 1e-6);
+    }
+
+    @Test
+    public void testNonNullMaps() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+
+        // default
+        assertNotNull(parameters.getMaxCurativeRaPerTso());
+        assertTrue(parameters.getMaxCurativeRaPerTso().isEmpty());
+
+        assertNotNull(parameters.getMaxCurativePstPerTso());
+        assertTrue(parameters.getMaxCurativePstPerTso().isEmpty());
+
+        assertNotNull(parameters.getMaxCurativeTopoPerTso());
+        assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
+
+        // using setters
+        parameters.setMaxCurativeRaPerTso(Map.of("fr", 2));
+        parameters.setMaxCurativeRaPerTso(null);
+        assertNotNull(parameters.getMaxCurativeRaPerTso());
+        assertTrue(parameters.getMaxCurativeRaPerTso().isEmpty());
+
+        parameters.setMaxCurativePstPerTso(Map.of("fr", 2));
+        parameters.setMaxCurativePstPerTso(null);
+        assertNotNull(parameters.getMaxCurativePstPerTso());
+        assertTrue(parameters.getMaxCurativePstPerTso().isEmpty());
+
+        parameters.setMaxCurativeTopoPerTso(Map.of("fr", 2));
+        parameters.setMaxCurativeTopoPerTso(null);
+        assertNotNull(parameters.getMaxCurativeTopoPerTso());
+        assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
     }
 }

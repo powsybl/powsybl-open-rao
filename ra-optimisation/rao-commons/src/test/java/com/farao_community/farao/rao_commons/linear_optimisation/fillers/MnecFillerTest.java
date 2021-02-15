@@ -66,19 +66,14 @@ public class MnecFillerTest extends AbstractFillerTest {
 
         initRaoData(crac.getPreventiveState());
 
-        String testVariant = "test-variant";
-        ResultVariantManager resultVariantManager = new ResultVariantManager();
-        crac.addExtension(ResultVariantManager.class, resultVariantManager);
-        crac.getExtension(ResultVariantManager.class).createVariant(testVariant);
-        crac.getExtension(ResultVariantManager.class).setInitialVariantId(testVariant);
-        mnec1.getExtension(CnecResultExtension.class).getVariant(testVariant).setFlowInMW(900.);
-        mnec2.getExtension(CnecResultExtension.class).getVariant(testVariant).setFlowInMW(-200.);
+        String initialVariantId = crac.getExtension(ResultVariantManager.class).getInitialVariantId();
+        mnec1.getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(900.);
+        mnec2.getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(-200.);
     }
 
     private void fillProblemWithFiller(Unit unit) {
         // fill the problem : the core filler is required
         mnecFiller = new MnecFiller(unit, 50, 10, 3.5);
-        initRaoData(crac.getPreventiveState());
         coreProblemFiller.fill(raoData, linearProblem);
         mnecFiller.fill(raoData, linearProblem);
     }

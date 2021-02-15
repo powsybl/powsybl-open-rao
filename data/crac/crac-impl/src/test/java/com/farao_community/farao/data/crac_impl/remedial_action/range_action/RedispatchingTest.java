@@ -1,7 +1,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.farao_community.farao.data.crac_api.Range;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class RedispatchingTest extends AbstractElementaryRangeActionTest {
+public class RedispatchingTest extends AbstractRangeActionTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Redispatching redispatching;
@@ -24,7 +24,7 @@ public class RedispatchingTest extends AbstractElementaryRangeActionTest {
     private double marginalCost = 2;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         generator = Mockito.mock(NetworkElement.class);
         redispatching = new Redispatching(
                 "rd_id",
@@ -59,8 +59,8 @@ public class RedispatchingTest extends AbstractElementaryRangeActionTest {
     public void getMinAndMaxValueWithRange() {
         Range mockedRange = Mockito.mock(Range.class);
         Network mockedNetwork = Mockito.mock(Network.class);
-        assertEquals(0, redispatching.getMinValueWithRange(mockedNetwork, mockedRange), 0);
-        assertEquals(0, redispatching.getMaxValueWithRange(mockedNetwork, mockedRange), 0);
+        assertEquals(0, redispatching.getMinValueWithRange(mockedNetwork, mockedRange, 5), 0);
+        assertEquals(0, redispatching.getMaxValueWithRange(mockedNetwork, mockedRange, 5), 0);
     }
 
     @Test

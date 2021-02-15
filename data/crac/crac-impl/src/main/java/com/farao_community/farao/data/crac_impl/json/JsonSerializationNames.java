@@ -22,6 +22,8 @@ public final class JsonSerializationNames {
     public static final String NETWORK_ELEMENT = "networkElement";
     public static final String NETWORK_ELEMENTS = "networkElements";
 
+    public static final String GROUP_ID = "groupId";
+
     public static final String CONTINGENCY = "contingency";
     public static final String CONTINGENCIES = "contingencies";
 
@@ -58,18 +60,22 @@ public final class JsonSerializationNames {
     public static final String OPERATOR = "operator";
     public static final String ACTION_TYPE = "actionType";
 
+    public static final String XNODE_IDS = "xnodeIds";
+
     // implementation class types
     public static final String SIMPLE_STATE_TYPE = "simple-state";
 
     public static final String COMPLEX_CONTINGENCY_TYPE = "complex-contingency";
+    public static final String XNODE_CONTINGENCY_TYPE = "xnode-contingency";
 
     public static final String FLOW_CNEC_TYPE = "flow-cnec";
 
-    public static final String PST_WITH_RANGE_TYPE = "pst-with-range";
+    public static final String PST_RANGE_ACTION_IMPL_TYPE = "pst-range-action-impl";
     public static final String ALIGNED_RANGE_ACTIONS_TYPE = "aligned-range-action";
 
     public static final String TOPOLOGY_TYPE = "topology";
     public static final String PST_SETPOINT_TYPE = "pst-setpoint";
+    public static final String INJECTION_SETPOINT_TYPE = "injection-setpoint";
     public static final String COMPLEX_NETWORK_ACTION_TYPE = "complex-network-action";
 
     public static final String FREE_TO_USE_TYPE = "free-to-use";

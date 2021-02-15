@@ -14,15 +14,22 @@
   "mnec-violation-cost": 10.0,
   "mnec-constraint-adjustment-coefficient": 0.0,
   "negative-margin-objective-coefficient": 2000.0,
-  "ptdf-boundaries": [],
+  "relative-margin-ptdf-boundaries": [],
   "ptdf-sum-lower-bound": 0.01,
   "extensions": {
     "LinearRaoParameters": {
       "security-analysis-without-rao": false
     },
     "SearchTreeRaoParameters": {
-      "stop-criterion": "MAXIMUM_MARGIN",
-      "absolute-network-action-minimum-impact-threshold": 1
+      "absolute-network-action-minimum-impact-threshold": 1,
+      "skip-network-actions-far-from-most-limiting-element" : true,
+      "preventive-rao-stop-criterion": "MIN_OBJECTIVE",
+      "max-curative-topo-per-tso" : {
+        "RTE" : 3,
+        "Elia" : 5
+      },
+      "max-curative-pst-per-tso" : { "Amprion" : 0 },
+      "max-curative-ra-per-tso" : { "Tennet" : 1 , "50Hz" : 9 }
     }
   }
 }

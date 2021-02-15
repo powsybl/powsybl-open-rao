@@ -9,10 +9,9 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
 
@@ -24,13 +23,8 @@ import java.util.List;
 @JsonTypeName("injection-setpoint")
 public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAction {
 
-    @JsonCreator
-    public InjectionSetpoint(@JsonProperty("id") String id,
-                             @JsonProperty("name") String name,
-                             @JsonProperty("operator") String operator,
-                             @JsonProperty("usageRules") List<UsageRule> usageRules,
-                             @JsonProperty("networkElement") NetworkElement networkElement,
-                             @JsonProperty("setpoint")  double setpoint) {
+    public InjectionSetpoint(String id, String name, String operator, List<UsageRule> usageRules,
+                             NetworkElement networkElement, double setpoint) {
         super(id, name, operator, usageRules, networkElement, setpoint);
     }
 
@@ -44,6 +38,18 @@ public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAc
 
     @Override
     public void apply(Network network) {
-        throw new UnsupportedOperationException();
+        Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
+        if (identifiable instanceof Generator) {
+            Generator generator = (Generator) identifiable;
+            generator.setTargetP(setpoint);
+        } else if (identifiable instanceof Load) {
+            Load load = (Load) identifiable;
+            load.setP0(setpoint);
+        } else if (identifiable instanceof DanglingLine) {
+            DanglingLine danglingLine = (DanglingLine) identifiable;
+            danglingLine.setP0(setpoint);
+        } else {
+            throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");
+        }
     }
 }

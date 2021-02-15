@@ -9,19 +9,19 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.farao_community.farao.util.EICode;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -52,36 +52,32 @@ public class LoopFlowComputation {
     }
 
     public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
-        List<LinearGlsk> glsks = getValidGlsks();
+
         LoopFlowResult results = new LoopFlowResult();
+        Map<EICode, LinearGlsk> refProgGlskMap = buildRefProgGlskMap();
 
         for (BranchCnec cnec : cnecs) {
             double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(cnec);
-            double commercialFLow = glsks.stream()
-                .mapToDouble(glskElement -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(glskElement, cnec) * referenceProgram.getGlobalNetPosition(glskToCountry(glskElement)))
+            double commercialFLow = refProgGlskMap.entrySet().stream()
+                .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), cnec) * referenceProgram.getGlobalNetPosition(entry.getKey()))
                 .sum();
             results.addCnecResult(cnec, refFlow - commercialFLow, commercialFLow, refFlow);
         }
         return results;
     }
 
-    private Country glskToCountry(LinearGlsk glsk) {
-        if (glsk.getId().length() < EICode.LENGTH) {
-            throw new IllegalArgumentException(String.format("Glsk [%s] should starts with an EI Code", glsk.getId()));
-        }
-        EICode eiCode = new EICode(glsk.getId().substring(0, EICode.LENGTH));
-        return eiCode.getCountry();
-    }
+    private Map<EICode, LinearGlsk> buildRefProgGlskMap() {
 
-    private List<LinearGlsk> getValidGlsks() {
-        return glsk.getDataPerZone().values().stream().filter(linearGlsk -> {
-            if (!referenceProgram.getListOfCountries().contains(glskToCountry(linearGlsk))) {
-                LOGGER.warn(String.format("Glsk [%s] is ignored as no corresponding country was found in the ReferenceProgram", linearGlsk.getId()));
-                return false;
+        Map<EICode, LinearGlsk> refProgGlskMap = new HashMap<>();
+
+        for (EICode area : referenceProgram.getListOfAreas()) {
+            LinearGlsk glskForArea = glsk.getData(area.getAreaCode());
+            if (glskForArea == null) {
+                LOGGER.warn("No GLSK found for reference area {}", area.getAreaCode());
+            } else {
+                refProgGlskMap.put(area, glskForArea);
             }
-            return true;
-        }).collect(Collectors.toList());
+        }
+        return refProgGlskMap;
     }
 }
-
-

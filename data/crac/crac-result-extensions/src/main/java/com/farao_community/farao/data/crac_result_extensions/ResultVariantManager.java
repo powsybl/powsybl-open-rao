@@ -34,6 +34,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
     private Set<String> variants;
     private String initialVariantId;
+    private String preOptimVariantId;
 
     /**
      * Default constructor
@@ -71,6 +72,14 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             throw new FaraoException("Impossible to set initial variant twice.");
         }
         this.initialVariantId = initialVariantId;
+    }
+
+    public String getPrePerimeterVariantId() {
+        return preOptimVariantId;
+    }
+
+    public void setPrePerimeterVariantId(String preOptimVariantId) {
+        this.preOptimVariantId = preOptimVariantId;
     }
 
     /**
@@ -116,7 +125,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
             if (rangeAction.getExtension(RangeActionResultExtension.class) == null) {
                 rangeAction.addExtension(RangeActionResultExtension.class, new RangeActionResultExtension());
             }
-            if (rangeAction instanceof PstRange) {
+            if (rangeAction instanceof PstRangeAction) {
                 rangeAction.getExtension(RangeActionResultExtension.class).addVariant(variantId, new PstRangeResult(stateIds));
             } else {
                 rangeAction.getExtension(RangeActionResultExtension.class).addVariant(variantId, new RangeActionResult(stateIds));

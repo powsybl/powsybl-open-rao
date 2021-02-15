@@ -15,7 +15,7 @@
   "mnec-violation-cost" : 10.0,
   "mnec-constraint-adjustment-coefficient" : 0.0,
   "negative-margin-objective-coefficient" : 1000.0,
-  "ptdf-boundaries" : [ ],
+  "relative-margin-ptdf-boundaries" : [ ],
   "ptdf-sum-lower-bound" : 0.01,
   "perimeters-in-parallel" : 1,
   "sensitivity-parameters" : {
@@ -37,11 +37,21 @@
   },
   "extensions" : {
     "SearchTreeRaoParameters" : {
-      "stop-criterion" : "MAXIMUM_MARGIN",
       "maximum-search-depth" : 10,
       "relative-network-action-minimum-impact-threshold" : 0.1,
       "absolute-network-action-minimum-impact-threshold" : 20.0,
-      "leaves-in-parallel" : 1
+      "preventive-leaves-in-parallel" : 1,
+      "curative-leaves-in-parallel" : 1,
+      "preventive-rao-stop-criterion" : "MIN_OBJECTIVE",
+      "curative-rao-stop-criterion" : "PREVENTIVE_OBJECTIVE_AND_SECURE",
+      "curative-rao-min-obj-improvement" : 983.0,
+      "skip-network-actions-far-from-most-limiting-element" : false,
+      "max-number-of-boundaries-for-skipping-network-actions" : 2,
+      "max-curative-topo-per-tso" : { },
+      "max-curative-pst-per-tso" : { },
+      "max-curative-ra-per-tso" : {
+        "RTE" : 5
+      }
     }
   }
 }

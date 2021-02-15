@@ -31,40 +31,31 @@ public class CracVariantManager {
     private final Map<String, SystematicSensitivityResult> systematicSensitivityResultMap;
 
     /**
-     * This constructor creates a new data variant with a pre-optimisation prefix and set it as the working variant.
-     * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
-     * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
+     * This constructor takes in input the id of an already existing variant. The created CracVariantManager
+     * will rely on this given variant, which will be set as the pre-optim variant of the CracVariantManager.
      *
-     * @param crac:             CRAC object.
+     * @param crac CRAC object.
+     * @param cracVariantId given Crac Variant id, which will be used as pre-optim variant
      */
     public CracVariantManager(Crac crac, String cracVariantId) {
+
+        Objects.requireNonNull(cracVariantId);
+
         this.crac = crac;
         this.variantIds = new ArrayList<>();
         this.systematicSensitivityResultMap = new HashMap<>();
-
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-        if (cracVariantId != null) {
-            if (resultVariantManager == null) {
-                throw new FaraoException(format("Rao data is based on an existing variant %s but CRAC variant manager does not exist.", cracVariantId));
-            }
-            if (!resultVariantManager.getVariants().contains(cracVariantId)) {
-                throw new FaraoException(format("Rao data is based on an existing variant %s but this variant does not exist.", cracVariantId));
-            }
-            variantIds.add(cracVariantId);
-            systematicSensitivityResultMap.put(cracVariantId, null);
-            setWorkingVariant(cracVariantId);
-        } else { // Case no base CRAC variant is defined so a new CRAC variant must be created
-            String variantId;
-            if (resultVariantManager == null) {
-                resultVariantManager = new ResultVariantManager();
-                crac.addExtension(ResultVariantManager.class, resultVariantManager);
-                variantId = createVariantFromWorkingVariant(VariantType.INITIAL);
-                resultVariantManager.setInitialVariantId(variantId);
-            } else {
-                variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
-            }
-            setWorkingVariant(variantId);
+
+        if (resultVariantManager == null) {
+            throw new FaraoException(format("Rao data is based on an existing variant %s but CRAC variant manager does not exist.", cracVariantId));
         }
+        if (!resultVariantManager.getVariants().contains(cracVariantId)) {
+            throw new FaraoException(format("Rao data is based on an existing variant %s but this variant does not exist.", cracVariantId));
+        }
+
+        variantIds.add(cracVariantId);
+        systematicSensitivityResultMap.put(cracVariantId, null);
+        setWorkingVariant(cracVariantId);
     }
 
     /**
@@ -72,10 +63,24 @@ public class CracVariantManager {
      * So accessing data after this constructor will lead directly to the newly created variant data. CRAC and
      * sensitivity data will be empty. It will create a CRAC ResultVariantManager if it does not exist yet.
      *
-     * @param crac:             CRAC object.
+     * @param crac CRAC object.
      */
     public CracVariantManager(Crac crac) {
-        this(crac, null);
+        this.crac = crac;
+        this.variantIds = new ArrayList<>();
+        this.systematicSensitivityResultMap = new HashMap<>();
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+
+        String variantId;
+        if (resultVariantManager == null) {
+            resultVariantManager = new ResultVariantManager();
+            crac.addExtension(ResultVariantManager.class, resultVariantManager);
+            variantId = createVariantFromWorkingVariant(VariantType.INITIAL);
+        } else {
+            variantId = createVariantFromWorkingVariant(VariantType.PRE_OPTIM);
+        }
+
+        setWorkingVariant(variantId);
     }
 
     public List<String> getVariantIds() {
@@ -89,7 +94,7 @@ public class CracVariantManager {
         return workingVariantId;
     }
 
-    public String getInitialVariantId() {
+    public String getPreOptimVariantId() {
         if (variantIds.isEmpty()) {
             throw new FaraoException("No variants are present in the data");
         }

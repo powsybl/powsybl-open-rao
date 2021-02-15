@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_util;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
@@ -84,6 +85,15 @@ public class CracCleaner {
         // list Contingencies whose NetworkElement is absent from the network or does not fit a valid Powsybl Contingency
         Set<Contingency> removedContingencies = new HashSet<>();
         for (Contingency contingency : crac.getContingencies()) {
+            if (!contingency.isSynchronized()) {
+                // It is necessary to skip XnodeContingencies that have not been synchronized since we don't know their
+                // network elements yet
+                // However, this means that we cannot clean out wrong XnodeContingencies
+                // When Crac import is refactored, we should be able to access the network at the time of creation
+                // of the contingencies. Then the network elements can be found from the start
+                // TODO : remove this when CRAC importer can use network
+                continue;
+            }
             contingency.getNetworkElements().forEach(networkElement -> {
                 Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
                 if (identifiable == null) {
@@ -137,10 +147,34 @@ public class CracCleaner {
         crac.getRangeActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
         crac.getNetworkActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
 
+         /* TODO : remove range actions with initial setpoints that do not respect their authorized range
+         This is not possible now since, for PstRange, we have to synchronize them first in order
+         to be able to access current / min / max setpoints
+         We can do this during CRAC refactoring (we should somehow merge CracCleaner.cleanCrac() & crac.synchronize() methods)
+         For now, these "wrong" range actions are only handled in the LinearOptimizer (in the CoreProblemFiller)*/
+
         // remove states and contingencies
         removedContingencies.forEach(contingency -> crac.removeContingency(contingency.getId()));
         removedStates.forEach(state -> crac.removeState(state.getId()));
         report.forEach(LOGGER::warn);
+
+        // remove PstRanges with a RELATIVE_TO_PREVIOUS_INSTANT for preventive PST RAs
+        List<RangeAction> removedRangeActions = new ArrayList<>();
+        crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(ra -> ra.getUsageRules().size() == 1).forEach(ra -> {
+            List<Range> removedRanges = new ArrayList<>();
+            ra.getRanges().forEach(range -> {
+                if (range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_INSTANT) {
+                    report.add(String.format("[REMOVED] Range Action %s is a preventive range action with a range relative to previous instant. That range has been removed.", ra.getId()));
+                    removedRanges.add(range);
+                }
+            });
+            removedRanges.forEach(ra::removeRange);
+            if (ra.getRanges().isEmpty()) {
+                report.add(String.format("[REMOVED] Range Action %s has no ranges. It has been removed from the Crac.", ra.getId()));
+                removedRangeActions.add(ra);
+            }
+        });
+        removedRangeActions.forEach(ra -> crac.removeRangeAction(ra.getId()));
 
         return report;
     }

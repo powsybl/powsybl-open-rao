@@ -14,7 +14,8 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 
 import java.util.*;
@@ -115,9 +116,33 @@ public final class CommonCracCreation {
         //NetworkElement
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
 
-        PstWithRange pstWithRange = new PstWithRange("pst", pstElement);
-        pstWithRange.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        crac.addRangeAction(pstWithRange);
+        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
+        pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        crac.addRangeAction(pstRangeAction);
+
+        return crac;
+    }
+
+    public static SimpleCrac createWithCurativePstRange() {
+        SimpleCrac crac = create();
+
+        //NetworkElement
+        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
+
+        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
+        pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3-curative")));
+        crac.addRangeAction(pstRangeAction);
+
+        return crac;
+    }
+
+    public static SimpleCrac createWithSwitch() {
+        SimpleCrac crac = create();
+
+        NetworkElement switchElement = new NetworkElement("NNL3AA11 NNL3AA12 1", "NNL3AA11 NNL3AA12 1 name");
+        Topology topology = new Topology("switch_ra", "switch_ra_name", "OPERATOR", switchElement, ActionType.OPEN);
+        topology.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        crac.addNetworkAction(topology);
 
         return crac;
     }

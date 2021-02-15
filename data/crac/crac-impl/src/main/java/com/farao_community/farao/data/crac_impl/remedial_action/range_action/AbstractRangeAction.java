@@ -1,42 +1,112 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.remedial_action.AbstractRemedialAction;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
+import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAction> implements RangeAction {
-    protected List<Range> ranges;
+    protected List<Range> ranges = new ArrayList<>();
+    protected NetworkElement networkElement;
+    protected String groupId = null;
 
-    public AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges) {
+    public AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules,
+                               List<? extends Range> ranges, NetworkElement networkElement, String groupId) {
         super(id, name, operator, usageRules);
         this.ranges = new ArrayList<>(ranges);
+        this.networkElement = networkElement;
+        this.groupId = groupId;
     }
 
-    public AbstractRangeAction(String id, String name, String operator) {
+    public AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules,
+                               List<? extends Range> ranges, NetworkElement networkElement) {
+        this(id, name, operator, usageRules, ranges, networkElement, null);
+    }
+
+    public AbstractRangeAction(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator);
-        this.ranges = new ArrayList<>();
+        this.networkElement = networkElement;
     }
 
-    public AbstractRangeAction(String id, String operator) {
-        super(id, operator);
-        this.ranges = new ArrayList<>();
-    }
-
-    public AbstractRangeAction(String id) {
+    public AbstractRangeAction(String id, NetworkElement networkElement) {
         super(id);
-        this.ranges = new ArrayList<>();
+        this.networkElement = networkElement;
     }
 
+    public NetworkElement getNetworkElement() {
+        return networkElement;
+    }
+
+    public void setNetworkElement(NetworkElement networkElement) {
+        this.networkElement = networkElement;
+    }
+
+    @Override
+    public void synchronize(Network network) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void desynchronize() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isSynchronized() {
+        throw new UnsupportedOperationException();
+    }
+
+    protected abstract double getMinValueWithRange(Network network, Range range, double prePerimeterValue);
+
+    @Override
+    public double getMinValue(Network network, double prePerimeterValue) {
+        double minValue = Double.NEGATIVE_INFINITY;
+        for (Range range: ranges) {
+            minValue = Math.max(getMinValueWithRange(network, range, prePerimeterValue), minValue);
+        }
+        return minValue;
+    }
+
+    protected abstract double getMaxValueWithRange(Network network, Range range, double prePerimeterValue);
+
+    @Override
+    public double getMaxValue(Network network, double prePerimeterValue) {
+        double maxValue = Double.POSITIVE_INFINITY;
+        for (Range range: ranges) {
+            maxValue = Math.min(getMaxValueWithRange(network, range, prePerimeterValue), maxValue);
+        }
+        return maxValue;
+    }
+
+    @Override
+    public Set<NetworkElement> getNetworkElements() {
+        return Collections.singleton(networkElement);
+    }
+
+    @Override
+    public Optional<String> getGroupId() {
+        return Optional.ofNullable(groupId);
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    @Override
     public final List<Range> getRanges() {
         return ranges;
+    }
+
+    @Override
+    public void removeRange(Range range) {
+        ranges.remove(range);
     }
 
     public void addRange(Range range) {
@@ -54,7 +124,8 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
         AbstractRangeAction otherAbstractRangeAction = (AbstractRangeAction) o;
 
         return super.equals(o)
-            && new HashSet<>(ranges).equals(new HashSet<>(otherAbstractRangeAction.ranges));
+                && new HashSet<>(ranges).equals(new HashSet<>(otherAbstractRangeAction.ranges))
+                && networkElement.equals(otherAbstractRangeAction.getNetworkElement());
     }
 
     @Override
@@ -63,6 +134,7 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
         for (Range range : ranges) {
             result = 31 * result + range.hashCode();
         }
+        result = 31 * result + networkElement.hashCode();
         return result;
     }
 }

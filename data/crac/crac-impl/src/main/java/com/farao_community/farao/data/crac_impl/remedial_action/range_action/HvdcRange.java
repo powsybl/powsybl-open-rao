@@ -8,10 +8,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -24,17 +22,16 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("hvdc-range")
-public final class HvdcRange extends AbstractElementaryRangeAction {
+public final class HvdcRange extends AbstractRangeAction {
 
     protected static int hvdcRangeTempValue = 0;
 
-    @JsonCreator
-    public HvdcRange(@JsonProperty("id") String id,
-                     @JsonProperty("name") String name,
-                     @JsonProperty("operator") String operator,
-                     @JsonProperty("usageRules") List<UsageRule> usageRules,
-                     @JsonProperty("ranges") List<Range> ranges,
-                     @JsonProperty("networkElement") NetworkElement networkElement) {
+    public HvdcRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges,
+                     NetworkElement networkElement, String groupId) {
+        super(id, name, operator, usageRules, ranges, networkElement, groupId);
+    }
+
+    public HvdcRange(String id, String name, String operator, List<UsageRule> usageRules, List<Range> ranges, NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
     }
 
@@ -43,13 +40,13 @@ public final class HvdcRange extends AbstractElementaryRangeAction {
     }
 
     @Override
-    protected double getMinValueWithRange(Network network, Range range) {
+    protected double getMinValueWithRange(Network network, Range range, double prePerimeterValue) {
         // to implement - specific to HvdcRange
         return hvdcRangeTempValue;
     }
 
     @Override
-    public double getMaxValueWithRange(Network network, Range range) {
+    public double getMaxValueWithRange(Network network, Range range, double prePerimeterValue) {
         // to implement - specific to HvdcRange
         return hvdcRangeTempValue;
     }

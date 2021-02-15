@@ -6,14 +6,16 @@
  */
 package com.farao_community.farao.data.refprog.reference_program;
 
+import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -21,20 +23,35 @@ import static org.junit.Assert.*;
 public class ReferenceProgramTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
+    private EICode eiCodeFrance;
+    private EICode eiCodeBelgium;
+    private EICode eiCodeDk;
+    private EICode eiCodeSk;
+    private EICode eiCodeGermany;
+
+    @Before
+    public void setUp() {
+        eiCodeFrance = new EICode(Country.FR);
+        eiCodeBelgium = new EICode(Country.BE);
+        eiCodeDk = new EICode(Country.DK);
+        eiCodeSk = new EICode(Country.SK);
+        eiCodeGermany = new EICode(Country.DE);
+    }
+
     @Test
     public void testGlobalNetPositionMap() {
         List<ReferenceExchangeData> list = Arrays.asList(
-                new ReferenceExchangeData(Country.FR, Country.BE, 100),
-                new ReferenceExchangeData(Country.FR, Country.DE, -250),
-                new ReferenceExchangeData(Country.DK, Country.SK, 100));
+                new ReferenceExchangeData(eiCodeFrance, eiCodeBelgium, 100),
+                new ReferenceExchangeData(eiCodeFrance, eiCodeGermany, -250),
+                new ReferenceExchangeData(eiCodeDk, eiCodeSk, 100));
         ReferenceProgram referenceProgram = new ReferenceProgram(list);
-        Map<Country, Double> netPositions = referenceProgram.getAllGlobalNetPositions();
-        assertEquals(5, referenceProgram.getListOfCountries().size());
+        Map<EICode, Double> netPositions = referenceProgram.getAllGlobalNetPositions();
+        assertEquals(5, referenceProgram.getListOfAreas().size());
         assertEquals(5, netPositions.size());
-        assertEquals(-150, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
-        assertEquals(-100, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(250, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
-        assertEquals(100, netPositions.get(Country.DK), DOUBLE_TOLERANCE);
-        assertEquals(-100, netPositions.get(Country.SK), DOUBLE_TOLERANCE);
+        assertEquals(-150, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
+        assertEquals(-100, netPositions.get(eiCodeBelgium), DOUBLE_TOLERANCE);
+        assertEquals(250, netPositions.get(eiCodeGermany), DOUBLE_TOLERANCE);
+        assertEquals(100, netPositions.get(eiCodeDk), DOUBLE_TOLERANCE);
+        assertEquals(-100, netPositions.get(eiCodeSk), DOUBLE_TOLERANCE);
     }
 }

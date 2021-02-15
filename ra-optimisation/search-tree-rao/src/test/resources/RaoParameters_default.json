@@ -14,18 +14,21 @@
   "mnec-violation-cost": 10.0,
   "mnec-constraint-adjustment-coefficient": 0.0,
   "negative-margin-objective-coefficient": 2000.0,
-  "ptdf-boundaries": [],
+  "relative-margin-ptdf-boundaries": [],
   "ptdf-sum-lower-bound": 0.01,
   "extensions": {
     "LinearRaoParameters": {
       "security-analysis-without-rao": false
     },
     "SearchTreeRaoParameters": {
-      "stop-criterion": "POSITIVE_MARGIN",
+      "preventive-rao-stop-criterion": "SECURE",
       "maximum-search-depth": 5,
       "relative-network-action-minimum-impact-threshold": 0.0,
       "absolute-network-action-minimum-impact-threshold": 0.0,
-      "leaves-in-parallel": 8
+      "preventive-leaves-in-parallel": 8,
+      "curative-leaves-in-parallel": 3,
+      "skip-network-actions-far-from-most-limiting-element" : false,
+      "max-number-of-boundaries-for-skipping-network-actions" : 2
     }
   }
 }

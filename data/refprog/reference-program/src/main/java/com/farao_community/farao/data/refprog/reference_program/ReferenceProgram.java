@@ -8,8 +8,7 @@
 
 package com.farao_community.farao.data.refprog.reference_program;
 
-import com.farao_community.farao.util.EICode;
-import com.powsybl.iidm.network.Country;
+import com.farao_community.farao.commons.EICode;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,56 +18,50 @@ import java.util.stream.Collectors;
  */
 public class ReferenceProgram {
     private final List<ReferenceExchangeData> referenceExchangeDataList;
-    private final Set<Country> countries;
-    private final Map<Country, Double> netPositions;
+    private final Set<EICode> referenceProgramAreas;
+    private final Map<EICode, Double> netPositions;
 
     public ReferenceProgram(List<ReferenceExchangeData> referenceExchangeDataList) {
         this.referenceExchangeDataList = referenceExchangeDataList;
-        this.countries = new HashSet<>();
-        this.referenceExchangeDataList.stream().forEach(referenceExchangeData -> {
-            if (referenceExchangeData.getAreaOut() != null) {
-                countries.add(referenceExchangeData.getAreaOut());
-            }
-            if (referenceExchangeData.getAreaIn() != null) {
-                countries.add(referenceExchangeData.getAreaIn());
-            }
-        });
-        netPositions = new EnumMap<>(Country.class);
-        countries.forEach(country -> netPositions.put(country, computeGlobalNetPosition(country)));
+        this.referenceProgramAreas = buildReferenceProgramAreas(referenceExchangeDataList);
+        netPositions = new HashMap<>();
+        referenceProgramAreas.forEach(country -> netPositions.put(country, computeGlobalNetPosition(country)));
     }
 
     public List<ReferenceExchangeData> getReferenceExchangeDataList() {
         return referenceExchangeDataList;
     }
 
-    public Set<Country> getListOfCountries() {
-        return countries;
+    public Set<EICode> getListOfAreas() {
+        return referenceProgramAreas;
     }
 
-    private double computeGlobalNetPosition(Country country) {
+    private double computeGlobalNetPosition(EICode area) {
         double netPosition = 0.;
         netPosition += referenceExchangeDataList.stream()
-                .filter(referenceExchangeData -> referenceExchangeData.getAreaOut() != null && referenceExchangeData.getAreaOut().equals(country))
-                .mapToDouble(ReferenceExchangeData::getFlow).sum();
+            .filter(referenceExchangeData -> referenceExchangeData.getAreaOut() != null &&
+                referenceExchangeData.getAreaOut().equals(area))
+            .mapToDouble(ReferenceExchangeData::getFlow).sum();
         netPosition -= referenceExchangeDataList.stream()
-                .filter(referenceExchangeData -> referenceExchangeData.getAreaIn() != null && referenceExchangeData.getAreaIn().equals(country))
-                .mapToDouble(ReferenceExchangeData::getFlow).sum();
+            .filter(referenceExchangeData -> referenceExchangeData.getAreaIn() != null &&
+                referenceExchangeData.getAreaIn().equals(area))
+            .mapToDouble(ReferenceExchangeData::getFlow).sum();
         return netPosition;
     }
 
-    public double getGlobalNetPosition(Country country) {
-        return netPositions.get(country);
+    public double getGlobalNetPosition(EICode area) {
+        return netPositions.get(area);
     }
 
     public double getExchange(String areaOrigin, String areaExtremity) {
-        return getExchange(new EICode(areaOrigin).getCountry(), new EICode(areaExtremity).getCountry());
+        return getExchange(new EICode(areaOrigin), new EICode(areaExtremity));
     }
 
     public double getGlobalNetPosition(String area) {
-        return getGlobalNetPosition(new EICode(area).getCountry());
+        return getGlobalNetPosition(new EICode(area));
     }
 
-    public double getExchange(Country areaOrigin, Country areaExtremity) {
+    public double getExchange(EICode areaOrigin, EICode areaExtremity) {
         List<ReferenceExchangeData> entries = referenceExchangeDataList.stream().filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaOrigin, areaExtremity)).collect(Collectors.toList());
         if (!entries.isEmpty()) {
             return entries.stream().mapToDouble(ReferenceExchangeData::getFlow).sum();
@@ -77,8 +70,23 @@ public class ReferenceProgram {
         }
     }
 
-    public Map<Country, Double> getAllGlobalNetPositions() {
+    public Map<EICode, Double> getAllGlobalNetPositions() {
         return netPositions;
+    }
+
+    private Set<EICode> buildReferenceProgramAreas(List<ReferenceExchangeData> referenceExchangeDataList) {
+        Set<EICode> setOfRefProgAreas = new HashSet<>();
+
+        referenceExchangeDataList.forEach(referenceExchangeData -> {
+            if (referenceExchangeData.getAreaOut() != null) {
+                setOfRefProgAreas.add(referenceExchangeData.getAreaOut());
+            }
+            if (referenceExchangeData.getAreaIn() != null) {
+                setOfRefProgAreas.add(referenceExchangeData.getAreaIn());
+            }
+        });
+
+        return setOfRefProgAreas;
     }
 
 }

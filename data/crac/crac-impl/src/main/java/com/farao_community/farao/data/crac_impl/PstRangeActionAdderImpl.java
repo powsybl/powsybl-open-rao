@@ -11,9 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
-import com.farao_community.farao.data.crac_impl.range_domain.RangeType;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstWithRange;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     private Double maxValue;
     private NetworkElement networkElement;
     private String operator;
+    private String groupId = null;
     private List<UsageRule> usageRules = new ArrayList<>();
 
     public PstRangeActionAdderImpl(SimpleCrac parent) {
@@ -44,6 +44,12 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     @Override
     public PstRangeActionAdder setOperator(String operator) {
         this.operator = operator;
+        return this;
+    }
+
+    @Override
+    public PstRangeActionAdder setGroupId(String groupId) {
+        this.groupId = groupId;
         return this;
     }
 
@@ -98,7 +104,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
         if (this.networkElement == null) {
             throw new FaraoException("Cannot add a PstRangeAction without a network element. Please use newNetworkElement.");
         }
-        List<Range> ranges = Collections.singletonList(new Range(this.minValue, this.maxValue, RangeType.ABSOLUTE_FIXED, RangeDefinition.CENTERED_ON_ZERO));
+        List<PstRange> ranges = Collections.singletonList(new PstRangeImpl(this.minValue, this.maxValue, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
         /*
          * First we add the network element to the crac
          * If it already exists, it will send us back the reference to the
@@ -108,7 +114,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
          */
         NetworkElement newNetworkElement = parent.addNetworkElement(networkElement.getId(), networkElement.getName());
 
-        PstWithRange pstWithRange = new PstWithRange(this.id, this.name, this.operator, this.usageRules, ranges, newNetworkElement);
+        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, newNetworkElement, groupId);
         this.parent.addRangeAction(pstWithRange);
 
         return parent;

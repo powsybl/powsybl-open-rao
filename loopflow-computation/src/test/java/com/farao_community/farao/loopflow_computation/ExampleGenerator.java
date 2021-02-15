@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -333,19 +334,23 @@ final class ExampleGenerator {
         glskBe.put("Generator BE 2", 0.5f);
 
         Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", glskBe));
-        glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
+        glsks.put("10YFR-RTE------C", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
+        glsks.put("10YBE----------2", new LinearGlsk("10YBE----------2", "BE", glskBe));
+        glsks.put("10YCB-GERMANY--8", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
+        glsks.put("10YNL----------L", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
         return new ZonalDataImpl<>(glsks);
     }
 
     static ReferenceProgram referenceProgram() {
+        EICode areaFrance = new EICode(Country.FR);
+        EICode areaBelgium = new EICode(Country.BE);
+        EICode areaNetherlands = new EICode(Country.NL);
+        EICode areaGermany = new EICode(Country.DE);
         List<ReferenceExchangeData> exchangeDataList = Arrays.asList(
-            new ReferenceExchangeData(Country.FR, Country.BE, 50),
-            new ReferenceExchangeData(Country.FR, Country.DE, 50),
-            new ReferenceExchangeData(Country.BE, Country.NL, 50),
-            new ReferenceExchangeData(Country.DE, Country.NL, 50));
+            new ReferenceExchangeData(areaFrance, areaBelgium, 50),
+            new ReferenceExchangeData(areaFrance, areaGermany, 50),
+            new ReferenceExchangeData(areaBelgium, areaNetherlands, 50),
+            new ReferenceExchangeData(areaGermany, areaNetherlands, 50));
         return new ReferenceProgram(exchangeDataList);
     }
 
@@ -360,10 +365,10 @@ final class ExampleGenerator {
         Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("DE-NL"))).thenReturn(170.);
 
         // sensi results
-        LinearGlsk glskFr = glsk.getData("FR");
-        LinearGlsk glskBe = glsk.getData("BE");
-        LinearGlsk glskDe = glsk.getData("DE");
-        LinearGlsk glskNl = glsk.getData("NL");
+        LinearGlsk glskFr = glsk.getData("10YFR-RTE------C");
+        LinearGlsk glskBe = glsk.getData("10YBE----------2");
+        LinearGlsk glskDe = glsk.getData("10YCB-GERMANY--8");
+        LinearGlsk glskNl = glsk.getData("10YNL----------L");
 
         Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("FR-BE1"))).thenReturn(0.);
         Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("FR-BE1"))).thenReturn(-1.5);

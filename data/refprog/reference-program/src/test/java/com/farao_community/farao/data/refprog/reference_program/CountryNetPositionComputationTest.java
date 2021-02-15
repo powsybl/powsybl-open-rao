@@ -6,9 +6,11 @@
  */
 package com.farao_community.farao.data.refprog.reference_program;
 
+import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
@@ -21,30 +23,43 @@ import static org.junit.Assert.assertEquals;
 public class CountryNetPositionComputationTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
+    private EICode eiCodeFrance;
+    private EICode eiCodeBelgium;
+    private EICode eiCodeNetherlands;
+    private EICode eiCodeGermany;
+
+    @Before
+    public void setUp() {
+        eiCodeFrance = new EICode(Country.FR);
+        eiCodeBelgium = new EICode(Country.BE);
+        eiCodeNetherlands = new EICode(Country.NL);
+        eiCodeGermany = new EICode(Country.DE);
+    }
+
     @Test
     public void testLines() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        Map<Country, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
-        assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
-        assertEquals(1500.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(0.0, netPositions.get(Country.NL), DOUBLE_TOLERANCE);
-        assertEquals(-2500.0, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
+        Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
+        assertEquals(1000.0, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
+        assertEquals(1500.0, netPositions.get(eiCodeBelgium), DOUBLE_TOLERANCE);
+        assertEquals(0.0, netPositions.get(eiCodeNetherlands), DOUBLE_TOLERANCE);
+        assertEquals(-2500.0, netPositions.get(eiCodeGermany), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testDanglingLines() {
         Network network = Importers.loadNetwork("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
-        Map<Country, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
-        assertEquals(0.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
-        assertEquals(300.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
+        assertEquals(0.0, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
+        assertEquals(300.0, netPositions.get(eiCodeBelgium), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testHvdcLines() {
         Network network = Importers.loadNetwork("TestCaseHvdc.xiidm", getClass().getResourceAsStream("/TestCaseHvdc.xiidm"));
-        Map<Country, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
-        assertEquals(272.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
-        assertEquals(-272.0, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
+        Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
+        assertEquals(272.0, netPositions.get(eiCodeFrance), DOUBLE_TOLERANCE);
+        assertEquals(-272.0, netPositions.get(eiCodeGermany), DOUBLE_TOLERANCE);
     }
 
 }

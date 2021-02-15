@@ -10,8 +10,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.Range;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class HvdcRangeTest extends AbstractElementaryRangeActionTest {
+public class HvdcRangeTest extends AbstractRangeActionTest {
 
     private HvdcRange hvdcRange;
 
@@ -49,8 +49,8 @@ public class HvdcRangeTest extends AbstractElementaryRangeActionTest {
     public void getMinAndMaxValueWithSingleRange() {
         Network mockedNetwork = Mockito.mock(Network.class);
         Range anyRange = Mockito.mock(Range.class);
-        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMaxValueWithRange(mockedNetwork, anyRange), 0);
-        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMinValueWithRange(mockedNetwork, anyRange), 0);
+        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMaxValueWithRange(mockedNetwork, anyRange, 5), 0);
+        assertEquals(HvdcRange.hvdcRangeTempValue, hvdcRange.getMinValueWithRange(mockedNetwork, anyRange, 5), 0);
     }
 
     @Test(expected = UnsupportedOperationException.class)

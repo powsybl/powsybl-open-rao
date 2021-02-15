@@ -15,6 +15,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -22,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 public class MultipleSensitivityProviderTest {
 
     @Test
-    public void test() {
+    public void testCommonFactors() {
 
         // mock network
         Network network = Mockito.mock(Network.class);
@@ -36,17 +37,75 @@ public class MultipleSensitivityProviderTest {
         SensitivityFactor factor2 = Mockito.mock(SensitivityFactor.class);
         SensitivityFactor factor3 = Mockito.mock(SensitivityFactor.class);
 
-        Mockito.when(provider1.getFactors(any())).thenReturn(Collections.singletonList(factor1));
-        Mockito.when(provider2.getFactors(any())).thenReturn(Arrays.asList(factor2, factor3));
+        Mockito.when(provider1.getCommonFactors(any())).thenReturn(Collections.singletonList(factor1));
+        Mockito.when(provider2.getCommonFactors(any())).thenReturn(Arrays.asList(factor2, factor3));
 
         MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
 
         // with one provider
         multipleSensitivityProvider.addProvider(provider1);
-        assertEquals(1, multipleSensitivityProvider.getFactors(network).size());
+        assertEquals(1, multipleSensitivityProvider.getCommonFactors(network).size());
 
         // with two provider
         multipleSensitivityProvider.addProvider(provider2);
-        assertEquals(3, multipleSensitivityProvider.getFactors(network).size());
+        assertEquals(3, multipleSensitivityProvider.getCommonFactors(network).size());
+    }
+
+    @Test
+    public void testAdditionalFactors() {
+
+        // mock network
+        Network network = Mockito.mock(Network.class);
+
+        // mock providers
+        CnecSensitivityProvider provider1 = Mockito.mock(CnecSensitivityProvider.class);
+        CnecSensitivityProvider provider2 = Mockito.mock(CnecSensitivityProvider.class);
+
+        // mock factors
+        SensitivityFactor factor1 = Mockito.mock(SensitivityFactor.class);
+        SensitivityFactor factor2 = Mockito.mock(SensitivityFactor.class);
+        SensitivityFactor factor3 = Mockito.mock(SensitivityFactor.class);
+
+        Mockito.when(provider1.getAdditionalFactors(any())).thenReturn(Collections.singletonList(factor1));
+        Mockito.when(provider2.getAdditionalFactors(any())).thenReturn(Arrays.asList(factor2, factor3));
+
+        MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
+
+        // with one provider
+        multipleSensitivityProvider.addProvider(provider1);
+        assertEquals(1, multipleSensitivityProvider.getAdditionalFactors(network).size());
+
+        // with two provider
+        multipleSensitivityProvider.addProvider(provider2);
+        assertEquals(3, multipleSensitivityProvider.getAdditionalFactors(network).size());
+    }
+
+    @Test
+    public void testAdditionalFactorsContingency() {
+
+        // mock network
+        Network network = Mockito.mock(Network.class);
+
+        // mock providers
+        CnecSensitivityProvider provider1 = Mockito.mock(CnecSensitivityProvider.class);
+        CnecSensitivityProvider provider2 = Mockito.mock(CnecSensitivityProvider.class);
+
+        // mock factors
+        SensitivityFactor factor1 = Mockito.mock(SensitivityFactor.class);
+        SensitivityFactor factor2 = Mockito.mock(SensitivityFactor.class);
+        SensitivityFactor factor3 = Mockito.mock(SensitivityFactor.class);
+
+        Mockito.when(provider1.getAdditionalFactors(any(), anyString())).thenReturn(Collections.singletonList(factor1));
+        Mockito.when(provider2.getAdditionalFactors(any(), anyString())).thenReturn(Arrays.asList(factor2, factor3));
+
+        MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
+
+        // with one provider
+        multipleSensitivityProvider.addProvider(provider1);
+        assertEquals(1, multipleSensitivityProvider.getAdditionalFactors(network, "co").size());
+
+        // with two provider
+        multipleSensitivityProvider.addProvider(provider2);
+        assertEquals(3, multipleSensitivityProvider.getAdditionalFactors(network, "co").size());
     }
 }

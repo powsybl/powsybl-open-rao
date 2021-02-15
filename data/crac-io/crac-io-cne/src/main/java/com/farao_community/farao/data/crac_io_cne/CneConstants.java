@@ -59,6 +59,7 @@ public final class CneConstants {
     public static final String B57_BUSINESS_TYPE = "B57";
     public static final String B88_BUSINESS_TYPE = "B88";
     // optimization_MarketObjectStatus.status
+    public static final String MONITORED_MARKET_STATUS = "A49";
     public static final String OPTIMIZED_MARKET_STATUS = "A52";
 
     /* Measurements */
@@ -77,6 +78,7 @@ public final class CneConstants {
     // unitSymbol
     public static final String AMP_UNIT_SYMBOL = "AMP";
     public static final String MAW_UNIT_SYMBOL = "MAW";
+    public static final String DIMENSIONLESS_SYMBOL = "C62";
     // positiveFlowIn
     public static final String DIRECT_POSITIVE_FLOW_IN = "A01";
     public static final String OPPOSITE_POSITIVE_FLOW_IN = "A02";

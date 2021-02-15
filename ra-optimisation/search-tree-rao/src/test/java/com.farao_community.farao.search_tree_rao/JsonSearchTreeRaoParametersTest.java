@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -26,10 +27,13 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
     public void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
-        parameters.getExtension(SearchTreeRaoParameters.class).setStopCriterion(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN);
+        parameters.getExtension(SearchTreeRaoParameters.class).setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE);
+        parameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
+        parameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoMinObjImprovement(983);
         parameters.getExtension(SearchTreeRaoParameters.class).setMaximumSearchDepth(10);
         parameters.getExtension(SearchTreeRaoParameters.class).setRelativeNetworkActionMinimumImpactThreshold(0.1);
         parameters.getExtension(SearchTreeRaoParameters.class).setAbsoluteNetworkActionMinimumImpactThreshold(20);
+        parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeRaPerTso(Map.of("RTE", 5));
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SearchTreeRaoParameters.json");
     }
 
@@ -50,10 +54,42 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update.json"));
         SearchTreeRaoParameters extension = parameters.getExtension(SearchTreeRaoParameters.class);
         assertNotNull(extension);
-        assertEquals(SearchTreeRaoParameters.StopCriterion.MAXIMUM_MARGIN, extension.getStopCriterion());
+        assertEquals(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE, extension.getPreventiveRaoStopCriterion());
         assertEquals(5, extension.getMaximumSearchDepth());
         assertEquals(0, extension.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(1, extension.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
-        assertEquals(8, extension.getLeavesInParallel());
+        assertEquals(8, extension.getPreventiveLeavesInParallel());
+        assertEquals(3, extension.getCurativeLeavesInParallel());
+        assertTrue(extension.getSkipNetworkActionsFarFromMostLimitingElement());
+        assertEquals(2, extension.getMaxNumberOfBoundariesForSkippingNetworkActions());
+
+        assertEquals(2, extension.getMaxCurativeTopoPerTso().size());
+        assertEquals(3, extension.getMaxCurativeTopoPerTso().get("RTE").intValue());
+        assertEquals(5, extension.getMaxCurativeTopoPerTso().get("Elia").intValue());
+        assertEquals(1, extension.getMaxCurativePstPerTso().size());
+        assertEquals(0, extension.getMaxCurativePstPerTso().get("Amprion").intValue());
+        assertEquals(2, extension.getMaxCurativeRaPerTso().size());
+        assertEquals(1, extension.getMaxCurativeRaPerTso().get("Tennet").intValue());
+        assertEquals(9, extension.getMaxCurativeRaPerTso().get("50Hz").intValue());
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testWrongStopCriterionError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersStopCriterionError.json"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void curativeRaoStopCriterionError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersCurativeStopCriterionError.json"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testMapTypeError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersMapError.json"));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testMapNegativeError() {
+        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersMapError2.json"));
     }
 }
