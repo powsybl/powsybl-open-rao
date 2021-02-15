@@ -17,7 +17,7 @@ import java.util.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class MultipleSensitivityProvider implements CnecSensitivityProvider {
-    private List<CnecSensitivityProvider> cnecSensitivityProviders;
+    private final List<CnecSensitivityProvider> cnecSensitivityProviders;
 
     MultipleSensitivityProvider() {
         cnecSensitivityProviders = new ArrayList<>();
@@ -47,11 +47,31 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network) {
+    public List<SensitivityFactor> getCommonFactors(Network network) {
         //using a set to avoid duplicates
         Set<SensitivityFactor> factors = new HashSet<>();
         for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
-            factors.addAll(cnecSensitivityProvider.getFactors(network));
+            factors.addAll(cnecSensitivityProvider.getCommonFactors(network));
+        }
+        return new ArrayList<>(factors);
+    }
+
+    @Override
+    public List<SensitivityFactor> getAdditionalFactors(Network network) {
+        //using a set to avoid duplicates
+        Set<SensitivityFactor> factors = new HashSet<>();
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            factors.addAll(cnecSensitivityProvider.getAdditionalFactors(network));
+        }
+        return new ArrayList<>(factors);
+    }
+
+    @Override
+    public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
+        //using a set to avoid duplicates
+        Set<SensitivityFactor> factors = new HashSet<>();
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            factors.addAll(cnecSensitivityProvider.getAdditionalFactors(network, contingencyId));
         }
         return new ArrayList<>(factors);
     }

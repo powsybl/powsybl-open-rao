@@ -41,7 +41,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network) {
+    public List<SensitivityFactor> getCommonFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
         Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
 

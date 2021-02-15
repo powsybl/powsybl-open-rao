@@ -14,9 +14,9 @@ import com.powsybl.iidm.network.Terminal;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PhaseTapChangerMock implements PhaseTapChanger {
-    private int lowTapPosition;
-    private int highTapPosition;
-    private int currentTapPosition;
+    private final int lowTapPosition;
+    private final int highTapPosition;
+    private final int currentTapPosition;
 
     public PhaseTapChangerMock(int lowTapPosition, int highTapPosition, int currentTapPosition) {
         this.lowTapPosition = lowTapPosition;

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.PhaseTapChangerStep;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PhaseTapChangerStepMock implements PhaseTapChangerStep {
-    private int tapPosition;
+    private final int tapPosition;
 
     public PhaseTapChangerStepMock(int tapPosition) {
         this.tapPosition = tapPosition;

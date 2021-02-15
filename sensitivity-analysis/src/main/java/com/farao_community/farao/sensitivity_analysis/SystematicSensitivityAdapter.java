@@ -22,7 +22,7 @@ final class SystematicSensitivityAdapter {
                                                                CnecSensitivityProvider cnecSensitivityProvider,
                                                                SensitivityAnalysisParameters sensitivityComputationParameters) {
         LOGGER.debug("Sensitivity analysis [start]");
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, cnecSensitivityProvider, cnecSensitivityProvider, sensitivityComputationParameters);
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, cnecSensitivityProvider, cnecSensitivityProvider.getContingencies(network), sensitivityComputationParameters);
         LOGGER.debug("Sensitivity analysis [end]");
         return new SystematicSensitivityResult(result);
     }
