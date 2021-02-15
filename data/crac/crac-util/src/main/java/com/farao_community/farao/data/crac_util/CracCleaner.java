@@ -85,6 +85,15 @@ public class CracCleaner {
         // list Contingencies whose NetworkElement is absent from the network or does not fit a valid Powsybl Contingency
         Set<Contingency> removedContingencies = new HashSet<>();
         for (Contingency contingency : crac.getContingencies()) {
+            if (!contingency.isSynchronized()) {
+                // It is necessary to skip XnodeContingencies that have not been synchronized since we don't know their
+                // network elements yet
+                // However, this means that we cannot clean out wrong XnodeContingencies
+                // When Crac import is refactored, we should be able to access the network at the time of creation
+                // of the contingencies. Then the network elements can be found from the start
+                // TODO : remove this when CRAC importer can use network
+                continue;
+            }
             contingency.getNetworkElements().forEach(networkElement -> {
                 Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
                 if (identifiable == null) {
@@ -137,6 +146,12 @@ public class CracCleaner {
         // remove On State usage rule with invalid state
         crac.getRangeActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
         crac.getNetworkActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
+
+         /* TODO : remove range actions with initial setpoints that do not respect their authorized range
+         This is not possible now since, for PstRange, we have to synchronize them first in order
+         to be able to access current / min / max setpoints
+         We can do this during CRAC refactoring (we should somehow merge CracCleaner.cleanCrac() & crac.synchronize() methods)
+         For now, these "wrong" range actions are only handled in the LinearOptimizer (in the CoreProblemFiller)*/
 
         // remove states and contingencies
         removedContingencies.forEach(contingency -> crac.removeContingency(contingency.getId()));
