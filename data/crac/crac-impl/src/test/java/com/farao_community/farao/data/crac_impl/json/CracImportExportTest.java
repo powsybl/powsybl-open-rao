@@ -48,7 +48,7 @@ public class CracImportExportTest {
         State postContingencyState = simpleCrac.addState(contingency, outageInstant);
         simpleCrac.addState("contingency2Id", "postContingencyId");
 
-        simpleCrac.addCnec("cnec1prev", "neId1", Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -500., null, BranchThresholdRule.ON_LEFT_SIDE)), preventiveState.getId());
+        simpleCrac.addCnec("cnec1prev", "neId1", "operator1", Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -500., null, BranchThresholdRule.ON_LEFT_SIDE)), preventiveState.getId());
 
         Set<BranchThreshold> thresholds = new HashSet<>();
         thresholds.add(new BranchThresholdImpl(Unit.PERCENT_IMAX, -0.3, null, BranchThresholdRule.ON_LEFT_SIDE));
@@ -56,15 +56,15 @@ public class CracImportExportTest {
         thresholds.add(new BranchThresholdImpl(Unit.AMPERE, -800., null, BranchThresholdRule.ON_HIGH_VOLTAGE_LEVEL));
         thresholds.add(new BranchThresholdImpl(Unit.AMPERE, null, 1200., BranchThresholdRule.ON_LOW_VOLTAGE_LEVEL));
 
-        simpleCrac.addCnec("cnec2prev", "neId2", thresholds, preventiveState.getId());
-        simpleCrac.addCnec("cnec1cur", "neId1", Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -800., null, BranchThresholdRule.ON_LEFT_SIDE)), postContingencyState.getId());
+        simpleCrac.addCnec("cnec2prev", "neId2", "operator2", thresholds, preventiveState.getId());
+        simpleCrac.addCnec("cnec1cur", "neId1", "operator2", Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -800., null, BranchThresholdRule.ON_LEFT_SIDE)), postContingencyState.getId());
 
         double positiveFrmMw = 20.0;
         BranchThreshold absoluteFlowThreshold = new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE);
         Set<BranchThreshold> thresholdSet = new HashSet<>();
         thresholdSet.add(absoluteFlowThreshold);
-        simpleCrac.addCnec("cnec3prevId", "cnec3prevName", "neId2", thresholdSet, preventiveState.getId(), positiveFrmMw, false, true);
-        simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", thresholdSet, preventiveState.getId(), 0.0, true, true);
+        simpleCrac.addCnec("cnec3prevId", "cnec3prevName", "neId2", "operator3", thresholdSet, preventiveState.getId(), positiveFrmMw, false, true);
+        simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", "operator4", thresholdSet, preventiveState.getId(), 0.0, true, true);
 
         List<UsageRule> usageRules = new ArrayList<>();
         usageRules.add(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant()));
@@ -155,6 +155,7 @@ public class CracImportExportTest {
         assertEquals("1", crac.getRangeAction("pstRangeId2").getGroupId().orElseThrow());
         assertTrue(crac.getRangeAction("pstRangeId").getGroupId().isEmpty());
         assertEquals(CENTERED_ON_ZERO, ((PstSetpoint) crac.getNetworkAction("pstSetpointId")).getRangeDefinition());
+        assertEquals("operator3", crac.getBranchCnec("cnec3prevId").getOperator());
 
         assertTrue(crac.getContingency("unsynced-xnode-cont-id") instanceof XnodeContingency);
         XnodeContingency xnodeContingency = (XnodeContingency) crac.getContingency("unsynced-xnode-cont-id");

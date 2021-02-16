@@ -424,6 +424,7 @@ public class CracFileTest {
         BranchCnec cnec = new FlowCnecImpl(
             "cnec",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
@@ -507,6 +508,7 @@ public class CracFileTest {
         BranchCnec cnec1 = new FlowCnecImpl(
             "cnec1",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(Optional.empty(), new Instant("initial-instant", 0)),
             true, false,
             Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
@@ -523,6 +525,7 @@ public class CracFileTest {
         BranchCnec cnec2 = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
@@ -552,6 +555,7 @@ public class CracFileTest {
         BranchCnec cnec = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
@@ -574,6 +578,7 @@ public class CracFileTest {
         BranchCnec cnec1 = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
@@ -585,6 +590,7 @@ public class CracFileTest {
         BranchCnec cnec2 = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
