@@ -24,15 +24,15 @@ public abstract class AbstractGlskRegisteredResource {
     /**
      * participation factor between generator and load. default = 1
      */
-    protected Optional<Double> participationFactor;
+    protected Double participationFactor;
     /**
      * max value for merit order
      */
-    protected Optional<Double> maximumCapacity;
+    protected Double maximumCapacity;
     /**
      * min value for merit order
      */
-    protected Optional<Double> minimumCapacity;
+    protected Double minimumCapacity;
 
     /**
      * @return getter country mrid
@@ -66,21 +66,21 @@ public abstract class AbstractGlskRegisteredResource {
      * @return get participation factor
      */
     public double getParticipationFactor() {
-        return participationFactor.orElse(0.0);
+        return participationFactor != null ? participationFactor : 0.0;
     }
 
     /**
      * @return getter max value
      */
     public Optional<Double> getMaximumCapacity() {
-        return maximumCapacity;
+        return Optional.ofNullable(maximumCapacity);
     }
 
     /**
      * @return getter min value
      */
     public Optional<Double> getMinimumCapacity() {
-        return minimumCapacity;
+        return Optional.ofNullable(minimumCapacity);
     }
 
     /**
