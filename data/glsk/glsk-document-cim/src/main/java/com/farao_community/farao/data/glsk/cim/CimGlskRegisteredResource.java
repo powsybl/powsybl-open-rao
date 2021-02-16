@@ -11,7 +11,6 @@ import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -22,12 +21,14 @@ public class CimGlskRegisteredResource extends AbstractGlskRegisteredResource {
         Objects.requireNonNull(element);
         this.mRID = element.getElementsByTagName("mRID").item(0).getTextContent();
         this.name = element.getElementsByTagName("name").item(0).getTextContent();
-        this.participationFactor = element.getElementsByTagName("sK_ResourceCapacity.defaultCapacity").getLength() == 0 ? Optional.empty() :
-            Optional.of(Double.parseDouble(element.getElementsByTagName("sK_ResourceCapacity.defaultCapacity").item(0).getTextContent()));
-        this.maximumCapacity = element.getElementsByTagName("resourceCapacity.maximumCapacity").getLength() == 0 ? Optional.empty() :
-            Optional.of(Double.parseDouble(element.getElementsByTagName("resourceCapacity.maximumCapacity").item(0).getTextContent()));
-        this.minimumCapacity = element.getElementsByTagName("resourceCapacity.minimumCapacity").getLength() == 0 ? Optional.empty() :
-            Optional.of(Double.parseDouble(element.getElementsByTagName("resourceCapacity.minimumCapacity").item(0).getTextContent()));
+        this.participationFactor = getContentAsDoubleOrNull(element, "sK_ResourceCapacity.defaultCapacity");
+        this.maximumCapacity = getContentAsDoubleOrNull(element, "resourceCapacity.maximumCapacity");
+        this.minimumCapacity = getContentAsDoubleOrNull(element, "resourceCapacity.minimumCapacity");
+    }
+
+    private Double getContentAsDoubleOrNull(Element baseElement, String tag) {
+        return baseElement.getElementsByTagName(tag).getLength() == 0 ? null :
+                Double.parseDouble(baseElement.getElementsByTagName(tag).item(0).getTextContent());
     }
 
     @Override
