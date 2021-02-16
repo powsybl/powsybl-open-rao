@@ -51,5 +51,11 @@ public class LoadflowProviderTest {
         List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
         assertEquals(2, factorList.size());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
+
+        // Common Crac contains 6 CNEC (2 network element) and 1 range action
+        String contingencyId = crac.getContingencies().iterator().next().getId();
+        factorList = provider.getAdditionalFactors(network, contingencyId);
+        assertEquals(2, factorList.size());
+        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
     }
 }
