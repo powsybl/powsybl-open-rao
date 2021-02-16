@@ -54,15 +54,18 @@ public class CseGlskPoint extends AbstractGlskPoint {
     }
 
     private void importMeritOrderBlock(Element blockElement, String businessType) {
-        // Merit order scaling is not symmetrical, a feature not yet released of PowSyBl.
         Element upBlockElement = (Element) blockElement.getElementsByTagName("Up").item(0);
         NodeList upNodesList = upBlockElement.getElementsByTagName("Node");
         for (int j = 0; j < upNodesList.getLength(); j++) {
+            // Up nodes have positive merit order position
+            // First is 1 last is N to be easily recognized in GLSK point conversion.
             glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID, j + 1));
         }
         Element downBlockElement = (Element) blockElement.getElementsByTagName("Down").item(0);
         NodeList downNodesList = downBlockElement.getElementsByTagName("Node");
         for (int j = 0; j < downNodesList.getLength(); j++) {
+            // Down nodes have negative merit order position
+            // First is -1 last is -N to be easily recognized in GLSK point conversion.
             glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID, -j - 1));
         }
     }
