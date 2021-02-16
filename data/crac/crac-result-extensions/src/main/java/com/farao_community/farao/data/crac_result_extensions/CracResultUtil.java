@@ -41,13 +41,11 @@ public final class CracResultUtil {
         CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
         if (resultVariantManager != null && cracExtension != null) { // Results from RAO
-            String raFromRaoMessage = String.format("Remedial Actions selected from RAO results for state %s.", state.getId());
-            LOGGER.debug(raFromRaoMessage);
+            LOGGER.debug("Remedial Actions selected from RAO results for state {}.", state.getId());
             String cracVariantId = findPostOptimVariant(resultVariantManager, cracExtension);
             applyRemedialActionsForState(network, crac, cracVariantId, state);
         } else { // Apply all RAs from CRAC
-            String allRaMessage = String.format("No RAO results found. All Remedial Actions from CRAC are applied for state %s.", state.getId());
-            LOGGER.debug(allRaMessage);
+            LOGGER.debug("No RAO results found. All Remedial Actions from CRAC are applied for state {}.", state.getId());
             applyAllNetworkRemedialActionsForState(network, crac, state);
         }
     }

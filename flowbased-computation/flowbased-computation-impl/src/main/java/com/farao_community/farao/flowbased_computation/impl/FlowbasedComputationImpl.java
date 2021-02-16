@@ -37,9 +37,9 @@ import java.util.stream.Collectors;
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
-    private String onOutageInstantId = "";
-    private String afterCraInstantId = "";
-    private final Logger logger = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
+    private String onOutageInstantId = null;
+    private String afterCraInstantId = null;
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
     public String getName() {
@@ -74,10 +74,10 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
         // Curative perimeter
-        if (!afterCraInstantId.equals("")) {
+        if (afterCraInstantId != null) {
             crac.getStatesFromInstant(afterCraInstantId).forEach(state -> handleCurativeState(state, network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
         } else {
-            logger.info("No curative computation in flowbased.");
+            LOGGER.info("No curative computation in flowbased.");
         }
 
         // Restore initial variant at the end of the computation
@@ -121,7 +121,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                             ptdfs.get(0).setPtdf(0.0);
                         }
                     } else {
-                        logger.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
+                        LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
                     }
                 });
 
@@ -140,12 +140,12 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         Collections.sort(seconds);
 
         if (instants.size() == 1) {
-            logger.info("Only Preventive instant is present for flowbased computation.");
+            LOGGER.info("Only Preventive instant is present for flowbased computation.");
             return;
         } else if (instants.size() == 2) {
-            logger.info("Only Preventive and On outage instants are present for flowbased computation.");
+            LOGGER.info("Only Preventive and On outage instants are present for flowbased computation.");
         } else if (instants.size() >= 3) {
-            logger.debug("All instants are defined for flowbased computation.");
+            LOGGER.debug("All instants are defined for flowbased computation.");
             // last instant
             afterCraInstantId = instantMap.get(seconds.get(seconds.size() - 1));
         } else {
