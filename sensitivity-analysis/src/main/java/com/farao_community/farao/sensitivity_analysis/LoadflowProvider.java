@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunction;
@@ -119,12 +120,12 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         if (Objects.isNull(contingencyId)) {
             networkElements = cnecs.stream()
                 .filter(cnec -> cnec.getState().getContingency().isEmpty())
-                .map(cnec -> cnec.getNetworkElement())
+                .map(Cnec::getNetworkElement)
                 .collect(Collectors.toSet());
         } else {
             networkElements = cnecs.stream()
                 .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
-                .map(cnec -> cnec.getNetworkElement())
+                .map(Cnec::getNetworkElement)
                 .collect(Collectors.toSet());
         }
         return networkElements.stream()
