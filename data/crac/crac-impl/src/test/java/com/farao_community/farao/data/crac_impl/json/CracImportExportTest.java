@@ -57,7 +57,7 @@ public class CracImportExportTest {
         thresholds.add(new BranchThresholdImpl(Unit.AMPERE, null, 1200., BranchThresholdRule.ON_LOW_VOLTAGE_LEVEL));
 
         simpleCrac.addCnec("cnec2prev", "neId2", "operator2", thresholds, preventiveState.getId());
-        simpleCrac.addCnec("cnec1cur", "neId1", "operator2", Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -800., null, BranchThresholdRule.ON_LEFT_SIDE)), postContingencyState.getId());
+        simpleCrac.addCnec("cnec1cur", "neId1", "operator1", Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -800., null, BranchThresholdRule.ON_LEFT_SIDE)), postContingencyState.getId());
 
         double positiveFrmMw = 20.0;
         BranchThreshold absoluteFlowThreshold = new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE);
@@ -155,7 +155,12 @@ public class CracImportExportTest {
         assertEquals("1", crac.getRangeAction("pstRangeId2").getGroupId().orElseThrow());
         assertTrue(crac.getRangeAction("pstRangeId").getGroupId().isEmpty());
         assertEquals(CENTERED_ON_ZERO, ((PstSetpoint) crac.getNetworkAction("pstSetpointId")).getRangeDefinition());
+
+        assertEquals("operator1", crac.getBranchCnec("cnec1prev").getOperator());
+        assertEquals("operator1", crac.getBranchCnec("cnec1cur").getOperator());
+        assertEquals("operator2", crac.getBranchCnec("cnec2prev").getOperator());
         assertEquals("operator3", crac.getBranchCnec("cnec3prevId").getOperator());
+        assertEquals("operator4", crac.getBranchCnec("cnec4prevId").getOperator());
 
         assertTrue(crac.getContingency("unsynced-xnode-cont-id") instanceof XnodeContingency);
         XnodeContingency xnodeContingency = (XnodeContingency) crac.getContingency("unsynced-xnode-cont-id");
