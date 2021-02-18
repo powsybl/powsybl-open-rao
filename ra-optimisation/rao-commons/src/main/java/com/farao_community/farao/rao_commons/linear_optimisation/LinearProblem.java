@@ -7,18 +7,21 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LinearProblem {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinearProblem.class);
 
     private static final String VARIABLE_SUFFIX = "variable";
     private static final String CONSTRAINT_SUFFIX = "constraint";
@@ -34,6 +37,7 @@ public class LinearProblem {
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
     private static final String MNEC_VIOLATION = "mnecviolation";
     private static final String MNEC_FLOW = "mnecflow";
+    private static final String MARGIN_DECREASE = "marginDecrease";
 
     public enum AbsExtension {
         POSITIVE,
@@ -246,13 +250,40 @@ public class LinearProblem {
         return solver.lookupConstraintOrNull(mnecFlowConstraintId(mnec, belowOrAboveThreshold));
     }
 
+    private String marginDecreaseVariableId(Cnec<?> cnec) {
+        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public MPVariable addMarginDecreaseBinaryVariable(Cnec<?> cnec) {
+        return solver.makeIntVar(0, 1, marginDecreaseVariableId(cnec));
+    }
+
+    public MPVariable getMarginDecreaseBinaryVariable(Cnec<?> cnec) {
+        return solver.lookupVariableOrNull(marginDecreaseVariableId(cnec));
+    }
+
+    private String marginDecreaseConstraintId(Cnec<?> cnec) {
+        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public MPConstraint addMarginDecreaseConstraint(double lb, double ub, Cnec<?> cnec) {
+        return solver.makeConstraint(lb, ub, marginDecreaseConstraintId(cnec));
+    }
+
+    public MPConstraint getMarginDecreaseConstraint(Cnec<?> cnec) {
+        return solver.lookupConstraintOrNull(marginDecreaseConstraintId(cnec));
+    }
+
     public double infinity() {
         return MPSolver.infinity();
     }
 
     public String solve() {
         // TODO: when needed, generate a FARAO-specific enum indicating the optimization status
-        return solver.solve().name();
+        LOGGER.debug("Solver solve [start]");
+        String status = solver.solve().name();
+        LOGGER.debug("Solver solve [end]");
+        return status;
     }
 
     public MPSolver getSolver() {

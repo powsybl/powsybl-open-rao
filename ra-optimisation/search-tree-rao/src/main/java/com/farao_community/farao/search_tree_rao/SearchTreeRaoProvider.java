@@ -71,6 +71,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         RaoUtil.initData(raoInput, parameters);
 
+        stateTree = new StateTree(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getCrac().getPreventiveState());
+
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {
             return optimizeOneStateOnly(raoInput, parameters);
@@ -89,7 +91,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
         // optimize preventive perimeter
         LOGGER.info("Preventive perimeter optimization [start]");
 
-        stateTree = new StateTree(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getCrac().getPreventiveState());
         Network network = raoInput.getNetwork();
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_STATE);
         network.getVariantManager().setWorkingVariant(PREVENTIVE_STATE);
@@ -104,7 +105,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         // optimize curative perimeters
         double preventiveOptimalCost = raoInput.getCrac().getExtension(CracResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId()).getCost();
         raoInput.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(preventiveRaoResult.getPostOptimVariantId());
-        TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(parameters.getExtension(SearchTreeRaoParameters.class), preventiveOptimalCost);
+        TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(parameters.getExtension(SearchTreeRaoParameters.class), preventiveOptimalCost, stateTree.getOperatorsNotSharingCras());
         CracResultUtil.applyRemedialActionsForState(raoInput.getNetwork(), raoInput.getCrac(), preventiveRaoResult.getPostOptimVariantId(), raoInput.getCrac().getPreventiveState());
         Map<State, RaoResult> curativeResults = optimizeCurativePerimeters(raoInput, parameters, curativeTreeParameters, network);
 
@@ -135,7 +136,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 raoParameters);
         TreeParameters treeParameters = raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState()) ?
                 TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)) :
-                TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
+                TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE, stateTree.getOperatorsNotSharingCras());
         new InitialSensitivityAnalysis(raoData).run();
         return new SearchTree().run(raoData, raoParameters, treeParameters);
     }

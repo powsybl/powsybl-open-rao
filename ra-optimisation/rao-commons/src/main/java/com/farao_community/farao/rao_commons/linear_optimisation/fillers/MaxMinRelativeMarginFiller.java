@@ -19,6 +19,7 @@ import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -27,11 +28,11 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
-    double negativeMarginObjectiveCoefficient;
-    double ptdfSumLowerBound;
+    private double negativeMarginObjectiveCoefficient;
+    private double ptdfSumLowerBound;
 
-    public MaxMinRelativeMarginFiller(Unit unit, double pstPenaltyCost, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
-        super(unit, pstPenaltyCost);
+    public MaxMinRelativeMarginFiller(Unit unit, double pstPenaltyCost, Set<String> operatorsNotSharingRas, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
+        super(unit, pstPenaltyCost, operatorsNotSharingRas);
         this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
         this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
@@ -102,6 +103,25 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
                 MPConstraint minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 minimumMarginPositive.setCoefficient(minRelMarginVariable, unitConversionCoefficient);
                 minimumMarginPositive.setCoefficient(flowVariable, 1 * marginCoef);
+            }
+        });
+
+        // For CNECs of operators not sharing RAs, deactivate their participation in the definition of the minimum margin
+        double bigM = 2 * getLargestCnecThreshold(raoData) / ptdfSumLowerBound;
+        getCnecsForOperatorsNotSharingRas(raoData).forEach(cnec -> {
+            MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
+            if (marginDecreaseBinaryVariable == null) {
+                throw new FaraoException(String.format("Margin decrease binary variable has not yet been created for Cnec %s", cnec.getId()));
+            }
+            MPConstraint minimumMarginNegative = linearProblem.getMinimumRelativeMarginConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+            if (minimumMarginNegative != null) {
+                minimumMarginNegative.setCoefficient(marginDecreaseBinaryVariable, bigM);
+                minimumMarginNegative.setUb(minimumMarginNegative.ub() + bigM);
+            }
+            MPConstraint minimumMarginPositive = linearProblem.getMinimumRelativeMarginConstraint(cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+            if (minimumMarginPositive != null) {
+                minimumMarginPositive.setCoefficient(marginDecreaseBinaryVariable, bigM);
+                minimumMarginPositive.setUb(minimumMarginPositive.ub() + bigM);
             }
         });
     }

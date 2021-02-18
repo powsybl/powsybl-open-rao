@@ -79,7 +79,7 @@ public class TreeParametersTest {
     @Test
     public void testCurative1() {
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
-        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0);
+        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0, null);
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
         compareCurativeParameters(treeParameters, searchTreeRaoParameters);
@@ -89,7 +89,7 @@ public class TreeParametersTest {
     public void testCurative2() {
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.SECURE);
         searchTreeRaoParameters.setCurativeLeavesInParallel(16);
-        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0);
+        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0, null);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(0, treeParameters.getTargetObjectiveValue(), 1e-6);
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
@@ -100,7 +100,7 @@ public class TreeParametersTest {
     public void testCurative3() {
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE);
         searchTreeRaoParameters.setCurativeRaoMinObjImprovement(35);
-        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0);
+        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0, null);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(65, treeParameters.getTargetObjectiveValue(), 1e-6);
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
@@ -112,19 +112,19 @@ public class TreeParametersTest {
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         searchTreeRaoParameters.setCurativeRaoMinObjImprovement(35);
 
-        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0);
+        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0, null);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(0, treeParameters.getTargetObjectiveValue(), 1e-6);
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
         compareCurativeParameters(treeParameters, searchTreeRaoParameters);
 
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 30.0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 30.0, null);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(-5, treeParameters.getTargetObjectiveValue(), 1e-6);
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
         compareCurativeParameters(treeParameters, searchTreeRaoParameters);
 
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, -50.0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, -50.0, null);
         assertEquals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, treeParameters.getStopCriterion());
         assertEquals(-85, treeParameters.getTargetObjectiveValue(), 1e-6);
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
@@ -140,7 +140,7 @@ public class TreeParametersTest {
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());
         assertEquals(1, treeParameters.getLeavesInParallel());
-        treeParameters = TreeParameters.buildForCurativePerimeter(null, 0.);
+        treeParameters = TreeParameters.buildForCurativePerimeter(null, 0., null);
         compareCommonParameters(treeParameters, defaultParameters);
         compareCurativeParameters(treeParameters, defaultParameters);
     }

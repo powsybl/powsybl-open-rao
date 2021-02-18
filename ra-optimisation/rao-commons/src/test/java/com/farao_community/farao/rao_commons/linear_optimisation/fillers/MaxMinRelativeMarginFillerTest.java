@@ -35,7 +35,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
-        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, 1000, 0.01);
+        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, null, 1000, 0.01);
         initRaoData(crac.getPreventiveState());
     }
 

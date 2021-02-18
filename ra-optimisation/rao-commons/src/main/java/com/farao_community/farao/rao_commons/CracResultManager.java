@@ -8,20 +8,22 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -92,6 +94,29 @@ public class CracResultManager {
             LOGGER.debug(String.format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
         }
         Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
+
+        String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
+        RaoParameters.ObjectiveFunction objFunction = raoData.getRaoParameters().getObjectiveFunction();
+        for (BranchCnec cnec : raoData.getCnecs()) {
+            MPVariable variable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
+            if (variable != null && variable.solutionValue() < 0.99) {
+                double initMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, objFunction.getUnit(), false);
+
+                double flow = linearProblem.getFlowVariable(cnec).solutionValue();
+                Optional<Double> minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
+                Optional<Double> maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
+                double margin1 = 1e10;
+                double margin2 = 1e10;
+                if (minFlow.isPresent()) {
+                    margin1 = flow - minFlow.get();
+                }
+                if (maxFlow.isPresent()) {
+                    margin2 = -flow + maxFlow.get();
+                }
+                double newMargin = Math.min(margin1, margin2);
+                LOGGER.debug("{} : {} ({})", cnec.getId(), variable.solutionValue(), -initMargin + newMargin);
+            }
+        }
 
         for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRangeAction) {

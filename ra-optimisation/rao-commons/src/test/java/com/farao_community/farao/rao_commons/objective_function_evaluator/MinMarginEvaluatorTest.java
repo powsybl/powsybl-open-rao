@@ -80,7 +80,7 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getCostInMegawatt() {
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, false);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, false);
         assertEquals(-787, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
         MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, true, 0.01);
@@ -89,7 +89,7 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getCostInAmpereWithMissingValues() {
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, false);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, false);
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
         MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, true, 0.01);
@@ -106,7 +106,7 @@ public class MinMarginEvaluatorTest {
                 .thenReturn(10.);
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec2stateCurativeContingency2")))
                 .thenReturn(10.);
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, false);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, false);
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
         MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, true, 0.01);
@@ -130,10 +130,10 @@ public class MinMarginEvaluatorTest {
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("mnec1basecase")))
                 .thenReturn(60.);
 
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, false);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, false);
         assertEquals(-787, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
-        minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, false);
+        minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, false);
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
@@ -152,7 +152,7 @@ public class MinMarginEvaluatorTest {
 
     @Test(expected = FaraoException.class)
     public void testRequirePtdfSumLb() {
-        new MinMarginEvaluator(Unit.MEGAWATT, true);
+        new MinMarginEvaluator(Unit.MEGAWATT, null, true);
     }
 
     @Test

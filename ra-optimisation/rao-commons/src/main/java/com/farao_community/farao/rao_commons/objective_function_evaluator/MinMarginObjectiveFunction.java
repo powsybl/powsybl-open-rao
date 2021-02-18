@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 
+import java.util.Set;
+
 /**
  * Represents an objective function divided into:
  * - functional cost: minimum margin
@@ -28,7 +30,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     private SensitivityFallbackOvercostEvaluator sensitivityFallbackOvercostEvaluator;
     private boolean relativeMargin;
 
-    public MinMarginObjectiveFunction(RaoParameters raoParameters) {
+    public MinMarginObjectiveFunction(RaoParameters raoParameters, Set<String> operatorsNotSharingRas) {
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
                 this.unit = Unit.AMPERE;
@@ -50,7 +52,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
                 throw new FaraoException(String.format("%s is not a MinMarginObjectiveFunction", raoParameters.getObjectiveFunction().toString()));
         }
 
-        this.minMarginEvaluator = new MinMarginEvaluator(this.unit, false);
+        this.minMarginEvaluator = new MinMarginEvaluator(this.unit, operatorsNotSharingRas, false);
         this.minRelativeMarginEvaluator = new MinMarginEvaluator(this.unit, true, raoParameters.getPtdfSumLowerBound());
         this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
