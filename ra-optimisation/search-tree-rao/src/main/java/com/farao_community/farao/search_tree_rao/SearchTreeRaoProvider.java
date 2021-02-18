@@ -43,7 +43,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
     private static final String PREVENTIVE_STATE = "PreventiveState";
     private static final String CURATIVE_STATE = "CurativeState";
-    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
+    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 20;
 
     private RaoData preventiveRaoData;
 
@@ -135,7 +135,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)) :
                 TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE, stateTree.getOperatorsNotSharingCras());
         new InitialSensitivityAnalysis(raoData).run();
-        return new SearchTree().run(raoData, raoParameters, treeParameters);
+        RaoResult raoResult = new SearchTree().run(raoData, raoParameters, treeParameters).join();
+        SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), raoResult.getPostOptimVariantId(), raoParameters.getObjectiveFunction().getUnit(), raoParameters.getObjectiveFunction().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+        return CompletableFuture.completedFuture(raoResult);
     }
 
     private SystematicSensitivityResult initialSensitivityAnalysisOnAllPerimeters(RaoInput raoInput, RaoParameters parameters) {

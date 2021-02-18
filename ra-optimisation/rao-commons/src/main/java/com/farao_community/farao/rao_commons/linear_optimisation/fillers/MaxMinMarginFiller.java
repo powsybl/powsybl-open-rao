@@ -91,7 +91,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         getCnecsForOperatorsNotSharingRas(raoData).forEach(linearProblem::addMarginDecreaseBinaryVariable);
     }
 
-    protected Stream<BranchCnec> getCnecsForOperatorsNotSharingRas(RaoData raoData) {
+    Stream<BranchCnec> getCnecsForOperatorsNotSharingRas(RaoData raoData) {
         return raoData.getCnecs().stream()
                 .filter(BranchCnec::isOptimized)
                 .filter(cnec -> operatorsNotSharingRas.contains(cnec.getOperator()));
@@ -110,7 +110,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
             return;
         }
 
-        // TODO : implement for relative margins
         double finalWorstMargin = getMinPossibleMarginOnPerimeter(raoData);
         // No margin should be smaller than the worst margin computed above, otherwise it means the linear optimizer or the search tree rao is degrading the situation
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
@@ -135,13 +134,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
             maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
 
             if (minFlow.isPresent()) {
-                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(initialMargin + minFlow.get(), linearProblem.infinity(), cnec);
+                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(initialMargin + minFlow.get(), linearProblem.infinity(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, 1);
                 decreaseMinmumThresholdMargin.setCoefficient(marginDecreaseBinaryVariable, worstMarginDecrease);
             }
 
             if (maxFlow.isPresent()) {
-                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(initialMargin - maxFlow.get(), linearProblem.infinity(), cnec);
+                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(initialMargin - maxFlow.get(), linearProblem.infinity(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, -1);
                 decreaseMinmumThresholdMargin.setCoefficient(marginDecreaseBinaryVariable, worstMarginDecrease);
             }
@@ -152,7 +151,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * Get the minimum possible margin on the current perimeter
      * It's the minimum between the worst margin in the preperimeter variant, and the one in the current leaf before range actions optimization
      */
-    private double getMinPossibleMarginOnPerimeter(RaoData raoData) {
+    double getMinPossibleMarginOnPerimeter(RaoData raoData) {
         RaoParameters.ObjectiveFunction objFunction = raoData.getRaoParameters().getObjectiveFunction();
 
         String preOptimVariantId = raoData.getCracVariantManager().getPreOptimVariantId();
@@ -163,12 +162,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         mostLimitingElement = RaoUtil.getMostLimitingElement(raoData.getCnecs(), prePerimeterVariantId, objFunction.getUnit(), false);
         double prePerimeterVariantWorstMargin = RaoUtil.computeCnecMargin(mostLimitingElement, prePerimeterVariantId, objFunction.getUnit(), false);
 
-        if (Double.isNaN(preOptimVariantWorstMargin)) {
-            // this happens at root leaf, since the working variant is not filled with flow results (results are the same as preperimeter results)
-            return prePerimeterVariantWorstMargin;
-        } else {
-            return Math.min(preOptimVariantWorstMargin, prePerimeterVariantWorstMargin);
-        }
+        return Math.min(preOptimVariantWorstMargin, prePerimeterVariantWorstMargin);
     }
 
     /**
@@ -243,17 +237,17 @@ public class MaxMinMarginFiller implements ProblemFiller {
         });
     }
 
-    protected double getLargestCnecThreshold(RaoData raoData) {
+    double getLargestCnecThreshold(RaoData raoData) {
         double max = 0;
         for (BranchCnec cnec : raoData.getCnecs()) {
             if (cnec.isOptimized()) {
                 Optional<Double> minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
                 if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
-                    max = minFlow.get();
+                    max = Math.abs(minFlow.get());
                 }
                 Optional<Double> maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
                 if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
-                    max = maxFlow.get();
+                    max = Math.abs(maxFlow.get());
                 }
             }
         }

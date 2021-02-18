@@ -262,16 +262,16 @@ public class LinearProblem {
         return solver.lookupVariableOrNull(marginDecreaseVariableId(cnec));
     }
 
-    private String marginDecreaseConstraintId(Cnec<?> cnec) {
-        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + SEPARATOR + CONSTRAINT_SUFFIX;
+    private String marginDecreaseConstraintId(Cnec<?> cnec, MarginExtension belowOrAboveThreshold) {
+        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public MPConstraint addMarginDecreaseConstraint(double lb, double ub, Cnec<?> cnec) {
-        return solver.makeConstraint(lb, ub, marginDecreaseConstraintId(cnec));
+    public MPConstraint addMarginDecreaseConstraint(double lb, double ub, Cnec<?> cnec, MarginExtension belowOrAboveThreshold) {
+        return solver.makeConstraint(lb, ub, marginDecreaseConstraintId(cnec, belowOrAboveThreshold));
     }
 
-    public MPConstraint getMarginDecreaseConstraint(Cnec<?> cnec) {
-        return solver.lookupConstraintOrNull(marginDecreaseConstraintId(cnec));
+    public MPConstraint getMarginDecreaseConstraint(Cnec<?> cnec, MarginExtension belowOrAboveThreshold) {
+        return solver.lookupConstraintOrNull(marginDecreaseConstraintId(cnec, belowOrAboveThreshold));
     }
 
     public double infinity() {

@@ -16,19 +16,19 @@ public class MPVariableMock extends MPVariable {
     private String name;
     private double lb;
     private double ub;
-    private boolean isBoolVariable;
+    private boolean isIntVariable;
     private double solutionValue;
 
     protected MPVariableMock() {
         super(0, false);
     }
 
-    public MPVariableMock(String pName, double pLb, double pUb, boolean pIsBoolVariable) {
+    public MPVariableMock(String pName, double pLb, double pUb, boolean pIsIntVariable) {
         super(0, false);
         this.name = pName;
         this.lb = pLb;
         this.ub = pUb;
-        this.isBoolVariable = pIsBoolVariable;
+        this.isIntVariable = pIsIntVariable;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class MPVariableMock extends MPVariable {
     }
 
     public void setRandomSolutionValue() {
-        if (isBoolVariable) {
+        if (isIntVariable) {
             this.solutionValue = 1;
         } else {
             this.solutionValue = Math.random() * (ub - lb) + lb;
