@@ -36,6 +36,12 @@
       "id": "N-1",
       "seconds": 60,
       "name": "N-1"
+    },
+    {
+      "type": "Instant",
+      "id": "AfterCra",
+      "seconds": 1200,
+      "name": "AfterCra"
     }
   ],
   "contingencies": [
@@ -60,9 +66,75 @@
       "id": "N-1 FR-BE-N-1",
       "contingency": "N-1 FR-BE",
       "instant": "N-1"
+    },
+    {
+      "type": "simple-state",
+      "id": "N-1 FR-BE-AfterCra",
+      "contingency": "N-1 FR-BE",
+      "instant": "AfterCra"
     }
   ],
   "cnecs": [
+    {
+      "type": "flow-cnec",
+      "id": "FR-BE - AfterCra - N-1 FR-BE",
+      "name": "Tieline FR-BE AfterCra",
+      "networkElement": "FR-BE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-AfterCra"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "FR-DE - AfterCra - N-1 FR-BE",
+      "name": "Tieline FR-DE AfterCra",
+      "networkElement": "FR-DE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-AfterCra"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "BE-NL - AfterCra - N-1 FR-BE",
+      "name": "Tieline BE-NL AfterCra",
+      "networkElement": "BE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-AfterCra"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "DE-NL - AfterCra - N-1 FR-BE",
+      "name": "Tieline DE-NL AfterCra",
+      "networkElement": "DE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-AfterCra"
+    },
     {
       "type": "flow-cnec",
       "id": "FR-BE - N-1 - N-1 FR-BE",
@@ -183,5 +255,30 @@
       "optimized": false,
       "state": "none-N"
     }
-  ]
+  ],
+  "rangeActions" : [],
+  "networkActions" : [ {
+    "type" : "complex-network-action",
+    "id" : "Open line FR-BE",
+    "name" : "Open line FR-BE",
+    "operator" : "FR",
+    "usageRules" : [ {
+      "type" : "free-to-use",
+      "usageMethod" : "FORCED",
+      "instant" : "AfterCra"
+    } ],
+    "elementaryNetworkActions" : [ {
+      "type" : "topology",
+      "id" : "Open line FR-BE",
+      "name" : "Open line FR-BE",
+      "operator" : "FR",
+      "usageRules" : [ {
+        "type" : "free-to-use",
+        "usageMethod" : "FORCED",
+        "instant" : "AfterCra"
+      } ],
+      "networkElements" : [ "FR-BE" ],
+      "actionType" : "OPEN"
+    } ]
+  } ]
 }

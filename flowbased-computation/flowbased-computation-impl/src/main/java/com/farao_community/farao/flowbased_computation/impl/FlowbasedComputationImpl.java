@@ -6,13 +6,11 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_result_extensions.CracResultUtil;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
@@ -21,7 +19,10 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInter
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -35,7 +36,10 @@ import java.util.stream.Collectors;
 @AutoService(FlowbasedComputationProvider.class)
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
-    static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
+    private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
+    private String onOutageInstantId = null;
+    private String afterCraInstantId = null;
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
     public String getName() {
@@ -54,6 +58,8 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         Objects.requireNonNull(glsk);
         Objects.requireNonNull(parameters);
 
+        sortInstants(crac.getInstants());
+
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
                 .withPtdfSensitivities(glsk, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT))
@@ -67,10 +73,87 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
+        // Curative perimeter
+        if (afterCraInstantId != null) {
+            crac.getStatesFromInstant(afterCraInstantId).forEach(state -> handleCurativeState(state, network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
+        } else {
+            LOGGER.info("No curative computation in flowbased.");
+        }
+
         // Restore initial variant at the end of the computation
         network.getVariantManager().setWorkingVariant(initialNetworkId);
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
+    }
+
+    private void handleCurativeState(State state, Network network, Crac crac, ZonalData<LinearGlsk> glsk, SensitivityAnalysisParameters sensitivityAnalysisParameters, DataDomain flowbasedDomain) {
+
+        String variantName = "State" + state.getId();
+        network.getVariantManager().cloneVariant(INITIAL_STATE_WITH_PRA, variantName);
+        network.getVariantManager().setWorkingVariant(variantName);
+        CracResultUtil.applyRemedialActionsForState(network, crac, state);
+
+        SystematicSensitivityInterface newSystematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withDefaultParameters(sensitivityAnalysisParameters)
+            .withPtdfSensitivities(glsk, crac.getBranchCnecs(state), Collections.singleton(Unit.MEGAWATT))
+            .build();
+        SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
+        Optional<Contingency> contingencyOptional = state.getContingency();
+        String contingencyId = "";
+        if (contingencyOptional.isPresent()) {
+            contingencyId = contingencyOptional.get().getId();
+        } else {
+            throw new FaraoException("Contingency shouldn't be empty in curative.");
+        }
+
+        List<DataMonitoredBranch> dataMonitoredBranches = flowbasedDomain.findContingencyById(contingencyId).getDataMonitoredBranches();
+        dataMonitoredBranches.forEach(dataMonitoredBranch -> {
+            if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
+                BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
+                dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
+                glsk.getDataPerZone().forEach((zone, zonalData) -> {
+                    List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
+                    if (ptdfs.size() == 1) {
+                        double newPtdf = sensitivityResult.getSensitivityOnFlow(zonalData, cnec);
+                        if (!Double.isNaN(newPtdf)) {
+                            ptdfs.get(0).setPtdf(newPtdf);
+                        } else {
+                            ptdfs.get(0).setPtdf(0.0);
+                        }
+                    } else {
+                        LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
+                    }
+                });
+
+            }
+        });
+
+    }
+
+    private void sortInstants(Set<Instant> instants) {
+        Map<Integer, String> instantMap = new HashMap<>();
+
+        for (Instant instant : instants) {
+            instantMap.put(instant.getSeconds(), instant.getId());
+        }
+        List<Integer> seconds = new ArrayList<>(instantMap.keySet());
+        Collections.sort(seconds);
+
+        if (instants.size() == 1) {
+            LOGGER.info("Only Preventive instant is present for flowbased computation.");
+            return;
+        } else if (instants.size() == 2) {
+            LOGGER.info("Only Preventive and On outage instants are present for flowbased computation.");
+        } else if (instants.size() >= 3) {
+            LOGGER.debug("All instants are defined for flowbased computation.");
+            // last instant
+            afterCraInstantId = instantMap.get(seconds.get(seconds.size() - 1));
+        } else {
+            throw new FaraoException("No instant defined for flowbased computation");
+        }
+        // 2nd instant
+        onOutageInstantId = instantMap.get(seconds.get(1));
+
     }
 
     private DataDomain buildFlowbasedDomain(Crac crac, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
@@ -122,6 +205,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         return new DataMonitoredBranch(
                 cnec.getId(),
                 cnec.getName(),
+                cnec.getState().getInstant().getId(),
                 cnec.getNetworkElement().getId(),
                 Math.min(maxThreshold, -minThreshold),
                 zeroIfNaN(result.getReferenceFlow(cnec)),

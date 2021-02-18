@@ -23,7 +23,7 @@ public class DataPtdfPerCountry {
     @NotNull(message = "dataPtdfPerCountry.country.empty")
     private final String country;
     @NotNull(message = "dataPtdfPerCountry.ptdf.empty")
-    private final double ptdf;
+    private double ptdf;
 
     @ConstructorProperties({"country", "ptdf"})
     public DataPtdfPerCountry(final String country, final double ptdf) {
