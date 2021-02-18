@@ -11,7 +11,6 @@ import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -22,10 +21,12 @@ public class UcteGlskRegisteredResource extends AbstractGlskRegisteredResource {
         Objects.requireNonNull(element);
         this.name = ((Element) element.getElementsByTagName("NodeName").item(0)).getAttribute("v");
         this.mRID = this.name;
-        this.participationFactor = element.getElementsByTagName("Factor").getLength() == 0 ? Optional.empty() :
-            Optional.of(Double.parseDouble(((Element) element.getElementsByTagName("Factor").item(0)).getAttribute("v")));
-        this.maximumCapacity = Optional.empty();
-        this.minimumCapacity = Optional.empty();
+        this.participationFactor = getContentAsDoubleOrNull(element, "Factor");
+    }
+
+    private Double getContentAsDoubleOrNull(Element baseElement, String tag) {
+        return baseElement.getElementsByTagName(tag).getLength() == 0 ? null :
+                Double.parseDouble(((Element) baseElement.getElementsByTagName(tag).item(0)).getAttribute("v"));
     }
 
     @Override
