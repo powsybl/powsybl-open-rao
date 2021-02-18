@@ -58,6 +58,7 @@ public final class CommonCracCreation {
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
             .setInstant(stateBasecase.getInstant())
             .optimized()
+            .setOperator("operator1")
             .add();
 
         crac.newBranchCnec()
@@ -67,6 +68,7 @@ public final class CommonCracCreation {
             .setInstant(stateCurativeContingency1.getInstant())
             .setContingency(stateCurativeContingency1.getContingency().orElseThrow())
             .optimized()
+            .setOperator("operator1")
             .add();
 
         crac.newBranchCnec()
@@ -76,6 +78,7 @@ public final class CommonCracCreation {
             .setInstant(stateCurativeContingency2.getInstant())
             .setContingency(stateCurativeContingency2.getContingency().orElseThrow())
             .optimized()
+            .setOperator("operator1")
             .add();
 
         crac.newBranchCnec()
@@ -85,6 +88,7 @@ public final class CommonCracCreation {
             .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).setMax(0.3).add()
             .setInstant(stateBasecase.getInstant())
             .optimized()
+            .setOperator("operator2")
             .add();
 
         crac.newBranchCnec()
@@ -95,6 +99,7 @@ public final class CommonCracCreation {
             .setInstant(stateCurativeContingency1.getInstant())
             .setContingency(stateCurativeContingency1.getContingency().orElseThrow())
             .optimized()
+            .setOperator("operator2")
             .add();
 
         crac.newBranchCnec()
@@ -105,6 +110,7 @@ public final class CommonCracCreation {
             .setInstant(stateCurativeContingency2.getInstant())
             .setContingency(stateCurativeContingency2.getContingency().orElseThrow())
             .optimized()
+            .setOperator("operator2")
             .add();
 
         return crac;

@@ -107,7 +107,8 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         });
 
         // For CNECs of operators not sharing RAs, deactivate their participation in the definition of the minimum margin
-        double bigM = 2 * getLargestCnecThreshold(raoData) / ptdfSumLowerBound;
+        // TODO : a large part of the code is common with MaxMinMarginFiller -> maybe merge the two fillers
+        double bigM = 2 * getLargestCnecThreshold(raoData);
         getCnecsForOperatorsNotSharingRas(raoData).forEach(cnec -> {
             MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
             if (marginDecreaseBinaryVariable == null) {
