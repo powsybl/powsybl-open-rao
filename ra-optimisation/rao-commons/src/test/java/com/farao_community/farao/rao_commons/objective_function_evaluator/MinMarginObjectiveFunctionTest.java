@@ -51,7 +51,7 @@ public class MinMarginObjectiveFunctionTest {
         crac = CommonCracCreation.create();
         this.unit = unit;
         minMarginEvaluator = new MinMarginEvaluator(unit, null, false);
-        minRelativeMarginEvaluator = new MinMarginEvaluator(unit, true, ptdfSumLowerBound);
+        minRelativeMarginEvaluator = new MinMarginEvaluator(unit, null, true, ptdfSumLowerBound);
         mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
 
         RaoParameters raoParameters = new RaoParameters();

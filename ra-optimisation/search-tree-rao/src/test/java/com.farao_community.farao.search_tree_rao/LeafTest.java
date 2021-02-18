@@ -138,7 +138,7 @@ public class LeafTest {
         Mockito.when(costEvaluatorMock.getCost(raoData)).thenAnswer(invocationOnMock -> 0.);
         Mockito.when(costEvaluatorMock.getFunctionalCost(raoData)).thenAnswer(invocationOnMock -> 0.);
         Mockito.when(costEvaluatorMock.getVirtualCost(raoData)).thenAnswer(invocationOnMock -> 0.);
-        Mockito.when(RaoUtil.createObjectiveFunction(raoParameters, any())).thenAnswer(invocationOnMock -> costEvaluatorMock);
+        Mockito.when(RaoUtil.createObjectiveFunction(raoParameters, treeParameters.getOperatorsNotSharingRas())).thenAnswer(invocationOnMock -> costEvaluatorMock);
     }
 
     private void mockSensitivityComputation() {

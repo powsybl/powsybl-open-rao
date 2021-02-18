@@ -39,22 +39,21 @@ public class MinMarginEvaluator implements CostEvaluator {
     Set<String> operatorsNotSharingRas;
 
     public MinMarginEvaluator(Unit unit, Set<String> operatorsNotSharingRas, boolean relative) {
+        this(unit, operatorsNotSharingRas, relative, 0);
+    }
+
+    public MinMarginEvaluator(Unit unit, Set<String> operatorsNotSharingRas, boolean relative, double ptdfSumLowerBound) {
+        if (relative && ptdfSumLowerBound <= 0) {
+            throw new FaraoException("Please provide a (strictly positive) PTDF sum lower bound for relative margins.");
+        }
         this.unit = unit;
+        this.relative = relative;
+        this.ptdfSumLowerBound = ptdfSumLowerBound;
         if (!Objects.isNull(operatorsNotSharingRas)) {
             this.operatorsNotSharingRas = operatorsNotSharingRas;
         } else {
             this.operatorsNotSharingRas = new HashSet<>();
         }
-        this.relative = relative;
-        if (relative) {
-            throw new FaraoException("Please provide a PTDF sum lower bound for relative margins.");
-        }
-    }
-
-    public MinMarginEvaluator(Unit unit, boolean relative, double ptdfSumLowerBound) {
-        this.unit = unit;
-        this.relative = relative;
-        this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 
     @Override
@@ -81,7 +80,7 @@ public class MinMarginEvaluator implements CostEvaluator {
         return raoData.getCnecs().stream().filter(BranchCnec::isOptimized).
             map(cnec -> {
                 double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), Side.LEFT, MEGAWATT) * getRelativeCoef(cnec, initialVariantId);
-                if (operatorsNotSharingRas != null && operatorsNotSharingRas.contains(cnec.getOperator())) {
+                if (operatorsNotSharingRas.contains(cnec.getOperator())) {
                     // do not consider this kind of cnecs if they have a better margin than before optimization
                     double prePerimeterMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, MEGAWATT, relative);
                     if (newMargin >= prePerimeterMargin) {

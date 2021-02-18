@@ -83,7 +83,7 @@ public class MinMarginEvaluatorTest {
         MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, false);
         assertEquals(-787, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, true, 0.01);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, true, 0.01);
         assertEquals(-1968, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
@@ -92,7 +92,7 @@ public class MinMarginEvaluatorTest {
         MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, false);
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, true, 0.01);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, true, 0.01);
         assertEquals(-3600, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
@@ -109,7 +109,7 @@ public class MinMarginEvaluatorTest {
         MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, false);
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
 
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, true, 0.01);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, true, 0.01);
         assertEquals(-3600, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
@@ -146,7 +146,7 @@ public class MinMarginEvaluatorTest {
         setPtdfSum("cnec2stateCurativeContingency1", 0.006);
         setPtdfSum("cnec2stateCurativeContingency2", 0.006);
 
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, true, 0.02);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, true, 0.02);
         assertEquals(-39363, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
@@ -157,7 +157,7 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void testMarginsInAmpereFromMegawattConversion() {
-        List<Double> margins = new MinMarginEvaluator(Unit.MEGAWATT, true, 0.001).getMarginsInAmpereFromMegawattConversion(raoData);
+        List<Double> margins = new MinMarginEvaluator(Unit.MEGAWATT, null, true, 0.001).getMarginsInAmpereFromMegawattConversion(raoData);
         assertEquals(2, margins.size());
         assertEquals(2990, margins.get(0), DOUBLE_TOLERANCE);
         assertEquals(4254, margins.get(1), DOUBLE_TOLERANCE);

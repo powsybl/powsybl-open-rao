@@ -56,7 +56,7 @@ public final class TreeParameters {
     }
 
     private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, int leavesInParallel) {
-        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, new HashMap<>(), new HashMap<>(), new HashMap<>(), leavesInParallel, new HashSet<>());
+        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, new HashMap<>(), new HashMap<>(), new HashMap<>(), leavesInParallel, null);
     }
 
     public StopCriterion getStopCriterion() {
