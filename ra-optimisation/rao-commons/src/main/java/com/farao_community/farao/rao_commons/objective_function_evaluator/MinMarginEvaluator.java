@@ -83,7 +83,8 @@ public class MinMarginEvaluator implements CostEvaluator {
                 if (operatorsNotToOptimize.contains(cnec.getOperator())) {
                     // do not consider this kind of cnecs if they have a better margin than before optimization
                     double prePerimeterMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, MEGAWATT, relative);
-                    if (newMargin >= prePerimeterMargin) {
+                    // at rootleaf evaluation, preperimeter margin is null. so compute real margins !
+                    if (!Double.isNaN(prePerimeterMargin) && newMargin >= prePerimeterMargin) {
                         return Double.MAX_VALUE;
                     }
                 }
@@ -96,11 +97,12 @@ public class MinMarginEvaluator implements CostEvaluator {
         String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
         List<Double> marginsInAmpere = raoData.getCnecs().stream().filter(BranchCnec::isOptimized).
             map(cnec -> {
-                // do not consider this kind of cnecs if they have a better margin than before optimization
                 double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Side.LEFT, Unit.AMPERE) * getRelativeCoef(cnec, initialVariantId);
                 if (operatorsNotToOptimize.contains(cnec.getOperator())) {
+                    // do not consider this kind of cnecs if they have a better margin than before optimization
                     double prePerimeterMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, Unit.AMPERE, relative);
-                    if (newMargin >= prePerimeterMargin) {
+                    // at rootleaf evaluation, preperimeter margin is null. so compute real margins !
+                    if (!Double.isNaN(prePerimeterMargin) && newMargin >= prePerimeterMargin) {
                         return Double.MAX_VALUE;
                     }
                 }
