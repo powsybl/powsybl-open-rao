@@ -110,7 +110,6 @@ public final class CommonCracCreation {
             .setInstant(stateCurativeContingency2.getInstant())
             .setContingency(stateCurativeContingency2.getContingency().orElseThrow())
             .optimized()
-            .setOperator("operator2")
             .add();
 
         return crac;

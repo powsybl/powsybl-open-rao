@@ -17,6 +17,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -76,6 +77,10 @@ public class SearchTree {
         } else if (stopCriterionReached(rootLeaf)) {
             SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_END_TREE);
             return CompletableFuture.completedFuture(buildOutput());
+        } else if (noCnecToOptimize(rootLeaf, treeParameters.getOperatorsNotToOptimize())) {
+            LOGGER.info("All CNECs belong to operators that are not being optimized. The search tree will stop.");
+            SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_END_TREE);
+            return CompletableFuture.completedFuture(buildOutput());
         } else {
             SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_DURING_TREE);
         }
@@ -97,6 +102,17 @@ public class SearchTree {
         SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Best leaf");
         SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins, NUMBER_LOGGED_ELEMENTS_END_TREE);
         return CompletableFuture.completedFuture(buildOutput());
+    }
+
+    /**
+     * If all CNECs belong to operators not being optimized, then we can stop optimization after root leaf evaluation
+     */
+    boolean noCnecToOptimize(Leaf leaf, Set<String> operatorsNotToOptimize) {
+        if (Objects.isNull(operatorsNotToOptimize)) {
+            return false;
+        } else {
+            return leaf.getRaoData().getCnecs().stream().noneMatch(cnec -> !operatorsNotToOptimize.contains(cnec.getOperator()));
+        }
     }
 
     private void iterateOnTree() {

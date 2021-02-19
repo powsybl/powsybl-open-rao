@@ -81,7 +81,8 @@ public class StateTree {
         Set<String> tsos = crac.getBranchCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
         tsos.addAll(crac.getRangeActions().stream().map(RangeAction::getOperator).collect(Collectors.toSet()));
         tsos.addAll(crac.getNetworkActions().stream().map(NetworkAction::getOperator).collect(Collectors.toSet()));
-        return tsos.stream().filter(tso -> !tsoHasCra(tso, crac, network, optimizedStates)).collect(Collectors.toSet());
+        // <!> If a CNEC's operator is null, filter it out of the list of operators not sharing CRAs
+        return tsos.stream().filter(tso -> !Objects.isNull(tso) && !tsoHasCra(tso, crac, network, optimizedStates)).collect(Collectors.toSet());
     }
 
     static boolean tsoHasCra(String tso, Crac crac, Network network, Set<State> optimizedStates) {
