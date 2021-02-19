@@ -201,7 +201,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertNotNull(mnecBelowThreshold);
     }
 
-    private void setupOperatorsNotSharingRas() {
+    private void setupOperatorsNotToOptimize() {
         // Add a cnec
         crac.newBranchCnec().setId("Line NL - N - preventive")
                 .newNetworkElement().setId("NNL1AA1  NNL2AA1  1").add()
@@ -214,27 +214,27 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         cnecNl = crac.getBranchCnec("Line NL - N - preventive");
         cnecFr = crac.getBranchCnec("Tieline BE FR - N - preventive");
 
-        // Create filler with new operatorsNotSharingRas and fill
+        // Create filler with new operatorsNotToOptimize and fill
         maxMinMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, Collections.singleton("NL"));
     }
 
     @Test
-    public void testGetCnecsForOperatorsNotSharingRas1() {
+    public void testGetCnecsForOperatorsNoToOptimize1() {
         initRaoData(crac.getPreventiveState());
-        assertEquals(0, maxMinMarginFiller.getCnecsForOperatorsNotSharingRas(raoData).count());
+        assertEquals(0, maxMinMarginFiller.getCnecsForOperatorsNotToOptimize(raoData).count());
     }
 
     @Test
-    public void testGetCnecsForOperatorsNotSharingRas2() {
-        setupOperatorsNotSharingRas();
+    public void testGetCnecsForOperatorsNoToOptimize2() {
+        setupOperatorsNotToOptimize();
         initRaoData(crac.getPreventiveState());
-        assertEquals(1, maxMinMarginFiller.getCnecsForOperatorsNotSharingRas(raoData).count());
-        assertSame(cnecNl, maxMinMarginFiller.getCnecsForOperatorsNotSharingRas(raoData).collect(Collectors.toList()).get(0));
+        assertEquals(1, maxMinMarginFiller.getCnecsForOperatorsNotToOptimize(raoData).count());
+        assertSame(cnecNl, maxMinMarginFiller.getCnecsForOperatorsNotToOptimize(raoData).collect(Collectors.toList()).get(0));
     }
 
     @Test
     public void testGetMinPossibleMarginOnPerimeter() {
-        setupOperatorsNotSharingRas();
+        setupOperatorsNotToOptimize();
         initRaoData(crac.getPreventiveState());
         cnecFr.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(600); // wit a threshold of 750
         cnecNl.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(500); // wit a threshold of 800
@@ -249,14 +249,14 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void testGetLargestCnecThreshold1() {
-        setupOperatorsNotSharingRas();
+        setupOperatorsNotToOptimize();
         initRaoData(crac.getPreventiveState());
         assertEquals(1000, maxMinMarginFiller.getLargestCnecThreshold(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testGetLargestCnecThreshold2() {
-        setupOperatorsNotSharingRas();
+        setupOperatorsNotToOptimize();
         crac.newBranchCnec().setId("Pure MNEC")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(3000.0).setMin(-3000.).setUnit(Unit.MEGAWATT).add()
@@ -275,8 +275,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testExcludeCnecsNotSharingRasBinaryVar() {
-        setupOperatorsNotSharingRas();
+    public void testCnecsNotToOptimizeBinaryVar() {
+        setupOperatorsNotToOptimize();
         initRaoData(crac.getPreventiveState());
         cnecFr.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(600); // wit a threshold of +750/-750
         cnecNl.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(400); // wit a threshold of +800/-1000
@@ -313,8 +313,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testExcludeCnecsNotSharingInMinMargin() {
-        setupOperatorsNotSharingRas();
+    public void testExcludeCnecsNotToOptimizeInMinMargin() {
+        setupOperatorsNotToOptimize();
         initRaoData(crac.getPreventiveState());
         cnecFr.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(600); // wit a threshold of +750/-750
         cnecNl.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(400); // wit a threshold of +800/-1000

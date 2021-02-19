@@ -89,7 +89,7 @@ public class MinMarginEvaluatorTest {
     }
 
     @Test
-    public void getCostInMegawattSkipOperatorsNotSharingRas() {
+    public void getCostInMegawattSkipOperatorsNotToOptimize() {
         // cnec1 has a margin of 1400 MW "after optim"
         // cnec2 has a margin of 787 MW "after optim"
         BranchCnec cnec1 = raoData.getCrac().getBranchCnec("cnec1basecase");
@@ -151,7 +151,7 @@ public class MinMarginEvaluatorTest {
     }
 
     @Test
-    public void getCostInAmpereSkipOperatorsNotSharingRas() {
+    public void getCostInAmpereSkipOperatorsNotToOptimize() {
         // cnec1 has a margin of 2249 A "after optim"
         // cnec2 has a margin of 1440 A "after optim"
         BranchCnec cnec1 = raoData.getCrac().getBranchCnec("cnec1basecase");

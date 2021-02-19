@@ -47,6 +47,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_TOPO_PER_TSO = new HashMap<>();
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_PST_PER_TSO = new HashMap<>();
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
+    static final boolean DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS = true;
 
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
@@ -61,6 +62,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Map<String, Integer> maxCurativeTopoPerTso = DEFAULT_MAX_CURATIVE_TOPO_PER_TSO;
     private Map<String, Integer> maxCurativePstPerTso = DEFAULT_MAX_CURATIVE_PST_PER_TSO;
     private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
+    private boolean curativeRaoOptimizeOperatorsNotSharingCras = DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS;
 
     @Override
     public String getName() {
@@ -197,5 +199,13 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         } else {
             this.maxCurativeRaPerTso = maxCurativeRaPerTso;
         }
+    }
+
+    public boolean getCurativeRaoOptimizeOperatorsNotSharingCras() {
+        return curativeRaoOptimizeOperatorsNotSharingCras;
+    }
+
+    public void setCurativeRaoOptimizeOperatorsNotSharingCras(boolean curativeRaoOptimizeOperatorsNotSharingCras) {
+        this.curativeRaoOptimizeOperatorsNotSharingCras = curativeRaoOptimizeOperatorsNotSharingCras;
     }
 }

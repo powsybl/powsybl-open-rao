@@ -36,13 +36,13 @@ public final class TreeParameters {
     private Map<String, Integer> maxTopoPerTso;
     private Map<String, Integer> maxPstPerTso;
     private Map<String, Integer> maxRaPerTso;
-    private Set<String> operatorsNotSharingRas;
+    private Set<String> operatorsNotToOptimize;
 
     private TreeParameters() {
     }
 
     private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue,
-                           Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso, int leavesInParallel, Set<String> operatorsNotSharingRas) {
+                           Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso, int leavesInParallel, Set<String> operatorsNotToOptimize) {
         this.maximumSearchDepth = searchTreeRaoParameters.getMaximumSearchDepth();
         this.relativeNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold();
         this.absoluteNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold();
@@ -52,7 +52,7 @@ public final class TreeParameters {
         this.maxTopoPerTso = maxTopoPerTso;
         this.maxPstPerTso = maxPstPerTso;
         this.maxRaPerTso = maxRaPerTso;
-        this.operatorsNotSharingRas = operatorsNotSharingRas;
+        this.operatorsNotToOptimize = operatorsNotToOptimize;
     }
 
     private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, int leavesInParallel) {
@@ -105,8 +105,9 @@ public final class TreeParameters {
                 throw new FaraoException("Unknown curative RAO stop criterion: " + parameters.getCurativeRaoStopCriterion());
         }
         return new TreeParameters(parameters, stopCriterion, targetObjectiveValue,
-                parameters.getMaxCurativeTopoPerTso(), parameters.getMaxCurativePstPerTso(), parameters.getMaxCurativeRaPerTso(),
-                parameters.getCurativeLeavesInParallel(), operatorsNotSharingRas);
+                parameters.getMaxCurativeTopoPerTso(), parameters.getMaxCurativePstPerTso(),
+                parameters.getMaxCurativeRaPerTso(), parameters.getCurativeLeavesInParallel(),
+                parameters.getCurativeRaoOptimizeOperatorsNotSharingCras() ? null : operatorsNotSharingRas);
     }
 
     public int getMaximumSearchDepth() {
@@ -137,7 +138,7 @@ public final class TreeParameters {
         return maxRaPerTso;
     }
 
-    public Set<String> getOperatorsNotSharingRas() {
-        return operatorsNotSharingRas;
+    public Set<String> getOperatorsNotToOptimize() {
+        return operatorsNotToOptimize;
     }
 }

@@ -36,15 +36,15 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     private Unit unit;
     private double pstPenaltyCost;
-    private Set<String> operatorsNotSharingRas;
+    private Set<String> operatorsNotToOptimize;
 
-    public MaxMinMarginFiller(Unit unit, double pstPenaltyCost, Set<String> operatorsNotSharingRas) {
+    public MaxMinMarginFiller(Unit unit, double pstPenaltyCost, Set<String> operatorsNotToOptimize) {
         this.unit = unit;
         this.pstPenaltyCost = pstPenaltyCost;
-        if (!Objects.isNull(operatorsNotSharingRas)) {
-            this.operatorsNotSharingRas = operatorsNotSharingRas;
+        if (!Objects.isNull(operatorsNotToOptimize)) {
+            this.operatorsNotToOptimize = operatorsNotToOptimize;
         } else {
-            this.operatorsNotSharingRas = new HashSet<>();
+            this.operatorsNotToOptimize = new HashSet<>();
         }
     }
 
@@ -88,13 +88,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * The variable should be equal to 1 if there is a decrease
      */
     private void buildMarginDecreaseVariables(RaoData raoData, LinearProblem linearProblem) {
-        getCnecsForOperatorsNotSharingRas(raoData).forEach(linearProblem::addMarginDecreaseBinaryVariable);
+        getCnecsForOperatorsNotToOptimize(raoData).forEach(linearProblem::addMarginDecreaseBinaryVariable);
     }
 
-    Stream<BranchCnec> getCnecsForOperatorsNotSharingRas(RaoData raoData) {
+    Stream<BranchCnec> getCnecsForOperatorsNotToOptimize(RaoData raoData) {
         return raoData.getCnecs().stream()
                 .filter(BranchCnec::isOptimized)
-                .filter(cnec -> operatorsNotSharingRas.contains(cnec.getOperator()));
+                .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()));
     }
 
     /**
@@ -106,7 +106,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * bigM is computed to be equal to the maximum margin decrease possible, which is the amount that decreases the cnec's margin to the initial worst margin
      */
     private void buildMarginDecreaseConstraints(RaoData raoData, LinearProblem linearProblem) {
-        if (operatorsNotSharingRas.isEmpty()) {
+        if (operatorsNotToOptimize.isEmpty()) {
             return;
         }
 
@@ -115,7 +115,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
         RaoParameters.ObjectiveFunction objFunction = raoData.getRaoParameters().getObjectiveFunction();
         String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
-        getCnecsForOperatorsNotSharingRas(raoData).forEach(cnec -> {
+        getCnecsForOperatorsNotToOptimize(raoData).forEach(cnec -> {
             double initialMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, objFunction.getUnit(), false);
             double worstMarginDecrease = initialMargin - finalWorstMargin; // cant' be negative !
 
@@ -219,7 +219,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         // Of course this can be restrictive as CNECs can have hypothetically infinite margins if they are monitored in one direction only
         // But we'll suppose for now that the minimum margin can never be greater than 1 * the largest threshold
         double bigM = 2 * getLargestCnecThreshold(raoData);
-        getCnecsForOperatorsNotSharingRas(raoData).forEach(cnec -> {
+        getCnecsForOperatorsNotToOptimize(raoData).forEach(cnec -> {
             MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
             if (marginDecreaseBinaryVariable == null) {
                 throw new FaraoException(String.format("Margin decrease binary variable has not yet been created for Cnec %s", cnec.getId()));

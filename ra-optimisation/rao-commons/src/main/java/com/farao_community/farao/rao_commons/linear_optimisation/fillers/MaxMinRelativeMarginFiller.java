@@ -31,8 +31,8 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     private double negativeMarginObjectiveCoefficient;
     private double ptdfSumLowerBound;
 
-    public MaxMinRelativeMarginFiller(Unit unit, double pstPenaltyCost, Set<String> operatorsNotSharingRas, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
-        super(unit, pstPenaltyCost, operatorsNotSharingRas);
+    public MaxMinRelativeMarginFiller(Unit unit, double pstPenaltyCost, Set<String> operatorsNotToOptimize, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
+        super(unit, pstPenaltyCost, operatorsNotToOptimize);
         this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
         this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
@@ -109,7 +109,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         // For CNECs of operators not sharing RAs, deactivate their participation in the definition of the minimum margin
         // TODO : a large part of the code is common with MaxMinMarginFiller -> maybe merge the two fillers
         double bigM = 2 * getLargestCnecThreshold(raoData);
-        getCnecsForOperatorsNotSharingRas(raoData).forEach(cnec -> {
+        getCnecsForOperatorsNotToOptimize(raoData).forEach(cnec -> {
             MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
             if (marginDecreaseBinaryVariable == null) {
                 throw new FaraoException(String.format("Margin decrease binary variable has not yet been created for Cnec %s", cnec.getId()));

@@ -36,23 +36,23 @@ public class MinMarginEvaluator implements CostEvaluator {
     private Unit unit;
     private boolean relative;
     private double ptdfSumLowerBound;
-    Set<String> operatorsNotSharingRas;
+    Set<String> operatorsNotToOptimize;
 
-    public MinMarginEvaluator(Unit unit, Set<String> operatorsNotSharingRas, boolean relative) {
-        this(unit, operatorsNotSharingRas, relative, 0);
+    public MinMarginEvaluator(Unit unit, Set<String> operatorsNotToOptimize, boolean relative) {
+        this(unit, operatorsNotToOptimize, relative, 0);
     }
 
-    public MinMarginEvaluator(Unit unit, Set<String> operatorsNotSharingRas, boolean relative, double ptdfSumLowerBound) {
+    public MinMarginEvaluator(Unit unit, Set<String> operatorsNotToOptimize, boolean relative, double ptdfSumLowerBound) {
         if (relative && ptdfSumLowerBound <= 0) {
             throw new FaraoException("Please provide a (strictly positive) PTDF sum lower bound for relative margins.");
         }
         this.unit = unit;
         this.relative = relative;
         this.ptdfSumLowerBound = ptdfSumLowerBound;
-        if (!Objects.isNull(operatorsNotSharingRas)) {
-            this.operatorsNotSharingRas = operatorsNotSharingRas;
+        if (!Objects.isNull(operatorsNotToOptimize)) {
+            this.operatorsNotToOptimize = operatorsNotToOptimize;
         } else {
-            this.operatorsNotSharingRas = new HashSet<>();
+            this.operatorsNotToOptimize = new HashSet<>();
         }
     }
 
@@ -80,7 +80,7 @@ public class MinMarginEvaluator implements CostEvaluator {
         return raoData.getCnecs().stream().filter(BranchCnec::isOptimized).
             map(cnec -> {
                 double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), Side.LEFT, MEGAWATT) * getRelativeCoef(cnec, initialVariantId);
-                if (operatorsNotSharingRas.contains(cnec.getOperator())) {
+                if (operatorsNotToOptimize.contains(cnec.getOperator())) {
                     // do not consider this kind of cnecs if they have a better margin than before optimization
                     double prePerimeterMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, MEGAWATT, relative);
                     if (newMargin >= prePerimeterMargin) {
@@ -98,7 +98,7 @@ public class MinMarginEvaluator implements CostEvaluator {
             map(cnec -> {
                 // do not consider this kind of cnecs if they have a better margin than before optimization
                 double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Side.LEFT, Unit.AMPERE) * getRelativeCoef(cnec, initialVariantId);
-                if (operatorsNotSharingRas.contains(cnec.getOperator())) {
+                if (operatorsNotToOptimize.contains(cnec.getOperator())) {
                     double prePerimeterMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, Unit.AMPERE, relative);
                     if (newMargin >= prePerimeterMargin) {
                         return Double.MAX_VALUE;

@@ -30,7 +30,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     private SensitivityFallbackOvercostEvaluator sensitivityFallbackOvercostEvaluator;
     private boolean relativeMargin;
 
-    public MinMarginObjectiveFunction(RaoParameters raoParameters, Set<String> operatorsNotSharingRas) {
+    public MinMarginObjectiveFunction(RaoParameters raoParameters, Set<String> operatorsNotToOptimize) {
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
                 this.unit = Unit.AMPERE;
@@ -52,8 +52,8 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
                 throw new FaraoException(String.format("%s is not a MinMarginObjectiveFunction", raoParameters.getObjectiveFunction().toString()));
         }
 
-        this.minMarginEvaluator = new MinMarginEvaluator(this.unit, operatorsNotSharingRas, false);
-        this.minRelativeMarginEvaluator = new MinMarginEvaluator(this.unit, operatorsNotSharingRas, true, raoParameters.getPtdfSumLowerBound());
+        this.minMarginEvaluator = new MinMarginEvaluator(this.unit, operatorsNotToOptimize, false);
+        this.minRelativeMarginEvaluator = new MinMarginEvaluator(this.unit, operatorsNotToOptimize, true, raoParameters.getPtdfSumLowerBound());
         this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
         this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowAcceptableAugmentation());

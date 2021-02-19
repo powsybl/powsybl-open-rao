@@ -155,7 +155,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertEquals(7, linearProblem.getSolver().numConstraints());
     }
 
-    private void setupOperatorsNotSharingRas() {
+    private void setupOperatorsNotToOptimize() {
         // Add a cnec
         crac.newBranchCnec().setId("Line NL - N - preventive")
                 .newNetworkElement().setId("NNL1AA1  NNL2AA1  1").add()
@@ -168,13 +168,13 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         cnecNl = crac.getBranchCnec("Line NL - N - preventive");
         cnecFr = crac.getBranchCnec("Tieline BE FR - N - preventive");
 
-        // Create filler with new operatorsNotSharingRas and fill
+        // Create filler with new operatorsNotToOptimize and fill
         maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, Collections.singleton("NL"), 1000, 0.01);
     }
 
     @Test
-    public void testExcludeCnecsNotSharingRasBinaryVar() {
-        setupOperatorsNotSharingRas();
+    public void testCnecsNotToOptimizeBinaryVar() {
+        setupOperatorsNotToOptimize();
         initRaoData(crac.getPreventiveState());
         cnecFr.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(600); // with a threshold of +750/-750
         cnecNl.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(400); // with a threshold of +800/-1000
@@ -211,8 +211,8 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testExcludeCnecsNotSharingInMinMargin() {
-        setupOperatorsNotSharingRas();
+    public void testExcludeCnecsNotToOptimizeInMinMargin() {
+        setupOperatorsNotToOptimize();
         initRaoData(crac.getPreventiveState());
         cnecFr.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(600); // with a threshold of +750/-750
         cnecNl.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(400); // with a threshold of +800/-1000
