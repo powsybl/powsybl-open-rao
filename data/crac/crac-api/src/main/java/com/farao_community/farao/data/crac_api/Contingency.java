@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Contingency extends Identifiable<Contingency>, Synchronizable {
+public interface Continsgency extends Identifiable<Contingency>, Synchronizable, Contingency{
 
     /**
      * Gather all the network elements present in the contingency. It returns a set because network

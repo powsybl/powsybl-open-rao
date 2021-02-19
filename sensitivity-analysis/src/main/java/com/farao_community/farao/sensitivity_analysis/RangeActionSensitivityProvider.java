@@ -36,7 +36,19 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
 
     @Override
     public List<SensitivityFactor> getAdditionalFactors(Network network) {
-        return getAdditionalFactors(network, null);
+        List<SensitivityFactor> factors = new ArrayList<>();
+        List<SensitivityVariable> sensitivityVariables = rangeActions.stream()
+            .map(ra -> rangeActionToSensitivityVariables(network, ra))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+
+        // Case no RangeAction is provided, we still want to get reference flows
+        if (sensitivityVariables.isEmpty()) {
+            sensitivityVariables.add(defaultSensitivityVariable(network));
+        }
+
+        getSensitivityFunctions(network, null).forEach(fun -> sensitivityVariables.forEach(var -> factors.add(sensitivityFactorMapping(fun, var))));
+        return factors;
     }
 
     @Override
