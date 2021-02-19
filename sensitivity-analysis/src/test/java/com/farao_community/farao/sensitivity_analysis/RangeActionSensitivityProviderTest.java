@@ -123,7 +123,7 @@ public class RangeActionSensitivityProviderTest {
                 crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC (2 network elements) and 1 range action
-        List<SensitivityFactor> factorList = provider.getCommonFactors(network);
+        List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
         assertEquals(4, factorList.size());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
@@ -138,7 +138,7 @@ public class RangeActionSensitivityProviderTest {
                 crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC and 1 range action
-        List<SensitivityFactor> factorList = provider.getCommonFactors(network);
+        List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
         assertEquals(4, factorList.size());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
@@ -153,7 +153,7 @@ public class RangeActionSensitivityProviderTest {
                 crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC and 1 range action
-        List<SensitivityFactor> factorList = provider.getCommonFactors(network);
+        List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
         assertEquals(4, factorList.size());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerInjectionIncrease).count());
         //assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerInjectionIncrease).count());
