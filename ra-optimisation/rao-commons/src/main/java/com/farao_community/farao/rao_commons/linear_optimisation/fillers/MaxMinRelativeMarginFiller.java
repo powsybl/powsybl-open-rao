@@ -79,7 +79,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
         raoData.getCnecs().stream().filter(BranchCnec::isOptimized).forEach(cnec -> {
-            double marginCoef = 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getAbsolutePtdfSum(), ptdfSumLowerBound);
+            double relMarginCoef = Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getAbsolutePtdfSum(), ptdfSumLowerBound);
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {
@@ -94,14 +94,14 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
             if (minFlow.isPresent()) {
                 MPConstraint minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-                minimumMarginNegative.setCoefficient(minRelMarginVariable, unitConversionCoefficient);
-                minimumMarginNegative.setCoefficient(flowVariable, -1 * marginCoef);
+                minimumMarginNegative.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
+                minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
                 MPConstraint minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-                minimumMarginPositive.setCoefficient(minRelMarginVariable, unitConversionCoefficient);
-                minimumMarginPositive.setCoefficient(flowVariable, 1 * marginCoef);
+                minimumMarginPositive.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
+                minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         });
     }
