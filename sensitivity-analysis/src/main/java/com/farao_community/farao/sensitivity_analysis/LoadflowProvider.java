@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunction;
@@ -41,11 +42,22 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     @Override
     public List<SensitivityFactor> getCommonFactors(Network network) {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<SensitivityFactor> getAdditionalFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
-
         SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
+        getSensitivityFunctions(network, null).forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
+        return factors;
+    }
 
-        getSensitivityFunctions(network).forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
+    @Override
+    public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
+        getSensitivityFunctions(network, contingencyId).forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
         return factors;
     }
 
@@ -106,9 +118,19 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         return "Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName();
     }
 
-    List<SensitivityFunction> getSensitivityFunctions(Network network) {
-        Set<NetworkElement> networkElements = new HashSet<>();
-        cnecs.forEach(cnec -> networkElements.add(cnec.getNetworkElement()));
+    List<SensitivityFunction> getSensitivityFunctions(Network network, String contingencyId) {
+        Set<NetworkElement> networkElements;
+        if (Objects.isNull(contingencyId)) {
+            networkElements = cnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isEmpty())
+                .map(Cnec::getNetworkElement)
+                .collect(Collectors.toSet());
+        } else {
+            networkElements = cnecs.stream()
+                .filter(cnec -> !cnec.getState().getContingency().isEmpty() && cnec.getState().getContingency().get().getId().equals(contingencyId))
+                .map(Cnec::getNetworkElement)
+                .collect(Collectors.toSet());
+        }
         return networkElements.stream()
             .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
             .flatMap(Collection::stream)
