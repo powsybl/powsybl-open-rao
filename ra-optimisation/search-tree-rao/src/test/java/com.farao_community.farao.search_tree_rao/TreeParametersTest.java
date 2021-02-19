@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -62,6 +63,7 @@ public class TreeParametersTest {
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());
         assertEquals(4, treeParameters.getLeavesInParallel());
+        assertNull(treeParameters.getOperatorsNotSharingRas());
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
 
         searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE);
@@ -73,14 +75,17 @@ public class TreeParametersTest {
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());
         assertEquals(8, treeParameters.getLeavesInParallel());
+        assertNull(treeParameters.getOperatorsNotSharingRas());
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
     }
 
     @Test
     public void testCurative1() {
+        Set<String> operators = Set.of("NL", "AT");
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
-        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0, null);
+        TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, 100.0, operators);
         assertEquals(TreeParameters.StopCriterion.MIN_OBJECTIVE, treeParameters.getStopCriterion());
+        assertSame(operators, treeParameters.getOperatorsNotSharingRas());
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
         compareCurativeParameters(treeParameters, searchTreeRaoParameters);
     }

@@ -136,6 +136,7 @@ public final class CommonCracCreation {
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
 
         PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
+        pstRangeAction.setOperator("operator1");
         pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3-curative")));
         crac.addRangeAction(pstRangeAction);
 

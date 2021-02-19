@@ -280,10 +280,7 @@ public class LinearProblem {
 
     public String solve() {
         // TODO: when needed, generate a FARAO-specific enum indicating the optimization status
-        LOGGER.debug("Solver solve [start]");
-        String status = solver.solve().name();
-        LOGGER.debug("Solver solve [end]");
-        return status;
+        return solver.solve().name();
     }
 
     public MPSolver getSolver() {
