@@ -7,6 +7,7 @@
     "dataMonitoredBranches" : [ {
       "id" : "FLOWBASED_DATA_DOMAIN_BRANCH_1",
       "name" : "France-Germany interconnector",
+      "instantId" : "preventive",
       "branchId" : "FFR2AA1  DDE3AA1  1",
       "fmax" : 2300.0,
       "fref" : 123456.0,
@@ -33,6 +34,7 @@
     "dataMonitoredBranches" : [ {
       "id" : "FLOWBASED_DATA_DOMAIN_BRANCH_N_1_1",
       "name" : "France-Germany interconnector",
+      "instantId" : "onOutage",
       "branchId" : "FFR2AA1  DDE3AA1  1",
       "fmax" : 2300.0,
       "fref" : 1234567.0,
