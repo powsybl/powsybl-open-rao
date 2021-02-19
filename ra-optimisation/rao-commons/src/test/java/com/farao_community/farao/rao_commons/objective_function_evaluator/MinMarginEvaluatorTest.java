@@ -122,11 +122,6 @@ public class MinMarginEvaluatorTest {
         Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("cnec1basecase"))).thenReturn(1000.);
         assertEquals(-500, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         assertEquals(-500 / 0.5, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
-        // case 5 : pre-perimeter flow is NaN (like at root leaf) => cost is equal to worst margin (cnec2)
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(Double.NaN);
-        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("cnec1basecase"))).thenReturn(200.);
-        assertEquals(-787, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-787 / 0.4, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -189,11 +184,6 @@ public class MinMarginEvaluatorTest {
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec1basecase"))).thenReturn(1300.);
         assertEquals(-979, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         assertEquals(-979 / 0.5, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
-        // case 5 : pre-perimeter flow is NaN (like at root leaf) => cost is equal to worst margin (cnec2)
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(Double.NaN);
-        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec1basecase"))).thenReturn(30.);
-        assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-1440 / 0.4, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test

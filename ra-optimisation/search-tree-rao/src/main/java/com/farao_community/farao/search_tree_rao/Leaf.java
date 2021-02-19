@@ -176,6 +176,9 @@ class Leaf {
             LOGGER.debug("Evaluating leaf...");
             raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
             raoData.getCracResultManager().fillCnecResultWithFlows();
+            if (isRoot()) {
+                raoData.getCracResultManager().fillPreperimeterCnecResultWithFlows();
+            }
 
             if (raoParameters.isRaoWithLoopFlowLimitation()) {
                 LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,

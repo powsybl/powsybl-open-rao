@@ -151,8 +151,16 @@ public class CracResultManager {
     }
 
     public void fillCnecResultWithFlows() {
+        fillCnecResultWithFlows(raoData.getWorkingVariantId());
+    }
+
+    public void fillPreperimeterCnecResultWithFlows() {
+        fillCnecResultWithFlows(raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId());
+    }
+
+    private void fillCnecResultWithFlows(String variantId) {
         raoData.getCnecs().forEach(cnec -> {
-            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
             cnecResult.setFlowInMW(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec));
             cnecResult.setFlowInA(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec));
             cnecResult.setThresholds(cnec);

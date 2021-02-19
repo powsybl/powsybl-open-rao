@@ -43,7 +43,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
     private static final String PREVENTIVE_STATE = "PreventiveState";
     private static final String CURATIVE_STATE = "CurativeState";
-    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 20;
+    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 500;
 
     private RaoData preventiveRaoData;
 
