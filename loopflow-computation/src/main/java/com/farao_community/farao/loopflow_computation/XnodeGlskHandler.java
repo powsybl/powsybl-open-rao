@@ -41,8 +41,8 @@ class XnodeGlskHandler {
     */
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XnodeGlskHandler.class);
-    private Map<Contingency, List<String>> invalidGlskPerContingency;
 
+    private Map<Contingency, List<String>> invalidGlskPerContingency;
     private ZonalData<LinearGlsk> glskZonalData;
     private Set<BranchCnec> branchCnecSet;
     private Network network;
@@ -71,9 +71,7 @@ class XnodeGlskHandler {
             filter(s -> s.getContingency().isPresent()).
             map(s -> s.getContingency().get()).
             distinct().
-            forEach(contingency -> {
-                outputMap.put(contingency, getInvalidGlsksForContingency(contingency));
-            });
+            forEach(contingency -> outputMap.put(contingency, getInvalidGlsksForContingency(contingency)));
 
         return outputMap;
     }
@@ -102,8 +100,8 @@ class XnodeGlskHandler {
         // if the linearGlsk is on a virtualHub present in the contingency, the linearGlsk is invalid
         String glskInjectionId = linearGlsk.getGLSKs().keySet().iterator().next();
 
-        if (network.getIdentifiable(glskInjectionId) instanceof Injection) {
-            Injection injection = (Injection) network.getIdentifiable(glskInjectionId);
+        if (network.getIdentifiable(glskInjectionId) instanceof Injection<?>) {
+            Injection<?> injection = (Injection) network.getIdentifiable(glskInjectionId);
             AssignedVirtualHub virtualHub = (AssignedVirtualHub) injection.getExtension(AssignedVirtualHub.class);
 
             if (virtualHub != null && xNodesInContingency.contains(virtualHub.getNodeName())) {
