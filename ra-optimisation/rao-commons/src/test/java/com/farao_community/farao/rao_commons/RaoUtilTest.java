@@ -273,8 +273,7 @@ public class RaoUtilTest {
         assertEquals(-100, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, true), DOUBLE_TOLERANCE);
     }
 
-    @Test
-    public void testGetMostLimitingElement() {
+    private Set<BranchCnec> setUpMockCnecs(boolean optimized, boolean monitored) {
         // CNEC 1 : margin of 1000 MW / 100 A, sum of PTDFs = 1
         CnecResult result1 = Mockito.mock(CnecResult.class);
         Mockito.when(result1.getAbsolutePtdfSum()).thenReturn(1.0);
@@ -282,7 +281,9 @@ public class RaoUtilTest {
         Mockito.when(resultExtension1.getVariant(Mockito.anyString())).thenReturn(result1);
 
         BranchCnec cnec1 = Mockito.mock(BranchCnec.class);
-        Mockito.when(cnec1.isOptimized()).thenReturn(true);
+        Mockito.when(cnec1.getId()).thenReturn("cnec1");
+        Mockito.when(cnec1.isOptimized()).thenReturn(optimized);
+        Mockito.when(cnec1.isMonitored()).thenReturn(monitored);
         Mockito.when(cnec1.getExtension(Mockito.eq(CnecResultExtension.class))).thenReturn(resultExtension1);
         Mockito.when(cnec1.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(1000.);
         Mockito.when(cnec1.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(100.);
@@ -294,20 +295,41 @@ public class RaoUtilTest {
         Mockito.when(resultExtension2.getVariant(Mockito.anyString())).thenReturn(result2);
 
         BranchCnec cnec2 = Mockito.mock(BranchCnec.class);
-        Mockito.when(cnec2.isOptimized()).thenReturn(true);
+        Mockito.when(cnec2.getId()).thenReturn("cnec2");
+        Mockito.when(cnec2.isOptimized()).thenReturn(optimized);
+        Mockito.when(cnec2.isMonitored()).thenReturn(monitored);
         Mockito.when(cnec2.getExtension(Mockito.eq(CnecResultExtension.class))).thenReturn(resultExtension2);
         Mockito.when(cnec2.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(600.);
         Mockito.when(cnec2.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(60.);
 
-        Set<BranchCnec> cnecs = Sets.newHashSet(cnec1, cnec2);
+         return Sets.newHashSet(cnec1, cnec2);
+    }
+
+    @Test
+    public void testGetMostLimitingElement() {
+        Set<BranchCnec> cnecs = setUpMockCnecs(true, false);
 
         // In absolute margins, cnec2 is most limiting
-        assertSame(cnec2, RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, false));
-        assertSame(cnec2, RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, false));
+        assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, false).getId());
+        assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, false).getId());
 
         // In relative margins, cnec1 is most limiting
-        assertSame(cnec1, RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, true));
-        assertSame(cnec1, RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, true));
+        assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, true).getId());
+        assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, true).getId());
+    }
+
+    @Test
+    public void testGetMostLimitingElementOnPureMnecs() {
+        Set<BranchCnec> cnecs = setUpMockCnecs(false, true);
+
+        // In absolute margins, cnec2 is most limiting
+        assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, false).getId());
+        assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, false).getId());
+
+        // In relative margins, cnec1 is most limiting
+        assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, true).getId());
+        assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, true).getId());
+
     }
 }
 
