@@ -56,14 +56,14 @@ public class RaoUtilTest {
         crac = CommonCracCreation.create();
         variantId = network.getVariantManager().getWorkingVariantId();
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
-            .withNetworkVariantId(variantId)
-            .build();
+                .withNetworkVariantId(variantId)
+                .build();
         raoParameters = new RaoParameters();
     }
 
     private void addGlskProvider() {
         ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
-            .getZonalGlsks(network);
+                .getZonalGlsks(network);
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
                 .withNetworkVariantId(variantId)
                 .withGlskProvider(glskProvider)
@@ -160,7 +160,7 @@ public class RaoUtilTest {
     @Test
     public void testCreationOfSystematicSensitivityInterface() {
         raoParameters.setRaoWithLoopFlowLimitation(true);
-        raoData =  new RaoData(
+        raoData = new RaoData(
                 raoInput.getNetwork(),
                 raoInput.getCrac(),
                 raoInput.getOptimizedState(),
@@ -173,7 +173,7 @@ public class RaoUtilTest {
         assertNotNull(systematicSensitivityInterface);
     }
 
-    @Test (expected = FaraoException.class)
+    @Test(expected = FaraoException.class)
     public void testExceptionForGlskOnRelativeMargin() {
         raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("FR:ES", "ES:PT")));
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
@@ -207,7 +207,7 @@ public class RaoUtilTest {
         raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("FR/BE", "BE/NL", "FR/DE", "DE/NL")));
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        raoData =  new RaoData(
+        raoData = new RaoData(
                 raoInput.getNetwork(),
                 raoInput.getCrac(),
                 raoInput.getOptimizedState(),
@@ -302,7 +302,7 @@ public class RaoUtilTest {
         Mockito.when(cnec2.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(600.);
         Mockito.when(cnec2.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(60.);
 
-         return Sets.newHashSet(cnec1, cnec2);
+        return Sets.newHashSet(cnec1, cnec2);
     }
 
     @Test
