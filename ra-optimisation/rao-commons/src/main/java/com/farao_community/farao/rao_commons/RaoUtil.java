@@ -206,6 +206,12 @@ public final class RaoUtil {
                 filter(BranchCnec::isOptimized).
                 sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
                 collect(Collectors.toList());
+        if (sortedCnecs.isEmpty()) {
+            // There are only pure MNECs
+            sortedCnecs = cnecs.stream().
+                    sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
+                    collect(Collectors.toList());
+        }
         return sortedCnecs.get(0);
     }
 

@@ -141,8 +141,9 @@ public class SearchTree {
         }
         AtomicInteger remainingLeaves = new AtomicInteger(networkActions.size());
         Network network = rootLeaf.getRaoData().getNetwork(); // NetworkPool starts from root leaf network to keep initial optimization of range actions
-        LOGGER.debug("Evaluating {} leaves in parallel", treeParameters.getLeavesInParallel());
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), treeParameters.getLeavesInParallel())) {
+        int leavesInParallel = Math.min(networkActions.size(), treeParameters.getLeavesInParallel());
+        LOGGER.debug("Evaluating {} leaves in parallel", leavesInParallel);
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel)) {
             networkActions.forEach(networkAction ->
                     networkPool.submit(() -> {
                         try {
