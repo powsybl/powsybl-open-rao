@@ -144,13 +144,13 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     }
 
     private List<SensitivityValue> getPreContingencySensitivityValues(SensitivityFactorsProvider sensitivityFactorsProvider, Network network) {
-        return sensitivityFactorsProvider.getCommonFactors(network).stream()
+        return sensitivityFactorsProvider.getAdditionalFactors(network).stream()
                 .map(factor -> new SensitivityValue(factor, preContingencyPtdf.get(factor.getFunction().getId()).get(factor.getVariable().getId()), preContingencyFref.get(factor.getFunction().getId()), Double.NaN))
                 .collect(Collectors.toList());
     }
 
-    private List<SensitivityValue> getPostContingencySensitivityValues(SensitivityFactorsProvider sensitivityFactorsProvider, Network network) {
-        return sensitivityFactorsProvider.getCommonFactors(network).stream()
+    private List<SensitivityValue> getPostContingencySensitivityValues(Contingency contingency, SensitivityFactorsProvider sensitivityFactorsProvider, Network network) {
+        return sensitivityFactorsProvider.getAdditionalFactors(network, contingency.getId()).stream()
                 .map(factor -> new SensitivityValue(factor, postContingencyPtdf.get(factor.getFunction().getId()).get(factor.getVariable().getId()), postContingencyFref.get(factor.getFunction().getId()), Double.NaN))
                 .collect(Collectors.toList());
     }
@@ -159,7 +159,7 @@ public class SensitivityComputationFactoryMock implements SensitivityAnalysisPro
     public CompletableFuture<SensitivityAnalysisResult> run(Network network, String s, SensitivityFactorsProvider sensitivityFactorsProvider, List<Contingency> contingencies, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager) {
         List<SensitivityValue> preContingencySensitivityValues = getPreContingencySensitivityValues(sensitivityFactorsProvider, network);
         Map<String, List<SensitivityValue>> postContingencySensitivityValues = contingencies.stream()
-                .collect(Collectors.toMap(Contingency::getId, co -> getPostContingencySensitivityValues(sensitivityFactorsProvider, network)));
+                .collect(Collectors.toMap(Contingency::getId, co -> getPostContingencySensitivityValues(co, sensitivityFactorsProvider, network)));
         return CompletableFuture.completedFuture(new SensitivityAnalysisResult(true, Collections.emptyMap(), "", preContingencySensitivityValues, postContingencySensitivityValues));
     }
 

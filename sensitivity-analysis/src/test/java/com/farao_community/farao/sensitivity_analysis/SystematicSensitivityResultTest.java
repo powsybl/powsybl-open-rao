@@ -127,7 +127,7 @@ public class SystematicSensitivityResultTest {
     public static final class MockSensiProvider implements SensitivityAnalysisProvider {
         @Override
         public CompletableFuture<SensitivityAnalysisResult> run(Network network, String s, SensitivityFactorsProvider sensitivityFactorsProvider, List<Contingency> contingencies, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager) {
-            List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getCommonFactors(network).stream()
+            List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getAdditionalFactors(network).stream()
                     .map(factor -> {
                         if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
                             return new SensitivityValue(factor, 0.5, 10, 10);
@@ -143,7 +143,7 @@ public class SystematicSensitivityResultTest {
             Map<String, List<SensitivityValue>> contingenciesValues = contingencies.stream()
                     .collect(Collectors.toMap(
                         contingency -> contingency.getId(),
-                        contingency -> sensitivityFactorsProvider.getCommonFactors(network).stream()
+                        contingency -> sensitivityFactorsProvider.getAdditionalFactors(network).stream()
                                 .map(factor -> {
                                     if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
                                         return new SensitivityValue(factor, -5, -20, 20);

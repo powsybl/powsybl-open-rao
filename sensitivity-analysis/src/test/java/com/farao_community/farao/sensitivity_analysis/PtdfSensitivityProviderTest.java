@@ -50,11 +50,16 @@ public class PtdfSensitivityProviderTest {
     @Test
     public void getFactorsOnCommonCrac() {
         PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT));
-        List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getCommonFactors(network);
-
+        List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getAdditionalFactors(network);
         assertEquals(8, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
+
+        String contingencyId = crac.getContingencies().iterator().next().getId();
+        sensitivityFactors = ptdfSensitivityProvider.getAdditionalFactors(network, crac.getContingencies().iterator().next().getId());
+        assertEquals(8, sensitivityFactors.size());
+        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
+            && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
     }
 
     @Test

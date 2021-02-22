@@ -37,7 +37,8 @@ public class UcteGlskDocumentImporter extends AbstractGlskDocumentImporter imple
             return false;
         }
 
-        if ("GSKDocument".equals(document.getDocumentElement().getTagName())) {
+        if ("GSKDocument".equals(document.getDocumentElement().getTagName()) &&
+                document.getDocumentElement().getElementsByTagName("GSKSeries").getLength() > 0) {
             LOGGER.info("UCTE GLSK importer could import this document.");
             return true;
         } else {
