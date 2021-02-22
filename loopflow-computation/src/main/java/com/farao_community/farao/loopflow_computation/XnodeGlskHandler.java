@@ -102,7 +102,7 @@ class XnodeGlskHandler {
 
         if (network.getIdentifiable(glskInjectionId) instanceof Injection<?>) {
             Injection<?> injection = (Injection) network.getIdentifiable(glskInjectionId);
-            AssignedVirtualHub virtualHub = (AssignedVirtualHub) injection.getExtension(AssignedVirtualHub.class);
+            AssignedVirtualHub virtualHub = injection.getExtension(AssignedVirtualHub.class);
 
             if (virtualHub != null && xNodesInContingency.contains(virtualHub.getNodeName())) {
                 return false;
