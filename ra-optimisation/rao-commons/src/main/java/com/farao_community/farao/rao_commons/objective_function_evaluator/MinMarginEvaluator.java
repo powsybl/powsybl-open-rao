@@ -34,20 +34,20 @@ public class MinMarginEvaluator implements CostEvaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MinMarginEvaluator.class);
 
     private Unit unit;
-    private boolean relative;
+    private boolean relativePositiveMargins;
     private double ptdfSumLowerBound;
     Set<String> operatorsNotToOptimize;
 
-    public MinMarginEvaluator(Unit unit, Set<String> operatorsNotToOptimize, boolean relative) {
-        this(unit, operatorsNotToOptimize, relative, 0);
+    public MinMarginEvaluator(Unit unit, Set<String> operatorsNotToOptimize, boolean relativePositiveMargins) {
+        this(unit, operatorsNotToOptimize, relativePositiveMargins, 0);
     }
 
-    public MinMarginEvaluator(Unit unit, Set<String> operatorsNotToOptimize, boolean relative, double ptdfSumLowerBound) {
-        if (relative && ptdfSumLowerBound <= 0) {
+    public MinMarginEvaluator(Unit unit, Set<String> operatorsNotToOptimize, boolean relativePositiveMargins, double ptdfSumLowerBound) {
+        if (relativePositiveMargins && ptdfSumLowerBound <= 0) {
             throw new FaraoException("Please provide a (strictly positive) PTDF sum lower bound for relative margins.");
         }
         this.unit = unit;
-        this.relative = relative;
+        this.relativePositiveMargins = relativePositiveMargins;
         this.ptdfSumLowerBound = ptdfSumLowerBound;
         if (!Objects.isNull(operatorsNotToOptimize)) {
             this.operatorsNotToOptimize = operatorsNotToOptimize;
@@ -71,19 +71,24 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getRelativeCoef(BranchCnec cnec, String initialVariantId) {
-        return relative ? 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getAbsolutePtdfSum(), ptdfSumLowerBound) : 1;
+        return relativePositiveMargins ? 1 / Math.max(cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getAbsolutePtdfSum(), ptdfSumLowerBound) : 1;
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {
+        if (raoData.getCnecs().stream().filter(BranchCnec::isOptimized).count() == 0) {
+            // there are only pure MNECs
+            return 0;
+        }
         String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
         return raoData.getCnecs().stream().filter(BranchCnec::isOptimized).
             map(cnec -> {
-                double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), Side.LEFT, MEGAWATT) * getRelativeCoef(cnec, initialVariantId);
+                double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), Side.LEFT, MEGAWATT);
+                newMargin = (newMargin > 0) ? newMargin * getRelativeCoef(cnec, initialVariantId) : newMargin;
                 if (operatorsNotToOptimize.contains(cnec.getOperator())) {
                     // do not consider this kind of cnecs if they have a better margin than before optimization
-                    double prePerimeterMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, MEGAWATT, relative);
-                    if (newMargin >= prePerimeterMargin) {
+                    double prePerimeterMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, MEGAWATT, relativePositiveMargins);
+                    if (newMargin > prePerimeterMargin - .0001 * Math.abs(prePerimeterMargin)) {
                         return Double.MAX_VALUE;
                     }
                 }
@@ -92,15 +97,20 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getMinMarginInAmpere(RaoData raoData) {
+        if (raoData.getCnecs().stream().filter(BranchCnec::isOptimized).count() == 0) {
+            // there are only pure MNECs
+            return 0;
+        }
         String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
         List<Double> marginsInAmpere = raoData.getCnecs().stream().filter(BranchCnec::isOptimized).
             map(cnec -> {
-                double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Side.LEFT, Unit.AMPERE) * getRelativeCoef(cnec, initialVariantId);
+                double newMargin = cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Side.LEFT, Unit.AMPERE);
+                newMargin = (newMargin > 0) ? newMargin * getRelativeCoef(cnec, initialVariantId) : newMargin;
                 if (operatorsNotToOptimize.contains(cnec.getOperator())) {
                     // do not consider this kind of cnecs if they have a better margin than before optimization
-                    double prePerimeterMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, Unit.AMPERE, relative);
-                    if (newMargin >= prePerimeterMargin) {
+                    double prePerimeterMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, Unit.AMPERE, relativePositiveMargins);
+                    if (newMargin > prePerimeterMargin - .0001 * Math.abs(prePerimeterMargin)) {
                         return Double.MAX_VALUE;
                     }
                 }

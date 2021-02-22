@@ -104,13 +104,17 @@ public class MinMarginEvaluatorTest {
         MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, Collections.singleton("operator2"), true, 0.01);
         cnec1.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(100.0);
 
-        // case 1 : margin on cnec2 is improved => cost is equal to margin on cnec1
+        // case 0 : margin on cnec2 is the same => cost is equal to margin on cnec1
         // (we're setting the 'old' flow here)
+        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(200.0);
+        assertEquals(-1400, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(-1400 / 0.5, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        // case 1 : margin on cnec2 is improved => cost is equal to margin on cnec1
         cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(300.0);
         assertEquals(-1400, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         assertEquals(-1400 / 0.5, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
-        // case 2 : margin on cnec2 is same => cost is equal to margin on cnec1
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(200.0);
+        // case 2 : margin on cnec2 is the slightly improved => cost is equal to margin on cnec2
+        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(201.0);
         assertEquals(-1400, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         assertEquals(-1400 / 0.5, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         // case 3 : margin on cnec2 is decreased and worse than on cnec1 => cost is equal to margin on cnec2
@@ -166,13 +170,17 @@ public class MinMarginEvaluatorTest {
         MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, Collections.singleton("operator2"), true, 0.01);
         cnec1.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(30.0);
 
-        // case 1 : margin on cnec2 is improved => cost is equal to margin on cnec1
+        // case 0 : margin on cnec2 is same => cost is equal to margin on cnec1
         // (we're setting the 'old' flow here)
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(61.0);
+        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(60.0);
         assertEquals(-2249, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         assertEquals(-2249 / 0.5, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
-        // case 2 : margin on cnec2 is same => cost is equal to margin on cnec1
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(60.0);
+        // case 1 : margin on cnec2 is improved => cost is equal to margin on cnec1
+        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(70.);
+        assertEquals(-2249, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(-2249 / 0.5, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        // case 2 : margin on cnec2 is slightly improved => cost is equal to margin on cnec1
+        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(61.);
         assertEquals(-2249, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         assertEquals(-2249 / 0.5, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         // case 3 : margin on cnec2 is decreased and worse than on cnec1 => cost is equal to margin on cnec2

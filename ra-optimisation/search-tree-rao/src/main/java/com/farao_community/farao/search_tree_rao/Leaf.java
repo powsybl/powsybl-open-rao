@@ -178,6 +178,7 @@ class Leaf {
             raoData.getCracResultManager().fillCnecResultWithFlows();
             if (isRoot()) {
                 raoData.getCracResultManager().fillPreperimeterCnecResultWithFlows();
+                raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(raoData.getPreOptimVariantId(), raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId());
             }
 
             if (raoParameters.isRaoWithLoopFlowLimitation()) {
