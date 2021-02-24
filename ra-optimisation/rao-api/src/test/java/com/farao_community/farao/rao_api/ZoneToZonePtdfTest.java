@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Optional;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -22,19 +21,8 @@ public class ZoneToZonePtdfTest {
         ZoneToZonePtdf zTozPtdf = new ZoneToZonePtdf("{FR}-{ES}");
 
         assertEquals(2, zTozPtdf.getZoneToSlackPtdfs().size());
-
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackFr = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().equals(new EICode(Country.FR)))
-            .findAny();
-
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackEs = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().equals(new EICode(Country.ES)))
-            .findAny();
-
-        assertTrue(zToSlackFr.isPresent());
-        assertEquals(1, zToSlackFr.get().getWeight(), DOUBLE_TOLERANCE);
-        assertTrue(zToSlackEs.isPresent());
-        assertEquals(-1, zToSlackEs.get().getWeight(), DOUBLE_TOLERANCE);
+        assertEquals(1, zTozPtdf.getWeight(new EICode(Country.FR)), DOUBLE_TOLERANCE);
+        assertEquals(-1, zTozPtdf.getWeight(new EICode(Country.ES)), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -44,18 +32,8 @@ public class ZoneToZonePtdfTest {
 
         assertEquals(2, zTozPtdf.getZoneToSlackPtdfs().size());
 
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackDeAl = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().getAreaCode().equals("22Y201903145---4"))
-            .findAny();
-
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackBeAl = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().getAreaCode().equals("22Y201903144---9"))
-            .findAny();
-
-        assertTrue(zToSlackDeAl.isPresent());
-        assertEquals(1, zToSlackDeAl.get().getWeight(), DOUBLE_TOLERANCE);
-        assertTrue(zToSlackBeAl.isPresent());
-        assertEquals(-1, zToSlackBeAl.get().getWeight(), DOUBLE_TOLERANCE);
+        assertEquals(1, zTozPtdf.getWeight(new EICode("22Y201903145---4")), DOUBLE_TOLERANCE);
+        assertEquals(-1, zTozPtdf.getWeight(new EICode("22Y201903144---9")), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -64,19 +42,8 @@ public class ZoneToZonePtdfTest {
         ZoneToZonePtdf zTozPtdf = new ZoneToZonePtdf("{BE}-{22Y201903144---9}");
 
         assertEquals(2, zTozPtdf.getZoneToSlackPtdfs().size());
-
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackBe = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().equals(new EICode(Country.BE)))
-            .findAny();
-
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackBeAl = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().getAreaCode().equals("22Y201903144---9"))
-            .findAny();
-
-        assertTrue(zToSlackBe.isPresent());
-        assertEquals(1, zToSlackBe.get().getWeight(), DOUBLE_TOLERANCE);
-        assertTrue(zToSlackBeAl.isPresent());
-        assertEquals(-1, zToSlackBeAl.get().getWeight(), DOUBLE_TOLERANCE);
+        assertEquals(1, zTozPtdf.getWeight(new EICode(Country.BE)), DOUBLE_TOLERANCE);
+        assertEquals(-1, zTozPtdf.getWeight(new EICode("22Y201903144---9")), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -85,31 +52,16 @@ public class ZoneToZonePtdfTest {
         ZoneToZonePtdf zTozPtdf = new ZoneToZonePtdf("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}");
 
         assertEquals(4, zTozPtdf.getZoneToSlackPtdfs().size());
+        assertEquals(4, zTozPtdf.getEiCodes().size());
+        assertTrue(zTozPtdf.getEiCodes().contains(new EICode(Country.BE)));
+        assertTrue(zTozPtdf.getEiCodes().contains(new EICode("22Y201903144---9")));
+        assertTrue(zTozPtdf.getEiCodes().contains(new EICode(Country.DE)));
+        assertTrue(zTozPtdf.getEiCodes().contains(new EICode("22Y201903145---4")));
 
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackBe = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().equals(new EICode(Country.BE)))
-            .findAny();
-
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackBeAl = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().getAreaCode().equals("22Y201903144---9"))
-            .findAny();
-
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackDe = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().equals(new EICode(Country.DE)))
-            .findAny();
-
-        Optional<ZoneToZonePtdf.WeightedZoneToSlackPtdf> zToSlackDeAl = zTozPtdf.getZoneToSlackPtdfs().stream().
-            filter(zToSlackPtdf -> zToSlackPtdf.getPtdfZoneToSlack().getAreaCode().equals("22Y201903145---4"))
-            .findAny();
-
-        assertTrue(zToSlackBe.isPresent());
-        assertEquals(1, zToSlackBe.get().getWeight(), DOUBLE_TOLERANCE);
-        assertTrue(zToSlackBeAl.isPresent());
-        assertEquals(-1, zToSlackBeAl.get().getWeight(), DOUBLE_TOLERANCE);
-        assertTrue(zToSlackDe.isPresent());
-        assertEquals(1, zToSlackBe.get().getWeight(), DOUBLE_TOLERANCE);
-        assertTrue(zToSlackDeAl.isPresent());
-        assertEquals(-1, zToSlackBeAl.get().getWeight(), DOUBLE_TOLERANCE);
+        assertEquals(1, zTozPtdf.getWeight(new EICode(Country.BE)), DOUBLE_TOLERANCE);
+        assertEquals(-1, zTozPtdf.getWeight(new EICode("22Y201903144---9")), DOUBLE_TOLERANCE);
+        assertEquals(-1, zTozPtdf.getWeight(new EICode(Country.DE)), DOUBLE_TOLERANCE);
+        assertEquals(1, zTozPtdf.getWeight(new EICode("22Y201903145---4")), DOUBLE_TOLERANCE);
     }
 
     @Test(expected = FaraoException.class)
@@ -134,7 +86,7 @@ public class ZoneToZonePtdfTest {
 
     @Test(expected = FaraoException.class)
     public void testWrongSyntax5() {
-        new ZoneToZonePtdf("{FRANCE}/{ES}");
+        new ZoneToZonePtdf("{FRANCE}-{ES}");
     }
 
     @Test(expected = FaraoException.class)

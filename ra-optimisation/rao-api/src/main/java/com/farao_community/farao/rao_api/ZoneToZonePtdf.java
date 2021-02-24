@@ -41,7 +41,7 @@ public class ZoneToZonePtdf {
             return weight;
         }
 
-        public EICode getPtdfZoneToSlack() {
+        public EICode getEiCode() {
             return ptdfZoneToSlack;
         }
 
@@ -80,6 +80,17 @@ public class ZoneToZonePtdf {
 
     public List<WeightedZoneToSlackPtdf> getZoneToSlackPtdfs() {
         return zoneToSlackPtdfs;
+    }
+
+    public List<EICode> getEiCodes() {
+        return zoneToSlackPtdfs.stream().map(WeightedZoneToSlackPtdf::getEiCode).collect(Collectors.toList());
+    }
+
+    public double getWeight(EICode eiCode) {
+        return zoneToSlackPtdfs.stream()
+            .filter(zToSPtdf -> zToSPtdf.getEiCode().equals(eiCode))
+            .mapToDouble(WeightedZoneToSlackPtdf::getWeight)
+            .sum();
     }
 
     @Override
