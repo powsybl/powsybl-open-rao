@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
-import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
+import com.farao_community.farao.rao_api.ZoneToZonePtdf;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -38,7 +38,7 @@ public class AbsolutePtdfSumsComputationTest {
 
     private Crac crac;
     private ZonalData<LinearGlsk> glskProvider;
-    private List<ZoneToZonePtdfDefinition> boundaries;
+    private List<ZoneToZonePtdf> boundaries;
     private SystematicSensitivityResult systematicSensitivityResult;
 
     @Before
@@ -48,10 +48,10 @@ public class AbsolutePtdfSumsComputationTest {
         glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes_with_alegro.xml"))
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
         boundaries = Arrays.asList(
-            new ZoneToZonePtdfDefinition("{FR}-{BE}"),
-            new ZoneToZonePtdfDefinition("{FR}-{DE}"),
-            new ZoneToZonePtdfDefinition("{DE}-{BE}"),
-            new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
+            new ZoneToZonePtdf("{FR}-{BE}"),
+            new ZoneToZonePtdf("{FR}-{DE}"),
+            new ZoneToZonePtdf("{DE}-{BE}"),
+            new ZoneToZonePtdf("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.any(BranchCnec.class)))

@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
+import com.farao_community.farao.rao_api.ZoneToZonePtdf;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public final class AbsolutePtdfSumsComputation {
     private AbsolutePtdfSumsComputation() { }
 
-    public static Map<BranchCnec, Double> computeAbsolutePtdfSums(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<ZoneToZonePtdfDefinition> zTozPtdfs, SystematicSensitivityResult sensitivityResult) {
+    public static Map<BranchCnec, Double> computeAbsolutePtdfSums(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<ZoneToZonePtdf> zTozPtdfs, SystematicSensitivityResult sensitivityResult) {
 
         Map<BranchCnec, Double> ptdfSums = new HashMap<>();
         List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).collect(Collectors.toList());
@@ -49,7 +49,7 @@ public final class AbsolutePtdfSumsComputation {
         return ptdfs;
     }
 
-    private static double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
+    private static double computeZToZPtdf(ZoneToZonePtdf zToz, Map<EICode, Double> zToSlackPtdfMap) {
         return zToz.getZoneToSlackPtdfs().stream()
             .mapToDouble(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
             .sum();

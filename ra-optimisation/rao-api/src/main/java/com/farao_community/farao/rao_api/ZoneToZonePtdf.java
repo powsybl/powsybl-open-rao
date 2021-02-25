@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class ZoneToZonePtdfDefinition {
-    private static final String WRONG_SYNTAX_MSG = "ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.";
+public class ZoneToZonePtdf {
+    private static final String WRONG_SYNTAX_MSG = "ZoneToZonePtdf should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.";
 
     private final List<WeightedZoneToSlackPtdf> zoneToSlackPtdfs;
     private String zoneToZonePtdfAsString;
@@ -57,11 +57,11 @@ public class ZoneToZonePtdfDefinition {
         }
     }
 
-    public ZoneToZonePtdfDefinition(List<WeightedZoneToSlackPtdf> zoneToSlackPtdfs) {
+    public ZoneToZonePtdf(List<WeightedZoneToSlackPtdf> zoneToSlackPtdfs) {
         this.zoneToSlackPtdfs = zoneToSlackPtdfs;
     }
 
-    public ZoneToZonePtdfDefinition(String zoneToZonePtdf) {
+    public ZoneToZonePtdf(String zoneToZonePtdf) {
         /*
         Examples of valid strings :
         "{FR}-{ES}
