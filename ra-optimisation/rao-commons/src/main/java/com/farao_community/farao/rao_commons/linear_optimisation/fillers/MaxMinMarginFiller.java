@@ -43,7 +43,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
     @Override
     public void fill(RaoData raoData, LinearProblem linearProblem) {
         // build variables
-        buildMinimumMarginVariable(linearProblem);
+        buildMinimumMarginVariable(linearProblem, raoData);
 
         // build constraints
         buildMinimumMarginConstraints(raoData, linearProblem);
@@ -63,8 +63,15 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * This variable represents the smallest margin of all Cnecs.
      * It is given in MEGAWATT.
      */
-    private void buildMinimumMarginVariable(LinearProblem linearProblem) {
-        linearProblem.addMinimumMarginVariable(-linearProblem.infinity(), linearProblem.infinity());
+    private void buildMinimumMarginVariable(LinearProblem linearProblem, RaoData raoData) {
+
+        if (raoData.getCnecs().stream().anyMatch(BranchCnec::isOptimized)) {
+            linearProblem.addMinimumMarginVariable(-linearProblem.infinity(), linearProblem.infinity());
+        } else {
+            // if there is no Cnecs, the minMarginVariable is forced to zero.
+            // otherwise it would be unbounded in the LP
+            linearProblem.addMinimumMarginVariable(0.0, 0.0);
+        }
     }
 
     /**
