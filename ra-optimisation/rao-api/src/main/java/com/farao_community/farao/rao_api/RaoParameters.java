@@ -90,9 +90,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     public static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
 
-    private static final String BOUNDARIES_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'Code1/Code2' where Code1 and Code2 are 16-characters EI codes or 2-characters country codes";
-    private static final String BOUNDARIES_CODE_SEPARATOR = "/";
-
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
     private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
@@ -110,7 +107,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
     private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityAnalysisParameters();
     private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
-    private List<ZoneToZonePtdf> relativeMarginPtdfBoundaries = new ArrayList<>();
+    private List<ZoneToZonePtdfDefinition> relativeMarginPtdfBoundaries = new ArrayList<>();
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
     private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
 
@@ -271,24 +268,24 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return this;
     }
 
-    public List<ZoneToZonePtdf> getRelativeMarginPtdfBoundaries() {
+    public List<ZoneToZonePtdfDefinition> getRelativeMarginPtdfBoundaries() {
         return relativeMarginPtdfBoundaries;
     }
 
-    public RaoParameters setRelativeMarginPtdfBoundaries(List<ZoneToZonePtdf> boundaries) {
+    public RaoParameters setRelativeMarginPtdfBoundaries(List<ZoneToZonePtdfDefinition> boundaries) {
         this.relativeMarginPtdfBoundaries = boundaries;
         return this;
     }
 
     public List<String> getRelativeMarginPtdfBoundariesAsString() {
         return relativeMarginPtdfBoundaries.stream()
-                .map(ZoneToZonePtdf::toString)
+                .map(ZoneToZonePtdfDefinition::toString)
                 .collect(Collectors.toList());
     }
 
     public RaoParameters setRelativeMarginPtdfBoundariesFromString(List<String> boundaries) {
         this.relativeMarginPtdfBoundaries = boundaries.stream()
-            .map(ZoneToZonePtdf::new)
+            .map(ZoneToZonePtdfDefinition::new)
             .collect(Collectors.toList());
         return this;
     }

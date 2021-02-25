@@ -217,9 +217,9 @@ public class RaoParametersTest {
     @Test
     public void testSetBoundariesFromMixOfCodes() {
         RaoParameters parameters = new RaoParameters();
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{BE}-{FR}", "{BE}-{22Y201903144---9}+{22Y201903145---4}-{DE}"));
+        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{BE}-{FR}", "{BE}-{NL}", "{BE}-{22Y201903144---9}+{22Y201903145---4}-{DE}"));
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
-        assertEquals(2, parameters.getRelativeMarginPtdfBoundaries().size());
+        assertEquals(3, parameters.getRelativeMarginPtdfBoundaries().size());
     }
 
     @Test

@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class ZoneToZonePtdf {
-    private static final String WRONG_SYNTAX_MSG = "ZoneToZonePtdf should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.";
+public class ZoneToZonePtdfDefinition {
+    private static final String WRONG_SYNTAX_MSG = "ZoneToZonePtdfDefinition should have the following syntax: {Code_1}-{Code_2}+{Code_3}... where Code_i are 16-characters EI codes or 2-characters country codes.";
 
     private final List<WeightedZoneToSlackPtdf> zoneToSlackPtdfs;
     private String zoneToZonePtdfAsString;
 
-    static public class WeightedZoneToSlackPtdf {
+    public static class WeightedZoneToSlackPtdf {
         private final EICode ptdfZoneToSlack;
         private final double weight;
 
@@ -57,11 +57,11 @@ public class ZoneToZonePtdf {
         }
     }
 
-    public ZoneToZonePtdf(List<WeightedZoneToSlackPtdf> zoneToSlackPtdfs) {
+    public ZoneToZonePtdfDefinition(List<WeightedZoneToSlackPtdf> zoneToSlackPtdfs) {
         this.zoneToSlackPtdfs = zoneToSlackPtdfs;
     }
 
-    public ZoneToZonePtdf(String zoneToZonePtdf) {
+    public ZoneToZonePtdfDefinition(String zoneToZonePtdf) {
         /*
         Examples of valid strings :
         "{FR}-{ES}
@@ -113,7 +113,7 @@ public class ZoneToZonePtdf {
         positiveInCurlyBrackets.matcher(ptdfBoundaryAsString).results().forEach(re -> zoneToSlackList.add(new WeightedZoneToSlackPtdf(convertBracketIntoEiCode(re.group()), 1.)));
         negativeInCurlyBrackets.matcher(ptdfBoundaryAsString).results().forEach(re -> zoneToSlackList.add(new WeightedZoneToSlackPtdf(convertBracketIntoEiCode(re.group()), -1.)));
 
-        if (zoneToSlackList.size() != StringUtils.countMatches(ptdfBoundaryAsString, "{") || zoneToSlackList.size() == 0) {
+        if (zoneToSlackList.size() != StringUtils.countMatches(ptdfBoundaryAsString, "{") || !zoneToSlackList.isEmpty()) {
             throw new FaraoException(WRONG_SYNTAX_MSG);
         }
 

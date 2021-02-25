@@ -11,14 +11,14 @@ import java.util.Arrays;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
-public class ZoneToZonePtdfTest {
+public class ZoneToZonePtdfDefinitionTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
     public void testSimpleZoneToZonePtdfWithCountryCode() {
 
-        ZoneToZonePtdf zTozPtdf = new ZoneToZonePtdf("{FR}-{ES}");
+        ZoneToZonePtdfDefinition zTozPtdf = new ZoneToZonePtdfDefinition("{FR}-{ES}");
 
         assertEquals(2, zTozPtdf.getZoneToSlackPtdfs().size());
         assertEquals(1, zTozPtdf.getWeight(new EICode(Country.FR)), DOUBLE_TOLERANCE);
@@ -28,7 +28,7 @@ public class ZoneToZonePtdfTest {
     @Test
     public void testSimpleZoneToZonePtdfWithEiCode() {
 
-        ZoneToZonePtdf zTozPtdf = new ZoneToZonePtdf("{22Y201903145---4}-{22Y201903144---9}");
+        ZoneToZonePtdfDefinition zTozPtdf = new ZoneToZonePtdfDefinition("{22Y201903145---4}-{22Y201903144---9}");
 
         assertEquals(2, zTozPtdf.getZoneToSlackPtdfs().size());
 
@@ -39,7 +39,7 @@ public class ZoneToZonePtdfTest {
     @Test
     public void testSimpleZoneToZonePtdfWithMixedCode() {
 
-        ZoneToZonePtdf zTozPtdf = new ZoneToZonePtdf("{BE}-{22Y201903144---9}");
+        ZoneToZonePtdfDefinition zTozPtdf = new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}");
 
         assertEquals(2, zTozPtdf.getZoneToSlackPtdfs().size());
         assertEquals(1, zTozPtdf.getWeight(new EICode(Country.BE)), DOUBLE_TOLERANCE);
@@ -49,7 +49,7 @@ public class ZoneToZonePtdfTest {
     @Test
     public void testComplexZoneToZonePtdfWithMixedCode() {
 
-        ZoneToZonePtdf zTozPtdf = new ZoneToZonePtdf("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}");
+        ZoneToZonePtdfDefinition zTozPtdf = new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}");
 
         assertEquals(4, zTozPtdf.getZoneToSlackPtdfs().size());
         assertEquals(4, zTozPtdf.getEiCodes().size());
@@ -66,52 +66,52 @@ public class ZoneToZonePtdfTest {
 
     @Test(expected = FaraoException.class)
     public void testWrongSyntax1() {
-        new ZoneToZonePtdf("FR-ES");
+        new ZoneToZonePtdfDefinition("FR-ES");
     }
 
     @Test(expected = FaraoException.class)
     public void testWrongSyntax2() {
-        new ZoneToZonePtdf("FR/ES");
+        new ZoneToZonePtdfDefinition("FR/ES");
     }
 
     @Test(expected = FaraoException.class)
     public void testWrongSyntax3() {
-        new ZoneToZonePtdf("{{FR}-{ES}");
+        new ZoneToZonePtdfDefinition("{{FR}-{ES}");
     }
 
     @Test(expected = FaraoException.class)
     public void testWrongSyntax4() {
-        new ZoneToZonePtdf("{FR}/{ES}");
+        new ZoneToZonePtdfDefinition("{FR}/{ES}");
     }
 
     @Test(expected = FaraoException.class)
     public void testWrongSyntax5() {
-        new ZoneToZonePtdf("{FRANCE}-{ES}");
+        new ZoneToZonePtdfDefinition("{FRANCE}-{ES}");
     }
 
     @Test(expected = FaraoException.class)
     public void testWrongSyntax6() {
-        new ZoneToZonePtdf("{}/{ES}");
+        new ZoneToZonePtdfDefinition("{}/{ES}");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testWrongCountryCode() {
-        new ZoneToZonePtdf("{XX}/{ES}");
+        new ZoneToZonePtdfDefinition("{XX}/{ES}");
     }
 
     @Test
     public void testToString() {
-        ZoneToZonePtdf zTozPtdf1 = new ZoneToZonePtdf("{FR}-{ES}");
+        ZoneToZonePtdfDefinition zTozPtdf1 = new ZoneToZonePtdfDefinition("{FR}-{ES}");
         assertEquals("{FR}-{ES}", zTozPtdf1.toString());
 
-        ZoneToZonePtdf zTozPtdf2 = new ZoneToZonePtdf(new ArrayList<>(Arrays.asList(
-            new ZoneToZonePtdf.WeightedZoneToSlackPtdf(new EICode(Country.FR), 1),
-            new ZoneToZonePtdf.WeightedZoneToSlackPtdf(new EICode(Country.ES), -1))));
+        ZoneToZonePtdfDefinition zTozPtdf2 = new ZoneToZonePtdfDefinition(new ArrayList<>(Arrays.asList(
+            new ZoneToZonePtdfDefinition.WeightedZoneToSlackPtdf(new EICode(Country.FR), 1),
+            new ZoneToZonePtdfDefinition.WeightedZoneToSlackPtdf(new EICode(Country.ES), -1))));
         assertEquals("+{FR}-{ES}", zTozPtdf2.toString());
 
-        ZoneToZonePtdf zTozPtdf3 = new ZoneToZonePtdf(new ArrayList<>(Arrays.asList(
-            new ZoneToZonePtdf.WeightedZoneToSlackPtdf(new EICode(Country.FR), -1),
-            new ZoneToZonePtdf.WeightedZoneToSlackPtdf(new EICode(Country.ES), -1))));
+        ZoneToZonePtdfDefinition zTozPtdf3 = new ZoneToZonePtdfDefinition(new ArrayList<>(Arrays.asList(
+            new ZoneToZonePtdfDefinition.WeightedZoneToSlackPtdf(new EICode(Country.FR), -1),
+            new ZoneToZonePtdfDefinition.WeightedZoneToSlackPtdf(new EICode(Country.ES), -1))));
         assertEquals("-{FR}-{ES}", zTozPtdf3.toString());
     }
 }
