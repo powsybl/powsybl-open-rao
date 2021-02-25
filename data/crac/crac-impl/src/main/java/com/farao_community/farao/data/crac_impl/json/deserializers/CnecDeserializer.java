@@ -44,6 +44,7 @@ final class CnecDeserializer {
             String id = null;
             String name = null;
             String networkElementId = null;
+            String operator = null;
             String stateId = null;
             double frm = 0;
             boolean optimized = false;
@@ -70,6 +71,10 @@ final class CnecDeserializer {
 
                     case NETWORK_ELEMENT:
                         networkElementId = jsonParser.nextTextValue();
+                        break;
+
+                    case OPERATOR:
+                        operator = jsonParser.nextTextValue();
                         break;
 
                     case STATE:
@@ -108,7 +113,7 @@ final class CnecDeserializer {
             }
 
             //add SimpleCnec in Crac
-            simpleCrac.addCnec(id, name, networkElementId, thresholds, stateId, frm, optimized, monitored);
+            simpleCrac.addCnec(id, name, networkElementId, operator, thresholds, stateId, frm, optimized, monitored);
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(simpleCrac.getBranchCnec(id), extensions);
             }

@@ -103,12 +103,14 @@ public class FlowCnecAdderImplTest {
             .setName("cnecName1")
             .setInstant(instant1)
             .setContingency(contingency1)
+            .setOperator("cnec1Operator")
             .newNetworkElement().setId("neId1").setName("neName1").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.0).add()
             .add();
         BranchCnec cnec2 = crac.newBranchCnec()
             .setId("cnecId2")
             .setInstant(instant2)
+            .setOperator("cnec2Operator")
             .newNetworkElement().setId("neId2").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(500.0).add()
             .add();
@@ -119,6 +121,7 @@ public class FlowCnecAdderImplTest {
         assertEquals("cnecName1", cnec1.getName());
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
         assertEquals(instant1, cnec1.getState().getInstant());
+        assertEquals("cnec1Operator", cnec1.getOperator());
         assertEquals("neName1", cnec1.getNetworkElement().getName());
         assertEquals(1000.0, cnec1.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-1000.0, cnec1.getLowerBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
@@ -127,6 +130,7 @@ public class FlowCnecAdderImplTest {
         assertEquals(cnec2, crac.getBranchCnec("cnecId2"));
         assertEquals("cnecId2", cnec2.getName());
         assertEquals(instant2, cnec2.getState().getInstant());
+        assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
         assertEquals("neId2", cnec2.getNetworkElement().getName());
         assertEquals(500.0, cnec2.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);

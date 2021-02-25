@@ -30,6 +30,7 @@ public class BranchCnecSerializer<I extends BranchCnec> extends JsonSerializer<I
         jsonGenerator.writeStringField(ID, branchCnec.getId());
         jsonGenerator.writeStringField(NAME, branchCnec.getName());
         jsonGenerator.writeStringField(NETWORK_ELEMENT, branchCnec.getNetworkElement().getId());
+        jsonGenerator.writeStringField(OPERATOR, branchCnec.getOperator());
         jsonGenerator.writeObjectField(STATE, branchCnec.getState().getId());
         jsonGenerator.writeObjectField(OPTIMIZED, branchCnec.isOptimized());
         jsonGenerator.writeObjectField(MONITORED, branchCnec.isMonitored());
