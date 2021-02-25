@@ -113,7 +113,7 @@ public class ZoneToZonePtdfDefinition {
         positiveInCurlyBrackets.matcher(ptdfBoundaryAsString).results().forEach(re -> zoneToSlackList.add(new WeightedZoneToSlackPtdf(convertBracketIntoEiCode(re.group()), 1.)));
         negativeInCurlyBrackets.matcher(ptdfBoundaryAsString).results().forEach(re -> zoneToSlackList.add(new WeightedZoneToSlackPtdf(convertBracketIntoEiCode(re.group()), -1.)));
 
-        if (zoneToSlackList.size() != StringUtils.countMatches(ptdfBoundaryAsString, "{") || !zoneToSlackList.isEmpty()) {
+        if (zoneToSlackList.size() != StringUtils.countMatches(ptdfBoundaryAsString, "{") || zoneToSlackList.isEmpty()) {
             throw new FaraoException(WRONG_SYNTAX_MSG);
         }
 
