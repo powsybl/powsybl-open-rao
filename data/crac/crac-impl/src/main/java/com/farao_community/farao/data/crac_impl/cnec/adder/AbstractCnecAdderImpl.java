@@ -29,6 +29,7 @@ public abstract class AbstractCnecAdderImpl<I extends Cnec<I>, J extends CnecAdd
     protected boolean optimized;
     protected boolean monitored;
     protected double reliabilityMargin;
+    protected String operator;
 
     protected AbstractCnecAdderImpl(SimpleCrac parent) {
         Objects.requireNonNull(parent);
@@ -88,6 +89,12 @@ public abstract class AbstractCnecAdderImpl<I extends Cnec<I>, J extends CnecAdd
     @Override
     public J addNetworkElement(NetworkElement networkElement) {
         this.networkElement = networkElement;
+        return (J) this;
+    }
+
+    @Override
+    public J setOperator(String operator) {
+        this.operator = operator;
         return (J) this;
     }
 }

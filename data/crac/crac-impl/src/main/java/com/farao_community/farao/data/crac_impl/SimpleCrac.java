@@ -385,21 +385,21 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         branchCnecs.remove(cnecId);
     }
 
-    public BranchCnec addCnec(String id, String name, String networkElementId, Set<BranchThreshold> branchThresholds, String stateId, double frm, boolean optimized, boolean monitored) {
+    public BranchCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, String stateId, double frm, boolean optimized, boolean monitored) {
         if (getNetworkElement(networkElementId) == null || getState(stateId) == null) {
             throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
         }
-        BranchCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), getState(stateId), optimized, monitored, branchThresholds, frm);
+        BranchCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), operator, getState(stateId), optimized, monitored, branchThresholds, frm);
         branchCnecs.put(id, cnec);
         return cnec;
     }
 
-    public BranchCnec addCnec(String id, String name, String networkElementId, Set<BranchThreshold> branchThresholds, String stateId, double frm) {
-        return this.addCnec(id, name, networkElementId, branchThresholds, stateId, frm, true, false);
+    public BranchCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, String stateId, double frm) {
+        return this.addCnec(id, name, networkElementId, operator, branchThresholds, stateId, frm, true, false);
     }
 
-    public BranchCnec addCnec(String id, String networkElementId, Set<BranchThreshold> branchThresholds, String stateId) {
-        return this.addCnec(id, id, networkElementId, branchThresholds, stateId, 0);
+    public BranchCnec addCnec(String id, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, String stateId) {
+        return this.addCnec(id, id, networkElementId, operator, branchThresholds, stateId, 0);
     }
 
     @Override
