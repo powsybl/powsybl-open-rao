@@ -32,15 +32,15 @@ public abstract class AbstractBranchCnec extends AbstractCnec<BranchCnec> implem
     protected BranchBoundsCache bounds = new BranchBoundsCache();
     protected final double[] nominalVoltages = new double[2];
 
-    protected AbstractBranchCnec(String id, String name, NetworkElement networkElement, State state, boolean optimized,
+    protected AbstractBranchCnec(String id, String name, NetworkElement networkElement, String operator, State state, boolean optimized,
                               boolean monitored, Set<BranchThreshold> thresholds) {
-        super(id, name, networkElement, state, optimized, monitored);
+        super(id, name, networkElement, operator, state, optimized, monitored);
         setThresholds(thresholds);
     }
 
-    protected AbstractBranchCnec(String id, NetworkElement networkElement, State state, boolean optimized,
+    protected AbstractBranchCnec(String id, NetworkElement networkElement, String operator, State state, boolean optimized,
                               boolean monitored, Set<BranchThreshold> thresholds) {
-        super(id, networkElement, state, optimized, monitored);
+        super(id, networkElement, operator, state, optimized, monitored);
         setThresholds(thresholds);
     }
 

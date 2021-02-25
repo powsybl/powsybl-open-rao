@@ -43,8 +43,8 @@ public class FlowCnecImplTest {
     public void setUp() {
         thresholds = new HashSet<>();
         State state = Mockito.mock(State.class);
-        lineCnec = new FlowCnecImpl("line-cnec", new NetworkElement("FFR2AA1  FFR3AA1  1"), state, true, false, new HashSet<>(), 0.0);
-        transformerCnec = new FlowCnecImpl("transformer-cnec", new NetworkElement("BBE1AA1  BBE1AA2  1"), state, true, false, new HashSet<>(), 0.0);
+        lineCnec = new FlowCnecImpl("line-cnec", new NetworkElement("FFR2AA1  FFR3AA1  1"), "FR", state, true, false, new HashSet<>(), 0.0);
+        transformerCnec = new FlowCnecImpl("transformer-cnec", new NetworkElement("BBE1AA1  BBE1AA2  1"), "BE", state, true, false, new HashSet<>(), 0.0);
 
         network12nodes = Importers.loadNetwork(
             "TestCase12Nodes_with_Xnodes_different_imax.uct",
@@ -201,11 +201,19 @@ public class FlowCnecImplTest {
     }
 
     @Test
+    public void testSetOperator() {
+        BranchCnec cnec = new FlowCnecImpl("line-cnec", new NetworkElement("FFR2AA1  FFR3AA1  1"), "FR", null, true, false, new HashSet<>(), 0.0);
+        assertEquals("FR", cnec.getOperator());
+        cnec = new FlowCnecImpl("line-cnec", "line-cnec", new NetworkElement("FFR2AA1  FFR3AA1  1"), "D7", null, true, false, new HashSet<>(), 0.0);
+        assertEquals("D7", cnec.getOperator());
+    }
+
+    @Test
     public void synchronizeTwoCnecsCreatedWithSameThresholdObject() {
         State state = Mockito.mock(State.class);
         BranchThreshold relativeFlowThreshold = new BranchThresholdImpl(Unit.PERCENT_IMAX, null, 0.5, BranchThresholdRule.ON_LEFT_SIDE);
-        BranchCnec cnecOnLine1 = new FlowCnecImpl("cnec1", new NetworkElement("DDE1AA1  DDE2AA1  1"), state, true, false, Collections.singleton(relativeFlowThreshold), 0.);
-        BranchCnec cnecOnLine2 = new FlowCnecImpl("cnec2", new NetworkElement("BBE2AA1  X_BEFR1  1"), state, true, false, Collections.singleton(relativeFlowThreshold), 0.);
+        BranchCnec cnecOnLine1 = new FlowCnecImpl("cnec1", new NetworkElement("DDE1AA1  DDE2AA1  1"), "D7", state, true, false, Collections.singleton(relativeFlowThreshold), 0.);
+        BranchCnec cnecOnLine2 = new FlowCnecImpl("cnec2", new NetworkElement("BBE2AA1  X_BEFR1  1"), "BE", state, true, false, Collections.singleton(relativeFlowThreshold), 0.);
 
         cnecOnLine2.synchronize(network12nodes);
         cnecOnLine1.synchronize(network12nodes);
@@ -295,7 +303,7 @@ public class FlowCnecImplTest {
 
     public void testOnSynchronize(String networkElementId, BranchThresholdRule rule, double expectedValue) {
         BranchThreshold threshold = new BranchThresholdImpl(Unit.PERCENT_IMAX, null, 1., rule);
-        BranchCnec cnec = new FlowCnecImpl("cnec", new NetworkElement(networkElementId), Mockito.mock(State.class), true, false, Set.of(threshold), 0.);
+        BranchCnec cnec = new FlowCnecImpl("cnec", new NetworkElement(networkElementId), "FR", Mockito.mock(State.class), true, false, Set.of(threshold), 0.);
         cnec.synchronize(network12nodes);
         assertEquals(expectedValue, cnec.getUpperBound(threshold.getSide(), Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }

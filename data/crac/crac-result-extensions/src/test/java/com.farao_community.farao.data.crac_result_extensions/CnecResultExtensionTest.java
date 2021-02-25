@@ -45,7 +45,7 @@ public class CnecResultExtensionTest {
 
         // add extension to a Cnec
         Set<BranchThreshold> thresholds = new HashSet<>();
-        BranchCnec cnec = new FlowCnecImpl("cnecId", new NetworkElement("networkElementId"),
+        BranchCnec cnec = new FlowCnecImpl("cnecId", new NetworkElement("networkElementId"), "operator",
             Mockito.mock(State.class), true, false, thresholds, 0.);
 
         cnec.addExtension(CnecResultExtension.class, cnecResultExtension);

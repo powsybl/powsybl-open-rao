@@ -40,6 +40,13 @@ public interface CnecAdder<I extends Cnec<I>, J extends CnecAdder<I, J>> extends
     J setReliabilityMargin(double reliabilityMargin);
 
     /***
+     * Set the operator of the created cnec
+     * @param operator the name of the operator
+     * @return the {@code CnecAdder} instance
+     */
+    J setOperator(String operator);
+
+    /***
      * Set at true if the branch is optimized
      * @return the {@code CnecAdder} instance
      */

@@ -46,13 +46,13 @@ public class FlowCnecImpl extends AbstractBranchCnec implements BranchCnec {
     private final Double[] iMax = new Double[2];
     private double frm;
 
-    public FlowCnecImpl(String id, String name, NetworkElement networkElement, State state, boolean optimized, boolean monitored, Set<BranchThreshold> thresholds, double frm) {
-        super(id, name, networkElement, state, optimized, monitored, thresholds);
+    public FlowCnecImpl(String id, String name, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored, Set<BranchThreshold> thresholds, double frm) {
+        super(id, name, networkElement, operator, state, optimized, monitored, thresholds);
         this.frm = frm;
     }
 
-    public FlowCnecImpl(String id, NetworkElement networkElement, State state, boolean optimized, boolean monitored, Set<BranchThreshold> thresholds, double frm) {
-        super(id, networkElement, state, optimized, monitored, thresholds);
+    public FlowCnecImpl(String id, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored, Set<BranchThreshold> thresholds, double frm) {
+        super(id, networkElement, operator, state, optimized, monitored, thresholds);
         this.frm = frm;
     }
 
@@ -248,12 +248,12 @@ public class FlowCnecImpl extends AbstractBranchCnec implements BranchCnec {
 
     @Override
     public BranchCnec copy() {
-        return new FlowCnecImpl(getId(), getName(), networkElement, state, optimized, monitored, thresholds, frm);
+        return new FlowCnecImpl(getId(), getName(), networkElement, getOperator(), state, optimized, monitored, thresholds, frm);
     }
 
     @Override
     public BranchCnec copy(NetworkElement networkElement, State state) {
-        return new FlowCnecImpl(getId(), getName(), networkElement, state, optimized, monitored, thresholds, frm);
+        return new FlowCnecImpl(getId(), getName(), networkElement, getOperator(), state, optimized, monitored, thresholds, frm);
     }
 
     @Override
