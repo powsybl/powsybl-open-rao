@@ -92,4 +92,10 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I>, Synchronizable
     boolean isMonitored();
 
     void setMonitored(boolean monitored);
+
+    /**
+     * Returns the operator of the CNEC
+     * @return the name of the operator (string)
+     */
+    String getOperator();
 }

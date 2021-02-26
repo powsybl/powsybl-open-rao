@@ -199,14 +199,9 @@ public class CracFileTest {
         assertTrue(simpleCrac.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("BBE2AA1  XLI_OB1B 1")));
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void addStatesWithIdFail() {
-        try {
-            simpleCrac.addState("contingency", "instant");
-            fail();
-        } catch (FaraoException e) {
-            // must throw
-        }
+        simpleCrac.addState("contingency", "instant");
     }
 
     @Test
@@ -224,26 +219,16 @@ public class CracFileTest {
         assertNotNull(simpleCrac.getState("none-instant"));
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void addStatesWithIdPreventiveFail() {
-        try {
-            simpleCrac.addState(null, "instant");
-            fail();
-        } catch (FaraoException e) {
-            // must throw
-        }
+        simpleCrac.addState(null, "instant");
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void addStatesWithObjectFail() {
-        try {
-            simpleCrac.addState(new ComplexContingency(
+        simpleCrac.addState(new ComplexContingency(
                 "contingency", Collections.singleton(simpleCrac.addNetworkElement("neID"))
-            ), new Instant("instant", 5));
-            fail();
-        } catch (FaraoException e) {
-            // must throw
-        }
+        ), new Instant("instant", 5));
     }
 
     @Test
@@ -261,14 +246,9 @@ public class CracFileTest {
         assertNotNull(simpleCrac.getState("none-instant"));
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void addStatesWithObjectPreventiveFail() {
-        try {
-            simpleCrac.addState(null, new Instant("instant", 5));
-            fail();
-        } catch (FaraoException e) {
-            // must throw
-        }
+        simpleCrac.addState(null, new Instant("instant", 5));
     }
 
     @Test
@@ -424,6 +404,7 @@ public class CracFileTest {
         BranchCnec cnec = new FlowCnecImpl(
             "cnec",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
@@ -507,6 +488,7 @@ public class CracFileTest {
         BranchCnec cnec1 = new FlowCnecImpl(
             "cnec1",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(Optional.empty(), new Instant("initial-instant", 0)),
             true, false,
             Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
@@ -523,6 +505,7 @@ public class CracFileTest {
         BranchCnec cnec2 = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
@@ -552,6 +535,7 @@ public class CracFileTest {
         BranchCnec cnec = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
@@ -574,6 +558,7 @@ public class CracFileTest {
         BranchCnec cnec1 = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
@@ -585,6 +570,7 @@ public class CracFileTest {
         BranchCnec cnec2 = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
                 Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
                 new Instant("after-co", 60)
@@ -615,27 +601,18 @@ public class CracFileTest {
         assertEquals(0, simpleCrac.getBranchCnecs().size());
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void synchronizeFailSecondTime() {
         Network network = Mockito.mock(Network.class);
         simpleCrac.synchronize(network);
-        try {
-            simpleCrac.synchronize(network);
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-        }
+        simpleCrac.synchronize(network);
     }
 
-    @Test
+    @Test(expected = Test.None.class)
     public void synchronizeThenDesynchronizeThenSynchronizeAgain() {
         Network network = Mockito.mock(Network.class);
         simpleCrac.synchronize(network);
         simpleCrac.desynchronize();
-        try {
-            simpleCrac.synchronize(network);
-        } catch (FaraoException e) {
-            fail();
-        }
+        simpleCrac.synchronize(network);
     }
 }

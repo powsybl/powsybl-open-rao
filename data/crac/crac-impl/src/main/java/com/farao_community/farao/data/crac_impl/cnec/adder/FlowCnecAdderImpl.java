@@ -23,8 +23,8 @@ public class FlowCnecAdderImpl extends AbstractBranchCnecAdder {
     @Override
     public BranchCnec add() {
         super.checkCnec();
-        BranchCnec flowCnec = new FlowCnecImpl(id, name, networkElement, parent.addState(contingency, instant),
-                optimized, monitored, thresholds, reliabilityMargin);
+        FlowCnecImpl flowCnec = new FlowCnecImpl(id, name, networkElement, operator,
+                parent.addState(contingency, instant), optimized, monitored, thresholds, reliabilityMargin);
         parent.addCnec(flowCnec);
         return parent.getBranchCnec(id);
     }
