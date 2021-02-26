@@ -26,18 +26,21 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     protected boolean optimized;
     protected boolean monitored;
     protected boolean isSynchronized = false;
+    protected String operator = null;
 
-    protected AbstractCnec(String id, String name, NetworkElement networkElement, State state, boolean optimized, boolean monitored) {
+    protected AbstractCnec(String id, String name, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored) {
         super(id, name);
         this.networkElement = networkElement;
+        this.operator = operator;
         this.state = state;
         this.optimized = optimized;
         this.monitored = monitored;
     }
 
-    protected AbstractCnec(String id, NetworkElement networkElement, State state, boolean optimized, boolean monitored) {
+    protected AbstractCnec(String id, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored) {
         super(id);
         this.networkElement = networkElement;
+        this.operator = operator;
         this.state = state;
         this.optimized = optimized;
         this.monitored = monitored;
@@ -71,6 +74,11 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public void setMonitored(boolean monitored) {
         this.monitored = monitored;
+    }
+
+    @Override
+    public String getOperator() {
+        return this.operator;
     }
 
     @Override

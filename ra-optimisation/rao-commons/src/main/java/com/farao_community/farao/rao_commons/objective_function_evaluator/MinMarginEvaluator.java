@@ -70,6 +70,10 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {
+        if (raoData.getCnecs().stream().noneMatch(BranchCnec::isOptimized)) {
+            // There are only pure MNECs
+            return 0;
+        }
         String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         return raoData.getCnecs().stream().filter(BranchCnec::isOptimized).
             map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceFlow(cnec), Side.LEFT, MEGAWATT) * getRelativeCoef(cnec, initialVariantId)).
@@ -77,6 +81,10 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getMinMarginInAmpere(RaoData raoData) {
+        if (raoData.getCnecs().stream().noneMatch(BranchCnec::isOptimized)) {
+            // There are only pure MNECs
+            return 0;
+        }
         String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         List<Double> marginsInAmpere = raoData.getCnecs().stream().filter(BranchCnec::isOptimized).
             map(cnec -> cnec.computeMargin(raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec), Side.LEFT, Unit.AMPERE) * getRelativeCoef(cnec, initialVariantId)
