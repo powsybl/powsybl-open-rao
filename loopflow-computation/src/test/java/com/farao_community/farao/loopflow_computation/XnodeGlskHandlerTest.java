@@ -45,9 +45,9 @@ public class XnodeGlskHandlerTest {
         State contingencyClassic = new SimpleState(Optional.of(new ComplexContingency("internalBranch", internalBranch)), new Instant("curative", 60));
         State contingencyDl = new SimpleState(Optional.of(new ComplexContingency("danglingLine", danglingLine)), new Instant("curative", 60));
 
-        BranchCnec cnec1 = new FlowCnecImpl("cnec1", new NetworkElement("ne"), baseCase, true, true, new HashSet<>(), 0.0);
-        BranchCnec cnec2 = new FlowCnecImpl("cnec2", new NetworkElement("ne"), contingencyClassic, true, true, new HashSet<>(), 0.0);
-        BranchCnec cnec3 = new FlowCnecImpl("cnec3", new NetworkElement("ne"), contingencyDl, true, true, new HashSet<>(), 0.0);
+        BranchCnec cnec1 = new FlowCnecImpl("cnec1", new NetworkElement("ne"), "operator", baseCase, true, true, new HashSet<>(), 0.0);
+        BranchCnec cnec2 = new FlowCnecImpl("cnec2", new NetworkElement("ne"), "operator", contingencyClassic, true, true, new HashSet<>(), 0.0);
+        BranchCnec cnec3 = new FlowCnecImpl("cnec3", new NetworkElement("ne"), "operator", contingencyDl, true, true, new HashSet<>(), 0.0);
 
         Set<BranchCnec> cnecs = new HashSet<>(Arrays.asList(cnec1, cnec2, cnec3));
 
