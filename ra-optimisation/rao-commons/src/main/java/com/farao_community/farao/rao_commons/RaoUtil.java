@@ -207,7 +207,7 @@ public final class RaoUtil {
                 sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
                 collect(Collectors.toList());
         if (sortedCnecs.isEmpty()) {
-            // there are only pure mnecs
+            // There are only pure MNECs
             sortedCnecs = cnecs.stream().
                     sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
                     collect(Collectors.toList());

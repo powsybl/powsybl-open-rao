@@ -75,8 +75,8 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getMinMarginInMegawatt(RaoData raoData) {
-        if (raoData.getCnecs().stream().filter(BranchCnec::isOptimized).count() == 0) {
-            // there are only pure MNECs
+        if (raoData.getCnecs().stream().noneMatch(BranchCnec::isOptimized)) {
+            // There are only pure MNECs
             return 0;
         }
         String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
@@ -97,8 +97,8 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getMinMarginInAmpere(RaoData raoData) {
-        if (raoData.getCnecs().stream().filter(BranchCnec::isOptimized).count() == 0) {
-            // there are only pure MNECs
+        if (raoData.getCnecs().stream().noneMatch(BranchCnec::isOptimized)) {
+            // There are only pure MNECs
             return 0;
         }
         String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
