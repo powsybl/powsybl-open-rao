@@ -57,6 +57,7 @@ import static org.mockito.ArgumentMatchers.*;
 public class LeafTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private static final String INITIAL_VARIANT_ID = "initial-variant-ID";
+    private static final String PREPERIMETER_VARIANT_ID = "preperimeter-variant-ID";
 
     private NetworkAction na1;
     private NetworkAction na2;
@@ -105,7 +106,10 @@ public class LeafTest {
 
         raoDataMock = Mockito.mock(RaoData.class);
         Mockito.when(raoDataMock.getPreOptimVariantId()).thenReturn(INITIAL_VARIANT_ID);
+        Mockito.when(raoDataMock.getCrac()).thenReturn(crac);
         Mockito.when(raoDataMock.hasSensitivityValues()).thenReturn(true);
+        crac.getExtension(ResultVariantManager.class).createVariant(PREPERIMETER_VARIANT_ID);
+        crac.getExtension(ResultVariantManager.class).setPrePerimeterVariantId(PREPERIMETER_VARIANT_ID);
 
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
@@ -142,7 +146,10 @@ public class LeafTest {
     }
 
     private void mockSensitivityComputation() {
+        Mockito.when(raoDataMock.getSystematicSensitivityResult()).thenReturn(systematicSensitivityResult);
         Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(true);
+        Mockito.when(systematicSensitivityResult.getReferenceFlow(any())).thenReturn(5.);
+        Mockito.when(systematicSensitivityResult.getReferenceIntensity(any())).thenReturn(12.);
         Mockito.doAnswer(invocationOnMock -> {
             raoData.setSystematicSensitivityResult(systematicSensitivityResult);
             return systematicSensitivityResult;
@@ -234,6 +241,8 @@ public class LeafTest {
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
+        assertEquals(5., crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(12., crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInA(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -290,8 +299,8 @@ public class LeafTest {
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
-        assertEquals(-10, cnec1result.getLoopflowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(25, cnec2result.getLoopflowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(-5, cnec1result.getLoopflowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(30, cnec2result.getLoopflowInMW(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -303,6 +312,7 @@ public class LeafTest {
 
     @Test
     public void testOptimizeWithoutRangeActions() {
+        mockSensitivityComputation();
         mockRaoUtil();
         Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
@@ -380,6 +390,9 @@ public class LeafTest {
         RaoData curativeRaoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, mockPostPreventiveVariantId, raoParameters);
         String mockPostCurativeVariantId = curativeRaoData.getCracVariantManager().cloneWorkingVariant();
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenAnswer(invocationOnMock -> mockPostCurativeVariantId);
+
+        crac.getExtension(ResultVariantManager.class).createVariant(PREPERIMETER_VARIANT_ID);
+        crac.getExtension(ResultVariantManager.class).setPrePerimeterVariantId(PREPERIMETER_VARIANT_ID);
 
         Leaf rootLeaf = new Leaf(curativeRaoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
