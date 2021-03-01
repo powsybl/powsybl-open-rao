@@ -45,7 +45,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
     private static final String PREVENTIVE_STATE = "PreventiveState";
     private static final String CURATIVE_STATE = "CurativeState";
-    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 500;
+    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
 
     private RaoData preventiveRaoData;
 
@@ -241,24 +241,19 @@ public class SearchTreeRaoProvider implements RaoProvider {
         crac.getBranchCnecs().forEach(cnec -> {
             State optimizedState = stateTree.getOptimizedState(cnec.getState());
             if (!optimizedState.equals(crac.getPreventiveState())) {
-                try {
-                    String optimizedVariantId = curativeRaoResults.get(optimizedState).getPostOptimVariantId();
-                    CnecResult optimizedCnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(optimizedVariantId);
-                    CnecResult targetResult = cnec.getExtension(CnecResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId());
-                    targetResult.setAbsolutePtdfSum(optimizedCnecResult.getAbsolutePtdfSum());
-                    targetResult.setFlowInA(optimizedCnecResult.getFlowInA());
-                    targetResult.setFlowInMW(optimizedCnecResult.getFlowInMW());
-                    targetResult.setLoopflowInMW(optimizedCnecResult.getLoopflowInMW());
-                    targetResult.setLoopflowThresholdInMW(optimizedCnecResult.getLoopflowThresholdInMW());
-                    targetResult.setMaxThresholdInA(optimizedCnecResult.getMaxThresholdInA());
-                    targetResult.setMaxThresholdInMW(optimizedCnecResult.getMaxThresholdInMW());
-                    targetResult.setMinThresholdInA(optimizedCnecResult.getMinThresholdInA());
-                    targetResult.setMinThresholdInMW(optimizedCnecResult.getMinThresholdInMW());
-                    targetResult.setAbsolutePtdfSum(optimizedCnecResult.getAbsolutePtdfSum());
-                } catch (NullPointerException e) {
-                    LOGGER.error(e.getMessage());
-                    e.printStackTrace();
-                }
+                String optimizedVariantId = curativeRaoResults.get(optimizedState).getPostOptimVariantId();
+                CnecResult optimizedCnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(optimizedVariantId);
+                CnecResult targetResult = cnec.getExtension(CnecResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId());
+                targetResult.setAbsolutePtdfSum(optimizedCnecResult.getAbsolutePtdfSum());
+                targetResult.setFlowInA(optimizedCnecResult.getFlowInA());
+                targetResult.setFlowInMW(optimizedCnecResult.getFlowInMW());
+                targetResult.setLoopflowInMW(optimizedCnecResult.getLoopflowInMW());
+                targetResult.setLoopflowThresholdInMW(optimizedCnecResult.getLoopflowThresholdInMW());
+                targetResult.setMaxThresholdInA(optimizedCnecResult.getMaxThresholdInA());
+                targetResult.setMaxThresholdInMW(optimizedCnecResult.getMaxThresholdInMW());
+                targetResult.setMinThresholdInA(optimizedCnecResult.getMinThresholdInA());
+                targetResult.setMinThresholdInMW(optimizedCnecResult.getMinThresholdInMW());
+                targetResult.setAbsolutePtdfSum(optimizedCnecResult.getAbsolutePtdfSum());
             }
         });
     }

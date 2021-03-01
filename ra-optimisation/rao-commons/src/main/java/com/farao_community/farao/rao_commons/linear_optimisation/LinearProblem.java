@@ -13,16 +13,12 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LinearProblem {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearProblem.class);
-
     private static final String VARIABLE_SUFFIX = "variable";
     private static final String CONSTRAINT_SUFFIX = "constraint";
     private static final String SEPARATOR = "_";
