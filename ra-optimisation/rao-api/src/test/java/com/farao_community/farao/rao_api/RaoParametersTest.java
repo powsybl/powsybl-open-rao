@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.commons.EICode;
 import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -13,15 +14,13 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.iidm.network.Country;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -113,6 +112,11 @@ public class RaoParametersTest {
 
         assertEquals(5, parameters.getPtdfSumLowerBound(), 1e-6);
         assertEquals(2, parameters.getRelativeMarginPtdfBoundaries().size());
+        assertEquals(2, parameters.getRelativeMarginPtdfBoundaries().size());
+        assertEquals(1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode(Country.FR)), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode(Country.ES)), 1e-6);
+        assertEquals(1, parameters.getRelativeMarginPtdfBoundaries().get(1).getWeight(new EICode(Country.ES)), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginPtdfBoundaries().get(1).getWeight(new EICode(Country.PT)), 1e-6);
     }
 
     @Test
@@ -204,6 +208,10 @@ public class RaoParametersTest {
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}"));
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
         assertEquals(2, parameters.getRelativeMarginPtdfBoundaries().size());
+        assertEquals(1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode(Country.FR)), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode(Country.ES)), 1e-6);
+        assertEquals(1, parameters.getRelativeMarginPtdfBoundaries().get(1).getWeight(new EICode(Country.ES)), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginPtdfBoundaries().get(1).getWeight(new EICode(Country.PT)), 1e-6);
     }
 
     @Test
@@ -212,14 +220,23 @@ public class RaoParametersTest {
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{10YBE----------2}-{10YFR-RTE------C}", "{10YBE----------2}-{22Y201903144---9}"));
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
         assertEquals(2, parameters.getRelativeMarginPtdfBoundaries().size());
+        assertEquals(2, parameters.getRelativeMarginPtdfBoundaries().size());
+        assertEquals(1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode("10YBE----------2")), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode("10YFR-RTE------C")), 1e-6);
+        assertEquals(1, parameters.getRelativeMarginPtdfBoundaries().get(1).getWeight(new EICode("10YBE----------2")), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginPtdfBoundaries().get(1).getWeight(new EICode("22Y201903144---9")), 1e-6);
     }
 
     @Test
     public void testSetBoundariesFromMixOfCodes() {
         RaoParameters parameters = new RaoParameters();
-        List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{BE}-{FR}", "{BE}-{NL}", "{BE}-{22Y201903144---9}+{22Y201903145---4}-{DE}"));
+        List<String> stringBoundaries = new ArrayList<>(Collections.singletonList("{BE}-{22Y201903144---9}+{22Y201903145---4}-{DE}"));
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
-        assertEquals(3, parameters.getRelativeMarginPtdfBoundaries().size());
+        assertEquals(1, parameters.getRelativeMarginPtdfBoundaries().size());
+        assertEquals(1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode(Country.BE)), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode(Country.DE)), 1e-6);
+        assertEquals(1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode("22Y201903145---4")), 1e-6);
+        assertEquals(-1, parameters.getRelativeMarginPtdfBoundaries().get(0).getWeight(new EICode("22Y201903144---9")), 1e-6);
     }
 
     @Test
