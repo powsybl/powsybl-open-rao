@@ -11,8 +11,8 @@
 
     <artifactId>farao-raw-crac-api</artifactId>
     <packaging>jar</packaging>
-    <name>Raw Crac API [TODO : change]</name>
-    <description>Raw Crac API [TODO : change]</description>
+    <name>Raw CRAC business model API</name>
+    <description>Raw CRAC business model API</description>
 
     <dependencies>
         <dependency>

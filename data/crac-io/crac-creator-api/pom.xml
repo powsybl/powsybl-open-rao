@@ -11,8 +11,8 @@
 
     <artifactId>farao-crac-creator-api</artifactId>
     <packaging>jar</packaging>
-    <name>Raw Crac API [TODO : change]</name>
-    <description>Raw Crac API [TODO : change]</description>
+    <name>Crac creator API</name>
+    <description>Crac creator API</description>
 
     <dependencies>
         <dependency>
