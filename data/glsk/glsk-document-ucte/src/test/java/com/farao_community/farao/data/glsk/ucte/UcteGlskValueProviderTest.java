@@ -7,8 +7,11 @@
 package com.farao_community.farao.data.glsk.ucte;
 
 import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
+import com.farao_community.farao.data.glsk.api.util.converters.GlskPointScalableConverter;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Test;
@@ -82,5 +85,23 @@ public class UcteGlskValueProviderTest {
         assertEquals(2, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
         assertEquals(0.5, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
         assertEquals(0.5, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _generator"), EPSILON);
+    }
+
+    @Test
+    public void checkConversionOfMultiGskSeriesToScalable() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        AbstractGlskPoint multiGlskSeries = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/ThreeGskSeries.xml")).getGlskPoints("10YFR-RTE------C").get(0);
+        Scalable scalable = GlskPointScalableConverter.convert(network, multiGlskSeries);
+        double generationBeforeScale = network.getGeneratorStream().mapToDouble(Generator::getTargetP).sum();
+        assertEquals(24500.0, generationBeforeScale, 0.1);
+        assertEquals(2000.0, network.getGenerator("FFR1AA1 _generator").getTargetP(), 0.1);
+        assertEquals(2000.0, network.getGenerator("FFR2AA1 _generator").getTargetP(), 0.1);
+
+        scalable.scale(network, 1000.0);
+
+        double generationAfterScale = network.getGeneratorStream().mapToDouble(Generator::getTargetP).sum();
+        assertEquals(25500.0, generationAfterScale, 0.1);
+        assertEquals(2700.0, network.getGenerator("FFR1AA1 _generator").getTargetP(), 0.1);
+        assertEquals(2300.0, network.getGenerator("FFR2AA1 _generator").getTargetP(), 0.1);
     }
 }
