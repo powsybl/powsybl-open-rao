@@ -48,17 +48,19 @@ public class LoopFlowComputation {
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
 
-        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, cnecs);
+        return buildLoopFlowsFromReferenceFlowAndPtdf(network, ptdfsAndRefFlows, cnecs);
     }
 
-    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
+    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(Network network, SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
 
         LoopFlowResult results = new LoopFlowResult();
         Map<EICode, LinearGlsk> refProgGlskMap = buildRefProgGlskMap();
+        XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glsk, cnecs, network);
 
         for (BranchCnec cnec : cnecs) {
             double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(cnec);
             double commercialFLow = refProgGlskMap.entrySet().stream()
+                .filter(entry -> xnodeGlskHandler.isLinearGlskValidForCnec(cnec, entry.getValue()))
                 .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), cnec) * referenceProgram.getGlobalNetPosition(entry.getKey()))
                 .sum();
             results.addCnecResult(cnec, refFlow - commercialFLow, commercialFLow, refFlow);
