@@ -204,7 +204,7 @@ public class RaoUtilTest {
 
     @Test
     public void testCreateSystematicSensitivityInterfaceOnRelativeMargin() {
-        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("FR/BE", "BE/NL", "FR/DE", "DE/NL")));
+        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{BE}", "{BE}-{NL}", "{FR}-{DE}", "{DE}-{NL}")));
         addGlskProvider();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoData = new RaoData(

@@ -20,7 +20,7 @@ import java.util.Objects;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
-    static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoParameters.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoParameters.class);
 
     public enum PreventiveRaoStopCriterion {
         MIN_OBJECTIVE,
