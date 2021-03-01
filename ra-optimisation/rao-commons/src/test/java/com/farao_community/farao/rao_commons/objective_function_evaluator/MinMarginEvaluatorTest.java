@@ -286,10 +286,10 @@ public class MinMarginEvaluatorTest {
         Set<BranchCnec> mnecs = setUpMockCnecs(false, true);
         RaoData mockRaoData = Mockito.mock(RaoData.class);
         Mockito.when(mockRaoData.getCnecs()).thenReturn(mnecs);
-        assertEquals(0, new MinMarginEvaluator(MEGAWATT, false, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
-        assertEquals(0, new MinMarginEvaluator(MEGAWATT, true, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
-        assertEquals(0, new MinMarginEvaluator(AMPERE, false, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
-        assertEquals(0, new MinMarginEvaluator(AMPERE, true, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
+        assertEquals(0, new MinMarginEvaluator(MEGAWATT, null, false, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
+        assertEquals(0, new MinMarginEvaluator(MEGAWATT, null, true, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
+        assertEquals(0, new MinMarginEvaluator(AMPERE, null, false, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
+        assertEquals(0, new MinMarginEvaluator(AMPERE, null, true, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
     }
 
 }
