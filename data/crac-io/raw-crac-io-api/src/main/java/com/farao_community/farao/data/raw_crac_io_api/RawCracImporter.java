@@ -16,9 +16,9 @@ import java.io.InputStream;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface RawCracImporter {
+public interface RawCracImporter<T extends RawCrac> {
 
-    RawCrac importRawCrac(InputStream inputStream);
+    T importRawCrac(InputStream inputStream);
 
     boolean exists(String fileName, InputStream inputStream);
 }
