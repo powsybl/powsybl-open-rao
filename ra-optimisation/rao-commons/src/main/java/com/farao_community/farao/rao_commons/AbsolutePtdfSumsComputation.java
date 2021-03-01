@@ -52,6 +52,9 @@ public final class AbsolutePtdfSumsComputation {
     }
 
     private static double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
+        if (zToz.getZoneToSlackPtdfs().stream().anyMatch(zToS -> !zToSlackPtdfMap.containsKey(zToS.getEiCode()))) {
+            return 0;
+        }
         return zToz.getZoneToSlackPtdfs().stream()
             .mapToDouble(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
             .sum();
