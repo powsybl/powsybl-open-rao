@@ -122,16 +122,20 @@ public final class UcteGlskDocument implements GlskDocument {
         List<Interval> oldPointsIntervalsList = new ArrayList<>();
         List<UcteGlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
         List<UcteGlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
-        for (UcteGlskPoint oldPoint : oldPoints) {
-            for (UcteGlskPoint incomingPoint : incomingPoints) {
+        for (UcteGlskPoint incomingPoint : incomingPoints) {
+            boolean alreadyExists = false;
+            for (UcteGlskPoint oldPoint : oldPoints) {
                 if (oldPoint.getPointInterval().equals(incomingPoint.getPointInterval())) {
                     oldPoint.getGlskShiftKeys().addAll(incomingPoint.getGlskShiftKeys());
-                } else {
-                    glskPointListTobeAdded = Collections.singletonList(incomingPoint);
-
+                    alreadyExists = true;
+                    break;
                 }
             }
+            if (!alreadyExists) {
+                glskPointListTobeAdded.add(incomingPoint);
+            }
         }
+
         oldPoints.forEach(oldPoint -> oldPointsIntervalsList.add(oldPoint.getPointInterval()));
         glskPointListTobeAdded.forEach(glskPointToBeAdded -> {
             if (!oldPointsIntervalsList.contains(glskPointToBeAdded.getPointInterval())) {
