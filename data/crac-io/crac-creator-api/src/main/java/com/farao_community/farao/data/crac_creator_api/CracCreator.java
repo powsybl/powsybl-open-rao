@@ -5,8 +5,9 @@ import com.powsybl.iidm.network.Network;
 
 import java.time.OffsetDateTime;
 
-public interface CracCreator<T extends RawCrac> {
+public interface CracCreator<T extends RawCrac, S extends CracCreationContext<T>> {
 
-    CracCreationResult<T> createCrac(T rawCrac, Network network, OffsetDateTime offsetDateTime);
+    CracCreationResult<T, S> createCrac(T rawCrac, Network network, OffsetDateTime offsetDateTime);
 
+    String getRawCracFormat();
 }
