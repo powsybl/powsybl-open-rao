@@ -13,6 +13,19 @@
 	<Domain v="10YDOM-REGION-1V" codingScheme="A01"/>
 	<GSKSeries>
 		<TimeSeriesIdentification v="2"/>
+		<BusinessType v="Z02" share="50"/>
+		<Area v="10YFR-RTE------C" codingScheme="A01"/>
+		<ManualGSK_Block>
+			<GSK_Name v="FR"/>
+			<TimeInterval v="2016-07-29T12:00Z/2016-07-29T19:00Z"/>
+			<ManualNodes>
+				<NodeName v="FFR1AA1 "/>
+				<Factor v="1.0"/>
+			</ManualNodes>
+		</ManualGSK_Block>
+	</GSKSeries>
+	<GSKSeries>
+		<TimeSeriesIdentification v="2"/>
 		<BusinessType v="Z02" share="30"/>
 		<Area v="10YFR-RTE------C" codingScheme="A01"/>
 		<ManualGSK_Block>
@@ -34,14 +47,18 @@
 	</GSKSeries>
 	<GSKSeries>
 		<TimeSeriesIdentification v="2"/>
-		<BusinessType v="Z02" share="50"/>
+		<BusinessType v="Z05" share="50"/>
 		<Area v="10YFR-RTE------C" codingScheme="A01"/>
 		<ManualGSK_Block>
 			<GSK_Name v="FR"/>
 			<TimeInterval v="2016-07-29T12:00Z/2016-07-29T19:00Z"/>
 			<ManualNodes>
 				<NodeName v="FFR1AA1 "/>
-				<Factor v="1.0"/>
+				<Factor v="0.6"/>
+			</ManualNodes>
+			<ManualNodes>
+				<NodeName v="FFR2AA1 "/>
+				<Factor v="0.4"/>
 			</ManualNodes>
 		</ManualGSK_Block>
 	</GSKSeries>
@@ -71,23 +88,6 @@
 			<ManualNodes>
 				<NodeName v="FFR2AA1 "/>
 				<Factor v="0.7"/>
-			</ManualNodes>
-		</ManualGSK_Block>
-	</GSKSeries>
-	<GSKSeries>
-		<TimeSeriesIdentification v="2"/>
-		<BusinessType v="Z05" share="50"/>
-		<Area v="10YFR-RTE------C" codingScheme="A01"/>
-		<ManualGSK_Block>
-			<GSK_Name v="FR"/>
-			<TimeInterval v="2016-07-29T12:00Z/2016-07-29T19:00Z"/>
-			<ManualNodes>
-				<NodeName v="FFR1AA1 "/>
-				<Factor v="0.6"/>
-			</ManualNodes>
-			<ManualNodes>
-				<NodeName v="FFR2AA1 "/>
-				<Factor v="0.4"/>
 			</ManualNodes>
 		</ManualGSK_Block>
 	</GSKSeries>
