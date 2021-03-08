@@ -43,7 +43,7 @@ public class ZonalDataChronologyFromGlskDocument<I> implements ZonalDataChronolo
             //mapping with DataChronology
             List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone);
             for (AbstractGlskPoint point : glskPointList) {
-                I linearData = converter.convert(network, point);
+                I linearData = converter.convert(network, point, 0);
                 dataChronology.storeDataOnInterval(linearData, point.getPointInterval());
             }
             dataChronologyPerZone.put(zone, dataChronology);

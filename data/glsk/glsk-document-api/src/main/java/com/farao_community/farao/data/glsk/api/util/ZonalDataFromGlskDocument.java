@@ -9,6 +9,7 @@ package com.farao_community.farao.data.glsk.api.util;
 
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
+import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
 import com.farao_community.farao.data.glsk.api.GlskException;
 import com.farao_community.farao.data.glsk.api.util.converters.GlskPointToLinearDataConverter;
@@ -37,7 +38,21 @@ public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
         super(new HashMap<>());
         for (String zone : glskDocument.getZones()) {
             List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone);
-            addLinearDataFromList(network, converter, glskPointList, zone);
+            if (!isHybridCseGlskPoint(glskPointList)) {
+                //this is the normal case for single scalable glsk point, both in CIM format and in CSE format (except Swiss's ID CSE)
+                addLinearDataFromList(network, converter, glskPointList, zone);
+            } else {
+                //Special case for Swiss's ID CSE. There are 2 shift keys in Swiss's ID CSE GLSK block:
+                // - a PropGSKBlock with "order = 1" and "MaximumShift = ... ", representing German's generators
+                // - a ReserveGSKBlock with "order = 2", representing Swiss's generators
+                // during import, we rename the zone name "10YCH-SWISSGRIDZ" with a suffix "@" + "order number":
+                // - 10YCH-SWISSGRIDZ@1
+                // - 10YCH-SWISSGRIDZ@2
+                for (AbstractGlskShiftKey abstractGlskShiftKey : glskPointList.get(0).getGlskShiftKeys()) {
+                    I linearData = converter.convert(network, glskPointList.get(0), abstractGlskShiftKey.getOrderInHybridCseGlsk());
+                    dataPerZone.put(zone + "@" + abstractGlskShiftKey.getOrderInHybridCseGlsk(), linearData);
+                }
+            }
         }
     }
 
@@ -45,8 +60,25 @@ public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
         if (glskPointList.size() > 1) {
             throw new GlskException("Cannot instantiate simple linear data because several glsk point match given instant");
         } else if (!glskPointList.isEmpty()) {
-            I linearData = converter.convert(network, glskPointList.get(0));
+            I linearData = converter.convert(network, glskPointList.get(0), 0);
             dataPerZone.put(country, linearData);
+        }
+    }
+
+    private boolean isHybridCseGlskPoint(List<AbstractGlskPoint> glskPointList) {
+        if (glskPointList.get(0).getGlskShiftKeys().get(0).getBusinessType().equals("B45")) {
+            return false; //merit order glsk has multi shift keys
+        }
+        if (glskPointList.get(0).getGlskShiftKeys().size() <= 1) {
+            return false; //normal glsk
+        }
+        if (glskPointList.get(0).getGlskShiftKeys().size() == 2) {
+            // In CIM format, there can be GSK and LSK defined for a same zone, these 2 shift keys (GSK + LSK) should be merged into one single ShiftKey (or Scalable)
+            // test if 2 shift keys have the same "order" (orderInHybridCseGlsk), then they should be merged.
+            // if 2 shift keys have different orders, this is a hybrid glsk for Swiss's ID CSE GSK.
+            return glskPointList.get(0).getGlskShiftKeys().get(0).getOrderInHybridCseGlsk() != glskPointList.get(0).getGlskShiftKeys().get(1).getOrderInHybridCseGlsk();
+        } else {
+            throw new GlskException("Cannot instantiate simple linear data because more then 2 glsk shift keys in a single glsk point.");
         }
     }
 }
