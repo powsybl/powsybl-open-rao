@@ -139,4 +139,10 @@ public class UcteGlskDocumentImporterTest {
         UcteGlskDocumentImporter importer = new UcteGlskDocumentImporter();
         assertFalse(importer.canImport(getResourceAsInputStream("/20160729_0000_GSK_allday_wrong.xml")));
     }
+
+    @Test
+    public void testUcteGlskDocumentImporterTest2() {
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream("/TestMultiShare1.xml"));
+        assertEquals(24, ucteGlskDocument.getUcteGlskPointsByCountry().get("10YFR-RTE------C").size());
+    }
 }
