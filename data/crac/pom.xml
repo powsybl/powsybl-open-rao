@@ -18,6 +18,7 @@
 
     <modules>
         <module>crac-api</module>
+        <module>crac-creator-api</module>
         <module>crac-impl</module>
         <module>crac-loopflow-extension</module>
         <module>crac-result-extensions</module>
