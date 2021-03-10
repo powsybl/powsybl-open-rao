@@ -13,7 +13,6 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Network;
 
-import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;

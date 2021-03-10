@@ -10,7 +10,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.raw_crac_api.RawCrac;
 import com.powsybl.iidm.network.Network;
 
-import javax.annotation.Nullable;
 import java.time.OffsetDateTime;
 
 /**
