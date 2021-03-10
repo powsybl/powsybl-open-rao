@@ -12,13 +12,30 @@ import com.farao_community.farao.data.raw_crac_api.RawCrac;
 import java.io.InputStream;
 
 /**
- * Interface for RawCrac object importer
+ * Common interface for importers of RawCrac objects.
+ *
+ * @see RawCracImporters
+ * @see RawCrac
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface RawCracImporter<T extends RawCrac> {
 
+    /**
+     * Get a unique identifier of the format handled by the RawCracImporter.
+     */
+    String getFormat();
+
+    /**
+     * Import a RawCrac from an input stream.
+     */
     T importRawCrac(InputStream inputStream);
 
+    /**
+     * Check if a file is importable.
+     * @param fileName the file name
+     * @param inputStream the input stream of the file
+     * @return true if the inputStream is importable, false otherwise
+     */
     boolean exists(String fileName, InputStream inputStream);
 }

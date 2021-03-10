@@ -13,12 +13,16 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Network;
 
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
+ * A utility class to work with CRAC creators
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class CracCreators {
@@ -29,24 +33,37 @@ public final class CracCreators {
     private CracCreators() {
     }
 
+    /**
+     * Flexible method to create a Crac from a RawCrac, whatever its format
+     */
     public static CracCreationResult createCrac(RawCrac rawCrac, Network network, OffsetDateTime offsetDateTime) {
-        CracCreator creator = findCreator(rawCrac);
+        CracCreator creator = findCreator(rawCrac.getFormat());
+
+        if (Objects.isNull(creator)) {
+            throw new FaraoException(String.format("No CracCreator found for format %s", rawCrac.getFormat()));
+        }
+
         return creator.createCrac(rawCrac, network, offsetDateTime);
     }
 
-    public static CracCreator findCreator(RawCrac rawCrac) {
+    /**
+     * Find a CracCreator for the specified RawCrac format name.
+     * @param rawCracFormat unique identifier of a raw CRAC file format
+     * @return the importer if one exists for the given format or <code>null</code> otherwise.
+     */
+    public static CracCreator findCreator(String rawCracFormat) {
         List<CracCreator> validCracCreators = new ArrayList<>();
         for (CracCreator creator : CRAC_CREATORS.get()) {
-            if (creator.getRawCracFormat().equals(rawCrac.getFormat())) {
+            if (creator.getRawCracFormat().equals(rawCracFormat)) {
                 validCracCreators.add(creator);
             }
         }
         if (validCracCreators.size() == 1) {
             return validCracCreators.get(0);
         } else if (validCracCreators.size() == 0) {
-            throw new FaraoException(String.format("No CracCreator found for format %s", rawCrac.getFormat()));
+            return null;
         } else {
-            throw new FaraoException(String.format("Several CracCreators found for format %s", rawCrac.getFormat()));
+            throw new FaraoException(String.format("Several CracCreators found for format %s", rawCracFormat));
         }
     }
 }

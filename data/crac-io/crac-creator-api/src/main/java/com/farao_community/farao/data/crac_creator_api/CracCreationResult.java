@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.crac_creator_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
@@ -5,28 +11,27 @@ import com.farao_community.farao.data.raw_crac_api.RawCrac;
 
 import java.util.List;
 
-public class CracCreationResult<T extends RawCrac, S extends CracCreationContext<T>> {
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+public interface CracCreationResult<T extends RawCrac, S extends CracCreationContext<T>> {
+    /**
+     * Get a boolean indicating whether the Crac creation was successful or not
+     */
+    public boolean isCreationSuccessful();
 
-    private Crac crac;
-    private boolean isCreationSuccessful;
-    private S cracCreationContext;
-    private List<String> creationReport;
+    /**
+     * Get the created Crac object
+     */
+    public Crac getCrac();
 
-    public CracCreationResult(Crac crac, boolean isCreationSuccessful, S cracCreationContext, List<String> creationReport) {
-        this.crac = crac;
-        this.isCreationSuccessful = isCreationSuccessful;
-        this.cracCreationContext = cracCreationContext;
-    }
+    /**
+     * Get the {@link CracCreationContext}
+     */
+    public S getCracCreationContext();
 
-    public boolean isCreationSuccessful() {
-        return isCreationSuccessful;
-    }
-
-    public S getCracCreationContext() {
-        return cracCreationContext;
-    }
-
-    public Crac getCrac() {
-        return crac;
-    }
+    /**
+     * Get the creation report, given as a list of logs
+     */
+    public List<String> getCreationReport();
 }

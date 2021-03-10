@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -16,9 +16,11 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
- * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * A utility class to work with raw CRAC importers
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class RawCracImporters {
@@ -29,9 +31,13 @@ public final class RawCracImporters {
     private RawCracImporters() {
     }
 
-    public static RawCrac importRawCrac(Path rawCracPath) {
+    /**
+     * Flexible method to import a RawCrac from a file, trying to guess its format
+     * @param rawCracPath {@link Path} of the raw CRAC file
+     */
+    public static RawCrac importData(Path rawCracPath) {
         try (InputStream is = new FileInputStream(rawCracPath.toFile())) {
-            return importRawCrac(rawCracPath.getFileName().toString(), is);
+            return importData(rawCracPath.getFileName().toString(), is);
         } catch (FileNotFoundException e) {
             throw new FaraoException("File not found.");
         } catch (IOException e) {
@@ -39,14 +45,12 @@ public final class RawCracImporters {
         }
     }
 
-    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        org.apache.commons.io.IOUtils.copy(inputStream, baos);
-        return baos.toByteArray();
-    }
-
-    public static RawCrac importRawCrac(String fileName, InputStream inputStream) {
+    /**
+     * Flexible method to import a RawCrac from a file, trying to guess its format
+     * @param fileName name of the raw CRAC file
+     * @param inputStream input stream of the raw CRAC file
+     */
+    public static RawCrac importData(String fileName, InputStream inputStream) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
@@ -60,6 +64,12 @@ public final class RawCracImporters {
         }
     }
 
+    /**
+     * Find an importer for a specify file, trying to guess its format
+     * @param fileName name of the raw CRAC file
+     * @param inputStream input stream of the raw CRAC file
+     * @return the importer if one exists for the given file or <code>null</code> otherwise.
+     */
     public static RawCracImporter findImporter(String fileName, InputStream inputStream) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
@@ -75,5 +85,31 @@ public final class RawCracImporters {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /**
+     * Find an importer for the specified RawCrac format name.
+     * @param fileFormat unique identifier of a raw CRAC file format
+     * @return the importer if one exists for the given format or <code>null</code> otherwise.
+     */
+    public static RawCracImporter findImporter(String fileFormat) {
+        List<RawCracImporter> importersWithFormat =  RAW_CRAC_IMPORTERS.get().stream()
+            .filter(importer -> importer.getFormat().equals(fileFormat))
+            .collect(Collectors.toList());
+
+        if (importersWithFormat.size() == 1) {
+            return importersWithFormat.get(0);
+        } else if (importersWithFormat.size() == 0) {
+            return null;
+        } else {
+            throw new FaraoException(String.format("Several RawCracImporters have been found for format %s", fileFormat));
+        }
+    }
+
+    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        org.apache.commons.io.IOUtils.copy(inputStream, baos);
+        return baos.toByteArray();
     }
 }
