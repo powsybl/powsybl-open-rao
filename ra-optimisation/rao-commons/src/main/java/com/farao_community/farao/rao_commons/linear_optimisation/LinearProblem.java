@@ -33,7 +33,7 @@ public class LinearProblem {
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
     private static final String MNEC_VIOLATION = "mnecviolation";
     private static final String MNEC_FLOW = "mnecflow";
-    private static final String MARGIN_DECREASE = "marginDecrease";
+    private static final String MARGIN_DECREASE = "margindecrease";
 
     public enum AbsExtension {
         POSITIVE,

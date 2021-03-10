@@ -60,7 +60,7 @@ public class LinearOptimizer {
 
     // Methods for tests
     LinearOptimizer() {
-        this(Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, null)));
+        this(Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST)));
     }
 
     LinearProblem createLinearRaoProblem() {

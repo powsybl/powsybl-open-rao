@@ -200,6 +200,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                                 initialVariantIdPerOptimizedStateId.get(optimizedState.getId()),
                                 parameters);
                             curativeRaoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(initialVariantId, curativeRaoData.getWorkingVariantId());
+                            curativeRaoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(initialVariantId, curativeRaoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId());
                             if (!parameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
                                 curativeRaoData.getCracResultManager().copyCommercialFlowsBetweenVariants(initialVariantId, curativeRaoData.getWorkingVariantId());
                             }

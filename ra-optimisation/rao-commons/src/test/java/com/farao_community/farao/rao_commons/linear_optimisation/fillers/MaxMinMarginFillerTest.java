@@ -10,8 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -19,9 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.Collections;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
@@ -44,7 +39,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
-        maxMinMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, null);
+        maxMinMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST);
     }
 
     private void fillProblemWithCoreFiller() {
@@ -199,141 +194,6 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         MPConstraint mnecBelowThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(mnecAboveThreshold);
         assertNotNull(mnecBelowThreshold);
-    }
-
-    private void setupOperatorsNotToOptimize() {
-        // Add a cnec
-        crac.newBranchCnec().setId("Line NL - N - preventive")
-                .newNetworkElement().setId("NNL1AA1  NNL2AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(800.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
-                .optimized()
-                .setInstant(crac.getInstant("N"))
-                .setOperator("NL")
-                .add();
-        // Set initial margins on both preventive CNECs
-        cnecNl = crac.getBranchCnec("Line NL - N - preventive");
-        cnecFr = crac.getBranchCnec("Tieline BE FR - N - preventive");
-
-        // Create filler with new operatorsNotToOptimize and fill
-        maxMinMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, Collections.singleton("NL"));
-    }
-
-    @Test
-    public void testGetCnecsForOperatorsNoToOptimize1() {
-        initRaoData(crac.getPreventiveState());
-        assertEquals(0, maxMinMarginFiller.getCnecsForOperatorsNotToOptimize(raoData).count());
-    }
-
-    @Test
-    public void testGetCnecsForOperatorsNoToOptimize2() {
-        setupOperatorsNotToOptimize();
-        initRaoData(crac.getPreventiveState());
-        assertEquals(1, maxMinMarginFiller.getCnecsForOperatorsNotToOptimize(raoData).count());
-        assertSame(cnecNl, maxMinMarginFiller.getCnecsForOperatorsNotToOptimize(raoData).collect(Collectors.toList()).get(0));
-    }
-
-    @Test
-    public void testGetMinPossibleMarginOnPerimeter() {
-        setupOperatorsNotToOptimize();
-        initRaoData(crac.getPreventiveState());
-        cnecFr.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(600); // wit a threshold of 750
-        cnecNl.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(500); // wit a threshold of 800
-        assertEquals(150.0, maxMinMarginFiller.getMinPossibleMarginOnPerimeter(raoData), DOUBLE_TOLERANCE);
-
-        String newVariant = raoData.getCracVariantManager().cloneWorkingVariant();
-        raoData.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(newVariant);
-        cnecFr.getExtension(CnecResultExtension.class).getVariant(newVariant).setFlowInMW(650); // wit a threshold of 750
-        cnecNl.getExtension(CnecResultExtension.class).getVariant(newVariant).setFlowInMW(-950); // wit a threshold of -1000
-        assertEquals(50.0, maxMinMarginFiller.getMinPossibleMarginOnPerimeter(raoData), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testGetLargestCnecThreshold1() {
-        setupOperatorsNotToOptimize();
-        initRaoData(crac.getPreventiveState());
-        assertEquals(1000, maxMinMarginFiller.getLargestCnecThreshold(raoData), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testGetLargestCnecThreshold2() {
-        setupOperatorsNotToOptimize();
-        crac.newBranchCnec().setId("Pure MNEC")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(3000.0).setMin(-3000.).setUnit(Unit.MEGAWATT).add()
-                .monitored()
-                .setInstant(crac.getInstant("N"))
-                .add();
-        crac.newBranchCnec().setId("CNEC MNEC")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(2000.0).setMin(-2500.).setUnit(Unit.MEGAWATT).add()
-                .monitored()
-                .optimized()
-                .setInstant(crac.getInstant("N"))
-                .add();
-        initRaoData(crac.getPreventiveState());
-        assertEquals(2500, maxMinMarginFiller.getLargestCnecThreshold(raoData), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testCnecsNotToOptimizeBinaryVar() {
-        setupOperatorsNotToOptimize();
-        initRaoData(crac.getPreventiveState());
-        cnecFr.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(600); // wit a threshold of +750/-750
-        cnecNl.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(400); // wit a threshold of +800/-1000
-        double worstMarginDecreaseOnCnecNl = (800 - 400) - (750 - 600);
-
-        fillProblemWithCoreFiller();
-        maxMinMarginFiller.fill(raoData, linearProblem);
-
-        // Verify existence of margin_decrease binary variable
-        assertNull(linearProblem.getMarginDecreaseBinaryVariable(cnecFr));
-        MPVariable binaryVar = linearProblem.getMarginDecreaseBinaryVariable(cnecNl);
-        assertNotNull(binaryVar);
-
-        // Get flow variable
-        MPVariable flowVar = linearProblem.getFlowVariable(cnecNl);
-
-        // Verify existence of margin_decrease definition constraints
-        assertNull(linearProblem.getMarginDecreaseConstraint(cnecFr, LinearProblem.MarginExtension.BELOW_THRESHOLD));
-        assertNull(linearProblem.getMarginDecreaseConstraint(cnecFr, LinearProblem.MarginExtension.ABOVE_THRESHOLD));
-
-        MPConstraint marginDecreaseConstraintMin = linearProblem.getMarginDecreaseConstraint(cnecNl, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        assertNotNull(marginDecreaseConstraintMin);
-        assertEquals(linearProblem.infinity(), marginDecreaseConstraintMin.ub(), DOUBLE_TOLERANCE);
-        assertEquals(-1000 + (800 - 400), marginDecreaseConstraintMin.lb(), DOUBLE_TOLERANCE);
-        assertEquals(1.0, marginDecreaseConstraintMin.getCoefficient(flowVar), DOUBLE_TOLERANCE);
-        assertEquals(worstMarginDecreaseOnCnecNl, marginDecreaseConstraintMin.getCoefficient(binaryVar), DOUBLE_TOLERANCE);
-
-        MPConstraint marginDecreaseConstraintMax = linearProblem.getMarginDecreaseConstraint(cnecNl, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        assertNotNull(marginDecreaseConstraintMax);
-        assertEquals(linearProblem.infinity(), marginDecreaseConstraintMax.ub(), DOUBLE_TOLERANCE);
-        assertEquals(-800 + (800 - 400), marginDecreaseConstraintMax.lb(), DOUBLE_TOLERANCE);
-        assertEquals(-1.0, marginDecreaseConstraintMax.getCoefficient(flowVar), DOUBLE_TOLERANCE);
-        assertEquals(worstMarginDecreaseOnCnecNl, marginDecreaseConstraintMax.getCoefficient(binaryVar), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testExcludeCnecsNotToOptimizeInMinMargin() {
-        setupOperatorsNotToOptimize();
-        initRaoData(crac.getPreventiveState());
-        cnecFr.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(600); // wit a threshold of +750/-750
-        cnecNl.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setFlowInMW(400); // wit a threshold of +800/-1000
-        double maxAbsThreshold = 1000;
-        fillProblemWithCoreFiller();
-        maxMinMarginFiller.fill(raoData, linearProblem);
-
-        // Test that cnecFr's constraint does not have a bigM
-        assertEquals(750.0, linearProblem.getMinimumMarginConstraint(cnecFr, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
-        assertEquals(750.0, linearProblem.getMinimumMarginConstraint(cnecFr, LinearProblem.MarginExtension.ABOVE_THRESHOLD).ub(), DOUBLE_TOLERANCE);
-
-        // Test that cnecNl's constraint does have a bigM
-        MPVariable marginDecreaseVariable = linearProblem.getMarginDecreaseBinaryVariable(cnecNl);
-        MPConstraint minMarginDefMin = linearProblem.getMinimumMarginConstraint(cnecNl, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        assertEquals(1000 + 2 * maxAbsThreshold, minMarginDefMin.ub(), DOUBLE_TOLERANCE);
-        assertEquals(2 * maxAbsThreshold, minMarginDefMin.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
-        MPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecNl, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        assertEquals(800 + 2 * maxAbsThreshold, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
-        assertEquals(2 * maxAbsThreshold, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
     }
 }
 

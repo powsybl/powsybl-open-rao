@@ -166,7 +166,6 @@ class Leaf {
 
         if (status.equals(Status.EVALUATED)) {
             LOGGER.debug("Leaf has already been evaluated");
-            raoData.getCracResultManager().fillCnecResultWithFlows();
             raoData.getCracResultManager().fillCracResultWithCosts(
                 objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
             return;
@@ -178,7 +177,6 @@ class Leaf {
             raoData.getCracResultManager().fillCnecResultWithFlows();
             if (isRoot()) {
                 raoData.getCracResultManager().fillPreperimeterCnecResultWithFlows();
-                raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(raoData.getPreOptimVariantId(), raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId());
             }
 
             if (raoParameters.isRaoWithLoopFlowLimitation()) {

@@ -130,13 +130,14 @@ public final class RaoUtil {
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold(), maxPstPerTso));
         if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
             || raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
-            fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), operatorsNotToOptimize));
+            fillers.add(new MaxMinMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         } else if (raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
             || raoParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
-            fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), operatorsNotToOptimize, raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getPtdfSumLowerBound()));
+            fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getPtdfSumLowerBound()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
+        fillers.add(new OperatorsNotToOptimizeFiller(operatorsNotToOptimize));
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             // TODO : add relative margins to IteratingLinearOptimizerWithLoopFlows
             // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
