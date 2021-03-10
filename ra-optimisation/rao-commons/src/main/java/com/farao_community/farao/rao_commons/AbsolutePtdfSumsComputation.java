@@ -43,13 +43,19 @@ public final class AbsolutePtdfSumsComputation {
         Map<EICode, Double> ptdfs = new HashMap<>();
         for (EICode eiCode : eiCodesInBoundaries) {
             LinearGlsk linearGlsk = glsks.getData(eiCode.getAreaCode());
-            double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
-            ptdfs.put(eiCode, ptdfValue);
+            if (linearGlsk != null) {
+                double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
+                ptdfs.put(eiCode, ptdfValue);
+            }
         }
         return ptdfs;
     }
 
     private static double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
+        if (zToz.getZoneToSlackPtdfs().stream().anyMatch(zToS -> !zToSlackPtdfMap.containsKey(zToS.getEiCode()))) {
+            // If one zone is missing its PTDF, ignore the boundary
+            return 0;
+        }
         return zToz.getZoneToSlackPtdfs().stream()
             .mapToDouble(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
             .sum();
