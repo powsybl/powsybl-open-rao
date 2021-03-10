@@ -12,6 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
@@ -35,6 +36,7 @@ import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -284,8 +286,15 @@ public class MinMarginEvaluatorTest {
     @Test
     public void testPureMnecs() {
         Set<BranchCnec> mnecs = setUpMockCnecs(false, true);
+        ResultVariantManager mockResultManager = Mockito.mock(ResultVariantManager.class);
+        Mockito.when(mockResultManager.getInitialVariantId()).thenReturn(null);
+        Mockito.when(mockResultManager.getPrePerimeterVariantId()).thenReturn(null);
+        Crac mockCrac = Mockito.mock(SimpleCrac.class);
+        Mockito.when(mockCrac.getExtension(eq(ResultVariantManager.class))).thenReturn(mockResultManager);
         RaoData mockRaoData = Mockito.mock(RaoData.class);
         Mockito.when(mockRaoData.getCnecs()).thenReturn(mnecs);
+        Mockito.when(mockRaoData.getCrac()).thenReturn(mockCrac);
+
         assertEquals(0, new MinMarginEvaluator(MEGAWATT, null, false, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
         assertEquals(0, new MinMarginEvaluator(MEGAWATT, null, true, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
         assertEquals(0, new MinMarginEvaluator(AMPERE, null, false, 0.02).getCost(mockRaoData), DOUBLE_TOLERANCE);
