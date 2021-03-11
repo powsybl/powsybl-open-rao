@@ -10,14 +10,14 @@
         <version>2.4.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-raw-crac</artifactId>
+    <artifactId>farao-native-crac</artifactId>
     <version>2.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Raw CRAC</name>
-    <description>Module that gathers the features related to raw CRAC data</description>
+    <name>Native CRAC</name>
+    <description>Module that gathers the features related to native CRAC data</description>
 
     <modules>
-        <module>raw-crac-api</module>
-        <module>raw-crac-io-api</module>
+        <module>native-crac-api</module>
+        <module>native-crac-io-api</module>
     </modules>
 </project>

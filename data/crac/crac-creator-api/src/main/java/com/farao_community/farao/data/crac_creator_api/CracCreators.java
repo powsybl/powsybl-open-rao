@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_creator_api;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.raw_crac_api.RawCrac;
+import com.farao_community.farao.data.native_crac_api.NativeCrac;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Network;
@@ -35,7 +35,7 @@ public final class CracCreators {
     /**
      * Flexible method to create a Crac from a RawCrac, whatever its format
      */
-    public static CracCreationResult createCrac(RawCrac rawCrac, Network network, OffsetDateTime offsetDateTime) {
+    public static CracCreationResult createCrac(NativeCrac rawCrac, Network network, OffsetDateTime offsetDateTime) {
         CracCreator creator = findCreator(rawCrac.getFormat());
 
         if (Objects.isNull(creator)) {
@@ -53,7 +53,7 @@ public final class CracCreators {
     public static CracCreator findCreator(String rawCracFormat) {
         List<CracCreator> validCracCreators = new ArrayList<>();
         for (CracCreator creator : CRAC_CREATORS.get()) {
-            if (creator.getRawCracFormat().equals(rawCracFormat)) {
+            if (creator.getNativeCracFormat().equals(rawCracFormat)) {
                 validCracCreators.add(creator);
             }
         }

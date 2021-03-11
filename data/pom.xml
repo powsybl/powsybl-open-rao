@@ -20,7 +20,7 @@
         <module>crac-io</module>
         <module>flowbased-domain</module>
         <module>glsk</module>
-        <module>raw-crac</module>
+        <module>native-crac</module>
         <module>refprog</module>
     </modules>
 </project>

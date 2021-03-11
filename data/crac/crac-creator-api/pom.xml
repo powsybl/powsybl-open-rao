@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-raw-crac-api</artifactId>
+            <artifactId>farao-native-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

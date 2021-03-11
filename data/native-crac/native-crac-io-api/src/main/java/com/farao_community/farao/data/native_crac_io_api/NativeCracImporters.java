@@ -5,10 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.raw_crac_io_api;
+package com.farao_community.farao.data.native_crac_io_api;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.raw_crac_api.RawCrac;
+import com.farao_community.farao.data.native_crac_api.NativeCrac;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
@@ -19,23 +19,23 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * A utility class to work with raw CRAC importers
+ * A utility class to work with native CRAC importers
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class RawCracImporters {
+public final class NativeCracImporters {
 
-    private static final Supplier<List<RawCracImporter>> RAW_CRAC_IMPORTERS
-        = Suppliers.memoize(() -> new ServiceLoaderCache<>(RawCracImporter.class).getServices())::get;
+    private static final Supplier<List<NativeCracImporter>> RAW_CRAC_IMPORTERS
+        = Suppliers.memoize(() -> new ServiceLoaderCache<>(NativeCracImporter.class).getServices())::get;
 
-    private RawCracImporters() {
+    private NativeCracImporters() {
     }
 
     /**
-     * Flexible method to import a RawCrac from a file, trying to guess its format
-     * @param rawCracPath {@link Path} of the raw CRAC file
+     * Flexible method to import a NativeCrac from a file, trying to guess its format
+     * @param rawCracPath {@link Path} of the native CRAC file
      */
-    public static RawCrac importData(Path rawCracPath) {
+    public static NativeCrac importData(Path rawCracPath) {
         try (InputStream is = new FileInputStream(rawCracPath.toFile())) {
             return importData(rawCracPath.getFileName().toString(), is);
         } catch (FileNotFoundException e) {
@@ -46,15 +46,15 @@ public final class RawCracImporters {
     }
 
     /**
-     * Flexible method to import a RawCrac from a file, trying to guess its format
-     * @param fileName name of the raw CRAC file
-     * @param inputStream input stream of the raw CRAC file
+     * Flexible method to import a NativeCrac from a file, trying to guess its format
+     * @param fileName name of the native CRAC file
+     * @param inputStream input stream of the native CRAC file
      */
-    public static RawCrac importData(String fileName, InputStream inputStream) {
+    public static NativeCrac importData(String fileName, InputStream inputStream) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
-            RawCracImporter importer = findImporter(fileName, new ByteArrayInputStream(bytes));
+            NativeCracImporter importer = findImporter(fileName, new ByteArrayInputStream(bytes));
             if (importer == null) {
                 throw new FaraoException("No importer found for this file");
             }
@@ -65,16 +65,16 @@ public final class RawCracImporters {
     }
 
     /**
-     * Find an importer for a specify file, trying to guess its format
-     * @param fileName name of the raw CRAC file
-     * @param inputStream input stream of the raw CRAC file
+     * Find an importer for a specified file, trying to guess its format
+     * @param fileName name of the native CRAC file
+     * @param inputStream input stream of the native CRAC file
      * @return the importer if one exists for the given file or <code>null</code> otherwise.
      */
-    public static RawCracImporter findImporter(String fileName, InputStream inputStream) {
+    public static NativeCracImporter findImporter(String fileName, InputStream inputStream) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
-            for (RawCracImporter importer : RAW_CRAC_IMPORTERS.get()) {
+            for (NativeCracImporter importer : RAW_CRAC_IMPORTERS.get()) {
                 ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
                 if (importer.exists(fileName, bais)) {
                     return importer;
@@ -88,12 +88,12 @@ public final class RawCracImporters {
     }
 
     /**
-     * Find an importer for the specified RawCrac format name.
-     * @param fileFormat unique identifier of a raw CRAC file format
+     * Find an importer for the specified NativeCrac format name.
+     * @param fileFormat unique identifier of a native CRAC file format
      * @return the importer if one exists for the given format or <code>null</code> otherwise.
      */
-    public static RawCracImporter findImporter(String fileFormat) {
-        List<RawCracImporter> importersWithFormat =  RAW_CRAC_IMPORTERS.get().stream()
+    public static NativeCracImporter findImporter(String fileFormat) {
+        List<NativeCracImporter> importersWithFormat =  RAW_CRAC_IMPORTERS.get().stream()
             .filter(importer -> importer.getFormat().equals(fileFormat))
             .collect(Collectors.toList());
 
@@ -102,7 +102,7 @@ public final class RawCracImporters {
         } else if (importersWithFormat.size() == 0) {
             return null;
         } else {
-            throw new FaraoException(String.format("Several RawCracImporters have been found for format %s", fileFormat));
+            throw new FaraoException(String.format("Several NativeCracImporters have been found for format %s", fileFormat));
         }
     }
 

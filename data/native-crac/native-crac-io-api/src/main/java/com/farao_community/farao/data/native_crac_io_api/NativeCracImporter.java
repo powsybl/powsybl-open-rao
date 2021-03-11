@@ -5,29 +5,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.raw_crac_io_api;
+package com.farao_community.farao.data.native_crac_io_api;
 
-import com.farao_community.farao.data.raw_crac_api.RawCrac;
+import com.farao_community.farao.data.native_crac_api.NativeCrac;
 
 import java.io.InputStream;
 
 /**
- * Common interface for importers of RawCrac objects.
+ * Common interface for importers of NativeCrac objects.
  *
- * @see RawCracImporters
- * @see RawCrac
+ * @see NativeCracImporters
+ * @see NativeCrac
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface RawCracImporter<T extends RawCrac> {
+public interface NativeCracImporter<T extends NativeCrac> {
 
     /**
-     * Get a unique identifier of the format handled by the RawCracImporter.
+     * Get a unique identifier of the format handled by the NativeCracImporter.
      */
     String getFormat();
 
     /**
-     * Import a RawCrac from an input stream.
+     * Import a NativeCrac from an input stream.
      */
     T importRawCrac(InputStream inputStream);
 

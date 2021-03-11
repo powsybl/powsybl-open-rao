@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.crac_creator_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.raw_crac_api.RawCrac;
+import com.farao_community.farao.data.native_crac_api.NativeCrac;
 import com.powsybl.iidm.network.Network;
 
 import java.time.OffsetDateTime;
@@ -15,17 +15,17 @@ import java.time.OffsetDateTime;
 /**
  * Common interface for creators of {@link Crac} objects.
  *
- * @param <T> is the {@link RawCrac} implementation used as input of the CracCreator
+ * @param <T> is the {@link NativeCrac} implementation used as input of the CracCreator
  * @param <S> is the {@link CracCreationContext} implementation returned by the CracCreator
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface CracCreator<T extends RawCrac, S extends CracCreationContext<T>> {
+public interface CracCreator<T extends NativeCrac, S extends CracCreationContext<T>> {
 
     /**
-     * Get a unique identifier of the RawCrac implementation handled by the CracCreator.
+     * Get a unique identifier of the native Crac format handled by the CracCreator.
      */
-    String getRawCracFormat();
+    String getNativeCracFormat();
 
     /**
      * Create a Crac object from a RawCrac and a Network.
