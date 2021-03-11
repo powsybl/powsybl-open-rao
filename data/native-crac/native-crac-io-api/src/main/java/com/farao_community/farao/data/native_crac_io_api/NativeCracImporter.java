@@ -29,7 +29,7 @@ public interface NativeCracImporter<T extends NativeCrac> {
     /**
      * Import a NativeCrac from an input stream.
      */
-    T importRawCrac(InputStream inputStream);
+    T importNativeCrac(InputStream inputStream);
 
     /**
      * Check if a file is importable.

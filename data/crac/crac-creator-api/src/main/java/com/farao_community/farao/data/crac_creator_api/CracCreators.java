@@ -9,10 +9,13 @@ package com.farao_community.farao.data.crac_creator_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
+import com.farao_community.farao.data.native_crac_io_api.NativeCracImporters;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Network;
 
+import java.io.*;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,27 +36,59 @@ public final class CracCreators {
     }
 
     /**
-     * Flexible method to create a Crac from a RawCrac, whatever its format
+     * Flexible method to create a Crac from a native CRAC and a network, whatever the format of the
+     * native CRAC.
+     * @param nativeCrac native CRAC object
+     * @param network network object required for the conversion of the NativeCrac into a Crac
+     * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
+     * @return the created {@link CracCreationContext} object
      */
-    public static CracCreationResult createCrac(NativeCrac rawCrac, Network network, OffsetDateTime offsetDateTime) {
-        CracCreator creator = findCreator(rawCrac.getFormat());
+    public static <T extends NativeCrac> CracCreationContext<T> createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime) {
+        CracCreator creator = findCreator(nativeCrac.getFormat());
 
         if (Objects.isNull(creator)) {
-            throw new FaraoException(String.format("No CracCreator found for format %s", rawCrac.getFormat()));
+            throw new FaraoException(String.format("No CracCreator found for format %s", nativeCrac.getFormat()));
         }
 
-        return creator.createCrac(rawCrac, network, offsetDateTime);
+        return creator.createCrac(nativeCrac, network, offsetDateTime);
     }
 
     /**
-     * Find a CracCreator for the specified RawCrac format name.
-     * @param rawCracFormat unique identifier of a raw CRAC file format
+     * Flexible method to import a Crac from a native CRAC file and a network, whatever the format of the
+     * native CRAC file.
+     * @param nativeCracPath {@link Path} of the native CRAC file
+     * @param network network object required for the conversion of the NativeCrac into a Crac
+     * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
+     * @return the created {@link NativeCrac} object
+     */
+    public static CracCreationContext<?> importAndCreateCrac(Path nativeCracPath, Network network, OffsetDateTime offsetDateTime) {
+        NativeCrac nativeCrac = NativeCracImporters.importData(nativeCracPath);
+        return createCrac(nativeCrac, network, offsetDateTime);
+    }
+
+    /**
+     * Flexible method to import a Crac from a native CRAC file and a network, whatever the format of the
+     * native CRAC file.
+     * @param fileName name of the native CRAC file
+     * @param inputStream input stream of the native CRAC file
+     * @param network network object required for the conversion of the NativeCrac into a Crac
+     * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
+     * @return the created {@link NativeCrac} object
+     */
+    public static CracCreationContext<?> importAndCreateCrac(String fileName, InputStream inputStream, Network network, OffsetDateTime offsetDateTime) {
+        NativeCrac nativeCrac = NativeCracImporters.importData(fileName, inputStream);
+        return createCrac(nativeCrac, network, offsetDateTime);
+    }
+
+    /**
+     * Find a CracCreator for the specified native CRAC format name.
+     * @param nativeCracFormat unique identifier of a native CRAC file format
      * @return the importer if one exists for the given format or <code>null</code> otherwise.
      */
-    public static CracCreator findCreator(String rawCracFormat) {
+    public static CracCreator<?, ?> findCreator(String nativeCracFormat) {
         List<CracCreator> validCracCreators = new ArrayList<>();
         for (CracCreator creator : CRAC_CREATORS.get()) {
-            if (creator.getNativeCracFormat().equals(rawCracFormat)) {
+            if (creator.getNativeCracFormat().equals(nativeCracFormat)) {
                 validCracCreators.add(creator);
             }
         }
@@ -62,7 +97,7 @@ public final class CracCreators {
         } else if (validCracCreators.size() == 0) {
             return null;
         } else {
-            throw new FaraoException(String.format("Several CracCreators found for format %s", rawCracFormat));
+            throw new FaraoException(String.format("Several CracCreators found for format %s", nativeCracFormat));
         }
     }
 }

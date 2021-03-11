@@ -10,12 +10,26 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 
 /**
- * Common interface for CracCreationContext
+ *  Common interface for CracCreationContext
  *
- * A CracCreationContext contains information on how a {@link Crac} has been created
- * from a {@link NativeCrac}.
+ *  A CracCreationContext contains the results of a CRAC creation, notably the created Crac
+ *  object.
+ *
+ *  It can also contain additional information on how the {@link Crac} has been created from a
+ *  {@link NativeCrac}, for instance on how the object of the NativeCrac has been mapped in
+ *  the Crac.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface CracCreationContext<T extends NativeCrac> {
+
+    /**
+     * Get a boolean indicating whether the Crac creation was successful or not
+     */
+    public boolean isCreationSuccessful();
+
+    /**
+     * Get the created Crac object
+     */
+    public Crac getCrac();
 }

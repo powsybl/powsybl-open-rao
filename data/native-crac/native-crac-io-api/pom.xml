@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>farao-raw-crac-io-api</artifactId>
+    <artifactId>farao-native-crac-io-api</artifactId>
     <packaging>jar</packaging>
     <name>Native CRAC importers API</name>
     <description>Native CRAC importers API</description>

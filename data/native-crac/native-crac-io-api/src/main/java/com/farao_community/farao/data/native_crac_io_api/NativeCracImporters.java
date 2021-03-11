@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public final class NativeCracImporters {
 
-    private static final Supplier<List<NativeCracImporter>> RAW_CRAC_IMPORTERS
+    private static final Supplier<List<NativeCracImporter>> NATIVE_CRAC_IMPORTERS
         = Suppliers.memoize(() -> new ServiceLoaderCache<>(NativeCracImporter.class).getServices())::get;
 
     private NativeCracImporters() {
@@ -33,11 +33,11 @@ public final class NativeCracImporters {
 
     /**
      * Flexible method to import a NativeCrac from a file, trying to guess its format
-     * @param rawCracPath {@link Path} of the native CRAC file
+     * @param nativeCracPath {@link Path} of the native CRAC file
      */
-    public static NativeCrac importData(Path rawCracPath) {
-        try (InputStream is = new FileInputStream(rawCracPath.toFile())) {
-            return importData(rawCracPath.getFileName().toString(), is);
+    public static NativeCrac importData(Path nativeCracPath) {
+        try (InputStream is = new FileInputStream(nativeCracPath.toFile())) {
+            return importData(nativeCracPath.getFileName().toString(), is);
         } catch (FileNotFoundException e) {
             throw new FaraoException("File not found.");
         } catch (IOException e) {
@@ -58,7 +58,7 @@ public final class NativeCracImporters {
             if (importer == null) {
                 throw new FaraoException("No importer found for this file");
             }
-            return importer.importRawCrac(new ByteArrayInputStream(bytes));
+            return importer.importNativeCrac(new ByteArrayInputStream(bytes));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -74,7 +74,7 @@ public final class NativeCracImporters {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
-            for (NativeCracImporter importer : RAW_CRAC_IMPORTERS.get()) {
+            for (NativeCracImporter importer : NATIVE_CRAC_IMPORTERS.get()) {
                 ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
                 if (importer.exists(fileName, bais)) {
                     return importer;
@@ -93,7 +93,7 @@ public final class NativeCracImporters {
      * @return the importer if one exists for the given format or <code>null</code> otherwise.
      */
     public static NativeCracImporter findImporter(String fileFormat) {
-        List<NativeCracImporter> importersWithFormat =  RAW_CRAC_IMPORTERS.get().stream()
+        List<NativeCracImporter> importersWithFormat =  NATIVE_CRAC_IMPORTERS.get().stream()
             .filter(importer -> importer.getFormat().equals(fileFormat))
             .collect(Collectors.toList());
 
