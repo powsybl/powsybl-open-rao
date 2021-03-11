@@ -59,31 +59,39 @@ void createMissingGeneratorsAndLoads(VoltageLevel voltageLevel) {
 void createMissingGenerator(VoltageLevel voltageLevel, String busId) {
     String generatorId = busId + "_generator"
     if (network.getGenerator(generatorId) == null) {
-        voltageLevel.newGenerator()
-                .setBus(busId)
-                .setEnsureIdUnicity(true)
-                .setId(generatorId)
-                .setMaxP(9999)
-                .setMinP(0)
-                .setTargetP(0)
-                .setTargetQ(0)
-                .setTargetV(voltageLevel.getNominalV())
-                .setVoltageRegulatorOn(false)
-                .add()
+        try {
+            voltageLevel.newGenerator()
+                    .setBus(busId)
+                    .setEnsureIdUnicity(true)
+                    .setId(generatorId)
+                    .setMaxP(9999)
+                    .setMinP(0)
+                    .setTargetP(0)
+                    .setTargetQ(0)
+                    .setTargetV(voltageLevel.getNominalV())
+                    .setVoltageRegulatorOn(false)
+                    .add()
+        } catch (Exception e) {
+            // Can't create generator
+        }
     }
 }
 
 void createMissingLoad(VoltageLevel voltageLevel, String busId) {
     String loadId = busId + "_load"
     if (network.getLoad(loadId) == null) {
-        voltageLevel.newLoad()
-                .setBus(busId)
-                .setEnsureIdUnicity(true)
-                .setId(loadId)
-                .setP0(0)
-                .setQ0(0)
-                .setLoadType(LoadType.FICTITIOUS)
-                .add()
+        try {
+            voltageLevel.newLoad()
+                    .setBus(busId)
+                    .setEnsureIdUnicity(true)
+                    .setId(loadId)
+                    .setP0(0)
+                    .setQ0(0)
+                    .setLoadType(LoadType.FICTITIOUS)
+                    .add()
+        } catch (Exception e) {
+            // Can't create load
+        }
     }
 }
 
