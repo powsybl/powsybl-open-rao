@@ -9,7 +9,9 @@ package com.farao_community.farao.data.crac_io_cne;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_creator_api.CracCreationContext;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
+import com.farao_community.farao.data.raw_crac_api.RawCrac;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -79,6 +81,11 @@ public class CneExport implements CracExporter {
         } catch (JAXBException | IOException e) {
             throw new FaraoException();
         }
+    }
+
+    @Override
+    public void exportCrac(Crac crac, RawCrac rawCrac, Network network, CracCreationContext cracCreationContext, String initialVariantId, String postPraVariantId, String postCraVariantId, OutputStream outputStream) {
+        // CNE export will be removed from farao-core, no need to implement this
     }
 
     private static String getSchemaFile(String schemaName) {
