@@ -1,0 +1,3138 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GSKDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="gsk-document-04.xsd">
+  <DocumentIdentification v="17XTSO-CS------W-20201112F319v1" />
+  <DocumentVersion v="1"/>
+  <DocumentType v="B22" />
+  <ProcessType v="Z02" />
+  <SenderIdentification codingScheme="A01" v="17XTSO-CS------W" />
+  <SenderRole v="A36" />
+  <ReceiverIdentification codingScheme="A01" v="22XCORESO------S" />
+  <ReceiverRole v="A04" />
+  <CreationDateTime v="2010-01-01T00:42:29Z" />
+  <GSKTimeInterval v="2010-01-01T23:00Z/2010-01-02T23:00Z" />
+  <Domain codingScheme="A01" v="10Y1001C--00059P" />
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="31" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-01T23:00Z/2010-01-02T00:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.11498256" />
+        <Status v="OK" />
+        <ActiveGen v="-64.011" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.32687159" />
+        <Status v="OK" />
+        <ActiveGen v="-181.97" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.2463617" />
+        <Status v="OK" />
+        <ActiveGen v="-137.15" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.17544545" />
+        <Status v="OK" />
+        <ActiveGen v="97.6708" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.1363387" />
+        <Status v="OK" />
+        <ActiveGen v="-75.9" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="29" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T00:00Z/2010-01-02T01:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.10016048" />
+        <Status v="OK" />
+        <ActiveGen v="-59.104" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.31142549" />
+        <Status v="OK" />
+        <ActiveGen v="-183.77" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.23474266" />
+        <Status v="OK" />
+        <ActiveGen v="-138.52" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.23160078" />
+        <Status v="OK" />
+        <ActiveGen v="136.666" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.12207059" />
+        <Status v="OK" />
+        <ActiveGen v="-72.033" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T09:00Z/2010-01-02T10:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.10145317" />
+        <Status v="OK" />
+        <ActiveGen v="-66.129" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.28839339" />
+        <Status v="OK" />
+        <ActiveGen v="-187.98" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.28985085" />
+        <Status v="OK" />
+        <ActiveGen v="-188.93" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.09275749" />
+        <Status v="OK" />
+        <ActiveGen v="-60.461" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.11449668" />
+        <Status v="OK" />
+        <ActiveGen v="-74.631" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.11304843" />
+        <Status v="OK" />
+        <ActiveGen v="-73.687" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="27" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T01:00Z/2010-01-02T02:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.10147321" />
+        <Status v="OK" />
+        <ActiveGen v="-59.16" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.31550005" />
+        <Status v="OK" />
+        <ActiveGen v="-183.94" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.23781713" />
+        <Status v="OK" />
+        <ActiveGen v="-138.65" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.23422371" />
+        <Status v="OK" />
+        <ActiveGen v="136.555" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.1109859" />
+        <Status v="OK" />
+        <ActiveGen v="-64.706" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T02:00Z/2010-01-02T03:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.09984435" />
+        <Status v="OK" />
+        <ActiveGen v="-58.888" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.31044527" />
+        <Status v="OK" />
+        <ActiveGen v="-183.1" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.23399537" />
+        <Status v="OK" />
+        <ActiveGen v="-138.01" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.23246942" />
+        <Status v="OK" />
+        <ActiveGen v="137.11" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.12324559" />
+        <Status v="OK" />
+        <ActiveGen v="-72.69" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T06:00Z/2010-01-02T07:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.09589154" />
+        <Status v="OK" />
+        <ActiveGen v="-65.254" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.27259448" />
+        <Status v="OK" />
+        <ActiveGen v="-185.5" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.27397582" />
+        <Status v="OK" />
+        <ActiveGen v="-186.44" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.12328912" />
+        <Status v="OK" />
+        <ActiveGen v="-83.898" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.11095991" />
+        <Status v="OK" />
+        <ActiveGen v="-75.508" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.12328912" />
+        <Status v="OK" />
+        <ActiveGen v="-83.898" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T07:00Z/2010-01-02T08:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.09845483" />
+        <Status v="OK" />
+        <ActiveGen v="-65.623" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.2798828" />
+        <Status v="OK" />
+        <ActiveGen v="-186.55" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.28129309" />
+        <Status v="OK" />
+        <ActiveGen v="-187.49" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.12658414" />
+        <Status v="OK" />
+        <ActiveGen v="-84.372" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.1026737" />
+        <Status v="OK" />
+        <ActiveGen v="-68.435" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.11111144" />
+        <Status v="OK" />
+        <ActiveGen v="-74.059" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="28" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T03:00Z/2010-01-02T04:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.09904037" />
+        <Status v="OK" />
+        <ActiveGen v="-58.219" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.30794565" />
+        <Status v="OK" />
+        <ActiveGen v="-181.02" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.23212454" />
+        <Status v="OK" />
+        <ActiveGen v="-136.45" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.23554219" />
+        <Status v="OK" />
+        <ActiveGen v="138.459" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.12534725" />
+        <Status v="OK" />
+        <ActiveGen v="-73.683" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T13:00Z/2010-01-02T14:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.09831766" />
+        <Status v="OK" />
+        <ActiveGen v="-66.944" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.27948509" />
+        <Status v="OK" />
+        <ActiveGen v="-190.3" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.280895" />
+        <Status v="OK" />
+        <ActiveGen v="-191.26" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.14607245" />
+        <Status v="OK" />
+        <ActiveGen v="-99.46" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.11095837" />
+        <Status v="OK" />
+        <ActiveGen v="-75.551" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.08427144" />
+        <Status v="OK" />
+        <ActiveGen v="-57.38" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="26" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T04:00Z/2010-01-02T05:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.09674921" />
+        <Status v="OK" />
+        <ActiveGen v="-66.211" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.26740429" />
+        <Status v="OK" />
+        <ActiveGen v="-183" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.20154685" />
+        <Status v="OK" />
+        <ActiveGen v="-137.93" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.200486" />
+        <Status v="OK" />
+        <ActiveGen v="137.204" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.1128753" />
+        <Status v="OK" />
+        <ActiveGen v="-77.247" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.12093834" />
+        <Status v="OK" />
+        <ActiveGen v="-82.765" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="25" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T05:00Z/2010-01-02T06:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.10479277" />
+        <Status v="OK" />
+        <ActiveGen v="-64.676" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.29790337" />
+        <Status v="OK" />
+        <ActiveGen v="-183.86" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.29939402" />
+        <Status v="OK" />
+        <ActiveGen v="-184.78" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.03742506" />
+        <Status v="OK" />
+        <ActiveGen v="-23.098" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.125751" />
+        <Status v="OK" />
+        <ActiveGen v="-77.611" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.13473379" />
+        <Status v="OK" />
+        <ActiveGen v="-83.155" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="17" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T08:00Z/2010-01-02T09:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.08849815" />
+        <Status v="OK" />
+        <ActiveGen v="-66.99" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.25157042" />
+        <Status v="OK" />
+        <ActiveGen v="-190.43" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.25283864" />
+        <Status v="OK" />
+        <ActiveGen v="-191.39" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.11378333" />
+        <Status v="OK" />
+        <ActiveGen v="-86.13" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.09481944" />
+        <Status v="OK" />
+        <ActiveGen v="-71.775" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.0998778" />
+        <Status v="OK" />
+        <ActiveGen v="-75.604" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.09861222" />
+        <Status v="OK" />
+        <ActiveGen v="-74.646" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="30" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T10:00Z/2010-01-02T11:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.10189693" />
+        <Status v="OK" />
+        <ActiveGen v="-65.744" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.28964617" />
+        <Status v="OK" />
+        <ActiveGen v="-186.88" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.29111858" />
+        <Status v="OK" />
+        <ActiveGen v="-187.83" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.08879713" />
+        <Status v="OK" />
+        <ActiveGen v="-57.292" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.11499827" />
+        <Status v="OK" />
+        <ActiveGen v="-74.197" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.11354291" />
+        <Status v="OK" />
+        <ActiveGen v="-73.258" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T11:00Z/2010-01-02T12:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.10028848" />
+        <Status v="OK" />
+        <ActiveGen v="-67.269" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.28509664" />
+        <Status v="OK" />
+        <ActiveGen v="-191.23" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.28652787" />
+        <Status v="OK" />
+        <ActiveGen v="-192.19" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.10315391" />
+        <Status v="OK" />
+        <ActiveGen v="-69.191" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.11318291" />
+        <Status v="OK" />
+        <ActiveGen v="-75.918" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.11175019" />
+        <Status v="OK" />
+        <ActiveGen v="-74.957" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T12:00Z/2010-01-02T13:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.09790531" />
+        <Status v="OK" />
+        <ActiveGen v="-66.16" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.27831093" />
+        <Status v="OK" />
+        <ActiveGen v="-188.07" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.27971676" />
+        <Status v="OK" />
+        <ActiveGen v="-189.02" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.12448003" />
+        <Status v="OK" />
+        <ActiveGen v="-84.118" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.11049271" />
+        <Status v="OK" />
+        <ActiveGen v="-74.666" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.10909427" />
+        <Status v="OK" />
+        <ActiveGen v="-73.721" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="16" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T14:00Z/2010-01-02T15:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.08610512" />
+        <Status v="OK" />
+        <ActiveGen v="-67.786" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.24476435" />
+        <Status v="OK" />
+        <ActiveGen v="-192.69" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.24599649" />
+        <Status v="OK" />
+        <ActiveGen v="-193.66" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.12300841" />
+        <Status v="OK" />
+        <ActiveGen v="-96.838" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.12914625" />
+        <Status v="OK" />
+        <ActiveGen v="-101.67" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.09717535" />
+        <Status v="OK" />
+        <ActiveGen v="-76.501" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.07380403" />
+        <Status v="OK" />
+        <ActiveGen v="-58.102" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T15:00Z/2010-01-02T16:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.08423777" />
+        <Status v="OK" />
+        <ActiveGen v="-67.704" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.23947246" />
+        <Status v="OK" />
+        <ActiveGen v="-192.47" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.24067934" />
+        <Status v="OK" />
+        <ActiveGen v="-193.44" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.15642166" />
+        <Status v="OK" />
+        <ActiveGen v="-125.72" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.09867927" />
+        <Status v="OK" />
+        <ActiveGen v="-79.311" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.1083057" />
+        <Status v="OK" />
+        <ActiveGen v="-87.048" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.0722038" />
+        <Status v="OK" />
+        <ActiveGen v="-58.032" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T16:00Z/2010-01-02T17:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.08363595" />
+        <Status v="OK" />
+        <ActiveGen v="-67.229" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.23774957" />
+        <Status v="OK" />
+        <ActiveGen v="-191.11" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.23894385" />
+        <Status v="OK" />
+        <ActiveGen v="-192.07" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.15530666" />
+        <Status v="OK" />
+        <ActiveGen v="-124.84" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.10514301" />
+        <Status v="OK" />
+        <ActiveGen v="-84.517" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.10753282" />
+        <Status v="OK" />
+        <ActiveGen v="-86.438" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.07168813" />
+        <Status v="OK" />
+        <ActiveGen v="-57.625" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T17:00Z/2010-01-02T18:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.08294081" />
+        <Status v="OK" />
+        <ActiveGen v="-67.652" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.23578278" />
+        <Status v="OK" />
+        <ActiveGen v="-192.32" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.23695974" />
+        <Status v="OK" />
+        <ActiveGen v="-193.28" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.15402138" />
+        <Status v="OK" />
+        <ActiveGen v="-125.63" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.11256323" />
+        <Status v="OK" />
+        <ActiveGen v="-91.814" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.10663924" />
+        <Status v="OK" />
+        <ActiveGen v="-86.982" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.07109282" />
+        <Status v="OK" />
+        <ActiveGen v="-57.988" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T18:00Z/2010-01-02T19:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.08274524" />
+        <Status v="OK" />
+        <ActiveGen v="-67.994" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.23522411" />
+        <Status v="OK" />
+        <ActiveGen v="-193.29" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.23640455" />
+        <Status v="OK" />
+        <ActiveGen v="-194.26" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.153652" />
+        <Status v="OK" />
+        <ActiveGen v="-126.26" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.11466095" />
+        <Status v="OK" />
+        <ActiveGen v="-94.22" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.10638813" />
+        <Status v="OK" />
+        <ActiveGen v="-87.422" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="YUDF9IY " />
+        <Factor v="0.07092502" />
+        <Status v="OK" />
+        <ActiveGen v="-58.281" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="35" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T19:00Z/2010-01-02T20:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.10671184" />
+        <Status v="OK" />
+        <ActiveGen v="-67.617" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.30334211" />
+        <Status v="OK" />
+        <ActiveGen v="-192.21" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.30487295" />
+        <Status v="OK" />
+        <ActiveGen v="-193.18" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.14787238" />
+        <Status v="OK" />
+        <ActiveGen v="-93.698" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.13720072" />
+        <Status v="OK" />
+        <ActiveGen v="-86.936" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="36" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T20:00Z/2010-01-02T21:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.10720034" />
+        <Status v="OK" />
+        <ActiveGen v="-69.336" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.30473617" />
+        <Status v="OK" />
+        <ActiveGen v="-197.1" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.30628227" />
+        <Status v="OK" />
+        <ActiveGen v="-198.1" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.14395266" />
+        <Status v="OK" />
+        <ActiveGen v="-93.107" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.13782857" />
+        <Status v="OK" />
+        <ActiveGen v="-89.146" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="34" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T21:00Z/2010-01-02T22:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.10786028" />
+        <Status v="OK" />
+        <ActiveGen v="-65.437" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.30661812" />
+        <Status v="OK" />
+        <ActiveGen v="-186.02" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.30816753" />
+        <Status v="OK" />
+        <ActiveGen v="-186.96" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.13867704" />
+        <Status v="OK" />
+        <ActiveGen v="-84.133" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.13867704" />
+        <Status v="OK" />
+        <ActiveGen v="-84.133" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="GSK_8" />
+    <BusinessType v="Z02" share="33" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T22:00Z/2010-01-02T23:00Z" />
+      <ManualNodes>
+        <NodeName v="GLSOF 2 " />
+        <Factor v="0.11780543" />
+        <Status v="OK" />
+        <ActiveGen v="-66.117" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CGJ5IOP " />
+        <Factor v="0.33486625" />
+        <Status v="OK" />
+        <ActiveGen v="-187.94" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="APCOTLM " />
+        <Factor v="0.25240584" />
+        <Status v="OK" />
+        <ActiveGen v="-141.66" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSDFGHJ " />
+        <Factor v="0.1434576" />
+        <Status v="OK" />
+        <ActiveGen v="-80.514" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.15146488" />
+        <Status v="OK" />
+        <ActiveGen v="-85.008" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="69" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-01T23:00Z/2010-01-02T00:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05314936" />
+        <Status v="OK" />
+        <InitActiveLoad v="52.6743" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00412366" />
+        <Status v="OK" />
+        <InitActiveLoad v="4.0868" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.02290915" />
+        <Status v="OK" />
+        <InitActiveLoad v="22.7044" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.21729342" />
+        <Status v="OK" />
+        <InitActiveLoad v="215.3511" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.10435053" />
+        <Status v="OK" />
+        <InitActiveLoad v="103.4178" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.03344743" />
+        <Status v="OK" />
+        <InitActiveLoad v="33.1484" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06471849" />
+        <Status v="OK" />
+        <InitActiveLoad v="64.14" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.05692934" />
+        <Status v="OK" />
+        <InitActiveLoad v="56.4205" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07903674" />
+        <Status v="OK" />
+        <InitActiveLoad v="78.3302" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.02842399" />
+        <Status v="OK" />
+        <InitActiveLoad v="-28.1699" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00332183" />
+        <Status v="OK" />
+        <InitActiveLoad v="3.2921" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.15394841" />
+        <Status v="OK" />
+        <InitActiveLoad v="152.5723" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.036082" />
+        <Status v="OK" />
+        <InitActiveLoad v="35.7595" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.14226565" />
+        <Status v="OK" />
+        <InitActiveLoad v="140.994" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="71" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T00:00Z/2010-01-02T01:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.06206843" />
+        <Status v="OK" />
+        <InitActiveLoad v="56.66" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00408681" />
+        <Status v="OK" />
+        <InitActiveLoad v="3.7307" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.02413768" />
+        <Status v="OK" />
+        <InitActiveLoad v="22.0344" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.2333312" />
+        <Status v="OK" />
+        <InitActiveLoad v="212.9995" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.0974449" />
+        <Status v="OK" />
+        <InitActiveLoad v="88.9539" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.03537637" />
+        <Status v="OK" />
+        <InitActiveLoad v="32.2938" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.05976954" />
+        <Status v="OK" />
+        <InitActiveLoad v="54.5614" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.06679376" />
+        <Status v="OK" />
+        <InitActiveLoad v="60.9736" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07726619" />
+        <Status v="OK" />
+        <InitActiveLoad v="70.5335" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.03295967" />
+        <Status v="OK" />
+        <InitActiveLoad v="-30.0877" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00255426" />
+        <Status v="OK" />
+        <InitActiveLoad v="2.3317" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.12694582" />
+        <Status v="OK" />
+        <InitActiveLoad v="115.8842" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.0349933" />
+        <Status v="OK" />
+        <InitActiveLoad v="31.9441" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.14227206" />
+        <Status v="OK" />
+        <InitActiveLoad v="129.875" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T09:00Z/2010-01-02T10:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.0554404" />
+        <Status v="OK" />
+        <InitActiveLoad v="73.7815" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00141149" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.8785" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.07904301" />
+        <Status v="OK" />
+        <InitActiveLoad v="105.1924" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.14546175" />
+        <Status v="OK" />
+        <InitActiveLoad v="193.5841" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.09731436" />
+        <Status v="OK" />
+        <InitActiveLoad v="129.5083" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.06210576" />
+        <Status v="OK" />
+        <InitActiveLoad v="82.6519" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.03277806" />
+        <Status v="OK" />
+        <InitActiveLoad v="43.6218" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.11550692" />
+        <Status v="OK" />
+        <InitActiveLoad v="153.7195" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.05936123" />
+        <Status v="OK" />
+        <InitActiveLoad v="78.9994" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01524978" />
+        <Status v="OK" />
+        <InitActiveLoad v="-20.2948" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00125466" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.6697" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.1953347" />
+        <Status v="OK" />
+        <InitActiveLoad v="259.9562" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.12491719" />
+        <Status v="OK" />
+        <InitActiveLoad v="166.2429" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.01482069" />
+        <Status v="OK" />
+        <InitActiveLoad v="19.7237" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="73" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T01:00Z/2010-01-02T02:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05877897" />
+        <Status v="OK" />
+        <InitActiveLoad v="51.5662" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00308657" />
+        <Status v="OK" />
+        <InitActiveLoad v="2.7078" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.02737648" />
+        <Status v="OK" />
+        <InitActiveLoad v="24.0171" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.22236702" />
+        <Status v="OK" />
+        <InitActiveLoad v="195.0804" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.10293032" />
+        <Status v="OK" />
+        <InitActiveLoad v="90.2998" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.03784402" />
+        <Status v="OK" />
+        <InitActiveLoad v="33.2002" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06226811" />
+        <Status v="OK" />
+        <InitActiveLoad v="54.6272" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.06709937" />
+        <Status v="OK" />
+        <InitActiveLoad v="58.8656" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07085689" />
+        <Status v="OK" />
+        <InitActiveLoad v="62.1621" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.03632024" />
+        <Status v="OK" />
+        <InitActiveLoad v="-31.8634" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00080519" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.7064" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.13097751" />
+        <Status v="OK" />
+        <InitActiveLoad v="114.9053" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.03717296" />
+        <Status v="OK" />
+        <InitActiveLoad v="32.6115" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.14211634" />
+        <Status v="OK" />
+        <InitActiveLoad v="124.6773" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T02:00Z/2010-01-02T03:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05723823" />
+        <Status v="OK" />
+        <InitActiveLoad v="50.0132" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00256492" />
+        <Status v="OK" />
+        <InitActiveLoad v="2.2412" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.02564917" />
+        <Status v="OK" />
+        <InitActiveLoad v="22.4116" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.22449788" />
+        <Status v="OK" />
+        <InitActiveLoad v="196.1603" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.09962686" />
+        <Status v="OK" />
+        <InitActiveLoad v="87.0513" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.03833883" />
+        <Status v="OK" />
+        <InitActiveLoad v="33.4995" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06479801" />
+        <Status v="OK" />
+        <InitActiveLoad v="56.6188" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.06520301" />
+        <Status v="OK" />
+        <InitActiveLoad v="56.9727" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07492261" />
+        <Status v="OK" />
+        <InitActiveLoad v="65.4654" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.03883174" />
+        <Status v="OK" />
+        <InitActiveLoad v="-33.9301" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00053998" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.4718" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.12851523" />
+        <Status v="OK" />
+        <InitActiveLoad v="112.2932" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.03577389" />
+        <Status v="OK" />
+        <InitActiveLoad v="31.2583" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.14349964" />
+        <Status v="OK" />
+        <InitActiveLoad v="125.3862" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T06:00Z/2010-01-02T07:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05242416" />
+        <Status v="OK" />
+        <InitActiveLoad v="64.7807" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00120912" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.4941" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.06270167" />
+        <Status v="OK" />
+        <InitActiveLoad v="77.4807" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.16046743" />
+        <Status v="OK" />
+        <InitActiveLoad v="198.2902" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.09975252" />
+        <Status v="OK" />
+        <InitActiveLoad v="123.2646" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.06434263" />
+        <Status v="OK" />
+        <InitActiveLoad v="79.5084" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.0550151" />
+        <Status v="OK" />
+        <InitActiveLoad v="67.9824" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.10398459" />
+        <Status v="OK" />
+        <InitActiveLoad v="128.4942" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.06969732" />
+        <Status v="OK" />
+        <InitActiveLoad v="86.1253" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01784816" />
+        <Status v="OK" />
+        <InitActiveLoad v="-22.055" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00069092" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.8538" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.18318111" />
+        <Status v="OK" />
+        <InitActiveLoad v="226.3576" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.12868527" />
+        <Status v="OK" />
+        <InitActiveLoad v="159.0169" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T07:00Z/2010-01-02T08:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05619664" />
+        <Status v="OK" />
+        <InitActiveLoad v="70.0406" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00109365" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.3631" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.08320072" />
+        <Status v="OK" />
+        <InitActiveLoad v="103.6971" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.15117576" />
+        <Status v="OK" />
+        <InitActiveLoad v="188.4177" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.09346414" />
+        <Status v="OK" />
+        <InitActiveLoad v="116.4889" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.07049822" />
+        <Status v="OK" />
+        <InitActiveLoad v="87.8654" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.04038082" />
+        <Status v="OK" />
+        <InitActiveLoad v="50.3286" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.1208044" />
+        <Status v="OK" />
+        <InitActiveLoad v="150.5644" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07226486" />
+        <Status v="OK" />
+        <InitActiveLoad v="90.0672" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01513273" />
+        <Status v="OK" />
+        <InitActiveLoad v="-18.8606" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00033651" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.4194" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.17102893" />
+        <Status v="OK" />
+        <InitActiveLoad v="213.1616" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.12442261" />
+        <Status v="OK" />
+        <InitActiveLoad v="155.0739" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="72" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T03:00Z/2010-01-02T04:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05577655" />
+        <Status v="OK" />
+        <InitActiveLoad v="49.35" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00158232" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.4" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.02478958" />
+        <Status v="OK" />
+        <InitActiveLoad v="21.9333" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.22692956" />
+        <Status v="OK" />
+        <InitActiveLoad v="200.7828" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.09757601" />
+        <Status v="OK" />
+        <InitActiveLoad v="86.3333" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.03916225" />
+        <Status v="OK" />
+        <InitActiveLoad v="34.65" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06263328" />
+        <Status v="OK" />
+        <InitActiveLoad v="55.4167" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.0659297" />
+        <Status v="OK" />
+        <InitActiveLoad v="58.3333" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07661037" />
+        <Status v="OK" />
+        <InitActiveLoad v="67.7833" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.03769129" />
+        <Status v="OK" />
+        <InitActiveLoad v="-33.3485" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00052744" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.4667" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.13133167" />
+        <Status v="OK" />
+        <InitActiveLoad v="116.1997" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="CVDFGHY " />
+        <Factor v="0.03481091" />
+        <Status v="OK" />
+        <InitActiveLoad v="30.8" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.14464908" />
+        <Status v="OK" />
+        <InitActiveLoad v="127.9827" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T13:00Z/2010-01-02T14:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05861431" />
+        <Status v="OK" />
+        <InitActiveLoad v="78.3827" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00015568" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.2082" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.08531315" />
+        <Status v="OK" />
+        <InitActiveLoad v="114.0861" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.11738387" />
+        <Status v="OK" />
+        <InitActiveLoad v="156.9731" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.104774" />
+        <Status v="OK" />
+        <InitActiveLoad v="140.1104" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.05713535" />
+        <Status v="OK" />
+        <InitActiveLoad v="76.405" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06312909" />
+        <Status v="OK" />
+        <InitActiveLoad v="84.4202" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.10710891" />
+        <Status v="OK" />
+        <InitActiveLoad v="143.2327" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.06670977" />
+        <Status v="OK" />
+        <InitActiveLoad v="89.2085" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01406792" />
+        <Status v="OK" />
+        <InitActiveLoad v="-18.8125" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00077841" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.0409" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.18253675" />
+        <Status v="OK" />
+        <InitActiveLoad v="244.0996" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.12882628" />
+        <Status v="OK" />
+        <InitActiveLoad v="172.2746" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.01346651" />
+        <Status v="OK" />
+        <InitActiveLoad v="18.0083" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="74" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T04:00Z/2010-01-02T05:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.04783093" />
+        <Status v="OK" />
+        <InitActiveLoad v="46.2727" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00191324" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.8509" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.0135122" />
+        <Status v="OK" />
+        <InitActiveLoad v="13.072" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.23305479" />
+        <Status v="OK" />
+        <InitActiveLoad v="225.4626" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.11455512" />
+        <Status v="OK" />
+        <InitActiveLoad v="110.8233" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.03503613" />
+        <Status v="OK" />
+        <InitActiveLoad v="33.8948" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06158241" />
+        <Status v="OK" />
+        <InitActiveLoad v="59.5762" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.0577559" />
+        <Status v="OK" />
+        <InitActiveLoad v="55.8744" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07987769" />
+        <Status v="OK" />
+        <InitActiveLoad v="77.2755" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.03704513" />
+        <Status v="OK" />
+        <InitActiveLoad v="-35.8383" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00167408" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.6195" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.17063682" />
+        <Status v="OK" />
+        <InitActiveLoad v="165.078" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.14552556" />
+        <Status v="OK" />
+        <InitActiveLoad v="140.7848" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="75" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T05:00Z/2010-01-02T06:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.0444114" />
+        <Status v="OK" />
+        <InitActiveLoad v="49.9341" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00106898" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.2019" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.05510123" />
+        <Status v="OK" />
+        <InitActiveLoad v="61.9532" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.16229081" />
+        <Status v="OK" />
+        <InitActiveLoad v="182.4721" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.1050518" />
+        <Status v="OK" />
+        <InitActiveLoad v="118.1153" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.05830818" />
+        <Status v="OK" />
+        <InitActiveLoad v="65.559" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06141795" />
+        <Status v="OK" />
+        <InitActiveLoad v="69.0554" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.09465295" />
+        <Status v="OK" />
+        <InitActiveLoad v="106.4233" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07609219" />
+        <Status v="OK" />
+        <InitActiveLoad v="85.5545" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.03043529" />
+        <Status v="OK" />
+        <InitActiveLoad v="-34.22" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00068026" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.7649" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.1880432" />
+        <Status v="OK" />
+        <InitActiveLoad v="211.4269" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.12244576" />
+        <Status v="OK" />
+        <InitActiveLoad v="137.6722" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="83" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T08:00Z/2010-01-02T09:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05545783" />
+        <Status v="OK" />
+        <InitActiveLoad v="73.607" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00102699" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.3631" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.0786835" />
+        <Status v="OK" />
+        <InitActiveLoad v="104.4335" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.14875639" />
+        <Status v="OK" />
+        <InitActiveLoad v="197.4384" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.10040792" />
+        <Status v="OK" />
+        <InitActiveLoad v="133.2674" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.0626468" />
+        <Status v="OK" />
+        <InitActiveLoad v="83.1486" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.03183691" />
+        <Status v="OK" />
+        <InitActiveLoad v="42.2559" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.11770891" />
+        <Status v="OK" />
+        <InitActiveLoad v="156.2304" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.06762375" />
+        <Status v="OK" />
+        <InitActiveLoad v="89.7543" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01621878" />
+        <Status v="OK" />
+        <InitActiveLoad v="-21.5265" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.000711" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.9437" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.19157406" />
+        <Status v="OK" />
+        <InitActiveLoad v="254.2686" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.12734717" />
+        <Status v="OK" />
+        <InitActiveLoad v="169.0228" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="70" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T10:00Z/2010-01-02T11:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.04773105" />
+        <Status v="OK" />
+        <InitActiveLoad v="72.715" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00055421" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.8443" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.06816697" />
+        <Status v="OK" />
+        <InitActiveLoad v="103.8477" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.13820505" />
+        <Status v="OK" />
+        <InitActiveLoad v="210.5459" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.10363657" />
+        <Status v="OK" />
+        <InitActiveLoad v="157.8832" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.05742969" />
+        <Status v="OK" />
+        <InitActiveLoad v="87.4902" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.04523717" />
+        <Status v="OK" />
+        <InitActiveLoad v="68.9157" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.10370543" />
+        <Status v="OK" />
+        <InitActiveLoad v="157.9881" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07031484" />
+        <Status v="OK" />
+        <InitActiveLoad v="107.1198" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.0275072" />
+        <Status v="OK" />
+        <InitActiveLoad v="-41.9053" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00034638" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.5277" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.19577371" />
+        <Status v="OK" />
+        <InitActiveLoad v="298.2477" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.12192522" />
+        <Status v="OK" />
+        <InitActiveLoad v="185.7447" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.01946654" />
+        <Status v="OK" />
+        <InitActiveLoad v="29.6559" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T11:00Z/2010-01-02T12:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05334253" />
+        <Status v="OK" />
+        <InitActiveLoad v="76.8541" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00065052" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.9372" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.07762865" />
+        <Status v="OK" />
+        <InitActiveLoad v="111.8447" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.12742934" />
+        <Status v="OK" />
+        <InitActiveLoad v="183.5959" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.10263714" />
+        <Status v="OK" />
+        <InitActiveLoad v="147.8761" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.05507726" />
+        <Status v="OK" />
+        <InitActiveLoad v="79.3534" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.05110186" />
+        <Status v="OK" />
+        <InitActiveLoad v="73.6258" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.10437095" />
+        <Status v="OK" />
+        <InitActiveLoad v="150.3741" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.06331723" />
+        <Status v="OK" />
+        <InitActiveLoad v="91.2253" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01171967" />
+        <Status v="OK" />
+        <InitActiveLoad v="-16.8853" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.0003614" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.5207" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.2025276" />
+        <Status v="OK" />
+        <InitActiveLoad v="291.7949" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.1327778" />
+        <Status v="OK" />
+        <InitActiveLoad v="191.3017" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.01705803" />
+        <Status v="OK" />
+        <InitActiveLoad v="24.5766" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T12:00Z/2010-01-02T13:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05554822" />
+        <Status v="OK" />
+        <InitActiveLoad v="85.5035" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00185849" />
+        <Status v="OK" />
+        <InitActiveLoad v="2.8607" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.06780009" />
+        <Status v="OK" />
+        <InitActiveLoad v="104.3624" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.12582629" />
+        <Status v="OK" />
+        <InitActiveLoad v="193.6802" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.10682887" />
+        <Status v="OK" />
+        <InitActiveLoad v="164.4381" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.05547942" />
+        <Status v="OK" />
+        <InitActiveLoad v="85.3976" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.04955978" />
+        <Status v="OK" />
+        <InitActiveLoad v="76.2857" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.10290476" />
+        <Status v="OK" />
+        <InitActiveLoad v="158.3979" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.06256922" />
+        <Status v="OK" />
+        <InitActiveLoad v="96.3107" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.02759842" />
+        <Status v="OK" />
+        <InitActiveLoad v="-42.4813" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00110133" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.6952" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.18901495" />
+        <Status v="OK" />
+        <InitActiveLoad v="290.9444" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.1271341" />
+        <Status v="OK" />
+        <InitActiveLoad v="195.6933" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.02677605" />
+        <Status v="OK" />
+        <InitActiveLoad v="41.2155" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="84" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T14:00Z/2010-01-02T15:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.0618782" />
+        <Status v="OK" />
+        <InitActiveLoad v="76.7527" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00077027" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.9554" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.08995015" />
+        <Status v="OK" />
+        <InitActiveLoad v="111.5727" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.12820562" />
+        <Status v="OK" />
+        <InitActiveLoad v="159.0241" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.10706573" />
+        <Status v="OK" />
+        <InitActiveLoad v="132.8026" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.05905389" />
+        <Status v="OK" />
+        <InitActiveLoad v="73.2495" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.05708539" />
+        <Status v="OK" />
+        <InitActiveLoad v="70.8078" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.11887686" />
+        <Status v="OK" />
+        <InitActiveLoad v="147.4529" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.06975201" />
+        <Status v="OK" />
+        <InitActiveLoad v="86.5192" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.0176561" />
+        <Status v="OK" />
+        <InitActiveLoad v="-21.9003" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00077027" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.9554" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.16911659" />
+        <Status v="OK" />
+        <InitActiveLoad v="209.7694" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.11981892" />
+        <Status v="OK" />
+        <InitActiveLoad v="148.6214" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T15:00Z/2010-01-02T16:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05983617" />
+        <Status v="OK" />
+        <InitActiveLoad v="73.997" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00169507" />
+        <Status v="OK" />
+        <InitActiveLoad v="2.0962" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.09890698" />
+        <Status v="OK" />
+        <InitActiveLoad v="122.3144" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.12026361" />
+        <Status v="OK" />
+        <InitActiveLoad v="148.7253" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.11611205" />
+        <Status v="OK" />
+        <InitActiveLoad v="143.5912" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.06237877" />
+        <Status v="OK" />
+        <InitActiveLoad v="77.1414" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.05449673" />
+        <Status v="OK" />
+        <InitActiveLoad v="67.394" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.11534952" />
+        <Status v="OK" />
+        <InitActiveLoad v="142.6482" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.06365006" />
+        <Status v="OK" />
+        <InitActiveLoad v="78.7135" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01872422" />
+        <Status v="OK" />
+        <InitActiveLoad v="-23.1555" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.0011018" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.3625" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.17594897" />
+        <Status v="OK" />
+        <InitActiveLoad v="217.5892" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.11153604" />
+        <Status v="OK" />
+        <InitActiveLoad v="137.9322" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T16:00Z/2010-01-02T17:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.06819877" />
+        <Status v="OK" />
+        <InitActiveLoad v="86.6485" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00147723" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.8769" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.08945421" />
+        <Status v="OK" />
+        <InitActiveLoad v="113.6541" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.13114508" />
+        <Status v="OK" />
+        <InitActiveLoad v="166.6235" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.09084946" />
+        <Status v="OK" />
+        <InitActiveLoad v="115.4268" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.06081262" />
+        <Status v="OK" />
+        <InitActiveLoad v="77.2642" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06032024" />
+        <Status v="OK" />
+        <InitActiveLoad v="76.6386" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.11325344" />
+        <Status v="OK" />
+        <InitActiveLoad v="143.8917" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.06294639" />
+        <Status v="OK" />
+        <InitActiveLoad v="79.9752" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01395147" />
+        <Status v="OK" />
+        <InitActiveLoad v="-17.7257" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00123103" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.5641" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.18547401" />
+        <Status v="OK" />
+        <InitActiveLoad v="235.65" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.12088606" />
+        <Status v="OK" />
+        <InitActiveLoad v="153.5892" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T17:00Z/2010-01-02T18:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.06795321" />
+        <Status v="OK" />
+        <InitActiveLoad v="89.3268" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00183874" />
+        <Status v="OK" />
+        <InitActiveLoad v="2.4171" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.08106352" />
+        <Status v="OK" />
+        <InitActiveLoad v="106.5607" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.14469984" />
+        <Status v="OK" />
+        <InitActiveLoad v="190.2128" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.07858563" />
+        <Status v="OK" />
+        <InitActiveLoad v="103.3035" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.06059827" />
+        <Status v="OK" />
+        <InitActiveLoad v="79.6585" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.05819996" />
+        <Status v="OK" />
+        <InitActiveLoad v="76.5058" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.12127588" />
+        <Status v="OK" />
+        <InitActiveLoad v="159.4212" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.08146336" />
+        <Status v="OK" />
+        <InitActiveLoad v="107.0863" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01308314" />
+        <Status v="OK" />
+        <InitActiveLoad v="-17.1982" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00055961" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.7356" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.15701118" />
+        <Status v="OK" />
+        <InitActiveLoad v="206.3965" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.13366766" />
+        <Status v="OK" />
+        <InitActiveLoad v="175.7106" />
+      </ManualNodes>
+    </ManualGSK_Block>
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T18:00Z/2010-01-02T19:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.07067603" />
+        <Status v="OK" />
+        <InitActiveLoad v="88.5283" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00151089" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.8925" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.08469365" />
+        <Status v="OK" />
+        <InitActiveLoad v="106.0867" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.14479361" />
+        <Status v="OK" />
+        <InitActiveLoad v="181.3676" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.07629993" />
+        <Status v="OK" />
+        <InitActiveLoad v="95.5728" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.06354126" />
+        <Status v="OK" />
+        <InitActiveLoad v="79.5914" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.05455991" />
+        <Status v="OK" />
+        <InitActiveLoad v="68.3414" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.11977949" />
+        <Status v="OK" />
+        <InitActiveLoad v="150.035" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.06631125" />
+        <Status v="OK" />
+        <InitActiveLoad v="83.061" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01448165" />
+        <Status v="OK" />
+        <InitActiveLoad v="-18.1396" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00050363" />
+        <Status v="OK" />
+        <InitActiveLoad v="0.6308" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.16963891" />
+        <Status v="OK" />
+        <InitActiveLoad v="212.4886" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.1332098" />
+        <Status v="OK" />
+        <InitActiveLoad v="166.8577" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="65" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T19:00Z/2010-01-02T20:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.0561153" />
+        <Status v="OK" />
+        <InitActiveLoad v="71.5847" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00446649" />
+        <Status v="OK" />
+        <InitActiveLoad v="5.6978" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.05473478" />
+        <Status v="OK" />
+        <InitActiveLoad v="69.8236" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.15583873" />
+        <Status v="OK" />
+        <InitActiveLoad v="198.799" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.07739207" />
+        <Status v="OK" />
+        <InitActiveLoad v="98.7269" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.05099918" />
+        <Status v="OK" />
+        <InitActiveLoad v="65.0582" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06789064" />
+        <Status v="OK" />
+        <InitActiveLoad v="86.6062" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.09062886" />
+        <Status v="OK" />
+        <InitActiveLoad v="115.6127" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.08405104" />
+        <Status v="OK" />
+        <InitActiveLoad v="107.2215" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.0166359" />
+        <Status v="OK" />
+        <InitActiveLoad v="-21.2219" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.0036544" />
+        <Status v="OK" />
+        <InitActiveLoad v="4.6618" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.20391532" />
+        <Status v="OK" />
+        <InitActiveLoad v="260.129" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.13269428" />
+        <Status v="OK" />
+        <InitActiveLoad v="169.2743" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.00098301" />
+        <Status v="OK" />
+        <InitActiveLoad v="-1.254" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="64" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T20:00Z/2010-01-02T21:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05415299" />
+        <Status v="OK" />
+        <InitActiveLoad v="68.2016" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00154259" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.9428" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.04140635" />
+        <Status v="OK" />
+        <InitActiveLoad v="52.1481" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.18989968" />
+        <Status v="OK" />
+        <InitActiveLoad v="239.1641" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.13201273" />
+        <Status v="OK" />
+        <InitActiveLoad v="166.26" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.04148751" />
+        <Status v="OK" />
+        <InitActiveLoad v="52.2503" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06024219" />
+        <Status v="OK" />
+        <InitActiveLoad v="75.8704" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.07639873" />
+        <Status v="OK" />
+        <InitActiveLoad v="96.2184" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07201457" />
+        <Status v="OK" />
+        <InitActiveLoad v="90.6969" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.00706378" />
+        <Status v="OK" />
+        <InitActiveLoad v="-8.8963" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.0014614" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.8405" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.18210634" />
+        <Status v="OK" />
+        <InitActiveLoad v="229.349" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.13793784" />
+        <Status v="OK" />
+        <InitActiveLoad v="173.7222" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.00227329" />
+        <Status v="OK" />
+        <InitActiveLoad v="2.863" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="66" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T21:00Z/2010-01-02T22:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.0505924" />
+        <Status v="OK" />
+        <InitActiveLoad v="61.5797" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00152766" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.8594" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.02929499" />
+        <Status v="OK" />
+        <InitActiveLoad v="35.6571" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.19760565" />
+        <Status v="OK" />
+        <InitActiveLoad v="240.5201" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.13757828" />
+        <Status v="OK" />
+        <InitActiveLoad v="167.4565" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.03962922" />
+        <Status v="OK" />
+        <InitActiveLoad v="48.2356" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.06640809" />
+        <Status v="OK" />
+        <InitActiveLoad v="80.8301" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.06245417" />
+        <Status v="OK" />
+        <InitActiveLoad v="76.0175" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.08366166" />
+        <Status v="OK" />
+        <InitActiveLoad v="101.8307" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01239807" />
+        <Status v="OK" />
+        <InitActiveLoad v="-15.0906" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.00125807" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.5313" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.18538533" />
+        <Status v="OK" />
+        <InitActiveLoad v="225.6459" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.12832255" />
+        <Status v="OK" />
+        <InitActiveLoad v="156.1906" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.00388385" />
+        <Status v="OK" />
+        <InitActiveLoad v="-4.7273" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+  <GSKSeries>
+    <TimeSeriesIdentification v="LSK_1" />
+    <BusinessType v="Z05" share="67" />
+    <Area codingScheme="A01" v="10YFR-RTE------C" />
+    <ManualGSK_Block>
+      <GSK_Name v="FR" />
+      <TimeInterval v="2010-01-02T22:00Z/2010-01-02T23:00Z" />
+      <ManualNodes>
+        <NodeName v="QSDZER3 " />
+        <Factor v="0.05714564" />
+        <Status v="OK" />
+        <InitActiveLoad v="63.1747" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZER456 " />
+        <Factor v="0.00260208" />
+        <Status v="OK" />
+        <InitActiveLoad v="2.8766" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="LJKIYOT " />
+        <Factor v="0.04093267" />
+        <Status v="OK" />
+        <InitActiveLoad v="45.2512" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="MPHLFDJ " />
+        <Factor v="0.18954983" />
+        <Status v="OK" />
+        <InitActiveLoad v="209.5478" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GHVBGT5 " />
+        <Factor v="0.12890265" />
+        <Status v="OK" />
+        <InitActiveLoad v="142.5022" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="QSAZWXR " />
+        <Factor v="0.03983181" />
+        <Status v="OK" />
+        <InitActiveLoad v="44.0342" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="TYGHBNU " />
+        <Factor v="0.05944753" />
+        <Status v="OK" />
+        <InitActiveLoad v="65.7194" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="AZERTYU " />
+        <Factor v="0.07205757" />
+        <Status v="OK" />
+        <InitActiveLoad v="79.6598" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="OPUITHY " />
+        <Factor v="0.07876297" />
+        <Status v="OK" />
+        <InitActiveLoad v="87.0727" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="JKIHFBV " />
+        <Factor v="0.01541938" />
+        <Status v="OK" />
+        <InitActiveLoad v="-17.0462" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYPPUI " />
+        <Factor v="0.0010008" />
+        <Status v="OK" />
+        <InitActiveLoad v="1.1064" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUI " />
+        <Factor v="0.15702426" />
+        <Status v="OK" />
+        <InitActiveLoad v="173.5907" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="GTYIPUO " />
+        <Factor v="0.15001858" />
+        <Status v="OK" />
+        <InitActiveLoad v="165.8459" />
+      </ManualNodes>
+      <ManualNodes>
+        <NodeName v="4TIOPFI " />
+        <Factor v="0.00730423" />
+        <Status v="OK" />
+        <InitActiveLoad v="-8.0748" />
+      </ManualNodes>
+    </ManualGSK_Block>
+  </GSKSeries>
+</GSKDocument>

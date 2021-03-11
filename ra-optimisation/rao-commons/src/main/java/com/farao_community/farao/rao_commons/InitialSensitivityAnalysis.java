@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This class aims at performing the initial sensitivity analysis of a RAO, the one
@@ -94,7 +93,7 @@ public class InitialSensitivityAnalysis {
 
     private void fillReferenceLoopFlow() {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
-        LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
+        LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getNetwork(), raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
         raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
     }
 
@@ -131,7 +130,7 @@ public class InitialSensitivityAnalysis {
 
     private Set<String> getEicForObjectiveFunction() {
         return raoParameters.getRelativeMarginPtdfBoundaries().stream().
-            flatMap(pair -> Stream.of(pair.getLeft(), pair.getRight())).
+            flatMap(boundary -> boundary.getEiCodes().stream()).
             map(EICode::getAreaCode).
             collect(Collectors.toSet());
     }
