@@ -61,7 +61,7 @@ public final class CracCreators {
      * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
      * @return the created {@link NativeCrac} object
      */
-    public static CracCreationContext<?> importAndCreateCrac(Path nativeCracPath, Network network, OffsetDateTime offsetDateTime) {
+    public static CracCreationContext importAndCreateCrac(Path nativeCracPath, Network network, OffsetDateTime offsetDateTime) {
         NativeCrac nativeCrac = NativeCracImporters.importData(nativeCracPath);
         return createCrac(nativeCrac, network, offsetDateTime);
     }
@@ -75,7 +75,7 @@ public final class CracCreators {
      * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
      * @return the created {@link NativeCrac} object
      */
-    public static CracCreationContext<?> importAndCreateCrac(String fileName, InputStream inputStream, Network network, OffsetDateTime offsetDateTime) {
+    public static CracCreationContext importAndCreateCrac(String fileName, InputStream inputStream, Network network, OffsetDateTime offsetDateTime) {
         NativeCrac nativeCrac = NativeCracImporters.importData(fileName, inputStream);
         return createCrac(nativeCrac, network, offsetDateTime);
     }
@@ -85,7 +85,7 @@ public final class CracCreators {
      * @param nativeCracFormat unique identifier of a native CRAC file format
      * @return the importer if one exists for the given format or <code>null</code> otherwise.
      */
-    public static CracCreator<?, ?> findCreator(String nativeCracFormat) {
+    public static CracCreator findCreator(String nativeCracFormat) {
         List<CracCreator> validCracCreators = new ArrayList<>();
         for (CracCreator creator : CRAC_CREATORS.get()) {
             if (creator.getNativeCracFormat().equals(nativeCracFormat)) {
