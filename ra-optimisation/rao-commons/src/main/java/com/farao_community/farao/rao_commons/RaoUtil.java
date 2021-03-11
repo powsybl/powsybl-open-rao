@@ -137,7 +137,9 @@ public final class RaoUtil {
             fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getPtdfSumLowerBound()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
-        fillers.add(new OperatorsNotToOptimizeFiller(operatorsNotToOptimize));
+        if (!Objects.isNull(operatorsNotToOptimize) && !operatorsNotToOptimize.isEmpty()) {
+            fillers.add(new OperatorsNotToOptimizeFiller(operatorsNotToOptimize));
+        }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             // TODO : add relative margins to IteratingLinearOptimizerWithLoopFlows
             // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
