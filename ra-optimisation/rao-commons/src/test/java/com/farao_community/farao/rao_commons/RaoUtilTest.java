@@ -120,7 +120,7 @@ public class RaoUtilTest {
 
     @Test
     public void createCostEvaluatorFromRaoParametersMegawatt() {
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters, null);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
     }
@@ -128,7 +128,7 @@ public class RaoUtilTest {
     @Test
     public void createCostEvaluatorFromRaoParametersAmps() {
         raoParameters.setObjectiveFunction(MAX_MIN_MARGIN_IN_AMPERE);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters, null);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(AMPERE, costEvaluator.getUnit());
     }
@@ -137,7 +137,7 @@ public class RaoUtilTest {
     public void createCostEvaluatorFromRaoParametersRelativeMW() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters, null);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
     }
@@ -146,7 +146,7 @@ public class RaoUtilTest {
     public void createCostEvaluatorFromRaoParametersRelativeAmps() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters, null);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(AMPERE, costEvaluator.getUnit());
     }
