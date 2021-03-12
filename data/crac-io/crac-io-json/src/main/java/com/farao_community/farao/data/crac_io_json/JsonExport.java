@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creator_api.CracCreationContext;
 import com.farao_community.farao.data.crac_impl.json.CracImplJsonModule;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
-import com.farao_community.farao.data.raw_crac_api.RawCrac;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -59,7 +58,8 @@ public class JsonExport implements CracExporter {
     }
 
     @Override
-    public void exportCrac(Crac crac, RawCrac rawCrac, Network network, CracCreationContext cracCreationContext, String initialVariantId, String postPraVariantId, String postCraVariantId, OutputStream outputStream) {
-        // TODO
+    public void exportCrac(Crac crac, Network network, CracCreationContext cracCreationContext, String initialVariantId, String postPraVariantId, String postCraVariantId, OutputStream outputStream) {
+        exportCrac(crac, outputStream);
     }
+
 }
