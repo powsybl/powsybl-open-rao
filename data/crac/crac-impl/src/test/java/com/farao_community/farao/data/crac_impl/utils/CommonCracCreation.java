@@ -58,6 +58,7 @@ public final class CommonCracCreation {
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
             .setInstant(stateBasecase.getInstant())
             .optimized()
+            .setOperator("operator1")
             .add();
 
         crac.newBranchCnec()
@@ -67,6 +68,7 @@ public final class CommonCracCreation {
             .setInstant(stateCurativeContingency1.getInstant())
             .setContingency(stateCurativeContingency1.getContingency().orElseThrow())
             .optimized()
+            .setOperator("operator1")
             .add();
 
         crac.newBranchCnec()
@@ -76,6 +78,7 @@ public final class CommonCracCreation {
             .setInstant(stateCurativeContingency2.getInstant())
             .setContingency(stateCurativeContingency2.getContingency().orElseThrow())
             .optimized()
+            .setOperator("operator1")
             .add();
 
         crac.newBranchCnec()
@@ -85,6 +88,7 @@ public final class CommonCracCreation {
             .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).setMax(0.3).add()
             .setInstant(stateBasecase.getInstant())
             .optimized()
+            .setOperator("operator2")
             .add();
 
         crac.newBranchCnec()
@@ -95,6 +99,7 @@ public final class CommonCracCreation {
             .setInstant(stateCurativeContingency1.getInstant())
             .setContingency(stateCurativeContingency1.getContingency().orElseThrow())
             .optimized()
+            .setOperator("operator2")
             .add();
 
         crac.newBranchCnec()
@@ -130,6 +135,7 @@ public final class CommonCracCreation {
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
 
         PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
+        pstRangeAction.setOperator("operator1");
         pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3-curative")));
         crac.addRangeAction(pstRangeAction);
 

@@ -28,7 +28,8 @@
       "preventive-leaves-in-parallel": 8,
       "curative-leaves-in-parallel": 3,
       "skip-network-actions-far-from-most-limiting-element" : false,
-      "max-number-of-boundaries-for-skipping-network-actions" : 2
+      "max-number-of-boundaries-for-skipping-network-actions" : 2,
+      "curative-rao-optimize-operators-not-sharing-cras" : true
     }
   }
 }

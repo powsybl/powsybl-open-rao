@@ -15,8 +15,7 @@ import org.mockito.Mockito;
 
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 
 /**
@@ -48,6 +47,7 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         Mockito.when(searchTreeRaoParametersModule.getIntProperty(eq("max-number-of-boundaries-for-skipping-network-actions"), anyInt())).thenReturn(1);
         Mockito.when(searchTreeRaoParametersModule.getEnumProperty(eq("curative-rao-stop-criterion"), eq(SearchTreeRaoParameters.CurativeRaoStopCriterion.class), any())).thenReturn(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         Mockito.when(searchTreeRaoParametersModule.getDoubleProperty(eq("curative-rao-min-obj-improvement"), anyDouble())).thenReturn(456.0);
+        Mockito.when(searchTreeRaoParametersModule.getBooleanProperty(eq("curative-rao-optimize-operators-not-sharing-cras"), anyBoolean())).thenReturn(false);
 
         Mockito.when(platformConfig.getOptionalModuleConfig("search-tree-rao-parameters")).thenReturn(Optional.of(searchTreeRaoParametersModule));
 
@@ -62,6 +62,7 @@ public class SearchTreeRaoParametersConfigLoaderTest {
         assertEquals(1, parameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
         assertEquals(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE, parameters.getCurativeRaoStopCriterion());
         assertEquals(456.0, parameters.getCurativeRaoMinObjImprovement(), DOUBLE_TOLERANCE);
+        assertFalse(parameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
     }
 
     @Test
