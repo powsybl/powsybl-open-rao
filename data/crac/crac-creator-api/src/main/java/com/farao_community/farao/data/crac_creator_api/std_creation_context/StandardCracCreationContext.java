@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface StandardCracCreationContext extends CracCreationContext {
 
-    List<CnecCreationContext> getCnecCreationContexts();
+    List<BranchCnecCreationContext> getBranchCnecCreationContexts();
 
     List<RemedialActionCreationContext> getRemedialActionCreationContexts();
 }
