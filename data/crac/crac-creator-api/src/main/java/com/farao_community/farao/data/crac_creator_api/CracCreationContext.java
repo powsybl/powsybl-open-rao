@@ -21,7 +21,7 @@ import com.farao_community.farao.data.native_crac_api.NativeCrac;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface CracCreationContext<T extends NativeCrac> {
+public interface CracCreationContext {
 
     /**
      * Get a boolean indicating whether the Crac creation was successful or not

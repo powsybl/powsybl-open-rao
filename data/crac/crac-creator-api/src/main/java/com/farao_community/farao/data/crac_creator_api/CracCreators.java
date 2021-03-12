@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -43,7 +43,7 @@ public final class CracCreators {
      * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
      * @return the created {@link CracCreationContext} object
      */
-    public static <T extends NativeCrac> CracCreationContext<T> createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime) {
+    public static CracCreationContext createCrac(NativeCrac nativeCrac, Network network, OffsetDateTime offsetDateTime) {
         CracCreator creator = findCreator(nativeCrac.getFormat());
 
         if (Objects.isNull(creator)) {

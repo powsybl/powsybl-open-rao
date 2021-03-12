@@ -20,7 +20,7 @@ import java.time.OffsetDateTime;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface CracCreator<T extends NativeCrac, S extends CracCreationContext<T>> {
+public interface CracCreator<T extends NativeCrac, S extends CracCreationContext> {
 
     /**
      * Get a unique identifier of the native Crac format handled by the CracCreator.
