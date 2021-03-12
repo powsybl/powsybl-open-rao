@@ -10,6 +10,21 @@ import com.farao_community.farao.data.crac_creator_api.CracCreationContext;
 
 import java.util.List;
 
+/**
+ * The StandardCracCreationContext is a {@link CracCreationContext} which has been designed so
+ * as to cover information which are pertinent for several native CRAC formats.
+ *
+ * It is fitted to native CRAC formats which share some common assumptions, such as:
+ * <ul>
+ *     <li>the native CNECs cannot be monitored in preventive and after a contingency</li>
+ *     <li>the native CNECs are not defined for more than one outage</li>
+ *     <li>the native CNECs have a 'from', a 'to', and 'suffix' (order or elementName) field</li>
+ * </ul>
+ *
+ * It will however not be fitted to all native CRAC formats.
+ *
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public interface StandardCracCreationContext extends CracCreationContext {
 
     List<BranchCnecCreationContext> getBranchCnecCreationContexts();

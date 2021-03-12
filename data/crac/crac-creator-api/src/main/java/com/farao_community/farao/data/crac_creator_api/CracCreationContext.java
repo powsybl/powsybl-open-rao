@@ -10,14 +10,17 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 
 /**
- *  Common interface for CracCreationContext
+ *  Common interface of a Crac creation context
  *
  *  A CracCreationContext contains the results of a CRAC creation, notably the created Crac
  *  object.
  *
- *  It can also contain additional information on how the {@link Crac} has been created from a
+ *  It also contains additional information on how the {@link Crac} has been created from a
  *  {@link NativeCrac}, for instance on how the object of the NativeCrac has been mapped in
- *  the Crac.
+ *  the created Crac.
+ *
+ *  The CracCreationContext is for instance required by some Crac exporters, so as to rollback
+ *  some of the Crac information with their native values.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
