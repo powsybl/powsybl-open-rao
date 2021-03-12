@@ -6,10 +6,20 @@
  */
 package com.farao_community.farao.data.crac_creator_api.std_creation_context;
 
-import java.util.List;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
+
+import java.util.Map;
+import java.util.Optional;
 
 public interface CnecCreationContext {
     String getNativeCnecId();
+
+    NativeBranch getNativeBranch();
+
+    boolean isBaseCase();
+
+    Optional<Contingency> getContingency();
 
     boolean isImported();
 
@@ -18,5 +28,5 @@ public interface CnecCreationContext {
 
     boolean isDirectionInvertedInNetwork();
 
-    List<String> getCreatedCnecsIds();
+    Map<Instant, String> getCreatedCnecsIds();
 }
