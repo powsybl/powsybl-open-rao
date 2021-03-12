@@ -50,7 +50,9 @@ public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
                 // - a ReserveGSKBlock with "order = 1", representing Swiss's generators
                 //
                 // business requirement from Swissgrid is that when 2 blocks' hybrid gsk is used, German's generators are
-                // applied first until "MaximumShift", then Swiss's generators are applied if necessary.
+                // applied first until "MaximumShift", then Swiss's generators are applied if necessary. Swissgrid assumes
+                // that the German's generators will absorb all "MaximumShift" provided in their Gsk; there is no saturation
+                // check in Convergence workflow.
                 //
                 // during import, we rename the zone name "10YCH-SWISSGRIDZ" with a suffix "@" + "order number":
                 // - 10YCH-SWISSGRIDZ@1
