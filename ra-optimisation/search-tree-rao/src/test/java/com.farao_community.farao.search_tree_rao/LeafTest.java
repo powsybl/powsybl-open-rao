@@ -57,6 +57,7 @@ import static org.mockito.ArgumentMatchers.*;
 public class LeafTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private static final String INITIAL_VARIANT_ID = "initial-variant-ID";
+    private static final String PREPERIMETER_VARIANT_ID = "preperimeter-variant-ID";
 
     private NetworkAction na1;
     private NetworkAction na2;
@@ -105,7 +106,10 @@ public class LeafTest {
 
         raoDataMock = Mockito.mock(RaoData.class);
         Mockito.when(raoDataMock.getPreOptimVariantId()).thenReturn(INITIAL_VARIANT_ID);
+        Mockito.when(raoDataMock.getCrac()).thenReturn(crac);
         Mockito.when(raoDataMock.hasSensitivityValues()).thenReturn(true);
+        crac.getExtension(ResultVariantManager.class).createVariant(PREPERIMETER_VARIANT_ID);
+        crac.getExtension(ResultVariantManager.class).setPrePerimeterVariantId(PREPERIMETER_VARIANT_ID);
 
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
@@ -129,7 +133,7 @@ public class LeafTest {
     private void mockRaoUtil() {
         try {
             PowerMockito.mockStatic(RaoUtil.class);
-            PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
+            PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
             PowerMockito.when(RaoUtil.createSystematicSensitivityInterface(Mockito.any(), Mockito.any(), anyBoolean())).thenAnswer(invocationOnMock -> systematicSensitivityInterface);
         } catch (Exception e) {
             e.printStackTrace();
@@ -138,11 +142,14 @@ public class LeafTest {
         Mockito.when(costEvaluatorMock.getCost(raoData)).thenAnswer(invocationOnMock -> 0.);
         Mockito.when(costEvaluatorMock.getFunctionalCost(raoData)).thenAnswer(invocationOnMock -> 0.);
         Mockito.when(costEvaluatorMock.getVirtualCost(raoData)).thenAnswer(invocationOnMock -> 0.);
-        Mockito.when(RaoUtil.createObjectiveFunction(raoParameters)).thenAnswer(invocationOnMock -> costEvaluatorMock);
+        Mockito.when(RaoUtil.createObjectiveFunction(raoParameters, treeParameters.getOperatorsNotToOptimize())).thenAnswer(invocationOnMock -> costEvaluatorMock);
     }
 
     private void mockSensitivityComputation() {
+        Mockito.when(raoDataMock.getSystematicSensitivityResult()).thenReturn(systematicSensitivityResult);
         Mockito.when(systematicSensitivityResult.isSuccess()).thenReturn(true);
+        Mockito.when(systematicSensitivityResult.getReferenceFlow(any())).thenReturn(5.);
+        Mockito.when(systematicSensitivityResult.getReferenceIntensity(any())).thenReturn(12.);
         Mockito.doAnswer(invocationOnMock -> {
             raoData.setSystematicSensitivityResult(systematicSensitivityResult);
             return systematicSensitivityResult;
@@ -234,6 +241,8 @@ public class LeafTest {
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
+        assertEquals(5., crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(12., crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInA(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -290,8 +299,8 @@ public class LeafTest {
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
-        assertEquals(-10, cnec1result.getLoopflowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(25, cnec2result.getLoopflowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(-5, cnec1result.getLoopflowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(30, cnec2result.getLoopflowInMW(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -303,6 +312,7 @@ public class LeafTest {
 
     @Test
     public void testOptimizeWithoutRangeActions() {
+        mockSensitivityComputation();
         mockRaoUtil();
         Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
@@ -381,6 +391,9 @@ public class LeafTest {
         String mockPostCurativeVariantId = curativeRaoData.getCracVariantManager().cloneWorkingVariant();
         Mockito.when(iteratingLinearOptimizer.optimize(any())).thenAnswer(invocationOnMock -> mockPostCurativeVariantId);
 
+        crac.getExtension(ResultVariantManager.class).createVariant(PREPERIMETER_VARIANT_ID);
+        crac.getExtension(ResultVariantManager.class).setPrePerimeterVariantId(PREPERIMETER_VARIANT_ID);
+
         Leaf rootLeaf = new Leaf(curativeRaoData, raoParameters, treeParameters);
         rootLeaf.evaluate();
         rootLeaf.optimize();
@@ -401,7 +414,7 @@ public class LeafTest {
 
         // no filter
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("be", 0));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         assertEquals(2, rootLeaf.removeNetworkActionsIfMaxNumberReached(networkActionsToFilter).size());
         childLeaf1 = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters);
@@ -411,7 +424,7 @@ public class LeafTest {
 
         // no filter
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("fr", 3));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         assertEquals(2, rootLeaf.removeNetworkActionsIfMaxNumberReached(networkActionsToFilter).size());
         childLeaf1 = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters);
@@ -421,7 +434,7 @@ public class LeafTest {
 
         // keep 2 network actions
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("fr", 2));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         assertEquals(2, rootLeaf.removeNetworkActionsIfMaxNumberReached(networkActionsToFilter).size());
         childLeaf1 = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters);
@@ -431,7 +444,7 @@ public class LeafTest {
 
         // keep 1 network action
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("fr", 1));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         assertEquals(2, rootLeaf.removeNetworkActionsIfMaxNumberReached(networkActionsToFilter).size());
         childLeaf1 = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters);
@@ -439,7 +452,7 @@ public class LeafTest {
 
         // filter out all topo
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("fr", 0));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         assertEquals(0, rootLeaf.removeNetworkActionsIfMaxNumberReached(networkActionsToFilter).size());
     }
@@ -454,14 +467,14 @@ public class LeafTest {
         Map<String, Integer> maxPstPerTso;
 
         // no filter
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         assertTrue(rootLeaf.getMaxPstPerTso().isEmpty());
 
         // only max pst parameter
         searchTreeRaoParameters.setMaxCurativeRaPerTso(null);
         searchTreeRaoParameters.setMaxCurativePstPerTso(Map.of("fr", 9));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxPstPerTso = rootLeaf.getMaxPstPerTso();
         assertEquals(1, maxPstPerTso.size());
@@ -470,7 +483,7 @@ public class LeafTest {
         // only max cra parameter
         searchTreeRaoParameters.setMaxCurativeRaPerTso(Map.of("fr", 76));
         searchTreeRaoParameters.setMaxCurativePstPerTso(null);
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxPstPerTso = rootLeaf.getMaxPstPerTso();
         assertEquals(1, maxPstPerTso.size());
@@ -479,7 +492,7 @@ public class LeafTest {
         // two parameters, no network action 1
         searchTreeRaoParameters.setMaxCurativePstPerTso(Map.of("fr", 9));
         searchTreeRaoParameters.setMaxCurativeRaPerTso(Map.of("fr", 76));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxPstPerTso = rootLeaf.getMaxPstPerTso();
         assertEquals(1, maxPstPerTso.size());
@@ -488,7 +501,7 @@ public class LeafTest {
         // two parameters, no network action 2
         searchTreeRaoParameters.setMaxCurativePstPerTso(Map.of("fr", 90));
         searchTreeRaoParameters.setMaxCurativeRaPerTso(Map.of("fr", 67));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxPstPerTso = rootLeaf.getMaxPstPerTso();
         assertEquals(1, maxPstPerTso.size());
@@ -497,7 +510,7 @@ public class LeafTest {
         // two parameters, network actions used
         searchTreeRaoParameters.setMaxCurativePstPerTso(Map.of("fr", 5));
         searchTreeRaoParameters.setMaxCurativeRaPerTso(Map.of("fr", 5));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxPstPerTso = rootLeaf.getMaxPstPerTso();
         assertEquals(1, maxPstPerTso.size());
@@ -558,14 +571,14 @@ public class LeafTest {
         rangeAction.getExtension(RangeActionResultExtension.class).getVariant(workingVariantId).setSetPoint(crac.getPreventiveState().getId(), 0.0);
 
         // no filter
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         assertTrue(rootLeaf.getMaxTopoPerTso().isEmpty());
 
         // only max topo parameter
         searchTreeRaoParameters.setMaxCurativeRaPerTso(null);
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("fr", 9));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxTopoPerTso = rootLeaf.getMaxTopoPerTso();
         assertEquals(1, maxTopoPerTso.size());
@@ -574,7 +587,7 @@ public class LeafTest {
         // only max cra parameter
         searchTreeRaoParameters.setMaxCurativeRaPerTso(Map.of("fr", 76));
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(null);
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxTopoPerTso = rootLeaf.getMaxTopoPerTso();
         assertEquals(1, maxTopoPerTso.size());
@@ -583,7 +596,7 @@ public class LeafTest {
         // two parameters, no range action 1
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("fr", 9));
         searchTreeRaoParameters.setMaxCurativeRaPerTso(Map.of("fr", 76));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxTopoPerTso = rootLeaf.getMaxTopoPerTso();
         assertEquals(1, maxTopoPerTso.size());
@@ -592,7 +605,7 @@ public class LeafTest {
         // two parameters, no range action 2
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("fr", 90));
         searchTreeRaoParameters.setMaxCurativeRaPerTso(Map.of("fr", 67));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxTopoPerTso = rootLeaf.getMaxTopoPerTso();
         assertEquals(1, maxTopoPerTso.size());
@@ -602,7 +615,7 @@ public class LeafTest {
         rangeAction.getExtension(RangeActionResultExtension.class).getVariant(preOptimVariantId).setSetPoint(crac.getPreventiveState().getId(), 10.0);
         searchTreeRaoParameters.setMaxCurativeTopoPerTso(Map.of("fr", 5));
         searchTreeRaoParameters.setMaxCurativeRaPerTso(Map.of("fr", 5));
-        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0);
+        treeParameters = TreeParameters.buildForCurativePerimeter(searchTreeRaoParameters, .0, null);
         rootLeaf = new Leaf(raoData, raoParameters, treeParameters);
         maxTopoPerTso = rootLeaf.getMaxTopoPerTso();
         assertEquals(1, maxTopoPerTso.size());

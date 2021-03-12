@@ -20,7 +20,7 @@ import java.util.List;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
-import static java.lang.String.*;
+import static java.lang.String.format;
 
 /**
  * An optimizer dedicated to the construction and solving of a linear problem.

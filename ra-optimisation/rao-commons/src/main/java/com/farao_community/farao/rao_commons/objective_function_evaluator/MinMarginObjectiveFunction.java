@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 
+import java.util.Set;
+
 /**
  * Represents an objective function divided into:
  * - functional cost: minimum margin
@@ -22,36 +24,25 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     private Unit unit;
     private boolean isRaoWithLoopFlow;
     private MinMarginEvaluator minMarginEvaluator;
-    private MinMarginEvaluator minRelativeMarginEvaluator;
     private MnecViolationCostEvaluator mnecViolationCostEvaluator;
     private LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
     private SensitivityFallbackOvercostEvaluator sensitivityFallbackOvercostEvaluator;
-    private boolean relativeMargin;
+    private boolean relativePositiveMargins;
 
-    public MinMarginObjectiveFunction(RaoParameters raoParameters) {
+    public MinMarginObjectiveFunction(RaoParameters raoParameters, Set<String> operatorsNotToOptimize) {
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
-                this.unit = Unit.AMPERE;
-                this.relativeMargin = false;
-                break;
             case MAX_MIN_MARGIN_IN_MEGAWATT:
-                this.unit = Unit.MEGAWATT;
-                this.relativeMargin = false;
-                break;
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
-                this.unit = Unit.AMPERE;
-                this.relativeMargin = true;
-                break;
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
-                this.unit = Unit.MEGAWATT;
-                this.relativeMargin = true;
+                this.unit = raoParameters.getObjectiveFunction().getUnit();
+                this.relativePositiveMargins = raoParameters.getObjectiveFunction().relativePositiveMargins();
                 break;
             default:
                 throw new FaraoException(String.format("%s is not a MinMarginObjectiveFunction", raoParameters.getObjectiveFunction().toString()));
         }
 
-        this.minMarginEvaluator = new MinMarginEvaluator(this.unit, false);
-        this.minRelativeMarginEvaluator = new MinMarginEvaluator(this.unit, true, raoParameters.getPtdfSumLowerBound());
+        this.minMarginEvaluator = new MinMarginEvaluator(this.unit, operatorsNotToOptimize, this.relativePositiveMargins, raoParameters.getPtdfSumLowerBound());
         this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
         this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowAcceptableAugmentation());
@@ -59,17 +50,12 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     }
 
     public boolean isRelative() {
-        return relativeMargin;
+        return relativePositiveMargins;
     }
 
     @Override
     public double getFunctionalCost(RaoData raoData) {
-        double oppositeMinimumMargin = minMarginEvaluator.getCost(raoData);
-        if ((!relativeMargin) || (oppositeMinimumMargin > 0)) {
-            return oppositeMinimumMargin;
-        } else {
-            return minRelativeMarginEvaluator.getCost(raoData);
-        }
+        return minMarginEvaluator.getCost(raoData);
     }
 
     @Override

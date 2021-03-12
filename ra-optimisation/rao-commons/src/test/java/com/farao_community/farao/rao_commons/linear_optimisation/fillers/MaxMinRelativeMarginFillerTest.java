@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -30,13 +31,14 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
+    BranchCnec cnecNl;
+    BranchCnec cnecFr;
 
     @Before
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
         maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, 1000, 0.01);
-        initRaoData(crac.getPreventiveState());
     }
 
     private void fillProblemWithCoreFiller() {
@@ -50,6 +52,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMaxMinRelativeMarginInMegawatt() {
+        initRaoData(crac.getPreventiveState());
         // this is almost a copy of fillWithMaxMinMarginInMegawatt()
         // only the coefficients in the MinMargin constraint should be different
         fillProblemWithCoreFiller();
@@ -98,6 +101,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMaxMinRelativeMarginInAmpere() {
+        initRaoData(crac.getPreventiveState());
         // this is almost a copy of fillWithMaxMinMarginInAmpere()
         // only the objective function should be different
         fillProblemWithCoreFiller();

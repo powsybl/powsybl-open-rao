@@ -79,14 +79,14 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * The minimum margin constraints ensure that the minimum margin variable is below
      * the margin of each Cnec. They consist in a linear equivalent of the definition
      * of the min margin : MM = min{c in CNEC} margin[c].
-     *
+     * <p>
      * For each Cnec c, the two constraints are (if the max margin is defined in MEGAWATT) :
-     *
+     * <p>
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
-     *
+     * <p>
      * For each Cnec c, the two constraints are (if the max margin is defined in AMPERE) :
-     *
+     * <p>
      * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
@@ -124,7 +124,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     /**
      * Add in the objective function of the linear problem the min Margin.
-     *
+     * <p>
      * min(-MM)
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
@@ -141,7 +141,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * Add in the objective function a penalty cost associated to the RangeAction
      * activations. This penalty cost prioritizes the solutions which change as less
      * as possible the set points of the RangeActions.
-     *
+     * <p>
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
     private void fillObjectiveWithRangeActionPenaltyCost(RaoData raoData, LinearProblem linearProblem) {

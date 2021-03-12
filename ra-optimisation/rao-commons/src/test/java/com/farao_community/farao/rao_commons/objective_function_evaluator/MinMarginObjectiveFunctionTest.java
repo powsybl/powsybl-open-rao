@@ -50,8 +50,8 @@ public class MinMarginObjectiveFunctionTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
         this.unit = unit;
-        minMarginEvaluator = new MinMarginEvaluator(unit, false);
-        minRelativeMarginEvaluator = new MinMarginEvaluator(unit, true, ptdfSumLowerBound);
+        minMarginEvaluator = new MinMarginEvaluator(unit, null, false);
+        minRelativeMarginEvaluator = new MinMarginEvaluator(unit, null, true, ptdfSumLowerBound);
         mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, mnecAcceptableMarginDiminution, mnecViolationCost);
 
         RaoParameters raoParameters = new RaoParameters();
@@ -60,7 +60,7 @@ public class MinMarginObjectiveFunctionTest {
         raoParameters.setObjectiveFunction(objectiveFunction);
         raoParameters.setPtdfSumLowerBound(ptdfSumLowerBound);
 
-        minRelativeMarginObjectiveFunction = new MinMarginObjectiveFunction(raoParameters);
+        minRelativeMarginObjectiveFunction = new MinMarginObjectiveFunction(raoParameters, null);
         crac.newBranchCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FR-BE").add()
                 .newThreshold().setMin(-commonThreshold).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(commonThreshold).setUnit(unit).add()

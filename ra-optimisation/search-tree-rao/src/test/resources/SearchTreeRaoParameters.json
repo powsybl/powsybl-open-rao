@@ -51,7 +51,8 @@
       "max-curative-pst-per-tso" : { },
       "max-curative-ra-per-tso" : {
         "RTE" : 5
-      }
+      },
+      "curative-rao-optimize-operators-not-sharing-cras" : false
     }
   }
 }

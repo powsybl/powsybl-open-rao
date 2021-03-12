@@ -32,13 +32,14 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     private MaxMinMarginFiller maxMinMarginFiller;
     static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
+    BranchCnec cnecNl;
+    BranchCnec cnecFr;
 
     @Before
     public void setUp() {
         init();
         coreProblemFiller = new CoreProblemFiller();
         maxMinMarginFiller = new MaxMinMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST);
-        initRaoData(crac.getPreventiveState());
     }
 
     private void fillProblemWithCoreFiller() {
@@ -52,6 +53,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMaxMinMarginInMegawatt() {
+        initRaoData(crac.getPreventiveState());
         fillProblemWithCoreFiller();
         maxMinMarginFiller.fill(raoData, linearProblem);
 
@@ -94,6 +96,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMaxMinMarginInAmpere() {
+        initRaoData(crac.getPreventiveState());
         maxMinMarginFiller.setUnit(Unit.AMPERE);
         fillProblemWithCoreFiller();
         maxMinMarginFiller.fill(raoData, linearProblem);
@@ -132,6 +135,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMissingFlowVariables() {
+        initRaoData(crac.getPreventiveState());
         // AbsoluteRangeActionVariables present, but no the FlowVariables
         linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
         try {
@@ -144,6 +148,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test(expected = Test.None.class /* no exception expected */)
     public void fillWithMissingRangeActionVariables() {
+        initRaoData(crac.getPreventiveState());
         // FlowVariables present , but not the absoluteRangeActionVariables present,
         // This should work since range actions can be filtered out by the CoreProblemFiller if their number
         // exceeds the max-pst-per-tso parameter
@@ -153,22 +158,42 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void skipMnecsInMinMarginDef() {
+    public void skipPureMnecsInMinMarginDef() {
         crac.newBranchCnec().setId("MNEC - N - preventive")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
                 .newThreshold().setRule(BranchThresholdRule.ON_RIGHT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
-                .optimized()
                 .monitored()
                 .setInstant(crac.getInstant("N"))
                 .add();
         BranchCnec mnec = crac.getBranchCnec("MNEC - N - preventive");
+        initRaoData(crac.getPreventiveState());
         fillProblemWithCoreFiller();
         maxMinMarginFiller.fill(raoData, linearProblem);
         MPConstraint mnecAboveThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         MPConstraint mnecBelowThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNull(mnecAboveThreshold);
         assertNull(mnecBelowThreshold);
+    }
+
+    @Test
+    public void dontSkipCnecsMnecsInMinMarginDef() {
+        crac.newBranchCnec().setId("MNEC - N - preventive")
+                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
+                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
+                .newThreshold().setRule(BranchThresholdRule.ON_RIGHT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
+                .monitored()
+                .optimized()
+                .setInstant(crac.getInstant("N"))
+                .add();
+        BranchCnec mnec = crac.getBranchCnec("MNEC - N - preventive");
+        initRaoData(crac.getPreventiveState());
+        fillProblemWithCoreFiller();
+        maxMinMarginFiller.fill(raoData, linearProblem);
+        MPConstraint mnecAboveThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+        MPConstraint mnecBelowThreshold = linearProblem.getMinimumMarginConstraint(mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        assertNotNull(mnecAboveThreshold);
+        assertNotNull(mnecBelowThreshold);
     }
 }
 
