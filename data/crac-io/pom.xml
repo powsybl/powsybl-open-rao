@@ -17,11 +17,8 @@
     <description>Module that gathers all the CRAC importers and exporters modules</description>
 
     <modules>
-        <module>crac-creator-api</module>
         <module>crac-io-api</module>
         <module>crac-io-json</module>
         <module>crac-io-cne</module>
-        <module>raw-crac-api</module>
-        <module>raw-crac-io-api</module>
     </modules>
 </project>
