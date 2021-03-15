@@ -8,13 +8,9 @@
 package com.farao_community.farao.data.crac_creator_api.mock;
 
 import com.farao_community.farao.data.crac_creator_api.CracCreator;
-import com.farao_community.farao.data.native_crac_api.NativeCrac;
-import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
-import org.mockito.Mockito;
 
-import java.io.InputStream;
 import java.time.OffsetDateTime;
 
 /**
