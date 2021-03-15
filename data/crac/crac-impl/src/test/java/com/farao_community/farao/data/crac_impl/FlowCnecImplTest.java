@@ -7,7 +7,9 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -23,6 +25,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.Side.LEFT;
@@ -344,5 +347,49 @@ public class FlowCnecImplTest {
     public void testSynchronizeOnTransformerWrongSide() {
         testOnSynchronize("BBE1AA1  BBE1AA2  1", BranchThresholdRule.ON_LEFT_SIDE, 1727); // 1000 * 380 / 220
         testOnSynchronize("BBE2AA2  BBE2AA1  2", BranchThresholdRule.ON_LEFT_SIDE, 695); // 1200 / 380 * 220
+    }
+
+    @Test
+    public void testCopy() {
+        thresholds.add(new BranchThresholdImpl(Unit.MEGAWATT, -500., null, BranchThresholdRule.ON_LEFT_SIDE));
+        thresholds.add(new BranchThresholdImpl(Unit.MEGAWATT, -200., 200., BranchThresholdRule.ON_LEFT_SIDE));
+        fillThresholdsAndSynchronize(lineCnec);
+
+        assertTrue(lineCnec.copy() instanceof FlowCnecImpl);
+        FlowCnecImpl copy = (FlowCnecImpl) lineCnec.copy();
+        assertEquals(lineCnec.getId(), copy.getId());
+        assertEquals(lineCnec.getName(), copy.getName());
+        assertEquals(lineCnec.getNetworkElement(), copy.getNetworkElement());
+        assertEquals(lineCnec.getOperator(), copy.getOperator());
+        assertEquals(lineCnec.getState(), copy.getState());
+        assertEquals(lineCnec.isOptimized(), copy.isOptimized());
+        assertEquals(lineCnec.isMonitored(), copy.isMonitored());
+        assertEquals(lineCnec.getThresholds(), copy.getThresholds());
+        assertEquals(lineCnec.getReliabilityMargin(), copy.getReliabilityMargin(), 0.001);
+    }
+
+    @Test
+    public void testCopyWithArguments() {
+        thresholds.add(new BranchThresholdImpl(Unit.MEGAWATT, -500., null, BranchThresholdRule.ON_LEFT_SIDE));
+        thresholds.add(new BranchThresholdImpl(Unit.MEGAWATT, -200., 200., BranchThresholdRule.ON_LEFT_SIDE));
+        fillThresholdsAndSynchronize(lineCnec);
+
+        NetworkElement ne = new NetworkElement("ne");
+        Instant instant = new Instant("instant", 0);
+        State state = new SimpleState(Optional.empty(), instant);
+
+        assertTrue(lineCnec.copy(ne, state) instanceof FlowCnecImpl);
+        FlowCnecImpl copy = (FlowCnecImpl) lineCnec.copy(ne, state);
+        assertEquals(lineCnec.getId(), copy.getId());
+        assertEquals(lineCnec.getName(), copy.getName());
+        assertNotEquals(lineCnec.getNetworkElement(), copy.getNetworkElement());
+        assertEquals(ne, copy.getNetworkElement());
+        assertEquals(lineCnec.getOperator(), copy.getOperator());
+        assertNotEquals(lineCnec.getState(), copy.getState());
+        assertEquals(state, copy.getState());
+        assertEquals(lineCnec.isOptimized(), copy.isOptimized());
+        assertEquals(lineCnec.isMonitored(), copy.isMonitored());
+        assertEquals(lineCnec.getThresholds(), copy.getThresholds());
+        assertEquals(lineCnec.getReliabilityMargin(), copy.getReliabilityMargin(), 0.001);
     }
 }

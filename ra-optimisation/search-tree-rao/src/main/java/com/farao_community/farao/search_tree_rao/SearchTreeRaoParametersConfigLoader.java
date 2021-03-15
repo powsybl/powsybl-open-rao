@@ -45,6 +45,7 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
             logMapReadError(config, "max-curative-topo-per-tso");
             logMapReadError(config, "max-curative-pst-per-tso");
             logMapReadError(config, "max-curative-ra-per-tso");
+            parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(config.getBooleanProperty("curative-rao-optimize-operators-not-sharing-cras", SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS));
         }
         return parameters;
     }

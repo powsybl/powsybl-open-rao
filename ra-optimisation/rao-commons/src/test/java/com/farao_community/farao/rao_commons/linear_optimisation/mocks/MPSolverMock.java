@@ -68,6 +68,16 @@ public class MPSolverMock extends MPSolver {
     }
 
     @Override
+    public MPVariable makeIntVar(double lb, double ub, String name) {
+        // check that variable does not already exists
+        assertFalse(variables.stream().anyMatch(v -> v.name().equals(name)));
+
+        MPVariableMock newVariable = new MPVariableMock(name, lb, ub, true);
+        variables.add(newVariable);
+        return newVariable;
+    }
+
+    @Override
     public MPConstraintMock makeConstraint(double lb, double ub) {
         MPConstraintMock newConstraint = new MPConstraintMock("", lb, ub);
         constraints.add(newConstraint);

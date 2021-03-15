@@ -162,7 +162,7 @@ class Leaf {
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
     void evaluate() {
-        ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters);
+        ObjectiveFunctionEvaluator objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters, treeParameters.getOperatorsNotToOptimize());
 
         if (status.equals(Status.EVALUATED)) {
             LOGGER.debug("Leaf has already been evaluated");
@@ -175,6 +175,9 @@ class Leaf {
             LOGGER.debug("Evaluating leaf...");
             raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
             raoData.getCracResultManager().fillCnecResultWithFlows();
+            if (isRoot()) {
+                raoData.getCracResultManager().fillPreperimeterCnecResultWithFlows();
+            }
 
             if (raoParameters.isRaoWithLoopFlowLimitation()) {
                 LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,
@@ -248,7 +251,7 @@ class Leaf {
                 SystematicSensitivityInterface linearOptimizerSystematicSensitivityInterface =
                         RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
                                 raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
-                IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, linearOptimizerSystematicSensitivityInterface, getMaxPstPerTso());
+                IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, linearOptimizerSystematicSensitivityInterface, getMaxPstPerTso(), treeParameters.getOperatorsNotToOptimize());
                 LOGGER.debug("Optimizing leaf...");
                 optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
                 raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);

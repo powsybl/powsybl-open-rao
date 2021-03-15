@@ -27,8 +27,8 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
-    double negativeMarginObjectiveCoefficient;
-    double ptdfSumLowerBound;
+    private double negativeMarginObjectiveCoefficient;
+    private double ptdfSumLowerBound;
 
     public MaxMinRelativeMarginFiller(Unit unit, double pstPenaltyCost, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
         super(unit, pstPenaltyCost);
