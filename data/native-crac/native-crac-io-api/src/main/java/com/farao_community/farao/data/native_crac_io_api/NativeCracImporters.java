@@ -99,7 +99,7 @@ public final class NativeCracImporters {
 
         if (importersWithFormat.size() == 1) {
             return importersWithFormat.get(0);
-        } else if (importersWithFormat.size() == 0) {
+        } else if (importersWithFormat.isEmpty()) {
             return null;
         } else {
             throw new FaraoException(String.format("Several NativeCracImporters have been found for format %s", fileFormat));
