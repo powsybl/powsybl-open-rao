@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.rao_api;
 
-import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.google.common.base.Supplier;
@@ -18,9 +17,6 @@ import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -94,9 +90,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     public static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
 
-    private static final String BOUNDARIES_CODES_FORMAT_EXCEPTION = "Country boundaries should be formatted 'Code1/Code2' where Code1 and Code2 are 16-characters EI codes or 2-characters country codes";
-    private static final String BOUNDARIES_CODE_SEPARATOR = "/";
-
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
     private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
@@ -114,7 +107,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
     private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityAnalysisParameters();
     private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
-    private List<Pair<EICode, EICode>> relativeMarginPtdfBoundaries = new ArrayList<>();
+    private List<ZoneToZonePtdfDefinition> relativeMarginPtdfBoundaries = new ArrayList<>();
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
     private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
 
@@ -275,50 +268,26 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return this;
     }
 
-    public List<Pair<EICode, EICode>> getRelativeMarginPtdfBoundaries() {
+    public List<ZoneToZonePtdfDefinition> getRelativeMarginPtdfBoundaries() {
         return relativeMarginPtdfBoundaries;
     }
 
-    public RaoParameters setRelativeMarginPtdfBoundaries(List<Pair<EICode, EICode>> boundaries) {
+    public RaoParameters setRelativeMarginPtdfBoundaries(List<ZoneToZonePtdfDefinition> boundaries) {
         this.relativeMarginPtdfBoundaries = boundaries;
         return this;
     }
 
     public List<String> getRelativeMarginPtdfBoundariesAsString() {
         return relativeMarginPtdfBoundaries.stream()
-                .map(countryPair -> countryPair.getLeft().toString() + BOUNDARIES_CODE_SEPARATOR + countryPair.getRight().toString())
+                .map(ZoneToZonePtdfDefinition::toString)
                 .collect(Collectors.toList());
     }
 
     public RaoParameters setRelativeMarginPtdfBoundariesFromString(List<String> boundaries) {
-        /*
-        Expected strings : "Code1/Code2"
-        Where Code1 and Code2 are EICodes or CountryCodes
-         */
         this.relativeMarginPtdfBoundaries = boundaries.stream()
-            .map(stringPair -> {
-
-                if (StringUtils.countMatches(stringPair, BOUNDARIES_CODE_SEPARATOR) != 1) {
-                    throw new FaraoException(BOUNDARIES_CODES_FORMAT_EXCEPTION);
-                }
-
-                String leftPart = stringPair.split(BOUNDARIES_CODE_SEPARATOR)[0];
-                String rightPart = stringPair.split(BOUNDARIES_CODE_SEPARATOR)[1];
-                return new ImmutablePair<>(getEICodeFromString(leftPart), getEICodeFromString(rightPart));
-            })
+            .map(ZoneToZonePtdfDefinition::new)
             .collect(Collectors.toList());
-
         return this;
-    }
-
-    private EICode getEICodeFromString(String code) {
-        if (code.length() == 16) {
-            return new EICode(code);
-        } else if (code.length() == 2) {
-            return new EICode(Country.valueOf(code));
-        } else {
-            throw new FaraoException(BOUNDARIES_CODES_FORMAT_EXCEPTION);
-        }
     }
 
     public double getPtdfSumLowerBound() {

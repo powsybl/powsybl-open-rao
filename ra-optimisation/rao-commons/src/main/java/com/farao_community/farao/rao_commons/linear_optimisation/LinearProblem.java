@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
@@ -19,7 +19,6 @@ import com.google.ortools.linearsolver.MPVariable;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LinearProblem {
-
     private static final String VARIABLE_SUFFIX = "variable";
     private static final String CONSTRAINT_SUFFIX = "constraint";
     private static final String SEPARATOR = "_";
@@ -34,6 +33,7 @@ public class LinearProblem {
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
     private static final String MNEC_VIOLATION = "mnecviolation";
     private static final String MNEC_FLOW = "mnecflow";
+    private static final String MARGIN_DECREASE = "margindecrease";
 
     public enum AbsExtension {
         POSITIVE,
@@ -244,6 +244,30 @@ public class LinearProblem {
 
     public MPConstraint getMnecFlowConstraint(Cnec<?> mnec, MarginExtension belowOrAboveThreshold) {
         return solver.lookupConstraintOrNull(mnecFlowConstraintId(mnec, belowOrAboveThreshold));
+    }
+
+    private String marginDecreaseVariableId(Cnec<?> cnec) {
+        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public MPVariable addMarginDecreaseBinaryVariable(Cnec<?> cnec) {
+        return solver.makeIntVar(0, 1, marginDecreaseVariableId(cnec));
+    }
+
+    public MPVariable getMarginDecreaseBinaryVariable(Cnec<?> cnec) {
+        return solver.lookupVariableOrNull(marginDecreaseVariableId(cnec));
+    }
+
+    private String marginDecreaseConstraintId(Cnec<?> cnec, MarginExtension belowOrAboveThreshold) {
+        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public MPConstraint addMarginDecreaseConstraint(double lb, double ub, Cnec<?> cnec, MarginExtension belowOrAboveThreshold) {
+        return solver.makeConstraint(lb, ub, marginDecreaseConstraintId(cnec, belowOrAboveThreshold));
+    }
+
+    public MPConstraint getMarginDecreaseConstraint(Cnec<?> cnec, MarginExtension belowOrAboveThreshold) {
+        return solver.lookupConstraintOrNull(marginDecreaseConstraintId(cnec, belowOrAboveThreshold));
     }
 
     public double infinity() {

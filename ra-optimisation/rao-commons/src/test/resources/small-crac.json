@@ -63,6 +63,7 @@
       "id": "Tieline BE FR - Defaut - N-1 NL1-NL3",
       "name": "Tieline BE FR",
       "networkElement": "BBE2AA1  FFR3AA1  1",
+      "operator" : "FR",
       "thresholds": [ {
         "type": "branch-threshold",
         "unit": "MW",
@@ -78,6 +79,7 @@
       "id": "Tieline BE FR - N - preventive",
       "name": "Tieline BE FR",
       "networkElement": "BBE2AA1  FFR3AA1  1",
+      "operator" : "FR",
       "thresholds": [ {
         "type": "branch-threshold",
         "unit": "MW",

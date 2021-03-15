@@ -40,6 +40,7 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeObjectField("max-curative-topo-per-tso", searchTreeRaoParameters.getMaxCurativeTopoPerTso());
         jsonGenerator.writeObjectField("max-curative-pst-per-tso", searchTreeRaoParameters.getMaxCurativePstPerTso());
         jsonGenerator.writeObjectField("max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
+        jsonGenerator.writeBooleanField("curative-rao-optimize-operators-not-sharing-cras", searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
         jsonGenerator.writeEndObject();
     }
 
@@ -93,6 +94,9 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                 case "max-curative-ra-per-tso":
                     jsonParser.nextToken();
                     parameters.setMaxCurativeRaPerTso(readStringToPositiveIntMap(jsonParser));
+                    break;
+                case "curative-rao-optimize-operators-not-sharing-cras":
+                    parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(jsonParser.getValueAsBoolean());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
