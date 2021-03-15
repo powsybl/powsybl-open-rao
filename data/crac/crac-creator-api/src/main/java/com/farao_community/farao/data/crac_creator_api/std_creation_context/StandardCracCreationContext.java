@@ -26,7 +26,7 @@ import java.util.List;
  */
 public interface StandardCracCreationContext extends CracCreationContext {
 
-    List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts();
+    List<BranchCnecCreationContext> getBranchCnecCreationContexts();
 
-    List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts();
+    List<RemedialActionCreationContext> getRemedialActionCreationContexts();
 }

@@ -94,7 +94,7 @@ public final class CracCreators {
         }
         if (validCracCreators.size() == 1) {
             return validCracCreators.get(0);
-        } else if (validCracCreators.size() == 0) {
+        } else if (validCracCreators.isEmpty()) {
             return null;
         } else {
             throw new FaraoException(String.format("Several CracCreators found for format %s", nativeCracFormat));
