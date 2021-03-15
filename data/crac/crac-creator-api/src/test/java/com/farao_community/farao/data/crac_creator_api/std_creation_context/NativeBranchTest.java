@@ -19,7 +19,7 @@ public class NativeBranchTest {
     public void testConstructor() {
         NativeBranch nativeBranch = new NativeBranch("from", "to", "suffix");
         assertEquals("from", nativeBranch.getFrom());
-        assertEquals("to", nativeBranch.getFrom());
+        assertEquals("to", nativeBranch.getTo());
         assertEquals("suffix", nativeBranch.getSuffix());
     }
 }
