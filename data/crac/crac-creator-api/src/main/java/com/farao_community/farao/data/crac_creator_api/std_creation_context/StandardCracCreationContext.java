@@ -16,8 +16,7 @@ import java.util.List;
  *
  * It is fitted to native CRAC formats which share some common assumptions, such as:
  * <ul>
- *     <li>the native CNECs cannot be monitored in preventive and after a contingency</li>
- *     <li>the native CNECs are not defined for more than one outage</li>
+ *     <li>the native CNECs are defined for the preventive state, or for several states sharing the same contingency</li>
  *     <li>the native CNECs have a 'from', a 'to', and 'suffix' (order or elementName) field</li>
  * </ul>
  *
@@ -27,7 +26,7 @@ import java.util.List;
  */
 public interface StandardCracCreationContext extends CracCreationContext {
 
-    List<BranchCnecCreationContext> getBranchCnecCreationContexts();
+    List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts();
 
-    List<RemedialActionCreationContext> getRemedialActionCreationContexts();
+    List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts();
 }

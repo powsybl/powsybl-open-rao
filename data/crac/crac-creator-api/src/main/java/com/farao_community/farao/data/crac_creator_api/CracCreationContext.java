@@ -19,7 +19,7 @@ import com.farao_community.farao.data.native_crac_api.NativeCrac;
  *  {@link NativeCrac}, for instance on how the object of the NativeCrac has been mapped in
  *  the created Crac.
  *
- *  The CracCreationContext is for instance required by some Crac exporters, so as to rollback
+ *  The CracCreationContext is notably required by some Crac exporters, so as to rollback
  *  some of the Crac information with their native values.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

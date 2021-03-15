@@ -48,7 +48,7 @@ public interface BranchCnecCreationContext {
     //native Cnec was not imported
 
     /**
-     * Get a map of created CNECs id, whose key is the instant on which the created CNEC is monitored
+     * Get a map of created CNECs id, whose key is the instant id on which the created CNEC is monitored
      */
     Map<Instant, String> getCreatedCnecsIds();
 
