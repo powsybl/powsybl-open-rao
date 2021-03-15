@@ -28,7 +28,8 @@ public interface CracCreator<T extends NativeCrac, S extends CracCreationContext
     String getNativeCracFormat();
 
     /**
-     * Create a Crac object from a NativeCrac and a Network.
+     * Create a Crac object from a NativeCrac, a Network and on OffsetDateTime.
+     * Note that null offsetDateTime might be acceptable for CracCreator implementations
      */
     S createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime);
 }
