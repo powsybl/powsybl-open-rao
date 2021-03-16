@@ -289,10 +289,14 @@ public class SearchTreeRaoProvider implements RaoProvider {
         // Save the objective function value of the "worst" perimeter (maximum obj function value)
         // Skip perimeters with pure MNECs as their functional cost can be 0 (artificial)
         CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
-        RaoResult worstCurativeRaoResult = curativeRaoResults.entrySet().stream()
+        List<Map.Entry<State, RaoResult>> curativeCosts = curativeRaoResults.entrySet().stream()
                 .filter(entry -> crac.getBranchCnecs(entry.getKey()).stream().anyMatch(Cnec::isOptimized))
                 .sorted(Comparator.comparingDouble(entry -> -crac.getExtension(CracResultExtension.class).getVariant(entry.getValue().getPostOptimVariantId()).getCost()))
-                .collect(Collectors.toList()).get(0).getValue();
+                .collect(Collectors.toList());
+        if (curativeCosts.isEmpty()) {
+            return;
+        }
+        RaoResult worstCurativeRaoResult = curativeCosts.get(0).getValue();
         if (cracResultMap.getVariant(worstCurativeRaoResult.getPostOptimVariantId()).getCost() > cracResultMap.getVariant(preventiveRaoResult.getPostOptimVariantId()).getCost()) {
             cracResultMap.getVariant(preventiveRaoResult.getPostOptimVariantId()).setFunctionalCost(cracResultMap.getVariant(worstCurativeRaoResult.getPostOptimVariantId()).getFunctionalCost());
             cracResultMap.getVariant(preventiveRaoResult.getPostOptimVariantId()).setVirtualCost(cracResultMap.getVariant(worstCurativeRaoResult.getPostOptimVariantId()).getVirtualCost());
