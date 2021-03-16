@@ -9,6 +9,8 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
@@ -37,9 +39,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -86,7 +89,7 @@ public class SearchTreeTest {
         mockNativeLibraryLoader();
         PowerMockito.doReturn("successful").when(iteratingLinearOptimizer).optimize(any());
         PowerMockito.mockStatic(RaoUtil.class);
-        PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
+        PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
 
         CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());
         Mockito.when(raoData.getCracResultManager()).thenReturn(spiedCracResultManager);
@@ -123,5 +126,27 @@ public class SearchTreeTest {
         searchTree.initLeaves(raoData);
         Mockito.doThrow(new NotImplementedException("")).when(networkAction).apply(network);
         searchTree.optimizeNextLeafAndUpdate(networkAction, network, faraoNetworkPool);
+    }
+
+    @Test
+    public void testNoCnecToOptimize() {
+        RaoData mockRaoData = Mockito.mock(RaoData.class);
+        FlowCnecImpl mockCnec1 = Mockito.mock(FlowCnecImpl.class);
+        FlowCnecImpl mockCnec2 = Mockito.mock(FlowCnecImpl.class);
+        FlowCnecImpl mockCnec3 = Mockito.mock(FlowCnecImpl.class);
+        Set<BranchCnec> cnecs = Set.of(mockCnec1, mockCnec2, mockCnec3);
+        Mockito.when(mockRaoData.getCnecs()).thenReturn(cnecs);
+        Leaf mockLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(mockLeaf.getRaoData()).thenReturn(mockRaoData);
+
+        Mockito.when(mockCnec1.getOperator()).thenReturn("FR");
+        Mockito.when(mockCnec2.getOperator()).thenReturn("FR");
+        Mockito.when(mockCnec3.getOperator()).thenReturn("FR");
+        assertTrue(searchTree.noCnecToOptimize(mockLeaf, Collections.singleton("FR")));
+        assertFalse(searchTree.noCnecToOptimize(mockLeaf, null));
+        assertFalse(searchTree.noCnecToOptimize(mockLeaf, new HashSet<>()));
+        assertFalse(searchTree.noCnecToOptimize(mockLeaf, Collections.singleton("F_R")));
+        Mockito.when(mockCnec3.getOperator()).thenReturn("BE");
+        assertFalse(searchTree.noCnecToOptimize(mockLeaf, Collections.singleton("FR")));
     }
 }
