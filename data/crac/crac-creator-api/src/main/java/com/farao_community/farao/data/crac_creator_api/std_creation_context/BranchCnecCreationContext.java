@@ -34,7 +34,7 @@ public interface BranchCnecCreationContext {
 
     /**
      * Get the id of the native CNEC contingency
-     * Underlying assumption: one native CNEC definition do not cover several contingencies
+     * Underlying assumption: one native CNEC definition does not cover several contingencies
      * @return Optional of the contingency id, or empty Optional if isBaseCase()
      */
     Optional<String> getContingencyId();

@@ -36,7 +36,7 @@ public final class CracCreators {
     }
 
     /**
-     * Flexible method to create a Crac from a native CRAC and a network, whatever the format of the
+     * Flexible method to create a Crac from a native CRAC, a network and a OffsetDateTime, whatever the format of the
      * native CRAC.
      * @param nativeCrac native CRAC object
      * @param network network object required for the conversion of the NativeCrac into a Crac
@@ -54,7 +54,7 @@ public final class CracCreators {
     }
 
     /**
-     * Flexible method to import a Crac from a native CRAC file and a network, whatever the format of the
+     * Flexible method to import a Crac from a native CRAC file, a network and a OffsetDateTime, whatever the format of the
      * native CRAC file.
      * @param nativeCracPath {@link Path} of the native CRAC file
      * @param network network object required for the conversion of the NativeCrac into a Crac
@@ -67,7 +67,7 @@ public final class CracCreators {
     }
 
     /**
-     * Flexible method to import a Crac from a native CRAC file and a network, whatever the format of the
+     * Flexible method to import a Crac from a native CRAC file, a network and a OffsetDateTime, whatever the format of the
      * native CRAC file.
      * @param fileName name of the native CRAC file
      * @param inputStream input stream of the native CRAC file
@@ -94,7 +94,7 @@ public final class CracCreators {
         }
         if (validCracCreators.size() == 1) {
             return validCracCreators.get(0);
-        } else if (validCracCreators.size() == 0) {
+        } else if (validCracCreators.isEmpty()) {
             return null;
         } else {
             throw new FaraoException(String.format("Several CracCreators found for format %s", nativeCracFormat));

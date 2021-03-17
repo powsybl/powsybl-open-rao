@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_creator_api.std_creation_context;
 
 import com.farao_community.farao.data.crac_creator_api.CracCreationContext;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -26,7 +27,11 @@ import java.util.List;
  */
 public interface StandardCracCreationContext extends CracCreationContext {
 
-    List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts();
+    List<BranchCnecCreationContext> getBranchCnecCreationContexts();
 
-    List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts();
+    List<RemedialActionCreationContext> getRemedialActionCreationContexts();
+
+    OffsetDateTime getTimeStamp();
+
+    String getNetworkName();
 }
