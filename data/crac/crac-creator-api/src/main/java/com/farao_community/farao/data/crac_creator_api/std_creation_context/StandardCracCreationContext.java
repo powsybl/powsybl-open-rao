@@ -27,9 +27,9 @@ import java.util.List;
  */
 public interface StandardCracCreationContext extends CracCreationContext {
 
-    List<BranchCnecCreationContext> getBranchCnecCreationContexts();
+    List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts();
 
-    List<RemedialActionCreationContext> getRemedialActionCreationContexts();
+    List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts();
 
     OffsetDateTime getTimeStamp();
 

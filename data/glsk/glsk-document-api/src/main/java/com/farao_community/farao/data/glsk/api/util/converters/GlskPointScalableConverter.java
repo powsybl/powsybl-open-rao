@@ -43,10 +43,6 @@ public final class GlskPointScalableConverter {
         Objects.requireNonNull(glskPoint.getGlskShiftKeys());
         if (!glskPoint.getGlskShiftKeys().get(0).getBusinessType().equals("B45")) {
             //B42 and B43 proportional
-            if (glskPoint.getGlskShiftKeys().size() > 2) {
-                throw new GlskException("Multi shift keys not supported for proportional GLSK.");
-            }
-
             List<Float> percentages = new ArrayList<>();
             List<Scalable> scalables = new ArrayList<>();
 
