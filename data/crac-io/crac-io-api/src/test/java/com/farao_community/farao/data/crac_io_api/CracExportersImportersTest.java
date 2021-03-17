@@ -21,7 +21,7 @@ import java.time.OffsetDateTime;
  */
 public class CracExportersImportersTest {
 
-    String cracFile = "/empty.txt";
+    private String cracFile = "/empty.txt";
 
     @Test
     public void testExport() {
