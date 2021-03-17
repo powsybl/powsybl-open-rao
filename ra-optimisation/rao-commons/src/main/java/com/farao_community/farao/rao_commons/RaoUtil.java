@@ -122,10 +122,10 @@ public final class RaoUtil {
     }
 
     public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface) {
-        return createLinearOptimizer(raoParameters, systematicSensitivityInterface, null);
+        return createLinearOptimizer(raoParameters, systematicSensitivityInterface, null, null);
     }
 
-    public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface, Map<String, Integer> maxPstPerTso) {
+    public static IteratingLinearOptimizer createLinearOptimizer(RaoParameters raoParameters, SystematicSensitivityInterface systematicSensitivityInterface, Map<String, Integer> maxPstPerTso, Set<String> operatorsNotToOptimize) {
         List<ProblemFiller> fillers = new ArrayList<>();
         fillers.add(new CoreProblemFiller(raoParameters.getPstSensitivityThreshold(), maxPstPerTso));
         if (raoParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
@@ -137,14 +137,17 @@ public final class RaoUtil {
             fillers.add(new MaxMinRelativeMarginFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getPstPenaltyCost(), raoParameters.getNegativeMarginObjectiveCoefficient(), raoParameters.getPtdfSumLowerBound()));
             fillers.add(new MnecFiller(raoParameters.getObjectiveFunction().getUnit(), raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient()));
         }
+        if (!Objects.isNull(operatorsNotToOptimize) && !operatorsNotToOptimize.isEmpty()) {
+            fillers.add(new OperatorsNotToOptimizeFiller(operatorsNotToOptimize));
+        }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             // TODO : add relative margins to IteratingLinearOptimizerWithLoopFlows
             // or merge IteratingLinearOptimizerWithLoopFlows with IteratingLinearOptimizer
             fillers.add(createMaxLoopFlowFiller(raoParameters));
             return new IteratingLinearOptimizerWithLoopFlows(fillers, systematicSensitivityInterface,
-                createObjectiveFunction(raoParameters), createIteratingLoopFlowsParameters(raoParameters));
+                createObjectiveFunction(raoParameters, operatorsNotToOptimize), createIteratingLoopFlowsParameters(raoParameters));
         } else {
-            return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters), createIteratingParameters(raoParameters));
+            return new IteratingLinearOptimizer(fillers, systematicSensitivityInterface, createObjectiveFunction(raoParameters, operatorsNotToOptimize), createIteratingParameters(raoParameters));
         }
     }
 
@@ -164,13 +167,13 @@ public final class RaoUtil {
             raoParameters.getFallbackOverCost(), raoParameters.getLoopFlowApproximationLevel(), raoParameters.getLoopFlowViolationCost());
     }
 
-    public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters) {
+    public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters, Set<String> operatorsNotToOptimize) {
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_MARGIN_IN_MEGAWATT:
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
-                return new MinMarginObjectiveFunction(raoParameters);
+                return new MinMarginObjectiveFunction(raoParameters, operatorsNotToOptimize);
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }
