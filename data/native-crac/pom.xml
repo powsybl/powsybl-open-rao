@@ -10,18 +10,14 @@
         <version>2.5.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>farao-crac</artifactId>
+    <artifactId>farao-native-crac</artifactId>
     <version>2.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>CRAC related modules</name>
-    <description>Module that gathers CRAC api and its implementations</description>
+    <name>Native CRAC</name>
+    <description>Module that gathers the features related to native CRAC data</description>
 
     <modules>
-        <module>crac-api</module>
-        <module>crac-creator-api</module>
-        <module>crac-impl</module>
-        <module>crac-loopflow-extension</module>
-        <module>crac-result-extensions</module>
-        <module>crac-util</module>
+        <module>native-crac-api</module>
+        <module>native-crac-io-api</module>
     </modules>
 </project>
