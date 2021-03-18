@@ -13,6 +13,8 @@ import com.farao_community.farao.data.crac_api.Crac;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.function.Supplier;
+
+import com.farao_community.farao.data.crac_creator_api.CracCreationContext;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Network;
@@ -50,6 +52,13 @@ public final class CracExporters {
     public static void exportCrac(Crac crac, Network network, String format, OutputStream outputStream) {
         CracExporter exporter = findCracExporter(format, CRAC_EXPORTERS.get());
         exporter.exportCrac(crac, network, outputStream);
+    }
+
+    public static void exportCrac(Crac crac, Network network, CracCreationContext cracCreationContext,
+                                  String initialVariantId, String postPraVariantId, String postCraVariantId,
+                                  String format, OutputStream outputStream) {
+        CracExporter exporter = findCracExporter(format, CRAC_EXPORTERS.get());
+        exporter.exportCrac(crac, network, cracCreationContext, initialVariantId, postPraVariantId, postCraVariantId, outputStream);
     }
 
     static CracExporter findCracExporter(String name, List<CracExporter> cracExporters) {
