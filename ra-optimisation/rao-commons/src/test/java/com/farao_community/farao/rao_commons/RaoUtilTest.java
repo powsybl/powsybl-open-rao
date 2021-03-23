@@ -23,7 +23,6 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.apache.commons.compress.utils.Sets;
@@ -31,7 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -225,28 +226,6 @@ public class RaoUtilTest {
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().setDc(true);
         RaoUtil.checkParameters(raoParameters, raoInput);
-    }
-
-    @Test
-    public void testGetCnecLocation() {
-        List<Optional<Country>> countries = RaoUtil.getCnecLocation(crac.getBranchCnec("cnec1basecase"), network);
-        assertEquals(2, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.FR)));
-        assertTrue(countries.contains(Optional.of(Country.BE)));
-
-        countries = RaoUtil.getCnecLocation(crac.getBranchCnec("cnec2basecase"), network);
-        assertEquals(2, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.FR)));
-        assertTrue(countries.contains(Optional.of(Country.DE)));
-    }
-
-    @Test
-    public void testGetNetworkActionsLocation() {
-        Network networkWithSwitch = NetworkImportsUtil.import12NodesNetworkWithSwitch();
-        Crac cracWithSwitch = CommonCracCreation.createWithSwitch();
-        List<Optional<Country>> countries = RaoUtil.getNetworkActionLocation(cracWithSwitch.getNetworkAction("switch_ra"), networkWithSwitch);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.NL)));
     }
 
     @Test

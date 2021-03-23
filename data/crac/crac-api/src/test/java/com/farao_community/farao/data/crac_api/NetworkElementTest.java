@@ -7,7 +7,15 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
+
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -62,5 +70,65 @@ public class NetworkElementTest {
         NetworkElement networkElement = new NetworkElement("network-element");
 
         assertEquals("network-element".hashCode(), networkElement.getId().hashCode());
+    }
+
+    @Test
+    public void testGetLocation() {
+        Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
+
+        Set<Optional<Country>> countries;
+
+        // Branch
+        countries = new NetworkElement("FFR2AA1  DDE3AA1  1").getLocation(network);
+        assertEquals(2, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.FR)));
+        assertTrue(countries.contains(Optional.of(Country.DE)));
+
+        // Branch
+        countries = new NetworkElement("BBE2AA1  BBE3AA1  1").getLocation(network);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.BE)));
+
+        // Switch
+        countries = new NetworkElement("NNL3AA11 NNL3AA12 1").getLocation(network);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.NL)));
+
+        // Generator
+        countries = new NetworkElement("FFR1AA1 _generator").getLocation(network);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.FR)));
+
+        // Load
+        countries = new NetworkElement("NNL1AA1 _load").getLocation(network);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.NL)));
+
+        // Bus
+        countries = new NetworkElement("NNL2AA1 ").getLocation(network);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.NL)));
+
+        // Voltage level
+        countries = new NetworkElement("BBE1AA1").getLocation(network);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.BE)));
+
+        // Substation
+        countries = new NetworkElement("DDE3AA").getLocation(network);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.DE)));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testGetLocationAbsent() {
+        Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
+        new NetworkElement("non-existent").getLocation(network);
+    }
+
+    @Test(expected = NotImplementedException.class)
+    public void testGetLocationOnLoad() {
+        Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
+        new NetworkElement("TestCase12NodesWithSwitch").getLocation(network);
     }
 }
