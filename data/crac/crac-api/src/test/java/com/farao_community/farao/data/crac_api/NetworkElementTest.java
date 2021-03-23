@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -127,7 +128,7 @@ public class NetworkElementTest {
     }
 
     @Test(expected = NotImplementedException.class)
-    public void testGetLocationOnLoad() {
+    public void testGetLocationOnUnsupportedType() {
         Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
         new NetworkElement("TestCase12NodesWithSwitch").getLocation(network);
     }
