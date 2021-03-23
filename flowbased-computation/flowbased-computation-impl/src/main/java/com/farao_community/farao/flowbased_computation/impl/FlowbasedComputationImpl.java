@@ -15,17 +15,21 @@ import com.farao_community.farao.data.crac_result_extensions.CracResultUtil;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.rao_commons.CracVariantManager;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +41,7 @@ import java.util.stream.Collectors;
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
+    private static final String CURATIVE_STATE = "CurativeState";
     private String onOutageInstantId = null;
     private String afterCraInstantId = null;
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
@@ -75,15 +80,53 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         // Curative perimeter
         if (afterCraInstantId != null) {
-            crac.getStatesFromInstant(afterCraInstantId).forEach(state -> handleCurativeState(state, network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
+            optimizeCurativePerimeters(crac.getStatesFromInstant(afterCraInstantId), network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain());
         } else {
             LOGGER.info("No curative computation in flowbased.");
         }
 
         // Restore initial variant at the end of the computation
         network.getVariantManager().setWorkingVariant(initialNetworkId);
+        network.getVariantManager().removeVariant(INITIAL_STATE_WITH_PRA);
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
+    }
+
+    private void optimizeCurativePerimeters(Set<State> states, Network network, Crac crac, ZonalData<LinearGlsk> glsk, SensitivityAnalysisParameters sensitivityAnalysisParameters, DataDomain flowbasedDomain) {
+        //String initialVariantId = crac.getExtension(ResultVariantManager.class).getInitialVariantId();
+        network.getVariantManager().setWorkingVariant(INITIAL_STATE_WITH_PRA);
+        network.getVariantManager().cloneVariant(INITIAL_STATE_WITH_PRA, CURATIVE_STATE);
+        network.getVariantManager().setWorkingVariant(CURATIVE_STATE);
+        //Map<String, String> initialVariantIdPerOptimizedStateId = new ConcurrentHashMap<>();
+        CracVariantManager cracVariantManager = new CracVariantManager(crac);
+        /*states.forEach(optimizedState -> {
+            if (!optimizedState.equals(crac.getPreventiveState())) {
+                initialVariantIdPerOptimizedStateId.put(optimizedState.getId(), cracVariantManager.cloneWorkingVariant());
+            }
+        });*/
+        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_STATE, 2)) {
+            //try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_STATE, parameters.getPerimetersInParallel())) {
+            states.forEach(optimizedState -> {
+                if (!optimizedState.equals(crac.getPreventiveState())) { //NEVER?
+                    networkPool.submit(() -> {
+                        try {
+                            LOGGER.info("Computing curative state {}.", optimizedState.getId());
+                            Network networkClone = networkPool.getAvailableNetwork();
+                            handleCurativeState(optimizedState, networkClone, crac, glsk, sensitivityAnalysisParameters, flowbasedDomain);
+                            networkPool.releaseUsedNetwork(networkClone);
+                            LOGGER.info("Curative state {} has been computed.", optimizedState.getId());
+                        } catch (InterruptedException | NotImplementedException | FaraoException | NullPointerException e) {
+                            LOGGER.error("Curative state {} could not be computed.", optimizedState.getId());
+                            Thread.currentThread().interrupt();
+                        }
+                    });
+                }
+            });
+            networkPool.shutdown();
+            networkPool.awaitTermination(24, TimeUnit.HOURS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void handleCurativeState(State state, Network network, Crac crac, ZonalData<LinearGlsk> glsk, SensitivityAnalysisParameters sensitivityAnalysisParameters, DataDomain flowbasedDomain) {
@@ -124,7 +167,8 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                         LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
                     }
                 });
-
+                network.getVariantManager().setWorkingVariant(INITIAL_STATE_WITH_PRA);
+                network.getVariantManager().removeVariant(variantName);
             }
         });
 

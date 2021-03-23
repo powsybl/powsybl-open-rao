@@ -57,6 +57,9 @@ public final class CracResultUtil {
         String postOptimVariantId = variants.get(0);
 
         double minCost = cracExtension.getVariant(variants.get(0)).getCost();
+        if (variants.size() < 2) {
+            LOGGER.warn(String.format("Not enough variants: %s!", variants.size()));
+        }
         for (String variant : variants) {
             if (cracExtension.getVariant(variant).getCost() <= minCost) {
                 minCost = cracExtension.getVariant(variant).getCost();
