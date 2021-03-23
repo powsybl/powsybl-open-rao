@@ -9,11 +9,16 @@ load-flow:
 load-flow-default-parameters:
     voltageInitMode: DC_VALUES
     transformerVoltageControlOn: false
-    dcMode: true
-    balanceType: PROPORTIONAL_TO_GENERATION_P
-
-hades2-default-parameters:
+    dc: true
+    balanceType: PROPORTIONAL_TO_LOAD
     countriesToBalance: AL,AT,BA,BE,BG,CH,CZ,DE,ES,FR,GR,HR,HU,IT,ME,MK,NL,PL,PT,RO,RS,SI,SK,TR,UA
+    phaseShifterRegulationOn": false
+    noGeneratorReactiveLimits": false
+    twtSplitShuntAdmittance": true
+    simulShunt: false
+    readSlackBus: false
+    writeSlackBus: false
+    distributedSlack: true
 
 sensitivity-analysis:
     default-impl-name: Sensi2
@@ -31,25 +36,35 @@ rao:
 
 rao-parameters:
     objective-function: MAX_MIN_MARGIN_IN_MEGAWATT
-    max-number-of-iterations: 5
+    max-number-of-iterations: 2
     pst-penalty-cost: 0.01
-    pst-sensitivity-threshold : 0.0
+    pst-sensitivity-threshold : 0.2
     sensitivity-fallback-overcost: 0
-    rao-with-loop-flow-limitation: false
+    rao-with-loop-flow-limitation: true
     loop-flow-approximation: FIXED_PTDF
     loop-flow-constraint-adjustment-coefficient: 0.0
-    loop-flow-violation-cost: 0.0
+    loop-flow-acceptable-augmentation : 10.0
+    loop-flow-violation-cost: 100000.0
     mnec-acceptable-margin-diminution: 50.0
-    mnec-violation-cost: 10.0
-    mnec-constraint-adjustment-coefficient: 0.0
+    mnec-violation-cost: 100000.0
+    mnec-constraint-adjustment-coefficient: 10.0
+    negative-margin-objective-coefficient : 1000.0
+    relative-margin-ptdf-boundaries: ["{FR}-{BE}","{FR}-{DE}","{BE}-{NL}","{NL}-{DE}","{DE}-{PL}","{DE}-{CZ}","{DE}-{AT}","{PL}-{CZ}","{PL}-{SK}","{CZ}-{SK}","{CZ}-{AT}","{AT}-{HU}","{AT}-{SI}","{SI}-{HR}","{SK}-{HU}","{HU}-{RO}","{HU}-{HR}","{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"]
+    ptdf-sum-lower-bound: 0.01
+    perimeters-in-parallel: 8
 
 search-tree-rao-parameters:
-    preventive-rao-stop-criterion: SECURE
-    curative-rao-stop-criterion: SECURE
+    preventive-rao-stop-criterion: MIN_OBJECTIVE
+    curative-rao-stop-criterion: MIN_OBJECTIVE
+    curative-rao-min-obj-improvement: 10.0
     maximum-search-depth: 5
-    relative-network-action-minimum-impact-threshold: 0
-    absolute-network-action-minimum-impact-threshold: 0
-    leaves-in-parallel: 2
+    relative-network-action-minimum-impact-threshold: 0.0
+    absolute-network-action-minimum-impact-threshold: 10.0
+    preventive-leaves-in-parallel: 8
+    curative-leaves-in-parallel: 1
+    skip-network-actions-far-from-most-limiting-element: false
+    max-number-of-boundaries-for-skipping-network-actions: 0
+    curative-rao-optimize-operators-not-sharing-cras: true
 
 linear-rao-parameters:
     security-analysis-without-rao: false
