@@ -63,6 +63,16 @@ public class FlowbasedComputationImplTest {
     }
 
     @Test
+    public void testRunWithCraRaoResult() {
+        crac = ExampleGenerator.crac("crac_rao_result.json");
+        assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
+        assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        checkAssertions(result);
+        checkCurativeAssertions(result);
+    }
+
+    @Test
     public void testRunPraWithForced() {
         crac = ExampleGenerator.crac("crac_with_forced.json");
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();

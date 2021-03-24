@@ -107,23 +107,25 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             }
 
             List<DataMonitoredBranch> dataMonitoredBranches = flowbasedDomain.findContingencyById(contingencyId).getDataMonitoredBranches();
-            dataMonitoredBranches.forEach(dataMonitoredBranch -> {
-                if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
-                    BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
-                    dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
-                    glsk.getDataPerZone().forEach((zone, zonalData) -> {
-                        List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
-                        if (ptdfs.size() == 1) {
-                            double newPtdf = sensitivityResult.getSensitivityOnFlow(zonalData, cnec);
-                            if (!Double.isNaN(newPtdf)) {
-                                ptdfs.get(0).setPtdf(newPtdf);
-                            } else {
-                                ptdfs.get(0).setPtdf(0.0);
-                            }
-                        } else {
-                            LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
-                        }
-                    });
+            dataMonitoredBranches.forEach(dataMonitoredBranch -> updateDataMonitoredBranch(dataMonitoredBranch, crac, sensitivityResult, glsk));
+        }
+    }
+
+    private void updateDataMonitoredBranch(DataMonitoredBranch dataMonitoredBranch, Crac crac, SystematicSensitivityResult sensitivityResult, ZonalData<LinearGlsk> glsk) {
+        if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
+            BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
+            dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
+            glsk.getDataPerZone().forEach((zone, zonalData) -> {
+                List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
+                if (ptdfs.size() == 1) {
+                    double newPtdf = sensitivityResult.getSensitivityOnFlow(zonalData, cnec);
+                    if (!Double.isNaN(newPtdf)) {
+                        ptdfs.get(0).setPtdf(newPtdf);
+                    } else {
+                        ptdfs.get(0).setPtdf(0.0);
+                    }
+                } else {
+                    LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
                 }
             });
         }
@@ -146,49 +148,55 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             } else {
                 LOGGER.error(String.format("Wrong number of variants: %s!!", resultVariantManager.getVariants().size()));
             }
+            final String variantPreOptimId = variantPreOptimIdTmp;
+            final String variantPostOptimId = variantPostOptimIdTmp;
+
+            crac.getNetworkActions().forEach(networkAction -> findStatesWithNetworkCra(networkAction, variantPostOptimId, crac.getStates()));
+            crac.getRangeActions().forEach(rangeAction -> findStatesWithRangeCra(rangeAction, variantPreOptimId, variantPostOptimId, crac.getStates()));
+
         } else {
-            crac.getStates().forEach(state -> {
-                if (state.getInstant().getId().equals(afterCraInstantId)) {
-                    Optional<NetworkAction> fittingAction = crac.getNetworkActions().stream().filter(networkAction ->
-                        networkAction.getUsageMethod(network, state) != null).findAny();
-                    if (fittingAction.isPresent()) {
-                        statesWithCras.add(state);
-                    }
-                }
-            });
+            crac.getStates().forEach(state -> findAllStatesWithCraUsageMethod(state, network, crac.getNetworkActions()));
         }
-        final String variantPreOptimId = variantPreOptimIdTmp;
-        final String variantPostOptimId = variantPostOptimIdTmp;
-
-        crac.getNetworkActions().forEach(networkAction -> {
-            NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
-            if (networkActionResultExtension != null) {
-                NetworkActionResult networkActionResult = networkActionResultExtension.getVariant(variantPostOptimId);
-                for (State state : crac.getStates()) {
-                    if (networkActionResult.isActivated(state.getId())) {
-                        statesWithCras.add(state);
-                    }
-                }
-            }
-        });
-
-        crac.getRangeActions().forEach(rangeAction -> {
-            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
-            if (rangeActionResultExtension != null) {
-                RangeActionResult rangeActionResultPre = rangeActionResultExtension.getVariant(variantPreOptimId);
-                RangeActionResult rangeActionResultPost = rangeActionResultExtension.getVariant(variantPostOptimId);
-                for (State state : crac.getStates()) {
-                    double setPointPre = rangeActionResultPre.getSetPoint(state.getId());
-                    double setPointPost = rangeActionResultPost.getSetPoint(state.getId());
-                    if (setPointPost != setPointPre) {
-                        statesWithCras.add(state);
-                    }
-                }
-            }
-        });
 
         LOGGER.debug(String.format("%s curative states with CRAs.", statesWithCras.size()));
         return statesWithCras;
+    }
+
+    private void findAllStatesWithCraUsageMethod(State state, Network network, Set<NetworkAction> networkActions) {
+        if (state.getInstant().getId().equals(afterCraInstantId)) {
+            Optional<NetworkAction> fittingAction = networkActions.stream().filter(networkAction ->
+                networkAction.getUsageMethod(network, state) != null).findAny();
+            if (fittingAction.isPresent()) {
+                statesWithCras.add(state);
+            }
+        }
+    }
+
+    private void findStatesWithNetworkCra(NetworkAction networkAction, String variantPostOptimId, Set<State> states) {
+        NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
+        if (networkActionResultExtension != null) {
+            NetworkActionResult networkActionResult = networkActionResultExtension.getVariant(variantPostOptimId);
+            for (State state : states) {
+                if (networkActionResult.isActivated(state.getId())) {
+                    statesWithCras.add(state);
+                }
+            }
+        }
+    }
+
+    private void findStatesWithRangeCra(RangeAction rangeAction, String variantPreOptimId, String variantPostOptimId, Set<State> states) {
+        RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+        if (rangeActionResultExtension != null) {
+            RangeActionResult rangeActionResultPre = rangeActionResultExtension.getVariant(variantPreOptimId);
+            RangeActionResult rangeActionResultPost = rangeActionResultExtension.getVariant(variantPostOptimId);
+            for (State state : states) {
+                double setPointPre = rangeActionResultPre.getSetPoint(state.getId());
+                double setPointPost = rangeActionResultPost.getSetPoint(state.getId());
+                if (setPointPost != setPointPre) {
+                    statesWithCras.add(state);
+                }
+            }
+        }
     }
 
     private void sortInstants(Set<Instant> instants) {
