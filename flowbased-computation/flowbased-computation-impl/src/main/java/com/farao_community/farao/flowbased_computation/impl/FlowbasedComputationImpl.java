@@ -79,7 +79,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             statesWithCras = findStatesWithCras(crac, network);
             crac.getStatesFromInstant(afterCraInstantId).forEach(state -> handleCurativeState(state, network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
         } else {
-            LOGGER.info("No curative computation in flowbased.");
+            LOGGER.info("No curative computation in flowbased because 2 or less instants are defined in crac.");
         }
 
         // Restore initial variant at the end of the computation
@@ -142,11 +142,12 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 if (otherVariant.isPresent()) {
                     variantPreOptimIdTmp = resultVariantManager.getInitialVariantId();
                     variantPostOptimIdTmp = otherVariant.get();
+                    LOGGER.debug("Variants are correctly defined.");
                 } else {
-                    LOGGER.error("Problem with post optim variant!!");
+                    LOGGER.error("Problem with post optim variant is missing.");
                 }
             } else {
-                LOGGER.error(String.format("Wrong number of variants: %s!!", resultVariantManager.getVariants().size()));
+                LOGGER.error(String.format("Wrong number of variants: %s.", resultVariantManager.getVariants().size()));
             }
             final String variantPreOptimId = variantPreOptimIdTmp;
             final String variantPostOptimId = variantPostOptimIdTmp;

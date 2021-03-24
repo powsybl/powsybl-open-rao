@@ -73,6 +73,13 @@ public class FlowbasedComputationImplTest {
     }
 
     @Test
+    public void testRunWrongData() {
+        crac = ExampleGenerator.crac("crac_rao_result_wrong.json");
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        //checkAssertions(result);
+    }
+
+    @Test
     public void testRunPraWithForced() {
         crac = ExampleGenerator.crac("crac_with_forced.json");
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
