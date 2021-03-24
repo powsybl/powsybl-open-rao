@@ -123,10 +123,7 @@ public final class GlskPointScalableConverter {
                 .sorted(Comparator.comparingInt(AbstractGlskShiftKey::getMeritOrderPosition))
                 .map(glskShiftKey -> {
                     AbstractGlskRegisteredResource generatorRegisteredResource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
-                    String generatorId = generatorRegisteredResource.getGeneratorId();
-                    double incomingMaxP = generatorRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
-                    double incomingMinP = generatorRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
-                    return (Scalable) Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
+                    return getGeneratorScalableWithLimits(network, generatorRegisteredResource);
                 }).toArray(Scalable[]::new));
 
         Scalable downScalable = Scalable.stack(glskPoint.getGlskShiftKeys().stream()
@@ -134,12 +131,33 @@ public final class GlskPointScalableConverter {
                 .sorted(Comparator.comparingInt(AbstractGlskShiftKey::getMeritOrderPosition).reversed())
                 .map(glskShiftKey -> {
                     AbstractGlskRegisteredResource generatorRegisteredResource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
-                    String generatorId = generatorRegisteredResource.getGeneratorId();
-                    double incomingMaxP = generatorRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
-                    double incomingMinP = generatorRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
-                    return (Scalable) Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
+                    return getGeneratorScalableWithLimits(network, generatorRegisteredResource);
                 }).toArray(Scalable[]::new));
         return Scalable.upDown(upScalable, downScalable);
+    }
+
+    private static Scalable getGeneratorScalableWithLimits(Network network, AbstractGlskRegisteredResource generatorRegisteredResource) {
+        String generatorId = generatorRegisteredResource.getGeneratorId();
+        double incomingMaxP = generatorRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
+        double incomingMinP = generatorRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
+        // Fixes some inconsistencies between GLSK and network that may raise an exception in
+        // PowSyBl when actually scaling the network.
+        // TODO: Solve this issue in PowSyBl framework.
+        Generator generator = network.getGenerator(generatorId);
+        if (generator != null) {
+            double generatorTargetP = generator.getTargetP();
+            if (!Double.isNaN(incomingMaxP) && incomingMaxP < generatorTargetP) {
+                LOGGER.warn("Generator '{}' has initial target P that is above GLSK target P. Extending GLSK max P from {} to {}.", generatorId, incomingMaxP, generatorTargetP);
+                incomingMaxP = generatorTargetP;
+            }
+            if (!Double.isNaN(incomingMinP) && incomingMinP > generatorTargetP) {
+                LOGGER.warn("Generator '{}' has initial target P that is above GLSK target P. Extending GLSK min P from {} to {}.", generatorId, incomingMinP, generatorTargetP);
+                incomingMinP = generatorTargetP;
+            }
+            incomingMaxP = Math.max(incomingMaxP, generator.getTargetP());
+            incomingMinP = Math.min(incomingMinP, generator.getTargetP());
+        }
+        return Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
     }
 
     /**
