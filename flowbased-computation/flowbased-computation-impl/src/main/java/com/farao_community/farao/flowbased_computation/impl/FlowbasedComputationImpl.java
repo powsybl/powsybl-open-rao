@@ -11,24 +11,21 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CracResultUtil;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +40,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     private static final String CURATIVE_STATE = "CurativeState";
     private String onOutageInstantId = null;
     private String afterCraInstantId = null;
+    private Set<State> statesWithCras = new HashSet<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
@@ -79,7 +77,8 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         // Curative perimeter
         if (afterCraInstantId != null) {
-            computeCurativeStatesInParallel(crac.getStatesFromInstant(afterCraInstantId), network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain());
+            statesWithCras = findStatesWithCras(crac, network);
+            crac.getStatesFromInstant(afterCraInstantId).forEach(state -> handleCurativeState(state, network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
         } else {
             LOGGER.info("No curative computation in flowbased.");
         }
@@ -91,80 +90,106 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
-    private void computeCurativeStatesInParallel(Set<State> states, Network network, Crac crac, ZonalData<LinearGlsk> glsk, SensitivityAnalysisParameters sensitivityAnalysisParameters, DataDomain flowbasedDomain) {
-        //String initialVariantId = crac.getExtension(ResultVariantManager.class).getInitialVariantId();
-        network.getVariantManager().setWorkingVariant(INITIAL_STATE_WITH_PRA);
-        network.getVariantManager().cloneVariant(INITIAL_STATE_WITH_PRA, CURATIVE_STATE);
-        network.getVariantManager().setWorkingVariant(CURATIVE_STATE);
-        //Map<String, String> initialVariantIdPerOptimizedStateId = new ConcurrentHashMap<>();
-        //CracVariantManager cracVariantManager = new CracVariantManager(crac);
-        /*states.forEach(optimizedState -> {
-            if (!optimizedState.equals(crac.getPreventiveState())) {
-                initialVariantIdPerOptimizedStateId.put(optimizedState.getId(), cracVariantManager.cloneWorkingVariant());
+    private void handleCurativeState(State state, Network network, Crac crac, ZonalData<LinearGlsk> glsk, SensitivityAnalysisParameters sensitivityAnalysisParameters, DataDomain flowbasedDomain) {
+        if (statesWithCras.contains(state)) {
+            CracResultUtil.applyRemedialActionsForState(network, crac, state);
+
+            SystematicSensitivityInterface newSystematicSensitivityInterface = SystematicSensitivityInterface.builder()
+                .withDefaultParameters(sensitivityAnalysisParameters)
+                .withPtdfSensitivities(glsk, crac.getBranchCnecs(state), Collections.singleton(Unit.MEGAWATT))
+                .build();
+            SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
+            Optional<Contingency> contingencyOptional = state.getContingency();
+            String contingencyId = "";
+            if (contingencyOptional.isPresent()) {
+                contingencyId = contingencyOptional.get().getId();
+            } else {
+                throw new FaraoException("Contingency shouldn't be empty in curative.");
             }
-        });*/
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_STATE, 2)) {
-            //try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CURATIVE_STATE, parameters.getPerimetersInParallel())) {
-            states.forEach(optimizedState -> {
-                if (!optimizedState.equals(crac.getPreventiveState())) { //NEVER?
-                    networkPool.submit(() -> {
-                        try {
-                            LOGGER.info("Computing curative state {}.", optimizedState.getId());
-                            Network networkClone = networkPool.getAvailableNetwork();
-                            handleCurativeState(optimizedState, networkClone, crac, glsk, sensitivityAnalysisParameters, flowbasedDomain);
-                            networkPool.releaseUsedNetwork(networkClone);
-                            LOGGER.info("Curative state {} has been computed.", optimizedState.getId());
-                        } catch (InterruptedException | NotImplementedException | FaraoException | NullPointerException e) {
-                            LOGGER.error("Curative state {} could not be computed.", optimizedState.getId());
-                            Thread.currentThread().interrupt();
+
+            List<DataMonitoredBranch> dataMonitoredBranches = flowbasedDomain.findContingencyById(contingencyId).getDataMonitoredBranches();
+            dataMonitoredBranches.forEach(dataMonitoredBranch -> {
+                if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
+                    BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
+                    dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
+                    glsk.getDataPerZone().forEach((zone, zonalData) -> {
+                        List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
+                        if (ptdfs.size() == 1) {
+                            double newPtdf = sensitivityResult.getSensitivityOnFlow(zonalData, cnec);
+                            if (!Double.isNaN(newPtdf)) {
+                                ptdfs.get(0).setPtdf(newPtdf);
+                            } else {
+                                ptdfs.get(0).setPtdf(0.0);
+                            }
+                        } else {
+                            LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
                         }
                     });
                 }
             });
-            networkPool.shutdown();
-            networkPool.awaitTermination(24, TimeUnit.HOURS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 
-    private void handleCurativeState(State state, Network network, Crac crac, ZonalData<LinearGlsk> glsk, SensitivityAnalysisParameters sensitivityAnalysisParameters, DataDomain flowbasedDomain) {
-        CracResultUtil.applyRemedialActionsForState(network, crac, state);
+    private Set<State> findStatesWithCras(Crac crac, Network network) {
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
 
-        SystematicSensitivityInterface newSystematicSensitivityInterface = SystematicSensitivityInterface.builder()
-            .withDefaultParameters(sensitivityAnalysisParameters)
-            .withPtdfSensitivities(glsk, crac.getBranchCnecs(state), Collections.singleton(Unit.MEGAWATT))
-            .build();
-        SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
-        Optional<Contingency> contingencyOptional = state.getContingency();
-        String contingencyId = "";
-        if (contingencyOptional.isPresent()) {
-            contingencyId = contingencyOptional.get().getId();
+        String variantPreOptimIdTmp = null;
+        String variantPostOptimIdTmp = null;
+        if (resultVariantManager != null) {
+            if (resultVariantManager.getVariants().size() == 2) {
+                Optional<String> otherVariant = resultVariantManager.getVariants().stream().filter(variantId -> !variantId.equals(resultVariantManager.getInitialVariantId())).findFirst();
+                if (otherVariant.isPresent()) {
+                    variantPreOptimIdTmp = resultVariantManager.getInitialVariantId();
+                    variantPostOptimIdTmp = otherVariant.get();
+                } else {
+                    LOGGER.error("Problem with post optim variant!!");
+                }
+            } else {
+                LOGGER.error(String.format("Wrong number of variants: %s!!", resultVariantManager.getVariants().size()));
+            }
         } else {
-            throw new FaraoException("Contingency shouldn't be empty in curative.");
-        }
-
-        List<DataMonitoredBranch> dataMonitoredBranches = flowbasedDomain.findContingencyById(contingencyId).getDataMonitoredBranches();
-        dataMonitoredBranches.forEach(dataMonitoredBranch -> {
-            if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
-                BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
-                dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
-                glsk.getDataPerZone().forEach((zone, zonalData) -> {
-                    List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
-                    if (ptdfs.size() == 1) {
-                        double newPtdf = sensitivityResult.getSensitivityOnFlow(zonalData, cnec);
-                        if (!Double.isNaN(newPtdf)) {
-                            ptdfs.get(0).setPtdf(newPtdf);
-                        } else {
-                            ptdfs.get(0).setPtdf(0.0);
-                        }
-                    } else {
-                        LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
+            crac.getStates().forEach(state -> {
+                if (state.getInstant().getId().equals(afterCraInstantId)) {
+                    Optional<NetworkAction> fittingAction = crac.getNetworkActions().stream().filter(networkAction ->
+                        networkAction.getUsageMethod(network, state) != null).findAny();
+                    if (fittingAction.isPresent()) {
+                        statesWithCras.add(state);
                     }
-                });
+                }
+            });
+        }
+        final String variantPreOptimId = variantPreOptimIdTmp;
+        final String variantPostOptimId = variantPostOptimIdTmp;
+
+        crac.getNetworkActions().forEach(networkAction -> {
+            NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
+            if (networkActionResultExtension != null) {
+                NetworkActionResult networkActionResult = networkActionResultExtension.getVariant(variantPostOptimId);
+                for (State state : crac.getStates()) {
+                    if (networkActionResult.isActivated(state.getId())) {
+                        statesWithCras.add(state);
+                    }
+                }
             }
         });
 
+        crac.getRangeActions().forEach(rangeAction -> {
+            RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+            if (rangeActionResultExtension != null) {
+                RangeActionResult rangeActionResultPre = rangeActionResultExtension.getVariant(variantPreOptimId);
+                RangeActionResult rangeActionResultPost = rangeActionResultExtension.getVariant(variantPostOptimId);
+                for (State state : crac.getStates()) {
+                    double setPointPre = rangeActionResultPre.getSetPoint(state.getId());
+                    double setPointPost = rangeActionResultPost.getSetPoint(state.getId());
+                    if (setPointPost != setPointPre) {
+                        statesWithCras.add(state);
+                    }
+                }
+            }
+        });
+
+        LOGGER.debug(String.format("%s curative states with CRAs.", statesWithCras.size()));
+        return statesWithCras;
     }
 
     private void sortInstants(Set<Instant> instants) {
