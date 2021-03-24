@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
-    private static final String CURATIVE_STATE = "CurativeState";
     private String onOutageInstantId = null;
     private String afterCraInstantId = null;
     private Set<State> statesWithCras = new HashSet<>();
