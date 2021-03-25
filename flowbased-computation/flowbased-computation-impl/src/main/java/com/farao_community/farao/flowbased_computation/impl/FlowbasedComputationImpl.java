@@ -147,7 +147,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                     LOGGER.error("Problem with post optim variant is missing.");
                 }
             } else {
-                LOGGER.error(String.format("Wrong number of variants: %s.", resultVariantManager.getVariants().size()));
+                throw new FaraoException(String.format("Wrong number of variants: %s.", resultVariantManager.getVariants().size()));
             }
             final String variantPreOptimId = variantPreOptimIdTmp;
             final String variantPostOptimId = variantPostOptimIdTmp;
