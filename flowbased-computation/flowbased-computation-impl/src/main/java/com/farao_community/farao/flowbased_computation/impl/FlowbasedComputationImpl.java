@@ -134,13 +134,11 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     private Set<State> findStatesWithCras(Crac crac, Network network) {
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
 
-        String variantPreOptimIdTmp = null;
         String variantPostOptimIdTmp = null;
         if (resultVariantManager != null) {
             if (resultVariantManager.getVariants().size() == 2) {
                 Optional<String> otherVariant = resultVariantManager.getVariants().stream().filter(variantId -> !variantId.equals(resultVariantManager.getInitialVariantId())).findFirst();
                 if (otherVariant.isPresent()) {
-                    variantPreOptimIdTmp = resultVariantManager.getInitialVariantId();
                     variantPostOptimIdTmp = otherVariant.get();
                     LOGGER.debug("Variants are correctly defined.");
                 } else {
@@ -149,7 +147,6 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             } else {
                 throw new FaraoException(String.format("Wrong number of variants: %s.", resultVariantManager.getVariants().size()));
             }
-            final String variantPreOptimId = variantPreOptimIdTmp;
             final String variantPostOptimId = variantPostOptimIdTmp;
 
             crac.getNetworkActions().forEach(networkAction -> findStatesWithNetworkCra(networkAction, variantPostOptimId, crac.getStates()));
