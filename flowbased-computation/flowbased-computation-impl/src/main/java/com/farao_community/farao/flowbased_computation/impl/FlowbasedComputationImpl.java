@@ -153,7 +153,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             final String variantPostOptimId = variantPostOptimIdTmp;
 
             crac.getNetworkActions().forEach(networkAction -> findStatesWithNetworkCra(networkAction, variantPostOptimId, crac.getStates()));
-            crac.getRangeActions().forEach(rangeAction -> findStatesWithRangeCra(rangeAction, variantPreOptimId, variantPostOptimId, crac.getStates()));
+            crac.getRangeActions().forEach(rangeAction -> findStatesWithRangeCra(rangeAction, variantPostOptimId, crac.getPreventiveState(), crac.getStates()));
 
         } else {
             crac.getStates().forEach(state -> findAllStatesWithCraUsageMethod(state, network, crac.getNetworkActions()));
@@ -185,15 +185,14 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         }
     }
 
-    private void findStatesWithRangeCra(RangeAction rangeAction, String variantPreOptimId, String variantPostOptimId, Set<State> states) {
+    private void findStatesWithRangeCra(RangeAction rangeAction, String variantPostOptimId, State preventiveState, Set<State> states) {
         RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
         if (rangeActionResultExtension != null) {
-            RangeActionResult rangeActionResultPre = rangeActionResultExtension.getVariant(variantPreOptimId);
             RangeActionResult rangeActionResultPost = rangeActionResultExtension.getVariant(variantPostOptimId);
             for (State state : states) {
-                double setPointPre = rangeActionResultPre.getSetPoint(state.getId());
+                double setPointBasecaseWithPra = rangeActionResultPost.getSetPoint(preventiveState.getId());
                 double setPointPost = rangeActionResultPost.getSetPoint(state.getId());
-                if (setPointPost != setPointPre) {
+                if (setPointPost != setPointBasecaseWithPra) {
                     statesWithCras.add(state);
                 }
             }
