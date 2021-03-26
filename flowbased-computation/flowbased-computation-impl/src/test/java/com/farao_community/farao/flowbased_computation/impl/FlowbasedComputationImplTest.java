@@ -77,7 +77,7 @@ public class FlowbasedComputationImplTest {
     public void testRunWrongData() {
         crac = ExampleGenerator.crac("crac_rao_result_wrong.json");
         try {
-            FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+            flowBasedComputationProvider.run(network, crac, glsk, parameters);
             fail();
         } catch (FaraoException e) {
             assertEquals("Wrong number of variants: 1.", e.getMessage());

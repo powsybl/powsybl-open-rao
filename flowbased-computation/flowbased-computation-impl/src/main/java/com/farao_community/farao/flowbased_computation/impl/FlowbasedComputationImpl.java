@@ -99,7 +99,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .build();
             SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
             Optional<Contingency> contingencyOptional = state.getContingency();
-            String contingencyId = "";
+            String contingencyId;
             if (contingencyOptional.isPresent()) {
                 contingencyId = contingencyOptional.get().getId();
             } else {
@@ -156,7 +156,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             crac.getStates().forEach(state -> findAllStatesWithCraUsageMethod(state, network, crac.getNetworkActions()));
         }
 
-        LOGGER.debug(String.format("%s curative states with CRAs.", statesWithCras.size()));
+        LOGGER.debug("{} curative states with CRAs.", statesWithCras.size());
         return statesWithCras;
     }
 
