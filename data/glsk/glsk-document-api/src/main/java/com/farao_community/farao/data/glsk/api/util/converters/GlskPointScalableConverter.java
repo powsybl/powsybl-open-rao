@@ -154,8 +154,6 @@ public final class GlskPointScalableConverter {
                 LOGGER.warn("Generator '{}' has initial target P that is above GLSK min P. Extending GLSK min P from {} to {}.", generatorId, incomingMinP, generatorTargetP);
                 incomingMinP = generatorTargetP;
             }
-            incomingMaxP = Math.max(incomingMaxP, generator.getTargetP());
-            incomingMinP = Math.min(incomingMinP, generator.getTargetP());
         }
         return Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
     }
