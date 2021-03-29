@@ -198,4 +198,38 @@ public class CseGlskDocumentImporterTest {
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
     }
 
+    @Test
+    public void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueDown() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER_ISSUE_PC");
+
+        assertNotNull(meritOrderGskScalable);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
+
+        meritOrderGskScalable.scale(network, -4000.);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(1000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(0., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
+    }
+
+    @Test
+    public void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueUp() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER_ISSUE_PC");
+
+        assertNotNull(meritOrderGskScalable);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
+
+        meritOrderGskScalable.scale(network, 5000.);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(4000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(6000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
+    }
+
 }
