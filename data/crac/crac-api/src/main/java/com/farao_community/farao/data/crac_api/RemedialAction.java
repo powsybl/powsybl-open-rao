@@ -11,10 +11,13 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Most generic interface for remedial actions
@@ -40,4 +43,15 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
      */
     @JsonIgnore
     Set<NetworkElement> getNetworkElements();
+
+    /**
+     * Returns the location of the remedial action, as a set of optional countries
+     * @param network: the network object used to look for the network elements of the remedial action
+     * @return a set of optional countries containing the remedial action
+     */
+    @JsonIgnore
+    default Set<Optional<Country>> getLocation(Network network) {
+        return getNetworkElements().stream().map(networkElement -> networkElement.getLocation(network))
+                .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
+    }
 }

@@ -15,11 +15,15 @@ import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
+
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.spy;
@@ -278,5 +282,12 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
         pst2.synchronize(network2);
         assertTrue("Failed to compute min and max tap values for PST with positive deltaU",
                 pst2.getMinValue(network, pst2.getCurrentValue(network2)) <= pst2.getMaxValue(network, pst2.getCurrentValue(network2)));
+    }
+
+    @Test
+    public void testGetLocation() {
+        Set<Optional<Country>> countries = pst.getLocation(network);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.BE)));
     }
 }

@@ -140,4 +140,44 @@
             </Down>
         </MeritOrderGSKBlock>
     </TimeSeries>
+    <TimeSeries>
+        <TimeSeriesIdentification v="1"/>
+        <BusinessType v="Z02"/>
+        <Area v="FR_MERITORDER_ISSUE_PC" codingScheme="A01"/>
+        <Name v="FR_MERITORDER_ISSUE_PC"/>
+        <TimeInterval v="2020-09-16T22:00Z/2020-09-16T22:59Z"/>
+        <MeritOrderGSKBlock>
+            <Factor v="1"/>
+            <Up>
+                <Factor v="1"/>
+                <Node>
+                    <Name v="FFR1AA1 "/>
+                    <Pmax v="-1500"/>
+                </Node>
+                <Node>
+                    <Name v="FFR2AA1 "/>
+                    <Pmax v="-4000"/>
+                </Node>
+                <Node>
+                    <Name v="FFR3AA1 "/>
+                    <Pmax v="-6000"/>
+                </Node>
+            </Up>
+            <Down>
+                <Node>
+                    <Name v="FFR1AA1 "/>
+                    <Pmin v="-2500"/>
+                </Node>
+                <Factor v="1"/>
+                <Node>
+                    <Name v="FFR3AA1 "/>
+                    <Pmin v="0"/>
+                </Node>
+                <Node>
+                    <Name v="FFR2AA1 "/>
+                    <Pmin v="0"/>
+                </Node>
+            </Down>
+        </MeritOrderGSKBlock>
+    </TimeSeries>
 </GSKDocument>
