@@ -7,21 +7,25 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_result_extensions.CracResult;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -154,10 +158,7 @@ public final class RaoData {
     }
 
     private static boolean cnecIsInCountryList(Cnec<?> cnec, Network network, Set<Country> loopflowCountries) {
-        Line line = (Line) network.getIdentifiable(cnec.getNetworkElement().getId());
-        Optional<Country> country1 = line.getTerminal1().getVoltageLevel().getSubstation().getCountry();
-        Optional<Country> country2 = line.getTerminal2().getVoltageLevel().getSubstation().getCountry();
-        return (country1.isPresent() && loopflowCountries.contains(country1.get())) || (country2.isPresent() && loopflowCountries.contains(country2.get()));
+        return cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && loopflowCountries.contains(country.get()));
     }
 
     public Set<RangeAction> getAvailableRangeActions() {
