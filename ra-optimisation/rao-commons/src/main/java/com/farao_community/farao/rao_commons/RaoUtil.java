@@ -11,8 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
@@ -29,7 +27,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linea
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
@@ -177,31 +175,6 @@ public final class RaoUtil {
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }
-    }
-
-    public static List<Optional<Country>> getCnecLocation(BranchCnec cnec, Network network) {
-        return getNetworkElementLocation(cnec.getNetworkElement(), network);
-    }
-
-    private static List<Optional<Country>> getNetworkElementLocation(NetworkElement networkElement, Network network) {
-        Identifiable<?> ne = network.getIdentifiable(networkElement.getId());
-        if (ne instanceof Branch) {
-            Branch branch = (Branch) ne;
-            return Arrays.asList(branch.getTerminal1().getVoltageLevel().getSubstation().getCountry(), branch.getTerminal2().getVoltageLevel().getSubstation().getCountry());
-        } else if (ne instanceof Switch) {
-            return Arrays.asList(((Switch) ne).getVoltageLevel().getSubstation().getCountry());
-        } else {
-            throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
-        }
-    }
-
-    public static List<Optional<Country>> getNetworkActionLocation(NetworkAction networkAction, Network network) {
-        List<List<Optional<Country>>> listOfLists = networkAction.getNetworkElements().stream()
-                .map(networkElement -> getNetworkElementLocation(networkElement, network))
-                .collect(Collectors.toList());
-        List<Optional<Country>> result = new ArrayList<>();
-        listOfLists.forEach(result::addAll);
-        return result;
     }
 
     public static BranchCnec getMostLimitingElement(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
