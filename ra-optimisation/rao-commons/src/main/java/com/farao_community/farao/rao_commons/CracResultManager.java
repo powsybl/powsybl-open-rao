@@ -8,10 +8,8 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
@@ -20,10 +18,10 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -95,6 +93,8 @@ public class CracResultManager {
         }
         Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
 
+        Map<PstRangeAction, Integer> bestTaps = getBestTaps(linearProblem);
+
         for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
             if (rangeAction instanceof PstRangeAction) {
                 RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
@@ -102,14 +102,15 @@ public class CracResultManager {
                 double approximatedPostOptimAngle;
                 String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
                 Optional<RangeAction> sameNetworkElementRangeAction = raoData.getAvailableRangeActions().stream()
-                    .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && linearProblem.getRangeActionSetPointVariable(ra) != null)
-                    .findAny();
+                        .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && linearProblem.getRangeActionSetPointVariable(ra) != null)
+                        .findAny();
                 if (sameNetworkElementRangeAction.isPresent()) {
                     double rangeActionVal = linearProblem.getRangeActionSetPointVariable(sameNetworkElementRangeAction.get()).solutionValue();
                     PstRangeAction pstRangeAction = (PstRangeAction) sameNetworkElementRangeAction.get();
                     TwoWindingsTransformer transformer = raoData.getNetwork().getTwoWindingsTransformer(networkElementId);
 
-                    approximatedPostOptimTap = pstRangeAction.computeTapPosition(rangeActionVal);
+                    //approximatedPostOptimTap = pstRangeAction.computeTapPosition(rangeActionVal);
+                    approximatedPostOptimTap = bestTaps.get(pstRangeAction);
                     approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
 
                     LOGGER.debug("Range action {} has been set to tap {}", pstRangeAction.getName(), approximatedPostOptimTap);
@@ -128,6 +129,108 @@ public class CracResultManager {
         }
     }
 
+    private Map<PstRangeAction, Integer> getBestTaps(LinearProblem linearProblem) {
+        List<BranchCnec> mostLimitingElements = RaoUtil.getMostLimitingElements(raoData.getCnecs(), raoData.getPreOptimVariantId(), MEGAWATT, raoData.getRaoParameters().getObjectiveFunction().relativePositiveMargins(), 10);
+
+        Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
+
+        for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
+            if (rangeAction instanceof PstRangeAction) {
+                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
+                Optional<RangeAction> sameNetworkElementRangeAction = raoData.getAvailableRangeActions().stream()
+                        .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && linearProblem.getRangeActionSetPointVariable(ra) != null)
+                        .findAny();
+                if (sameNetworkElementRangeAction.isPresent()) {
+                    double rangeActionVal = linearProblem.getRangeActionSetPointVariable(sameNetworkElementRangeAction.get()).solutionValue();
+                    PstRangeAction pstRangeAction = (PstRangeAction) sameNetworkElementRangeAction.get();
+                    minMarginPerTap.put(pstRangeAction, getMinMarginPerTap(pstRangeAction, rangeActionVal, mostLimitingElements));
+                }
+            }
+        }
+
+        Map<PstRangeAction, Integer> bestTaps = new HashMap<>();
+        Set<String> pstGroups = minMarginPerTap.keySet().stream().map(PstRangeAction::getGroupId)
+                .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+        for (String pstGroup : pstGroups) {
+            Set<PstRangeAction> pstsOfGroup = minMarginPerTap.keySet().stream()
+                    .filter(pstRangeAction -> pstRangeAction.getGroupId().isPresent() && pstRangeAction.getGroupId().get().equals(pstGroup))
+                    .collect(Collectors.toSet());
+            Map<Integer, Double> groupMinMarginPerTap = new HashMap<>();
+            for (PstRangeAction pstRangeAction : pstsOfGroup) {
+                Map<Integer, Double> pstMinMarginPerTap = minMarginPerTap.get(pstRangeAction);
+                for (Integer tap : pstMinMarginPerTap.keySet()) {
+                    if (groupMinMarginPerTap.containsKey(tap)) {
+                        groupMinMarginPerTap.put(tap, Math.min(pstMinMarginPerTap.get(tap), groupMinMarginPerTap.get(tap)));
+                    } else {
+                        groupMinMarginPerTap.put(tap, pstMinMarginPerTap.get(tap));
+                    }
+                }
+            }
+            int bestGroupTap = groupMinMarginPerTap.entrySet().stream().max(Comparator.comparing(Map.Entry<Integer, Double>::getValue)).orElseThrow().getKey();
+            for (PstRangeAction pstRangeAction : pstsOfGroup) {
+                bestTaps.put(pstRangeAction, bestGroupTap);
+            }
+        }
+        for (PstRangeAction pstRangeAction : minMarginPerTap.keySet()) {
+            if (pstRangeAction.getGroupId().isEmpty()) {
+                int bestTap = minMarginPerTap.get(pstRangeAction).entrySet().stream().max(Comparator.comparing(Map.Entry<Integer, Double>::getValue)).orElseThrow().getKey();
+                bestTaps.put(pstRangeAction, bestTap);
+            }
+        }
+        return bestTaps;
+    }
+
+    private Map<Integer, Double> getMinMarginPerTap(PstRangeAction pstRangeAction, double angle, List<BranchCnec> mostLimitingCnecs) {
+        int closestTap = pstRangeAction.computeTapPosition(angle);
+        double closestAngle = pstRangeAction.convertTapToAngle(closestTap);
+        int otherTap;
+
+        if (closestAngle < pstRangeAction.getMaxValue(raoData.getNetwork(), pstRangeAction.getCurrentValue(raoData.getNetwork()))
+                && closestAngle > pstRangeAction.getMinValue(raoData.getNetwork(), pstRangeAction.getCurrentValue(raoData.getNetwork()))) {
+            double distance1 = Math.abs(pstRangeAction.convertTapToAngle(closestTap + 1) - angle);
+            double distance2 = Math.abs(pstRangeAction.convertTapToAngle(closestTap - 1) - angle);
+            otherTap = (distance1 < distance2) ? closestTap + 1 : closestTap - 1;
+        } else if (closestAngle < pstRangeAction.getMaxValue(raoData.getNetwork(), pstRangeAction.getCurrentValue(raoData.getNetwork()))) {
+            otherTap = closestTap + 1;
+        } else if (closestAngle > pstRangeAction.getMinValue(raoData.getNetwork(), pstRangeAction.getCurrentValue(raoData.getNetwork()))) {
+            otherTap = closestTap - 1;
+        } else {
+            return Map.of(closestTap, Double.MAX_VALUE);
+        }
+
+        double otherAngle = pstRangeAction.convertTapToAngle(otherTap);
+
+        double approxLimitAngle = 0.5 * (closestAngle + otherAngle);
+
+        if (Math.abs(angle - approxLimitAngle) / Math.abs(closestAngle - otherAngle) < 0.1) {
+            double minMargin1 = Double.MAX_VALUE;
+            double minMargin2 = Double.MAX_VALUE;
+            for (BranchCnec cnec : mostLimitingCnecs) {
+                // Angle is too close to the limit between two tap positions
+                // Chose the tap that maximizes the margin on the most limiting element
+                double sensitivity = raoData.getSensitivity(cnec, pstRangeAction);
+                double currentSetPoint = pstRangeAction.getCurrentValue(raoData.getNetwork());
+                double referenceFlow = raoData.getReferenceFlow(cnec);
+
+                double flow1 = sensitivity * (closestAngle - currentSetPoint) + referenceFlow;
+                double flow2 = sensitivity * (otherAngle - currentSetPoint) + referenceFlow;
+
+                Optional<Double> minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
+                if (minFlow.isPresent()) {
+                    minMargin1 = Math.min(minMargin1, flow1 - minFlow.get());
+                    minMargin2 = Math.min(minMargin2, flow2 - minFlow.get());
+                }
+                Optional<Double> maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
+                if (maxFlow.isPresent()) {
+                    minMargin1 = Math.min(minMargin1, maxFlow.get() - flow1);
+                    minMargin2 = Math.min(minMargin2, maxFlow.get() - flow2);
+                }
+            }
+            return Map.of(closestTap, minMargin1, otherTap, minMargin2);
+        }
+        return Map.of(closestTap, Double.MAX_VALUE);
+    }
+
     /**
      * This method returns a set of State which are equal or after a given state.
      */
@@ -136,10 +239,10 @@ public class CracResultManager {
         if (referenceContingency.isEmpty()) {
             return raoData.getCrac().getStates();
         } else {
-            return  raoData.getCrac().
-                getStates(referenceContingency.get()).stream().
-                filter(state -> state.getInstant().getSeconds() >= referenceState.getInstant().getSeconds())
-                .collect(Collectors.toSet());
+            return raoData.getCrac().
+                    getStates(referenceContingency.get()).stream().
+                    filter(state -> state.getInstant().getSeconds() >= referenceState.getInstant().getSeconds())
+                    .collect(Collectors.toSet());
         }
     }
 
@@ -198,13 +301,14 @@ public class CracResultManager {
 
     /**
      * This method copies absolute PTDF sums from a variant's CNEC result extension to another variant's
-     * @param originVariant: the origin variant containing the PTDF sums
+     *
+     * @param originVariant:      the origin variant containing the PTDF sums
      * @param destinationVariant: the destination variant
      */
     public void copyAbsolutePtdfSumsBetweenVariants(String originVariant, String destinationVariant) {
         raoData.getCnecs().forEach(cnec ->
-            cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant).setAbsolutePtdfSum(
-                cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getAbsolutePtdfSum()
-            ));
+                cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant).setAbsolutePtdfSum(
+                        cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getAbsolutePtdfSum()
+                ));
     }
 }
