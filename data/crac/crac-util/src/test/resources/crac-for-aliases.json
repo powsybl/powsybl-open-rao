@@ -2,6 +2,7 @@
   "type" : "simple-crac",
   "id" : "LS_parade_pst_direct",
   "name" : "LS_parade_pst_direct",
+  "instants" : [ "preventive", "outage", "curative" ],
   "networkDate" : "2020-05-22T10:09:17Z",
   "networkElements" : [ {
     "type" : "NetworkElement",
@@ -24,27 +25,6 @@
     "id" : "DDE3AA1  FFR2AA1  HFSK JDV",
     "name" : "DDE3AA1  FFR2AA1  HFSK JDV"
   } ],
-  "instants" : [ {
-    "type" : "Instant",
-    "id" : "N",
-    "seconds" : -1,
-    "name" : "N"
-  }, {
-    "type" : "Instant",
-    "id" : "SPS",
-    "seconds" : 61,
-    "name" : "SPS"
-  }, {
-    "type" : "Instant",
-    "id" : "Curatif",
-    "seconds" : 1200,
-    "name" : "Curatif"
-  }, {
-    "type" : "Instant",
-    "id" : "Défaut",
-    "seconds" : 60,
-    "name" : "Défaut"
-  } ],
   "contingencies" : [ {
     "type" : "complex-contingency",
     "id" : "Contingency FR1 FR3",
@@ -56,38 +36,12 @@
       "name" : "Contingency Interco",
       "networkElements" : [ "DDE3AA1  FFR2AA1  HFSK JDV" ]
     }],
-  "states" : [ {
-    "type" : "simple-state",
-    "id" : "Contingency FR1 FR3-SPS",
-    "contingency" : "Contingency FR1 FR3",
-    "instant" : "SPS"
-  }, {
-    "type" : "simple-state",
-    "id" : "none-N",
-    "contingency" : null,
-    "instant" : "N"
-  }, {
-    "type" : "simple-state",
-    "id" : "Contingency FR1 FR3-Curatif",
-    "contingency" : "Contingency FR1 FR3",
-    "instant" : "Curatif"
-  }, {
-    "type" : "simple-state",
-    "id" : "Contingency FR1 FR3-Défaut",
-    "contingency" : "Contingency FR1 FR3",
-    "instant" : "Défaut"
-  }, {
-    "type" : "simple-state",
-    "id" : "Contingency Interco-Défaut",
-    "contingency" : "Contingency Interco",
-    "instant" : "Défaut"
-  } ],
   "cnecs" : [ {
     "type" : "flow-cnec",
     "id" : "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3",
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
-    "state" : "Contingency FR1 FR3-Curatif",
+    "state" : "Contingency FR1 FR3-curative",
     "frm" : 0.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -125,7 +79,7 @@
     "id" : "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3",
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
-    "state" : "Contingency FR1 FR3-Défaut",
+    "state" : "Contingency FR1 FR3-outage",
     "frm" : -1.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -163,7 +117,7 @@
     "id" : "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3",
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
-    "state" : "Contingency FR1 FR3-Curatif",
+    "state" : "Contingency FR1 FR3-curative",
     "frm" : 2.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -201,7 +155,7 @@
     "id" : "DDE1AA1  DDE2AA1  1 - N - preventive",
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
-    "state" : "none-N",
+    "state" : "none-preventive",
     "frm" : 3.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -239,7 +193,7 @@
     "id" : "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3",
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
-    "state" : "Contingency FR1 FR3-Défaut",
+    "state" : "Contingency FR1 FR3-outage",
     "frm" : 4.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -277,7 +231,7 @@
     "id" : "FFR2AA1  DDE3AA1  1 - N - preventive",
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
-    "state" : "none-N",
+    "state" : "none-preventive",
     "frm" : 5.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -319,7 +273,7 @@
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "instant" : "N"
+      "instant" : "preventive"
     } ],
     "networkElements" : [ "BBE2AA1  BBE3AA1  1" ],
     "ranges" : [ {
@@ -334,25 +288,23 @@
           "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
             "type" : "pst-range-result",
             "tapPerStates" : {
-              "none-N" : 0
+              "none-preventive" : 0
             },
             "setPointPerStates" : {
-              "Contingency FR1 FR3-Défaut" : NaN,
-              "Contingency FR1 FR3-Curatif" : NaN,
-              "Contingency FR1 FR3-SPS" : NaN,
-              "none-N" : 0.0
+              "Contingency FR1 FR3-outage" : NaN,
+              "Contingency FR1 FR3-curative" : NaN,
+              "none-preventive" : 0.0
             }
           },
           "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
             "type" : "pst-range-result",
             "tapPerStates" : {
-              "none-N" : -16
+              "none-preventive" : -16
             },
             "setPointPerStates" : {
-              "Contingency FR1 FR3-Défaut" : NaN,
-              "Contingency FR1 FR3-Curatif" : NaN,
-              "Contingency FR1 FR3-SPS" : NaN,
-              "none-N" : -6.22764253616333
+              "Contingency FR1 FR3-outage" : NaN,
+              "Contingency FR1 FR3-curative" : NaN,
+              "none-preventive" : -6.22764253616333
             }
           }
         }

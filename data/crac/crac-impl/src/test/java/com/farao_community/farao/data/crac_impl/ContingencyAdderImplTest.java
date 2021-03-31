@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
@@ -27,7 +28,7 @@ public class ContingencyAdderImplTest {
 
     @Before
     public void setUp() {
-        crac = (new SimpleCracFactory()).create("test-crac");
+        crac = new SimpleCracFactory().create("test-crac", Collections.emptySet());
     }
 
     @Test

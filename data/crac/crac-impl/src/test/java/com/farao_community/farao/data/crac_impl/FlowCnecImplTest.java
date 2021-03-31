@@ -378,7 +378,7 @@ public class FlowCnecImplTest {
         fillThresholdsAndSynchronize(lineCnec);
 
         NetworkElement ne = new NetworkElement("ne");
-        Instant instant = new Instant("instant", 0);
+        Instant instant = Instant.PREVENTIVE;
         State state = new SimpleState(Optional.empty(), instant);
 
         assertTrue(lineCnec.copy(ne, state) instanceof FlowCnecImpl);

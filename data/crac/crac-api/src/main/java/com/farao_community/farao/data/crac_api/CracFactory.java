@@ -12,6 +12,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Crac Factory interface.
@@ -19,22 +20,27 @@ import java.util.List;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface CracFactory {
+
     /**
      * Create a {@code Crac} object.
      *
-     * @param id:           ID to assign to the created Crac.
-     * @param name:         name to assign to the created Crac.
+     * @param id: ID to assign to the created Crac.
+     * @param name: Name to assign to the created Crac.
+     * @param postContingencyInstants: Set of post-contingency instants that are considered in the CRAC chronology.
      * @return the created {@code Crac} instance.
      */
-    Crac create(String id, String name);
+    Crac create(String id, String name, Set<Instant> postContingencyInstants);
 
     /**
      * Create a {@code Crac} object. Name will be equal to id.
      *
-     * @param id:           ID to assign to the created Crac.
+     * @param id: ID to assign to the created Crac.
+     * @param postContingencyInstants: Set of post-contingency instants that are considered in the CRAC chronology.
      * @return the created {@code Crac} instance with given ID, name equal to ID.
      */
-    Crac create(String id);
+    default Crac create(String id, Set<Instant> postContingencyInstants) {
+        return create(id, id, postContingencyInstants);
+    }
 
     /**
      * Function that returns the name of the implementation
@@ -46,7 +52,7 @@ public interface CracFactory {
     /**
      * Find a {@code CracFactory} implementation by its name
      *
-     * @param factoryName: the name of the {@code CracFactory} implementation.
+     * @param factoryName: The name of the {@code CracFactory} implementation.
      * @return An instance of the {@code CracFactory} implementation.
      * @throws FaraoException if the factory name is not recognized as an existent implementation.
      */

@@ -7,55 +7,31 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 /**
- * Business object for an instant in the CRAC file.
+ * Enum representing the instants of a RAO
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonIdentityInfo(scope = Instant.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Instant extends AbstractIdentifiable<Instant> {
-    private int seconds;
+public enum Instant {
+    PREVENTIVE(0, "preventive"),
+    OUTAGE(1, "outage"),
+    CURATIVE(2, "curative");
 
-    @JsonCreator
-    public Instant(@JsonProperty("id") String id, @JsonProperty("seconds") int seconds) {
-        super(id, id);
-        this.seconds = seconds;
+    private final int order;
+    private final String name;
+
+    Instant(int order, String name) {
+        this.order = order;
+        this.name = name;
     }
 
-    public int getSeconds() {
-        return seconds;
-    }
-
-    public void setSeconds(int seconds) {
-        this.seconds = seconds;
-    }
-
-    /**
-     * Check if instants are equals. Instants are considered equals when IDs and seconds are equals.
-     *
-     * @param o: If it's null or another object than Instant it will return false.
-     * @return A boolean true if objects are equals, otherwise false.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Instant instant = (Instant) o;
-
-        return super.equals(o) && seconds == instant.getSeconds();
+    public int getOrder() {
+        return order;
     }
 
     @Override
-    public int hashCode() {
-        return String.format("%s%d", getId(), getSeconds()).hashCode();
+    public String toString() {
+        return name;
     }
 }

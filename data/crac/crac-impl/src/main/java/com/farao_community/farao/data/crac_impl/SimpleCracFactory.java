@@ -9,7 +9,10 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.google.auto.service.AutoService;
+
+import java.util.Set;
 
 /**
  * Simple Crac Factory implementation.
@@ -27,12 +30,7 @@ public class SimpleCracFactory implements CracFactory {
     }
 
     @Override
-    public Crac create(String id, String name) {
-        return new SimpleCrac(id, name);
-    }
-
-    @Override
-    public Crac create(String id) {
-        return new SimpleCrac(id, id);
+    public Crac create(String id, String name, Set<Instant> instants) {
+        return new SimpleCrac(id, name, instants);
     }
 }

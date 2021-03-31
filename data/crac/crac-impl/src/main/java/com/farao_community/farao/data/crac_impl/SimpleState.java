@@ -29,7 +29,7 @@ public class SimpleState implements State {
     @JsonCreator
     public SimpleState(@JsonProperty("contingency") Optional<Contingency> contingency,
                        @JsonProperty("instant") Instant instant) {
-        this.id = (contingency.isPresent() ? contingency.get().getId() : "none") + "-" + instant.getId();
+        this.id = (contingency.isPresent() ? contingency.get().getId() : "none") + "-" + instant.toString();
         this.contingency = contingency.orElse(null);
         this.instant = instant;
     }
@@ -50,7 +50,7 @@ public class SimpleState implements State {
 
     @Override
     public int compareTo(State state) {
-        return instant.getSeconds() - state.getInstant().getSeconds();
+        return instant.getOrder() - state.getInstant().getOrder();
     }
 
     /**
@@ -77,19 +77,19 @@ public class SimpleState implements State {
     @Override
     public int hashCode() {
         if (contingency != null) {
-            return String.format("%s%s", contingency.getId(), instant.getId()).hashCode();
+            return String.format("%s%s", contingency.getId(), instant.toString()).hashCode();
         } else {
-            return String.format("preventive%s", instant.getId()).hashCode();
+            return String.format("none%s", instant.toString()).hashCode();
         }
     }
 
     @Override
     public String toString() {
-        String name = instant.getId();
+        String name = instant.toString();
         if (contingency != null) {
             name += String.format(" - %s", contingency.getId());
         } else {
-            name += " - preventive";
+            name += " - none";
         }
         return name;
     }

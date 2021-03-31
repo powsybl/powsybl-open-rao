@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
-    private String onOutageInstantId = null;
-    private String afterCraInstantId = null;
+    private Instant onOutageInstant = null;
+    private Instant afterCraInstant = null;
     private Set<State> statesWithCras = new HashSet<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
@@ -75,9 +75,9 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
 
         // Curative perimeter
-        if (afterCraInstantId != null) {
+        if (afterCraInstant != null) {
             statesWithCras = findStatesWithCras(crac, network);
-            crac.getStatesFromInstant(afterCraInstantId).forEach(state -> handleCurativeState(state, network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
+            crac.getStatesFromInstant(afterCraInstant).forEach(state -> handleCurativeState(state, network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
         } else {
             LOGGER.info("No curative computation in flowbased because 2 or less instants are defined in crac.");
         }
@@ -112,7 +112,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     private void updateDataMonitoredBranch(DataMonitoredBranch dataMonitoredBranch, Crac crac, SystematicSensitivityResult sensitivityResult, ZonalData<LinearGlsk> glsk) {
-        if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
+        if (dataMonitoredBranch.getInstantId().equals(afterCraInstant)) {
             BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
             dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
             glsk.getDataPerZone().forEach((zone, zonalData) -> {
@@ -196,11 +196,11 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         }
     }
 
-    private void sortInstants(Set<Instant> instants) {
-        Map<Integer, String> instantMap = new HashMap<>();
+    private void sortInstants(List<Instant> instants) {
+        Map<Integer, Instant> instantMap = new HashMap<>();
 
         for (Instant instant : instants) {
-            instantMap.put(instant.getSeconds(), instant.getId());
+            instantMap.put(instant.getOrder(), instant);
         }
         List<Integer> seconds = new ArrayList<>(instantMap.keySet());
         Collections.sort(seconds);
@@ -213,12 +213,12 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         } else if (instants.size() >= 3) {
             LOGGER.debug("All instants are defined for flowbased computation.");
             // last instant
-            afterCraInstantId = instantMap.get(seconds.get(seconds.size() - 1));
+            afterCraInstant = instantMap.get(seconds.get(seconds.size() - 1));
         } else {
             throw new FaraoException("No instant defined for flowbased computation");
         }
         // 2nd instant
-        onOutageInstantId = instantMap.get(seconds.get(1));
+        onOutageInstant = instantMap.get(seconds.get(1));
 
     }
 
@@ -271,7 +271,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         return new DataMonitoredBranch(
                 cnec.getId(),
                 cnec.getName(),
-                cnec.getState().getInstant().getId(),
+                cnec.getState().getInstant().toString(),
                 cnec.getNetworkElement().getId(),
                 Math.min(maxThreshold, -minThreshold),
                 zeroIfNaN(result.getReferenceFlow(cnec)),

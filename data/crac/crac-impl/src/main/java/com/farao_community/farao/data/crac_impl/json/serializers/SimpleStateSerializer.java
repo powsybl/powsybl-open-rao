@@ -29,7 +29,7 @@ public class SimpleStateSerializer extends JsonSerializer<SimpleState> {
     public void serialize(SimpleState value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStringField(ID, value.getId());
         gen.writeStringField(CONTINGENCY, value.getContingency().map(Identifiable::getId).orElse(null));
-        gen.writeStringField(INSTANT, value.getInstant().getId());
+        gen.writeStringField(INSTANT, value.getInstant().toString());
     }
 
     @Override

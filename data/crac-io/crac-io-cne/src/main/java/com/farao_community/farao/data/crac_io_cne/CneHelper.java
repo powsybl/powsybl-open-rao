@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.PATL_MEASUREMENT_TYPE;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.TATL_MEASUREMENT_TYPE;
@@ -67,7 +68,7 @@ public class CneHelper {
         List<String> variants = new ArrayList<>(crac.getExtension(ResultVariantManager.class).getVariants());
 
         // sort the instants in order to determine which one is preventive, after outage, after auto RA and after CRA
-        instants = crac.getInstants().stream().sorted(Comparator.comparing(Instant::getSeconds)).collect(Collectors.toList());
+        instants = crac.getInstants().stream().sorted(Comparator.comparingInt(Instant::getOrder)).collect(Collectors.toList());
 
         // TODO: store the information on preOptim/postOptim Variant in the ResultVariantManager
         preOptimVariantId = variants.get(0);

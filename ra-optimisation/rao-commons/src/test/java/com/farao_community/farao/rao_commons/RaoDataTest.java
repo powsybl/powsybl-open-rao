@@ -69,8 +69,8 @@ public class RaoDataTest {
     public void rangeActionsInitializationTest() {
         RangeActionResult rangeActionResult = crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class).getVariant(initialVariantId);
         raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
-        Assert.assertEquals(0, rangeActionResult.getSetPoint("none-initial"), 0.1);
-        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("none-initial"));
+        Assert.assertEquals(0, rangeActionResult.getSetPoint("none-preventive"), 0.1);
+        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("none-preventive"));
     }
 
     @Test
@@ -81,8 +81,8 @@ public class RaoDataTest {
         raoData1.getCracResultManager().fillRangeActionResultsWithNetworkValues();
         RangeActionResult rangeActionResult = crac1.getRangeAction("pst").getExtension(RangeActionResultExtension.class).getVariant(raoData1.getWorkingVariantId());
         assertNotNull(rangeActionResult);
-        Assert.assertEquals(0, rangeActionResult.getSetPoint("none-initial"), 0.1);
-        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("none-initial"));
+        Assert.assertEquals(0, rangeActionResult.getSetPoint("none-preventive"), 0.1);
+        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("none-preventive"));
     }
 
     @Test
@@ -202,17 +202,17 @@ public class RaoDataTest {
         RaoData curativeRaoData = new RaoData(
                 network,
                 crac1,
-                crac1.getState("Contingency FR1 FR3", "curative"),
-                Collections.singleton(crac1.getState("Contingency FR1 FR3", "curative")),
+                crac1.getState("Contingency FR1 FR3", Instant.CURATIVE),
+                Collections.singleton(crac1.getState("Contingency FR1 FR3", Instant.CURATIVE)),
                 null,
                 null,
                 variantId,
                 new RaoParameters());
         RangeActionResult rangeActionResult = curativeRaoData.getCrac().getRangeAction("pst").getExtension(RangeActionResultExtension.class).getVariant(curativeRaoData.getWorkingVariantId());
         assertNotNull(rangeActionResult);
-        Assert.assertEquals(0, rangeActionResult.getSetPoint("none-initial"), 0.1);
+        Assert.assertEquals(0, rangeActionResult.getSetPoint("none-preventive"), 0.1);
         Assert.assertEquals(0, rangeActionResult.getSetPoint("Contingency FR1 FR3-curative"), 0.1);
-        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("none-initial"));
+        Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("none-preventive"));
         Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap("Contingency FR1 FR3-curative"));
     }
 }

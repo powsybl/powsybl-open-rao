@@ -2,6 +2,7 @@
   "type": "simple-crac",
   "id": "CracFlowbased",
   "name": "Crac for flowbased tests",
+  "instants": [ "preventive", "outage", "curative" ],
   "networkElements": [
     {
       "type": "NetworkElement",
@@ -24,20 +25,6 @@
       "name": "DE-NL"
     }
   ],
-  "instants": [
-    {
-      "type": "Instant",
-      "id": "N",
-      "seconds": -1,
-      "name": "N"
-    },
-    {
-      "type": "Instant",
-      "id": "N-1",
-      "seconds": 60,
-      "name": "N-1"
-    }
-  ],
   "contingencies": [
     {
       "type": "complex-contingency",
@@ -46,20 +33,6 @@
       "networkElements": [
         "FR-BE"
       ]
-    }
-  ],
-  "states": [
-    {
-      "type": "simple-state",
-      "id": "none-N",
-      "contingency": null,
-      "instant": "N"
-    },
-    {
-      "type": "simple-state",
-      "id": "N-1 FR-BE-N-1",
-      "contingency": "N-1 FR-BE",
-      "instant": "N-1"
     }
   ],
   "cnecs": [
@@ -76,7 +49,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "state": "N-1 FR-BE-outage"
     },
     {
       "type": "flow-cnec",
@@ -91,7 +64,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "state": "N-1 FR-BE-outage"
     },
     {
       "type": "flow-cnec",
@@ -106,7 +79,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "state": "N-1 FR-BE-outage"
     },
     {
       "type": "flow-cnec",
@@ -121,7 +94,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "state": "N-1 FR-BE-outage"
     },
     {
       "type": "flow-cnec",
@@ -136,7 +109,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "state": "none-preventive"
     },
     {
       "type": "flow-cnec",
@@ -151,7 +124,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "state": "none-preventive"
     },
     {
       "type": "flow-cnec",
@@ -166,7 +139,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "state": "none-preventive"
     },
     {
       "type": "flow-cnec",
@@ -181,7 +154,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "state": "none-preventive"
     }
   ],
   "rangeActions" : [],
@@ -193,7 +166,7 @@
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "instant" : "N"
+      "instant" : "preventive"
     } ],
     "elementaryNetworkActions" : [ {
       "type" : "topology",
@@ -203,7 +176,7 @@
       "usageRules" : [ {
         "type" : "free-to-use",
         "usageMethod" : "AVAILABLE",
-        "instant" : "N"
+        "instant" : "preventive"
       } ],
       "networkElements" : [ "FR-BE" ],
       "actionType" : "CLOSE"
@@ -214,13 +187,13 @@
           "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : true
+              "none-preventive" : true
             }
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : false
+              "none-preventive" : false
             }
           }
         }

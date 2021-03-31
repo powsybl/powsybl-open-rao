@@ -36,11 +36,11 @@ public class RangeActionResultTest {
     @Before
     public void setUp() {
         states = new HashSet<>();
-        initialState = new SimpleState(Optional.empty(), new Instant("initial", 0));
-        outage1 = new SimpleState(Optional.of(new ComplexContingency("co1")), new Instant("after-co1", 10));
-        curative1 = new SimpleState(Optional.of(new ComplexContingency("co1")), new Instant("curative-co1", 50));
-        outage2 = new SimpleState(Optional.of(new ComplexContingency("co2")), new Instant("after-co2", 10));
-        curative2 = new SimpleState(Optional.of(new ComplexContingency("co2")), new Instant("curative-co2", 50));
+        initialState = new SimpleState(Optional.empty(), Instant.PREVENTIVE);
+        outage1 = new SimpleState(Optional.of(new ComplexContingency("co1")), Instant.OUTAGE);
+        curative1 = new SimpleState(Optional.of(new ComplexContingency("co1")), Instant.CURATIVE);
+        outage2 = new SimpleState(Optional.of(new ComplexContingency("co2")), Instant.OUTAGE);
+        curative2 = new SimpleState(Optional.of(new ComplexContingency("co2")), Instant.CURATIVE);
         states.add(initialState.getId());
         states.add(outage1.getId());
         states.add(curative1.getId());

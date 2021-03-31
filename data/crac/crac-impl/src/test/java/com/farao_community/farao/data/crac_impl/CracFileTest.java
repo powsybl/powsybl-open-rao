@@ -19,13 +19,13 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 
+import static com.farao_community.farao.data.crac_api.Instant.*;
 import static org.junit.Assert.*;
 
 /**
@@ -35,11 +35,10 @@ import static org.junit.Assert.*;
  */
 public class CracFileTest {
     private SimpleCrac simpleCrac;
-    private static final Logger LOGGER = LoggerFactory.getLogger(CracFileTest.class);
 
     @Before
     public void setUp() {
-        simpleCrac = new SimpleCrac("test-crac");
+        simpleCrac = new SimpleCrac("test-crac", "test-crac", Set.of(OUTAGE, CURATIVE));
     }
 
     @Test
@@ -85,43 +84,6 @@ public class CracFileTest {
         assertEquals(1, simpleCrac.getNetworkElements().size());
         assertNotNull(simpleCrac.getNetworkElement("neID"));
         assertSame(networkElement, simpleCrac.getNetworkElement("neID"));
-    }
-
-    @Test
-    public void testGetInstant() {
-        assertEquals(0, simpleCrac.getInstants().size());
-    }
-
-    @Test
-    public void testAddInstantWithId() {
-        simpleCrac.addInstant("initial-instant", 0);
-        assertEquals(1, simpleCrac.getInstants().size());
-        assertNotNull(simpleCrac.getInstant("initial-instant"));
-        assertEquals(0, simpleCrac.getInstant("initial-instant").getSeconds());
-    }
-
-    @Test
-    public void testAddInstantWithInstant() {
-        assertEquals(0, simpleCrac.getInstants().size());
-        simpleCrac.addInstant(new Instant("initial-instant", 0));
-        assertEquals(1, simpleCrac.getInstants().size());
-        assertNotNull(simpleCrac.getInstant("initial-instant"));
-        try {
-            simpleCrac.addInstant(new Instant("initial-instant", 12));
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("An instant with the same ID but different seconds already exists.", e.getMessage());
-        }
-        try {
-            simpleCrac.addInstant(new Instant("fail-initial", 0));
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("An instant with the same seconds but different ID already exists.", e.getMessage());
-        }
-        assertEquals(1, simpleCrac.getInstants().size());
-        simpleCrac.addInstant(new Instant("curative", 60));
-        assertEquals(2, simpleCrac.getInstants().size());
-        assertNotNull(simpleCrac.getInstant("curative"));
     }
 
     @Test
@@ -199,216 +161,80 @@ public class CracFileTest {
         assertTrue(simpleCrac.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals("BBE2AA1  XLI_OB1B 1")));
     }
 
-    @Test(expected = FaraoException.class)
-    public void addStatesWithIdFail() {
-        simpleCrac.addState("contingency", "instant");
-    }
-
-    @Test
-    public void addStatesWithId() {
-        simpleCrac.addContingency("contingency", "neID");
-        simpleCrac.addInstant("instant", 5);
-        simpleCrac.addState("contingency", "instant");
-        assertNotNull(simpleCrac.getState("contingency-instant"));
-    }
-
-    @Test
-    public void addStatesWithIdPreventive() {
-        simpleCrac.addInstant("instant", 0);
-        simpleCrac.addState(null, "instant");
-        assertNotNull(simpleCrac.getState("none-instant"));
-    }
-
-    @Test(expected = FaraoException.class)
-    public void addStatesWithIdPreventiveFail() {
-        simpleCrac.addState(null, "instant");
-    }
-
-    @Test(expected = FaraoException.class)
-    public void addStatesWithObjectFail() {
-        simpleCrac.addState(new ComplexContingency(
-                "contingency", Collections.singleton(simpleCrac.addNetworkElement("neID"))
-        ), new Instant("instant", 5));
-    }
-
     @Test
     public void addStatesWithObject() {
         Contingency contingency = simpleCrac.addContingency("contingency", "neID");
-        Instant instant = simpleCrac.addInstant("instant", 5);
-        simpleCrac.addState(contingency, instant);
-        assertNotNull(simpleCrac.getState("contingency-instant"));
+        assertNotNull(simpleCrac.getState("contingency-outage"));
     }
 
     @Test
     public void addStatesWithObjectPreventive() {
-        Instant instant = simpleCrac.addInstant("instant", 0);
-        simpleCrac.addState(null, instant);
-        assertNotNull(simpleCrac.getState("none-instant"));
-    }
-
-    @Test(expected = FaraoException.class)
-    public void addStatesWithObjectPreventiveFail() {
-        simpleCrac.addState(null, new Instant("instant", 5));
+        assertNotNull(simpleCrac.getState("none-preventive"));
     }
 
     @Test
-    public void testStates() {
-        assertNull(simpleCrac.getPreventiveState());
-        assertEquals(0, simpleCrac.getContingencies().size());
-        assertEquals(0, simpleCrac.getInstants().size());
-
-        simpleCrac.addState(new SimpleState(Optional.empty(), new Instant("initial-instant", 0)));
+    public void testStatesAndInstantsInitialization() {
         assertNotNull(simpleCrac.getPreventiveState());
-        assertEquals("initial-instant", simpleCrac.getPreventiveState().getInstant().getId());
-
-        assertEquals(simpleCrac.getInstant("initial-instant"), simpleCrac.getPreventiveState().getInstant());
-
-        simpleCrac.addState(new SimpleState(
-                Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-                new Instant("after-contingency", 60))
-        );
-
-        try {
-            simpleCrac.addState(new SimpleState(Optional.empty(), new Instant("initial-instant-fail", 0)));
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("An instant with the same seconds but different ID already exists.", e.getMessage());
-        }
-
-        try {
-            simpleCrac.addState(new SimpleState(Optional.empty(), new Instant("initial-instant", 12)));
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("An instant with the same ID but different seconds already exists.", e.getMessage());
-        }
-
-        assertEquals(2, simpleCrac.getInstants().size());
-        assertEquals(2, simpleCrac.getStates().size());
-        assertEquals(1, simpleCrac.getContingencies().size());
-
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-            new Instant("after-contingency", 60))
-        );
-
-        assertEquals(2, simpleCrac.getStatesFromInstant("after-contingency").size());
-
-        // Different states pointing at the same instant object
-        Instant instant = simpleCrac.getInstant("after-contingency");
-        simpleCrac.getStates(instant).forEach(state -> assertSame(instant, state.getInstant()));
-
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-            new Instant("after-contingency-bis", 70))
-        );
-
-        // Different states pointing at the same contingency object
-        Contingency contingency = simpleCrac.getContingency("contingency-2");
-        assertEquals(2, simpleCrac.getStates(contingency).size());
-        simpleCrac.getStates(contingency).forEach(state -> {
-            assertTrue(state.getContingency().isPresent());
-            assertSame(contingency, state.getContingency().get());
-        }
-        );
-
-        State testState = simpleCrac.getState(contingency, instant);
-        assertTrue(testState.getContingency().isPresent());
-        assertSame(testState.getContingency().get(), contingency);
-        assertSame(testState.getInstant(), instant);
+        assertEquals("none-preventive", simpleCrac.getPreventiveState().getId());
+        assertEquals(0, simpleCrac.getContingencies().size());
+        assertEquals(3, simpleCrac.getInstants().size());
     }
 
     @Test
-    public void testGetStatesWithPreventiveInstantId() {
-        assertEquals(0, simpleCrac.getStatesFromInstant("initial-instant").size());
-
-        simpleCrac.addState(new SimpleState(Optional.empty(), new Instant("initial-instant", 0)));
-        assertNotNull(simpleCrac.getStatesFromInstant("initial-instant"));
-        assertEquals(1, simpleCrac.getStatesFromInstant("initial-instant").size());
-        assertSame(simpleCrac.getStatesFromInstant("initial-instant").iterator().next(), simpleCrac.getPreventiveState());
+    public void testPreventiveStateIsCreatedAtInitialization() {
+        assertEquals(1, simpleCrac.getStates().size());
+        assertEquals(1, simpleCrac.getStatesFromInstant(PREVENTIVE).size());
+        assertSame(simpleCrac.getStatesFromInstant(PREVENTIVE).iterator().next(), simpleCrac.getPreventiveState());
     }
 
     @Test
-    public void testGetStatesWithInstantIds() {
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-            new Instant("after-contingency", 60))
-        );
+    public void testStatesAreCreatedWhenAddingContingenciesAndAccessibleByInstants() {
+        simpleCrac.addContingency(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element"))));
+        simpleCrac.addContingency(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2"))));
 
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-            new Instant("after-contingency", 60))
-        );
-
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-            new Instant("after-contingency-bis", 70))
-        );
-
-        assertEquals(2, simpleCrac.getStatesFromInstant("after-contingency").size());
-        assertEquals(1, simpleCrac.getStatesFromInstant("after-contingency-bis").size());
+        assertEquals(5, simpleCrac.getStates().size());
+        assertEquals(2, simpleCrac.getStatesFromInstant(OUTAGE).size());
+        assertEquals(2, simpleCrac.getStatesFromInstant(CURATIVE).size());
     }
 
     @Test
-    public void testGetStatesWithContingencyIds() {
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-            new Instant("after-contingency", 60))
-        );
+    public void testStatesAreCreatedWhenAddingContingenciesAndAccessibleByContingencies() {
+        simpleCrac.addContingency(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element"))));
+        simpleCrac.addContingency(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2"))));
 
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-            new Instant("after-contingency", 60))
-        );
-
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("network-element-2")))),
-            new Instant("after-contingency-bis", 70))
-        );
-
-        assertEquals(1, simpleCrac.getStatesFromContingency("contingency").size());
+        assertEquals(5, simpleCrac.getStates().size());
+        assertEquals(2, simpleCrac.getStatesFromContingency("contingency").size());
         assertEquals(2, simpleCrac.getStatesFromContingency("contingency-2").size());
     }
 
     @Test
     public void testGetStateWithIds() {
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-            new Instant("after-contingency", 60))
-        );
-
-        assertNotNull(simpleCrac.getState("contingency", "after-contingency"));
+        simpleCrac.addContingency(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element"))));
+        assertNotNull(simpleCrac.getState("contingency", CURATIVE));
+        assertNotNull(simpleCrac.getState("contingency", OUTAGE));
     }
 
     @Test
     public void testGetStateWithNotExistingContingencyId() {
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-            new Instant("after-contingency", 60))
-        );
-
-        assertNull(simpleCrac.getState("fail-contingency", "after-contingency"));
+        simpleCrac.addContingency(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element"))));
+        assertNull(simpleCrac.getState("fail-contingency", CURATIVE));
     }
 
     @Test
-    public void testGetStateWithNotExistingInstantId() {
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element")))),
-            new Instant("after-contingency", 60))
-        );
-
-        assertNull(simpleCrac.getState("contingency", "fail-after-contingency"));
+    public void testGetStateWithExistingContingencyInPreventive() {
+        simpleCrac.addContingency(new ComplexContingency("contingency", Collections.singleton(new NetworkElement("network-element"))));
+        assertNull(simpleCrac.getState("contingency", PREVENTIVE));
     }
 
     @Test
     public void testGetCnecWithIds() {
+        Contingency co = new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")));
+        simpleCrac.addContingency(co);
         BranchCnec cnec = new FlowCnecImpl(
             "cnec",
             new NetworkElement("network-element-1"),
             "operator",
-            new SimpleState(
-                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-co", 60)
-            ),
+            simpleCrac.getState(co, CURATIVE),
             true, false,
             Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
             0.
@@ -416,71 +242,19 @@ public class CracFileTest {
 
         simpleCrac.addCnec(cnec);
 
-        assertEquals(1, simpleCrac.getBranchCnecs("co", "after-co").size());
-        BranchCnec getCnec = simpleCrac.getBranchCnecs("co", "after-co").iterator().next();
+        assertEquals(1, simpleCrac.getBranchCnecs("co", CURATIVE).size());
+        BranchCnec getCnec = simpleCrac.getBranchCnecs("co", CURATIVE).iterator().next();
         assertEquals("cnec", getCnec.getId());
         assertEquals("network-element-1", getCnec.getNetworkElement().getId());
     }
 
     @Test
     public void testOrderedStates() {
-        State state1 = new SimpleState(
-            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
-            new Instant("auto", 60)
-        );
-
-        State state2 = new SimpleState(
-            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
-            new Instant("auto-later", 70)
-        );
-
-        State state3 = new SimpleState(
-            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
-            new Instant("curative", 120)
-        );
-
-        simpleCrac.addState(state3);
-        simpleCrac.addState(state1);
-        simpleCrac.addState(state2);
+        simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1"))));
 
         Iterator<State> states = simpleCrac.getStatesFromContingency("contingency-1").iterator();
-        assertEquals(
-                60,
-                states.next().getInstant().getSeconds()
-        );
-        assertEquals(
-                70,
-                states.next().getInstant().getSeconds()
-        );
-        assertEquals(
-                120,
-                states.next().getInstant().getSeconds()
-        );
-
-        State state4 = new SimpleState(
-            Optional.of(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1")))),
-            new Instant("intermediate", 100)
-        );
-
-        simpleCrac.addState(state4);
-
-        states = simpleCrac.getStatesFromContingency("contingency-1").iterator();
-        assertEquals(
-                60,
-                states.next().getInstant().getSeconds()
-        );
-        assertEquals(
-                70,
-                states.next().getInstant().getSeconds()
-        );
-        assertEquals(
-                100,
-                states.next().getInstant().getSeconds()
-        );
-        assertEquals(
-                120,
-                states.next().getInstant().getSeconds()
-        );
+        assertEquals(OUTAGE, states.next().getInstant());
+        assertEquals(CURATIVE, states.next().getInstant());
     }
 
     @Test
@@ -489,7 +263,7 @@ public class CracFileTest {
             "cnec1",
             new NetworkElement("network-element-1"),
             "operator",
-            new SimpleState(Optional.empty(), new Instant("initial-instant", 0)),
+            simpleCrac.getPreventiveState(),
             true, false,
             Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
             0.
@@ -497,72 +271,82 @@ public class CracFileTest {
 
         simpleCrac.addCnec(cnec1);
         assertEquals(0, simpleCrac.getContingencies().size());
-        assertNotNull(simpleCrac.getInstant("initial-instant"));
         assertNotNull(simpleCrac.getPreventiveState());
         assertEquals(1, simpleCrac.getBranchCnecs(simpleCrac.getPreventiveState()).size());
         assertSame(simpleCrac.getBranchCnecs(simpleCrac.getPreventiveState()).iterator().next().getState(), simpleCrac.getPreventiveState());
 
+        simpleCrac.addContingency(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2"))));
         BranchCnec cnec2 = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
             "operator",
-            new SimpleState(
-                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-co", 60)
-            ),
+            simpleCrac.getState("co", OUTAGE),
             true, false,
             Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
             0.
         );
         simpleCrac.addCnec(cnec2);
         assertEquals(1, simpleCrac.getContingencies().size());
-        assertNotNull(simpleCrac.getInstant("after-co"));
-        assertNotNull(simpleCrac.getState("co", "after-co"));
-        assertSame(simpleCrac.getBranchCnecs(simpleCrac.getState("co", "after-co")).iterator().next().getState(), simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
+        assertNotNull(simpleCrac.getState("co", OUTAGE));
+        assertNotNull(simpleCrac.getState("co", CURATIVE));
+        assertSame(simpleCrac.getBranchCnec("cnec2").getState(), simpleCrac.getState("co", OUTAGE));
     }
 
-    @Test
-    public void testAddCnecWithAlreadyExistingState() {
-        simpleCrac.addState(new SimpleState(
-            Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-            new Instant("after-co", 60)
-        ));
-
-        assertEquals(1, simpleCrac.getContingencies().size());
-        assertNotNull(simpleCrac.getInstant("after-co"));
-        assertNotNull(simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
-
+    // It should fail because the contingency was not added in the CRAC previously
+    @Test(expected = FaraoException.class)
+    public void testFailsWhenAddingACnecOnANonExistingContingency() {
+        State state = new SimpleState(Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("ne")))), OUTAGE);
         BranchCnec cnec = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
             "operator",
+            state,
+            true, false,
+            Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
+            0.
+        );
+        simpleCrac.addCnec(cnec);
+    }
+
+    @Test
+    public void testAddCnecWithAlreadyExistingState() {
+        Contingency co = new ComplexContingency("co", Collections.singleton(new NetworkElement("ne")));
+        simpleCrac.addContingency(co);
+
+        assertEquals(1, simpleCrac.getContingencies().size());
+        assertNotNull(simpleCrac.getState("co", OUTAGE));
+
+        Contingency coSame = new ComplexContingency("co", Collections.singleton(new NetworkElement("ne")));
+        BranchCnec cnec = new FlowCnecImpl(
+            "cnec",
+            new NetworkElement("network-element-1"),
+            "operator",
             new SimpleState(
-                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-co", 60)
+                Optional.of(coSame),
+                OUTAGE
             ),
             true, false,
             Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
             0.
         );
         simpleCrac.addCnec(cnec);
+
         assertEquals(1, simpleCrac.getContingencies().size());
-        assertNotNull(simpleCrac.getInstant("after-co"));
-        assertNotNull(simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
+        assertNotNull(simpleCrac.getState("co", OUTAGE));
         assertSame(
-                simpleCrac.getBranchCnecs(simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co"))).iterator().next().getState(),
-                simpleCrac.getState(simpleCrac.getContingency("co"), simpleCrac.getInstant("after-co")));
+                simpleCrac.getBranchCnec("cnec").getState(),
+                simpleCrac.getState("co", OUTAGE)
+        );
     }
 
     @Test
     public void testAddCnecWithTwoIdenticalCnecs() {
+        simpleCrac.addContingency(new ComplexContingency("co", Collections.singleton(new NetworkElement("ne"))));
         BranchCnec cnec1 = new FlowCnecImpl(
             "cnec2",
             new NetworkElement("network-element-1"),
             "operator",
-            new SimpleState(
-                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-co", 60)
-            ),
+            simpleCrac.getState("co", OUTAGE),
             true, false,
             Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
             0.
@@ -571,10 +355,7 @@ public class CracFileTest {
             "cnec2",
             new NetworkElement("network-element-1"),
             "operator",
-            new SimpleState(
-                Optional.of(new ComplexContingency("co", Collections.singleton(new NetworkElement("network-element-2")))),
-                new Instant("after-co", 60)
-            ),
+            simpleCrac.getState("co", OUTAGE),
             true, false,
             Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -1000., null, BranchThresholdRule.ON_LEFT_SIDE)),
             0.
@@ -592,7 +373,7 @@ public class CracFileTest {
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
         State state = Mockito.mock(State.class);
         Instant instant = Mockito.mock(Instant.class);
-        Mockito.when(instant.getId()).thenReturn("instantid");
+        Mockito.when(instant.toString()).thenReturn("preventive");
         Mockito.when(state.getInstant()).thenReturn(instant);
         Mockito.when(state.getContingency()).thenReturn(Optional.empty());
 

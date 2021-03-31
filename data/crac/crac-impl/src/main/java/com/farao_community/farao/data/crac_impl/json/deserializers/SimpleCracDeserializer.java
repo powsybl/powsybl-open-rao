@@ -48,7 +48,14 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
         }
         String name = jsonParser.nextTextValue();
 
-        SimpleCrac simpleCrac = new SimpleCrac(id, name);
+        jsonParser.nextToken();
+        if (!jsonParser.getCurrentName().equals(INSTANTS)) {
+            throw new FaraoException("'instants' field is expected in the fifth line of the json file.");
+        }
+        jsonParser.nextToken();
+        Set<Instant> instants = jsonParser.readValueAs(new TypeReference<Set<Instant>>() { });
+
+        SimpleCrac simpleCrac = new SimpleCrac(id, name, instants);
 
         // deserialize the following lines of the SimpleCrac
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -67,21 +74,9 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
                     networkElements.forEach(simpleCrac::addNetworkElement);
                     break;
 
-                case INSTANTS:
-                    jsonParser.nextToken();
-                    Set<Instant> instants = jsonParser.readValueAs(new TypeReference<Set<Instant>>() {
-                    });
-                    instants.forEach(simpleCrac::addInstant);
-                    break;
-
                 case CONTINGENCIES:
                     jsonParser.nextToken();
                     ContingencyDeserializer.deserialize(jsonParser, simpleCrac);
-                    break;
-
-                case STATES:
-                    jsonParser.nextToken();
-                    StateDeserializer.deserialize(jsonParser, simpleCrac);
                     break;
 
                 case CNECS:

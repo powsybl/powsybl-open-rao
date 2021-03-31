@@ -38,17 +38,16 @@ public class CracImportExportTest {
 
     @Test
     public void cracTest() {
-        SimpleCrac simpleCrac = new SimpleCrac("cracId");
+        SimpleCrac simpleCrac = new SimpleCrac("cracId", "cracId", Set.of(Instant.OUTAGE));
 
-        Instant initialInstant = simpleCrac.addInstant("N", 0);
-        State preventiveState = simpleCrac.addState(null, initialInstant);
+        String preventiveStateId = simpleCrac.getPreventiveState().getId();
+
         Contingency contingency = simpleCrac.addContingency("contingencyId", "neId");
         simpleCrac.addContingency("contingency2Id", "neId1", "neId2");
-        Instant outageInstant = simpleCrac.addInstant("postContingencyId", 5);
-        State postContingencyState = simpleCrac.addState(contingency, outageInstant);
-        simpleCrac.addState("contingency2Id", "postContingencyId");
 
-        simpleCrac.addCnec("cnec1prev", "neId1", "operator1", Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -500., null, BranchThresholdRule.ON_LEFT_SIDE)), preventiveState.getId());
+        simpleCrac.addCnec("cnec1prev", "neId1", "operator1",
+            Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -500., null, BranchThresholdRule.ON_LEFT_SIDE)),
+            preventiveStateId);
 
         Set<BranchThreshold> thresholds = new HashSet<>();
         thresholds.add(new BranchThresholdImpl(Unit.PERCENT_IMAX, -0.3, null, BranchThresholdRule.ON_LEFT_SIDE));
@@ -56,19 +55,23 @@ public class CracImportExportTest {
         thresholds.add(new BranchThresholdImpl(Unit.AMPERE, -800., null, BranchThresholdRule.ON_HIGH_VOLTAGE_LEVEL));
         thresholds.add(new BranchThresholdImpl(Unit.AMPERE, null, 1200., BranchThresholdRule.ON_LOW_VOLTAGE_LEVEL));
 
-        simpleCrac.addCnec("cnec2prev", "neId2", "operator2", thresholds, preventiveState.getId());
-        simpleCrac.addCnec("cnec1cur", "neId1", "operator1", Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -800., null, BranchThresholdRule.ON_LEFT_SIDE)), postContingencyState.getId());
+        simpleCrac.addCnec("cnec2prev", "neId2", "operator2", thresholds, preventiveStateId);
+        simpleCrac.addCnec("cnec1cur", "neId1", "operator1",
+            Collections.singleton(new BranchThresholdImpl(Unit.AMPERE, -800., null, BranchThresholdRule.ON_LEFT_SIDE)),
+            simpleCrac.getState(contingency, Instant.OUTAGE).getId());
 
         double positiveFrmMw = 20.0;
         BranchThreshold absoluteFlowThreshold = new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE);
         Set<BranchThreshold> thresholdSet = new HashSet<>();
         thresholdSet.add(absoluteFlowThreshold);
-        simpleCrac.addCnec("cnec3prevId", "cnec3prevName", "neId2", "operator3", thresholdSet, preventiveState.getId(), positiveFrmMw, false, true);
-        simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", "operator4", thresholdSet, preventiveState.getId(), 0.0, true, true);
+        simpleCrac.addCnec("cnec3prevId", "cnec3prevName", "neId2", "operator3",
+            thresholdSet, preventiveStateId, positiveFrmMw, false, true);
+        simpleCrac.addCnec("cnec4prevId", "cnec4prevName", "neId2", "operator4",
+            thresholdSet, preventiveStateId, 0.0, true, true);
 
         List<UsageRule> usageRules = new ArrayList<>();
-        usageRules.add(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant()));
-        usageRules.add(new OnStateImpl(UsageMethod.FORCED, postContingencyState));
+        usageRules.add(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE));
+        usageRules.add(new OnStateImpl(UsageMethod.FORCED, simpleCrac.getState(contingency, Instant.OUTAGE)));
 
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
         simpleCrac.addNetworkElement(new NetworkElement("injection"));
@@ -117,7 +120,7 @@ public class CracImportExportTest {
                 "pstRangeId",
                 "pstRangeName",
                 "RTE",
-                Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
+                Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
                 Arrays.asList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
                         new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.getNetworkElement("pst")
@@ -127,7 +130,7 @@ public class CracImportExportTest {
                 "pstRangeId2",
                 "pstRangeName2",
                 "RTE",
-                Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
+                Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
                 Arrays.asList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
                         new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.addNetworkElement("pst2"),

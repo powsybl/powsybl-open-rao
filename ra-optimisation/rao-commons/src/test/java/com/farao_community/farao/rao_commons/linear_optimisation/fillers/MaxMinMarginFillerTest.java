@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -164,7 +165,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
                 .newThreshold().setRule(BranchThresholdRule.ON_RIGHT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
                 .monitored()
-                .setInstant(crac.getInstant("N"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         BranchCnec mnec = crac.getBranchCnec("MNEC - N - preventive");
         initRaoData(crac.getPreventiveState());
@@ -184,7 +185,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
                 .newThreshold().setRule(BranchThresholdRule.ON_RIGHT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
                 .monitored()
                 .optimized()
-                .setInstant(crac.getInstant("N"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         BranchCnec mnec = crac.getBranchCnec("MNEC - N - preventive");
         initRaoData(crac.getPreventiveState());

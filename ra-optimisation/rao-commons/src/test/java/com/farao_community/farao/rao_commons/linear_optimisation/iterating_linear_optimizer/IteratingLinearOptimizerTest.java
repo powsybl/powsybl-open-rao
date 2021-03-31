@@ -161,7 +161,7 @@ public class IteratingLinearOptimizerTest {
             .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
         assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
             .getVariant(preOptimVariant)
-            .getSetPoint("N-1 NL1-NL3-Défaut"), DOUBLE_TOLERANCE);
+            .getSetPoint("N-1 NL1-NL3-outage"), DOUBLE_TOLERANCE);
 
         assertEquals(3, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
             .getVariant(bestVariantId)
@@ -196,6 +196,6 @@ public class IteratingLinearOptimizerTest {
             .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
         assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
             .getVariant(preOptimVariant)
-            .getSetPoint("N-1 NL1-NL3-Défaut"), DOUBLE_TOLERANCE);
+            .getSetPoint("N-1 NL1-NL3-outage"), DOUBLE_TOLERANCE);
     }
 }

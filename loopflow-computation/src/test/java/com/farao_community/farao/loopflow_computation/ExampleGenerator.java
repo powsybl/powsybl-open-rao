@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.commons.EICode;
@@ -306,22 +306,21 @@ final class ExampleGenerator {
     }
 
     static Crac crac() {
-        Crac crac = new SimpleCrac("test-crac");
-        Instant instantN = crac.newInstant().setId("N").setSeconds(-1).add();
+        Crac crac = new SimpleCracFactory().create("test-crac", Set.of(Instant.OUTAGE, Instant.CURATIVE));
 
-        crac.newBranchCnec().setId("FR-BE1").setInstant(instantN)
+        crac.newBranchCnec().setId("FR-BE1").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("FR-BE1").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newBranchCnec().setId("FR-DE").setInstant(instantN)
+        crac.newBranchCnec().setId("FR-DE").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("FR-DE").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newBranchCnec().setId("BE2-NL").setInstant(instantN)
+        crac.newBranchCnec().setId("BE2-NL").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("BE2-NL").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newBranchCnec().setId("DE-NL").setInstant(instantN)
+        crac.newBranchCnec().setId("DE-NL").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("DE-NL").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newBranchCnec().setId("BE1-BE2").setInstant(instantN)
+        crac.newBranchCnec().setId("BE1-BE2").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("BE1-BE2").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
 

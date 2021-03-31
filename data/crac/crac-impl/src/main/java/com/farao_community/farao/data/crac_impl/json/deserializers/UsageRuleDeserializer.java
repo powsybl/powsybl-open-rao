@@ -49,7 +49,7 @@ final class UsageRuleDeserializer {
             String type = jsonParser.nextTextValue();
             switch (type) {
                 case FREE_TO_USE_TYPE:
-                    usageRule = deserializeFreeToUseUsageRule(jsonParser, simpleCrac);
+                    usageRule = deserializeFreeToUseUsageRule(jsonParser);
                     break;
 
                 case ON_STATE_TYPE:
@@ -66,10 +66,10 @@ final class UsageRuleDeserializer {
 
     }
 
-    private static FreeToUseImpl deserializeFreeToUseUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static FreeToUseImpl deserializeFreeToUseUsageRule(JsonParser jsonParser) throws IOException {
 
         UsageMethod usageMethod = null;
-        String instantId = null;
+        Instant instant = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -80,19 +80,14 @@ final class UsageRuleDeserializer {
                     break;
 
                 case INSTANT:
-                    instantId = jsonParser.nextTextValue();
+                    jsonParser.nextToken();
+                    instant = jsonParser.readValueAs(Instant.class);
                     break;
 
                 default:
                     throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
-
-        Instant instant = simpleCrac.getInstant(instantId);
-        if (instant == null) {
-            throw new FaraoException(String.format("The instant [%s] mentioned in the free-to-use usage rule is not defined", instantId));
-        }
-
         return new FreeToUseImpl(usageMethod, instant);
     }
 

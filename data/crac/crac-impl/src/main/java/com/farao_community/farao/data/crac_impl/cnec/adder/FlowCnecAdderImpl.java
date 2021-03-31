@@ -7,9 +7,14 @@
 
 package com.farao_community.farao.data.crac_impl.cnec.adder;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
+
+import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -23,8 +28,20 @@ public class FlowCnecAdderImpl extends AbstractBranchCnecAdder {
     @Override
     public BranchCnec add() {
         super.checkCnec();
-        FlowCnecImpl flowCnec = new FlowCnecImpl(id, name, networkElement, operator,
-                parent.addState(contingency, instant), optimized, monitored, thresholds, reliabilityMargin);
+        State state;
+        if (contingency != null) {
+            parent.addContingency(contingency);
+            if (parent.getState(contingency, instant) == null) {
+                throw new FaraoException(format("State %s - %s does not exist. Impossible to add %s.", contingency.getId(), instant, id));
+            }
+            state = parent.getState(contingency, instant);
+        } else if (instant.equals(Instant.PREVENTIVE)) {
+            state = parent.getPreventiveState();
+        } else {
+            throw new FaraoException("Adding a CNEC on a post-contingency instant requires a contingency which is not null");
+        }
+
+        FlowCnecImpl flowCnec = new FlowCnecImpl(id, name, networkElement, operator, state, optimized, monitored, thresholds, reliabilityMargin);
         parent.addCnec(flowCnec);
         return parent.getBranchCnec(id);
     }

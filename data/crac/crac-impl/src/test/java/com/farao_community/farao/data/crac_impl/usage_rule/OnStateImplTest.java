@@ -29,8 +29,8 @@ public class OnStateImplTest {
 
     @Before
     public void setUp() {
-        initialState = new SimpleState(Optional.empty(), new Instant("initial-instant", 0));
-        Instant curativeInstant = new Instant("curative", 1200);
+        initialState = new SimpleState(Optional.empty(), Instant.PREVENTIVE);
+        Instant curativeInstant = Instant.CURATIVE;
         curativeState1 = new SimpleState(Optional.of(new ComplexContingency("contingency1")), curativeInstant);
         curativeState2 = new SimpleState(Optional.of(new ComplexContingency("contingency2")), curativeInstant);
     }
@@ -60,7 +60,7 @@ public class OnStateImplTest {
     @Test
     public void testEqualsFalseNotTheSameObject() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
-        assertNotEquals(rule1, new Instant("fail", 10));
+        assertNotEquals(rule1, Instant.PREVENTIVE);
     }
 
     @Test

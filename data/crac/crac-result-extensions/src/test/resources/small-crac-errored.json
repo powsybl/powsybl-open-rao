@@ -2,6 +2,7 @@
   "type": "simple-crac",
   "id": "LS_unsecure",
   "name": "LS_unsecure",
+  "instants": [ "preventive", "outage", "curative" ],
   "networkElements": [
     {
       "type": "NetworkElement",
@@ -19,20 +20,6 @@
       "name": "BBE2AA1  BBE3AA1  1"
     }
   ],
-  "instants": [
-    {
-      "type": "Instant",
-      "id": "N",
-      "seconds": -1,
-      "name": "N"
-    },
-    {
-      "type": "Instant",
-      "id": "Défaut",
-      "seconds": 60,
-      "name": "Défaut"
-    }
-  ],
   "contingencies": [
     {
       "type": "complex-contingency",
@@ -41,20 +28,6 @@
       "networkElements": [
         "NNL1AA1  NNL2AA1  1"
       ]
-    }
-  ],
-  "states": [
-    {
-      "type": "simple-state",
-      "id": "none-N",
-      "contingency": null,
-      "instant": "N"
-    },
-    {
-      "type": "simple-state",
-      "id": "N-1 NL1-NL3-Défaut",
-      "contingency": "N-1 NL1-NL3",
-      "instant": "Défaut"
     }
   ],
   "cnecs": [
@@ -70,7 +43,7 @@
         "max": 750,
         "rule" : "ON_LEFT_SIDE"
       }],
-      "state": "N-1 NL1-NL3-Défaut",
+      "state": "N-1 NL1-NL3-outage",
       "extensions" : {
         "ResultExtension" : {
           "resultsPerVariant" : {
@@ -101,7 +74,7 @@
         "max": 750,
         "rule" : "ON_LEFT_SIDE"
       }],
-      "state": "none-N"
+      "state": "none-preventive"
     }
   ],
   "rangeActions": [
@@ -114,7 +87,7 @@
         {
           "type": "free-to-use",
           "usageMethod": "AVAILABLE",
-          "state": "none-N"
+          "state": "none-preventive"
         }
       ],
       "ranges": [

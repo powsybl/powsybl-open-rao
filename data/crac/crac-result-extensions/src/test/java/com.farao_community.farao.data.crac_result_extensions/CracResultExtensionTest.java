@@ -9,8 +9,10 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
 import org.junit.Test;
+
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -37,7 +39,7 @@ public class CracResultExtensionTest {
         assertNull(cracResultExtension.getVariant("variant-before-opt"));
 
         // add extension to a Crac
-        Crac crac = new SimpleCrac("cracId");
+        Crac crac = new SimpleCracFactory().create("cracId", Collections.emptySet());
 
         crac.addExtension(CracResultExtension.class, cracResultExtension);
         CracResultExtension ext = crac.getExtension(CracResultExtension.class);

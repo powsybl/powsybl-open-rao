@@ -28,25 +28,20 @@ public class SimpleStateTest {
         NetworkElement networkElement = new NetworkElement("basicElemId", "basicElemName");
         state =  new SimpleState(
             Optional.of(new ComplexContingency("contingencyId", "contingencyName", Collections.singleton(networkElement))),
-            new Instant("curative", 12)
+            Instant.CURATIVE
         );
-    }
-
-    @Test
-    public void getInstant() {
-        assertEquals(12, state.getInstant().getSeconds());
     }
 
     @Test
     public void testEquals() {
         SimpleState state1 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-1", 10)
+            Instant.OUTAGE
         );
 
         SimpleState state2 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-1", 10)
+            Instant.OUTAGE
         );
 
         assertEquals(state1, state2);
@@ -56,12 +51,12 @@ public class SimpleStateTest {
     public void testEqualsForPreventive() {
         SimpleState state1 = new SimpleState(
             Optional.empty(),
-            new Instant("instant-1", 10)
+            Instant.PREVENTIVE
         );
 
         SimpleState state2 = new SimpleState(
             Optional.empty(),
-            new Instant("instant-1", 10)
+            Instant.PREVENTIVE
         );
 
         assertEquals(state1, state2);
@@ -71,12 +66,12 @@ public class SimpleStateTest {
     public void testDifferentPreventiveAndAfterContingency() {
         SimpleState state1 = new SimpleState(
             Optional.empty(),
-            new Instant("instant-1", 10)
+            Instant.PREVENTIVE
         );
 
         SimpleState state2 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-1", 10)
+            Instant.OUTAGE
         );
 
         assertNotEquals(state1, state2);
@@ -86,12 +81,12 @@ public class SimpleStateTest {
     public void testNotEqualsByInstant() {
         SimpleState state1 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-1", 10)
+            Instant.OUTAGE
         );
 
         SimpleState state2 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-2", 10)
+            Instant.CURATIVE
         );
 
         assertNotEquals(state1, state2);
@@ -101,12 +96,12 @@ public class SimpleStateTest {
     public void testNotEqualsByContingency() {
         SimpleState state1 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-1", 10)
+            Instant.PREVENTIVE
         );
 
         SimpleState state2 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 2", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-1", 10)
+            Instant.PREVENTIVE
         );
 
         assertNotEquals(state1, state2);
@@ -116,12 +111,12 @@ public class SimpleStateTest {
     public void testNotEqualsByContingencyElements() {
         SimpleState state1 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-1", 10)
+            Instant.PREVENTIVE
         );
 
         SimpleState state2 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-2")))),
-            new Instant("instant-1", 10)
+            Instant.PREVENTIVE
         );
 
         assertNotEquals(state1, state2);
@@ -136,42 +131,42 @@ public class SimpleStateTest {
     public void testHashCodeForPreventive() {
         SimpleState state1 = new SimpleState(
             Optional.empty(),
-            new Instant("instant-1", 10)
+            Instant.PREVENTIVE
         );
 
-        assertEquals("preventiveinstant-1".hashCode(), state1.hashCode());
+        assertEquals("nonepreventive".hashCode(), state1.hashCode());
     }
 
     @Test
     public void testToStringForPreventive() {
         SimpleState state1 = new SimpleState(
             Optional.empty(),
-            new Instant("instant-1", 10)
+            Instant.PREVENTIVE
         );
 
-        assertEquals("instant-1 - preventive", state1.toString());
+        assertEquals("preventive - none", state1.toString());
     }
 
     @Test
     public void testToStringAfterContingency() {
         SimpleState state1 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-1", 10)
+            Instant.OUTAGE
         );
 
-        assertEquals("instant-1 - contingency 1", state1.toString());
+        assertEquals("outage - contingency 1", state1.toString());
     }
 
     @Test
     public void testCompareTo() {
         SimpleState state1 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-1", 10)
+            Instant.OUTAGE
         );
 
         SimpleState state2 = new SimpleState(
             Optional.of(new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1")))),
-            new Instant("instant-2", 15)
+            Instant.CURATIVE
         );
 
         assertTrue(state2.compareTo(state1) > 0);
