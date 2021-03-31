@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
@@ -21,9 +22,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -94,5 +97,37 @@ public class CracResultManagerTest {
         raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(raoData.getPreOptimVariantId(), var);
         assertEquals(150.6, raoData.getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(653.7, raoData.getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(var).getCommercialFlowInMW(), DOUBLE_TOLERANCE);
+    }
+
+    private SystematicSensitivityResult getMockSensiResult(Crac crac) {
+        SystematicSensitivityResult sensisResults = Mockito.mock(SystematicSensitivityResult.class);
+
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("cnec1basecase"))).thenReturn(10);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("cnec1stateCurativeContingency1"))).thenReturn(20);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("cnec1stateCurativeContingency2"))).thenReturn(30);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("cnec2basecase"))).thenReturn(40);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("cnec2stateCurativeContingency1"))).thenReturn(50);
+        Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("cnec2stateCurativeContingency2"))).thenReturn(60);
+
+        Mockito.when(sensisResults.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getBranchCnec("cnec1basecase"))).thenReturn(1);
+        Mockito.when(sensisResults.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getBranchCnec("cnec1stateCurativeContingency1"))).thenReturn(2);
+        Mockito.when(sensisResults.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getBranchCnec("cnec1stateCurativeContingency2"))).thenReturn(3);
+        Mockito.when(sensisResults.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getBranchCnec("cnec2basecase"))).thenReturn(4);
+        Mockito.when(sensisResults.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getBranchCnec("cnec2stateCurativeContingency1"))).thenReturn(5);
+        Mockito.when(sensisResults.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getBranchCnec("cnec2stateCurativeContingency2"))).thenReturn(6);
+
+        return sensisResults;
+    }
+
+    @Test
+    public void testComputeMinMargins() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Crac crac = CommonCracCreation.createWithPstRange();
+        crac.synchronize(network);
+        RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
+        raoData.setSystematicSensitivityResult(getMockSensiResult(crac));
+
+        raoData.getCracResultManager().computeMinMargins((PstRangeAction) crac.getRangeAction("pst"), new ArrayList<>(crac.getBranchCnecs()), 0, 1);
+        assertTrue(true);
     }
 }
