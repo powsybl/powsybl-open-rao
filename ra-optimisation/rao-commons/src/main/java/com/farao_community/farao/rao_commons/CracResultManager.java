@@ -140,7 +140,7 @@ public class CracResultManager {
      * @param linearProblem: the linear problem that was optimizes
      * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
-    private Map<PstRangeAction, Integer> computeBestTaps(LinearProblem linearProblem) {
+    Map<PstRangeAction, Integer> computeBestTaps(LinearProblem linearProblem) {
         List<BranchCnec> mostLimitingElements = RaoUtil.getMostLimitingElements(raoData.getCnecs(), raoData.getPreOptimVariantId(), MEGAWATT, raoData.getRaoParameters().getObjectiveFunction().relativePositiveMargins(), 10);
 
         Map<PstRangeAction, Integer> bestTaps = new HashMap<>();
@@ -172,7 +172,7 @@ public class CracResultManager {
      * @param minMarginPerTap: a map containing for each PstRangeAction, a map with tap positions and resulting minimum margin
      * @return a map containing for each group ID, the best common tap position for the PSTs
      */
-    private Map<String, Integer> computeBestTapPerPstGroup(Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap) {
+    static Map<String, Integer> computeBestTapPerPstGroup(Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap) {
         Map<String, Integer> bestTapPerPstGroup = new HashMap<>();
         Set<PstRangeAction> pstRangeActions = minMarginPerTap.keySet();
         Set<String> pstGroups = pstRangeActions.stream().map(PstRangeAction::getGroupId).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
@@ -216,7 +216,7 @@ public class CracResultManager {
      * @param mostLimitingCnecs: the cnecs upon which we compute the minimum margin
      * @return a map containing the minimum margin for each best tap position (one or two taps)
      */
-    private Map<Integer, Double> computeMinMarginsForBestTaps(PstRangeAction pstRangeAction, double angle, List<BranchCnec> mostLimitingCnecs) {
+    Map<Integer, Double> computeMinMarginsForBestTaps(PstRangeAction pstRangeAction, double angle, List<BranchCnec> mostLimitingCnecs) {
         int closestTap = pstRangeAction.computeTapPosition(angle);
         double closestAngle = pstRangeAction.convertTapToAngle(closestTap);
 
@@ -241,17 +241,17 @@ public class CracResultManager {
         if (testTapPlus1 && testTapMinus1) {
             // We can test tap+1 and tap-1
             double angleOfTapPlus1 = pstRangeAction.convertTapToAngle(closestTap + 1);
-            otherTap = (Math.signum(angleOfTapPlus1 - angle) * Math.signum(angleOfTapPlus1 - angle) > 0) ? closestTap + 1 : closestTap - 1;
+            otherTap = (Math.signum(angleOfTapPlus1 - closestAngle) * Math.signum(angle - closestAngle) > 0) ? closestTap + 1 : closestTap - 1;
         } else if (testTapPlus1) {
             // We can only test tap+1, if the optimal angle is between the closest angle and the angle of tap+1
             double angleOfTapPlus1 = pstRangeAction.convertTapToAngle(closestTap + 1);
-            if (Math.signum(angleOfTapPlus1 - angle) * Math.signum(angleOfTapPlus1 - angle) > 0) {
+            if (Math.signum(angleOfTapPlus1 - closestAngle) * Math.signum(angle - closestAngle) > 0) {
                 otherTap = closestTap + 1;
             }
         } else if (testTapMinus1) {
             // We can only test tap-1, if the optimal angle is between the closest angle and the angle of tap-1
             double angleOfTapMinus1 = pstRangeAction.convertTapToAngle(closestTap - 1);
-            if (Math.signum(angleOfTapMinus1 - angle) * Math.signum(angleOfTapMinus1 - angle) > 0) {
+            if (Math.signum(angleOfTapMinus1 - closestAngle) * Math.signum(angle - closestAngle) > 0) {
                 otherTap = closestTap - 1;
             }
         }
