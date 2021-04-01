@@ -1,0 +1,313 @@
+{
+  "type": "simple-crac",
+  "id": "CracFlowbased",
+  "name": "Crac for flowbased tests",
+  "networkElements": [
+    {
+      "type": "NetworkElement",
+      "id": "FR-BE",
+      "name": "FR-BE"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "FR-DE",
+      "name": "FR-DE"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "BE-NL",
+      "name": "BE-NL"
+    },
+    {
+      "type": "NetworkElement",
+      "id": "DE-NL",
+      "name": "DE-NL"
+    }
+  ],
+  "instants": [
+    {
+      "type": "Instant",
+      "id": "N",
+      "seconds": -1,
+      "name": "N"
+    },
+    {
+      "type": "Instant",
+      "id": "N-1",
+      "seconds": 60,
+      "name": "N-1"
+    },
+    {
+      "type": "Instant",
+      "id": "AfterCra",
+      "seconds": 1200,
+      "name": "AfterCra"
+    }
+  ],
+  "contingencies": [
+    {
+      "type": "complex-contingency",
+      "id": "N-1 FR-BE",
+      "name": "N-1 FR-BE",
+      "networkElements": [
+        "FR-BE"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "type": "simple-state",
+      "id": "none-N",
+      "contingency": null,
+      "instant": "N"
+    },
+    {
+      "type": "simple-state",
+      "id": "N-1 FR-BE-N-1",
+      "contingency": "N-1 FR-BE",
+      "instant": "N-1"
+    },
+    {
+      "type": "simple-state",
+      "id": "N-1 FR-BE-AfterCra",
+      "contingency": "N-1 FR-BE",
+      "instant": "AfterCra"
+    }
+  ],
+  "cnecs": [
+    {
+      "type": "flow-cnec",
+      "id": "FR-BE - AfterCra - N-1 FR-BE",
+      "name": "Tieline FR-BE AfterCra",
+      "networkElement": "FR-BE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-AfterCra"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "FR-DE - AfterCra - N-1 FR-BE",
+      "name": "Tieline FR-DE AfterCra",
+      "networkElement": "FR-DE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-AfterCra"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "BE-NL - AfterCra - N-1 FR-BE",
+      "name": "Tieline BE-NL AfterCra",
+      "networkElement": "BE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-AfterCra"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "DE-NL - AfterCra - N-1 FR-BE",
+      "name": "Tieline DE-NL AfterCra",
+      "networkElement": "DE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-AfterCra"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "FR-BE - N-1 - N-1 FR-BE",
+      "name": "Tieline FR-BE in N-1",
+      "networkElement": "FR-BE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "FR-DE - N-1 - N-1 FR-BE",
+      "name": "Tieline FR-DE in N-1",
+      "networkElement": "FR-DE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "BE-NL - N-1 - N-1 FR-BE",
+      "name": "Tieline BE-NL in N-1",
+      "networkElement": "BE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "DE-NL - N-1 - N-1 FR-BE",
+      "name": "Tieline DE-NL in N-1",
+      "networkElement": "DE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": null,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "N-1 FR-BE-N-1"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "FR-BE - N - preventive",
+      "name": "Tieline FR-BE in N",
+      "networkElement": "FR-BE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "FR-DE - N - preventive",
+      "name": "Tieline FR-DE in N",
+      "networkElement": "FR-DE",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "BE-NL - N - preventive",
+      "name": "Tieline BE-NL in N",
+      "networkElement": "BE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    },
+    {
+      "type": "flow-cnec",
+      "id": "DE-NL - N - preventive",
+      "name": "Tieline DE-NL in N",
+      "networkElement": "DE-NL",
+      "thresholds": [ {
+        "type": "branch-threshold",
+        "unit": "MW",
+        "min": -100,
+        "max": 100,
+        "rule" : "ON_LEFT_SIDE"
+      } ],
+      "optimized": false,
+      "state": "none-N"
+    }
+  ],
+  "rangeActions" : [],
+  "networkActions" : [ {
+    "type" : "complex-network-action",
+    "id" : "Open line FR-BE",
+    "name" : "Open line FR-BE",
+    "operator" : "FR",
+    "usageRules" : [ {
+      "type" : "free-to-use",
+      "usageMethod" : "AVAILABLE",
+      "instant" : "AfterCra"
+    } ],
+    "elementaryNetworkActions" : [ {
+      "type" : "topology",
+      "id" : "Open line FR-BE",
+      "name" : "Open line FR-BE",
+      "operator" : "FR",
+      "usageRules" : [ {
+        "type" : "free-to-use",
+        "usageMethod" : "AVAILABLE",
+        "instant" : "AfterCra"
+      } ],
+      "networkElements" : [ "FR-BE" ],
+      "actionType" : "OPEN"
+    } ],
+    "extensions" : {
+      "NetworkActionResultExtension" : {
+        "resultsPerVariant" : {
+          "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+            "type" : "network-action-result",
+            "activationMap" : {
+              "none-N" : false,
+              "N-1 FR-BE-N-1" : false,
+              "N-1 FR-BE-AfterCra" : false
+            }
+          }
+        }
+      }
+    }
+  } ],
+  "extensions" : {
+    "ResultVariantManager" : {
+      "variantIds" : [ "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" ]
+    },
+    "CracResultExtension" : {
+      "resultsPerVariant" : {
+        "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
+          "type" : "crac-result",
+          "networkSecurityStatus" : "UNSECURED",
+          "functionalCost" : 549.7274064021431,
+          "virtualCost" : 0.0
+        }
+      }
+    }
+  }
+}
