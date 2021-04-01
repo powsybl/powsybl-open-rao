@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 
 /**
@@ -15,7 +15,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
  */
 public interface ProblemFiller {
 
-    void fill(RaoData raoData, LinearProblem linearProblem);
+    void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, LinearProblem linearProblem);
 
-    void update(RaoData raoData, LinearProblem linearProblem);
+    void update(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, LinearProblem linearProblem);
 }

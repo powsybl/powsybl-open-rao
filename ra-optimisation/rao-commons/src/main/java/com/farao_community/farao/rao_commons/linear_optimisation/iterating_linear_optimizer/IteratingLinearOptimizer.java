@@ -54,7 +54,6 @@ public class IteratingLinearOptimizer {
         this(systematicSensitivityInterface, objectiveFunctionEvaluator, new LinearOptimizer(fillers), parameters);
     }
 
-    // Method for tests
     IteratingLinearOptimizer(SystematicSensitivityInterface systematicSensitivityInterface,
                              ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
                              LinearOptimizer linearOptimizer,

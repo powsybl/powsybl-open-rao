@@ -8,18 +8,23 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.CoreProblemFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.MaxMinMarginFiller;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
+import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
+import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
 import static java.lang.String.format;
 
 /**
@@ -53,6 +58,60 @@ public class LinearOptimizer {
     private List<ProblemFiller> fillers;
 
     private String solverResultStatusString = "UNKNOWN";
+
+    public LinearOptimizer(LinearOptimizerInput input, LinearOptimizerParameters parameters) {
+        List<ProblemFiller> fillers = new ArrayList<>();
+        fillers.add(new CoreProblemFiller(parameters.getPstSensitivityThreshold(), parameters.getMaxPstPerTso()));
+        if (parameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
+                || parameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
+            fillers.add(new MaxMinMarginFiller(parameters.getObjectiveFunction().getUnit(), parameters.getPstPenaltyCost()));
+            fillers.add(new MnecFiller(parameters.getObjectiveFunction().getUnit(), parameters.getMnecAcceptableMarginDiminution(), parameters.getMnecViolationCost(), parameters.getMnecConstraintAdjustmentCoefficient()));
+        } else if (parameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
+                || parameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
+            fillers.add(new MaxMinRelativeMarginFiller(parameters.getObjectiveFunction().getUnit(), parameters.getPstPenaltyCost(), parameters.getNegativeMarginObjectiveCoefficient(), parameters.getPtdfSumLowerBound()));
+            fillers.add(new MnecFiller(parameters.getObjectiveFunction().getUnit(), parameters.getMnecAcceptableMarginDiminution(), parameters.getMnecViolationCost(), parameters.getMnecConstraintAdjustmentCoefficient()));
+        }
+        if (!Objects.isNull(parameters.getOperatorsNotToOptimize()) && !parameters.getOperatorsNotToOptimize().isEmpty()) {
+            fillers.add(new OperatorsNotToOptimizeFiller(parameters.getOperatorsNotToOptimize()));
+        }
+        if (parameters.isRaoWithLoopFlowLimitation()) {
+            fillers.add(createMaxLoopFlowFiller(parameters));
+        }
+    }
+
+    private static MaxLoopFlowFiller createMaxLoopFlowFiller(LinearOptimizerParameters parameters) {
+        return new MaxLoopFlowFiller(parameters.getLoopFlowConstraintAdjustmentCoefficient(),
+                parameters.getLoopFlowViolationCost(),
+                parameters.getLoopFlowApproximationLevel(),
+                parameters.getLoopFlowAcceptableAugmentation());
+    }
+
+    public void optimize(SystematicSensitivityResult sensitivityResult) {
+        // TODO : if (loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange()) => recompute commercial flows
+
+        /*
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
+            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getNetwork(), raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
+            raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
+         */
+
+        if (sensitivityResult == null) {
+            throw new FaraoException("");
+        }
+
+        // prepare optimisation problem
+        if (!lpInitialised) {
+            linearProblem = createLinearRaoProblem();
+            buildProblem(sensitivityResult);
+            lpInitialised = true;
+        } else {
+            updateProblem(sensitivityResult);
+        }
+
+        solveProblem();
+
+        // TODO : generate output
+    }
 
     public LinearOptimizer(List<ProblemFiller> fillers) {
         this.fillers = fillers;
@@ -89,7 +148,7 @@ public class LinearOptimizer {
      * @throws FaraoException if sensitivity computation have not been performed on working raoData variant
      * or if loop flow data are missing when loop flow filler is present
      */
-    public void optimize(RaoData raoData) {
+    /*public void optimize(RaoData raoData) {
         checkSensitivityValues(raoData);
 
         // prepare optimisation problem
@@ -106,11 +165,11 @@ public class LinearOptimizer {
             raoData.getCracResultManager().fillRangeActionResultsWithLinearProblem(linearProblem);
             raoData.getCracResultManager().applyRangeActionResultsOnNetwork();
         }
-    }
+    }*/
 
-    private void buildProblem(RaoData raoData) {
+    private void buildProblem(SystematicSensitivityResult sensitivityResult) {
         try {
-            fillers.forEach(problemFiller -> problemFiller.fill(raoData, linearProblem));
+            fillers.forEach(problemFiller -> problemFiller.fill(sensitivityResult, linearProblem));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when building the problem.";
             LOGGER.error(errorMessage);
@@ -118,9 +177,9 @@ public class LinearOptimizer {
         }
     }
 
-    private void updateProblem(RaoData raoData) {
+    private void updateProblem(SystematicSensitivityResult sensitivityResult) {
         try {
-            fillers.forEach(problemFiller -> problemFiller.update(raoData, linearProblem));
+            fillers.forEach(problemFiller -> problemFiller.update(sensitivityResult, linearProblem));
         } catch (Exception e) {
             String errorMessage = "Linear optimisation failed when updating the problem.";
             LOGGER.error(errorMessage);
