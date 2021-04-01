@@ -21,7 +21,7 @@ import com.farao_community.farao.data.crac_impl.json.serializers.network_action.
 import com.farao_community.farao.data.crac_impl.json.serializers.range_action.PstRangeActionImplSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.FreeToUseSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnStateSerializer;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
@@ -40,12 +40,12 @@ public class CracImplJsonModule extends SimpleModule {
         this.addSerializer(ComplexContingency.class, new ComplexContingencySerializer());
         this.addSerializer(FreeToUseImpl.class, new FreeToUseSerializer());
         this.addSerializer(OnStateImpl.class, new OnStateSerializer());
-        this.addSerializer(ComplexNetworkAction.class, new ComplexNetworkActionSerializer());
+        this.addSerializer(NetworkActionImpl.class, new ComplexNetworkActionSerializer());
         this.addSerializer(PstSetpoint.class, new PstSetPointSerializer());
         this.addSerializer(InjectionSetpoint.class, new InjectionSetPointSerializer());
         this.addSerializer(Topology.class, new TopologySerializer());
         this.addSerializer(PstSetpoint.class, new PstSetPointSerializer());
-        this.addSerializer(ComplexNetworkAction.class, new ComplexNetworkActionSerializer());
+        this.addSerializer(NetworkActionImpl.class, new ComplexNetworkActionSerializer());
         this.addSerializer(PstRangeActionImpl.class, new PstRangeActionImplSerializer());
         this.addSerializer(SimpleCrac.class, new SimpleCracSerializer());
         this.addSerializer(FlowCnecImpl.class, new FlowCnecImplSerializer());

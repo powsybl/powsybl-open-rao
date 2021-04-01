@@ -94,7 +94,7 @@ public class CracImportExportTest {
         );
         elementaryNetworkActions.add(pstSetpoint);
         elementaryNetworkActions.add(topology);
-        ComplexNetworkAction complexNetworkAction = new ComplexNetworkAction(
+        NetworkActionImpl complexNetworkAction = new NetworkActionImpl(
                 "complexNetworkActionId",
                 "complexNetworkActionName",
                 "RTE",

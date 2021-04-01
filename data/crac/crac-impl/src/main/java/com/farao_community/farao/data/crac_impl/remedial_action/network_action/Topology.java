@@ -7,7 +7,9 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
+import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.ActionType;
+import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -25,23 +27,14 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("topology")
-public final class Topology extends AbstractElementaryNetworkAction {
+public final class Topology extends AbstractIdentifiable implements ElementaryAction {
 
+    private NetworkElement networkElement;
     private ActionType actionType;
 
-    public Topology(String id, String name, String operator, List<UsageRule> usageRules, NetworkElement networkElement,
-                    ActionType actionType) {
-        super(id, name, operator, usageRules, networkElement);
-        this.actionType = actionType;
-    }
-
-    public Topology(String id, String name, String operator, NetworkElement networkElement, ActionType actionType) {
-        super(id, name, operator, networkElement);
-        this.actionType = actionType;
-    }
-
-    public Topology(String id, NetworkElement networkElement, ActionType actionType) {
-        super(id, networkElement);
+    public Topology(String id, String name, NetworkElement networkElement, ActionType actionType) {
+        super(id, name);
+        this.networkElement = networkElement;
         this.actionType = actionType;
     }
 
@@ -55,7 +48,7 @@ public final class Topology extends AbstractElementaryNetworkAction {
 
     @Override
     public void apply(Network network) {
-        Identifiable element = network.getIdentifiable(getNetworkElement().getId());
+        Identifiable element = network.getIdentifiable(networkElement.getId());
         if (element instanceof Branch) {
             Branch branch = (Branch) element;
             if (actionType == ActionType.OPEN) {
@@ -71,6 +64,11 @@ public final class Topology extends AbstractElementaryNetworkAction {
         } else {
             throw new NotImplementedException("Topological actions are only on branches or switches for now");
         }
+    }
+
+    @Override
+    public NetworkElement getNetworkElement() {
+        return networkElement;
     }
 
     @Override

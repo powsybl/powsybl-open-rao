@@ -173,9 +173,9 @@ final class NetworkActionDeserializer {
         return networkAction;
     }
 
-    private static ComplexNetworkAction deserializeComplexNetworkAction(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
-        // cannot be done in a standard ComplexNetworkAction deserializer as it requires the simpleCrac to compare
-        // the networkElement ids of the ComplexNetworkAction with the NetworkElements of the SimpleCrac
+    private static NetworkActionImpl deserializeComplexNetworkAction(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
+        // cannot be done in a standard NetworkActionImpl deserializer as it requires the simpleCrac to compare
+        // the networkElement ids of the NetworkActionImpl with the NetworkElements of the SimpleCrac
 
         String id = null;
         String name = null;
@@ -227,7 +227,7 @@ final class NetworkActionDeserializer {
             }
         }
 
-        ComplexNetworkAction networkAction = new ComplexNetworkAction(id, name, operator, usageRules, elementaryNetworkActions);
+        NetworkActionImpl networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryNetworkActions);
         if (extensions != null) {
             ExtensionsHandler.getExtensionsSerializers().addExtensions(networkAction, extensions);
         }

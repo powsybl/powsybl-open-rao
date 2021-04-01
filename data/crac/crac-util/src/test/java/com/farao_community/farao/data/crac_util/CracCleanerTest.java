@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.XnodeContingency;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
@@ -106,7 +106,7 @@ public class CracCleanerTest {
             simpleCrac.getNetworkElement("FFR1AA1  FFR2AA1  1"),
             ActionType.CLOSE
         );
-        ComplexNetworkAction complexNetworkAction = new ComplexNetworkAction("complexNextworkActionId", "RTE");
+        NetworkActionImpl complexNetworkAction = new NetworkActionImpl("complexNextworkActionId", "RTE");
         PstRangeActionImpl pstRangeAction1 = new PstRangeActionImpl(
             "pstRangeId",
             "pstRangeName",

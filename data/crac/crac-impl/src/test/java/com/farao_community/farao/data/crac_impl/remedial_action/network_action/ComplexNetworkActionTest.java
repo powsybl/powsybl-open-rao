@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
  */
 public class ComplexNetworkActionTest {
 
-    private ComplexNetworkAction complexNetworkAction;
+    private NetworkActionImpl complexNetworkAction;
     private AbstractElementaryNetworkAction mockedNetworkAction;
     private Set<NetworkElement> mockedNetworkElements;
 
@@ -45,7 +45,7 @@ public class ComplexNetworkActionTest {
         Mockito.when(mockedNetworkAction.getNetworkElements()).thenReturn(mockedNetworkElements);
         Set<AbstractElementaryNetworkAction> applicableNetworkActions = Collections.singleton(mockedNetworkAction);
 
-        complexNetworkAction = new ComplexNetworkAction(
+        complexNetworkAction = new NetworkActionImpl(
                 complexNetworkActionId,
                 complexNetworkActionName,
                 complexNetworkActionOperator,
