@@ -10,6 +10,11 @@ package com.farao_community.farao.data.crac_api.cnec;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.data.crac_api.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Interface for Critical Network Element &amp; Contingencies
@@ -98,4 +103,13 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I>, Synchronizable
      * @return the name of the operator (string)
      */
     String getOperator();
+
+    /**
+     * Returns the location of the cnec, as a set of optional countries
+     * @param network: the network object used to look for the network element of the cnec
+     * @return a set of optional countries containing the cnec
+     */
+    default Set<Optional<Country>> getLocation(Network network) {
+        return getNetworkElement().getLocation(network);
+    }
 }

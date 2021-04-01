@@ -11,12 +11,15 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.cnec.AbstractBranchCnec;
 import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import com.farao_community.farao.data.crac_impl.threshold.BranchThresholdImpl;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.junit.Before;
@@ -391,5 +394,27 @@ public class FlowCnecImplTest {
         assertEquals(lineCnec.isMonitored(), copy.isMonitored());
         assertEquals(lineCnec.getThresholds(), copy.getThresholds());
         assertEquals(lineCnec.getReliabilityMargin(), copy.getReliabilityMargin(), 0.001);
+    }
+
+    @Test
+    public void testGetLocation() {
+        Set<Optional<Country>> countries = lineCnec.getLocation(network12nodes);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.FR)));
+
+        countries = transformerCnec.getLocation(network12nodes);
+        assertEquals(1, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.BE)));
+    }
+
+    @Test
+    public void testGetLocation2() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Cnec cnec = new FlowCnecImpl("line-cnec", new NetworkElement("DDE2AA1  NNL3AA1  1"), "DE",
+                Mockito.mock(State.class), true, false, new HashSet<>(), 0.0);
+        Set<Optional<Country>> countries = cnec.getLocation(network);
+        assertEquals(2, countries.size());
+        assertTrue(countries.contains(Optional.of(Country.DE)));
+        assertTrue(countries.contains(Optional.of(Country.NL)));
     }
 }

@@ -294,7 +294,7 @@ class Leaf {
         CountryGraph countryGraph = new CountryGraph(raoData.getNetwork());
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement()) {
-            List<Optional<Country>> worstCnecLocation = getMostLimitingElementLocation();
+            Set<Optional<Country>> worstCnecLocation = getMostLimitingElementLocation();
             Set<NetworkAction> filteredNetworkActions = networkActionsToFilter.stream()
                     .filter(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph))
                     .collect(Collectors.toSet());
@@ -330,11 +330,11 @@ class Leaf {
     /**
      * Says if a network action is close to a given set of countries, respecting the maximum number of boundaries
      */
-    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, List<Optional<Country>> locations, CountryGraph countryGraph) {
+    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, Set<Optional<Country>> locations, CountryGraph countryGraph) {
         if (locations.stream().anyMatch(Optional::isEmpty)) {
             return true;
         }
-        List<Optional<Country>> networkActionCountries = RaoUtil.getNetworkActionLocation(networkAction, raoData.getNetwork());
+        Set<Optional<Country>> networkActionCountries = networkAction.getLocation(raoData.getNetwork());
         if (networkActionCountries.stream().anyMatch(Optional::isEmpty)) {
             return true;
         }
@@ -409,11 +409,9 @@ class Leaf {
         return info;
     }
 
-    private List<Optional<Country>> getMostLimitingElementLocation() {
-        boolean relativePositiveMargins =
-                raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE) ||
-                        raoParameters.getObjectiveFunction().equals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        BranchCnec cnec = RaoUtil.getMostLimitingElement(raoData.getCnecs(), getBestVariantId(), raoParameters.getObjectiveFunction().getUnit(), relativePositiveMargins);
-        return RaoUtil.getCnecLocation(cnec, raoData.getNetwork());
+    private Set<Optional<Country>> getMostLimitingElementLocation() {
+        BranchCnec cnec = RaoUtil.getMostLimitingElement(raoData.getCnecs(), getBestVariantId(),
+                raoParameters.getObjectiveFunction().getUnit(), raoParameters.getObjectiveFunction().relativePositiveMargins());
+        return cnec.getLocation(raoData.getNetwork());
     }
 }
