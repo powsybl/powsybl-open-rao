@@ -5,6 +5,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.powsybl.iidm.network.Network;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ public class LinearOptimizerInput {
     Set<RangeAction> rangeActions;
     Network network;
     Map<RangeAction, Double> preperimeterSetpoints; // can be removed if we don't change taps in the network after each depth
-    BranchCnec mostLimitingElement;
+    List<BranchCnec> mostLimitingElements;
     BranchCnec mostLimitingElementInAbsoluteMW;
     Map<BranchCnec, CnecResult> initialCnecResults;
     Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
@@ -40,7 +41,11 @@ public class LinearOptimizerInput {
     }
 
     public BranchCnec getMostLimitingElement() {
-        return mostLimitingElement;
+        return mostLimitingElements.get(0);
+    }
+
+    public List<BranchCnec> getMostLimitingElements() {
+        return mostLimitingElements;
     }
 
     public BranchCnec getMostLimitingElementInAbsoluteMW() {
