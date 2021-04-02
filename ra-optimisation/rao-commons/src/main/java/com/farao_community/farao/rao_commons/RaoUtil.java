@@ -136,7 +136,7 @@ public final class RaoUtil {
         }
     }
 
-    public static BranchCnec getMostLimitingElement(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
+    public static List<BranchCnec> getMostLimitingElements(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins, int numberOfElements) {
         List<BranchCnec> sortedCnecs = cnecs.stream().
                 filter(BranchCnec::isOptimized).
                 sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
@@ -147,7 +147,11 @@ public final class RaoUtil {
                     sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
                     collect(Collectors.toList());
         }
-        return sortedCnecs.get(0);
+        return sortedCnecs.subList(0, Math.min(numberOfElements, sortedCnecs.size()));
+    }
+
+    public static BranchCnec getMostLimitingElement(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
+        return getMostLimitingElements(cnecs, variantId, unit, relativePositiveMargins, 1).get(0);
     }
 
     public static double computeCnecMargin(BranchCnec cnec, String variantId, Unit unit, boolean relativePositiveMargins) {

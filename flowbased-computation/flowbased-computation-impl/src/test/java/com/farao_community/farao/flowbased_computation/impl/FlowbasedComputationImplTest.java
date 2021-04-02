@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
@@ -60,6 +61,27 @@ public class FlowbasedComputationImplTest {
         FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
         checkAssertions(result);
         checkCurativeAssertions(result);
+    }
+
+    @Test
+    public void testRunWithCraRaoResult() {
+        crac = ExampleGenerator.crac("crac_rao_result.json");
+        assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
+        assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        checkAssertions(result);
+        checkCurativeAssertions(result);
+    }
+
+    @Test
+    public void testRunWrongData() {
+        crac = ExampleGenerator.crac("crac_rao_result_wrong.json");
+        try {
+            flowBasedComputationProvider.run(network, crac, glsk, parameters);
+            fail();
+        } catch (FaraoException e) {
+            assertEquals("Wrong number of variants: 1.", e.getMessage());
+        }
     }
 
     @Test
