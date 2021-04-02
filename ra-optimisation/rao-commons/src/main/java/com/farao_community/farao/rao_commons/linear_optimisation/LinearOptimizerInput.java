@@ -2,6 +2,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
@@ -14,6 +15,9 @@ public class LinearOptimizerInput {
     Network network;
     Map<RangeAction, Double> preperimeterSetpoints; // can be removed if we don't change taps in the network after each depth
     BranchCnec mostLimitingElement;
+    BranchCnec mostLimitingElementInAbsoluteMW;
+    Map<BranchCnec, CnecResult> initialCnecResults;
+    Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
 
     public Set<BranchCnec> getLoopflowCnecs() {
         return loopflowCnecs;
@@ -37,5 +41,25 @@ public class LinearOptimizerInput {
 
     public BranchCnec getMostLimitingElement() {
         return mostLimitingElement;
+    }
+
+    public BranchCnec getMostLimitingElementInAbsoluteMW() {
+        return mostLimitingElementInAbsoluteMW;
+    }
+
+    public double getInitialAbsolutePtdfSum(BranchCnec cnec) {
+        return initialCnecResults.get(cnec).getAbsolutePtdfSum();
+    }
+
+    public double getInitialFlowInMW(BranchCnec cnec) {
+        return initialCnecResults.get(cnec).getFlowInMW();
+    }
+
+    public double getInitialLoopflowInMW(BranchCnec cnec) {
+        return initialCnecResults.get(cnec).getLoopflowInMW();
+    }
+
+    public double getPrePerimeterMarginsInAbsoluteMW(BranchCnec cnec) {
+        return prePerimeterCnecMarginsInAbsoluteMW.get(cnec);
     }
 }

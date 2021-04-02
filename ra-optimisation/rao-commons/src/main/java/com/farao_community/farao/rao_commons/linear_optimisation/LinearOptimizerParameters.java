@@ -16,7 +16,6 @@ public class LinearOptimizerParameters {
     private RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
     private double loopFlowConstraintAdjustmentCoefficient;
     private double loopFlowViolationCost;
-    private Set<Country> loopflowCountries; // to replace preprocessing in raodata
     private double loopFlowAcceptableAugmentation;
     private double mnecViolationCost;
     private double mnecConstraintAdjustmentCoefficient;
@@ -63,10 +62,6 @@ public class LinearOptimizerParameters {
 
     public double getLoopFlowViolationCost() {
         return loopFlowViolationCost;
-    }
-
-    public Set<Country> getLoopflowCountries() {
-        return loopflowCountries;
     }
 
     public double getLoopFlowAcceptableAugmentation() {

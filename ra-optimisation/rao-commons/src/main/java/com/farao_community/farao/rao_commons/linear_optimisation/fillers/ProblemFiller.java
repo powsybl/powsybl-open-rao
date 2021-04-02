@@ -15,7 +15,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
  */
 public interface ProblemFiller {
 
-    void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, LinearProblem linearProblem);
+    void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
 
-    void update(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, LinearProblem linearProblem);
+    void update(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
 }
