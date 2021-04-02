@@ -22,11 +22,11 @@ import static org.junit.Assert.fail;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstSetpointTest extends AbstractRemedialActionTest {
+public class PstSetpointImplTest extends AbstractRemedialActionTest {
 
     @Test
     public void basicMethods() {
-        PstSetpoint pstSetpoint = new PstSetpoint(
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             "pstsetpoint_id",
             "pstsetpoint_name",
             new NetworkElement("BBE2AA1  BBE3AA1  1"),
@@ -41,7 +41,7 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
 
     @Test
     public void applyStartsAtOne1() {
-        PstSetpoint pstSetpoint = new PstSetpoint(
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             "pstsetpoint_id",
             "pstsetpoint_name",
             new NetworkElement("BBE2AA1  BBE3AA1  1"),
@@ -56,7 +56,7 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
 
     @Test
     public void applyStartsAtOne2() {
-        PstSetpoint pstSetpoint = new PstSetpoint(
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             "pstsetpoint_id",
             "pstsetpoint_name",
             new NetworkElement("BBE2AA1  BBE3AA1  1"),
@@ -70,7 +70,7 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
 
     @Test
     public void applyCenteredOnZero() {
-        PstSetpoint pstSetpoint = new PstSetpoint(
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(
             "pstsetpoint_id",
             "pstsetpoint_name",
             new NetworkElement("BBE2AA1  BBE3AA1  1"),
@@ -85,7 +85,7 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
     @Test
     public void applyOutOfBoundStartsAtOne() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        PstSetpoint pstSetpoint = new PstSetpoint(
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(
                 "out_of_bound",
                 "out_of_bound",
                 new NetworkElement("BBE2AA1  BBE3AA1  1"),
@@ -102,7 +102,7 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
     @Test
     public void applyOutOfBoundCenteredOnZero() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        PstSetpoint pstSetpoint = new PstSetpoint(
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(
                 "out_of_bound",
                 "out_of_bound",
                 new NetworkElement("BBE2AA1  BBE3AA1  1"),

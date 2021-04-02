@@ -25,13 +25,13 @@ import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-setpoint")
-public final class PstSetpoint extends AbstractIdentifiable implements ElementaryAction {
+public final class PstSetpointImpl extends AbstractIdentifiable implements ElementaryAction {
 
     private NetworkElement networkElement;
     private double setpoint;
     private RangeDefinition rangeDefinition;
 
-    public PstSetpoint(String id, String name, NetworkElement networkElement, double setPoint, RangeDefinition rangeDefinition) {
+    public PstSetpointImpl(String id, String name, NetworkElement networkElement, double setPoint, RangeDefinition rangeDefinition) {
         super(id, name);
         this.networkElement = networkElement;
         this.setpoint = setPoint;

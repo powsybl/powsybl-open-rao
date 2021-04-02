@@ -4,7 +4,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.InjectionSetpointImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpointImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -97,7 +97,7 @@ final class ElementaryActionsDeserializer {
                     break;
 
                 case PST_SETPOINT_TYPE:
-                    elementaryAction = new PstSetpoint(id, name, ne, setPoint, rangeDefinition);
+                    elementaryAction = new PstSetpointImpl(id, name, ne, setPoint, rangeDefinition);
                     break;
 
                 default:

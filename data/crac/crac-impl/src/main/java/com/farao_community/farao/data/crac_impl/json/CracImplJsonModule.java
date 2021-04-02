@@ -38,10 +38,10 @@ public class CracImplJsonModule extends SimpleModule {
         this.addSerializer(FreeToUseImpl.class, new FreeToUseSerializer());
         this.addSerializer(OnStateImpl.class, new OnStateSerializer());
         this.addSerializer(NetworkActionImpl.class, new NetworkActionImplSerializer());
-        this.addSerializer(PstSetpoint.class, new PstSetPointSerializer());
+        this.addSerializer(PstSetpointImpl.class, new PstSetPointSerializer());
         this.addSerializer(InjectionSetpointImpl.class, new InjectionSetPointSerializer());
         this.addSerializer(TopologicalActionImpl.class, new TopologySerializer());
-        this.addSerializer(PstSetpoint.class, new PstSetPointSerializer());
+        this.addSerializer(PstSetpointImpl.class, new PstSetPointSerializer());
         this.addSerializer(PstRangeActionImpl.class, new PstRangeActionImplSerializer());
         this.addSerializer(SimpleCrac.class, new SimpleCracSerializer());
         this.addSerializer(FlowCnecImpl.class, new FlowCnecImplSerializer());

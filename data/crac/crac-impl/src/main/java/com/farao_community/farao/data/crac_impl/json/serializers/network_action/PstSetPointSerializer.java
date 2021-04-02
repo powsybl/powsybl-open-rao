@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.network_action;
 
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpointImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -22,10 +22,10 @@ import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNam
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstSetPointSerializer extends JsonSerializer<PstSetpoint> {
+public class PstSetPointSerializer extends JsonSerializer<PstSetpointImpl> {
 
     @Override
-    public void serialize(PstSetpoint pstSetpoint, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(PstSetpointImpl pstSetpoint, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStringField(ID, pstSetpoint.getId());
         jsonGenerator.writeStringField(NAME, pstSetpoint.getName());
         jsonGenerator.writeObjectField(NETWORK_ELEMENT, pstSetpoint.getNetworkElement().getId());
@@ -34,7 +34,7 @@ public class PstSetPointSerializer extends JsonSerializer<PstSetpoint> {
     }
 
     @Override
-    public void serializeWithType(PstSetpoint pstSetpoint, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
+    public void serializeWithType(PstSetpointImpl pstSetpoint, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
         WritableTypeId writableTypeId = typeSerializer.typeId(pstSetpoint, JsonToken.START_OBJECT);
         typeSerializer.writeTypePrefix(jsonGenerator, writableTypeId);
         serialize(pstSetpoint, jsonGenerator, serializerProvider);

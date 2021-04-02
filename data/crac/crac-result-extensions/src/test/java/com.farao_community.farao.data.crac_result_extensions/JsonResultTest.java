@@ -12,7 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpointImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
@@ -68,8 +68,8 @@ public class JsonResultTest {
         TopologicalActionImpl topology = new TopologicalActionImpl("topology", networkElement2, ActionType.CLOSE);
         simpleCrac.addNetworkAction(topology);
 
-        // PstSetpoint
-        PstSetpoint pstSetpoint = new PstSetpoint("pstSetpoint", networkElement2, 12.0, RangeDefinition.CENTERED_ON_ZERO);
+        // PstSetpointImpl
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl("pstSetpoint", networkElement2, 12.0, RangeDefinition.CENTERED_ON_ZERO);
         simpleCrac.addNetworkAction(pstSetpoint);
 
         // add a ResultVariantManager to the Crac
@@ -176,7 +176,7 @@ public class JsonResultTest {
         assertTrue(exportedTopologyResultExtension.getVariant("variant1").isActivated(preventiveState.getId()));
         assertFalse(exportedTopologyResultExtension.getVariant("variant2").isActivated(preventiveState.getId()));
 
-        // assert that the PstSetpoint has a NetworkActionResultExtension with the expected content
+        // assert that the PstSetpointImpl has a NetworkActionResultExtension with the expected content
         assertEquals(1, crac.getNetworkAction("pstSetpoint").getExtensions().size());
         NetworkActionResultExtension exportedPstSetpointResultExtension = crac.getNetworkAction("pstSetpoint").getExtension(NetworkActionResultExtension.class);
         assertNotNull(exportedPstSetpointResultExtension);
