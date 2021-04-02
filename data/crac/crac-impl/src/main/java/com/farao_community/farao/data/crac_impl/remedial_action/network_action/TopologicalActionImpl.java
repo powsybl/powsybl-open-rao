@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
@@ -19,20 +18,18 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.List;
-
 /**
  * Topological remedial action: open or close a network element.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("topology")
-public final class Topology extends AbstractIdentifiable implements ElementaryAction {
+public final class TopologicalActionImpl extends AbstractIdentifiable implements ElementaryAction {
 
     private NetworkElement networkElement;
     private ActionType actionType;
 
-    public Topology(String id, String name, NetworkElement networkElement, ActionType actionType) {
+    public TopologicalActionImpl(String id, String name, NetworkElement networkElement, ActionType actionType) {
         super(id, name);
         this.networkElement = networkElement;
         this.actionType = actionType;
@@ -79,7 +76,7 @@ public final class Topology extends AbstractIdentifiable implements ElementaryAc
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Topology topology = (Topology) o;
+        TopologicalActionImpl topology = (TopologicalActionImpl) o;
         return super.equals(o) && actionType == topology.getActionType();
     }
 

@@ -7,8 +7,11 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.network_action;
 
+import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
+import com.farao_community.farao.data.crac_impl.json.serializers.AbstractRemedialActionSerializer;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -19,15 +22,15 @@ import java.io.IOException;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ComplexNetworkActionSerializer extends NetworkActionSerializer<NetworkActionImpl> {
+public class NetworkActionImplSerializer extends AbstractRemedialActionSerializer<NetworkAction, NetworkActionImpl> {
 
     @Override
     public void serialize(NetworkActionImpl networkAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         super.serializeCommon(networkAction, jsonGenerator);
-        jsonGenerator.writeFieldName(JsonSerializationNames.ELEMENTARY_NETWORK_ACTIONS);
+        jsonGenerator.writeFieldName(JsonSerializationNames.ELEMENTARY_ACTIONS);
         jsonGenerator.writeStartArray();
-        for (AbstractElementaryNetworkAction abstractElementaryNetworkAction: networkAction.getElementaryNetworkActions()) {
-            jsonGenerator.writeObject(abstractElementaryNetworkAction);
+        for (ElementaryAction elementaryAction: networkAction.getElementaryActions()) {
+            jsonGenerator.writeObject(elementaryAction);
         }
         jsonGenerator.writeEndArray();
         JsonUtil.writeExtensions(networkAction, jsonGenerator, serializerProvider, ExtensionsHandler.getExtensionsSerializers());

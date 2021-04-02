@@ -17,7 +17,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -82,9 +82,9 @@ public class LeafTest {
 
         // other mocks
         crac = CommonCracCreation.create();
-        na1 = new Topology("topology1", "topology1", "fr", crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN);
+        na1 = new TopologicalActionImpl("topology1", "topology1", "fr", crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN);
         na1.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        na2 = new Topology("topology2", "topology2", "fr", crac.getNetworkElement("FFR2AA1  DDE3AA1  1"), ActionType.OPEN);
+        na2 = new TopologicalActionImpl("topology2", "topology2", "fr", crac.getNetworkElement("FFR2AA1  DDE3AA1  1"), ActionType.OPEN);
         na2.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         crac.addNetworkAction(na1);
         crac.addNetworkAction(na2);

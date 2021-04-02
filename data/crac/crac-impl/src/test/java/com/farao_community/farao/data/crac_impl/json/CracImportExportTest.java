@@ -72,46 +72,43 @@ public class CracImportExportTest {
 
         simpleCrac.addNetworkElement(new NetworkElement("pst"));
         simpleCrac.addNetworkElement(new NetworkElement("injection"));
-        simpleCrac.addNetworkAction(new PstSetpoint("pstSetpointId", "pstSetpointName", "RTE", usageRules, simpleCrac.getNetworkElement("pst"), 15, CENTERED_ON_ZERO));
 
-        Set<AbstractElementaryNetworkAction> elementaryNetworkActions = new HashSet<>();
-        PstSetpoint pstSetpoint = new PstSetpoint(
-                "pstSetpointId",
-                "pstSetpointName",
-                "RTE",
-                new ArrayList<>(),
+        // network action with one pst set point
+        PstSetpoint pstSetpoint1 = new PstSetpoint("pstSetpointId1", "pstSetpointName1", simpleCrac.getNetworkElement("pst"), 15, CENTERED_ON_ZERO);
+        simpleCrac.addNetworkAction(new NetworkActionImpl("pstSetpointRaId", "pstSetpointRaName", "RTE", usageRules, Collections.singleton(pstSetpoint1)));
+
+        // complex network action with one pst set point and one topology
+        PstSetpoint pstSetpoint2 = new PstSetpoint(
+                "pstSetpointId2",
+                "pstSetpointName2",
                 simpleCrac.getNetworkElement("pst"),
                 5,
                 CENTERED_ON_ZERO
         );
-        Topology topology = new Topology(
+        TopologicalActionImpl topology = new TopologicalActionImpl(
                 "topologyId",
                 "topologyName",
-                "RTE",
-                new ArrayList<>(),
                 simpleCrac.getNetworkElement("neId"),
                 ActionType.CLOSE
         );
-        elementaryNetworkActions.add(pstSetpoint);
-        elementaryNetworkActions.add(topology);
+
         NetworkActionImpl complexNetworkAction = new NetworkActionImpl(
                 "complexNetworkActionId",
                 "complexNetworkActionName",
                 "RTE",
-                new ArrayList<>(),
-                elementaryNetworkActions
+                Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, initialInstant)),
+                new HashSet<>(Arrays.asList(pstSetpoint2, topology))
         );
         simpleCrac.addNetworkAction(complexNetworkAction);
 
-        InjectionSetpoint injectionSetpoint = new InjectionSetpoint(
+        // network action with one injection set point
+        InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(
                 "injectionSetpointId",
                 "injectioSetpointName",
-                "RTE",
-                new ArrayList<>(),
                 simpleCrac.getNetworkElement("injection"),
                 150
         );
-        simpleCrac.addNetworkAction(injectionSetpoint);
+        simpleCrac.addNetworkAction(new NetworkActionImpl("injectionSetpointRaId", "injectioSetpointRaName", "RTE", usageRules, Collections.singleton(injectionSetpoint)));
 
         simpleCrac.addRangeAction(new PstRangeActionImpl(
                 "pstRangeId",
@@ -150,11 +147,13 @@ public class CracImportExportTest {
         assertEquals(4, crac.getBranchCnec("cnec2prev").getThresholds().size());
         assertFalse(crac.getBranchCnec("cnec3prevId").isOptimized());
         assertTrue(crac.getBranchCnec("cnec4prevId").isMonitored());
-        assertTrue(crac.getNetworkAction("pstSetpointId") instanceof PstSetpoint);
-        assertTrue(crac.getNetworkAction("injectionSetpointId") instanceof InjectionSetpoint);
+        assertEquals(1, crac.getNetworkAction("pstSetpointRaId").getElementaryActions().size());
+        assertTrue(crac.getNetworkAction("pstSetpointRaId").getElementaryActions().iterator().next() instanceof PstSetpoint);
+        assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().size());
+        assertTrue(crac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof InjectionSetpointImpl);
+        assertEquals(2, crac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
         assertEquals("1", crac.getRangeAction("pstRangeId2").getGroupId().orElseThrow());
         assertTrue(crac.getRangeAction("pstRangeId").getGroupId().isEmpty());
-        assertEquals(CENTERED_ON_ZERO, ((PstSetpoint) crac.getNetworkAction("pstSetpointId")).getRangeDefinition());
 
         assertEquals("operator1", crac.getBranchCnec("cnec1prev").getOperator());
         assertEquals("operator1", crac.getBranchCnec("cnec1cur").getOperator());

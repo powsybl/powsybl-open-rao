@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
@@ -62,10 +62,10 @@ public class JsonResultTest {
         simpleCrac.addRangeAction(pstRangeAction1);
 
         // NetworkActions:
-        // Topology
+        // TopologicalActionImpl
         NetworkElement networkElement2 = new NetworkElement("networkActionNetworkElement");
         simpleCrac.addNetworkElement(networkElement2);
-        Topology topology = new Topology("topology", networkElement2, ActionType.CLOSE);
+        TopologicalActionImpl topology = new TopologicalActionImpl("topology", networkElement2, ActionType.CLOSE);
         simpleCrac.addNetworkAction(topology);
 
         // PstSetpoint
@@ -169,7 +169,7 @@ public class JsonResultTest {
         assertEquals(pstRangeSetPointVariant2, rangeActionResultExtension1.getVariant("variant2").getSetPoint(preventiveState.getId()));
         assertEquals(pstRangeTapVariant2, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant2")).getTap(preventiveState.getId()));
 
-        // assert that the Topology has a NetworkActionResultExtension with the expected content
+        // assert that the TopologicalActionImpl has a NetworkActionResultExtension with the expected content
         assertEquals(1, crac.getNetworkAction("topology").getExtensions().size());
         NetworkActionResultExtension exportedTopologyResultExtension = crac.getNetworkAction("topology").getExtension(NetworkActionResultExtension.class);
         assertNotNull(exportedTopologyResultExtension);

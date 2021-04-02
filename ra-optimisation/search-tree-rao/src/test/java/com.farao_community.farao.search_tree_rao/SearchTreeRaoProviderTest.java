@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_result_extensions.*;
@@ -49,7 +49,7 @@ public class SearchTreeRaoProviderTest {
 
         State curativeState = crac.getState("Contingency FR1 FR3", "curative");
 
-        crac.addNetworkAction(new Topology("open BE2-FR3", "open BE2-FR3", "FR",
+        crac.addNetworkAction(new TopologicalActionImpl("open BE2-FR3", "open BE2-FR3", "FR",
                 List.of(new OnStateImpl(UsageMethod.AVAILABLE, curativeState)),
                 crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN));
 

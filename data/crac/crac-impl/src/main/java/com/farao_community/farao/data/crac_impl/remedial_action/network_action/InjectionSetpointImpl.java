@@ -10,13 +10,9 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
-
-import java.util.List;
 
 /**
  * Injection setpoint remedial action: set a load or generator at a given value.
@@ -24,21 +20,25 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("injection-setpoint")
-public final class InjectionSetpoint extends AbstractIdentifiable implements ElementaryAction {
+public final class InjectionSetpointImpl extends AbstractIdentifiable implements ElementaryAction {
 
     private NetworkElement networkElement;
     private double setpoint;
 
-    public InjectionSetpoint(String id, String name, NetworkElement networkElement, double setpoint) {
+    public InjectionSetpointImpl(String id, String name, NetworkElement networkElement, double setpoint) {
         super(id, name);
         this.networkElement = networkElement;
         this.setpoint = setpoint;
     }
 
-    public InjectionSetpoint(String id, NetworkElement networkElement, double setpoint) {
+    public InjectionSetpointImpl(String id, NetworkElement networkElement, double setpoint) {
         super(id, id);
         this.networkElement = networkElement;
         this.setpoint = setpoint;
+    }
+
+    public double getSetPoint() {
+        return setpoint;
     }
 
     @Override

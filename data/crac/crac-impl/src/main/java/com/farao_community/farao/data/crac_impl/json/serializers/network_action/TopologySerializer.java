@@ -7,24 +7,38 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.network_action;
 
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.commons.json.JsonUtil;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
+
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class TopologySerializer extends NetworkActionSerializer<Topology> {
+public class TopologySerializer extends JsonSerializer<TopologicalActionImpl> {
 
     @Override
-    public void serialize(Topology remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        super.serialize(remedialAction, jsonGenerator, serializerProvider);
-        jsonGenerator.writeStringField(JsonSerializationNames.ACTION_TYPE, remedialAction.getActionType().toString());
-        JsonUtil.writeExtensions(remedialAction, jsonGenerator, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
+    public void serialize(TopologicalActionImpl topology, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        jsonGenerator.writeStringField(ID, topology.getId());
+        jsonGenerator.writeStringField(NAME, topology.getName());
+        jsonGenerator.writeObjectField(NETWORK_ELEMENT, topology.getNetworkElement().getId());
+        jsonGenerator.writeStringField(JsonSerializationNames.ACTION_TYPE, topology.getActionType().toString());
     }
+
+    @Override
+    public void serializeWithType(TopologicalActionImpl topology, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
+        WritableTypeId writableTypeId = typeSerializer.typeId(topology, JsonToken.START_OBJECT);
+        typeSerializer.writeTypePrefix(jsonGenerator, writableTypeId);
+        serialize(topology, jsonGenerator, serializerProvider);
+        typeSerializer.writeTypeSuffix(jsonGenerator, writableTypeId);
+    }
+
 }

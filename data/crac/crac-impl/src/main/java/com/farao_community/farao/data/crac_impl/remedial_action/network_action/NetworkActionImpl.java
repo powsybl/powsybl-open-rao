@@ -35,21 +35,6 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
         this.elementaryActions = new HashSet<>(elementaryNetworkActions);
     }
 
-    public NetworkActionImpl(String id, String name, String operator, Set<ElementaryAction> elementaryNetworkActions) {
-        super(id, name, operator);
-        this.elementaryActions = new HashSet<>(elementaryNetworkActions);
-    }
-
-    public NetworkActionImpl(String id, String name, String operator) {
-        super(id, name, operator);
-        this.elementaryActions = new HashSet<>();
-    }
-
-    public NetworkActionImpl(String id, String operator) {
-        super(id, operator);
-        this.elementaryActions = new HashSet<>();
-    }
-
     public Set<ElementaryAction> getElementaryActions() {
         return elementaryActions;
     }
@@ -59,15 +44,12 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
         elementaryActions.forEach(action -> action.apply(network));
     }
 
+    @Deprecated
     @Override
     public Set<NetworkElement> getNetworkElements() {
         Set<NetworkElement> networkElements = new HashSet<>();
         elementaryActions.forEach(action -> networkElements.add(action.getNetworkElement()));
         return networkElements;
-    }
-
-    public void addNetworkAction(ElementaryAction elementaryAction) {
-        this.elementaryActions.add(elementaryAction);
     }
 
     @Override

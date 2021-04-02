@@ -17,7 +17,7 @@ import com.farao_community.farao.data.crac_impl.SimpleState;
 import com.farao_community.farao.data.crac_impl.XnodeContingency;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
@@ -90,7 +90,7 @@ public class CracCleanerTest {
                 .setContingency(stateThatShouldBeRemoved.getContingency().orElseThrow())
                 .add();
 
-        Topology topology1 = new Topology(
+        TopologicalActionImpl topology1 = new TopologicalActionImpl(
             "topologyId1",
             "topologyName",
             "RTE",
@@ -98,7 +98,7 @@ public class CracCleanerTest {
             simpleCrac.getNetworkElement("neId1"),
             ActionType.CLOSE
         );
-        Topology topology2 = new Topology(
+        TopologicalActionImpl topology2 = new TopologicalActionImpl(
             "topologyId2",
             "topologyName",
             "RTE",
@@ -224,7 +224,7 @@ public class CracCleanerTest {
         usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageOk));
         usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageNok));
 
-        Topology topoRa = new Topology(
+        TopologicalActionImpl topoRa = new TopologicalActionImpl(
             "topologyId1",
             "topologyName",
             "RTE",

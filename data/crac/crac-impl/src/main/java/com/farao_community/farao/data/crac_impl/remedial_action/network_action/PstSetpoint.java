@@ -12,12 +12,9 @@ import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-
-import java.util.List;
 
 import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
 import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
@@ -43,6 +40,10 @@ public final class PstSetpoint extends AbstractIdentifiable implements Elementar
 
     public RangeDefinition getRangeDefinition() {
         return this.rangeDefinition;
+    }
+
+    public double getSetPoint() {
+        return this.setpoint;
     }
 
     @Override

@@ -7,27 +7,37 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.network_action;
 
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpoint;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.commons.json.JsonUtil;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.RANGE_DEFINITION;
-import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.SETPOINT;
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstSetPointSerializer extends NetworkActionSerializer<PstSetpoint> {
+public class PstSetPointSerializer extends JsonSerializer<PstSetpoint> {
 
     @Override
-    public void serialize(PstSetpoint remedialAction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        super.serialize(remedialAction, jsonGenerator, serializerProvider);
-        jsonGenerator.writeNumberField(SETPOINT, remedialAction.getSetpoint());
-        jsonGenerator.writeObjectField(RANGE_DEFINITION, remedialAction.getRangeDefinition());
-        JsonUtil.writeExtensions(remedialAction, jsonGenerator, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
+    public void serialize(PstSetpoint pstSetpoint, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        jsonGenerator.writeStringField(ID, pstSetpoint.getId());
+        jsonGenerator.writeStringField(NAME, pstSetpoint.getName());
+        jsonGenerator.writeObjectField(NETWORK_ELEMENT, pstSetpoint.getNetworkElement().getId());
+        jsonGenerator.writeNumberField(SETPOINT, pstSetpoint.getSetPoint());
+        jsonGenerator.writeObjectField(RANGE_DEFINITION, pstSetpoint.getRangeDefinition());
+    }
+
+    @Override
+    public void serializeWithType(PstSetpoint pstSetpoint, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
+        WritableTypeId writableTypeId = typeSerializer.typeId(pstSetpoint, JsonToken.START_OBJECT);
+        typeSerializer.writeTypePrefix(jsonGenerator, writableTypeId);
+        serialize(pstSetpoint, jsonGenerator, serializerProvider);
+        typeSerializer.writeTypeSuffix(jsonGenerator, writableTypeId);
     }
 }

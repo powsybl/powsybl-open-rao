@@ -12,10 +12,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
 import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
@@ -27,45 +24,62 @@ import static org.junit.Assert.fail;
  */
 public class PstSetpointTest extends AbstractRemedialActionTest {
 
-    private String networkElementId;
-    private PstSetpoint pstSetpoint;
-
-    @Before
-    public void setUp() {
-        networkElementId = "BBE2AA1  BBE3AA1  1";
-        pstSetpoint = new PstSetpoint(
-                "pstsetpoint_id",
-                new NetworkElement(networkElementId),
-                12,
-                STARTS_AT_ONE);
-    }
-
     @Test
     public void basicMethods() {
-        assertEquals(12, pstSetpoint.getSetpoint(), 0);
-        pstSetpoint.setSetpoint(0);
-        assertEquals(0, pstSetpoint.getSetpoint(), 0);
+        PstSetpoint pstSetpoint = new PstSetpoint(
+            "pstsetpoint_id",
+            "pstsetpoint_name",
+            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            12,
+            STARTS_AT_ONE);
+
+        assertEquals(12, pstSetpoint.getSetPoint(), 0);
+        assertEquals("pstsetpoint_id", pstSetpoint.getId());
+        assertEquals("pstsetpoint_name", pstSetpoint.getName());
+
     }
 
     @Test
-    public void getNetworkElements() {
-        Set<NetworkElement> pstNetworkElements = pstSetpoint.getNetworkElements();
-        assertEquals(networkElementId, pstNetworkElements.iterator().next().getId());
-    }
+    public void applyStartsAtOne1() {
+        PstSetpoint pstSetpoint = new PstSetpoint(
+            "pstsetpoint_id",
+            "pstsetpoint_name",
+            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            12,
+            STARTS_AT_ONE);
 
-    @Test
-    public void applyStartsAtOne() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().setLowTapPosition(1);
+        network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().setLowTapPosition(1);
         pstSetpoint.apply(network);
-        assertEquals(12, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
+        assertEquals(12, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 
     @Test
-    public void applycenteredOnZero() {
+    public void applyStartsAtOne2() {
+        PstSetpoint pstSetpoint = new PstSetpoint(
+            "pstsetpoint_id",
+            "pstsetpoint_name",
+            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            12,
+            STARTS_AT_ONE);
+
         Network network = NetworkImportsUtil.import12NodesNetwork();
         pstSetpoint.apply(network);
-        assertEquals(-5, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());
+        assertEquals(-5, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+    }
+
+    @Test
+    public void applyCenteredOnZero() {
+        PstSetpoint pstSetpoint = new PstSetpoint(
+            "pstsetpoint_id",
+            "pstsetpoint_name",
+            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            -9,
+            CENTERED_ON_ZERO);
+
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        pstSetpoint.apply(network);
+        assertEquals(-9, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 
     @Test
@@ -73,14 +87,15 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         PstSetpoint pstSetpoint = new PstSetpoint(
                 "out_of_bound",
-                new NetworkElement(networkElementId),
+                "out_of_bound",
+                new NetworkElement("BBE2AA1  BBE3AA1  1"),
                 50,
                 STARTS_AT_ONE);
         try {
             pstSetpoint.apply(network);
             fail();
         } catch (FaraoException e) {
-            assertEquals(String.format("Tap value 33 not in the range of high and low tap positions [-16,16] of the phase tap changer %s steps", networkElementId), e.getMessage());
+            assertEquals("Tap value 33 not in the range of high and low tap positions [-16,16] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", e.getMessage());
         }
     }
 
@@ -89,14 +104,15 @@ public class PstSetpointTest extends AbstractRemedialActionTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         PstSetpoint pstSetpoint = new PstSetpoint(
                 "out_of_bound",
-                new NetworkElement(networkElementId),
+                "out_of_bound",
+                new NetworkElement("BBE2AA1  BBE3AA1  1"),
                 50,
                 CENTERED_ON_ZERO);
         try {
             pstSetpoint.apply(network);
             fail();
         } catch (FaraoException e) {
-            assertEquals(String.format("Tap value 50 not in the range of high and low tap positions [-16,16] of the phase tap changer %s steps", networkElementId), e.getMessage());
+            assertEquals("Tap value 50 not in the range of high and low tap positions [-16,16] of the phase tap changer BBE2AA1  BBE3AA1  1 steps", e.getMessage());
         }
     }
 }
