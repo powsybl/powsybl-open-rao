@@ -93,39 +93,54 @@ public class CracCleanerTest {
         TopologicalActionImpl topology1 = new TopologicalActionImpl(
             "topologyId1",
             "topologyName",
-            "RTE",
-            new ArrayList<>(),
             simpleCrac.getNetworkElement("neId1"),
-            ActionType.CLOSE
-        );
+            ActionType.CLOSE);
+
         TopologicalActionImpl topology2 = new TopologicalActionImpl(
             "topologyId2",
             "topologyName",
+            simpleCrac.getNetworkElement("FFR1AA1  FFR2AA1  1"),
+            ActionType.CLOSE);
+
+        NetworkActionImpl topoRa1 = new NetworkActionImpl(
+            "topoRaId1",
+            "topoRaName1",
             "RTE",
             new ArrayList<>(),
-            simpleCrac.getNetworkElement("FFR1AA1  FFR2AA1  1"),
-            ActionType.CLOSE
-        );
-        NetworkActionImpl complexNetworkAction = new NetworkActionImpl("complexNextworkActionId", "RTE");
+            Collections.singleton(topology1));
+
+        NetworkActionImpl topoRa2 = new NetworkActionImpl(
+            "topoRaId2",
+            "topoRaName2",
+            "RTE",
+            new ArrayList<>(),
+            Collections.singleton(topology2));
+
+        NetworkActionImpl complexNetworkAction = new NetworkActionImpl(
+            "complexNextworkActionId",
+            "complexNextworkActionName",
+            "RTE",
+            new ArrayList<>(),
+            new HashSet<>(Arrays.asList(topology1, topology2)));
+
         PstRangeActionImpl pstRangeAction1 = new PstRangeActionImpl(
             "pstRangeId",
             "pstRangeName",
             "RTE",
             Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
             Collections.singletonList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
-            simpleCrac.getNetworkElement("pst")
-        );
+            simpleCrac.getNetworkElement("pst"));
+
         PstRangeActionImpl pstRangeAction2 = new PstRangeActionImpl(
             "pstRangeId2",
             "pstRangeName2",
             "RTE",
             Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
             Collections.singletonList(new PstRangeImpl(0, 16, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.STARTS_AT_ONE)),
-            simpleCrac.getNetworkElement("BBE2AA1  BBE3AA1  1")
-        );
+            simpleCrac.getNetworkElement("BBE2AA1  BBE3AA1  1"));
 
-        simpleCrac.addNetworkAction(topology1);
-        simpleCrac.addNetworkAction(topology2);
+        simpleCrac.addNetworkAction(topoRa1);
+        simpleCrac.addNetworkAction(topoRa2);
         simpleCrac.addNetworkAction(complexNetworkAction);
         simpleCrac.addRangeAction(pstRangeAction1);
         simpleCrac.addRangeAction(pstRangeAction2);
@@ -224,13 +239,20 @@ public class CracCleanerTest {
         usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageOk));
         usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageNok));
 
-        TopologicalActionImpl topoRa = new TopologicalActionImpl(
+
+        TopologicalActionImpl topologicalAction = new TopologicalActionImpl(
             "topologyId1",
             "topologyName",
-            "RTE",
-            usageRules,
             new NetworkElement("FFR1AA1  FFR3AA1  1"),
             ActionType.OPEN
+        );
+
+        NetworkAction topologicalRa = new NetworkActionImpl(
+            "topoRaId",
+            "topoRaName",
+            "RTE",
+            usageRules,
+            Collections.singleton(topologicalAction)
         );
 
         PstRangeActionImpl pstRangeAction = new PstRangeActionImpl(
@@ -242,14 +264,14 @@ public class CracCleanerTest {
             new NetworkElement("BBE1AA1  BBE2AA1  1")
         );
 
-        crac.addNetworkAction(topoRa);
+        crac.addNetworkAction(topologicalRa);
         crac.addRangeAction(pstRangeAction);
 
         CracCleaner cracCleaner = new CracCleaner();
         List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
 
         assertEquals(4, qualityReport.size());
-        assertEquals(1, crac.getNetworkAction("topologyId1").getUsageRules().size());
+        assertEquals(1, crac.getNetworkAction("topoRaId").getUsageRules().size());
         assertEquals(1, crac.getRangeAction("pstRangeId").getUsageRules().size());
     }
 
