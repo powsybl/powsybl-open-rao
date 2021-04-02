@@ -200,7 +200,8 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
         }
     }
 
-    private double convertTapToAngle(int tap) {
+    @Override
+    public double convertTapToAngle(int tap) {
         if (!isSynchronized()) {
             throw new NotSynchronizedException(String.format("PST %s have not been synchronized so tap cannot be converted to angle", getId()));
         }
