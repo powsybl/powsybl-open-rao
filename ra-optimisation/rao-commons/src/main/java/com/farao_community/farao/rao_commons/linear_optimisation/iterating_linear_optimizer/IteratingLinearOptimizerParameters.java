@@ -8,12 +8,9 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 
 import java.util.Map;
 import java.util.Set;
-
-import static java.lang.Math.max;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

@@ -86,7 +86,7 @@ public class InitialSensitivityAnalysis {
     }
 
     private void fillObjectiveFunction() {
-        ObjectiveFunctionEvaluator objectiveFunction = RaoUtil.createObjectiveFunction(raoParameters, null);
+        ObjectiveFunctionEvaluator objectiveFunction = RaoUtil.createObjectiveFunction(raoData, raoParameters, null);
         raoData.getCracResultManager().fillCracResultWithCosts(
             objectiveFunction.getFunctionalCost(raoData.getSensitivityAndLoopflowResults()), objectiveFunction.getVirtualCost(raoData.getSensitivityAndLoopflowResults()));
     }

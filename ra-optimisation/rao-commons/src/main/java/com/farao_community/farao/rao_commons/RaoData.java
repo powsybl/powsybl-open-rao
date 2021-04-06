@@ -19,6 +19,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -253,5 +254,17 @@ public final class RaoData {
             commercialFlows.put(cnec, cnec.getExtension(CnecResultExtension.class).getVariant(getWorkingVariantId()).getCommercialFlowInMW());
         }
         return new SensitivityAndLoopflowResults(getSystematicSensitivityResult(), commercialFlows);
+    }
+
+    public LinearOptimizerInput createObjectiveFunctionInput() {
+        return LinearOptimizerInput.create()
+                .withCnecs(getCnecs())
+                .withInitialCnecResults(getInitialCnecResults())
+                .withLoopflowCnecs(getLoopflowCnecs())
+                .withNetwork(getNetwork())
+                .withPrePerimeterCnecMarginsInAbsoluteMW(getPrePerimeterMarginsInAbsoluteMW())
+                .withPreperimeterSetpoints(getPrePerimeterSetPoints())
+                .withRangeActions(getAvailableRangeActions())
+                .build();
     }
 }

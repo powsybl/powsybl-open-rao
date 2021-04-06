@@ -4,8 +4,6 @@ import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerOutput;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
 

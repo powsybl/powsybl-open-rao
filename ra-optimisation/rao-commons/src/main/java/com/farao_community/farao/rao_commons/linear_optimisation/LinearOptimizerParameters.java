@@ -1,14 +1,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

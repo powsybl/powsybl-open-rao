@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 
@@ -47,9 +46,9 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
         }
 
         this.minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, this.unit, operatorsNotToOptimize, this.relativePositiveMargins, raoParameters.getPtdfSumLowerBound());
-        this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
+        this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(linearOptimizerInput, unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
-        this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowAcceptableAugmentation());
+        this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(linearOptimizerInput, raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowAcceptableAugmentation());
         this.sensitivityFallbackOvercostEvaluator = new SensitivityFallbackOvercostEvaluator(raoParameters.getFallbackOverCost());
     }
 
@@ -59,7 +58,8 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
 
     @Override
     public List<BranchCnec> getMostLimitingElements(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, int numberOfElements) {
-        return null;
+        //TODO : maybe some day include mnecs and even loopflows here
+        return minMarginEvaluator.getMostLimitingElements(sensitivityAndLoopflowResults, numberOfElements);
     }
 
     @Override

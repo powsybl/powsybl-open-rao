@@ -27,8 +27,12 @@ import java.util.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class IteratingLinearOptimizer {
+public final class IteratingLinearOptimizer {
     protected static final Logger LOGGER = LoggerFactory.getLogger(IteratingLinearOptimizer.class);
+
+    private IteratingLinearOptimizer() {
+
+    }
 
     private static LinearOptimizerInput createLinearOptimizerInput(IteratingLinearOptimizerInput iteratingLinearOptimizerInput) {
         return LinearOptimizerInput.create()
@@ -52,7 +56,7 @@ public class IteratingLinearOptimizer {
                 .withMnecAcceptableMarginDiminution(iteratingLinearOptimizerParameters.getMnecAcceptableMarginDiminution())
                 .withLoopFlowApproximationLevel(iteratingLinearOptimizerParameters.getLoopFlowApproximationLevel())
                 .withLoopFlowConstraintAdjustmentCoefficient(iteratingLinearOptimizerParameters.getLoopFlowConstraintAdjustmentCoefficient())
-                .withLoopFlowViolationCost(iteratingLinearOptimizerParameters.getLoopFlowViolationCost())
+                .withLoopFlowViolationCost(iteratingLinearOptimizerParameters.getLooIpFlowViolationCost())
                 .withLoopFlowAcceptableAugmentation(iteratingLinearOptimizerParameters.getLoopFlowAcceptableAugmentation())
                 .withMnecViolationCost(iteratingLinearOptimizerParameters.getMnecViolationCost())
                 .withMnecConstraintAdjustmentCoefficient(iteratingLinearOptimizerParameters.getMnecConstraintAdjustmentCoefficient())
@@ -108,7 +112,7 @@ public class IteratingLinearOptimizer {
                 return bestIteratingLinearOptimizerOutput;
             }
 
-            if (!linearOptimizerOutput.getSolveStatus().equals(LinearOptimizerOutput.SolveStatus.OPTIMAL))            {
+            if (!linearOptimizerOutput.getSolveStatus().equals(LinearOptimizerOutput.SolveStatus.OPTIMAL)) {
                 LOGGER.warn("Iteration {} - linear optimization cannot find OPTIMAL solution", iteration);
                 if (iteration > 1) {
                     bestIteratingLinearOptimizerOutput.setStatus(IteratingLinearOptimizerOutput.SolveStatus.FEASIBLE);
@@ -140,21 +144,21 @@ public class IteratingLinearOptimizer {
     }
 
     private static IteratingLinearOptimizerOutput.SolveStatus getFirstIterationSolveStatusFromLinear(LinearOptimizerOutput.SolveStatus solveStatus) {
-            switch (solveStatus) {
-                case OPTIMAL:
-                    return IteratingLinearOptimizerOutput.SolveStatus.OPTIMAL;
-                case FEASIBLE:
-                    return IteratingLinearOptimizerOutput.SolveStatus.FEASIBLE;
-                case INFEASIBLE:
-                    return IteratingLinearOptimizerOutput.SolveStatus.INFEASIBLE;
-                case UNBOUNDED:
-                    return IteratingLinearOptimizerOutput.SolveStatus.UNBOUNDED;
-                case NOT_SOLVED:
-                    return IteratingLinearOptimizerOutput.SolveStatus.NOT_SOLVED;
-                case ABNORMAL:
-                default:
-                    return IteratingLinearOptimizerOutput.SolveStatus.ABNORMAL;
-            }
+        switch (solveStatus) {
+            case OPTIMAL:
+                return IteratingLinearOptimizerOutput.SolveStatus.OPTIMAL;
+            case FEASIBLE:
+                return IteratingLinearOptimizerOutput.SolveStatus.FEASIBLE;
+            case INFEASIBLE:
+                return IteratingLinearOptimizerOutput.SolveStatus.INFEASIBLE;
+            case UNBOUNDED:
+                return IteratingLinearOptimizerOutput.SolveStatus.UNBOUNDED;
+            case NOT_SOLVED:
+                return IteratingLinearOptimizerOutput.SolveStatus.NOT_SOLVED;
+            case ABNORMAL:
+            default:
+                return IteratingLinearOptimizerOutput.SolveStatus.ABNORMAL;
+        }
     }
 
     private static boolean hasRemedialActionsChanged(IteratingLinearOptimizerOutput bestIteratingLinearOptimizerOutput, LinearOptimizerOutput linearOptimizerOutput, int iteration) {
@@ -181,7 +185,7 @@ public class IteratingLinearOptimizer {
                                                                                                Map<RangeAction, Double> rangeActionSetPoints,
                                                                                                SensitivityAndLoopflowResults sensitivityAndLoopflowResults,
                                                                                                int iteration,
-                                                                                               RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel) throws SensitivityAnalysisException{
+                                                                                               RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel) throws SensitivityAnalysisException {
         Network network = iteratingLinearOptimizerInput.getNetwork();
         SystematicSensitivityInterface systematicSensitivityInterface = iteratingLinearOptimizerInput.getSystematicSensitivityInterface();
         rangeActionSetPoints.keySet().forEach(rangeAction -> rangeAction.apply(network, rangeActionSetPoints.get(rangeAction)));

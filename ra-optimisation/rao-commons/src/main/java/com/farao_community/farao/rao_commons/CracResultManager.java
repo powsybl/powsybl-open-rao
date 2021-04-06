@@ -9,20 +9,15 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

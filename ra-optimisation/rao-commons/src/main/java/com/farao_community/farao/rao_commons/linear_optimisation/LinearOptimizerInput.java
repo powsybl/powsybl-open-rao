@@ -1,13 +1,18 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.farao_community.farao.commons.Unit.AMPERE;
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 public class LinearOptimizerInput {
     private Set<BranchCnec> loopflowCnecs;
@@ -55,8 +60,14 @@ public class LinearOptimizerInput {
         return initialCnecResults.get(cnec).getAbsolutePtdfSum();
     }
 
-    public double getInitialFlowInMW(BranchCnec cnec) {
-        return initialCnecResults.get(cnec).getFlowInMW();
+    public double getInitialFlowOnCnec(BranchCnec cnec, Unit unit) {
+        if (unit == MEGAWATT) {
+            return initialCnecResults.get(cnec).getFlowInMW();
+        } else if (unit == AMPERE) {
+            return initialCnecResults.get(cnec).getFlowInA();
+        } else {
+            throw new NotImplementedException("Flows on branches are only implemented in MW and AMPERE units");
+        }
     }
 
     public double getInitialLoopflowInMW(BranchCnec cnec) {

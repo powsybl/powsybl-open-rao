@@ -9,12 +9,13 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -25,19 +26,19 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     private double violationCost;
     private double loopFlowAcceptableAugmentation;
+    private LinearOptimizerInput linearOptimizerInput;
 
-    LoopFlowViolationCostEvaluator(double violationCost, double loopFlowAcceptableAugmentation) {
+    LoopFlowViolationCostEvaluator(LinearOptimizerInput linearOptimizerInput, double violationCost, double loopFlowAcceptableAugmentation) {
+        this.linearOptimizerInput = linearOptimizerInput;
         this.violationCost = violationCost;
         this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
     }
 
     @Override
-    public double getCost(RaoData raoData) {
-        String initialVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
-
-        double cost = raoData.getLoopflowCnecs()
+    public double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+        double cost = linearOptimizerInput.getLoopflowCnecs()
             .stream()
-            .mapToDouble(cnec -> getLoopFlowExcess(raoData, cnec, initialVariantId) * violationCost)
+            .mapToDouble(cnec -> getLoopFlowExcess(sensitivityAndLoopflowResults, cnec) * violationCost)
             .sum();
 
         if (cost > 0) {
@@ -52,14 +53,19 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         return Unit.MEGAWATT;
     }
 
-    private double getLoopFlowExcess(RaoData raoData, BranchCnec cnec, String initialVariantId) {
-        CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-        return Math.max(0, Math.abs(cnecResult.getLoopflowInMW()) - getLoopFlowUpperBound(cnec, initialVariantId));
+    @Override
+    public List<BranchCnec> getMostLimitingElements(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, int numberOfElements) {
+        throw new NotImplementedException("getMostLimitingElements() not implemented yet for loopflow evaluators");
     }
 
-    private double getLoopFlowUpperBound(BranchCnec cnec, String initialVariantId) {
+    private double getLoopFlowExcess(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, BranchCnec cnec) {
+        return Math.max(0, Math.abs(sensitivityAndLoopflowResults.getLoopflow(cnec)) - getLoopFlowUpperBound(cnec));
+    }
+
+    private double getLoopFlowUpperBound(BranchCnec cnec) {
+        //TODO: move threshold
         double loopFlowThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        double initialLoopFlow = cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getLoopflowInMW();
+        double initialLoopFlow = linearOptimizerInput.getInitialLoopflowInMW(cnec);
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }
 }

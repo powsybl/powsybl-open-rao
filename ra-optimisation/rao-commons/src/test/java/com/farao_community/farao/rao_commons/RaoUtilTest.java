@@ -19,7 +19,6 @@ import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;

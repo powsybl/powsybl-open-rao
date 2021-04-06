@@ -100,7 +100,7 @@ class Leaf {
             status = Status.CREATED;
         }
 
-        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters, treeParameters.getOperatorsNotToOptimize());
+        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters, treeParameters.getOperatorsNotToOptimize());
     }
 
     /**
@@ -131,7 +131,7 @@ class Leaf {
         }
         status = Status.CREATED;
 
-        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoParameters, treeParameters.getOperatorsNotToOptimize());
+        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters, treeParameters.getOperatorsNotToOptimize());
     }
 
     RaoData getRaoData() {

@@ -19,7 +19,6 @@ import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFLowsParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
@@ -115,22 +114,18 @@ public final class RaoUtil {
         return builder.build();
     }
 
-    private static IteratingLinearOptimizerParameters createIteratingParameters(RaoParameters raoParameters) {
-        return new IteratingLinearOptimizerParameters(raoParameters.getMaxIterations(), raoParameters.getFallbackOverCost());
-    }
-
     private static IteratingLinearOptimizerWithLoopFLowsParameters createIteratingLoopFlowsParameters(RaoParameters raoParameters) {
         return new IteratingLinearOptimizerWithLoopFLowsParameters(raoParameters.getMaxIterations(),
             raoParameters.getFallbackOverCost(), raoParameters.getLoopFlowApproximationLevel(), raoParameters.getLoopFlowViolationCost());
     }
 
-    public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoParameters raoParameters, Set<String> operatorsNotToOptimize) {
+    public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoData raoData, RaoParameters raoParameters, Set<String> operatorsNotToOptimize) {
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_MARGIN_IN_MEGAWATT:
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
-                return new MinMarginObjectiveFunction(raoParameters, operatorsNotToOptimize);
+                return new MinMarginObjectiveFunction(raoData.createObjectiveFunctionInput(), raoParameters, operatorsNotToOptimize);
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }

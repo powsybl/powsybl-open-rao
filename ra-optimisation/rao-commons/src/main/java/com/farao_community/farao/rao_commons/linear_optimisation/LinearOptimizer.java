@@ -12,12 +12,9 @@ import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.ValidationException;
@@ -130,15 +127,14 @@ public class LinearOptimizer {
                 linearOptimizerParameters.getLoopFlowAcceptableAugmentation()));
     }
 
-
     /**
      * The optimize method of the LinearOptimizer creates (or updates) and solves a LinearProblem.
      * It fills the working RaoData variant with optimisation results in the CRAC (for range actions)
      * and apply the new range action set points on the network.
      *
      * @throws LinearOptimisationException if the optimization fails
-     * @throws FaraoException if sensitivity computation have not been performed on working raoData variant
-     * or if loop flow data are missing when loop flow filler is present
+     * @throws FaraoException              if sensitivity computation have not been performed on working raoData variant
+     *                                     or if loop flow data are missing when loop flow filler is present
      */
     public LinearOptimizerOutput optimize(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         if (sensitivityAndLoopflowResults == null) {
@@ -201,6 +197,7 @@ public class LinearOptimizer {
                 LOGGER.warn("Solving of the linear problem failed with MPSolver status {}", solveStatus.name());
                 //Do not throw an exception is solver solution not "OPTIMAL". Handle the status in LinearRao.runLinearRao
             }
+            return solveStatus;
         } catch (Exception e) {
             String errorMessage = "Solving of the linear problem failed.";
             LOGGER.error(errorMessage);
@@ -262,7 +259,6 @@ public class LinearOptimizer {
      * Exception: if choosing the tap that is not the closest one to the optimal angle does not improve the margin
      * enough (current threshold of 10%), then the closest tap is kept
      *
-     * @param linearProblem: the linear problem that was optimizes
      * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
     Map<PstRangeAction, Integer> computeBestTaps(SystematicSensitivityResult sensitivityResult) {
@@ -292,6 +288,7 @@ public class LinearOptimizer {
 
     /**
      * This function computes, for every group of PSTs, the common tap position that maximizes the minimum margin
+     *
      * @param minMarginPerTap: a map containing for each PstRangeAction, a map with tap positions and resulting minimum margin
      * @return a map containing for each group ID, the best common tap position for the PSTs
      */
@@ -329,13 +326,14 @@ public class LinearOptimizer {
      * It computes the minimum margin among the most limiting cnecs for both tap positions and returns them in a map
      * Exceptions:
      * - if the closest tap position is at a min or max limit, and the angle is close to the angle limit, then only
-     *   the closest tap is returned. The margin is not computed but replaced with Double.MAX_VALUE
+     * the closest tap is returned. The margin is not computed but replaced with Double.MAX_VALUE
      * - if the angle is not close enough to the limit between two tap positions, only the closest tap is returned
-     *   with a Double.MAX_VALUE margin
+     * with a Double.MAX_VALUE margin
      * - if the second closest tap position does not improve the margin enough (10% threshold), then only the closest
-     *   tap is returned with a Double.MAX_VALUE margin
-     * @param pstRangeAction: the PstRangeAction for which we need the best taps and margins
-     * @param angle: the optimal angle computed by the linear problem
+     * tap is returned with a Double.MAX_VALUE margin
+     *
+     * @param pstRangeAction:    the PstRangeAction for which we need the best taps and margins
+     * @param angle:             the optimal angle computed by the linear problem
      * @param mostLimitingCnecs: the cnecs upon which we compute the minimum margin
      * @return a map containing the minimum margin for each best tap position (one or two taps)
      */
@@ -405,10 +403,11 @@ public class LinearOptimizer {
 
     /**
      * This method estimates the minimum margin upon a given set of cnecs, for two angles of a given PST
+     *
      * @param pstRangeAction: the PstRangeAction that we should test on two angles
-     * @param cnecs: the set of cnecs to compute the minimum margin
-     * @param angle1: the first angle for the PST
-     * @param angle2: the second angle for the PST
+     * @param cnecs:          the set of cnecs to compute the minimum margin
+     * @param angle1:         the first angle for the PST
+     * @param angle2:         the second angle for the PST
      * @return a pair of two minimum margins (margin for angle1, margin for angle2)
      */
     Pair<Double, Double> computeMinMargins(PstRangeAction pstRangeAction, List<BranchCnec> cnecs, double angle1, double angle2, SystematicSensitivityResult sensitivityResult) {

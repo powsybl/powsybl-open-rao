@@ -8,7 +8,6 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
