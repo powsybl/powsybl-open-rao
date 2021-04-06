@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 
 /**
  * Represents an objective function value evaluator, divided into functional and virtual parts
@@ -16,10 +16,10 @@ public interface ObjectiveFunctionEvaluator extends CostEvaluator {
     /**
      * Get the functional part of the objective function
      */
-    double getFunctionalCost(RaoData raoData);
+    double getFunctionalCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
 
     /**
      * Get the virtual part of the objective function
      */
-    double getVirtualCost(RaoData raoData);
+    double getVirtualCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
 }

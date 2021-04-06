@@ -7,19 +7,33 @@ import java.util.Map;
 
 public class LinearOptimizerOutput {
 
-    private final Map<RangeAction, Double> optimalRangeActionSetpoints;
-    private final Map<PstRangeAction, Integer> optimalPstRangeActionTaps;
+    public enum SolveStatus {
+        OPTIMAL,
+        FEASIBLE,
+        INFEASIBLE,
+        UNBOUNDED,
+        ABNORMAL,
+        NOT_SOLVED
+    }
+    private final SolveStatus solveStatus;
+    private final Map<RangeAction, Double> rangeActionSetpoints;
+    private final Map<PstRangeAction, Integer> pstRangeActionTaps;
 
-    public LinearOptimizerOutput(Map<RangeAction, Double> optimalRangeActionSetpoints, Map<PstRangeAction, Integer> optimalPstRangeActionTaps) {
-        this.optimalRangeActionSetpoints = optimalRangeActionSetpoints;
-        this.optimalPstRangeActionTaps = optimalPstRangeActionTaps;
+    public LinearOptimizerOutput(SolveStatus solveStatus, Map<RangeAction, Double> rangeActionSetpoints, Map<PstRangeAction, Integer> pstRangeActionTaps) {
+        this.solveStatus = solveStatus;
+        this.rangeActionSetpoints = rangeActionSetpoints;
+        this.pstRangeActionTaps = pstRangeActionTaps;
     }
 
-    public Map<RangeAction, Double> getOptimalRangeActionSetpoints() {
-        return optimalRangeActionSetpoints;
+    public Map<RangeAction, Double> getRangeActionSetpoints() {
+        return rangeActionSetpoints;
     }
 
-    public Map<PstRangeAction, Integer> getOptimalPstRangeActionTaps() {
-        return optimalPstRangeActionTaps;
+    public Map<PstRangeAction, Integer> getPstRangeActionTaps() {
+        return pstRangeActionTaps;
+    }
+
+    public SolveStatus getSolveStatus() {
+        return solveStatus;
     }
 }

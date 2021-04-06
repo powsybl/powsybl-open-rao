@@ -10,6 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 
 import java.util.Set;
 
@@ -29,7 +31,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     private SensitivityFallbackOvercostEvaluator sensitivityFallbackOvercostEvaluator;
     private boolean relativePositiveMargins;
 
-    public MinMarginObjectiveFunction(RaoParameters raoParameters, Set<String> operatorsNotToOptimize) {
+    public MinMarginObjectiveFunction(LinearOptimizerInput linearOptimizerInput, RaoParameters raoParameters, Set<String> operatorsNotToOptimize) {
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_MARGIN_IN_MEGAWATT:
@@ -42,7 +44,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
                 throw new FaraoException(String.format("%s is not a MinMarginObjectiveFunction", raoParameters.getObjectiveFunction().toString()));
         }
 
-        this.minMarginEvaluator = new MinMarginEvaluator(this.unit, operatorsNotToOptimize, this.relativePositiveMargins, raoParameters.getPtdfSumLowerBound());
+        this.minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, this.unit, operatorsNotToOptimize, this.relativePositiveMargins, raoParameters.getPtdfSumLowerBound());
         this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
         this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
         this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowAcceptableAugmentation());
@@ -54,16 +56,16 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     }
 
     @Override
-    public double getFunctionalCost(RaoData raoData) {
-        return minMarginEvaluator.getCost(raoData);
+    public double getFunctionalCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+        return minMarginEvaluator.getCost(sensitivityAndLoopflowResults);
     }
 
     @Override
-    public double getVirtualCost(RaoData raoData) {
-        double baseVirtualCost = mnecViolationCostEvaluator.getCost(raoData) + sensitivityFallbackOvercostEvaluator.getCost(raoData);
+    public double getVirtualCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+        double baseVirtualCost = mnecViolationCostEvaluator.getCost(sensitivityAndLoopflowResults) + sensitivityFallbackOvercostEvaluator.getCost(sensitivityAndLoopflowResults);
 
         if (isRaoWithLoopFlow) {
-            return baseVirtualCost + loopFlowViolationCostEvaluator.getCost(raoData);
+            return baseVirtualCost + loopFlowViolationCostEvaluator.getCost(sensitivityAndLoopflowResults);
         } else {
             return baseVirtualCost;
         }
@@ -73,8 +75,8 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
      * Returns the sum of functional and virtual costs
      */
     @Override
-    public double getCost(RaoData raoData) {
-        return getFunctionalCost(raoData) + getVirtualCost(raoData);
+    public double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+        return getFunctionalCost(sensitivityAndLoopflowResults) + getVirtualCost(sensitivityAndLoopflowResults);
     }
 
     @Override

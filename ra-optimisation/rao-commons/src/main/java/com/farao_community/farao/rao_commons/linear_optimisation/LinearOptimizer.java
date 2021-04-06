@@ -19,6 +19,7 @@ import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.ValidationException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -62,8 +63,6 @@ public class LinearOptimizer {
      * variables and constraints of the optimisation problem.
      */
     private List<ProblemFiller> fillers = new ArrayList<>();
-
-    private String solverResultStatusString = "UNKNOWN";
 
     private LinearOptimizerInput linearOptimizerInput;
 
@@ -142,14 +141,6 @@ public class LinearOptimizer {
      * or if loop flow data are missing when loop flow filler is present
      */
     public LinearOptimizerOutput optimize(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
-        // TODO : if (loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange()) => recompute commercial flows
-
-        /*
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
-            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getNetwork(), raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
-            raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
-         */
-
         if (sensitivityAndLoopflowResults == null) {
             throw new FaraoException("");
         }
@@ -163,9 +154,9 @@ public class LinearOptimizer {
             updateProblem(sensitivityAndLoopflowResults);
         }
 
-        solveProblem();
+        LinearOptimizerOutput.SolveStatus solveStatus = solveProblem();
 
-        return generateOutput(sensitivityAndLoopflowResults.getSystematicSensitivityResult());
+        return generateOutput(solveStatus, sensitivityAndLoopflowResults.getSystematicSensitivityResult());
     }
 
     public LinearOptimizer(List<ProblemFiller> fillers) {
@@ -181,14 +172,6 @@ public class LinearOptimizer {
         return new LinearProblem();
     }
     // End of methods for tests
-
-    public String getSolverResultStatusString() {
-        return solverResultStatusString;
-    }
-
-    public void setSolverResultStatusString(String solverResultStatusString) {
-        this.solverResultStatusString = solverResultStatusString;
-    }
 
     private void buildProblem(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         try {
@@ -210,19 +193,36 @@ public class LinearOptimizer {
         }
     }
 
-    private void solveProblem() {
+    private LinearOptimizerOutput.SolveStatus solveProblem() {
         try {
-            String solverResultStatus = linearProblem.solve();
-            setSolverResultStatusString(solverResultStatus);
-            if (!getSolverResultStatusString().equals("OPTIMAL")) {
-                LOGGER.warn("Solving of the linear problem failed with MPSolver status {}", getSolverResultStatusString());
+            MPSolver.ResultStatus resultStatus = linearProblem.solve();
+            LinearOptimizerOutput.SolveStatus solveStatus = getSolveStatus(resultStatus);
+            if (!solveStatus.equals(LinearOptimizerOutput.SolveStatus.OPTIMAL)) {
+                LOGGER.warn("Solving of the linear problem failed with MPSolver status {}", solveStatus.name());
                 //Do not throw an exception is solver solution not "OPTIMAL". Handle the status in LinearRao.runLinearRao
             }
         } catch (Exception e) {
             String errorMessage = "Solving of the linear problem failed.";
             LOGGER.error(errorMessage);
-            setSolverResultStatusString("ABNORMAL");
             throw new LinearOptimisationException(errorMessage, e);
+        }
+    }
+
+    private LinearOptimizerOutput.SolveStatus getSolveStatus(MPSolver.ResultStatus resultStatus) {
+        switch (resultStatus) {
+            case OPTIMAL:
+                return LinearOptimizerOutput.SolveStatus.OPTIMAL;
+            case FEASIBLE:
+                return LinearOptimizerOutput.SolveStatus.FEASIBLE;
+            case INFEASIBLE:
+                return LinearOptimizerOutput.SolveStatus.INFEASIBLE;
+            case UNBOUNDED:
+                return LinearOptimizerOutput.SolveStatus.UNBOUNDED;
+            case NOT_SOLVED:
+                return LinearOptimizerOutput.SolveStatus.NOT_SOLVED;
+            case ABNORMAL:
+            default:
+                return LinearOptimizerOutput.SolveStatus.ABNORMAL;
         }
     }
 
@@ -234,19 +234,24 @@ public class LinearOptimizer {
         }
     }
 
-    private LinearOptimizerOutput generateOutput(SystematicSensitivityResult sensitivityResult) {
-        Map<PstRangeAction, Integer> optimalTaps = computeBestTaps(sensitivityResult);
-        Map<RangeAction, Double> optimalSetpoints = new HashMap<>();
-        linearOptimizerInput.getRangeActions().stream().filter(rangeAction -> linearProblem.getRangeActionSetPointVariable(rangeAction) != null)
-                .forEach(rangeAction -> {
-                    if (rangeAction instanceof PstRangeAction) {
-                        PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
-                        optimalSetpoints.put(rangeAction, pstRangeAction.convertTapToAngle(optimalTaps.get(pstRangeAction)));
-                    } else {
-                        optimalSetpoints.put(rangeAction, linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue());
-                    }
-                });
-        return new LinearOptimizerOutput(optimalSetpoints, optimalTaps);
+    private LinearOptimizerOutput generateOutput(LinearOptimizerOutput.SolveStatus solveStatus, SystematicSensitivityResult sensitivityResult) {
+        if (!solveStatus.equals(LinearOptimizerOutput.SolveStatus.OPTIMAL)) {
+            // TODO : return initial values?
+            return new LinearOptimizerOutput(solveStatus, null, null);
+        } else {
+            Map<PstRangeAction, Integer> optimalTaps = computeBestTaps(sensitivityResult);
+            Map<RangeAction, Double> optimalSetpoints = new HashMap<>();
+            linearOptimizerInput.getRangeActions().stream().filter(rangeAction -> linearProblem.getRangeActionSetPointVariable(rangeAction) != null)
+                    .forEach(rangeAction -> {
+                        if (rangeAction instanceof PstRangeAction) {
+                            PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+                            optimalSetpoints.put(rangeAction, pstRangeAction.convertTapToAngle(optimalTaps.get(pstRangeAction)));
+                        } else {
+                            optimalSetpoints.put(rangeAction, linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue());
+                        }
+                    });
+            return new LinearOptimizerOutput(solveStatus, optimalSetpoints, optimalTaps);
+        }
     }
 
     /**

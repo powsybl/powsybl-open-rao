@@ -76,6 +76,7 @@ public class IteratingLinearOptimizerTest {
         workingVariants = new ArrayList<>();
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         linearOptimizer = Mockito.mock(LinearOptimizer.class);
+        // TODO: PowerMockito.whenNew(LinearOptimizer.class).withAnyArguments().
 
         SystematicSensitivityResult systematicSensitivityResult1 = Mockito.mock(SystematicSensitivityResult.class);
         SystematicSensitivityResult systematicSensitivityResult2 = Mockito.mock(SystematicSensitivityResult.class);

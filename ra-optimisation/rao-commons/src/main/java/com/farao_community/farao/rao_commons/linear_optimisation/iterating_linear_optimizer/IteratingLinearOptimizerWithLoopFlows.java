@@ -9,10 +9,12 @@ package com.farao_community.farao.rao_commons.linear_optimisation.iterating_line
 
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 import java.util.List;
 
@@ -34,11 +36,25 @@ public class IteratingLinearOptimizerWithLoopFlows extends IteratingLinearOptimi
 
     @Override
     void runSensitivityAndUpdateResults() {
+
+
+
         raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
         LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData, !loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange());
 
         raoData.getCracResultManager().fillCnecResultWithFlows();
         raoData.getCracResultManager().fillCracResultWithCosts(objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
 
+    }
+
+    @Override
+    SensitivityAndLoopflowResults updateSensitivityAndLoopflowResults(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, SystematicSensitivityResult updatedSensiResult) {
+        // TODO : if (loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange()) => recompute commercial flows
+        /*
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
+            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getNetwork(), raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
+            raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
+         */
+        return new SensitivityAndLoopflowResults(updatedSensiResult, sensitivityAndLoopflowResults.getCommercialFlows());
     }
 }

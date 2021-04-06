@@ -274,9 +274,8 @@ public class LinearProblem {
         return MPSolver.infinity();
     }
 
-    public String solve() {
-        // TODO: when needed, generate a FARAO-specific enum indicating the optimization status
-        return solver.solve().name();
+    public MPSolver.ResultStatus solve() {
+        return solver.solve();
     }
 
     public MPSolver getSolver() {
