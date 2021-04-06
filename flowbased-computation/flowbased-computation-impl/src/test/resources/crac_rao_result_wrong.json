@@ -258,7 +258,7 @@
   ],
   "rangeActions" : [],
   "networkActions" : [ {
-    "type" : "complex-network-action",
+    "type" : "network-action-impl",
     "id" : "Open line FR-BE",
     "name" : "Open line FR-BE",
     "operator" : "FR",
@@ -267,17 +267,9 @@
       "usageMethod" : "AVAILABLE",
       "instant" : "AfterCra"
     } ],
-    "elementaryNetworkActions" : [ {
-      "type" : "topology",
-      "id" : "Open line FR-BE",
-      "name" : "Open line FR-BE",
-      "operator" : "FR",
-      "usageRules" : [ {
-        "type" : "free-to-use",
-        "usageMethod" : "AVAILABLE",
-        "instant" : "AfterCra"
-      } ],
-      "networkElements" : [ "FR-BE" ],
+    "elementaryActions" : [ {
+      "type" : "topological-action",
+      "networkElement" : "FR-BE",
       "actionType" : "OPEN"
     } ],
     "extensions" : {
