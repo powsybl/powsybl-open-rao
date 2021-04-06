@@ -50,6 +50,19 @@ public class IteratingLinearOptimizer {
         this(systematicSensitivityInterface, objectiveFunctionEvaluator, new LinearOptimizer(fillers), parameters);
         // TODO : build LinearOptimizerInput & parameters
         // this.linearOptimizer = new LinearOptimizer(linearOptimizerInput, linearOptimizerParameters)
+        createLinearOptimizerInput(IteratingLinearOptimizerInput iteratingLinearOptimizerInput)
+    }
+
+    private LinearOptimizerInput createLinearOptimizerInput(IteratingLinearOptimizerInput iteratingLinearOptimizerInput) {
+        return LinearOptimizerInput.create()
+                .withCnecs(iteratingLinearOptimizerInput.getCnecs())
+                .withLoopflowCnecs(iteratingLinearOptimizerInput.getLoopflowCnecs())
+                .withInitialCnecResults(iteratingLinearOptimizerInput.getInitialCnecResults())
+                .withNetwork(iteratingLinearOptimizerInput.getNetwork())
+                .withPrePerimeterCnecMarginsInAbsoluteMW(iteratingLinearOptimizerInput.getPrePerimeterCnecMarginsInAbsoluteMW())
+                .withPreperimeterSetpoints(iteratingLinearOptimizerInput.getPreperimeterSetpoints())
+                .withRangeActions(iteratingLinearOptimizerInput.getRangeActions())
+                .withMostLimitingElements(objectiveFunctionEvaluator.getMostLimitingElements(sensitivityAndLoopflowResults, 10));
     }
 
     // TODO : remove this

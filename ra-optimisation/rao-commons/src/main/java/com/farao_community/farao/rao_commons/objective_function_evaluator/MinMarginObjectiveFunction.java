@@ -8,11 +8,13 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -53,6 +55,11 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
 
     public boolean isRelative() {
         return relativePositiveMargins;
+    }
+
+    @Override
+    public List<BranchCnec> getMostLimitingElements(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, int numberOfElements) {
+        return null;
     }
 
     @Override

@@ -18,6 +18,7 @@ import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,15 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     @Override
+    public List<BranchCnec> getMostLimitingElements(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, int numberOfElements) {
+        List<BranchCnec> mostLimitingElements = getMargins(sensitivityAndLoopflowResults.getSystematicSensitivityResult(), unit)
+                .entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        return mostLimitingElements.subList(0, Math.min(numberOfElements, mostLimitingElements.size()));
+    }
+
+    @Override
     public double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         if (unit.equals(MEGAWATT)) {
             return -getMinMarginInMegawatt(sensitivityAndLoopflowResults.getSystematicSensitivityResult());
@@ -99,8 +109,7 @@ public class MinMarginEvaluator implements CostEvaluator {
             // There are only pure MNECs
             return 0;
         }
-        return linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isOptimized).
-            map(cnec -> getCnecMargin(sensitivityResult, cnec, MEGAWATT)).min(Double::compareTo).orElseThrow(NoSuchElementException::new);
+        return getMargins(sensitivityResult, MEGAWATT).values().stream().min(Double::compareTo).orElseThrow(NoSuchElementException::new);
     }
 
     private double getMinMarginInAmpere(SystematicSensitivityResult sensitivityResult) {
@@ -108,10 +117,9 @@ public class MinMarginEvaluator implements CostEvaluator {
             // There are only pure MNECs
             return 0;
         }
-        List<Double> marginsInAmpere = linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isOptimized).
-            map(cnec -> getCnecMargin(sensitivityResult, cnec, AMPERE)).collect(Collectors.toList());
+        Map<BranchCnec, Double> marginsInAmpere = getMargins(sensitivityResult, AMPERE);
 
-        if (marginsInAmpere.contains(Double.NaN) && sensitivityResult.getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK) {
+        if (marginsInAmpere.containsValue(Double.NaN) && sensitivityResult.getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK) {
             // in fallback, intensities can be missing as the fallback configuration does not necessarily
             // compute them (example : default in AC, fallback in DC). In that case a fallback computation
             // of the intensity is made, based on the MEGAWATT values and the nominal voltage
@@ -119,14 +127,23 @@ public class MinMarginEvaluator implements CostEvaluator {
             marginsInAmpere = getMarginsInAmpereFromMegawattConversion(sensitivityResult);
         }
 
-        return marginsInAmpere.stream().min(Double::compareTo).orElseThrow(NoSuchElementException::new);
+        return marginsInAmpere.values().stream().min(Double::compareTo).orElseThrow(NoSuchElementException::new);
     }
 
-    List<Double> getMarginsInAmpereFromMegawattConversion(SystematicSensitivityResult sensitivityResult) {
-        return linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isOptimized).map(cnec -> {
+    private Map<BranchCnec, Double> getMargins(SystematicSensitivityResult sensitivityResult, Unit unit) {
+        Map<BranchCnec, Double> marginsInAmpere = new HashMap<>();
+        linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isOptimized).
+                forEach(cnec -> marginsInAmpere.put(cnec, getCnecMargin(sensitivityResult, cnec, unit)));
+        return marginsInAmpere;
+    }
+
+    Map<BranchCnec, Double> getMarginsInAmpereFromMegawattConversion(SystematicSensitivityResult sensitivityResult) {
+        Map<BranchCnec, Double> margins = new HashMap<>();
+        linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isOptimized).forEach(cnec -> {
                 double leftFlowInMW = sensitivityResult.getReferenceFlow(cnec);
-                return cnec.computeMargin(leftFlowInMW * RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, MEGAWATT, AMPERE), Side.LEFT, AMPERE) * getRelativeCoef(cnec);
+                margins.put(cnec, cnec.computeMargin(leftFlowInMW * RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, MEGAWATT, AMPERE), Side.LEFT, AMPERE) * getRelativeCoef(cnec));
             }
-        ).collect(Collectors.toList());
+        );
+        return margins;
     }
 }
