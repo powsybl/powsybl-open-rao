@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
@@ -69,7 +70,7 @@ public class LeafTest {
     private RaoParameters raoParameters;
     private TreeParameters treeParameters;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
-    ObjectiveFunctionEvaluator costEvaluatorMock;
+    private ObjectiveFunctionEvaluator costEvaluatorMock;
 
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private SystematicSensitivityResult systematicSensitivityResult;
@@ -82,10 +83,20 @@ public class LeafTest {
 
         // other mocks
         crac = CommonCracCreation.create();
-        na1 = new TopologicalActionImpl("topology1", "topology1", "fr", crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN);
-        na1.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        na2 = new TopologicalActionImpl("topology2", "topology2", "fr", crac.getNetworkElement("FFR2AA1  DDE3AA1  1"), ActionType.OPEN);
-        na2.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        na1 = new NetworkActionImpl(
+            "topology1",
+            "topology1",
+            "fr",
+            Collections.singletonList(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState())),
+            Collections.singleton(new TopologicalActionImpl(crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN)));
+
+        na2 = new NetworkActionImpl(
+            "topology2",
+            "topology2",
+            "fr",
+            Collections.singletonList(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState())),
+            Collections.singleton(new TopologicalActionImpl(crac.getNetworkElement("FFR2AA1  DDE3AA1  1"), ActionType.OPEN)));
+
         crac.addNetworkAction(na1);
         crac.addNetworkAction(na2);
 

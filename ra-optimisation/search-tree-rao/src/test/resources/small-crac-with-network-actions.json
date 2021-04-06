@@ -113,7 +113,7 @@
   ],
   "networkActions": [
     {
-      "type": "complex-network-action",
+      "type" : "network-action-impl",
       "id": "Open line NL1-NL2",
       "name": "Open line NL1-NL2",
       "operator": "Elia",
@@ -124,22 +124,15 @@
           "instant": "N"
         }
       ],
-      "elementaryNetworkActions": [
-        {
-          "type": "topology",
-          "id": "Open line NL1-NL2",
-          "name": "Open line NL1-NL2",
-          "operator": "Elia",
-          "usageRules": [],
-          "networkElements": [
-            "NNL1AA1  NNL2AA1  1"
-          ],
+      "elementaryActions" : [ {
+          "type": "topological-action",
+          "networkElement": "NNL1AA1  NNL2AA1  1",
           "actionType": "OPEN"
         }
       ]
     },
     {
-      "type": "complex-network-action",
+      "type" : "network-action-impl",
       "id": "Open line BE2-FR3",
       "name": "Open line BE2-FR3",
       "operator": "Elia",
@@ -150,16 +143,9 @@
           "instant": "N"
         }
       ],
-      "elementaryNetworkActions": [
-        {
-          "type": "topology",
-          "id": "Open line BE2-FR3",
-          "name": "Open line BE2-FR3",
-          "operator": "Elia",
-          "usageRules": [],
-          "networkElements": [
-            "BBE2AA1  FFR3AA1  1"
-          ],
+      "elementaryActions" : [ {
+          "type": "topological-action",
+          "networkElement": "BBE2AA1  FFR3AA1  1",
           "actionType": "OPEN"
         }
       ]

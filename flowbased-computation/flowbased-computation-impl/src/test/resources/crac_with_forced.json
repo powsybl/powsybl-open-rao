@@ -186,7 +186,7 @@
   ],
   "rangeActions" : [],
   "networkActions" : [ {
-    "type" : "complex-network-action",
+    "type" : "network-action-impl",
     "id" : "Close line FR-BE",
     "name" : "Close line FR-BE",
     "operator" : "FR",
@@ -195,17 +195,9 @@
       "usageMethod" : "FORCED",
       "instant" : "N"
     } ],
-    "elementaryNetworkActions" : [ {
-      "type" : "topology",
-      "id" : "Close line FR-BE",
-      "name" : "Close line FR-BE",
-      "operator" : "FR",
-      "usageRules" : [ {
-        "type" : "free-to-use",
-        "usageMethod" : "FORCED",
-        "instant" : "N"
-      } ],
-      "networkElements" : [ "FR-BE" ],
+    "elementaryActions" : [ {
+      "type" : "topological-action",
+      "networkElement" : "FR-BE",
       "actionType" : "CLOSE"
     } ]
   } ]
