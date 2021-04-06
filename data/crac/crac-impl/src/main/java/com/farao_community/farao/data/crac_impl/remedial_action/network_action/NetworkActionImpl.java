@@ -44,7 +44,6 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
         elementaryActions.forEach(action -> action.apply(network));
     }
 
-    @Deprecated
     @Override
     public Set<NetworkElement> getNetworkElements() {
         Set<NetworkElement> networkElements = new HashSet<>();
