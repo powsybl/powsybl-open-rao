@@ -68,26 +68,6 @@ public class CracResultManager {
         }
     }
 
-    /**
-     * This method compares CRAC result extension of two different variants. It compares the set point values
-     * of all the range actions.
-     *
-     * @param variantId1: First variant to compare.
-     * @param variantId2: Second variant to compare.
-     * @return True if all the range actions are set at the same values and false otherwise.
-     */
-    public boolean sameRemedialActions(String variantId1, String variantId2) {
-        for (RangeAction rangeAction : raoData.getAvailableRangeActions()) {
-            RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-            double value1 = rangeActionResultMap.getVariant(variantId1).getSetPoint(raoData.getOptimizedState().getId());
-            double value2 = rangeActionResultMap.getVariant(variantId2).getSetPoint(raoData.getOptimizedState().getId());
-            if (value1 != value2 && (!Double.isNaN(value1) || !Double.isNaN(value2))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public void fillRangeActionResultsWithLinearProblem(LinearProblem linearProblem) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
