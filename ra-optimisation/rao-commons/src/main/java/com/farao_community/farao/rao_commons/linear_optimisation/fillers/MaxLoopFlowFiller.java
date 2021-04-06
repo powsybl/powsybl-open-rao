@@ -51,9 +51,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
     @Override
     public void update(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
-        if (loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange()) {
-            updateLoopFlowConstraints(sensitivityAndLoopflowResults);
-        }
+        updateLoopFlowConstraints(sensitivityAndLoopflowResults);
     }
 
     /**

@@ -13,10 +13,9 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerInput;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.ValidationException;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,47 +64,6 @@ public class CracResultManager {
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             rangeAction.apply(raoData.getNetwork(),
                     rangeActionResultMap.getVariant(raoData.getWorkingVariantId()).getSetPoint(raoData.getOptimizedState().getId()));
-        }
-    }
-
-    public void fillRangeActionResultsWithLinearProblem(LinearProblem linearProblem) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("Expected minimum margin: %.2f", linearProblem.getMinimumMarginVariable().solutionValue()));
-            LOGGER.debug(String.format("Expected optimisation criterion: %.2f", linearProblem.getObjective().value()));
-        }
-        Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
-
-        Map<PstRangeAction, Integer> bestTaps = computeBestTaps(linearProblem);
-
-        for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
-            if (rangeAction instanceof PstRangeAction) {
-                RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
-                int approximatedPostOptimTap;
-                double approximatedPostOptimAngle;
-                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
-                Optional<RangeAction> sameNetworkElementRangeAction = raoData.getAvailableRangeActions().stream()
-                        .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && linearProblem.getRangeActionSetPointVariable(ra) != null)
-                        .findAny();
-                if (sameNetworkElementRangeAction.isPresent()) {
-                    PstRangeAction pstRangeAction = (PstRangeAction) sameNetworkElementRangeAction.get();
-                    TwoWindingsTransformer transformer = raoData.getNetwork().getTwoWindingsTransformer(networkElementId);
-
-                    approximatedPostOptimTap = bestTaps.get(pstRangeAction);
-                    approximatedPostOptimAngle = transformer.getPhaseTapChanger().getStep(approximatedPostOptimTap).getAlpha();
-
-                    LOGGER.debug("Range action {} has been set to tap {}", pstRangeAction.getName(), approximatedPostOptimTap);
-                } else {
-                    // For range actions that are not available in the perimeter or filtered out of optimization, copy their setpoint from the initial variant
-                    approximatedPostOptimTap = ((PstRangeResult) pstRangeResultMap.getVariant(raoData.getPreOptimVariantId())).getTap(raoData.getOptimizedState().getId());
-                    approximatedPostOptimAngle = pstRangeResultMap.getVariant(raoData.getPreOptimVariantId()).getSetPoint(raoData.getOptimizedState().getId());
-                }
-
-                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
-                statesAfterOptimizedState.forEach(state -> {
-                    pstRangeResult.setSetPoint(state.getId(), approximatedPostOptimAngle);
-                    pstRangeResult.setTap(state.getId(), approximatedPostOptimTap);
-                });
-            }
         }
     }
 
@@ -188,5 +146,68 @@ public class CracResultManager {
                 cnec.getExtension(CnecResultExtension.class).getVariant(destinationVariant).setAbsolutePtdfSum(
                         cnec.getExtension(CnecResultExtension.class).getVariant(originVariant).getAbsolutePtdfSum()
                 ));
+    }
+
+    public void fillResultsFromIteratingLinearOptimizerOutput(IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput, String variantId) {
+        //flows
+        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = iteratingLinearOptimizerOutput.getSensitivityAndLoopflowResults();
+        raoData.getCnecs().forEach(cnec -> {
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
+            cnecResult.setFlowInMW(sensitivityAndLoopflowResults.getSystematicSensitivityResult().getReferenceFlow(cnec));
+            cnecResult.setFlowInA(sensitivityAndLoopflowResults.getSystematicSensitivityResult().getReferenceIntensity(cnec));
+            cnecResult.setThresholds(cnec);
+        });
+        raoData.getLoopflowCnecs().forEach(cnec -> {
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
+            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+                cnecResult.setLoopflowInMW(sensitivityAndLoopflowResults.getLoopflow(cnec));
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
+                cnecResult.setCommercialFlowInMW(sensitivityAndLoopflowResults.getCommercialFlow(cnec));
+            }
+        });
+
+        //range actions
+        fillRangeActionResultsWithLinearProblem(iteratingLinearOptimizerOutput, variantId);
+
+        //costs
+        raoData.getCracResult(variantId).setFunctionalCost(iteratingLinearOptimizerOutput.getFunctionalCost());
+        raoData.getCracResult(variantId).setVirtualCost(iteratingLinearOptimizerOutput.getVirtualCost());
+        raoData.getCracResult(variantId).setNetworkSecurityStatus(iteratingLinearOptimizerOutput.getFunctionalCost() < 0 ?
+                CracResult.NetworkSecurityStatus.SECURED : CracResult.NetworkSecurityStatus.UNSECURED);
+
+    }
+
+    public void fillRangeActionResultsWithLinearProblem(IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput, String variantId) {
+        Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
+
+        for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
+            if (rangeAction instanceof PstRangeAction) {
+                RangeActionResultExtension pstRangeResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
+                int approximatedPostOptimTap;
+                double approximatedPostOptimAngle;
+                String networkElementId = rangeAction.getNetworkElements().iterator().next().getId();
+                Optional<RangeAction> sameNetworkElementRangeAction = raoData.getAvailableRangeActions().stream()
+                        .filter(ra -> ra.getNetworkElements().iterator().next().getId().equals(networkElementId) && iteratingLinearOptimizerOutput.getRangeActionSetpoints().containsKey(ra))
+                        .findAny();
+                if (sameNetworkElementRangeAction.isPresent()) {
+                    PstRangeAction pstRangeAction = (PstRangeAction) sameNetworkElementRangeAction.get();
+
+                    approximatedPostOptimTap = iteratingLinearOptimizerOutput.getPstRangeActionTap(pstRangeAction);
+                    approximatedPostOptimAngle = iteratingLinearOptimizerOutput.getRangeActionSetpoint(pstRangeAction);
+
+                    LOGGER.debug("Range action {} has been set to tap {}", pstRangeAction.getName(), approximatedPostOptimTap);
+                } else {
+                    // For range actions that are not available in the perimeter or filtered out of optimization, copy their setpoint from the initial variant
+                    approximatedPostOptimTap = ((PstRangeResult) pstRangeResultMap.getVariant(raoData.getPreOptimVariantId())).getTap(raoData.getOptimizedState().getId());
+                    approximatedPostOptimAngle = pstRangeResultMap.getVariant(raoData.getPreOptimVariantId()).getSetPoint(raoData.getOptimizedState().getId());
+                }
+
+                PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(variantId);
+                statesAfterOptimizedState.forEach(state -> {
+                    pstRangeResult.setSetPoint(state.getId(), approximatedPostOptimAngle);
+                    pstRangeResult.setTap(state.getId(), approximatedPostOptimTap);
+                });
+            }
+        }
     }
 }

@@ -39,4 +39,8 @@ public class SensitivityAndLoopflowResults {
     public Map<BranchCnec, Double> getCommercialFlows() {
         return commercialFlows;
     }
+
+    public double getLoopflow(BranchCnec cnec) {
+        return systematicSensitivityResult.getReferenceFlow(cnec) - this.commercialFlows.get(cnec);
+    }
 }
