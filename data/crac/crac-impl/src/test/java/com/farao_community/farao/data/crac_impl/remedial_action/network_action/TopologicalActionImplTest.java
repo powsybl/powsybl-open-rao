@@ -29,14 +29,10 @@ public class TopologicalActionImplTest extends AbstractRemedialActionTest {
     @Before
     public void setUp() {
         topologyOpen = new TopologicalActionImpl(
-                "topology_id",
-                "topology_name",
                 new NetworkElement("FFR2AA1  DDE3AA1  1"),
                 ActionType.OPEN
         );
         topologyClose = new TopologicalActionImpl(
-                "topology_id",
-                "topology_name",
                 new NetworkElement("FFR2AA1  DDE3AA1  1"),
                 ActionType.CLOSE
         );
@@ -69,12 +65,17 @@ public class TopologicalActionImplTest extends AbstractRemedialActionTest {
         String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
 
         NetworkElement networkElement = new NetworkElement(switchNetworkElementId);
-        TopologicalActionImpl openSwitchTopology = new TopologicalActionImpl("id", "name", networkElement, ActionType.OPEN);
+        TopologicalActionImpl openSwitchTopology = new TopologicalActionImpl(
+            networkElement,
+            ActionType.OPEN);
 
         openSwitchTopology.apply(network);
         assertTrue(network.getSwitch(switchNetworkElementId).isOpen());
 
-        TopologicalActionImpl closeSwitchTopology = new TopologicalActionImpl("id", "name", networkElement, ActionType.CLOSE);
+        TopologicalActionImpl closeSwitchTopology = new TopologicalActionImpl(
+            networkElement,
+            ActionType.CLOSE);
+
         closeSwitchTopology.apply(network);
         assertFalse(network.getSwitch(switchNetworkElementId).isOpen());
     }
@@ -83,11 +84,9 @@ public class TopologicalActionImplTest extends AbstractRemedialActionTest {
     public void applyOnUnsupportedElement() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         TopologicalActionImpl topologyOnNode = new TopologicalActionImpl(
-                "on_node_id",
-                "on_node_name",
                 new NetworkElement("FFR2AA1"),
-                ActionType.OPEN
-        );
+                ActionType.OPEN);
+
         topologyOnNode.apply(network);
     }
 

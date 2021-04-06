@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -23,24 +22,19 @@ import org.apache.commons.lang3.NotImplementedException;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("topology")
-public final class TopologicalActionImpl extends AbstractIdentifiable implements ElementaryAction {
+@JsonTypeName("topological-action")
+public final class TopologicalActionImpl implements ElementaryAction {
 
     private NetworkElement networkElement;
     private ActionType actionType;
 
-    public TopologicalActionImpl(String id, String name, NetworkElement networkElement, ActionType actionType) {
-        super(id, name);
+    public TopologicalActionImpl(NetworkElement networkElement, ActionType actionType) {
         this.networkElement = networkElement;
         this.actionType = actionType;
     }
 
     public ActionType getActionType() {
         return actionType;
-    }
-
-    public void setActionType(ActionType actionType) {
-        this.actionType = actionType;
     }
 
     @Override
@@ -66,22 +60,5 @@ public final class TopologicalActionImpl extends AbstractIdentifiable implements
     @Override
     public NetworkElement getNetworkElement() {
         return networkElement;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        TopologicalActionImpl topology = (TopologicalActionImpl) o;
-        return super.equals(o) && actionType == topology.getActionType();
-    }
-
-    @Override
-    public int hashCode() {
-        return String.format("%s%s", getId(), getActionType().toString()).hashCode();
     }
 }

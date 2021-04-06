@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -20,19 +19,12 @@ import org.apache.commons.lang3.NotImplementedException;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("injection-setpoint")
-public final class InjectionSetpointImpl extends AbstractIdentifiable implements ElementaryAction {
+public final class InjectionSetpointImpl implements ElementaryAction {
 
     private NetworkElement networkElement;
     private double setpoint;
 
-    public InjectionSetpointImpl(String id, String name, NetworkElement networkElement, double setpoint) {
-        super(id, name);
-        this.networkElement = networkElement;
-        this.setpoint = setpoint;
-    }
-
-    public InjectionSetpointImpl(String id, NetworkElement networkElement, double setpoint) {
-        super(id, id);
+    public InjectionSetpointImpl(NetworkElement networkElement, double setpoint) {
         this.networkElement = networkElement;
         this.setpoint = setpoint;
     }

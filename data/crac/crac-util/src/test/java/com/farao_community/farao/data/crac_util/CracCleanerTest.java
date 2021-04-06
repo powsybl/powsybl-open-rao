@@ -91,14 +91,10 @@ public class CracCleanerTest {
                 .add();
 
         TopologicalActionImpl topology1 = new TopologicalActionImpl(
-            "topologyId1",
-            "topologyName",
             simpleCrac.getNetworkElement("neId1"),
             ActionType.CLOSE);
 
         TopologicalActionImpl topology2 = new TopologicalActionImpl(
-            "topologyId2",
-            "topologyName",
             simpleCrac.getNetworkElement("FFR1AA1  FFR2AA1  1"),
             ActionType.CLOSE);
 
@@ -239,10 +235,7 @@ public class CracCleanerTest {
         usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageOk));
         usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageNok));
 
-
         TopologicalActionImpl topologicalAction = new TopologicalActionImpl(
-            "topologyId1",
-            "topologyName",
             new NetworkElement("FFR1AA1  FFR3AA1  1"),
             ActionType.OPEN
         );

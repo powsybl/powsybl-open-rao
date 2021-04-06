@@ -24,8 +24,6 @@ import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNam
 public class InjectionSetPointSerializer extends JsonSerializer<InjectionSetpointImpl> {
     @Override
     public void serialize(InjectionSetpointImpl injectionSetPoint, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStringField(ID, injectionSetPoint.getId());
-        jsonGenerator.writeStringField(NAME, injectionSetPoint.getName());
         jsonGenerator.writeObjectField(NETWORK_ELEMENT, injectionSetPoint.getNetworkElement().getId());
         jsonGenerator.writeNumberField(SETPOINT, injectionSetPoint.getSetPoint());
     }

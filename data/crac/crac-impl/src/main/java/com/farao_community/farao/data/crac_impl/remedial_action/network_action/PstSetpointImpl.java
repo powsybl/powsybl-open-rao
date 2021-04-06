@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.AbstractIdentifiable;
 import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
@@ -25,14 +24,13 @@ import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-setpoint")
-public final class PstSetpointImpl extends AbstractIdentifiable implements ElementaryAction {
+public final class PstSetpointImpl implements ElementaryAction {
 
     private NetworkElement networkElement;
     private double setpoint;
     private RangeDefinition rangeDefinition;
 
-    public PstSetpointImpl(String id, String name, NetworkElement networkElement, double setPoint, RangeDefinition rangeDefinition) {
-        super(id, name);
+    public PstSetpointImpl(NetworkElement networkElement, double setPoint, RangeDefinition rangeDefinition) {
         this.networkElement = networkElement;
         this.setpoint = setPoint;
         this.rangeDefinition = rangeDefinition;

@@ -30,8 +30,6 @@ final class ElementaryActionsDeserializer {
 
             ElementaryAction elementaryAction = null;
             String type = null;
-            String id = null;
-            String name = null;
             String networkElementId = null;
 
             ActionType actionType = null; // useful only if type is "topology"
@@ -44,14 +42,6 @@ final class ElementaryActionsDeserializer {
 
                     case TYPE:
                         type = jsonParser.nextTextValue();
-                        break;
-
-                    case ID:
-                        id = jsonParser.nextTextValue();
-                        break;
-
-                    case NAME:
-                        name = jsonParser.nextTextValue();
                         break;
 
                     case NETWORK_ELEMENT:
@@ -89,15 +79,15 @@ final class ElementaryActionsDeserializer {
 
             switch (type) {
                 case TOPOLOGY_TYPE:
-                    elementaryAction = new TopologicalActionImpl(id, name, ne, actionType);
+                    elementaryAction = new TopologicalActionImpl(ne, actionType);
                     break;
 
                 case INJECTION_SETPOINT_TYPE:
-                    elementaryAction = new InjectionSetpointImpl(id, name, ne, setPoint);
+                    elementaryAction = new InjectionSetpointImpl(ne, setPoint);
                     break;
 
                 case PST_SETPOINT_TYPE:
-                    elementaryAction = new PstSetpointImpl(id, name, ne, setPoint, rangeDefinition);
+                    elementaryAction = new PstSetpointImpl(ne, setPoint, rangeDefinition);
                     break;
 
                 default:

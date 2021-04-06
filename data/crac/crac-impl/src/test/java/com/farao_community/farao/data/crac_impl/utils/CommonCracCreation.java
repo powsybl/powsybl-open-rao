@@ -147,7 +147,7 @@ public final class CommonCracCreation {
         SimpleCrac crac = create();
 
         NetworkElement switchElement = new NetworkElement("NNL3AA11 NNL3AA12 1", "NNL3AA11 NNL3AA12 1 name");
-        TopologicalActionImpl topologicalAction = new TopologicalActionImpl("switch_action_id", "switch_action_name", switchElement, ActionType.OPEN);
+        TopologicalActionImpl topologicalAction = new TopologicalActionImpl(switchElement, ActionType.OPEN);
         NetworkActionImpl topologicalRa = new NetworkActionImpl(
             "switch_ra",
             "switch_ra_name",

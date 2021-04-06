@@ -27,8 +27,6 @@ public class TopologySerializer extends JsonSerializer<TopologicalActionImpl> {
 
     @Override
     public void serialize(TopologicalActionImpl topology, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStringField(ID, topology.getId());
-        jsonGenerator.writeStringField(NAME, topology.getName());
         jsonGenerator.writeObjectField(NETWORK_ELEMENT, topology.getNetworkElement().getId());
         jsonGenerator.writeStringField(JsonSerializationNames.ACTION_TYPE, topology.getActionType().toString());
     }

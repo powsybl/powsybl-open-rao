@@ -122,7 +122,7 @@
     }
   } ],
   "networkActions" : [ {
-    "type" : "complex-network-action",
+    "type" : "network-action-impl",
     "id" : "Open line NL1-NL2",
     "name" : "Open line NL1-NL2",
     "operator" : "NL",
@@ -131,17 +131,9 @@
       "usageMethod" : "AVAILABLE",
       "state" : "none-N"
     } ],
-    "elementaryNetworkActions" : [ {
-      "type" : "topology",
-      "id" : "Open line NL1-NL2",
-      "name" : "Open line NL1-NL2",
-      "operator" : "NL",
-      "usageRules" : [ {
-        "type" : "on-state",
-        "usageMethod" : "AVAILABLE",
-        "state" : "none-N"
-      } ],
-      "networkElements" : [ "NNL1AA1  NNL2AA1  1" ],
+    "elementaryActions" : [ {
+      "type" : "topological-action",
+      "networkElement" : "NNL1AA1  NNL2AA1  1",
       "actionType" : "OPEN"
     } ],
     "extensions" : {
@@ -165,7 +157,7 @@
       }
     }
   }, {
-    "type" : "complex-network-action",
+    "type" : "network-action-impl",
     "id" : "Open line FR1-FR2",
     "name" : "Open line FR1-FR2",
     "operator" : "FR",
@@ -174,17 +166,9 @@
       "usageMethod" : "AVAILABLE",
       "state" : "none-N"
     } ],
-    "elementaryNetworkActions" : [ {
-      "type" : "topology",
-      "id" : "Open line FR1-FR2",
-      "name" : "Open line FR1-FR2",
-      "operator" : "FR",
-      "usageRules" : [ {
-        "type" : "on-state",
-        "usageMethod" : "AVAILABLE",
-        "state" : "none-N"
-      } ],
-      "networkElements" : [ "FFR1AA1  FFR2AA1  1" ],
+    "elementaryActions" : [ {
+      "type" : "topological-action",
+      "networkElement" : "FFR1AA1  FFR2AA1  1",
       "actionType" : "OPEN"
     } ]
   } ],

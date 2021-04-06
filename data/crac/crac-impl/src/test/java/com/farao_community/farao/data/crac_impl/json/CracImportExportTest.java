@@ -74,40 +74,37 @@ public class CracImportExportTest {
         simpleCrac.addNetworkElement(new NetworkElement("injection"));
 
         // network action with one pst set point
-        PstSetpointImpl pstSetpoint1 = new PstSetpointImpl("pstSetpointId1", "pstSetpointName1", simpleCrac.getNetworkElement("pst"), 15, CENTERED_ON_ZERO);
+        PstSetpointImpl pstSetpoint1 = new PstSetpointImpl(
+            simpleCrac.getNetworkElement("pst"),
+            15,
+            CENTERED_ON_ZERO);
+
         simpleCrac.addNetworkAction(new NetworkActionImpl("pstSetpointRaId", "pstSetpointRaName", "RTE", usageRules, Collections.singleton(pstSetpoint1)));
 
         // complex network action with one pst set point and one topology
         PstSetpointImpl pstSetpoint2 = new PstSetpointImpl(
-                "pstSetpointId2",
-                "pstSetpointName2",
                 simpleCrac.getNetworkElement("pst"),
                 5,
-                CENTERED_ON_ZERO
-        );
+                CENTERED_ON_ZERO);
+
         TopologicalActionImpl topology = new TopologicalActionImpl(
-                "topologyId",
-                "topologyName",
                 simpleCrac.getNetworkElement("neId"),
-                ActionType.CLOSE
-        );
+                ActionType.CLOSE);
 
         NetworkActionImpl complexNetworkAction = new NetworkActionImpl(
                 "complexNetworkActionId",
                 "complexNetworkActionName",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, initialInstant)),
-                new HashSet<>(Arrays.asList(pstSetpoint2, topology))
-        );
+                new HashSet<>(Arrays.asList(pstSetpoint2, topology)));
+
         simpleCrac.addNetworkAction(complexNetworkAction);
 
         // network action with one injection set point
         InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(
-                "injectionSetpointId",
-                "injectioSetpointName",
                 simpleCrac.getNetworkElement("injection"),
-                150
-        );
+                150);
+
         simpleCrac.addNetworkAction(new NetworkActionImpl("injectionSetpointRaId", "injectioSetpointRaName", "RTE", usageRules, Collections.singleton(injectionSetpoint)));
 
         simpleCrac.addRangeAction(new PstRangeActionImpl(
