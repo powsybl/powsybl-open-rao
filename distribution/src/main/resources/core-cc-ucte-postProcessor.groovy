@@ -64,13 +64,14 @@ void createMissingGenerator(VoltageLevel voltageLevel, String busId) {
                     .setBus(busId)
                     .setEnsureIdUnicity(true)
                     .setId(generatorId)
-                    .setMaxP(9999)
+                    .setMaxP(999999)
                     .setMinP(0)
                     .setTargetP(0)
                     .setTargetQ(0)
                     .setTargetV(voltageLevel.getNominalV())
                     .setVoltageRegulatorOn(false)
                     .add()
+                    .setFictitious(true)
         } catch (Exception e) {
             // Can't create generator
         }

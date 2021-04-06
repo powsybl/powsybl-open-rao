@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CracResultUtil;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.commons.RandomizedString;
@@ -39,6 +39,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
     private String onOutageInstantId = null;
     private String afterCraInstantId = null;
+    private Set<State> statesWithCras = new HashSet<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
@@ -75,59 +76,124 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         // Curative perimeter
         if (afterCraInstantId != null) {
+            statesWithCras = findStatesWithCras(crac, network);
             crac.getStatesFromInstant(afterCraInstantId).forEach(state -> handleCurativeState(state, network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
         } else {
-            LOGGER.info("No curative computation in flowbased.");
+            LOGGER.info("No curative computation in flowbased because 2 or less instants are defined in crac.");
         }
 
         // Restore initial variant at the end of the computation
         network.getVariantManager().setWorkingVariant(initialNetworkId);
+        network.getVariantManager().removeVariant(INITIAL_STATE_WITH_PRA);
 
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
     private void handleCurativeState(State state, Network network, Crac crac, ZonalData<LinearGlsk> glsk, SensitivityAnalysisParameters sensitivityAnalysisParameters, DataDomain flowbasedDomain) {
+        if (statesWithCras.contains(state)) {
+            CracResultUtil.applyRemedialActionsForState(network, crac, state);
 
-        String variantName = "State" + state.getId();
-        network.getVariantManager().cloneVariant(INITIAL_STATE_WITH_PRA, variantName);
-        network.getVariantManager().setWorkingVariant(variantName);
-        CracResultUtil.applyRemedialActionsForState(network, crac, state);
+            SystematicSensitivityInterface newSystematicSensitivityInterface = SystematicSensitivityInterface.builder()
+                .withDefaultParameters(sensitivityAnalysisParameters)
+                .withPtdfSensitivities(glsk, crac.getBranchCnecs(state), Collections.singleton(Unit.MEGAWATT))
+                .build();
+            SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
+            Optional<Contingency> contingencyOptional = state.getContingency();
+            String contingencyId;
+            if (contingencyOptional.isPresent()) {
+                contingencyId = contingencyOptional.get().getId();
+            } else {
+                throw new FaraoException("Contingency shouldn't be empty in curative.");
+            }
 
-        SystematicSensitivityInterface newSystematicSensitivityInterface = SystematicSensitivityInterface.builder()
-            .withDefaultParameters(sensitivityAnalysisParameters)
-            .withPtdfSensitivities(glsk, crac.getBranchCnecs(state), Collections.singleton(Unit.MEGAWATT))
-            .build();
-        SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
-        Optional<Contingency> contingencyOptional = state.getContingency();
-        String contingencyId = "";
-        if (contingencyOptional.isPresent()) {
-            contingencyId = contingencyOptional.get().getId();
+            List<DataMonitoredBranch> dataMonitoredBranches = flowbasedDomain.findContingencyById(contingencyId).getDataMonitoredBranches();
+            dataMonitoredBranches.forEach(dataMonitoredBranch -> updateDataMonitoredBranch(dataMonitoredBranch, crac, sensitivityResult, glsk));
+        }
+    }
+
+    private void updateDataMonitoredBranch(DataMonitoredBranch dataMonitoredBranch, Crac crac, SystematicSensitivityResult sensitivityResult, ZonalData<LinearGlsk> glsk) {
+        if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
+            BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
+            dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
+            glsk.getDataPerZone().forEach((zone, zonalData) -> {
+                List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
+                if (ptdfs.size() == 1) {
+                    double newPtdf = sensitivityResult.getSensitivityOnFlow(zonalData, cnec);
+                    if (!Double.isNaN(newPtdf)) {
+                        ptdfs.get(0).setPtdf(newPtdf);
+                    } else {
+                        ptdfs.get(0).setPtdf(0.0);
+                    }
+                } else {
+                    LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
+                }
+            });
+        }
+    }
+
+    private Set<State> findStatesWithCras(Crac crac, Network network) {
+        ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
+
+        String variantPostOptimIdTmp = null;
+        if (resultVariantManager != null) {
+            if (resultVariantManager.getVariants().size() == 2) {
+                Optional<String> otherVariant = resultVariantManager.getVariants().stream().filter(variantId -> !variantId.equals(resultVariantManager.getInitialVariantId())).findFirst();
+                if (otherVariant.isPresent()) {
+                    variantPostOptimIdTmp = otherVariant.get();
+                    LOGGER.debug("Variants are correctly defined.");
+                } else {
+                    LOGGER.error("Problem with post optim variant is missing.");
+                }
+            } else {
+                throw new FaraoException(String.format("Wrong number of variants: %s.", resultVariantManager.getVariants().size()));
+            }
+            final String variantPostOptimId = variantPostOptimIdTmp;
+
+            crac.getNetworkActions().forEach(networkAction -> findStatesWithNetworkCra(networkAction, variantPostOptimId, crac.getStates()));
+            crac.getRangeActions().forEach(rangeAction -> findStatesWithRangeCra(rangeAction, variantPostOptimId, crac.getPreventiveState(), crac.getStates()));
+
         } else {
-            throw new FaraoException("Contingency shouldn't be empty in curative.");
+            crac.getStates().forEach(state -> findAllStatesWithCraUsageMethod(state, network, crac.getNetworkActions()));
         }
 
-        List<DataMonitoredBranch> dataMonitoredBranches = flowbasedDomain.findContingencyById(contingencyId).getDataMonitoredBranches();
-        dataMonitoredBranches.forEach(dataMonitoredBranch -> {
-            if (dataMonitoredBranch.getInstantId().equals(afterCraInstantId)) {
-                BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
-                dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
-                glsk.getDataPerZone().forEach((zone, zonalData) -> {
-                    List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
-                    if (ptdfs.size() == 1) {
-                        double newPtdf = sensitivityResult.getSensitivityOnFlow(zonalData, cnec);
-                        if (!Double.isNaN(newPtdf)) {
-                            ptdfs.get(0).setPtdf(newPtdf);
-                        } else {
-                            ptdfs.get(0).setPtdf(0.0);
-                        }
-                    } else {
-                        LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
-                    }
-                });
+        LOGGER.debug("{} curative states with CRAs.", statesWithCras.size());
+        return statesWithCras;
+    }
 
+    private void findAllStatesWithCraUsageMethod(State state, Network network, Set<NetworkAction> networkActions) {
+        if (state.getInstant().getId().equals(afterCraInstantId)) {
+            Optional<NetworkAction> fittingAction = networkActions.stream().filter(networkAction ->
+                networkAction.getUsageMethod(network, state) != null).findAny();
+            if (fittingAction.isPresent()) {
+                statesWithCras.add(state);
             }
-        });
+        }
+    }
 
+    private void findStatesWithNetworkCra(NetworkAction networkAction, String variantPostOptimId, Set<State> states) {
+        NetworkActionResultExtension networkActionResultExtension = networkAction.getExtension(NetworkActionResultExtension.class);
+        if (networkActionResultExtension != null) {
+            NetworkActionResult networkActionResult = networkActionResultExtension.getVariant(variantPostOptimId);
+            for (State state : states) {
+                if (networkActionResult.isActivated(state.getId())) {
+                    statesWithCras.add(state);
+                }
+            }
+        }
+    }
+
+    private void findStatesWithRangeCra(RangeAction rangeAction, String variantPostOptimId, State preventiveState, Set<State> states) {
+        RangeActionResultExtension rangeActionResultExtension = rangeAction.getExtension(RangeActionResultExtension.class);
+        if (rangeActionResultExtension != null) {
+            RangeActionResult rangeActionResultPost = rangeActionResultExtension.getVariant(variantPostOptimId);
+            for (State state : states) {
+                double setPointBasecaseWithPra = rangeActionResultPost.getSetPoint(preventiveState.getId());
+                double setPointPost = rangeActionResultPost.getSetPoint(state.getId());
+                if (setPointPost != setPointBasecaseWithPra) {
+                    statesWithCras.add(state);
+                }
+            }
+        }
     }
 
     private void sortInstants(Set<Instant> instants) {
