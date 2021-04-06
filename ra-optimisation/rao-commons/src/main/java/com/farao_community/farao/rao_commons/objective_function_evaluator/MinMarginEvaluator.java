@@ -44,6 +44,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     public MinMarginEvaluator(LinearOptimizerInput linearOptimizerInput, Unit unit, Set<String> operatorsNotToOptimize, boolean relativePositiveMargins, double ptdfSumLowerBound) {
+        this.linearOptimizerInput = linearOptimizerInput;
         if (relativePositiveMargins && ptdfSumLowerBound <= 0) {
             throw new FaraoException("Please provide a (strictly positive) PTDF sum lower bound for relative margins.");
         }

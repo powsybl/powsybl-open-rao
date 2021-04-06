@@ -283,8 +283,6 @@ class Leaf {
                 .withPtdfSumLowerBound(raoParameters.getPtdfSumLowerBound())
                 .withRaoWithLoopFlowLimitation(raoParameters.isRaoWithLoopFlowLimitation())
                 .build();
-
-
     }
 
     /**
@@ -299,14 +297,11 @@ class Leaf {
      */
     void optimize() {
         if (status.equals(Status.EVALUATED)) {
-            if (!raoData.getAvailableRangeActions().isEmpty()) {;
+            if (!raoData.getAvailableRangeActions().isEmpty()) {
                 LOGGER.debug("Optimizing leaf...");
-                //TODO: create this
                 IteratingLinearOptimizerInput iteratingLinearOptimizerInput = createIteratingLinearOptimizerInput();
                 IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters = createIteratingLinearOptimizerParameters();
                 IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput, iteratingLinearOptimizerParameters);
-                //IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, linearOptimizerSystematicSensitivityInterface, getMaxPstPerTso(), treeParameters.getOperatorsNotToOptimize());
-                //optimizedVariantId = iteratingLinearOptimizer.optimize(raoData);
                 optimizedVariantId = raoData.getCracVariantManager().cloneWorkingVariant();
                 raoData.getCracResultManager().fillResultsFromIteratingLinearOptimizerOutput(iteratingLinearOptimizerOutput, optimizedVariantId);
                 raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);

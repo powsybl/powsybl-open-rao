@@ -143,7 +143,6 @@ public class LinearOptimizer {
 
         // prepare optimisation problem
         if (!lpInitialised) {
-            linearProblem = createLinearRaoProblem();
             buildProblem(sensitivityAndLoopflowResults);
             lpInitialised = true;
         } else {

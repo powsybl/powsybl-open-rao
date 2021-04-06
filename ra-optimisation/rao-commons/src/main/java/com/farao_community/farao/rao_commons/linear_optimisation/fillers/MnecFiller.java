@@ -71,7 +71,7 @@ public class MnecFiller implements ProblemFiller {
                 if (Objects.isNull(mnec.getExtension(CnecResultExtension.class))) {
                     return;
                 }
-                double mnecInitialFlow = linearOptimizerInput.getInitialFlowInMW(mnec);
+                double mnecInitialFlow = linearOptimizerInput.getInitialFlowOnCnec(mnec, MEGAWATT);
 
                 MPVariable flowVariable = linearProblem.getFlowVariable(mnec);
 

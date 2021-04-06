@@ -56,7 +56,7 @@ public final class IteratingLinearOptimizer {
                 .withMnecAcceptableMarginDiminution(iteratingLinearOptimizerParameters.getMnecAcceptableMarginDiminution())
                 .withLoopFlowApproximationLevel(iteratingLinearOptimizerParameters.getLoopFlowApproximationLevel())
                 .withLoopFlowConstraintAdjustmentCoefficient(iteratingLinearOptimizerParameters.getLoopFlowConstraintAdjustmentCoefficient())
-                .withLoopFlowViolationCost(iteratingLinearOptimizerParameters.getLooIpFlowViolationCost())
+                .withLoopFlowViolationCost(iteratingLinearOptimizerParameters.getLoopFlowViolationCost())
                 .withLoopFlowAcceptableAugmentation(iteratingLinearOptimizerParameters.getLoopFlowAcceptableAugmentation())
                 .withMnecViolationCost(iteratingLinearOptimizerParameters.getMnecViolationCost())
                 .withMnecConstraintAdjustmentCoefficient(iteratingLinearOptimizerParameters.getMnecConstraintAdjustmentCoefficient())

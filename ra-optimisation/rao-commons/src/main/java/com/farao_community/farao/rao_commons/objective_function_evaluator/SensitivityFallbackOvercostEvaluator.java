@@ -9,7 +9,11 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import org.apache.commons.lang3.NotImplementedException;
+
+import java.util.List;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -22,9 +26,9 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
         this.fallBackOvercost = overcost;
     }
 
-    public double getCost(RaoData raoData) {
+    public double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
 
-        switch (raoData.getSystematicSensitivityResult().getStatus()) {
+        switch (sensitivityAndLoopflowResults.getSystematicSensitivityResult().getStatus()) {
             case SUCCESS:
                 return 0.;
             case FALLBACK:
@@ -37,5 +41,10 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
 
     public Unit getUnit() {
         return null;
+    }
+
+    @Override
+    public List<BranchCnec> getMostLimitingElements(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, int numberOfElements) {
+        throw new NotImplementedException("getMostLimitingElements() not implemented yet for fallback cost evaluators");
     }
 }
