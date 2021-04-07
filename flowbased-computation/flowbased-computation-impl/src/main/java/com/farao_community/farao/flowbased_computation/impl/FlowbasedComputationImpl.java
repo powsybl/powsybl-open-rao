@@ -161,7 +161,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     private void findAllStatesWithCraUsageMethod(State state, Network network, Set<NetworkAction> networkActions) {
-        if (state.getInstant().getId().equals(afterCraInstantId)) {
+        if (state.getInstant() == afterCraInstant) {
             Optional<NetworkAction> fittingAction = networkActions.stream().filter(networkAction ->
                 networkAction.getUsageMethod(network, state) != null).findAny();
             if (fittingAction.isPresent()) {

@@ -190,13 +190,17 @@
           "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-preventive" : true
+              "preventive" : true,
+              "N-1 FR-BE - outage" : false,
+              "N-1 FR-BE - curative" : false
             }
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-preventive" : false
+              "preventive" : false,
+              "N-1 FR-BE - outage" : false,
+              "N-1 FR-BE - curative" : false
             }
           }
         }
