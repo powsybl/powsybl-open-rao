@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.ElementaryAction;
+import com.farao_community.farao.data.crac_api.InjectionSetPoint;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.*;
@@ -19,7 +20,7 @@ import org.apache.commons.lang3.NotImplementedException;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("injection-setpoint")
-public final class InjectionSetpointImpl implements ElementaryAction {
+public final class InjectionSetpointImpl implements InjectionSetPoint {
 
     private NetworkElement networkElement;
     private double setpoint;
@@ -29,6 +30,7 @@ public final class InjectionSetpointImpl implements ElementaryAction {
         this.setpoint = setpoint;
     }
 
+    @Override
     public double getSetPoint() {
         return setpoint;
     }
