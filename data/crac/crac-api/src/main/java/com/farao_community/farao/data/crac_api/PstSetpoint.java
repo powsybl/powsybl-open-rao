@@ -1,8 +1,8 @@
 package com.farao_community.farao.data.crac_api;
 
-public interface PstSetPoint extends ElementaryAction {
+public interface PstSetpoint extends ElementaryAction {
 
-    double getSetPoint();
+    double getSetpoint();
 
     RangeDefinition getRangeDefinition();
 }

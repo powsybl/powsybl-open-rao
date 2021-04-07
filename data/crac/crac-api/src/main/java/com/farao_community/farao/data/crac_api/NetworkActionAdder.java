@@ -4,7 +4,7 @@ public interface NetworkActionAdder extends IdentifiableAdder<NetworkActionAdder
 
     TopologicalActionAdder newTopologicalAction();
 
-    PstSetPointAdder newPstSetPoint();
+    PstSetpointAdder newPstSetPoint();
 
-    InjectionSetPointAdder newInjectionSetPoint();
+    InjectionSetpointAdder newInjectionSetPoint();
 }

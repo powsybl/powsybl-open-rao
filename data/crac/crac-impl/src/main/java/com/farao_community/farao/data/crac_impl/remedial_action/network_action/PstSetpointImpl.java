@@ -8,9 +8,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.PstSetPoint;
+import com.farao_community.farao.data.crac_api.PstSetpoint;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
@@ -25,15 +24,15 @@ import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-setpoint")
-public final class PstSetpointImpl implements PstSetPoint {
+public final class PstSetpointImpl implements PstSetpoint {
 
     private NetworkElement networkElement;
     private double setpoint;
     private RangeDefinition rangeDefinition;
 
-    public PstSetpointImpl(NetworkElement networkElement, double setPoint, RangeDefinition rangeDefinition) {
+    public PstSetpointImpl(NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
         this.networkElement = networkElement;
-        this.setpoint = setPoint;
+        this.setpoint = setpoint;
         this.rangeDefinition = rangeDefinition;
     }
 
@@ -43,7 +42,7 @@ public final class PstSetpointImpl implements PstSetPoint {
     }
 
     @Override
-    public double getSetPoint() {
+    public double getSetpoint() {
         return this.setpoint;
     }
 

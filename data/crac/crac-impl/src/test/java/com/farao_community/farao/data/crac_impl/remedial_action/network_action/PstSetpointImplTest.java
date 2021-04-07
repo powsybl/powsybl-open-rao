@@ -31,7 +31,7 @@ public class PstSetpointImplTest extends AbstractRemedialActionTest {
             12,
             STARTS_AT_ONE);
 
-        assertEquals(12, pstSetpoint.getSetPoint(), 0);
+        assertEquals(12, pstSetpoint.getSetpoint(), 0);
         assertEquals(STARTS_AT_ONE, pstSetpoint.getRangeDefinition());
     }
 

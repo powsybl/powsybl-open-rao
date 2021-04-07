@@ -25,7 +25,7 @@ public class InjectionSetPointSerializer extends JsonSerializer<InjectionSetpoin
     @Override
     public void serialize(InjectionSetpointImpl injectionSetPoint, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeObjectField(NETWORK_ELEMENT, injectionSetPoint.getNetworkElement().getId());
-        jsonGenerator.writeNumberField(SETPOINT, injectionSetPoint.getSetPoint());
+        jsonGenerator.writeNumberField(SETPOINT, injectionSetPoint.getSetpoint());
     }
 
     @Override
