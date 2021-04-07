@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Optional;
-import java.util.Set;
 
 import static com.farao_community.farao.data.crac_api.Side.LEFT;
 import static org.junit.Assert.*;
@@ -33,7 +32,7 @@ public class FlowCnecAdderImplTest {
 
     @Before
     public void setUp() {
-        crac = new SimpleCrac("test-crac", "test-crac", Set.of(Instant.OUTAGE, Instant.CURATIVE));
+        crac = new SimpleCrac("test-crac");
         contingency1 = crac.newContingency().setId("conId1").add();
     }
 

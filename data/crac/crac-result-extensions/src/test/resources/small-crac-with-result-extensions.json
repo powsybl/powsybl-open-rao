@@ -2,7 +2,6 @@
   "type": "simple-crac",
   "id": "LS_unsecure",
   "name": "LS_unsecure",
-  "instants": [ "preventive", "outage", "curative" ],
   "networkElements": [
     {
       "type": "NetworkElement",
@@ -43,7 +42,8 @@
         "max": 750,
         "rule" : "ON_LEFT_SIDE"
       }],
-      "state": "N-1 NL1-NL3-outage",
+      "contingency": "N-1 NL1-NL3",
+      "instant": "outage",
       "extensions" : {
         "CnecResultExtension" : {
           "resultsPerVariant" : {
@@ -74,7 +74,7 @@
         "max": 750,
         "rule" : "ON_LEFT_SIDE"
       }],
-      "state": "none-preventive"
+      "instant": "preventive"
     }
   ],
   "rangeActions": [

@@ -59,7 +59,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         Objects.requireNonNull(glsk);
         Objects.requireNonNull(parameters);
 
-        sortInstants(crac.getInstants());
+        sortInstants(Arrays.asList(Instant.values()));
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())

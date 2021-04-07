@@ -40,8 +40,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     NetworkElement getNetworkElement(String netorkElementId);
 
-    List<Instant> getInstants();
-
     // Contingencies management
     /**
      * Get a {@code Contingency} adder, to add a contingency to the Crac

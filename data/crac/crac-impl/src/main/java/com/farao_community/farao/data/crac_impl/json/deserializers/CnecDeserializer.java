@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
@@ -45,7 +47,8 @@ final class CnecDeserializer {
             String name = null;
             String networkElementId = null;
             String operator = null;
-            String stateId = null;
+            String contingencyId = null;
+            Instant instant = null;
             double frm = 0;
             boolean optimized = false;
             boolean monitored = false;
@@ -77,8 +80,13 @@ final class CnecDeserializer {
                         operator = jsonParser.nextTextValue();
                         break;
 
-                    case STATE:
-                        stateId = jsonParser.nextTextValue();
+                    case CONTINGENCY:
+                        contingencyId = jsonParser.nextTextValue();
+                        break;
+
+                    case INSTANT:
+                        jsonParser.nextToken();
+                        instant = jsonParser.readValueAs(Instant.class);
                         break;
 
                     case FRM:
@@ -112,8 +120,13 @@ final class CnecDeserializer {
                 }
             }
 
-            //add SimpleCnec in Crac
-            simpleCrac.addCnec(id, name, networkElementId, operator, thresholds, stateId, frm, optimized, monitored);
+            if (instant == Instant.PREVENTIVE) {
+                simpleCrac.addPreventiveCnec(id, name, networkElementId, operator, thresholds, frm, optimized, monitored);
+            } else {
+                Contingency contingency = simpleCrac.getContingency(contingencyId);
+                simpleCrac.addCnec(id, name, networkElementId, operator, thresholds, contingency, instant, frm, optimized, monitored);
+            }
+
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(simpleCrac.getBranchCnec(id), extensions);
             }

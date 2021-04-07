@@ -9,7 +9,7 @@
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
 import com.farao_community.farao.data.crac_api.Identifiable;
-import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.PostContingencyState;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -24,16 +24,16 @@ import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNam
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class SimpleStateSerializer extends JsonSerializer<SimpleState> {
+public class SimpleStateSerializer extends JsonSerializer<PostContingencyState> {
     @Override
-    public void serialize(SimpleState value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(PostContingencyState value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStringField(ID, value.getId());
         gen.writeStringField(CONTINGENCY, value.getContingency().map(Identifiable::getId).orElse(null));
         gen.writeStringField(INSTANT, value.getInstant().toString());
     }
 
     @Override
-    public void serializeWithType(SimpleState value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
+    public void serializeWithType(PostContingencyState value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
         WritableTypeId writableTypeId = typeSer.typeId(value, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, writableTypeId);
         serialize(value, gen, serializers);

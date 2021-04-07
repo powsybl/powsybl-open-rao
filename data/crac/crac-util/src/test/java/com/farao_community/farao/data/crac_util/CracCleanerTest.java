@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.PostContingencyState;
 import com.farao_community.farao.data.crac_impl.XnodeContingency;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
@@ -45,7 +45,7 @@ public class CracCleanerTest {
 
     @Test
     public void testCleanCrac() {
-        SimpleCrac simpleCrac = new SimpleCrac("cracId", "cracName", Set.of(Instant.OUTAGE));
+        SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
         Contingency contingency = simpleCrac.addContingency("contingencyId", "FFR1AA1  FFR2AA1  1");
         simpleCrac.addContingency("contingency2Id", "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE3AA1  1");
@@ -126,7 +126,7 @@ public class CracCleanerTest {
         assertEquals(3, simpleCrac.getNetworkActions().size());
         assertEquals(2, simpleCrac.getRangeActions().size());
         assertEquals(3, simpleCrac.getContingencies().size());
-        assertEquals(4, simpleCrac.getStates().size());
+        assertEquals(3, simpleCrac.getStates().size());
 
         CracCleaner cracCleaner = new CracCleaner();
         List<String> qualityReport = cracCleaner.cleanCrac(simpleCrac, network);
@@ -135,7 +135,7 @@ public class CracCleanerTest {
         assertEquals(1, simpleCrac.getNetworkActions().size());
         assertEquals(0, simpleCrac.getRangeActions().size());
         assertEquals(2, simpleCrac.getContingencies().size());
-        assertEquals(3, simpleCrac.getStates().size());
+        assertEquals(2, simpleCrac.getStates().size());
 
         assertEquals(10, qualityReport.size());
         int removedCount = 0;
@@ -149,7 +149,7 @@ public class CracCleanerTest {
 
     private Crac createTestCrac() {
         CracFactory factory = CracFactory.find("SimpleCracFactory");
-        Crac crac = factory.create("test-crac", Set.of(Instant.OUTAGE));
+        Crac crac = factory.create("test-crac");
         crac.newBranchCnec().setId("BBE1AA1  BBE2AA1  1").optimized().monitored()
                 .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
                 .newThreshold().setUnit(Unit.MEGAWATT).setMin(0.0).setMax(0.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -197,14 +197,14 @@ public class CracCleanerTest {
 
     @Test
     public void testRemoveOnStateUsageRule() {
-        SimpleCrac crac = new SimpleCrac("cracId", "cracName", Set.of(Instant.OUTAGE));
+        SimpleCrac crac = new SimpleCrac("cracId");
 
         Contingency contingencyOk = crac.newContingency().setId("cont_exists").newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add().add();
         Contingency contingencyNok = crac.newContingency().setId("cont_unknown").newNetworkElement().setId("unknown").add().add();
 
         List<UsageRule> usageRules = new ArrayList<>();
-        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, new SimpleState(Optional.of(contingencyOk), Instant.OUTAGE)));
-        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, new SimpleState(Optional.of(contingencyNok), Instant.OUTAGE)));
+        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, new PostContingencyState(contingencyOk, Instant.OUTAGE)));
+        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, new PostContingencyState(contingencyNok, Instant.OUTAGE)));
 
         Topology topoRa = new Topology(
             "topologyId1",
@@ -231,6 +231,7 @@ public class CracCleanerTest {
         List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
 
         assertEquals(4, qualityReport.size());
+        assertEquals(1, crac.getStates().size());
         assertEquals(1, crac.getNetworkAction("topologyId1").getUsageRules().size());
         assertEquals(1, crac.getRangeAction("pstRangeId").getUsageRules().size());
     }

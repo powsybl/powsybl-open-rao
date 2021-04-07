@@ -12,7 +12,8 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.PostContingencyState;
+import com.farao_community.farao.data.crac_impl.PreventiveState;
 import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.import_.Importers;
@@ -41,9 +42,9 @@ public class XnodeGlskHandlerTest {
         Set<NetworkElement> internalBranch = Collections.singleton(new NetworkElement("DDE1AA1  DDE3AA1  1"));
         Set<NetworkElement> danglingLine = Collections.singleton(new NetworkElement("FFR1AA1  XLI_OB1B 1"));
 
-        State baseCase = new SimpleState(Optional.empty(), Instant.PREVENTIVE);
-        State contingencyClassic = new SimpleState(Optional.of(new ComplexContingency("internalBranch", internalBranch)), Instant.OUTAGE);
-        State contingencyDl = new SimpleState(Optional.of(new ComplexContingency("danglingLine", danglingLine)), Instant.OUTAGE);
+        State baseCase = new PreventiveState();
+        State contingencyClassic = new PostContingencyState(new ComplexContingency("internalBranch", internalBranch), Instant.OUTAGE);
+        State contingencyDl = new PostContingencyState(new ComplexContingency("danglingLine", danglingLine), Instant.OUTAGE);
 
         BranchCnec cnec1 = new FlowCnecImpl("cnec1", new NetworkElement("ne"), "operator", baseCase, true, true, new HashSet<>(), 0.0);
         BranchCnec cnec2 = new FlowCnecImpl("cnec2", new NetworkElement("ne"), "operator", contingencyClassic, true, true, new HashSet<>(), 0.0);

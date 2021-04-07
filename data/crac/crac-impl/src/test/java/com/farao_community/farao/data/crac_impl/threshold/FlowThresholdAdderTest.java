@@ -18,8 +18,6 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Set;
-
 import static com.farao_community.farao.data.crac_api.Side.LEFT;
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +31,7 @@ public class FlowThresholdAdderTest {
 
     @Before
     public void setUp() {
-        crac = new SimpleCracFactory().create("test-crac", Set.of(Instant.OUTAGE, Instant.CURATIVE));
+        crac = new SimpleCracFactory().create("test-crac");
         contingency = crac.newContingency().setId("conId").add();
     }
 

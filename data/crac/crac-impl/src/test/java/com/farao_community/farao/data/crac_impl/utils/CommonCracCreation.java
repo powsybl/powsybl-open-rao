@@ -29,7 +29,7 @@ public final class CommonCracCreation {
     }
 
     public static SimpleCrac create() {
-        SimpleCrac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS", Set.of(Instant.CURATIVE));
+        SimpleCrac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
         ComplexContingency contingency1 = new ComplexContingency("Contingency FR1 FR3", "Trip of FFR1AA1 FFR3AA1 1",
             new HashSet<>(Collections.singletonList(new NetworkElement("FFR1AA1  FFR3AA1  1"))));
@@ -126,7 +126,7 @@ public final class CommonCracCreation {
 
         PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
         pstRangeAction.setOperator("operator1");
-        pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3-curative")));
+        pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3", Instant.CURATIVE)));
         crac.addRangeAction(pstRangeAction);
 
         return crac;

@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
 import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.THRESHOLDS;
@@ -31,7 +33,11 @@ public class BranchCnecSerializer<I extends BranchCnec> extends JsonSerializer<I
         jsonGenerator.writeStringField(NAME, branchCnec.getName());
         jsonGenerator.writeStringField(NETWORK_ELEMENT, branchCnec.getNetworkElement().getId());
         jsonGenerator.writeStringField(OPERATOR, branchCnec.getOperator());
-        jsonGenerator.writeObjectField(STATE, branchCnec.getState().getId());
+        Optional<Contingency> optContingency = branchCnec.getState().getContingency();
+        if (optContingency.isPresent()) {
+            jsonGenerator.writeStringField(CONTINGENCY, optContingency.get().getId());
+        }
+        jsonGenerator.writeStringField(INSTANT, branchCnec.getState().getInstant().toString());
         jsonGenerator.writeObjectField(OPTIMIZED, branchCnec.isOptimized());
         jsonGenerator.writeObjectField(MONITORED, branchCnec.isMonitored());
 

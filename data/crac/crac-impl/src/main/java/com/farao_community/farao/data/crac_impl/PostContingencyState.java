@@ -19,18 +19,17 @@ import java.util.Optional;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("simple-state")
-@JsonIdentityInfo(scope = SimpleState.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class SimpleState implements State {
+@JsonTypeName("post-contingency-state")
+@JsonIdentityInfo(scope = PostContingencyState.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+public class PostContingencyState implements State {
     private String id;
     private Contingency contingency;
     private Instant instant;
 
     @JsonCreator
-    public SimpleState(@JsonProperty("contingency") Optional<Contingency> contingency,
-                       @JsonProperty("instant") Instant instant) {
-        this.id = (contingency.isPresent() ? contingency.get().getId() : "none") + "-" + instant.toString();
-        this.contingency = contingency.orElse(null);
+    public PostContingencyState(@JsonProperty("contingency") Contingency contingency, @JsonProperty("instant") Instant instant) {
+        this.id = contingency.getId() + " - " + instant.toString();
+        this.contingency = contingency;
         this.instant = instant;
     }
 
@@ -45,12 +44,7 @@ public class SimpleState implements State {
 
     @Override
     public Optional<Contingency> getContingency() {
-        return Optional.ofNullable(contingency);
-    }
-
-    @Override
-    public int compareTo(State state) {
-        return instant.getOrder() - state.getInstant().getOrder();
+        return Optional.of(contingency);
     }
 
     /**
@@ -76,21 +70,11 @@ public class SimpleState implements State {
 
     @Override
     public int hashCode() {
-        if (contingency != null) {
-            return String.format("%s%s", contingency.getId(), instant.toString()).hashCode();
-        } else {
-            return String.format("none%s", instant.toString()).hashCode();
-        }
+        return String.format("%s%s", contingency.getId(), instant.toString()).hashCode();
     }
 
     @Override
     public String toString() {
-        String name = instant.toString();
-        if (contingency != null) {
-            name += String.format(" - %s", contingency.getId());
-        } else {
-            name += " - none";
-        }
-        return name;
+        return getId();
     }
 }

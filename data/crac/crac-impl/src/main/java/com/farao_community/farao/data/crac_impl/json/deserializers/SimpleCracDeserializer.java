@@ -48,14 +48,7 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
         }
         String name = jsonParser.nextTextValue();
 
-        jsonParser.nextToken();
-        if (!jsonParser.getCurrentName().equals(INSTANTS)) {
-            throw new FaraoException("'instants' field is expected in the fifth line of the json file.");
-        }
-        jsonParser.nextToken();
-        Set<Instant> instants = jsonParser.readValueAs(new TypeReference<Set<Instant>>() { });
-
-        SimpleCrac simpleCrac = new SimpleCrac(id, name, instants);
+        SimpleCrac simpleCrac = new SimpleCrac(id, name);
 
         // deserialize the following lines of the SimpleCrac
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {

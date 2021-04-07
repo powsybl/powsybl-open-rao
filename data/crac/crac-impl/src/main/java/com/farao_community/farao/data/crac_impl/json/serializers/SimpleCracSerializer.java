@@ -35,11 +35,6 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
     public void serialize(SimpleCrac value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStringField(ID, value.getId());
         gen.writeStringField(NAME, value.getName());
-        gen.writeArrayFieldStart(INSTANTS);
-        for (Instant instant : value.getInstants()) {
-            gen.writeObject(instant.toString());
-        }
-        gen.writeEndArray();
         if (value.getNetworkDate() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             dateFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));

@@ -32,9 +32,16 @@ public class InstantTest {
     }
 
     @Test
+    public void testAuto() {
+        Instant instant = Instant.AUTO;
+        assertEquals(2, instant.getOrder());
+        assertEquals("auto", instant.toString());
+    }
+
+    @Test
     public void testCurative() {
         Instant instant = Instant.CURATIVE;
-        assertEquals(2, instant.getOrder());
+        assertEquals(3, instant.getOrder());
         assertEquals("curative", instant.toString());
     }
 }

@@ -19,8 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Set;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -36,7 +34,7 @@ public class PerimetersTest {
     public void setUp() {
         network = Mockito.mock(Network.class);
 
-        crac = new SimpleCrac("crac-id", "crac-name", Set.of(Instant.OUTAGE, Instant.CURATIVE));
+        crac = new SimpleCrac("crac-id");
         crac.newContingency().setId("contingency-1").add();
         crac.newContingency().setId("contingency-2").add();
         crac.newContingency().setId("contingency-3").add();

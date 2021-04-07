@@ -2,7 +2,6 @@
   "type": "simple-crac",
   "id": "CracFlowbased",
   "name": "Crac for flowbased tests",
-  "instants": [ "preventive", "outage", "curative" ],
   "networkElements": [
     {
       "type": "NetworkElement",
@@ -49,7 +48,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-curative"
+      "contingency": "N-1 FR-BE",
+      "instant": "curative"
     },
     {
       "type": "flow-cnec",
@@ -64,7 +64,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-curative"
+      "contingency": "N-1 FR-BE",
+      "instant": "curative"
     },
     {
       "type": "flow-cnec",
@@ -79,7 +80,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-curative"
+      "contingency": "N-1 FR-BE",
+      "instant": "curative"
     },
     {
       "type": "flow-cnec",
@@ -94,7 +96,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-curative"
+      "contingency": "N-1 FR-BE",
+      "instant": "curative"
     },
     {
       "type": "flow-cnec",
@@ -109,7 +112,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-outage"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -124,7 +128,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-outage"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -139,7 +144,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-outage"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -154,7 +160,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-outage"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -169,7 +176,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-preventive"
+      "instant" : "preventive"
     },
     {
       "type": "flow-cnec",
@@ -184,7 +191,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-preventive"
+      "instant" : "preventive"
     },
     {
       "type": "flow-cnec",
@@ -199,7 +206,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-preventive"
+      "instant" : "preventive"
     },
     {
       "type": "flow-cnec",
@@ -214,7 +221,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-preventive"
+      "instant" : "preventive"
     }
   ],
   "rangeActions" : [],

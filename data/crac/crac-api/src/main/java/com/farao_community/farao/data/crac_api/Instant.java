@@ -16,7 +16,8 @@ package com.farao_community.farao.data.crac_api;
 public enum Instant {
     PREVENTIVE(0, "preventive"),
     OUTAGE(1, "outage"),
-    CURATIVE(2, "curative");
+    AUTO(2, "auto"),
+    CURATIVE(3, "curative");
 
     private final int order;
     private final String name;

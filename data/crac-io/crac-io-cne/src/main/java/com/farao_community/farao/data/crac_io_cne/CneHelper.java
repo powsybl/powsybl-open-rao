@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.PATL_MEASUREMENT_TYPE;
 import static com.farao_community.farao.data.crac_io_cne.CneConstants.TATL_MEASUREMENT_TYPE;
@@ -27,13 +26,10 @@ public class CneHelper {
 
     private Crac crac;
     private Network network;
-    private List<Instant> instants;
     private String preOptimVariantId;
     private String postOptimVariantId;
 
     public CneHelper(Crac crac, Network network) {
-
-        instants = new ArrayList<>();
         preOptimVariantId = "";
         postOptimVariantId = "";
 
@@ -66,9 +62,6 @@ public class CneHelper {
         CracResultExtension cracExtension = crac.getExtension(CracResultExtension.class);
         List<String> variants = new ArrayList<>(crac.getExtension(ResultVariantManager.class).getVariants());
 
-        // sort the instants in order to determine which one is preventive, after outage, after auto RA and after CRA
-        instants = crac.getInstants().stream().sorted(Comparator.comparingInt(Instant::getOrder)).collect(Collectors.toList());
-
         // TODO: store the information on preOptim/postOptim Variant in the ResultVariantManager
         preOptimVariantId = variants.get(0);
         postOptimVariantId = variants.get(0);
@@ -87,7 +80,7 @@ public class CneHelper {
     }
 
     public String instantToCodeConverter(Instant instant) {
-        if (instant.equals(instants.get(0))) { // Before contingency
+        if (instant == Instant.PREVENTIVE) { // Before contingency
             return PATL_MEASUREMENT_TYPE;
         } else { // After contingency, before any post-contingency RA
             return TATL_MEASUREMENT_TYPE;

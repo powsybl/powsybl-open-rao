@@ -2,7 +2,6 @@
   "type": "simple-crac",
   "id": "LS_unsecure",
   "name": "LS_unsecure",
-  "instants": [ "preventive", "outage", "curative" ],
   "networkElements": [
     {
       "type": "NetworkElement",

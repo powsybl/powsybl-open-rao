@@ -19,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -31,7 +30,7 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
     @Test
     public void roundTripTest() {
         // Crac
-        SimpleCrac simpleCrac = new SimpleCrac("cracId", "cracName", Collections.emptySet());
+        SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
         simpleCrac.newBranchCnec()
             .setId("cnec1")

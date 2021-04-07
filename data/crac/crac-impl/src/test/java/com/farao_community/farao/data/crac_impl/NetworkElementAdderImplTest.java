@@ -13,8 +13,6 @@ import com.farao_community.farao.data.crac_api.NetworkElementAdder;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -27,7 +25,7 @@ public class NetworkElementAdderImplTest {
 
     @Before
     public void setUp() {
-        crac = new SimpleCracFactory().create("test-crac", Collections.emptySet());
+        crac = new SimpleCracFactory().create("test-crac");
     }
 
     @Test

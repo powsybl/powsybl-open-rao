@@ -248,8 +248,8 @@ public class MinMarginEvaluatorTest {
     public void testMarginsInAmpereFromMegawattConversion() {
         List<Double> margins = new MinMarginEvaluator(Unit.MEGAWATT, null, true, 0.001).getMarginsInAmpereFromMegawattConversion(raoData);
         assertEquals(2, margins.size());
-        assertEquals(2990, margins.get(0), DOUBLE_TOLERANCE);
-        assertEquals(4254, margins.get(1), DOUBLE_TOLERANCE);
+        assertEquals(4254, margins.get(0), DOUBLE_TOLERANCE);
+        assertEquals(2990, margins.get(1), DOUBLE_TOLERANCE);
     }
 
     private Set<BranchCnec> setUpMockCnecs(boolean optimized, boolean monitored) {

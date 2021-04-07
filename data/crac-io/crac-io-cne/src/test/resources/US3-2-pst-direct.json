@@ -2,7 +2,6 @@
   "type" : "simple-crac",
   "id" : "LS_parade_pst_direct",
   "name" : "LS_parade_pst_direct",
-  "instants" : [ "preventive", "outage", "curative" ],
   "networkDate" : "2020-05-22T10:09:17Z",
   "networkElements" : [ {
     "type" : "NetworkElement",
@@ -32,7 +31,8 @@
     "id" : "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3",
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
-    "state" : "Contingency FR1 FR3-curative",
+    "contingency" : "Contingency FR1 FR3",
+    "instant" : "curative",
     "frm" : 0.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -72,7 +72,8 @@
     "id" : "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3",
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
-    "state" : "Contingency FR1 FR3-outage",
+    "contingency" : "Contingency FR1 FR3",
+    "instant" : "outage",
     "frm" : -1.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -112,7 +113,8 @@
     "id" : "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3",
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
-    "state" : "Contingency FR1 FR3-curative",
+    "contingency" : "Contingency FR1 FR3",
+    "instant" : "curative",
     "frm" : 2.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -152,7 +154,7 @@
     "id" : "DDE1AA1  DDE2AA1  1 - N - preventive",
     "name" : "Line DE1 DE2",
     "networkElement" : "DDE1AA1  DDE2AA1  1",
-    "state" : "none-preventive",
+    "instant" : "preventive",
     "frm" : 3.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -192,7 +194,8 @@
     "id" : "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3",
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
-    "state" : "Contingency FR1 FR3-outage",
+    "contingency" : "Contingency FR1 FR3",
+    "instant" : "outage",
     "frm" : 4.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -232,7 +235,7 @@
     "id" : "FFR2AA1  DDE3AA1  1 - N - preventive",
     "name" : "Tie-line FR DE",
     "networkElement" : "FFR2AA1  DDE3AA1  1",
-    "state" : "none-preventive",
+    "instant" : "preventive",
     "frm" : 5.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -291,23 +294,23 @@
           "preOptimisationResults-3788be4e-3998-4fe8-8d7d-e5088ab87edf" : {
             "type" : "pst-range-result",
             "tapPerStates" : {
-              "none-preventive" : 0
+              "preventive" : 0
             },
             "setPointPerStates" : {
               "Contingency FR1 FR3-outage" : NaN,
               "Contingency FR1 FR3-curative" : NaN,
-              "none-preventive" : 0.0
+              "preventive" : 0.0
             }
           },
           "postOptimisationResults-5541441d-b49f-4670-bb70-d30e60c8ccaa" : {
             "type" : "pst-range-result",
             "tapPerStates" : {
-              "none-preventive" : -16
+              "preventive" : -16
             },
             "setPointPerStates" : {
               "Contingency FR1 FR3-outage" : NaN,
               "Contingency FR1 FR3-curative" : NaN,
-              "none-preventive" : -6.22764253616333
+              "preventive" : -6.22764253616333
             }
           }
         }

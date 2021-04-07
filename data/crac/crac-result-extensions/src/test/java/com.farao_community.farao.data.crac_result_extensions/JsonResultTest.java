@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Collections;
 
 import static junit.framework.TestCase.*;
 
@@ -37,8 +36,7 @@ public class JsonResultTest {
     @Test
     public void cracRoundTripTest() {
         // Crac
-        SimpleCrac simpleCrac = new SimpleCrac("cracId", "cracName", Collections.emptySet());
-        String preventiveStateId = simpleCrac.getPreventiveState().getId();
+        SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
         simpleCrac.newBranchCnec()
             .setId("cnec1prev")
@@ -93,6 +91,8 @@ public class JsonResultTest {
         cnecResultExtension.getVariant("variant1").setAbsolutePtdfSum(0.2);
         cnecResultExtension.getVariant("variant2").setFlowInA(750.0);
         cnecResultExtension.getVariant("variant2").setFlowInMW(450.0);
+
+        String preventiveStateId = simpleCrac.getPreventiveState().getId();
 
         // PstRangeResult
         RangeActionResultExtension rangeActionResultExtension = simpleCrac.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);

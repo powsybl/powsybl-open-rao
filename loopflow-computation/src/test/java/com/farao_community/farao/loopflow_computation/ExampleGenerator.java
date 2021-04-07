@@ -306,7 +306,7 @@ final class ExampleGenerator {
     }
 
     static Crac crac() {
-        Crac crac = new SimpleCracFactory().create("test-crac", Set.of(Instant.OUTAGE, Instant.CURATIVE));
+        Crac crac = new SimpleCracFactory().create("test-crac");
 
         crac.newBranchCnec().setId("FR-BE1").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("FR-BE1").add()

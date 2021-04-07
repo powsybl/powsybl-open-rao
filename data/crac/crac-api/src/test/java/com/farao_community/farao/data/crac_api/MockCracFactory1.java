@@ -9,8 +9,6 @@ package com.farao_community.farao.data.crac_api;
 
 import com.google.auto.service.AutoService;
 
-import java.util.Set;
-
 /**
  * Mock CracFactory implementation, for unit tests only
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -18,7 +16,7 @@ import java.util.Set;
 @AutoService(CracFactory.class)
 public class MockCracFactory1 implements CracFactory {
     @Override
-    public Crac create(String id, String name, Set<Instant> instants) {
+    public Crac create(String id, String name) {
         return null;
     }
 
