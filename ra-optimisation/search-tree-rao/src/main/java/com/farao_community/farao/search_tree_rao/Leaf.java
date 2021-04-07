@@ -99,8 +99,6 @@ class Leaf {
         } else {
             status = Status.CREATED;
         }
-
-        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters, treeParameters.getOperatorsNotToOptimize());
     }
 
     /**
@@ -174,6 +172,8 @@ class Leaf {
         if (status.equals(Status.EVALUATED)) {
             LOGGER.debug("Leaf has already been evaluated");
             SensitivityAndLoopflowResults sensitivityAndLoopflowResults = raoData.getSensitivityAndLoopflowResults();
+
+            objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters, treeParameters.getOperatorsNotToOptimize());
             raoData.getCracResultManager().fillCracResultWithCosts(
                 objectiveFunctionEvaluator.getFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.getVirtualCost(sensitivityAndLoopflowResults));
             return;
@@ -191,6 +191,11 @@ class Leaf {
                 LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,
                     !raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
             }
+
+            // we have to do this here because we need pre-perimeter flows
+            // to put in the evaluator input
+            objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters, treeParameters.getOperatorsNotToOptimize());
+
             SensitivityAndLoopflowResults sensitivityAndLoopflowResults = raoData.getSensitivityAndLoopflowResults();
             raoData.getCracResultManager().fillCracResultWithCosts(
                 objectiveFunctionEvaluator.getFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.getVirtualCost(sensitivityAndLoopflowResults));
@@ -268,7 +273,7 @@ class Leaf {
         return IteratingLinearOptimizerParameters.create()
                 .withMaxIterations(raoParameters.getMaxIterations())
                 .withObjectiveFunction(raoParameters.getObjectiveFunction())
-                .withMaxPstPerTso(treeParameters.getMaxPstPerTso())
+                .withMaxPstPerTso(this.getMaxPstPerTso())
                 .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
                 .withOperatorsNotToOptimize(treeParameters.getOperatorsNotToOptimize())
                 .withMnecAcceptableMarginDiminution(raoParameters.getMnecAcceptableMarginDiminution())
@@ -303,6 +308,7 @@ class Leaf {
                 IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters = createIteratingLinearOptimizerParameters();
                 IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput, iteratingLinearOptimizerParameters);
                 optimizedVariantId = raoData.getCracVariantManager().cloneWorkingVariant();
+                raoData.getCracVariantManager().setWorkingVariant(optimizedVariantId);
                 raoData.getCracResultManager().fillResultsFromIteratingLinearOptimizerOutput(iteratingLinearOptimizerOutput, optimizedVariantId);
                 raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
                 activateNetworkActionInCracResult(optimizedVariantId);
