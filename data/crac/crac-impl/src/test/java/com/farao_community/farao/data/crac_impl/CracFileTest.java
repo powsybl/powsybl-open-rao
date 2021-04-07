@@ -166,7 +166,7 @@ public class CracFileTest {
         assertEquals(0, simpleCrac.getStates().size());
     }
 
-    @Test
+    @Test(expected = FaraoException.class)
     public void testGetStateWithNotExistingContingencyId() {
         assertNull(simpleCrac.getState("fail-contingency", CURATIVE));
     }

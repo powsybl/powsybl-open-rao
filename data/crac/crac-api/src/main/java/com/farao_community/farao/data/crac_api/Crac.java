@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -16,6 +17,8 @@ import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import java.util.*;
+
+import static java.lang.String.format;
 
 /**
  * Interface to manage CRAC.
@@ -149,11 +152,12 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * state or contingency are found.
      */
     default State getState(String contingencyId, Instant instant) {
-        if (getContingency(contingencyId) != null && instant != null) {
-            return getState(getContingency(contingencyId), instant);
-        } else {
-            return null;
+        Objects.requireNonNull(contingencyId, "Contingency ID should be defined.");
+        Objects.requireNonNull(instant, "Instant should be defined.");
+        if (getContingency(contingencyId) == null) {
+            throw new FaraoException(format("Contingency %s does not exist, as well as the related state.", contingencyId));
         }
+        return getState(getContingency(contingencyId), instant);
     }
 
     // Cnecs management
