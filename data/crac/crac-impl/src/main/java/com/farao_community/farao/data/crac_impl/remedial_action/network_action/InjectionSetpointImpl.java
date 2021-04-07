@@ -29,7 +29,7 @@ public final class InjectionSetpointImpl implements ElementaryAction {
         this.setpoint = setpoint;
     }
 
-    public double getSetPoint() {
+    public double getSetpoint() {
         return setpoint;
     }
 

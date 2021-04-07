@@ -27,7 +27,7 @@ public class InjectionSetpointImplTest extends AbstractRemedialActionTest {
     public void getSetpoint() {
         NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
         InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(mockedNetworkElement, 10.);
-        assertEquals(10., injectionSetpoint.getSetPoint(), 1e-3);
+        assertEquals(10., injectionSetpoint.getSetpoint(), 1e-3);
     }
 
     @Test

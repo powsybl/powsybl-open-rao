@@ -30,9 +30,9 @@ public final class PstSetpointImpl implements ElementaryAction {
     private double setpoint;
     private RangeDefinition rangeDefinition;
 
-    public PstSetpointImpl(NetworkElement networkElement, double setPoint, RangeDefinition rangeDefinition) {
+    public PstSetpointImpl(NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
         this.networkElement = networkElement;
-        this.setpoint = setPoint;
+        this.setpoint = setpoint;
         this.rangeDefinition = rangeDefinition;
     }
 
@@ -40,7 +40,7 @@ public final class PstSetpointImpl implements ElementaryAction {
         return this.rangeDefinition;
     }
 
-    public double getSetPoint() {
+    public double getSetpoint() {
         return this.setpoint;
     }
 
