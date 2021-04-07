@@ -80,7 +80,8 @@ public class LinearRao implements RaoProvider {
         this.unit = raoParameters.getObjectiveFunction().getUnit();
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
         // TODO : add max pst per tso parameter here if it should be supported in LinearRao
-        IteratingLinearOptimizer iteratingLinearOptimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
+        // TODO : delete LinearRao or adapt to the rao refacto
+        IteratingLinearOptimizer iteratingLinearOptimizer = null;
         return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData), raoParameters);
     }
 
@@ -102,7 +103,8 @@ public class LinearRao implements RaoProvider {
             return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, raoData.getPreOptimVariantId(), systematicSensitivityInterface));
         }
 
-        String bestVariantId = iteratingLinearOptimizer.optimize(raoData);
+        // TODO : delete LinearRao or adapt to the rao refacto
+        String bestVariantId = "";
 
         return CompletableFuture.completedFuture(buildSuccessfulRaoResultAndClearVariants(raoData, bestVariantId, systematicSensitivityInterface));
     }

@@ -139,9 +139,9 @@ public class LeafTest {
             e.printStackTrace();
         }
         costEvaluatorMock = Mockito.mock(ObjectiveFunctionEvaluator.class);
-        Mockito.when(costEvaluatorMock.getCost(raoData)).thenAnswer(invocationOnMock -> 0.);
-        Mockito.when(costEvaluatorMock.getFunctionalCost(raoData)).thenAnswer(invocationOnMock -> 0.);
-        Mockito.when(costEvaluatorMock.getVirtualCost(raoData)).thenAnswer(invocationOnMock -> 0.);
+        Mockito.when(costEvaluatorMock.computeCost(raoData)).thenAnswer(invocationOnMock -> 0.);
+        Mockito.when(costEvaluatorMock.computeFunctionalCost(raoData)).thenAnswer(invocationOnMock -> 0.);
+        Mockito.when(costEvaluatorMock.computeVirtualCost(raoData)).thenAnswer(invocationOnMock -> 0.);
         Mockito.when(RaoUtil.createObjectiveFunction(raoParameters, treeParameters.getOperatorsNotToOptimize())).thenAnswer(invocationOnMock -> costEvaluatorMock);
     }
 
@@ -258,8 +258,8 @@ public class LeafTest {
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertEquals(bestCost, rootLeaf.getBestCost(), DOUBLE_TOLERANCE);
 
-        Mockito.when(costEvaluatorMock.getFunctionalCost(raoData)).thenAnswer(invocationOnMock -> 10.);
-        Mockito.when(costEvaluatorMock.getVirtualCost(raoData)).thenAnswer(invocationOnMock -> 2.);
+        Mockito.when(costEvaluatorMock.computeFunctionalCost(raoData)).thenAnswer(invocationOnMock -> 10.);
+        Mockito.when(costEvaluatorMock.computeVirtualCost(raoData)).thenAnswer(invocationOnMock -> 2.);
         rootLeaf.evaluate();
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertEquals(12, rootLeaf.getBestCost(), DOUBLE_TOLERANCE);

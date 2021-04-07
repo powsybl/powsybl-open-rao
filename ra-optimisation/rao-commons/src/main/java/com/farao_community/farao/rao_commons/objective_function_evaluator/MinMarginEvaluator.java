@@ -73,7 +73,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public double computeCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         if (unit.equals(MEGAWATT)) {
             return -getMinMarginInMegawatt(sensitivityAndLoopflowResults.getSystematicSensitivityResult());
         } else {

@@ -73,8 +73,8 @@ public final class IteratingLinearOptimizer {
         Network network = iteratingLinearOptimizerInput.getNetwork();
 
         IteratingLinearOptimizerOutput.SolveStatus solveStatus = IteratingLinearOptimizerOutput.SolveStatus.NOT_SOLVED;
-        double functionalCost = objectiveFunctionEvaluator.getFunctionalCost(sensitivityAndLoopflowResults);
-        double virtualCost = objectiveFunctionEvaluator.getVirtualCost(sensitivityAndLoopflowResults);
+        double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults);
+        double virtualCost = objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults);
         Map<RangeAction, Double> rangeActionSetPoints = new HashMap<>();
         Map<PstRangeAction, Integer> pstTaps = new HashMap<>();
         for (RangeAction rangeAction : iteratingLinearOptimizerInput.getRangeActions()) {
@@ -121,19 +121,21 @@ public final class IteratingLinearOptimizer {
                 }
                 return bestIteratingLinearOptimizerOutput;
             } else if (!hasRemedialActionsChanged(bestIteratingLinearOptimizerOutput, linearOptimizerOutput, iteration)) {
+                // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
+                LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
                 bestIteratingLinearOptimizerOutput.setStatus(IteratingLinearOptimizerOutput.SolveStatus.OPTIMAL);
                 return bestIteratingLinearOptimizerOutput;
             } else {
                 updatedSensitivityAndLoopflowResults = applyRangeActionsAndRunSensitivityComputation(iteratingLinearOptimizerInput, linearOptimizerOutput.getRangeActionSetpoints(), updatedSensitivityAndLoopflowResults, iteration, iteratingLinearOptimizerParameters.getLoopFlowApproximationLevel());
-                double functionalCost = objectiveFunctionEvaluator.getFunctionalCost(updatedSensitivityAndLoopflowResults);
-                double virtualCost = objectiveFunctionEvaluator.getVirtualCost(updatedSensitivityAndLoopflowResults);
+                double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(updatedSensitivityAndLoopflowResults);
+                double virtualCost = objectiveFunctionEvaluator.computeVirtualCost(updatedSensitivityAndLoopflowResults);
                 if (functionalCost + virtualCost < bestIteratingLinearOptimizerOutput.getCost()) {
                     LOGGER.info("Iteration {} - Better solution found with a minimum margin of {} {} (optimisation criterion : {})",
                             iteration, -functionalCost, objectiveFunctionEvaluator.getUnit(), functionalCost + virtualCost);
-                    bestIteratingLinearOptimizerOutput = new IteratingLinearOptimizerOutput(IteratingLinearOptimizerOutput.SolveStatus.OPTIMAL, functionalCost, virtualCost,
+                    bestIteratingLinearOptimizerOutput = new IteratingLinearOptimizerOutput(IteratingLinearOptimizerOutput.SolveStatus.FEASIBLE, functionalCost, virtualCost,
                             linearOptimizerOutput, updatedSensitivityAndLoopflowResults);
                 } else {
-                    LOGGER.warn("Iteration {} - Linear Optimization found a worse result than previous iteration, with a minimum margin from {} to {} {} (optimisation criterion : from {} to {})",
+                    LOGGER.info("Iteration {} - Linear Optimization found a worse result than previous iteration, with a minimum margin from {} to {} {} (optimisation criterion : from {} to {})",
                             iteration, -bestIteratingLinearOptimizerOutput.getFunctionalCost(), -functionalCost, objectiveFunctionEvaluator.getUnit(), bestIteratingLinearOptimizerOutput.getCost(), functionalCost + virtualCost);
                     bestIteratingLinearOptimizerOutput.setStatus(IteratingLinearOptimizerOutput.SolveStatus.OPTIMAL);
                     return bestIteratingLinearOptimizerOutput;
@@ -176,8 +178,6 @@ public final class IteratingLinearOptimizer {
             }
         }
 
-        // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
-        LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
         return false;
     }
 

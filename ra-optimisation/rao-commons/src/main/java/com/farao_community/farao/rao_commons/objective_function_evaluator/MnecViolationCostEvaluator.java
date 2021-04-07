@@ -46,7 +46,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public double computeCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         if (Math.abs(mnecViolationCost) < 1e-10) {
             return 0;
         }

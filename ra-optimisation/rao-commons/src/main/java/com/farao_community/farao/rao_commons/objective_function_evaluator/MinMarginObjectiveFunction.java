@@ -63,16 +63,16 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     }
 
     @Override
-    public double getFunctionalCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
-        return minMarginEvaluator.getCost(sensitivityAndLoopflowResults);
+    public double computeFunctionalCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+        return minMarginEvaluator.computeCost(sensitivityAndLoopflowResults);
     }
 
     @Override
-    public double getVirtualCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
-        double baseVirtualCost = mnecViolationCostEvaluator.getCost(sensitivityAndLoopflowResults) + sensitivityFallbackOvercostEvaluator.getCost(sensitivityAndLoopflowResults);
+    public double computeVirtualCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+        double baseVirtualCost = mnecViolationCostEvaluator.computeCost(sensitivityAndLoopflowResults) + sensitivityFallbackOvercostEvaluator.computeCost(sensitivityAndLoopflowResults);
 
         if (isRaoWithLoopFlow) {
-            return baseVirtualCost + loopFlowViolationCostEvaluator.getCost(sensitivityAndLoopflowResults);
+            return baseVirtualCost + loopFlowViolationCostEvaluator.computeCost(sensitivityAndLoopflowResults);
         } else {
             return baseVirtualCost;
         }
@@ -82,8 +82,8 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
      * Returns the sum of functional and virtual costs
      */
     @Override
-    public double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
-        return getFunctionalCost(sensitivityAndLoopflowResults) + getVirtualCost(sensitivityAndLoopflowResults);
+    public double computeCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+        return computeFunctionalCost(sensitivityAndLoopflowResults) + computeVirtualCost(sensitivityAndLoopflowResults);
     }
 
     @Override

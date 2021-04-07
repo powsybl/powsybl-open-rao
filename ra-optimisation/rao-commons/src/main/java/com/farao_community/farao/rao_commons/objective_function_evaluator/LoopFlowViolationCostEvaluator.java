@@ -35,7 +35,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public double computeCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         double cost = linearOptimizerInput.getLoopflowCnecs()
             .stream()
             .mapToDouble(cnec -> getLoopFlowExcess(sensitivityAndLoopflowResults, cnec) * violationCost)

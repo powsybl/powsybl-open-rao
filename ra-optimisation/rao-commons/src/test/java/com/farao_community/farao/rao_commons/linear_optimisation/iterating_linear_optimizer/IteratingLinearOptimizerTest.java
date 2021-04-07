@@ -129,8 +129,8 @@ public class IteratingLinearOptimizerTest {
         }).when(linearOptimizer).optimize(any());
 
         costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
-        Mockito.when(costEvaluator.getFunctionalCost(raoData)).thenReturn(0.);
-        Mockito.when(costEvaluator.getVirtualCost(raoData)).thenReturn(0.);
+        Mockito.when(costEvaluator.computeFunctionalCost(raoData)).thenReturn(0.);
+        Mockito.when(costEvaluator.computeVirtualCost(raoData)).thenReturn(0.);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class IteratingLinearOptimizerTest {
         String preOptimVariant = raoData.getPreOptimVariantId();
 
         Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("OPTIMAL");
-        Mockito.when(costEvaluator.getFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
+        Mockito.when(costEvaluator.computeFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
 
         // run an iterating optimization
         String bestVariantId = new IteratingLinearOptimizer(
@@ -174,7 +174,7 @@ public class IteratingLinearOptimizerTest {
         String preOptimVariant = raoData.getWorkingVariantId();
 
         Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("INFEASIBLE");
-        Mockito.when(costEvaluator.getFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
+        Mockito.when(costEvaluator.computeFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
 
         // run an iterating optimization
         String bestVariantId = new IteratingLinearOptimizer(

@@ -26,7 +26,7 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
         this.fallBackOvercost = overcost;
     }
 
-    public double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public double computeCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
 
         switch (sensitivityAndLoopflowResults.getSystematicSensitivityResult().getStatus()) {
             case SUCCESS:

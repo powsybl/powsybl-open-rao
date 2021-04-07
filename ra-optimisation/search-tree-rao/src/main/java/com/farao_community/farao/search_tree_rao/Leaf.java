@@ -175,7 +175,7 @@ class Leaf {
 
             objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters, treeParameters.getOperatorsNotToOptimize());
             raoData.getCracResultManager().fillCracResultWithCosts(
-                objectiveFunctionEvaluator.getFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.getVirtualCost(sensitivityAndLoopflowResults));
+                objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults));
             return;
         }
 
@@ -198,7 +198,7 @@ class Leaf {
 
             SensitivityAndLoopflowResults sensitivityAndLoopflowResults = raoData.getSensitivityAndLoopflowResults();
             raoData.getCracResultManager().fillCracResultWithCosts(
-                objectiveFunctionEvaluator.getFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.getVirtualCost(sensitivityAndLoopflowResults));
+                objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults));
             status = Status.EVALUATED;
         } catch (FaraoException e) {
             LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));

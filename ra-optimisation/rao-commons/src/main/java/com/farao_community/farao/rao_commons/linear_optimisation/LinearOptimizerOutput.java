@@ -6,7 +6,6 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import java.util.Map;
 
 public class LinearOptimizerOutput {
-
     public enum SolveStatus {
         OPTIMAL,
         FEASIBLE,

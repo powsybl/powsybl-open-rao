@@ -118,7 +118,7 @@ public class MnecViolationCostEvaluatorTest {
             mnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInA(initFlow);
             Mockito.when(sensiResult.getReferenceIntensity(mnec)).thenReturn(newFlow);
         }
-        assertEquals(expectedCost, evaluator.getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(expectedCost, evaluator.computeCost(raoData), DOUBLE_TOLERANCE);
     }
 
     private void testCost(double initMargin, double newMargin, double expectedCostWithEval1, double expectedCostWithEval2) {

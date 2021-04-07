@@ -19,12 +19,12 @@ public interface ObjectiveFunctionEvaluator extends CostEvaluator {
     List<BranchCnec> getMostLimitingElements(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, int numberOfElements);
 
     /**
-     * Get the functional part of the objective function
+     * Computes the functional part of the objective function
      */
-    double getFunctionalCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
+    double computeFunctionalCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
 
     /**
-     * Get the virtual part of the objective function
+     * Computes the virtual part of the objective function
      */
-    double getVirtualCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
+    double computeVirtualCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
 }

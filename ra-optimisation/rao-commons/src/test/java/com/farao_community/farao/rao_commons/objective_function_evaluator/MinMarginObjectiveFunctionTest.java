@@ -103,12 +103,12 @@ public class MinMarginObjectiveFunctionTest {
             );
             Mockito.when(sensiResult.getReferenceIntensity(Mockito.any())).thenReturn(newFlow);
         }
-        double absoluteFunctionalCost = minMarginEvaluator.getCost(raoData);
-        double expectedFunctionalCost = (absoluteFunctionalCost > 0) ? absoluteFunctionalCost : minRelativeMarginEvaluator.getCost(raoData);
-        double expectedVirtualCost = mnecViolationCostEvaluator.getCost(raoData);
-        assertEquals(expectedFunctionalCost, minRelativeMarginObjectiveFunction.getFunctionalCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(expectedVirtualCost, minRelativeMarginObjectiveFunction.getVirtualCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(expectedFunctionalCost + expectedVirtualCost, minRelativeMarginObjectiveFunction.getCost(raoData), DOUBLE_TOLERANCE);
+        double absoluteFunctionalCost = minMarginEvaluator.computeCost(raoData);
+        double expectedFunctionalCost = (absoluteFunctionalCost > 0) ? absoluteFunctionalCost : minRelativeMarginEvaluator.computeCost(raoData);
+        double expectedVirtualCost = mnecViolationCostEvaluator.computeCost(raoData);
+        assertEquals(expectedFunctionalCost, minRelativeMarginObjectiveFunction.computeFunctionalCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(expectedVirtualCost, minRelativeMarginObjectiveFunction.computeVirtualCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(expectedFunctionalCost + expectedVirtualCost, minRelativeMarginObjectiveFunction.computeCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test

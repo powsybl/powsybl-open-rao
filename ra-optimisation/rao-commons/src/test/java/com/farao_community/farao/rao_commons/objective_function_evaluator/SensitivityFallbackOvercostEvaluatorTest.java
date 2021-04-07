@@ -34,22 +34,22 @@ public class SensitivityFallbackOvercostEvaluatorTest {
     @Test
     public void testSuccess() {
         Mockito.when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
-        assertEquals(0., new SensitivityFallbackOvercostEvaluator(0.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(0., new SensitivityFallbackOvercostEvaluator(10.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(0., new SensitivityFallbackOvercostEvaluator(100.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(0., new SensitivityFallbackOvercostEvaluator(0.).computeCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(0., new SensitivityFallbackOvercostEvaluator(10.).computeCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(0., new SensitivityFallbackOvercostEvaluator(100.).computeCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testFallBack() {
         Mockito.when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK);
-        assertEquals(0., new SensitivityFallbackOvercostEvaluator(0.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(10., new SensitivityFallbackOvercostEvaluator(10.).getCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(100., new SensitivityFallbackOvercostEvaluator(100.).getCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(0., new SensitivityFallbackOvercostEvaluator(0.).computeCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(10., new SensitivityFallbackOvercostEvaluator(10.).computeCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(100., new SensitivityFallbackOvercostEvaluator(100.).computeCost(raoData), DOUBLE_TOLERANCE);
     }
 
     @Test (expected = FaraoException.class)
     public void testFailure() {
         Mockito.when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
-        new SensitivityFallbackOvercostEvaluator(100.).getCost(raoData);
+        new SensitivityFallbackOvercostEvaluator(100.).computeCost(raoData);
     }
 }

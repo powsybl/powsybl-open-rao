@@ -25,7 +25,7 @@ public interface CostEvaluator {
      * @param raoData: RaoData object to evaluate the cost on.
      * @return Double value of the RaoData cost.
      */
-    double getCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
+    double computeCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
 
     Unit getUnit();
 
