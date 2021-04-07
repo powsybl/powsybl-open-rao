@@ -112,7 +112,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     private void updateDataMonitoredBranch(DataMonitoredBranch dataMonitoredBranch, Crac crac, SystematicSensitivityResult sensitivityResult, ZonalData<LinearGlsk> glsk) {
-        if (dataMonitoredBranch.getInstantId().equals(afterCraInstant)) {
+        if (dataMonitoredBranch.getInstantId().equals(afterCraInstant.toString())) {
             BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
             dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
             glsk.getDataPerZone().forEach((zone, zonalData) -> {
