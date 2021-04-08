@@ -10,11 +10,10 @@ package com.farao_community.farao.data.crac_impl.usage_rule;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.PostContingencyState;
+import com.farao_community.farao.data.crac_impl.PreventiveState;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -29,10 +28,10 @@ public class OnStateImplTest {
 
     @Before
     public void setUp() {
-        initialState = new SimpleState(Optional.empty(), new Instant("initial-instant", 0));
-        Instant curativeInstant = new Instant("curative", 1200);
-        curativeState1 = new SimpleState(Optional.of(new ComplexContingency("contingency1")), curativeInstant);
-        curativeState2 = new SimpleState(Optional.of(new ComplexContingency("contingency2")), curativeInstant);
+        initialState = new PreventiveState();
+        Instant curativeInstant = Instant.CURATIVE;
+        curativeState1 = new PostContingencyState(new ComplexContingency("contingency1"), curativeInstant);
+        curativeState2 = new PostContingencyState(new ComplexContingency("contingency2"), curativeInstant);
     }
 
     @Test
@@ -60,7 +59,7 @@ public class OnStateImplTest {
     @Test
     public void testEqualsFalseNotTheSameObject() {
         OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
-        assertNotEquals(rule1, new Instant("fail", 10));
+        assertNotEquals(rule1, Instant.PREVENTIVE);
     }
 
     @Test

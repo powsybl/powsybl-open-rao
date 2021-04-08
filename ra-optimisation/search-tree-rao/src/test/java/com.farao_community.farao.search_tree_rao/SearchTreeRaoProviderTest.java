@@ -8,10 +8,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.ActionType;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -49,7 +46,7 @@ public class SearchTreeRaoProviderTest {
     public void setUp() {
         crac = CommonCracCreation.createWithPstRange();
 
-        State curativeState = crac.getState("Contingency FR1 FR3", "curative");
+        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
 
         TopologicalActionImpl topologicalAction = new TopologicalActionImpl(crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN);
 
@@ -88,13 +85,13 @@ public class SearchTreeRaoProviderTest {
      *  - a curative perimeer being {curative state after FR1-FR3co (optimized)}
      */
     private StateTree mockedStateTree(Crac crac) {
-        State curativeState = crac.getState("Contingency FR1 FR3", "curative");
+        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
         StateTree stateTree = Mockito.mock(StateTree.class);
         Mockito.when(stateTree.getOptimizedState(crac.getPreventiveState())).thenReturn(crac.getPreventiveState());
-        Mockito.when(stateTree.getOptimizedState(crac.getState("Contingency FR1 FR2", "curative"))).thenReturn(crac.getPreventiveState());
+        Mockito.when(stateTree.getOptimizedState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE))).thenReturn(crac.getPreventiveState());
         Mockito.when(stateTree.getOptimizedState(curativeState)).thenReturn(curativeState);
         Mockito.when(stateTree.getOptimizedStates()).thenReturn(Set.of(crac.getPreventiveState(), curativeState));
-        Mockito.when(stateTree.getPerimeter(crac.getPreventiveState())).thenReturn(Set.of(crac.getPreventiveState(), crac.getState("Contingency FR1 FR2", "curative")));
+        Mockito.when(stateTree.getPerimeter(crac.getPreventiveState())).thenReturn(Set.of(crac.getPreventiveState(), crac.getState("Contingency FR1 FR2", Instant.CURATIVE)));
         Mockito.when(stateTree.getPerimeter(curativeState)).thenReturn(Set.of(curativeState));
         return stateTree;
     }
@@ -111,7 +108,7 @@ public class SearchTreeRaoProviderTest {
 
         StateTree stateTree = mockedStateTree(crac);
 
-        State curativeState = crac.getState("Contingency FR1 FR3", "curative");
+        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
         RaoResult mergedRaoResult = new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
                 Map.of(curativeState, curativeRaoResult));
 
@@ -143,7 +140,7 @@ public class SearchTreeRaoProviderTest {
 
         StateTree stateTree = mockedStateTree(crac);
 
-        State curativeState = crac.getState("Contingency FR1 FR3", "curative");
+        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
         RaoResult mergedRaoResult = new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
                 Map.of(curativeState, curativeRaoResult));
 
@@ -163,7 +160,7 @@ public class SearchTreeRaoProviderTest {
 
         StateTree stateTree = mockedStateTree(crac);
 
-        State curativeState = crac.getState("Contingency FR1 FR3", "curative");
+        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
         new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
                 Map.of(curativeState, curativeRaoResult));
 
@@ -187,8 +184,8 @@ public class SearchTreeRaoProviderTest {
 
         StateTree stateTree = mockedStateTree(crac);
 
-        State curativeState1 = crac.getState("Contingency FR1 FR3", "curative");
-        State curativeState2 = crac.getState("Contingency FR1 FR2", "curative");
+        State curativeState1 = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
+        State curativeState2 = crac.getState("Contingency FR1 FR2", Instant.CURATIVE);
 
         CracResultExtension resultExtension = crac.getExtension(CracResultExtension.class);
 
@@ -224,8 +221,8 @@ public class SearchTreeRaoProviderTest {
 
         StateTree stateTree = mockedStateTree(crac);
 
-        State curativeState1 = crac.getState("Contingency FR1 FR3", "curative");
-        State curativeState2 = crac.getState("Contingency FR1 FR2", "curative");
+        State curativeState1 = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
+        State curativeState2 = crac.getState("Contingency FR1 FR2", Instant.CURATIVE);
 
         CracResultExtension resultExtension = crac.getExtension(CracResultExtension.class);
 
@@ -248,7 +245,7 @@ public class SearchTreeRaoProviderTest {
     public void testMergeObjectiveFunctionCostIgnorePerimetersWithPureMnecs() {
         Contingency contingency = crac.addContingency("pure_mnecs_cont", "BBE2AA1  FFR3AA1  1");
         BranchCnec mnec = crac.newBranchCnec().setId("pure_mnec")
-                .setContingency(contingency).setInstant(crac.getInstant("curative"))
+                .setContingency(contingency).setInstant(Instant.CURATIVE)
                 .newNetworkElement().setId("BBE2AA1  FFR3AA1  1").add()
                 .newThreshold().setMax(1000.).setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
                 .monitored().add();
@@ -261,8 +258,8 @@ public class SearchTreeRaoProviderTest {
         curativeRaoResult.setPreOptimVariantId(postOptimPrevVariantId);
         curativeRaoResult.setPostOptimVariantId(postOptimCurVariantId);
 
-        State curativeState = crac.addState(contingency, crac.getInstant("curative"));
-        State curativeState2 = crac.getState("Contingency FR1 FR3", "curative");
+        State curativeState = crac.getState(contingency, Instant.CURATIVE);
+        State curativeState2 = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
 
         StateTree stateTree = mockedStateTree(crac);
         Mockito.when(stateTree.getOptimizedState(curativeState)).thenReturn(curativeState);

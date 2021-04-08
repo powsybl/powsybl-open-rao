@@ -28,10 +28,6 @@ public final class JsonSerializationNames {
     public static final String CONTINGENCIES = "contingencies";
 
     public static final String INSTANT = "instant";
-    public static final String INSTANTS = "instants";
-
-    public static final String STATE = "state";
-    public static final String STATES = "states";
 
     public static final String CNEC = "cnec";
     public static final String CNECS = "cnecs";
@@ -79,6 +75,5 @@ public final class JsonSerializationNames {
     public static final String COMPLEX_NETWORK_ACTION_TYPE = "complex-network-action";
 
     public static final String FREE_TO_USE_TYPE = "free-to-use";
-    public static final String ON_CONSTRAINT_TYPE = "on-constraint";
     public static final String ON_STATE_TYPE = "on-state";
 }

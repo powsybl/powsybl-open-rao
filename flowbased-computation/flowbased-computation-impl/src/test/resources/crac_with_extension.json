@@ -24,20 +24,6 @@
       "name": "DE-NL"
     }
   ],
-  "instants": [
-    {
-      "type": "Instant",
-      "id": "N",
-      "seconds": -1,
-      "name": "N"
-    },
-    {
-      "type": "Instant",
-      "id": "N-1",
-      "seconds": 60,
-      "name": "N-1"
-    }
-  ],
   "contingencies": [
     {
       "type": "complex-contingency",
@@ -46,20 +32,6 @@
       "networkElements": [
         "FR-BE"
       ]
-    }
-  ],
-  "states": [
-    {
-      "type": "simple-state",
-      "id": "none-N",
-      "contingency": null,
-      "instant": "N"
-    },
-    {
-      "type": "simple-state",
-      "id": "N-1 FR-BE-N-1",
-      "contingency": "N-1 FR-BE",
-      "instant": "N-1"
     }
   ],
   "cnecs": [
@@ -76,7 +48,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -91,7 +64,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -106,7 +80,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -121,7 +96,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -136,7 +112,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "instant": "preventive"
     },
     {
       "type": "flow-cnec",
@@ -151,7 +127,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "instant": "preventive"
     },
     {
       "type": "flow-cnec",
@@ -166,7 +142,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "instant": "preventive"
     },
     {
       "type": "flow-cnec",
@@ -181,7 +157,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "instant": "preventive"
     }
   ],
   "rangeActions" : [],
@@ -193,7 +169,7 @@
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "instant" : "N"
+      "instant" : "preventive"
     } ],
     "elementaryActions" : [ {
       "type" : "topological-action",
@@ -206,13 +182,17 @@
           "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : true
+              "preventive" : true,
+              "N-1 FR-BE - outage" : false,
+              "N-1 FR-BE - curative" : false
             }
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : false
+              "preventive" : false,
+              "N-1 FR-BE - outage" : false,
+              "N-1 FR-BE - curative" : false
             }
           }
         }

@@ -21,11 +21,6 @@ public class MockCracFactory1 implements CracFactory {
     }
 
     @Override
-    public Crac create(String id) {
-        return null;
-    }
-
-    @Override
     public String getName() {
         return "MockCracFactory1";
     }

@@ -41,21 +41,17 @@ public class JsonResultTest {
         // Crac
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
-        // States
-        Instant initialInstant = simpleCrac.newInstant().setId("N").setSeconds(0).add();
-        State preventiveState = simpleCrac.addState(null, initialInstant);
-
         simpleCrac.newBranchCnec()
             .setId("cnec1prev")
             .newNetworkElement().setId("ne1").add()
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-500.).add()
-            .setInstant(initialInstant)
+            .setInstant(Instant.PREVENTIVE)
             .add();
         simpleCrac.newBranchCnec()
             .setId("cnec2prev")
             .newNetworkElement().setId("ne2").add()
             .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).add()
-            .setInstant(initialInstant)
+            .setInstant(Instant.PREVENTIVE)
             .add();
 
         // RangeActions : PstWithRange
@@ -99,26 +95,28 @@ public class JsonResultTest {
         cnecResultExtension.getVariant("variant2").setFlowInA(750.0);
         cnecResultExtension.getVariant("variant2").setFlowInMW(450.0);
 
+        String preventiveStateId = simpleCrac.getPreventiveState().getId();
+
         // PstRangeResult
         RangeActionResultExtension rangeActionResultExtension = simpleCrac.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
         double pstRangeSetPointVariant1 = 4.0;
         double pstRangeSetPointVariant2 = 14.0;
         Integer pstRangeTapVariant1 = 2;
         Integer pstRangeTapVariant2 = 6;
-        rangeActionResultExtension.getVariant("variant1").setSetPoint(preventiveState.getId(), pstRangeSetPointVariant1);
-        ((PstRangeResult) rangeActionResultExtension.getVariant("variant1")).setTap(preventiveState.getId(), pstRangeTapVariant1);
-        rangeActionResultExtension.getVariant("variant2").setSetPoint(preventiveState.getId(), pstRangeSetPointVariant2);
-        ((PstRangeResult) rangeActionResultExtension.getVariant("variant2")).setTap(preventiveState.getId(), pstRangeTapVariant2);
+        rangeActionResultExtension.getVariant("variant1").setSetPoint(preventiveStateId, pstRangeSetPointVariant1);
+        ((PstRangeResult) rangeActionResultExtension.getVariant("variant1")).setTap(preventiveStateId, pstRangeTapVariant1);
+        rangeActionResultExtension.getVariant("variant2").setSetPoint(preventiveStateId, pstRangeSetPointVariant2);
+        ((PstRangeResult) rangeActionResultExtension.getVariant("variant2")).setTap(preventiveStateId, pstRangeTapVariant2);
 
         // NetworkActionResult for topology
         NetworkActionResultExtension topologyResultExtension = simpleCrac.getNetworkAction("topoRaId").getExtension(NetworkActionResultExtension.class);
-        topologyResultExtension.getVariant("variant1").activate(preventiveState.getId());
-        topologyResultExtension.getVariant("variant2").deactivate(preventiveState.getId());
+        topologyResultExtension.getVariant("variant1").activate(preventiveStateId);
+        topologyResultExtension.getVariant("variant2").deactivate(preventiveStateId);
 
         // NetworkActionResult for pstSetpoint
         NetworkActionResultExtension pstSetpointResultExtension = simpleCrac.getNetworkAction("pstSetPointRaId").getExtension(NetworkActionResultExtension.class);
-        pstSetpointResultExtension.getVariant("variant1").activate(preventiveState.getId());
-        pstSetpointResultExtension.getVariant("variant2").deactivate(preventiveState.getId());
+        pstSetpointResultExtension.getVariant("variant1").activate(preventiveStateId);
+        pstSetpointResultExtension.getVariant("variant2").deactivate(preventiveStateId);
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -167,24 +165,24 @@ public class JsonResultTest {
         assertEquals(1, crac.getRangeAction("pst1").getExtensions().size());
         RangeActionResultExtension rangeActionResultExtension1 = crac.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
         assertNotNull(rangeActionResultExtension1);
-        assertEquals(pstRangeSetPointVariant1, rangeActionResultExtension1.getVariant("variant1").getSetPoint(preventiveState.getId()));
-        assertEquals(pstRangeTapVariant1, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant1")).getTap(preventiveState.getId()));
-        assertEquals(pstRangeSetPointVariant2, rangeActionResultExtension1.getVariant("variant2").getSetPoint(preventiveState.getId()));
-        assertEquals(pstRangeTapVariant2, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant2")).getTap(preventiveState.getId()));
+        assertEquals(pstRangeSetPointVariant1, rangeActionResultExtension1.getVariant("variant1").getSetPoint(preventiveStateId));
+        assertEquals(pstRangeTapVariant1, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant1")).getTap(preventiveStateId));
+        assertEquals(pstRangeSetPointVariant2, rangeActionResultExtension1.getVariant("variant2").getSetPoint(preventiveStateId));
+        assertEquals(pstRangeTapVariant2, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant2")).getTap(preventiveStateId));
 
         // assert that the TopologicalActionImpl has a NetworkActionResultExtension with the expected content
         assertEquals(1, crac.getNetworkAction("topoRaId").getExtensions().size());
         NetworkActionResultExtension exportedTopologyResultExtension = crac.getNetworkAction("topoRaId").getExtension(NetworkActionResultExtension.class);
         assertNotNull(exportedTopologyResultExtension);
-        assertTrue(exportedTopologyResultExtension.getVariant("variant1").isActivated(preventiveState.getId()));
-        assertFalse(exportedTopologyResultExtension.getVariant("variant2").isActivated(preventiveState.getId()));
+        assertTrue(exportedTopologyResultExtension.getVariant("variant1").isActivated(preventiveStateId));
+        assertFalse(exportedTopologyResultExtension.getVariant("variant2").isActivated(preventiveStateId));
 
         // assert that the PstSetpointImpl has a NetworkActionResultExtension with the expected content
         assertEquals(1, crac.getNetworkAction("pstSetPointRaId").getExtensions().size());
         NetworkActionResultExtension exportedPstSetpointResultExtension = crac.getNetworkAction("pstSetPointRaId").getExtension(NetworkActionResultExtension.class);
         assertNotNull(exportedPstSetpointResultExtension);
-        assertTrue(exportedPstSetpointResultExtension.getVariant("variant1").isActivated(preventiveState.getId()));
-        assertFalse(exportedPstSetpointResultExtension.getVariant("variant2").isActivated(preventiveState.getId()));
+        assertTrue(exportedPstSetpointResultExtension.getVariant("variant1").isActivated(preventiveStateId));
+        assertFalse(exportedPstSetpointResultExtension.getVariant("variant2").isActivated(preventiveStateId));
     }
 
     @Test

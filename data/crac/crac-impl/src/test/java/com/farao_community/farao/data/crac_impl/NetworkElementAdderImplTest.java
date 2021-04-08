@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElementAdder;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,11 +21,11 @@ import static org.junit.Assert.assertNotNull;
  */
 public class NetworkElementAdderImplTest {
 
-    private SimpleCrac crac;
+    private Crac crac;
 
     @Before
     public void setUp() {
-        crac = new SimpleCrac("test-crac");
+        crac = new SimpleCracFactory().create("test-crac");
     }
 
     @Test

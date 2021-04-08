@@ -48,33 +48,11 @@
     "id" : "FFR1AA1  FFR2AA1  1",
     "name" : "FFR1AA1  FFR2AA1  1"
   } ],
-  "instants" : [ {
-    "type" : "Instant",
-    "id" : "N",
-    "seconds" : -1,
-    "name" : "N"
-  }, {
-    "type" : "Instant",
-    "id" : "Outage",
-    "seconds" : 60,
-    "name" : "Outage"
-  } ],
   "contingencies" : [ {
     "type" : "complex-contingency",
     "id" : "Contingency FR1 FR3",
     "name" : "Contingency FR1 FR3",
     "networkElements" : [ "FFR1AA1  FFR3AA1  1" ]
-  } ],
-  "states" : [ {
-    "type" : "simple-state",
-    "id" : "none-N",
-    "contingency" : null,
-    "instant" : "N"
-  }, {
-    "type" : "simple-state",
-    "id" : "Contingency FR1 FR3-Outage",
-    "contingency" : "Contingency FR1 FR3",
-    "instant" : "Outage"
   } ],
   "cnecs" : [ ],
   "rangeActions" : [ {
@@ -85,7 +63,7 @@
     "usageRules" : [ {
       "type" : "on-state",
       "usageMethod" : "AVAILABLE",
-      "state" : "none-N"
+      "instant" : "preventive"
     } ],
     "networkElements" : [ "BBE2AA1  BBE3AA1  1" ],
     "ranges" : [ {
@@ -100,21 +78,21 @@
           "postOptimisationResults-d98e1bba-05ef-46d9-8f47-fae6752991ea" : {
             "type" : "pst-range-result",
             "tapPerStates" : {
-              "none-N" : -16
+              "preventive" : -16
             },
             "setPointPerStates" : {
-              "none-N" : -6.22764253616333,
-              "Contingency FR1 FR3-Outage" : NaN
+              "preventive" : -6.22764253616333,
+              "Contingency FR1 FR3-outage" : NaN
             }
           },
           "preOptimisationResults-899b1d6c-9d4c-4db2-bdde-0eef417e8898" : {
             "type" : "pst-range-result",
             "tapPerStates" : {
-              "none-N" : 0
+              "preventive" : 0
             },
             "setPointPerStates" : {
-              "none-N" : 0.0,
-              "Contingency FR1 FR3-Outage" : NaN
+              "preventive" : 0.0,
+              "Contingency FR1 FR3-outage" : NaN
             }
           }
         }
@@ -129,7 +107,7 @@
     "usageRules" : [ {
       "type" : "on-state",
       "usageMethod" : "AVAILABLE",
-      "state" : "none-N"
+      "instant" : "preventive"
     } ],
     "elementaryActions" : [ {
       "type" : "topological-action",
@@ -142,15 +120,15 @@
           "postOptimisationResults-d98e1bba-05ef-46d9-8f47-fae6752991ea" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : true,
-              "Contingency FR1 FR3-Outage" : false
+              "preventive" : true,
+              "Contingency FR1 FR3-outage" : false
             }
           },
           "preOptimisationResults-899b1d6c-9d4c-4db2-bdde-0eef417e8898" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : false,
-              "Contingency FR1 FR3-Outage" : false
+              "preventive" : false,
+              "Contingency FR1 FR3-outage" : false
             }
           }
         }
@@ -164,7 +142,7 @@
     "usageRules" : [ {
       "type" : "on-state",
       "usageMethod" : "AVAILABLE",
-      "state" : "none-N"
+      "instant" : "preventive"
     } ],
     "elementaryActions" : [ {
       "type" : "topological-action",
