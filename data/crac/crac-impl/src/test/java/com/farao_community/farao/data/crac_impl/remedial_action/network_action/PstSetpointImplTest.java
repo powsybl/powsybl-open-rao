@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
 import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;

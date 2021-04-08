@@ -9,17 +9,13 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.TopologicalAction;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.apache.commons.lang3.NotImplementedException;
-
-import java.util.HashSet;
 
 /**
  * Topological remedial action: open or close a network element.
