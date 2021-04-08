@@ -206,7 +206,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     public State getState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when getting a state.");
         return states.values().stream()
-            .filter(state -> state.getContingency().isPresent() && state.getInstant().equals(instant))
+            .filter(state -> state.getInstant() == instant)
             .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
             .findAny()
             .orElse(null);
@@ -244,21 +244,31 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         }
     }
 
-    private State addState(State state) {
-        if (getState(state.getId()) == null) {
-            Optional<Contingency> optContingency = state.getContingency();
+    private State addState(PostContingencyState postContingencyState) {
+        if (getState(postContingencyState.getId()) == null) {
+            Optional<Contingency> optContingency = postContingencyState.getContingency();
             if (optContingency.isPresent()) {
                 Contingency contingency = optContingency.get();
                 if (getContingency(contingency.getId()) == null) {
                     throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));
                 } else {
-                    return addState(contingency, state.getInstant());
+                    return addState(contingency, postContingencyState.getInstant());
                 }
             } else {
-                return addPreventiveState();
+                throw new FaraoException("Post contingency state should always have a contingency.");
             }
         } else {
-            return getState(state.getId());
+            return getState(postContingencyState.getId());
+        }
+    }
+
+    private State addState(State state) {
+        if (state instanceof PreventiveState) {
+            return addPreventiveState();
+        } else if (state instanceof  PostContingencyState) {
+            return addState((PostContingencyState) state);
+        } else {
+            throw new FaraoException(format("Type %s of state is not handled by simple crac.", state.getClass()));
         }
     }
 

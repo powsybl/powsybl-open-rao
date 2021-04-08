@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
+import static java.lang.String.format;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -60,7 +61,7 @@ final class CnecDeserializer {
 
                     case TYPE:
                         if (!jsonParser.nextTextValue().equals(FLOW_CNEC_TYPE)) {
-                            throw new FaraoException(String.format("SimpleCrac cannot deserialize other Cnecs types than %s", FLOW_CNEC_TYPE));
+                            throw new FaraoException(format("SimpleCrac cannot deserialize other Cnecs types than %s", FLOW_CNEC_TYPE));
                         }
                         break;
 
@@ -120,11 +121,13 @@ final class CnecDeserializer {
                 }
             }
 
-            if (instant == Instant.PREVENTIVE) {
-                simpleCrac.addPreventiveCnec(id, name, networkElementId, operator, thresholds, frm, optimized, monitored);
-            } else {
+            if (contingencyId != null && instant != Instant.PREVENTIVE) {
                 Contingency contingency = simpleCrac.getContingency(contingencyId);
                 simpleCrac.addCnec(id, name, networkElementId, operator, thresholds, contingency, instant, frm, optimized, monitored);
+            } else if (contingencyId == null && instant == Instant.PREVENTIVE) {
+                simpleCrac.addPreventiveCnec(id, name, networkElementId, operator, thresholds, frm, optimized, monitored);
+            } else {
+                throw new FaraoException("Impossible to add CNEC in preventive after a contingency.");
             }
 
             if (!extensions.isEmpty()) {
