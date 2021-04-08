@@ -31,6 +31,11 @@ public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyA
     }
 
     @Override
+    protected String getTypeDescription() {
+        return "Contingency";
+    }
+
+    @Override
     public NetworkElementAdder<ContingencyAdder> newNetworkElement() {
         return new NetworkElementAdderImpl<>(this);
     }

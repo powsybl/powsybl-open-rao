@@ -35,6 +35,11 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     private String groupId = null;
     private List<UsageRule> usageRules = new ArrayList<>();
 
+    @Override
+    protected String getTypeDescription() {
+        return "PstRangeAction";
+    }
+
     public PstRangeActionAdderImpl(SimpleCrac parent) {
         Objects.requireNonNull(parent);
         this.parent = parent;

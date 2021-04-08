@@ -17,7 +17,12 @@ import java.util.Objects;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class NetworkElementAdderImpl<T extends NetworkElementParent<T>> extends AbstractIdentifiableAdder<NetworkElementAdder<T>> implements NetworkElementAdder<T> {
-    T parent;
+    private T parent;
+
+    @Override
+    protected String getTypeDescription() {
+        return "NetworkElement";
+    }
 
     public NetworkElementAdderImpl(T parent) {
         Objects.requireNonNull(parent);

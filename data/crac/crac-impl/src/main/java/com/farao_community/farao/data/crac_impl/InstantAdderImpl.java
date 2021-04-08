@@ -27,6 +27,11 @@ public class InstantAdderImpl extends AbstractIdentifiableAdder<InstantAdder> im
     }
 
     @Override
+    protected String getTypeDescription() {
+        return "Instant";
+    }
+
+    @Override
     public InstantAdder setSeconds(Integer seconds) {
         this.seconds = seconds;
         return this;

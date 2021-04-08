@@ -4,9 +4,9 @@ public interface TopologicalActionAdder {
 
     TopologicalActionAdder withNetworkElement(String networkElementId);
 
-    TopologicalActionAdder withActionType(ActionType actionType);
+    TopologicalActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    TopologicalActionAdder withRangeDefinition(RangeDefinition rangeDefinition);
+    TopologicalActionAdder withActionType(ActionType actionType);
 
     NetworkActionAdder add();
 }

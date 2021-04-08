@@ -18,9 +18,11 @@ public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> 
     protected String id;
     protected String name;
 
+    protected abstract String getTypeDescription();
+
     protected void checkId() {
         if (this.id == null) {
-            throw new FaraoException("Cannot add an identifiable object with no specified id. Please use withId.");
+            throw new FaraoException(String.format("Cannot add a %s object with no specified id. Please use withId()", getTypeDescription()));
         } else if (this.name == null) {
             this.name = this.id;
         }

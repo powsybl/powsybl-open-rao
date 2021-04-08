@@ -2,9 +2,11 @@ package com.farao_community.farao.data.crac_api;
 
 public interface InjectionSetpointAdder {
 
-    InjectionSetpoint withNetworkElement(String networkElementId);
+    InjectionSetpointAdder withNetworkElement(String networkElementId);
 
-    InjectionSetpoint withSetpoint(double setPoint);
+    InjectionSetpointAdder withNetworkElement(String networkElementId, String networkElementName);
+
+    InjectionSetpointAdder withSetpoint(double setPoint);
 
     NetworkActionAdder add();
 

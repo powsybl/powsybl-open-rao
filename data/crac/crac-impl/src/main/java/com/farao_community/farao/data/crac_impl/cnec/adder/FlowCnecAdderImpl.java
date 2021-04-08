@@ -21,6 +21,11 @@ public class FlowCnecAdderImpl extends AbstractBranchCnecAdder {
     }
 
     @Override
+    protected String getTypeDescription() {
+        return "FlowCnec";
+    }
+
+    @Override
     public BranchCnec add() {
         super.checkCnec();
         FlowCnecImpl flowCnec = new FlowCnecImpl(id, name, networkElement, operator,

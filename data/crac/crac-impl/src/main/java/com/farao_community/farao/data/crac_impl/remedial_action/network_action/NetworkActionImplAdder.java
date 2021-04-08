@@ -19,8 +19,13 @@ public class NetworkActionImplAdder extends AbstractRemedialActionAdder<NetworkA
     }
 
     @Override
+    protected String getTypeDescription() {
+        return "NetworkAction";
+    }
+
+    @Override
     public TopologicalActionAdder newTopologicalAction() {
-        return null;
+        return new TopologicalActionImplAdder(this);
     }
 
     @Override
@@ -30,7 +35,7 @@ public class NetworkActionImplAdder extends AbstractRemedialActionAdder<NetworkA
 
     @Override
     public InjectionSetpointAdder newInjectionSetPoint() {
-        return null;
+        return new InjectionSetpointImplAdder(this);
     }
 
     @Override

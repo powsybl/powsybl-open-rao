@@ -5,8 +5,11 @@ import com.farao_community.farao.data.crac_api.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.PstSetpointAdder;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_impl.AdderUtils;
 
 import java.util.Objects;
+
+import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
 public class PstSetpointImplAdder implements PstSetpointAdder {
 
@@ -47,18 +50,9 @@ public class PstSetpointImplAdder implements PstSetpointAdder {
 
     @Override
     public NetworkActionAdder add() {
-
-        if (Objects.isNull(networkElementId)) {
-            throw new FaraoException("A network element should be defined when adding a PstSetPoint");
-        }
-
-        if (Objects.isNull(setpoint)) {
-            throw new FaraoException("A setpoint should be defined when adding a PstSetPoint");
-        }
-
-        if (Objects.isNull(rangeDefinition)) {
-            throw new FaraoException("A range definition should be defined when adding a PstSetPoint");
-        }
+        assertAttributeNotNull(networkElementId, "PstSetPoint", "network element", "withNetworkElement()");
+        assertAttributeNotNull(setpoint, "PstSetPoint", "setpoint", "withSetPoint()");
+        assertAttributeNotNull(rangeDefinition, "PstSetPoint", "range definition", "withRangeDefinition()");
 
         NetworkElement networkElement;
         if (Objects.isNull(networkElementName)) {
