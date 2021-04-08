@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
-    private Instant onOutageInstant = null;
     private Instant afterCraInstant = null;
     private Set<State> statesWithCras = new HashSet<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
@@ -207,7 +206,6 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         if (instants.size() == 1) {
             LOGGER.info("Only Preventive instant is present for flowbased computation.");
-            return;
         } else if (instants.size() == 2) {
             LOGGER.info("Only Preventive and On outage instants are present for flowbased computation.");
         } else if (instants.size() >= 3) {
@@ -217,9 +215,6 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         } else {
             throw new FaraoException("No instant defined for flowbased computation");
         }
-        // 2nd instant
-        onOutageInstant = instantMap.get(seconds.get(1));
-
     }
 
     private DataDomain buildFlowbasedDomain(Crac crac, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {

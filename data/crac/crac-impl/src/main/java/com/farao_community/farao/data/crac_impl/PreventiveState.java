@@ -23,10 +23,6 @@ import java.util.Optional;
 @JsonIdentityInfo(scope = PreventiveState.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class PreventiveState implements State {
 
-    public PreventiveState() {
-
-    }
-
     @Override
     public String getId() {
         return "preventive";
