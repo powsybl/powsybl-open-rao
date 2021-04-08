@@ -77,4 +77,23 @@ public final class PstSetpointImpl implements PstSetpoint {
                     networkElement.getId()));
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PstSetpointImpl oPstSetPoint =  (PstSetpointImpl) o;
+        return oPstSetPoint.getNetworkElement().equals(this.networkElement)
+            && oPstSetPoint.getSetpoint() == this.setpoint
+            && oPstSetPoint.getRangeDefinition().equals(this.rangeDefinition);
+    }
+
+    @Override
+    public int hashCode() {
+        return networkElement.hashCode() + 7 * Double.valueOf(setpoint).hashCode() + 31 * rangeDefinition.hashCode();
+    }
 }

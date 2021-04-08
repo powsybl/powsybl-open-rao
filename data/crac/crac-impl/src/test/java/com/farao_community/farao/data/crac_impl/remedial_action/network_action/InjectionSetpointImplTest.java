@@ -70,12 +70,16 @@ public class InjectionSetpointImplTest extends AbstractRemedialActionTest {
         InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(
             mockedNetworkElement,
             10.);
-
         assertEquals(injectionSetpoint, injectionSetpoint);
+
+        InjectionSetpointImpl sameInjectionSetpoint = new InjectionSetpointImpl(
+            mockedNetworkElement,
+            10.);
+        assertEquals(injectionSetpoint, sameInjectionSetpoint);
+
         InjectionSetpointImpl differentInjectionSetpoint = new InjectionSetpointImpl(
             mockedNetworkElement,
             12.);
-
         assertNotEquals(injectionSetpoint, differentInjectionSetpoint);
     }
 }
