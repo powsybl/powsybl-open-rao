@@ -79,7 +79,7 @@ public class CracImportExportTest {
             15,
             CENTERED_ON_ZERO);
 
-        simpleCrac.addNetworkAction(new NetworkActionImpl("pstSetpointRaId", "pstSetpointRaName", "RTE", usageRules, Collections.singleton(pstSetpoint1)));
+        simpleCrac.addNetworkAction(new NetworkActionImpl("pstSetpointRaId", "pstSetpointRaName", "RTE", usageRules, Set.of(pstSetpoint1)));
 
         // complex network action with one pst set point and one topology
         PstSetpointImpl pstSetpoint2 = new PstSetpointImpl(
@@ -96,7 +96,7 @@ public class CracImportExportTest {
                 "complexNetworkActionName",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
-                new HashSet<>(Arrays.asList(pstSetpoint2, topology)));
+                Set.of(pstSetpoint2, topology));
 
         simpleCrac.addNetworkAction(complexNetworkAction);
 
@@ -105,7 +105,7 @@ public class CracImportExportTest {
                 simpleCrac.getNetworkElement("injection"),
                 150);
 
-        simpleCrac.addNetworkAction(new NetworkActionImpl("injectionSetpointRaId", "injectioSetpointRaName", "RTE", usageRules, Collections.singleton(injectionSetpoint)));
+        simpleCrac.addNetworkAction(new NetworkActionImpl("injectionSetpointRaId", "injectioSetpointRaName", "RTE", usageRules, Set.of(injectionSetpoint)));
 
         simpleCrac.addRangeAction(new PstRangeActionImpl(
                 "pstRangeId",

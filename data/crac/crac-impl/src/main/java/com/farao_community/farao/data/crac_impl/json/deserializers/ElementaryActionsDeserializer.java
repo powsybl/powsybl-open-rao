@@ -79,14 +79,23 @@ final class ElementaryActionsDeserializer {
 
             switch (type) {
                 case TOPOLOGY_TYPE:
+                    if (actionType == null) {
+                        throw new FaraoException("TopologicalAction must contain an actionType");
+                    }
                     elementaryAction = new TopologicalActionImpl(ne, actionType);
                     break;
 
                 case INJECTION_SETPOINT_TYPE:
+                    if (actionType == null) {
+                        throw new FaraoException("InjectionSetPoint must contain a setpoint");
+                    }
                     elementaryAction = new InjectionSetpointImpl(ne, setPoint);
                     break;
 
                 case PST_SETPOINT_TYPE:
+                    if (actionType == null || rangeDefinition == null) {
+                        throw new FaraoException("PstSetPoint must contain a setpoint and a range definition");
+                    }
                     elementaryAction = new PstSetpointImpl(ne, setPoint, rangeDefinition);
                     break;
 

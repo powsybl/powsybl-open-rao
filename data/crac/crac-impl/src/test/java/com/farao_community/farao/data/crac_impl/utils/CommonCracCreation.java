@@ -142,8 +142,8 @@ public final class CommonCracCreation {
             "switch_ra",
             "switch_ra_name",
             "OPERATOR",
-            Collections.singletonList(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState())),
-            Collections.singleton(topologicalAction)
+            List.of(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState())),
+            Set.of(topologicalAction)
         );
 
         crac.addNetworkAction(topologicalRa);
