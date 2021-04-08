@@ -29,15 +29,11 @@ public class FlowCnecAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private SimpleCrac crac;
     private Contingency contingency1;
-    private Instant instant1;
-    private Instant instant2;
 
     @Before
     public void setUp() {
         crac = new SimpleCrac("test-crac");
         contingency1 = crac.newContingency().setId("conId1").add();
-        instant1 = crac.newInstant().setId("instId1").setSeconds(10).add();
-        instant2 = crac.newInstant().setId("instId2").setSeconds(20).add();
     }
 
     @Test(expected = NullPointerException.class)
@@ -56,7 +52,7 @@ public class FlowCnecAdderImplTest {
     public void testNoIdFail() {
         crac.newBranchCnec()
             .setName("cnecName1")
-            .setInstant(instant1)
+            .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
             .newNetworkElement().setId("neId1").setName("neName1").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).add()
@@ -79,7 +75,7 @@ public class FlowCnecAdderImplTest {
         crac.newBranchCnec()
             .setId("cnecId1")
             .setName("cnecName1")
-            .setInstant(instant1)
+            .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
             .newThreshold().setRule(BranchThresholdRule.ON_HIGH_VOLTAGE_LEVEL).setUnit(Unit.MEGAWATT).setMax(1000.0).add()
             .add();
@@ -90,7 +86,7 @@ public class FlowCnecAdderImplTest {
         crac.newBranchCnec()
             .setId("cnecId1")
             .setName("cnecName1")
-            .setInstant(instant1)
+            .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
             .newNetworkElement().setId("neId1").setName("neName1").add()
             .add();
@@ -101,7 +97,7 @@ public class FlowCnecAdderImplTest {
         BranchCnec cnec1 = crac.newBranchCnec()
             .setId("cnecId1")
             .setName("cnecName1")
-            .setInstant(instant1)
+            .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
             .setOperator("cnec1Operator")
             .newNetworkElement().setId("neId1").setName("neName1").add()
@@ -109,7 +105,7 @@ public class FlowCnecAdderImplTest {
             .add();
         BranchCnec cnec2 = crac.newBranchCnec()
             .setId("cnecId2")
-            .setInstant(instant2)
+            .setInstant(Instant.PREVENTIVE)
             .setOperator("cnec2Operator")
             .newNetworkElement().setId("neId2").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(500.0).add()
@@ -120,7 +116,7 @@ public class FlowCnecAdderImplTest {
         assertEquals(cnec1, crac.getBranchCnec("cnecId1"));
         assertEquals("cnecName1", cnec1.getName());
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
-        assertEquals(instant1, cnec1.getState().getInstant());
+        assertEquals(Instant.OUTAGE, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
         assertEquals("neName1", cnec1.getNetworkElement().getName());
         assertEquals(1000.0, cnec1.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
@@ -129,7 +125,7 @@ public class FlowCnecAdderImplTest {
         // Verify 2nd cnec content
         assertEquals(cnec2, crac.getBranchCnec("cnecId2"));
         assertEquals("cnecId2", cnec2.getName());
-        assertEquals(instant2, cnec2.getState().getInstant());
+        assertEquals(Instant.PREVENTIVE, cnec2.getState().getInstant());
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
         assertEquals("neId2", cnec2.getNetworkElement().getName());
@@ -143,7 +139,7 @@ public class FlowCnecAdderImplTest {
         double frmInMw = 5.0;
         BranchCnecAdder cnecAdder = crac.newBranchCnec();
         BranchCnec cnec = cnecAdder.setId("Cnec ID")
-            .setInstant(instant1)
+            .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
             .newNetworkElement().setId("Network Element ID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(maxValueInMw).setMin(-maxValueInMw).add()
@@ -157,7 +153,7 @@ public class FlowCnecAdderImplTest {
     public void testNotOptimizedMonitored() {
         BranchCnecAdder cnecAdder = crac.newBranchCnec();
         BranchCnec cnec = cnecAdder.setId("Cnec ID")
-            .setInstant(instant1)
+            .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
             .newNetworkElement().setId("Network Element ID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(100.0).setMin(-100.0).add()
@@ -171,7 +167,7 @@ public class FlowCnecAdderImplTest {
     public void testOptimizedNotMonitored() {
         BranchCnecAdder cnecAdder = crac.newBranchCnec();
         BranchCnec cnec = cnecAdder.setId("Cnec ID")
-            .setInstant(instant1)
+            .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
             .newNetworkElement().setId("Network Element ID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(100.0).setMin(-100.0).add()
@@ -185,7 +181,7 @@ public class FlowCnecAdderImplTest {
     public void testNotOptimizedNotMonitored() {
         BranchCnecAdder cnecAdder = crac.newBranchCnec();
         BranchCnec cnec = cnecAdder.setId("Cnec ID")
-            .setInstant(instant1)
+            .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
             .newNetworkElement().setId("Network Element ID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(100.0).setMin(-100.0).add()

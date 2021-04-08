@@ -22,4 +22,13 @@ public interface State extends Comparable<State> {
     Instant getInstant();
 
     Optional<Contingency> getContingency();
+
+    default boolean isPreventive() {
+        return getContingency().isEmpty();
+    }
+
+    @Override
+    default int compareTo(State state) {
+        return getInstant().getOrder() - state.getInstant().getOrder();
+    }
 }

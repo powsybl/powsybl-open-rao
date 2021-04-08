@@ -7,13 +7,10 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.SimpleState;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -22,21 +19,21 @@ import static org.junit.Assert.*;
  */
 public class PstRangeResultTest {
     private static final double EPSILON = 0.1;
-    private State state;
+    private String stateId;
     private PstRangeResult pstRangeResult;
 
     @Before
     public void setUp() {
-        state = new SimpleState(Optional.empty(), new Instant("initial", 0));
-        pstRangeResult = new PstRangeResult(Collections.singleton(state.getId()));
+        stateId = "state-id";
+        pstRangeResult = new PstRangeResult(Collections.singleton(stateId));
     }
 
     @Test
     public void setSetPoint() {
-        pstRangeResult.setSetPoint(state.getId(), 3.2);
-        pstRangeResult.setTap(state.getId(), 5);
+        pstRangeResult.setSetPoint(stateId, 3.2);
+        pstRangeResult.setTap(stateId, 5);
 
-        assertEquals(3.2, pstRangeResult.getSetPoint(state.getId()), EPSILON);
-        assertEquals(Integer.valueOf(5), pstRangeResult.getTap(state.getId()));
+        assertEquals(3.2, pstRangeResult.getSetPoint(stateId), EPSILON);
+        assertEquals(Integer.valueOf(5), pstRangeResult.getTap(stateId));
     }
 }

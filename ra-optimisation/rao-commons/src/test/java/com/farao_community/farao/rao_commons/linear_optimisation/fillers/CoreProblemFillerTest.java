@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -194,7 +195,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Test
     public void fillTestOnCurative() {
         coreProblemFiller = new CoreProblemFiller(0, null);
-        initRaoData(crac.getState("N-1 NL1-NL3", "Défaut"));
+        initRaoData(crac.getState("N-1 NL1-NL3", Instant.OUTAGE));
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
@@ -320,7 +321,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void updateTestOnCurative() {
-        initRaoData(crac.getState("N-1 NL1-NL3", "Défaut"));
+        initRaoData(crac.getState("N-1 NL1-NL3", Instant.OUTAGE));
         // fill a first time the linearRaoProblem with some data
         coreProblemFiller.fill(raoData, linearProblem);
 

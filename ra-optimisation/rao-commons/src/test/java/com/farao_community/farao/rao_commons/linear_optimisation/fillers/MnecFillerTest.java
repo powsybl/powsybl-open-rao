@@ -7,6 +7,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -47,7 +48,7 @@ public class MnecFillerTest extends AbstractFillerTest {
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setMin(-1000.).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setUnit(Unit.MEGAWATT).add()
                 .optimized().monitored()
-                .setInstant(crac.getInstant("N"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         mnec1 = crac.getBranchCnec("MNEC1 - N - preventive");
 
@@ -55,7 +56,7 @@ public class MnecFillerTest extends AbstractFillerTest {
                 .newNetworkElement().setId("NNL2AA1  BBE3AA1  1").add()
                 .newThreshold().setMin(-100.).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(100.0).setUnit(Unit.MEGAWATT).add()
                 .optimized().monitored()
-                .setInstant(crac.getInstant("N"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         mnec2 = crac.getBranchCnec("MNEC2 - N - preventive");
 

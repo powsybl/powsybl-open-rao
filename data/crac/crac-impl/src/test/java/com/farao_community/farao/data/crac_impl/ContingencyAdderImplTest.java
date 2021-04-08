@@ -27,7 +27,7 @@ public class ContingencyAdderImplTest {
 
     @Before
     public void setUp() {
-        crac = (new SimpleCracFactory()).create("test-crac");
+        crac = new SimpleCracFactory().create("test-crac");
     }
 
     @Test

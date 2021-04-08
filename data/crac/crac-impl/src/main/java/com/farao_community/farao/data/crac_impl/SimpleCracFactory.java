@@ -33,6 +33,6 @@ public class SimpleCracFactory implements CracFactory {
 
     @Override
     public Crac create(String id) {
-        return new SimpleCrac(id, id);
+        return new SimpleCrac(id);
     }
 }

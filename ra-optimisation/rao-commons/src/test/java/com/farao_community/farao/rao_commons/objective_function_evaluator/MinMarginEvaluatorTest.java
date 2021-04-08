@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
@@ -207,7 +208,7 @@ public class MinMarginEvaluatorTest {
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(300.).setMin(-300.).setUnit(Unit.MEGAWATT).add()
                 .optimized().monitored()
-                .setInstant(crac.getInstant("initial"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
 
         crac.desynchronize();
@@ -247,8 +248,8 @@ public class MinMarginEvaluatorTest {
     public void testMarginsInAmpereFromMegawattConversion() {
         List<Double> margins = new MinMarginEvaluator(Unit.MEGAWATT, null, true, 0.001).getMarginsInAmpereFromMegawattConversion(raoData);
         assertEquals(2, margins.size());
-        assertEquals(2990, margins.get(0), DOUBLE_TOLERANCE);
-        assertEquals(4254, margins.get(1), DOUBLE_TOLERANCE);
+        assertEquals(4254, margins.get(0), DOUBLE_TOLERANCE);
+        assertEquals(2990, margins.get(1), DOUBLE_TOLERANCE);
     }
 
     private Set<BranchCnec> setUpMockCnecs(boolean optimized, boolean monitored) {

@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -45,8 +46,8 @@ public class StateTreeTest {
 
         }
         preventiveState = crac.getPreventiveState();
-        curativeState1 = crac.getState("Contingency FR1 FR2-curative");
-        curativeState2 = crac.getState("Contingency FR1 FR3-curative");
+        curativeState1 = crac.getState("Contingency FR1 FR2", Instant.CURATIVE);
+        curativeState2 = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
         stateTree = new StateTree(crac, network, preventiveState);
     }
 
@@ -74,7 +75,7 @@ public class StateTreeTest {
     @Test(expected = NotImplementedException.class)
     public void testStartFromCurativeError() {
         crac = CommonCracCreation.create();
-        stateTree = new StateTree(crac, network, crac.getState("Contingency FR1 FR3-curative"));
+        stateTree = new StateTree(crac, network, crac.getState("Contingency FR1 FR3", Instant.CURATIVE));
     }
 
     @Test

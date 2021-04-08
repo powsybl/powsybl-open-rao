@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
@@ -64,7 +65,7 @@ public class OperatorsNotToOptimizeFillerTest extends AbstractFillerTest {
                 .newNetworkElement().setId("NNL1AA1  NNL2AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(800.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
                 .optimized()
-                .setInstant(crac.getInstant("N"))
+                .setInstant(Instant.PREVENTIVE)
                 .setOperator("NL")
                 .add();
         // Set initial margins on both preventive CNECs
@@ -118,14 +119,14 @@ public class OperatorsNotToOptimizeFillerTest extends AbstractFillerTest {
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(3000.0).setMin(-3000.).setUnit(Unit.MEGAWATT).add()
                 .monitored()
-                .setInstant(crac.getInstant("N"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         crac.newBranchCnec().setId("CNEC MNEC")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(2000.0).setMin(-2500.).setUnit(Unit.MEGAWATT).add()
                 .monitored()
                 .optimized()
-                .setInstant(crac.getInstant("N"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         initRaoData(crac.getPreventiveState());
         assertEquals(2500, operatorsNotToOptimizeFiller.getLargestCnecThreshold(raoData), DOUBLE_TOLERANCE);

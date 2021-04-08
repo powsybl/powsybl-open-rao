@@ -45,19 +45,9 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
             gen.writeObject(networkElement);
         }
         gen.writeEndArray();
-        gen.writeArrayFieldStart(INSTANTS);
-        for (Instant instant : value.getInstants()) {
-            gen.writeObject(instant);
-        }
-        gen.writeEndArray();
         gen.writeArrayFieldStart(CONTINGENCIES);
         for (Contingency contingency : value.getContingencies()) {
             gen.writeObject(contingency);
-        }
-        gen.writeEndArray();
-        gen.writeArrayFieldStart(STATES);
-        for (State state : value.getStates()) {
-            gen.writeObject(state);
         }
         gen.writeEndArray();
         gen.writeArrayFieldStart(CNECS);
