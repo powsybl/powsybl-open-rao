@@ -55,4 +55,22 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     public NetworkElement getNetworkElement() {
         return networkElement;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InjectionSetpointImpl oInjectionSetPoint =  (InjectionSetpointImpl) o;
+        return oInjectionSetPoint.getNetworkElement().equals(this.networkElement)
+            && oInjectionSetPoint.getSetpoint() == this.setpoint;
+    }
+
+    @Override
+    public int hashCode() {
+        return networkElement.hashCode() + 37 * Double.valueOf(setpoint).hashCode();
+    }
 }

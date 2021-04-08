@@ -39,14 +39,6 @@
     }
   ],
   "contingencies": [],
-  "states": [
-    {
-      "type": "simple-state",
-      "id": "none-N",
-      "contingency": null,
-      "instant": "N"
-    }
-  ],
   "cnecs": [
     {
       "type": "flow-cnec",

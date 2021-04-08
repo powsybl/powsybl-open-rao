@@ -43,7 +43,7 @@ public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeA
     public PstRangeActionAdderImpl(SimpleCrac parent) {
         Objects.requireNonNull(parent);
         this.parent = parent;
-        this.usageRules.add(new FreeToUseImpl(AVAILABLE, parent.getPreventiveState().getInstant()));
+        this.usageRules.add(new FreeToUseImpl(AVAILABLE, Instant.PREVENTIVE));
     }
 
     @Override

@@ -33,7 +33,7 @@ final class ElementaryActionsDeserializer {
             String networkElementId = null;
 
             ActionType actionType = null; // useful only if type is "topology"
-            double setPoint = 0; // useful only if type is "pst-setpoint" or "injection-set-point"
+            Double setpoint = null; // useful only if type is "pst-setpoint" or "injection-set-point"
             RangeDefinition rangeDefinition = null;  // useful only if type is "pst-setpoint"
 
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -55,7 +55,7 @@ final class ElementaryActionsDeserializer {
 
                     case SETPOINT:
                         jsonParser.nextToken();
-                        setPoint = jsonParser.getDoubleValue();
+                        setpoint = jsonParser.getDoubleValue();
                         break;
 
                     case RANGE_DEFINITION:
@@ -79,15 +79,24 @@ final class ElementaryActionsDeserializer {
 
             switch (type) {
                 case TOPOLOGY_TYPE:
+                    if (actionType == null) {
+                        throw new FaraoException("TopologicalAction must contain an actionType");
+                    }
                     elementaryAction = new TopologicalActionImpl(ne, actionType);
                     break;
 
                 case INJECTION_SETPOINT_TYPE:
-                    elementaryAction = new InjectionSetpointImpl(ne, setPoint);
+                    if (setpoint == null) {
+                        throw new FaraoException("InjectionSetPoint must contain a setpoint");
+                    }
+                    elementaryAction = new InjectionSetpointImpl(ne, setpoint);
                     break;
 
                 case PST_SETPOINT_TYPE:
-                    elementaryAction = new PstSetpointImpl(ne, setPoint, rangeDefinition);
+                    if (setpoint == null || rangeDefinition == null) {
+                        throw new FaraoException("PstSetPoint must contain a setpoint and a range definition");
+                    }
+                    elementaryAction = new PstSetpointImpl(ne, setpoint, rangeDefinition);
                     break;
 
                 default:

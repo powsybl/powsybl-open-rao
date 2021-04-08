@@ -59,7 +59,24 @@ public final class TopologicalActionImpl implements TopologicalAction {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TopologicalActionImpl oTopologicalAction =  (TopologicalActionImpl) o;
+        return oTopologicalAction.getNetworkElement().equals(this.networkElement) && oTopologicalAction.getActionType().equals(this.actionType);
+    }
+
+    @Override
     public NetworkElement getNetworkElement() {
         return networkElement;
+    }
+
+    @Override
+    public int hashCode() {
+        return networkElement.hashCode() + 37 * actionType.hashCode();
     }
 }

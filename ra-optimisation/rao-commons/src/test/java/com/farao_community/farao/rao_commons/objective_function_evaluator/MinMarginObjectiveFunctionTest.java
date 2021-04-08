@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -65,7 +66,7 @@ public class MinMarginObjectiveFunctionTest {
                 .newNetworkElement().setId("FR-BE").add()
                 .newThreshold().setMin(-commonThreshold).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(commonThreshold).setUnit(unit).add()
                 .optimized().monitored()
-                .setInstant(crac.getInstant("initial"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
 
         crac.desynchronize();

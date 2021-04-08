@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -25,7 +27,6 @@ import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -37,53 +38,21 @@ import static java.lang.String.format;
  */
 @JsonTypeName("simple-crac")
 public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
-    private static final String ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE = "Please add %s and %s to crac first.";
     private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
     private static final String SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE = "A contingency with the same ID (%s) but a different network elements already exists.";
 
-    private Map<String, NetworkElement> networkElements;
-    private Map<String, Instant> instants;
-    private Map<String, Contingency> contingencies;
-    private Map<String, State> states;
-    private Map<String, BranchCnec> branchCnecs;
-    private Map<String, RangeAction> rangeActions;
-    private Map<String, NetworkAction> networkActions;
-    private boolean isSynchronized;
-    private DateTime networkDate;
-
-    @JsonCreator
-    public SimpleCrac(@JsonProperty("id") String id,
-                       @JsonProperty("name") String name,
-                       @JsonProperty("networkElements") Set<NetworkElement> networkElements,
-                       @JsonProperty("instants") Set<Instant> instants,
-                       @JsonProperty("contingencies") Set<Contingency> contingencies,
-                       @JsonProperty("states") Set<State> states,
-                       @JsonProperty("cnecs") Set<BranchCnec> branchCnecs,
-                       @JsonProperty("rangeActions") Set<RangeAction> rangeActions,
-                       @JsonProperty("networkActions") Set<NetworkAction> networkActions) {
-        super(id, name);
-        this.networkElements = turnIntoMap(networkElements);
-        this.instants = turnIntoMap(instants);
-        this.states = turnIntoMapForState(states);
-        this.branchCnecs = turnIntoMap(branchCnecs);
-        this.contingencies = turnIntoMap(contingencies);
-        this.rangeActions = turnIntoMap(rangeActions);
-        this.networkActions = turnIntoMap(networkActions);
-        this.isSynchronized = false;
-        this.networkDate = null;
-    }
-
-    private <T extends Identifiable<T>> Map<String, T> turnIntoMap(Set<T> initialSet) {
-        return initialSet.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
-    }
-
-    private Map<String, State> turnIntoMapForState(Set<State> initialSet) {
-        return initialSet.stream().collect(Collectors.toMap(State::getId, Function.identity()));
-    }
+    private final Map<String, NetworkElement> networkElements = new HashMap<>();
+    private final Map<String, Contingency> contingencies = new HashMap<>();
+    private final Map<String, State> states = new HashMap<>();
+    private final Map<String, BranchCnec> branchCnecs = new HashMap<>();
+    private final Map<String, RangeAction> rangeActions = new HashMap<>();
+    private final Map<String, NetworkAction> networkActions = new HashMap<>();
+    private boolean isSynchronized = false;
+    private DateTime networkDate = null;
 
     public SimpleCrac(String id, String name) {
-        this(id, name, new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
+        super(id, name);
     }
 
     public SimpleCrac(String id) {
@@ -140,47 +109,9 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return cracNetworkElement;
     }
 
+    @Override
     public final NetworkElement getNetworkElement(String id) {
         return networkElements.getOrDefault(id, null);
-    }
-
-    @Override
-    public InstantAdder newInstant() {
-        return new InstantAdderImpl(this);
-    }
-
-    @Override
-    public final Set<Instant> getInstants() {
-        return new HashSet<>(instants.values());
-    }
-
-    @Override
-    public Instant getInstant(String id) {
-        return instants.get(id);
-    }
-
-    public Instant addInstant(String id, int seconds) {
-        Instant instant = new Instant(id, seconds);
-        checkAndAddInstant(instant);
-        return instant;
-    }
-
-    @Override
-    public void addInstant(Instant instant) {
-        checkAndAddInstant(instant);
-    }
-
-    private void checkAndAddInstant(Instant instant) {
-        // If no strictly equal elements are present in the Crac
-        if (instants.values().stream().noneMatch(cracInstant -> cracInstant.equals(instant))) {
-            // If an element with the same ID is present
-            if (instants.values().stream().anyMatch(cracInstant -> cracInstant.getId().equals(instant.getId()))) {
-                throw new FaraoException("An instant with the same ID but different seconds already exists.");
-            } else if (instants.values().stream().anyMatch(cracInstant -> cracInstant.getSeconds() == instant.getSeconds())) {
-                throw new FaraoException("An instant with the same seconds but different ID already exists.");
-            }
-            instants.put(instant.getId(), instant);
-        }
     }
 
     @Override
@@ -221,6 +152,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             if (contingencies.values().stream().anyMatch(cracContingency -> cracContingency.getId().equals(contingency.getId()))) {
                 throw new FaraoException(format(SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE, contingency.getId()));
             }
+
             if (contingency instanceof XnodeContingency) {
                 // We cannot iterate through an XnodeContingency's network elements before it is synchronized
                 contingencies.put(contingency.getId(), contingency);
@@ -253,11 +185,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     @JsonIgnore
     public State getPreventiveState() {
-        return states.values().stream().filter(state -> state.getContingency().isEmpty()).findAny().orElse(null);
+        return states.get("preventive");
     }
 
     @Override
     public SortedSet<State> getStates(Contingency contingency) {
+        Objects.requireNonNull(contingency, "Contingency must not be null when getting states.");
         return states.values().stream()
             .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
             .collect(Collectors.toCollection(TreeSet::new));
@@ -266,14 +199,15 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<State> getStates(Instant instant) {
         return states.values().stream()
-            .filter(state -> state.getInstant().getId().equals(instant.getId()))
+            .filter(state -> state.getInstant().equals(instant))
             .collect(Collectors.toSet());
     }
 
     @Override
     public State getState(Contingency contingency, Instant instant) {
+        Objects.requireNonNull(contingency, "Contingency must not be null when getting a state.");
         return states.values().stream()
-            .filter(state -> state.getContingency().isPresent() && state.getInstant().getId().equals(instant.getId()))
+            .filter(state -> state.getInstant() == instant)
             .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingency.getId()))
             .findAny()
             .orElse(null);
@@ -284,78 +218,59 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         states.remove(id);
     }
 
-    public State addState(Contingency contingency, Instant instant) {
-        State state;
-        if (contingency != null) {
-            if (contingencies.containsKey(contingency.getId()) && instants.containsKey(instant.getId())) {
-                state = new SimpleState(Optional.of(getContingency(contingency.getId())), getInstant(instant.getId()));
-            } else {
-                throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, contingency.getId(), instant.getId()));
-            }
+    private State addPreventiveState() {
+        if (getPreventiveState() != null) {
+            return getPreventiveState();
         } else {
-            if (instants.containsKey(instant.getId())) {
-                state = new SimpleState(Optional.empty(), getInstant(instant.getId()));
-            } else {
-                throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, instant.getId()));
-            }
+            State state = new PreventiveState();
+            states.put(state.getId(), state);
+            return state;
         }
-        states.put(state.getId(), state);
-        return state;
     }
 
-    public State addState(String contingencyId, String instantId) {
-        State state;
-        if (contingencyId != null) {
-            if (getContingency(contingencyId) != null && getInstant(instantId) != null) {
-                state = new SimpleState(Optional.of(getContingency(contingencyId)), getInstant(instantId));
-            } else {
-                throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, contingencyId, instantId));
-            }
-        } else {
-            if (getInstant(instantId) != null) {
-                state = new SimpleState(Optional.empty(), getInstant(instantId));
-            } else {
-                throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, instantId));
-            }
+    private State addState(Contingency contingency, Instant instant) {
+        Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
+        if (instant.equals(Instant.PREVENTIVE)) {
+            throw new FaraoException("Impossible to add a preventive state with a contingency.");
         }
-        states.put(state.getId(), state);
-        return state;
+        if (getState(contingency, instant) != null) {
+            return getState(contingency, instant);
+        } else {
+            if (!contingencies.containsKey(contingency.getId())) {
+                throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));
+            }
+            State state = new PostContingencyState(getContingency(contingency.getId()), instant);
+            states.put(state.getId(), state);
+            return state;
+        }
     }
 
-    /**
-     * Add a state in the Crac object. When adding a state which is made of a Contingency and an Instant,
-     * these Contingency and Instant objects have to be independently present in the Crac as well. So if they
-     * are not, they have to be added as well.
-     * Then the State has to point on the good objects, meaning those which are present independently in the Crac.
-     * So in the end a new State object will be created with references on Contingency and Instant objects
-     * that have been already added to the Crac.
-     *
-     * @param state: state object that can be created from already existing Contingency and Instant object of the Crac
-     *             or not.
-     */
-    @Override
-    public void addState(State state) {
-        // If the two instants are strictly equals no need to add it
-        if (instants.values().stream().noneMatch(instant ->
-            instant.getId().equals(state.getInstant().getId()) && instant.getSeconds() == state.getInstant().getSeconds())
-        ) {
-            // Can thow FaraoException if this instant and already present instants are incompatible
-            addInstant(state.getInstant());
-        }
-        Instant instant = getInstant(state.getInstant().getId());
-
-        Optional<Contingency> stateContingency = state.getContingency();
-        Optional<Contingency> contingency;
-        if (stateContingency.isPresent()) {
-            if (contingencies.values().stream().noneMatch(stateContingency.get()::equals)) {
-                addContingency(stateContingency.get());
+    private State addState(PostContingencyState postContingencyState) {
+        if (getState(postContingencyState.getId()) == null) {
+            Optional<Contingency> optContingency = postContingencyState.getContingency();
+            if (optContingency.isPresent()) {
+                Contingency contingency = optContingency.get();
+                if (getContingency(contingency.getId()) == null) {
+                    throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));
+                } else {
+                    return addState(contingency, postContingencyState.getInstant());
+                }
+            } else {
+                throw new FaraoException("Post contingency state should always have a contingency.");
             }
-            contingency = Optional.of(getContingency(stateContingency.get().getId()));
         } else {
-            contingency = Optional.empty();
+            return getState(postContingencyState.getId());
         }
-        State newState = new SimpleState(contingency, instant);
-        states.put(newState.getId(), newState);
+    }
+
+    private State addState(State state) {
+        if (state instanceof PreventiveState) {
+            return addPreventiveState();
+        } else if (state instanceof  PostContingencyState) {
+            return addState((PostContingencyState) state);
+        } else {
+            throw new FaraoException(format("Type %s of state is not handled by simple crac.", state.getClass()));
+        }
     }
 
     @Override
@@ -386,33 +301,53 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         branchCnecs.remove(cnecId);
     }
 
-    public BranchCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, String stateId, double frm, boolean optimized, boolean monitored) {
-        if (getNetworkElement(networkElementId) == null || getState(stateId) == null) {
-            throw new FaraoException(format(ADD_ELEMENTS_TO_CRAC_ERROR_MESSAGE, networkElementId, stateId));
+    public BranchCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant, double frm, boolean optimized, boolean monitored) {
+        if (getNetworkElement(networkElementId) == null) {
+            throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, networkElementId));
         }
-        BranchCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), operator, getState(stateId), optimized, monitored, branchThresholds, frm);
+        if (!contingencies.containsValue(contingency)) {
+            throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));
+        }
+        State state = addState(contingency, instant);
+        BranchCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), operator, state, optimized, monitored, branchThresholds, frm);
         branchCnecs.put(id, cnec);
         return cnec;
     }
 
-    public BranchCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, String stateId, double frm) {
-        return this.addCnec(id, name, networkElementId, operator, branchThresholds, stateId, frm, true, false);
+    public BranchCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant, double frm) {
+        return addCnec(id, name, networkElementId, operator, branchThresholds, contingency, instant, frm, true, false);
     }
 
-    public BranchCnec addCnec(String id, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, String stateId) {
-        return this.addCnec(id, id, networkElementId, operator, branchThresholds, stateId, 0);
+    public BranchCnec addCnec(String id, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant) {
+        return addCnec(id, id, networkElementId, operator, branchThresholds, contingency, instant, 0);
+    }
+
+    public BranchCnec addPreventiveCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, double frm, boolean optimized, boolean monitored) {
+        if (getNetworkElement(networkElementId) == null) {
+            throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, networkElementId));
+        }
+        State state = addPreventiveState();
+        BranchCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), operator, state, optimized, monitored, branchThresholds, frm);
+        branchCnecs.put(id, cnec);
+        return cnec;
+    }
+
+    public BranchCnec addPreventiveCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, double frm) {
+        return addPreventiveCnec(id, name, networkElementId, operator, branchThresholds, frm, true, false);
+    }
+
+    public BranchCnec addPreventiveCnec(String id, String networkElementId, String operator, Set<BranchThreshold> branchThresholds) {
+        return addPreventiveCnec(id, id, networkElementId, operator, branchThresholds, 0);
     }
 
     @Override
     public void addCnec(Cnec<?> cnec) {
         // add cnec
         if (cnec instanceof BranchCnec) {
-            addState(cnec.getState());
-            addNetworkElement(cnec.getNetworkElement());
-            NetworkElement networkElement = getNetworkElement(cnec.getNetworkElement().getId());
+            State state = addState(cnec.getState());
+            NetworkElement networkElement = addNetworkElement(cnec.getNetworkElement().getId(), cnec.getNetworkElement().getName());
             BranchCnec branchCnec = (BranchCnec) cnec;
-
-            branchCnecs.put(cnec.getId(), branchCnec.copy(networkElement, getState(cnec.getState().getId())));
+            branchCnecs.put(cnec.getId(), branchCnec.copy(networkElement, state));
 
             // add extensions
             if (!cnec.getExtensions().isEmpty()) {
@@ -437,12 +372,29 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return new HashSet<>(networkActions.values());
     }
 
+    private void addStatesForRemedialAction(RemedialAction<?> remedialAction) {
+        remedialAction.getNetworkElements().forEach(this::addNetworkElement);
+        remedialAction.getUsageRules().forEach(usageRule -> {
+            if (usageRule instanceof OnState) {
+                addState(((OnState) usageRule).getState());
+            } else if (usageRule instanceof FreeToUse) {
+                // TODO: Big flaw here, if we add a contingency after the remedial action, it won't be available after it
+                if (((FreeToUse) usageRule).getInstant() == Instant.PREVENTIVE) {
+                    addPreventiveState();
+                } else {
+                    contingencies.values().forEach(co -> addState(co, ((FreeToUse) usageRule).getInstant()));
+                }
+            }
+        });
+    }
+
     public void addNetworkAction(NetworkAction networkAction) {
-        networkAction.getNetworkElements().forEach(this::addNetworkElement);
+        addStatesForRemedialAction(networkAction);
         networkActions.put(networkAction.getId(), networkAction);
     }
 
     public void addRangeAction(RangeAction rangeAction) {
+        addStatesForRemedialAction(rangeAction);
         rangeActions.put(rangeAction.getId(), rangeAction);
     }
 

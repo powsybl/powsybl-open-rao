@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -15,10 +16,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
+
+import static java.lang.String.format;
 
 /**
  * Interface to manage CRAC.
@@ -41,18 +41,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     Set<NetworkElement> getNetworkElements();
 
-    Set<Instant> getInstants();
-
-    // Instants management
-    /**
-     * Get a {@code Instant} adder, to add an instant to the Crac
-     * @return a {@code InstantAdder} instance
-     */
-    InstantAdder newInstant();
-
-    Instant getInstant(String id);
-
-    void addInstant(Instant instant);
+    NetworkElement getNetworkElement(String netorkElementId);
 
     // Contingencies management
     /**
@@ -131,15 +120,11 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * because states must not be duplicated and there is no defined order for states selected by
      * instants. Can return null if no matching instant is found.
      *
-     * @param id: The instant id at which we want to gather states.
+     * @param instant: The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
-    default Set<State> getStatesFromInstant(String id) {
-        if (getInstant(id) != null) {
-            return getStates(getInstant(id));
-        } else {
-            return new HashSet<>();
-        }
+    default Set<State> getStatesFromInstant(Instant instant) {
+        return getStates(instant);
     }
 
     /**
@@ -162,19 +147,18 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * Select a unique state after a contingency and at a specific instant, specified by their ids.
      *
      * @param contingencyId: The contingency id after which we want to select the state.
-     * @param instantId: The instant id at which we want to select the state.
+     * @param instant: The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant. Can return null if no matching
      * state or contingency are found.
      */
-    default State getState(String contingencyId, String instantId) {
-        if (getContingency(contingencyId) != null && getInstant(instantId) != null) {
-            return getState(getContingency(contingencyId), getInstant(instantId));
-        } else {
-            return null;
+    default State getState(String contingencyId, Instant instant) {
+        Objects.requireNonNull(contingencyId, "Contingency ID should be defined.");
+        Objects.requireNonNull(instant, "Instant should be defined.");
+        if (getContingency(contingencyId) == null) {
+            throw new FaraoException(format("Contingency %s does not exist, as well as the related state.", contingencyId));
         }
+        return getState(getContingency(contingencyId), instant);
     }
-
-    void addState(State state);
 
     // Cnecs management
 
@@ -217,9 +201,9 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      */
     Set<BranchCnec> getBranchCnecs(State state);
 
-    default Set<BranchCnec> getBranchCnecs(String contingencyId, String instantId) {
-        if (getState(contingencyId, instantId) != null) {
-            return getBranchCnecs(getState(contingencyId, instantId));
+    default Set<BranchCnec> getBranchCnecs(String contingencyId, Instant instant) {
+        if (getState(contingencyId, instant) != null) {
+            return getBranchCnecs(getState(contingencyId, instant));
         } else {
             return new HashSet<>();
         }

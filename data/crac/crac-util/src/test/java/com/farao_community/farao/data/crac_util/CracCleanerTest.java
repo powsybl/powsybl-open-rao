@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.SimpleState;
+import com.farao_community.farao.data.crac_impl.PostContingencyState;
 import com.farao_community.farao.data.crac_impl.XnodeContingency;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
@@ -49,14 +49,7 @@ public class CracCleanerTest {
 
         Contingency contingency = simpleCrac.addContingency("contingencyId", "FFR1AA1  FFR2AA1  1");
         simpleCrac.addContingency("contingency2Id", "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE3AA1  1");
-        simpleCrac.addContingency("contThatShouldBeRemoved", "element that does not exist");
-
-        Instant initialInstant = simpleCrac.addInstant("N", 0);
-        Instant outageInstant = simpleCrac.addInstant("postContingencyId", 5);
-
-        State preventiveState = simpleCrac.addState(null, initialInstant);
-        State postContingencyState = simpleCrac.addState(contingency, outageInstant);
-        State stateThatShouldBeRemoved = simpleCrac.addState("contThatShouldBeRemoved", "postContingencyId");
+        Contingency contingencyNok = simpleCrac.addContingency("contThatShouldBeRemoved", "element that does not exist");
 
         simpleCrac.addNetworkElement("neId1");
         simpleCrac.addNetworkElement("neId2");
@@ -67,27 +60,27 @@ public class CracCleanerTest {
                 .setId("cnec1prev").optimized().monitored()
                 .newNetworkElement().setId("FFR1AA1  FFR2AA1  1").add()
                 .newThreshold().setUnit(Unit.AMPERE).setMin(-500.0).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .setInstant(preventiveState.getInstant())
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         simpleCrac.newBranchCnec()
                 .setId("cnec2prev").optimized().monitored()
                 .newNetworkElement().setId("neId2").add()
                 .newThreshold().setUnit(Unit.PERCENT_IMAX).setMin(-0.3).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .setInstant(preventiveState.getInstant())
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         simpleCrac.newBranchCnec()
                 .setId("cnec1cur").optimized().monitored()
                 .newNetworkElement().setId("neId1").add()
                 .newThreshold().setUnit(Unit.AMPERE).setMin(-800.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .setInstant(postContingencyState.getInstant())
-                .setContingency(postContingencyState.getContingency().orElseThrow())
+                .setInstant(Instant.OUTAGE)
+                .setContingency(contingency)
                 .add();
         simpleCrac.newBranchCnec()
                 .setId("cnec3cur").optimized().monitored()
                 .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
                 .newThreshold().setUnit(Unit.AMPERE).setMin(-500.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .setInstant(stateThatShouldBeRemoved.getInstant())
-                .setContingency(stateThatShouldBeRemoved.getContingency().orElseThrow())
+                .setInstant(Instant.OUTAGE)
+                .setContingency(contingencyNok)
                 .add();
 
         TopologicalActionImpl topology1 = new TopologicalActionImpl(
@@ -123,7 +116,7 @@ public class CracCleanerTest {
             "pstRangeId",
             "pstRangeName",
             "RTE",
-            Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
+            Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
             Collections.singletonList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("pst"));
 
@@ -131,7 +124,7 @@ public class CracCleanerTest {
             "pstRangeId2",
             "pstRangeName2",
             "RTE",
-            Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, preventiveState.getInstant())),
+            Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
             Collections.singletonList(new PstRangeImpl(0, 16, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("BBE2AA1  BBE3AA1  1"));
 
@@ -168,26 +161,25 @@ public class CracCleanerTest {
     private Crac createTestCrac() {
         CracFactory factory = CracFactory.find("SimpleCracFactory");
         Crac crac = factory.create("test-crac");
-        Instant inst = crac.newInstant().setId("inst1").setSeconds(10).add();
         crac.newBranchCnec().setId("BBE1AA1  BBE2AA1  1").optimized().monitored()
                 .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
                 .newThreshold().setUnit(Unit.MEGAWATT).setMin(0.0).setMax(0.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .setInstant(inst)
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         crac.newBranchCnec().setId("BBE1AA1  BBE3AA1  1").optimized()
                 .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
                 .newThreshold().setUnit(Unit.MEGAWATT).setMin(0.0).setMax(0.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .setInstant(inst)
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         crac.newBranchCnec().setId("FFR1AA1  FFR2AA1  1").monitored()
                 .newNetworkElement().setId("FFR1AA1  FFR2AA1  1").add()
                 .newThreshold().setUnit(Unit.MEGAWATT).setMin(0.0).setMax(0.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .setInstant(inst)
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         crac.newBranchCnec().setId("FFR1AA1  FFR3AA1  1")
                 .newNetworkElement().setId("FFR1AA1  FFR3AA1  1").add()
                 .newThreshold().setUnit(Unit.MEGAWATT).setMin(0.0).setMax(0.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .setInstant(inst)
+                .setInstant(Instant.PREVENTIVE)
                 .add();
 
         return crac;
@@ -216,24 +208,14 @@ public class CracCleanerTest {
 
     @Test
     public void testRemoveOnStateUsageRule() {
-        SimpleCrac crac = new SimpleCrac("id");
+        SimpleCrac crac = new SimpleCrac("cracId");
 
-        crac.newInstant().setId("N").setSeconds(1).add();
-        crac.newInstant().setId("Outage").setSeconds(60).add();
-        crac.newContingency().setId("cont_exists").newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add().add();
-        crac.newContingency().setId("cont_unknown").newNetworkElement().setId("unknown").add().add();
-
-        State n = new SimpleState(Optional.empty(), crac.getInstant("N"));
-        State outageOk = new SimpleState(Optional.of(crac.getContingency("cont_exists")), crac.getInstant("Outage"));
-        State outageNok = new SimpleState(Optional.of(crac.getContingency("cont_unknown")), crac.getInstant("Outage"));
-
-        crac.addState(n);
-        crac.addState(outageOk);
-        crac.addState(outageNok);
+        Contingency contingencyOk = crac.newContingency().setId("cont_exists").newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add().add();
+        Contingency contingencyNok = crac.newContingency().setId("cont_unknown").newNetworkElement().setId("unknown").add().add();
 
         List<UsageRule> usageRules = new ArrayList<>();
-        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageOk));
-        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, outageNok));
+        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, new PostContingencyState(contingencyOk, Instant.OUTAGE)));
+        usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, new PostContingencyState(contingencyNok, Instant.OUTAGE)));
 
         TopologicalActionImpl topologicalAction = new TopologicalActionImpl(
             new NetworkElement("FFR1AA1  FFR3AA1  1"),
@@ -264,6 +246,7 @@ public class CracCleanerTest {
         List<String> qualityReport = cracCleaner.cleanCrac(crac, network);
 
         assertEquals(4, qualityReport.size());
+        assertEquals(1, crac.getStates().size());
         assertEquals(1, crac.getNetworkAction("topoRaId").getUsageRules().size());
         assertEquals(1, crac.getRangeAction("pstRangeId").getUsageRules().size());
     }

@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
@@ -378,8 +377,7 @@ public class FlowCnecImplTest {
         fillThresholdsAndSynchronize(lineCnec);
 
         NetworkElement ne = new NetworkElement("ne");
-        Instant instant = new Instant("instant", 0);
-        State state = new SimpleState(Optional.empty(), instant);
+        State state = new PreventiveState();
 
         assertTrue(lineCnec.copy(ne, state) instanceof FlowCnecImpl);
         FlowCnecImpl copy = (FlowCnecImpl) lineCnec.copy(ne, state);

@@ -32,13 +32,10 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
         // Crac
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
-        // States
-        Instant initialInstant = simpleCrac.newInstant().setId("N").setSeconds(0).add();
-
         simpleCrac.newBranchCnec()
             .setId("cnec1")
             .newNetworkElement().setId("ne1").add()
-            .setInstant(initialInstant)
+            .setInstant(Instant.PREVENTIVE)
             .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMin(-500.).add()
             .add();
         simpleCrac.getBranchCnec("cnec1").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100, Unit.AMPERE));
@@ -46,7 +43,7 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
         simpleCrac.newBranchCnec()
             .setId("cnec2")
             .newNetworkElement().setId("ne2").add()
-            .setInstant(initialInstant)
+            .setInstant(Instant.PREVENTIVE)
             .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.PERCENT_IMAX).setMin(-0.3).add()
             .add();
         simpleCrac.getBranchCnec("cnec2").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(30, Unit.PERCENT_IMAX));
@@ -54,7 +51,7 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
         simpleCrac.newBranchCnec()
             .setId("cnec3")
             .newNetworkElement().setId("ne3").add()
-            .setInstant(initialInstant)
+            .setInstant(Instant.PREVENTIVE)
             .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.MEGAWATT).setMin(-700.).setMax(700.).add()
             .add();
 

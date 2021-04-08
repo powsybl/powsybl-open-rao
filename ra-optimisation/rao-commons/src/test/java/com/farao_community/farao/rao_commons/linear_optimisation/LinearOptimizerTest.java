@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -147,7 +148,7 @@ public class LinearOptimizerTest {
         PstRangeAction rangeAction;
         if (curativePst) {
             rangeAction = new PstRangeActionImpl("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
-            rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3-curative")));
+            rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3", Instant.CURATIVE)));
         } else {
             rangeAction = new PstRangeActionImpl("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
             rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
