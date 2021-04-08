@@ -180,7 +180,7 @@ public class CracFileTest {
     public void testAddXnodeContingency() {
         assertEquals(0, simpleCrac.getContingencies().size());
         assertEquals(0, simpleCrac.getNetworkElements().size());
-        simpleCrac.newContingency().setId("xnode-contingency").addXnode("xnode").add();
+        simpleCrac.newContingency().withId("xnode-contingency").addXnode("xnode").add();
         assertEquals(1, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getContingency("xnode-contingency"));
         assertEquals(0, simpleCrac.getNetworkElements().size());
@@ -189,7 +189,7 @@ public class CracFileTest {
     @Test
     public void testSyncXnodeContingency() {
         Network network = Importers.loadNetwork("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/TestCase12NodesHvdc.uct"));
-        XnodeContingency xnodeContingency = (XnodeContingency) simpleCrac.newContingency().setId("xnode-cont").addXnode("XLI_OB1A").addXnode("XLI_OB1B").add();
+        XnodeContingency xnodeContingency = (XnodeContingency) simpleCrac.newContingency().withId("xnode-cont").addXnode("XLI_OB1A").addXnode("XLI_OB1B").add();
         simpleCrac.synchronize(network);
         assertTrue(xnodeContingency.isSynchronized());
         assertEquals(2, xnodeContingency.getNetworkElements().size());

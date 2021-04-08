@@ -33,22 +33,22 @@ public class ContingencyAdderImplTest {
     @Test
     public void testAddContingencies() {
         Contingency con1 = crac.newContingency()
-                .setId("conId1")
-                .setName("conName1")
+                .withId("conId1")
+                .withName("conName1")
                 .newNetworkElement()
-                .setId("neId1")
-                .setName("neName1")
+                .withId("neId1")
+                .withName("neName1")
                 .add()
                 .add();
         Contingency con2 = crac.newContingency()
                 .newNetworkElement()
-                .setId("neId2-1")
+                .withId("neId2-1")
                 .add()
                 .newNetworkElement()
-                .setId("neId2-2")
-                .setName("neName2-2")
+                .withId("neId2-2")
+                .withName("neName2-2")
                 .add()
-                .setId("conId2")
+                .withId("conId2")
                 .add();
         assertEquals(2, crac.getContingencies().size());
 
@@ -81,10 +81,10 @@ public class ContingencyAdderImplTest {
     @Test(expected = FaraoException.class)
     public void testAddWithNoIdFail() {
         crac.newContingency()
-                .setName("conName1")
+                .withName("conName1")
                 .newNetworkElement()
-                .setId("neId1")
-                .setName("neName1")
+                .withId("neId1")
+                .withName("neName1")
                 .add()
                 .add();
     }
@@ -96,7 +96,7 @@ public class ContingencyAdderImplTest {
 
     @Test
     public void testAddXnodeContingency() {
-        crac.newContingency().setId("cont").setName("cont-name").addXnode("xnode1").addXnode("xnode2").add();
+        crac.newContingency().withId("cont").withName("cont-name").addXnode("xnode1").addXnode("xnode2").add();
         assertEquals(1, crac.getContingencies().size());
         assertNotNull(crac.getContingency("cont"));
         assertTrue(crac.getContingency("cont") instanceof XnodeContingency);
@@ -111,23 +111,23 @@ public class ContingencyAdderImplTest {
 
     @Test(expected = FaraoException.class)
     public void testAddXnodeToNetworkElementsError() {
-        crac.newContingency().setId("cont")
-                .newNetworkElement().setId("neId1").add()
+        crac.newContingency().withId("cont")
+                .newNetworkElement().withId("neId1").add()
                 .addXnode("xnode1")
                 .add();
     }
 
     @Test(expected = FaraoException.class)
     public void testAddNetworkElementToXnodesError() {
-        crac.newContingency().setId("cont")
+        crac.newContingency().withId("cont")
                 .addXnode("xnode1")
-                .newNetworkElement().setId("neId1").add()
+                .newNetworkElement().withId("neId1").add()
                 .add();
     }
 
     @Test
     public void testAddEmptyContingency() {
-        crac.newContingency().setId("cont").add();
+        crac.newContingency().withId("cont").add();
         assertEquals(1, crac.getContingencies().size());
         assertNotNull(crac.getContingency("cont"));
         assertTrue(crac.getContingency("cont") instanceof ComplexContingency);

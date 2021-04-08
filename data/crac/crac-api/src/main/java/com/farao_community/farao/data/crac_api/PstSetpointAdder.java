@@ -2,6 +2,8 @@ package com.farao_community.farao.data.crac_api;
 
 public interface PstSetpointAdder {
 
+    PstSetpointAdder withNetworkElement(String networkElementId, String networkElementName);
+
     PstSetpointAdder withNetworkElement(String networkElementId);
 
     PstSetpointAdder withSetpoint(double setPoint);

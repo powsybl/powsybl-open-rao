@@ -29,7 +29,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     public AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules) {
         super(id, name);
         this.operator = operator;
-        this.usageRules = new ArrayList<>(usageRules);
+        this.usageRules = usageRules;
     }
 
     public AbstractRemedialAction(String id, String name, String operator) {

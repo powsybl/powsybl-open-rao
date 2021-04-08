@@ -20,7 +20,7 @@ public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> 
 
     protected void checkId() {
         if (this.id == null) {
-            throw new FaraoException("Cannot add an identifiable object with no specified id. Please use setId.");
+            throw new FaraoException("Cannot add an identifiable object with no specified id. Please use withId.");
         } else if (this.name == null) {
             this.name = this.id;
         }
@@ -31,7 +31,7 @@ public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> 
      * @param id: ID to set
      * @return the identifiable adder instance
      */
-    public T setId(String id) {
+    public T withId(String id) {
         this.id = id;
         return (T) this;
     }
@@ -41,7 +41,7 @@ public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> 
      * @param name: NAME to set
      * @return the identifiable adder instance
      */
-    public T setName(String name) {
+    public T withName(String name) {
         this.name = name;
         return (T) this;
     }

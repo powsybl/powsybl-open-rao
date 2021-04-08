@@ -18,6 +18,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import com.farao_community.farao.data.crac_impl.cnec.adder.FlowCnecAdderImpl;
 import com.farao_community.farao.data.crac_impl.json.serializers.FlowCnecImplSerializer;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImplAdder;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
@@ -455,6 +456,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public NetworkAction getNetworkAction(String id) {
         return networkActions.get(id);
+    }
+
+    @Override
+    public NetworkActionAdder newNetworkAction() {
+        return new NetworkActionImplAdder(this);
     }
 
     @Override

@@ -35,9 +35,9 @@ public class FlowCnecAdderImplTest {
     @Before
     public void setUp() {
         crac = new SimpleCrac("test-crac");
-        contingency1 = crac.newContingency().setId("conId1").add();
-        instant1 = crac.newInstant().setId("instId1").setSeconds(10).add();
-        instant2 = crac.newInstant().setId("instId2").setSeconds(20).add();
+        contingency1 = crac.newContingency().withId("conId1").add();
+        instant1 = crac.newInstant().withId("instId1").setSeconds(10).add();
+        instant2 = crac.newInstant().withId("instId2").setSeconds(20).add();
     }
 
     @Test(expected = NullPointerException.class)
@@ -48,17 +48,17 @@ public class FlowCnecAdderImplTest {
     @Test(expected = FaraoException.class)
     public void testUniqueNetworkElement() {
         crac.newBranchCnec()
-                .newNetworkElement().setId("neId1").setName("neName1").add()
+                .newNetworkElement().withId("neId1").withName("neName1").add()
                 .newNetworkElement();
     }
 
     @Test(expected = FaraoException.class)
     public void testNoIdFail() {
         crac.newBranchCnec()
-            .setName("cnecName1")
+            .withId("cnecName1")
             .setInstant(instant1)
             .setContingency(contingency1)
-            .newNetworkElement().setId("neId1").setName("neName1").add()
+            .newNetworkElement().withId("neId1").withName("neName1").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).add()
             .add();
     }
@@ -66,19 +66,19 @@ public class FlowCnecAdderImplTest {
     @Test(expected = FaraoException.class)
     public void testNoStateInstantFail() {
         crac.newBranchCnec()
-            .setId("cnecId1")
-            .setName("cnecName1")
+            .withId("cnecId1")
+            .withName("cnecName1")
             .setContingency(contingency1)
             .newThreshold().setUnit(Unit.MEGAWATT).setMax(1000.0).add()
-            .newNetworkElement().setId("neId1").setName("neName1").add()
+            .newNetworkElement().withId("neId1").withName("neName1").add()
             .add();
     }
 
     @Test(expected = FaraoException.class)
     public void testNoNetworkElementFail() {
         crac.newBranchCnec()
-            .setId("cnecId1")
-            .setName("cnecName1")
+            .withId("cnecId1")
+            .withName("cnecName1")
             .setInstant(instant1)
             .setContingency(contingency1)
             .newThreshold().setRule(BranchThresholdRule.ON_HIGH_VOLTAGE_LEVEL).setUnit(Unit.MEGAWATT).setMax(1000.0).add()
@@ -88,30 +88,30 @@ public class FlowCnecAdderImplTest {
     @Test(expected = FaraoException.class)
     public void testNoThresholdFail() {
         crac.newBranchCnec()
-            .setId("cnecId1")
-            .setName("cnecName1")
+            .withId("cnecId1")
+            .withName("cnecName1")
             .setInstant(instant1)
             .setContingency(contingency1)
-            .newNetworkElement().setId("neId1").setName("neName1").add()
+            .newNetworkElement().withId("neId1").withName("neName1").add()
             .add();
     }
 
     @Test
     public void testAdd() {
         BranchCnec cnec1 = crac.newBranchCnec()
-            .setId("cnecId1")
-            .setName("cnecName1")
+            .withId("cnecId1")
+            .withName("cnecName1")
             .setInstant(instant1)
             .setContingency(contingency1)
             .setOperator("cnec1Operator")
-            .newNetworkElement().setId("neId1").setName("neName1").add()
+            .newNetworkElement().withId("neId1").withName("neName1").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.0).add()
             .add();
         BranchCnec cnec2 = crac.newBranchCnec()
-            .setId("cnecId2")
+            .withId("cnecId2")
             .setInstant(instant2)
             .setOperator("cnec2Operator")
-            .newNetworkElement().setId("neId2").add()
+            .newNetworkElement().withId("neId2").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(500.0).add()
             .add();
         assertEquals(2, crac.getBranchCnecs().size());
@@ -142,10 +142,10 @@ public class FlowCnecAdderImplTest {
         double maxValueInMw = 100.0;
         double frmInMw = 5.0;
         BranchCnecAdder cnecAdder = crac.newBranchCnec();
-        BranchCnec cnec = cnecAdder.setId("Cnec ID")
+        BranchCnec cnec = cnecAdder.withId("Cnec ID")
             .setInstant(instant1)
             .setContingency(contingency1)
-            .newNetworkElement().setId("Network Element ID").add()
+            .newNetworkElement().withId("Network Element ID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(maxValueInMw).setMin(-maxValueInMw).add()
             .setReliabilityMargin(frmInMw)
             .add();
@@ -156,10 +156,10 @@ public class FlowCnecAdderImplTest {
     @Test
     public void testNotOptimizedMonitored() {
         BranchCnecAdder cnecAdder = crac.newBranchCnec();
-        BranchCnec cnec = cnecAdder.setId("Cnec ID")
+        BranchCnec cnec = cnecAdder.withId("Cnec ID")
             .setInstant(instant1)
             .setContingency(contingency1)
-            .newNetworkElement().setId("Network Element ID").add()
+            .newNetworkElement().withId("Network Element ID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(100.0).setMin(-100.0).add()
             .monitored()
             .add();
@@ -170,10 +170,10 @@ public class FlowCnecAdderImplTest {
     @Test
     public void testOptimizedNotMonitored() {
         BranchCnecAdder cnecAdder = crac.newBranchCnec();
-        BranchCnec cnec = cnecAdder.setId("Cnec ID")
+        BranchCnec cnec = cnecAdder.withId("Cnec ID")
             .setInstant(instant1)
             .setContingency(contingency1)
-            .newNetworkElement().setId("Network Element ID").add()
+            .newNetworkElement().withId("Network Element ID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(100.0).setMin(-100.0).add()
             .optimized()
             .add();
@@ -184,10 +184,10 @@ public class FlowCnecAdderImplTest {
     @Test
     public void testNotOptimizedNotMonitored() {
         BranchCnecAdder cnecAdder = crac.newBranchCnec();
-        BranchCnec cnec = cnecAdder.setId("Cnec ID")
+        BranchCnec cnec = cnecAdder.withId("Cnec ID")
             .setInstant(instant1)
             .setContingency(contingency1)
-            .newNetworkElement().setId("Network Element ID").add()
+            .newNetworkElement().withId("Network Element ID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(100.0).setMin(-100.0).add()
             .add();
         assertFalse(cnec.isOptimized());

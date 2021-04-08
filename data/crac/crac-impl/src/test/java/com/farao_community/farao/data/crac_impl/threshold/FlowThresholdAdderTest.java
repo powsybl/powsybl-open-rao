@@ -33,15 +33,15 @@ public class FlowThresholdAdderTest {
     @Before
     public void setUp() {
         crac = new SimpleCrac("test-crac");
-        contingency = crac.newContingency().setId("conId").add();
-        instant = crac.newInstant().setId("instId").setSeconds(10).add();
+        contingency = crac.newContingency().withId("conId").add();
+        instant = crac.newInstant().withId("instId").setSeconds(10).add();
     }
 
     @Test
     public void testAddThresholdInMW() {
         BranchCnec cnec = crac.newBranchCnec()
-            .setId("test-cnec").setInstant(instant).setContingency(contingency)
-            .newNetworkElement().setId("neID").add()
+            .withId("test-cnec").setInstant(instant).setContingency(contingency)
+            .newNetworkElement().withId("neID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setMin(-250.0).setMax(1000.0).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
             .add();
         assertEquals(1000.0, cnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
@@ -52,8 +52,8 @@ public class FlowThresholdAdderTest {
     public void testAddThresholdInA() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         BranchCnec cnec = crac.newBranchCnec()
-            .setId("test-cnec").setInstant(instant).setContingency(contingency)
-            .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
+            .withId("test-cnec").setInstant(instant).setContingency(contingency)
+            .newNetworkElement().withId("BBE1AA1  BBE2AA1  1").add()
             .newThreshold().setUnit(Unit.AMPERE).setMin(-1000.).setMax(1000.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
             .add();
         cnec.synchronize(network);
@@ -67,8 +67,8 @@ public class FlowThresholdAdderTest {
         String lineId = "BBE1AA1  BBE2AA1  1";
         double lineLimit = network.getLine(lineId).getCurrentLimits1().getPermanentLimit();
         BranchCnec cnec = crac.newBranchCnec()
-            .setId("test-cnec").setInstant(instant).setContingency(contingency)
-            .newNetworkElement().setId(lineId).add()
+            .withId("test-cnec").setInstant(instant).setContingency(contingency)
+            .newNetworkElement().withId(lineId).add()
             .newThreshold().setUnit(Unit.PERCENT_IMAX).setMin(-0.8).setMax(0.5).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
             .add();
         cnec.synchronize(network);

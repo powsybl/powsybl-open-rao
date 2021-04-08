@@ -30,11 +30,11 @@ public class NetworkElementAdderImplTest {
     @Test
     public void testCracAddNetworkElement() {
         crac.newNetworkElement()
-                .setId("neID")
-                .setName("neName")
+                .withId("neID")
+                .withName("neName")
                 .add();
         crac.newNetworkElement()
-                .setId("neID2")
+                .withId("neID2")
                 .add();
         assertEquals(2, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement("neID"));
@@ -46,7 +46,7 @@ public class NetworkElementAdderImplTest {
     @Test(expected = FaraoException.class)
     public void testCracAddNetworkElementNoIdFail() {
         crac.newNetworkElement()
-                .setName("neName")
+                .withName("neName")
                 .add();
     }
 

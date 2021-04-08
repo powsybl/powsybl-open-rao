@@ -292,6 +292,8 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      */
     NetworkAction getNetworkAction(String id);
 
+    NetworkActionAdder newNetworkAction();
+
     /**
      * @param id: id of the NetworkAction to remove
      */

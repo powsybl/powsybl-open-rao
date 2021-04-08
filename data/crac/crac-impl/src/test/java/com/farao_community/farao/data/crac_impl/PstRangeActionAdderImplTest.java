@@ -44,12 +44,12 @@ public class PstRangeActionAdderImplTest {
     @Test
     public void testAdd() {
         Crac crac1 = crac.newPstRangeAction()
-                .setId("id1")
+                .withId("id1")
                 .setOperator("RTE")
                 .setUnit(Unit.TAP)
                 .setMinValue(0.0)
                 .setMaxValue(10.0)
-                .newNetworkElement().setId(networkElementId).add()
+                .newNetworkElement().withId(networkElementId).add()
                 .add();
         assertSame(crac, crac1);
         assertEquals(1, crac.getRangeActions().size());
@@ -73,18 +73,18 @@ public class PstRangeActionAdderImplTest {
                 .setUnit(Unit.TAP)
                 .setMinValue(0.0)
                 .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
+                .newNetworkElement().withId("neId").withName("neName").add()
                 .add();
     }
 
     @Test
     public void testNoOperatorOk() {
         crac.newPstRangeAction()
-                .setId("id")
+                .withId("id")
                 .setUnit(Unit.TAP)
                 .setMinValue(0.0)
                 .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
+                .newNetworkElement().withId("neId").withName("neName").add()
                 .add();
         assertEquals(1, crac.getRangeActions().size());
     }
@@ -92,48 +92,48 @@ public class PstRangeActionAdderImplTest {
     @Test(expected = FaraoException.class)
     public void testNoUnitFail() {
         crac.newPstRangeAction()
-                .setId("id")
+                .withId("id")
                 .setMinValue(0.0)
                 .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
+                .newNetworkElement().withId("neId").withName("neName").add()
                 .add();
     }
 
     @Test(expected = FaraoException.class)
     public void testWrongUnitFail() {
         crac.newPstRangeAction()
-                .setId("id")
+                .withId("id")
                 .setUnit(Unit.DEGREE)
                 .setMinValue(0.0)
                 .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
+                .newNetworkElement().withId("neId").withName("neName").add()
                 .add();
     }
 
     @Test(expected = FaraoException.class)
     public void testNoMinValueFail() {
         crac.newPstRangeAction()
-                .setId("id")
+                .withId("id")
                 .setUnit(Unit.TAP)
                 .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
+                .newNetworkElement().withId("neId").withName("neName").add()
                 .add();
     }
 
     @Test(expected = FaraoException.class)
     public void testNoMaxValueFail() {
         crac.newPstRangeAction()
-                .setId("id")
+                .withId("id")
                 .setUnit(Unit.TAP)
                 .setMinValue(0.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
+                .newNetworkElement().withId("neId").withName("neName").add()
                 .add();
     }
 
     @Test(expected = FaraoException.class)
     public void testNoNetworkElementFail() {
         crac.newPstRangeAction()
-                .setId("id")
+                .withId("id")
                 .setUnit(Unit.TAP)
                 .setMinValue(0.0)
                 .setMaxValue(10.0)
@@ -143,8 +143,8 @@ public class PstRangeActionAdderImplTest {
     @Test(expected = FaraoException.class)
     public void testOnlyOneNetworkElement() {
         crac.newPstRangeAction()
-                .newNetworkElement().setId("neId1").setName("neName1").add()
-                .newNetworkElement().setId("neId2").setName("neName2").add();
+                .newNetworkElement().withId("neId1").withName("neName1").add()
+                .newNetworkElement().withId("neId2").withName("neName2").add();
     }
 
     @Test(expected = NullPointerException.class)

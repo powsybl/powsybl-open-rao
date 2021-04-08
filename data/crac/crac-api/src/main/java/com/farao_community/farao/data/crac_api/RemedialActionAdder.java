@@ -1,7 +1,7 @@
 package com.farao_community.farao.data.crac_api;
 
-public interface RemedialActionAdder extends IdentifiableAdder {
+public interface RemedialActionAdder<T extends RemedialActionAdder> extends IdentifiableAdder<T> {
 
-    RemedialActionAdder withOperator(String operator);
+    T withOperator(String operator);
 
 }

@@ -36,18 +36,18 @@ public class InstantAdderTest {
     @Test(expected = FaraoException.class)
     public void testAddWithNoSecondsFail() {
         crac.newInstant()
-                .setId("testId")
+                .withId("testId")
                 .add();
     }
 
     @Test
     public void testAdd() {
         Instant instant1 = crac.newInstant()
-                .setId("id1")
+                .withId("id1")
                 .setSeconds(0)
                 .add();
         Instant instant2 = crac.newInstant()
-                .setId("id2")
+                .withId("id2")
                 .setSeconds(10)
                 .add();
         assertEquals(2, crac.getInstants().size());
