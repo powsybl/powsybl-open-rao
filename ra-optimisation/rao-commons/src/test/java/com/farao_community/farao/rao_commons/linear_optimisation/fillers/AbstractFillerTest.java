@@ -89,7 +89,7 @@ abstract class AbstractFillerTest {
         cnec2 = crac.getBranchCnecs().stream().filter(c -> c.getId().equals(CNEC_2_ID)).findFirst().orElseThrow(FaraoException::new);
         rangeAction = crac.getRangeAction(RANGE_ACTION_ID);
         rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("N-1 NL1-NL3", "Défaut")));
+        rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("N-1 NL1-NL3", Instant.OUTAGE)));
 
         // MPSolver and linearRaoProblem
         MPSolverMock solver = new MPSolverMock();

@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_impl.PostContingencyState;
+import com.farao_community.farao.data.crac_impl.PreventiveState;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
+import static java.lang.String.format;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -49,7 +52,7 @@ final class UsageRuleDeserializer {
             String type = jsonParser.nextTextValue();
             switch (type) {
                 case FREE_TO_USE_TYPE:
-                    usageRule = deserializeFreeToUseUsageRule(jsonParser, simpleCrac);
+                    usageRule = deserializeFreeToUseUsageRule(jsonParser);
                     break;
 
                 case ON_STATE_TYPE:
@@ -57,7 +60,7 @@ final class UsageRuleDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
+                    throw new FaraoException(format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
             }
 
             usageRules.add(usageRule);
@@ -66,10 +69,10 @@ final class UsageRuleDeserializer {
 
     }
 
-    private static FreeToUseImpl deserializeFreeToUseUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static FreeToUseImpl deserializeFreeToUseUsageRule(JsonParser jsonParser) throws IOException {
 
         UsageMethod usageMethod = null;
-        String instantId = null;
+        Instant instant = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -80,26 +83,22 @@ final class UsageRuleDeserializer {
                     break;
 
                 case INSTANT:
-                    instantId = jsonParser.nextTextValue();
+                    jsonParser.nextToken();
+                    instant = jsonParser.readValueAs(Instant.class);
                     break;
 
                 default:
                     throw new FaraoException(UNEXPECTED_FIELD + jsonParser.getCurrentName());
             }
         }
-
-        Instant instant = simpleCrac.getInstant(instantId);
-        if (instant == null) {
-            throw new FaraoException(String.format("The instant [%s] mentioned in the free-to-use usage rule is not defined", instantId));
-        }
-
         return new FreeToUseImpl(usageMethod, instant);
     }
 
     private static OnStateImpl deserializeOnStateUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
 
         UsageMethod usageMethod = null;
-        String stateId = null;
+        String contingencyId = null;
+        Instant instant = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -109,8 +108,13 @@ final class UsageRuleDeserializer {
                     usageMethod = jsonParser.readValueAs(UsageMethod.class);
                     break;
 
-                case STATE:
-                    stateId = jsonParser.nextTextValue();
+                case CONTINGENCY:
+                    contingencyId = jsonParser.nextTextValue();
+                    break;
+
+                case INSTANT:
+                    jsonParser.nextToken();
+                    instant = jsonParser.readValueAs(Instant.class);
                     break;
 
                 default:
@@ -118,11 +122,16 @@ final class UsageRuleDeserializer {
             }
         }
 
-        State state = simpleCrac.getState(stateId);
-        if (state == null) {
-            throw new FaraoException(String.format("The state [%s] mentioned in the on-contingency usage rule is not defined", stateId));
+        if (instant == null) {
+            throw new FaraoException("Instant must be defined for on-state usage rule.");
         }
-
-        return new OnStateImpl(usageMethod, state);
+        if (contingencyId != null && instant != Instant.PREVENTIVE) {
+            Contingency contingency = simpleCrac.getContingency(contingencyId);
+            return new OnStateImpl(usageMethod, new PostContingencyState(contingency, instant));
+        } else if (contingencyId == null && instant == Instant.PREVENTIVE) {
+            return new OnStateImpl(usageMethod, new PreventiveState());
+        } else {
+            throw new FaraoException(format("Incompatible state definition : instant = %s and contingency = %s", instant.toString(), contingencyId));
+        }
     }
 }
