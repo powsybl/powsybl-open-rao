@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
  * Most generic interface for remedial actions
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface RemedialAction<I extends RemedialAction<I>> extends Identifiable<I> {

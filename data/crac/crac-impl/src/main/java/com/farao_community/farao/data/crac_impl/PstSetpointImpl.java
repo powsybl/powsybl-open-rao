@@ -22,6 +22,7 @@ import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_
  * PST setpoint remedial action: set a PST's tap at a given value.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @JsonTypeName("pst-setpoint")
 public final class PstSetpointImpl implements PstSetpoint {

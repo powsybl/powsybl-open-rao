@@ -5,13 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.AlreadySynchronizedException;
-import com.farao_community.farao.data.crac_impl.NotSynchronizedException;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.*;
 
@@ -42,22 +40,27 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
      *
      * @param networkElement: PST element to modify
      */
+    @Deprecated
     public PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges,
                         NetworkElement networkElement, String groupId) {
         super(id, name, operator, usageRules, ranges, networkElement, groupId);
         initAttributes();
     }
 
+    @Deprecated
+    // TODO : convert to private package
     public PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<PstRange> ranges, NetworkElement networkElement) {
         super(id, name, operator, usageRules, ranges, networkElement);
         initAttributes();
     }
 
+    @Deprecated
     public PstRangeActionImpl(String id, String name, String operator, NetworkElement networkElement) {
         super(id, name, operator, networkElement);
         initAttributes();
     }
 
+    @Deprecated
     public PstRangeActionImpl(String id, NetworkElement networkElement) {
         super(id, networkElement);
         initAttributes();

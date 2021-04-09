@@ -7,51 +7,28 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.farao_community.farao.commons.Unit;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface PstRangeActionAdder extends NetworkElementParent<PstRangeActionAdder>, IdentifiableAdder<PstRangeActionAdder> {
+public interface PstRangeActionAdder extends RemedialActionAdder<PstRangeActionAdder> {
 
-    /**
-     * Set the operator of the PST
-     * @param operator: the name of the operator
-     * @return the {@code PstRangeActionAdder} instance
-     */
-    PstRangeActionAdder setOperator(String operator);
+    PstRangeActionAdder withNetworkElement(String networkElementId);
+
+    PstRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
     /**
      * Set the group ID if the PST is part of a group
      * @param groupId: ID of the group
      * @return the {@code PstRangeActionAdder} instance
      */
-    PstRangeActionAdder setGroupId(String groupId);
+    PstRangeActionAdder withGroupId(String groupId);
 
-    /**
-     * Set the unit of the PST
-     * @param unit: unit to use
-     * @return the {@code PstRangeActionAdder} instance
-     */
-    PstRangeActionAdder setUnit(Unit unit);
-
-    /**
-     * Set the PST's minimum value in the chosen unit
-     * @param minValue: minimum value
-     * @return the {@code PstRangeActionAdder} instance
-     */
-    PstRangeActionAdder setMinValue(Double minValue);
-
-    /**
-     * Set the PST's maximum value in the chosen unit
-     * @param maxValue: minimum value
-     * @return the {@code PstRangeActionAdder} instance
-     */
-    PstRangeActionAdder setMaxValue(Double maxValue);
+    PstRangeAdder newPstRange();
 
     /**
      * Add the new PST Range Action to the Crac
      * @return the {@code Crac} instance
      */
-    Crac add();
+    PstRangeAction add();
 }

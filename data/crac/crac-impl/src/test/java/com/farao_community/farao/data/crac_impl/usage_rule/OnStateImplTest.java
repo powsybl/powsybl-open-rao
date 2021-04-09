@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_impl.PreventiveState;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static org.junit.Assert.*;
 
 /**
@@ -30,18 +31,16 @@ public class OnStateImplTest {
     @Before
     public void setUp() {
         initialState = new PreventiveState();
-        Instant curativeInstant = Instant.CURATIVE;
-        curativeState1 = new PostContingencyState(new ComplexContingency("contingency1"), curativeInstant);
-        curativeState2 = new PostContingencyState(new ComplexContingency("contingency2"), curativeInstant);
+        curativeState1 = new PostContingencyState(new ComplexContingency("contingency1"), Instant.CURATIVE);
+        curativeState2 = new PostContingencyState(new ComplexContingency("contingency2"), Instant.CURATIVE);
     }
 
     @Test
     public void testSetterGetter() {
-        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, initialState);
-        assertEquals(initialState, rule1.getState());
-
-        rule1.setState(curativeState1);
+        OnStateImpl rule1 = new OnStateImpl(UsageMethod.AVAILABLE, curativeState1);
         assertEquals(curativeState1, rule1.getState());
+        assertEquals("contingency1", rule1.getContingency().getId());
+        assertEquals(Instant.CURATIVE, rule1.getInstant());
     }
 
     @Test

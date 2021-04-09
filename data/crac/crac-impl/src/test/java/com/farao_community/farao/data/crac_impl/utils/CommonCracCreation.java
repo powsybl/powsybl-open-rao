@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
+import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 
 import java.util.*;

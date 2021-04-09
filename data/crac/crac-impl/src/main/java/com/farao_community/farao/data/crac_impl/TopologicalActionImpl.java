@@ -21,6 +21,7 @@ import org.apache.commons.lang3.NotImplementedException;
  * Topological remedial action: open or close a network element.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @JsonTypeName("topological-action")
 public final class TopologicalActionImpl implements TopologicalAction {

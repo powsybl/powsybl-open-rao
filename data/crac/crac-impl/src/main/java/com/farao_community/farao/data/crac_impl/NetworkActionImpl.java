@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.remedial_action.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
@@ -23,6 +22,7 @@ import java.util.Set;
  * Group of simple elementary remedial actions (setpoint, open/close, ...).
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @JsonTypeName("network-action-impl")
 public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> implements NetworkAction {

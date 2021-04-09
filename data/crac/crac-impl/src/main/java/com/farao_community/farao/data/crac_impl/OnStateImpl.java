@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -58,7 +60,13 @@ public final class OnStateImpl extends AbstractUsageRule implements OnState {
         return state;
     }
 
-    public void setState(State state) {
-        this.state = state;
+    @Override
+    public Contingency getContingency() {
+        return state.getContingency().orElse(null);
+    }
+
+    @Override
+    public Instant getInstant() {
+        return state.getInstant();
     }
 }

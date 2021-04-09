@@ -18,7 +18,7 @@ import com.farao_community.farao.data.crac_impl.json.serializers.network_action.
 import com.farao_community.farao.data.crac_impl.json.serializers.range_action.PstRangeActionImplSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.FreeToUseSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnStateSerializer;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
+import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.fasterxml.jackson.databind.module.SimpleModule;

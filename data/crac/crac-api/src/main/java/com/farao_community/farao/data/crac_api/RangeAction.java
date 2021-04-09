@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 import java.util.List;
 import java.util.Optional;
 
-
 /**
  * Remedial action interface specifying an action of type range.
  * This means that there is a value to set and this value should be within a range.
@@ -33,6 +32,8 @@ public interface RangeAction extends RemedialAction<RangeAction>, Synchronizable
 
     List<Range> getRanges();
 
+    // todo : remove ?
+    @Deprecated
     void removeRange(Range range);
 
     // The setpoint is computed by an optimiser.

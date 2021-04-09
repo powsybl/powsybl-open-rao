@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
 import com.farao_community.farao.data.crac_impl.json.serializers.AbstractRemedialActionSerializer;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AbstractRangeAction;
+import com.farao_community.farao.data.crac_impl.AbstractRangeAction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;

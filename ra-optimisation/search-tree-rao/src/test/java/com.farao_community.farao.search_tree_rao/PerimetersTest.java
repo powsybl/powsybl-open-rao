@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
+import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;

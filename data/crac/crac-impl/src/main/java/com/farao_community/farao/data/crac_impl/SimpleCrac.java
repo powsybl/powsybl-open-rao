@@ -428,7 +428,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public NetworkActionAdder newNetworkAction() {
-        return new NetworkActionImplAdder(this);
+        return new NetworkActionAdderImpl(this);
     }
 
     @Override

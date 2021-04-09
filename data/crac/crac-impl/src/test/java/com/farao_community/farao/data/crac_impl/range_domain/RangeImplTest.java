@@ -12,10 +12,11 @@ package com.farao_community.farao.data.crac_impl.range_domain;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
 import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
+import com.farao_community.farao.data.crac_impl.PstRangeImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -27,6 +28,7 @@ public class RangeImplTest extends AbstractRemedialActionTest {
     private final double absMin = 1;
     private final double absMax = 32;
 
+    //todo : is it a test of RangeImpl or PstRangeImpl ?
     private PstRangeImpl relativeFixedRange;
     private PstRangeImpl absoluteFixedRange;
 
@@ -38,14 +40,14 @@ public class RangeImplTest extends AbstractRemedialActionTest {
 
     @Test
     public void getMin() {
-        assertEquals(relMin, relativeFixedRange.getMin(), 0.);
-        assertEquals(absMin, absoluteFixedRange.getMin(), 0.);
+        assertEquals(relMin, relativeFixedRange.getMin(), 1e-6);
+        assertEquals(absMin, absoluteFixedRange.getMin(), 1e-6);
     }
 
     @Test
     public void getMax() {
-        assertEquals(relMax, relativeFixedRange.getMax(), 0.);
-        assertEquals(absMax, absoluteFixedRange.getMax(), 0.);
+        assertEquals(relMax, relativeFixedRange.getMax(), 1e-6);
+        assertEquals(absMax, absoluteFixedRange.getMax(), 1e-6);
     }
 
     @Test

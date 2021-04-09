@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.commons.Unit;
+
 public interface Range {
 
     public double getMin();
@@ -14,5 +16,7 @@ public interface Range {
     public double getMax();
 
     public RangeType getRangeType();
+
+    public Unit getUnit();
 
 }

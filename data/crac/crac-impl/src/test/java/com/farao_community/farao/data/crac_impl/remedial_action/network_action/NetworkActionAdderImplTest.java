@@ -1,23 +1,40 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
 
-public class NetworkActionImplAdderTest {
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+public class NetworkActionAdderImplTest {
 
     private Crac crac;
 
     @Before
     public void setUp() {
         crac = new SimpleCracFactory().create("cracId");
+
+        crac.newContingency()
+            .withId("contingencyId")
+            .newNetworkElement().withId("coNetworkElementId").add()
+            .add();
     }
 
     @Test
@@ -31,12 +48,18 @@ public class NetworkActionImplAdderTest {
                 .withRangeDefinition(RangeDefinition.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
+            .newFreeToUseUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
             .add();
 
         assertEquals("networkActionId", networkAction.getId());
         assertEquals("networkActionName", networkAction.getName());
         assertEquals("operator", networkAction.getOperator());
         assertEquals(1, networkAction.getElementaryActions().size());
+        assertEquals(1, networkAction.getUsageRules().size());
+        assertEquals(1, crac.getNetworkActions().size());
     }
 
     @Test
@@ -61,6 +84,38 @@ public class NetworkActionImplAdderTest {
         assertEquals("networkActionName", networkAction.getName());
         assertEquals("operator", networkAction.getOperator());
         assertEquals(2, networkAction.getElementaryActions().size());
+        assertEquals(0, networkAction.getUsageRules().size());
+        assertEquals(1, crac.getNetworkActions().size());
+    }
+
+    @Test
+    public void testOkWithTwoUsageRules() {
+        NetworkAction networkAction = crac.newNetworkAction()
+            .withId("networkActionId")
+            .withName("networkActionName")
+            .withOperator("operator")
+            .newPstSetPoint()
+                .withNetworkElement("pstNetworkElementId")
+                .withRangeDefinition(RangeDefinition.CENTERED_ON_ZERO)
+                .withSetpoint(6)
+                .add()
+            .newFreeToUseUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .newOnStateUsageRule()
+                .withInstant(Instant.CURATIVE)
+                .withContingency("contingencyId")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .add();
+
+        assertEquals("networkActionId", networkAction.getId());
+        assertEquals("networkActionName", networkAction.getName());
+        assertEquals("operator", networkAction.getOperator());
+        assertEquals(1, networkAction.getElementaryActions().size());
+        assertEquals(2, networkAction.getUsageRules().size());
+        assertEquals(1, crac.getNetworkActions().size());
     }
 
     @Test
@@ -79,6 +134,7 @@ public class NetworkActionImplAdderTest {
         assertEquals("networkActionId", networkAction.getName());
         assertEquals("operator", networkAction.getOperator());
         assertEquals(1, networkAction.getElementaryActions().size());
+        assertEquals(1, crac.getNetworkActions().size());
     }
 
     @Test
