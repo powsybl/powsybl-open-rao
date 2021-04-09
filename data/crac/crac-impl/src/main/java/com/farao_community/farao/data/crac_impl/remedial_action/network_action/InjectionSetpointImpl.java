@@ -7,13 +7,11 @@
 
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
+import com.farao_community.farao.data.crac_api.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
-
-import java.util.List;
 
 /**
  * Injection setpoint remedial action: set a load or generator at a given value.
@@ -21,19 +19,18 @@ import java.util.List;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("injection-setpoint")
-public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAction {
+public final class InjectionSetpointImpl implements InjectionSetpoint {
 
-    public InjectionSetpoint(String id, String name, String operator, List<UsageRule> usageRules,
-                             NetworkElement networkElement, double setpoint) {
-        super(id, name, operator, usageRules, networkElement, setpoint);
+    private NetworkElement networkElement;
+    private double setpoint;
+
+    public InjectionSetpointImpl(NetworkElement networkElement, double setpoint) {
+        this.networkElement = networkElement;
+        this.setpoint = setpoint;
     }
 
-    public InjectionSetpoint(String id, String name, String operator, NetworkElement networkElement, double setpoint) {
-        super(id, name, operator, networkElement, setpoint);
-    }
-
-    public InjectionSetpoint(String id, NetworkElement networkElement, double setpoint) {
-        super(id, networkElement, setpoint);
+    public double getSetpoint() {
+        return setpoint;
     }
 
     @Override
@@ -51,5 +48,28 @@ public final class InjectionSetpoint extends AbstractSetpointElementaryNetworkAc
         } else {
             throw new NotImplementedException("Injection setpoint only handled for generators, loads or dangling lines");
         }
+    }
+
+    @Override
+    public NetworkElement getNetworkElement() {
+        return networkElement;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InjectionSetpointImpl oInjectionSetPoint =  (InjectionSetpointImpl) o;
+        return oInjectionSetPoint.getNetworkElement().equals(this.networkElement)
+            && oInjectionSetPoint.getSetpoint() == this.setpoint;
+    }
+
+    @Override
+    public int hashCode() {
+        return networkElement.hashCode() + 37 * Double.valueOf(setpoint).hashCode();
     }
 }

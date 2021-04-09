@@ -10,67 +10,33 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class InjectionSetpointTest extends AbstractRemedialActionTest {
-
-    private InjectionSetpoint injectionSetpoint;
-    private double setpointValue;
-
-    @Before
-    public void setUp() throws Exception {
-        String injectionSetpointId = "id";
-        ArrayList<UsageRule> usageRules = createUsageRules();
-        NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
-        setpointValue = 10;
-        injectionSetpoint = new InjectionSetpoint(
-                injectionSetpointId,
-                injectionSetpointId,
-                injectionSetpointId,
-                usageRules,
-                mockedNetworkElement,
-                setpointValue
-        );
-
-    }
+public class InjectionSetpointImplTest extends AbstractRemedialActionTest {
 
     @Test
     public void getSetpoint() {
-        assertEquals(setpointValue, injectionSetpoint.getSetpoint(), 0);
-    }
-
-    @Test
-    public void setSetpoint() {
-        double newValue = 115;
-        injectionSetpoint.setSetpoint(newValue);
-        assertEquals(newValue, injectionSetpoint.getSetpoint(), 0);
+        NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
+        InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(mockedNetworkElement, 10.);
+        assertEquals(10., injectionSetpoint.getSetpoint(), 1e-3);
     }
 
     @Test
     public void applyOnGenerator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        InjectionSetpoint generatorSetpoint = new InjectionSetpoint(
-                "id",
-                "name",
-                "RTE",
-                Collections.emptyList(),
+        InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
                 new NetworkElement("FFR1AA1 _generator"),
-                100
-        );
+                100);
+
         generatorSetpoint.apply(network);
         assertEquals(100., network.getGenerator("FFR1AA1 _generator").getTargetP(), 1e-3);
     }
@@ -78,14 +44,10 @@ public class InjectionSetpointTest extends AbstractRemedialActionTest {
     @Test
     public void applyOnLoad() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        InjectionSetpoint loadSetpoint = new InjectionSetpoint(
-                "id",
-                "name",
-                "RTE",
-                Collections.emptyList(),
+        InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
                 new NetworkElement("FFR1AA1 _load"),
-                100
-        );
+                100);
+
         loadSetpoint.apply(network);
         assertEquals(100., network.getLoad("FFR1AA1 _load").getP0(), 1e-3);
     }
@@ -94,23 +56,30 @@ public class InjectionSetpointTest extends AbstractRemedialActionTest {
     public void applyOnDanglingLine() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addDanglingLine(network);
-        InjectionSetpoint danglingLineSetpoint = new InjectionSetpoint(
-                "id",
-                "name",
-                "RTE",
-                Collections.emptyList(),
+        InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
                 new NetworkElement("DL1"),
-                100
-        );
+                100);
+
         danglingLineSetpoint.apply(network);
         assertEquals(100., network.getDanglingLine("DL1").getP0(), 1e-3);
     }
 
     @Test
     public void equals() {
+        NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
+        InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(
+            mockedNetworkElement,
+            10.);
         assertEquals(injectionSetpoint, injectionSetpoint);
-        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
-        InjectionSetpoint differentInjectionSetpoint = new InjectionSetpoint("anotherId", networkElement, 12.);
+
+        InjectionSetpointImpl sameInjectionSetpoint = new InjectionSetpointImpl(
+            mockedNetworkElement,
+            10.);
+        assertEquals(injectionSetpoint, sameInjectionSetpoint);
+
+        InjectionSetpointImpl differentInjectionSetpoint = new InjectionSetpointImpl(
+            mockedNetworkElement,
+            12.);
         assertNotEquals(injectionSetpoint, differentInjectionSetpoint);
     }
 }

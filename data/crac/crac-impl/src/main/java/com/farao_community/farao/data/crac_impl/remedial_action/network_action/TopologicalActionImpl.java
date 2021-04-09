@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_api.TopologicalAction;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
@@ -17,31 +17,19 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.List;
-
 /**
  * Topological remedial action: open or close a network element.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("topology")
-public final class Topology extends AbstractElementaryNetworkAction {
+@JsonTypeName("topological-action")
+public final class TopologicalActionImpl implements TopologicalAction {
 
+    private NetworkElement networkElement;
     private ActionType actionType;
 
-    public Topology(String id, String name, String operator, List<UsageRule> usageRules, NetworkElement networkElement,
-                    ActionType actionType) {
-        super(id, name, operator, usageRules, networkElement);
-        this.actionType = actionType;
-    }
-
-    public Topology(String id, String name, String operator, NetworkElement networkElement, ActionType actionType) {
-        super(id, name, operator, networkElement);
-        this.actionType = actionType;
-    }
-
-    public Topology(String id, NetworkElement networkElement, ActionType actionType) {
-        super(id, networkElement);
+    public TopologicalActionImpl(NetworkElement networkElement, ActionType actionType) {
+        this.networkElement = networkElement;
         this.actionType = actionType;
     }
 
@@ -49,13 +37,9 @@ public final class Topology extends AbstractElementaryNetworkAction {
         return actionType;
     }
 
-    public void setActionType(ActionType actionType) {
-        this.actionType = actionType;
-    }
-
     @Override
     public void apply(Network network) {
-        Identifiable element = network.getIdentifiable(getNetworkElement().getId());
+        Identifiable element = network.getIdentifiable(networkElement.getId());
         if (element instanceof Branch) {
             Branch branch = (Branch) element;
             if (actionType == ActionType.OPEN) {
@@ -81,12 +65,17 @@ public final class Topology extends AbstractElementaryNetworkAction {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Topology topology = (Topology) o;
-        return super.equals(o) && actionType == topology.getActionType();
+        TopologicalActionImpl oTopologicalAction =  (TopologicalActionImpl) o;
+        return oTopologicalAction.getNetworkElement().equals(this.networkElement) && oTopologicalAction.getActionType().equals(this.actionType);
+    }
+
+    @Override
+    public NetworkElement getNetworkElement() {
+        return networkElement;
     }
 
     @Override
     public int hashCode() {
-        return String.format("%s%s", getId(), getActionType().toString()).hashCode();
+        return networkElement.hashCode() + 37 * actionType.hashCode();
     }
 }

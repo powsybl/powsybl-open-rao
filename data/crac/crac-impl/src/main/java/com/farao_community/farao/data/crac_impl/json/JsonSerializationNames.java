@@ -40,7 +40,7 @@ public final class JsonSerializationNames {
     public static final String RANGE_ACTIONS = "rangeActions";
 
     public static final String NETWORK_ACTIONS = "networkActions";
-    public static final String ELEMENTARY_NETWORK_ACTIONS = "elementaryNetworkActions";
+    public static final String ELEMENTARY_ACTIONS = "elementaryActions";
 
     public static final String USAGE_METHOD = "usageMethod";
     public static final String USAGE_RULES = "usageRules";
@@ -68,7 +68,8 @@ public final class JsonSerializationNames {
 
     public static final String PST_RANGE_ACTION_IMPL_TYPE = "pst-range-action-impl";
 
-    public static final String TOPOLOGY_TYPE = "topology";
+    public static final String NETWORK_ACTION_IMPL_TYPE = "network-action-impl";
+    public static final String TOPOLOGY_TYPE = "topological-action";
     public static final String PST_SETPOINT_TYPE = "pst-setpoint";
     public static final String INJECTION_SETPOINT_TYPE = "injection-setpoint";
     public static final String COMPLEX_NETWORK_ACTION_TYPE = "complex-network-action";
