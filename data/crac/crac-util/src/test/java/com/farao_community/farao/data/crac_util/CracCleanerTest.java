@@ -16,8 +16,8 @@ import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.PostContingencyState;
 import com.farao_community.farao.data.crac_impl.XnodeContingency;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.ComplexNetworkAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
@@ -83,42 +83,53 @@ public class CracCleanerTest {
                 .setContingency(contingencyNok)
                 .add();
 
-        Topology topology1 = new Topology(
-            "topologyId1",
-            "topologyName",
-            "RTE",
-            new ArrayList<>(),
+        TopologicalActionImpl topology1 = new TopologicalActionImpl(
             simpleCrac.getNetworkElement("neId1"),
-            ActionType.CLOSE
-        );
-        Topology topology2 = new Topology(
-            "topologyId2",
-            "topologyName",
+            ActionType.CLOSE);
+
+        TopologicalActionImpl topology2 = new TopologicalActionImpl(
+            simpleCrac.getNetworkElement("FFR1AA1  FFR2AA1  1"),
+            ActionType.CLOSE);
+
+        NetworkActionImpl topoRa1 = new NetworkActionImpl(
+            "topoRaId1",
+            "topoRaName1",
             "RTE",
             new ArrayList<>(),
-            simpleCrac.getNetworkElement("FFR1AA1  FFR2AA1  1"),
-            ActionType.CLOSE
-        );
-        ComplexNetworkAction complexNetworkAction = new ComplexNetworkAction("complexNextworkActionId", "RTE");
+            Collections.singleton(topology1));
+
+        NetworkActionImpl topoRa2 = new NetworkActionImpl(
+            "topoRaId2",
+            "topoRaName2",
+            "RTE",
+            new ArrayList<>(),
+            Collections.singleton(topology2));
+
+        NetworkActionImpl complexNetworkAction = new NetworkActionImpl(
+            "complexNextworkActionId",
+            "complexNextworkActionName",
+            "RTE",
+            new ArrayList<>(),
+            new HashSet<>(Arrays.asList(topology1, topology2)));
+
         PstRangeActionImpl pstRangeAction1 = new PstRangeActionImpl(
             "pstRangeId",
             "pstRangeName",
             "RTE",
             Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
             Collections.singletonList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
-            simpleCrac.getNetworkElement("pst")
-        );
+            simpleCrac.getNetworkElement("pst"));
+
         PstRangeActionImpl pstRangeAction2 = new PstRangeActionImpl(
             "pstRangeId2",
             "pstRangeName2",
             "RTE",
             Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
             Collections.singletonList(new PstRangeImpl(0, 16, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.STARTS_AT_ONE)),
-            simpleCrac.getNetworkElement("BBE2AA1  BBE3AA1  1")
-        );
+            simpleCrac.getNetworkElement("BBE2AA1  BBE3AA1  1"));
 
-        simpleCrac.addNetworkAction(topology1);
-        simpleCrac.addNetworkAction(topology2);
+        simpleCrac.addNetworkAction(topoRa1);
+        simpleCrac.addNetworkAction(topoRa2);
         simpleCrac.addNetworkAction(complexNetworkAction);
         simpleCrac.addRangeAction(pstRangeAction1);
         simpleCrac.addRangeAction(pstRangeAction2);
@@ -206,13 +217,17 @@ public class CracCleanerTest {
         usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, new PostContingencyState(contingencyOk, Instant.OUTAGE)));
         usageRules.add(new OnStateImpl(UsageMethod.AVAILABLE, new PostContingencyState(contingencyNok, Instant.OUTAGE)));
 
-        Topology topoRa = new Topology(
-            "topologyId1",
-            "topologyName",
-            "RTE",
-            usageRules,
+        TopologicalActionImpl topologicalAction = new TopologicalActionImpl(
             new NetworkElement("FFR1AA1  FFR3AA1  1"),
             ActionType.OPEN
+        );
+
+        NetworkAction topologicalRa = new NetworkActionImpl(
+            "topoRaId",
+            "topoRaName",
+            "RTE",
+            usageRules,
+            Collections.singleton(topologicalAction)
         );
 
         PstRangeActionImpl pstRangeAction = new PstRangeActionImpl(
@@ -224,7 +239,7 @@ public class CracCleanerTest {
             new NetworkElement("BBE1AA1  BBE2AA1  1")
         );
 
-        crac.addNetworkAction(topoRa);
+        crac.addNetworkAction(topologicalRa);
         crac.addRangeAction(pstRangeAction);
 
         CracCleaner cracCleaner = new CracCleaner();
@@ -232,7 +247,7 @@ public class CracCleanerTest {
 
         assertEquals(4, qualityReport.size());
         assertEquals(1, crac.getStates().size());
-        assertEquals(1, crac.getNetworkAction("topologyId1").getUsageRules().size());
+        assertEquals(1, crac.getNetworkAction("topoRaId").getUsageRules().size());
         assertEquals(1, crac.getRangeAction("pstRangeId").getUsageRules().size());
     }
 

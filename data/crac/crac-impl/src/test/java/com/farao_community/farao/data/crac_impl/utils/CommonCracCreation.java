@@ -13,7 +13,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.Topology;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 
@@ -136,10 +137,16 @@ public final class CommonCracCreation {
         SimpleCrac crac = create();
 
         NetworkElement switchElement = new NetworkElement("NNL3AA11 NNL3AA12 1", "NNL3AA11 NNL3AA12 1 name");
-        Topology topology = new Topology("switch_ra", "switch_ra_name", "OPERATOR", switchElement, ActionType.OPEN);
-        topology.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        crac.addNetworkAction(topology);
+        TopologicalActionImpl topologicalAction = new TopologicalActionImpl(switchElement, ActionType.OPEN);
+        NetworkActionImpl topologicalRa = new NetworkActionImpl(
+            "switch_ra",
+            "switch_ra_name",
+            "OPERATOR",
+            List.of(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState())),
+            Set.of(topologicalAction)
+        );
 
+        crac.addNetworkAction(topologicalRa);
         return crac;
     }
 
