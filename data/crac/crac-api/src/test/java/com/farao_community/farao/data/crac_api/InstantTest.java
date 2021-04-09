@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -18,48 +17,31 @@ import static org.junit.Assert.*;
 
 public class InstantTest {
 
-    private Instant instant;
-
-    @Before
-    public void setUp() {
-        instant = new Instant("instant", 15);
+    @Test
+    public void testPreventive() {
+        Instant instant = Instant.PREVENTIVE;
+        assertEquals(0, instant.getOrder());
+        assertEquals("preventive", instant.toString());
     }
 
     @Test
-    public void getSeconds() {
-        assertEquals(15, instant.getSeconds());
+    public void testOutage() {
+        Instant instant = Instant.OUTAGE;
+        assertEquals(1, instant.getOrder());
+        assertEquals("outage", instant.toString());
     }
 
     @Test
-    public void setSeconds() {
-        instant.setSeconds(5);
-        assertEquals(5, instant.getSeconds());
+    public void testAuto() {
+        Instant instant = Instant.AUTO;
+        assertEquals(2, instant.getOrder());
+        assertEquals("auto", instant.toString());
     }
 
     @Test
-    public void testDifferentBySeconds() {
-        Instant instantA = new Instant("A", 12);
-        Instant instantB = new Instant("A", 20);
-        assertNotEquals(instantA, instantB);
-    }
-
-    @Test
-    public void testDifferentById() {
-        Instant instantA = new Instant("A", 12);
-        Instant instantB = new Instant("B", 12);
-        assertNotEquals(instantA, instantB);
-    }
-
-    @Test
-    public void testEquals() {
-        Instant instantA = new Instant("A", 12);
-        Instant instantB = new Instant("A", 12);
-        assertEquals(instantA, instantB);
-    }
-
-    @Test
-    public void testHashCode() {
-        Instant instantA = new Instant("A", 12);
-        assertEquals("A12".hashCode(), instantA.hashCode());
+    public void testCurative() {
+        Instant instant = Instant.CURATIVE;
+        assertEquals(3, instant.getOrder());
+        assertEquals("curative", instant.toString());
     }
 }

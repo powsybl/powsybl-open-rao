@@ -72,7 +72,7 @@ public class CracResultManager {
         } else {
             return raoData.getCrac().
                     getStates(referenceContingency.get()).stream().
-                    filter(state -> state.getInstant().getSeconds() >= referenceState.getInstant().getSeconds())
+                    filter(state -> state.getInstant().getOrder() >= referenceState.getInstant().getOrder())
                     .collect(Collectors.toSet());
         }
     }

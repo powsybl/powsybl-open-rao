@@ -7,6 +7,7 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -92,7 +93,7 @@ public class MnecViolationCostEvaluatorTest {
                 .newNetworkElement().setId("FFR2AA1  FFR3AA1  1").add()
                 .newThreshold().setMin(-MNEC_THRESHOLD).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(MNEC_THRESHOLD).setUnit(unit).add()
                 .optimized().monitored()
-                .setInstant(crac.getInstant("initial"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
         ResultVariantManager resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);

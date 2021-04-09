@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
@@ -17,8 +16,6 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -35,8 +32,6 @@ public class PstRangeActionAdderImplTest {
     @Before
     public void setUp() {
         crac = new SimpleCrac("test-crac");
-        SimpleState preventiveState = new SimpleState(Optional.empty(), new Instant("N", 0));
-        crac.addState(preventiveState);
         network = NetworkImportsUtil.import12NodesNetwork();
         networkElementId = "BBE2AA1  BBE3AA1  1";
     }

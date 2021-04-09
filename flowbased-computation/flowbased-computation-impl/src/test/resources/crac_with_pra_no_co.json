@@ -39,14 +39,6 @@
     }
   ],
   "contingencies": [],
-  "states": [
-    {
-      "type": "simple-state",
-      "id": "none-N",
-      "contingency": null,
-      "instant": "N"
-    }
-  ],
   "cnecs": [
     {
       "type": "flow-cnec",
@@ -111,7 +103,7 @@
   ],
   "rangeActions" : [],
   "networkActions" : [ {
-    "type" : "complex-network-action",
+    "type" : "network-action-impl",
     "id" : "Open line FR-BE",
     "name" : "Open line FR-BE",
     "operator" : "FR",
@@ -120,17 +112,9 @@
       "usageMethod" : "FORCED",
       "instant" : "N"
     } ],
-    "elementaryNetworkActions" : [ {
-      "type" : "topology",
-      "id" : "Open line FR-BE",
-      "name" : "Open line FR-BE",
-      "operator" : "FR",
-      "usageRules" : [ {
-        "type" : "free-to-use",
-        "usageMethod" : "FORCED",
-        "instant" : "N"
-      } ],
-      "networkElements" : [ "FR-BE" ],
+    "elementaryActions" : [ {
+      "type" : "topological-action",
+      "networkElement" : "FR-BE",
       "actionType" : "OPEN"
     } ]
   } ]

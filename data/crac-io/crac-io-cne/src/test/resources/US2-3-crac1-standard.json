@@ -20,25 +20,13 @@
     "id" : "FFR1AA1  FFR2AA1  1",
     "name" : "FFR1AA1  FFR2AA1  1"
   } ],
-  "instants" : [ {
-    "type" : "Instant",
-    "id" : "N",
-    "seconds" : -1,
-    "name" : "N"
-  } ],
   "contingencies" : [ ],
-  "states" : [ {
-    "type" : "simple-state",
-    "id" : "none-N",
-    "contingency" : null,
-    "instant" : "N"
-  } ],
   "cnecs" : [ {
     "type" : "flow-cnec",
     "id" : "FFR1AA1  FFR2AA1  1 - N - preventive",
     "name" : "Threshold12",
     "networkElement" : "FFR1AA1  FFR2AA1  1",
-    "state" : "none-N",
+    "instant" : "preventive",
     "frm" : 0.0,
     "thresholds" : [ {
       "type" : "branch-threshold",
@@ -86,7 +74,7 @@
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "instant" : "N"
+      "instant" : "preventive"
     } ],
     "networkElements" : [ "FFR4AA1  FFR3AA1  1" ],
     "ranges" : [ {
@@ -101,19 +89,19 @@
           "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
             "type" : "pst-range-result",
             "tapPerStates" : {
-              "none-N" : -16
+              "preventive" : -16
             },
             "setPointPerStates" : {
-              "none-N" : -6.22764253616333
+              "preventive" : -6.22764253616333
             }
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "pst-range-result",
             "tapPerStates" : {
-              "none-N" : 0
+              "preventive" : 0
             },
             "setPointPerStates" : {
-              "none-N" : 0.0
+              "preventive" : 0.0
             }
           }
         }
@@ -121,22 +109,18 @@
     }
   } ],
   "networkActions" : [ {
-    "type" : "complex-network-action",
+    "type" : "network-action-impl",
     "id" : "OpenLine321",
     "name" : "OpenLine321",
     "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "instant" : "N"
+      "instant" : "preventive"
     } ],
-    "elementaryNetworkActions" : [ {
-      "type" : "topology",
-      "id" : "OpenLine321",
-      "name" : "OpenLine321",
-      "operator" : "FR",
-      "usageRules" : [ ],
-      "networkElements" : [ "FFR3AA1  FFR2AA1  1" ],
+    "elementaryActions" : [ {
+      "type" : "topological-action",
+      "networkElement" : "FFR3AA1  FFR2AA1  1",
       "actionType" : "OPEN"
     } ],
     "extensions" : {
@@ -145,35 +129,31 @@
           "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : false
+              "preventive" : false
             }
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : false
+              "preventive" : false
             }
           }
         }
       }
     }
   }, {
-    "type" : "complex-network-action",
+    "type" : "network-action-impl",
     "id" : "CloseLine322",
     "name" : "CloseLine322",
     "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "instant" : "N"
+      "instant" : "preventive"
     } ],
-    "elementaryNetworkActions" : [ {
-      "type" : "topology",
-      "id" : "CloseLine322",
-      "name" : "CloseLine322",
-      "operator" : "FR",
-      "usageRules" : [ ],
-      "networkElements" : [ "FFR3AA1  FFR2AA1  2" ],
+    "elementaryActions" : [ {
+      "type" : "topological-action",
+      "networkElement" : "FFR3AA1  FFR2AA1  2",
       "actionType" : "CLOSE"
     } ],
     "extensions" : {
@@ -182,13 +162,13 @@
           "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : true
+              "preventive" : true
             }
           },
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : false
+              "preventive" : false
             }
           }
         }

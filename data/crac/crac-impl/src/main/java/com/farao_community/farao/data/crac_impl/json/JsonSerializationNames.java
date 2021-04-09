@@ -28,10 +28,6 @@ public final class JsonSerializationNames {
     public static final String CONTINGENCIES = "contingencies";
 
     public static final String INSTANT = "instant";
-    public static final String INSTANTS = "instants";
-
-    public static final String STATE = "state";
-    public static final String STATES = "states";
 
     public static final String CNEC = "cnec";
     public static final String CNECS = "cnecs";
@@ -44,7 +40,7 @@ public final class JsonSerializationNames {
     public static final String RANGE_ACTIONS = "rangeActions";
 
     public static final String NETWORK_ACTIONS = "networkActions";
-    public static final String ELEMENTARY_NETWORK_ACTIONS = "elementaryNetworkActions";
+    public static final String ELEMENTARY_ACTIONS = "elementaryActions";
 
     public static final String USAGE_METHOD = "usageMethod";
     public static final String USAGE_RULES = "usageRules";
@@ -71,14 +67,13 @@ public final class JsonSerializationNames {
     public static final String FLOW_CNEC_TYPE = "flow-cnec";
 
     public static final String PST_RANGE_ACTION_IMPL_TYPE = "pst-range-action-impl";
-    public static final String ALIGNED_RANGE_ACTIONS_TYPE = "aligned-range-action";
 
-    public static final String TOPOLOGY_TYPE = "topology";
+    public static final String NETWORK_ACTION_IMPL_TYPE = "network-action-impl";
+    public static final String TOPOLOGY_TYPE = "topological-action";
     public static final String PST_SETPOINT_TYPE = "pst-setpoint";
     public static final String INJECTION_SETPOINT_TYPE = "injection-setpoint";
     public static final String COMPLEX_NETWORK_ACTION_TYPE = "complex-network-action";
 
     public static final String FREE_TO_USE_TYPE = "free-to-use";
-    public static final String ON_CONSTRAINT_TYPE = "on-constraint";
     public static final String ON_STATE_TYPE = "on-state";
 }

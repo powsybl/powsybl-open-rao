@@ -67,21 +67,9 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
                     networkElements.forEach(simpleCrac::addNetworkElement);
                     break;
 
-                case INSTANTS:
-                    jsonParser.nextToken();
-                    Set<Instant> instants = jsonParser.readValueAs(new TypeReference<Set<Instant>>() {
-                    });
-                    instants.forEach(simpleCrac::addInstant);
-                    break;
-
                 case CONTINGENCIES:
                     jsonParser.nextToken();
                     ContingencyDeserializer.deserialize(jsonParser, simpleCrac);
-                    break;
-
-                case STATES:
-                    jsonParser.nextToken();
-                    StateDeserializer.deserialize(jsonParser, simpleCrac);
                     break;
 
                 case CNECS:

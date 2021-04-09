@@ -20,42 +20,32 @@ public class FreeToUseImplTest {
 
     @Test
     public void testGetterSetter() {
-        Instant n = new Instant("initial-instant", 0);
-        Instant outage = new Instant("outage", 60);
+        FreeToUseImpl freeToUse = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        assertEquals(Instant.PREVENTIVE, freeToUse.getInstant());
 
-        FreeToUseImpl freeToUse = new FreeToUseImpl(UsageMethod.AVAILABLE, n);
-        assertEquals(n, freeToUse.getInstant());
-
-        freeToUse.setIntant(outage);
-        assertEquals(outage, freeToUse.getInstant());
+        freeToUse.setIntant(Instant.OUTAGE);
+        assertEquals(Instant.OUTAGE, freeToUse.getInstant());
     }
 
     @Test
     public void testEqualsSameObject() {
-        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, new Instant("initial-instant", 0));
+        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
         assertEquals(rule1, rule1);
     }
 
     @Test
     public void testEqualsTrue() {
-        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, new Instant("initial-instant", 0));
-        FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.AVAILABLE, new Instant("initial-instant", 0));
+        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
 
         assertEquals(rule1, rule2);
         assertEquals(rule1.hashCode(), rule2.hashCode());
     }
 
     @Test
-    public void testEqualsFalseNotTheSameObject() {
-        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, new Instant("initial-instant", 0));
-
-        assertNotEquals(rule1, new Instant("fail", 10));
-    }
-
-    @Test
     public void testEqualsFalseForUsageMethod() {
-        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, new Instant("initial-instant", 0));
-        FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.FORCED, new Instant("initial-instant", 0));
+        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.FORCED, Instant.PREVENTIVE);
 
         assertNotEquals(rule1, rule2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
@@ -63,11 +53,10 @@ public class FreeToUseImplTest {
 
     @Test
     public void testEqualsFalseForInstant() {
-        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, new Instant("initial-instant", 0));
-        FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.AVAILABLE, new Instant("initial-instant-2", 0));
+        FreeToUseImpl rule1 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
+        FreeToUseImpl rule2 = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.CURATIVE);
 
         assertNotEquals(rule1, rule2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
-
     }
 }

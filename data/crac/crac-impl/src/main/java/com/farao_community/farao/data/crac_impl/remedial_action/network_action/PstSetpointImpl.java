@@ -9,13 +9,11 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.PstSetpoint;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-
-import java.util.List;
 
 import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
 import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
@@ -26,33 +24,15 @@ import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 @JsonTypeName("pst-setpoint")
-public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
+public final class PstSetpointImpl implements PstSetpoint {
 
+    private NetworkElement networkElement;
+    private double setpoint;
     private RangeDefinition rangeDefinition;
 
-    public PstSetpoint(String id, String name, String operator, List<UsageRule> usageRules,
-                       NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
-        super(id, name, operator, usageRules, networkElement, setpoint);
-        this.rangeDefinition = rangeDefinition;
-    }
-
-    public PstSetpoint(String id, String name, String operator, NetworkElement networkElement, double setpoint,
-                       RangeDefinition rangeDefinition) {
-        super(id, name, operator, networkElement, setpoint);
-        this.rangeDefinition = rangeDefinition;
-    }
-
-    /**
-     * @param id              value used for id, name and operator
-     * @param networkElement  PST element to modify
-     * @param setpoint        value of the tap. That should be an int value, if not it will be truncated. The convention depends
-     *                        on the rangeDefinition value
-     * @param rangeDefinition value used to define which convention type is used for the setpoint value,
-     *                        "starts at 1" means we have to put a set point as if the lowest position of the PST tap is 1
-     *                        "centered on zero" means that there is no conversion of the setpoint, this is the real value
-     */
-    public PstSetpoint(String id, NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
-        super(id, networkElement, setpoint);
+    public PstSetpointImpl(NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
+        this.networkElement = networkElement;
+        this.setpoint = setpoint;
         this.rangeDefinition = rangeDefinition;
     }
 
@@ -60,8 +40,13 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
         return this.rangeDefinition;
     }
 
-    public void setRangeDefinition(RangeDefinition rangeDefinition) {
-        this.rangeDefinition = rangeDefinition;
+    public double getSetpoint() {
+        return this.setpoint;
+    }
+
+    @Override
+    public NetworkElement getNetworkElement() {
+        return networkElement;
     }
 
     /**
@@ -91,5 +76,24 @@ public final class PstSetpoint extends AbstractSetpointElementaryNetworkAction {
                     phaseTapChanger.getHighTapPosition(),
                     networkElement.getId()));
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PstSetpointImpl oPstSetPoint =  (PstSetpointImpl) o;
+        return oPstSetPoint.getNetworkElement().equals(this.networkElement)
+            && oPstSetPoint.getSetpoint() == this.setpoint
+            && oPstSetPoint.getRangeDefinition().equals(this.rangeDefinition);
+    }
+
+    @Override
+    public int hashCode() {
+        return networkElement.hashCode() + 7 * Double.valueOf(setpoint).hashCode() + 31 * rangeDefinition.hashCode();
     }
 }

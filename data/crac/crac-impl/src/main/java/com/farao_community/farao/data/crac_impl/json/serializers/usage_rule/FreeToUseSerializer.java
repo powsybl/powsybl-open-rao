@@ -22,6 +22,6 @@ public class FreeToUseSerializer extends UsageRuleSerializer<FreeToUseImpl> {
     @Override
     public void serialize(FreeToUseImpl usageRule, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         super.serialize(usageRule, jsonGenerator, serializerProvider);
-        jsonGenerator.writeStringField(JsonSerializationNames.INSTANT, usageRule.getInstant().getId());
+        jsonGenerator.writeStringField(JsonSerializationNames.INSTANT, usageRule.getInstant().toString());
     }
 }

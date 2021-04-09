@@ -56,27 +56,26 @@ public class RangeActionSensitivityProviderTest {
         crac.addContingency(busbarSectionContingency);
 
         NetworkElement networkElement = crac.getBranchCnecs().iterator().next().getNetworkElement();
-        Instant instant = crac.newInstant().setId("curative").setSeconds(1200).add();
 
         crac.newBranchCnec()
             .setId("generatorContingencyCnec")
             .addNetworkElement(networkElement)
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
-            .setInstant(instant)
+            .setInstant(Instant.CURATIVE)
             .setContingency(generatorContingency)
             .add();
         crac.newBranchCnec()
             .setId("hvdcContingencyCnec")
             .addNetworkElement(networkElement)
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
-            .setInstant(instant)
+            .setInstant(Instant.CURATIVE)
             .setContingency(hvdcContingency)
             .add();
         crac.newBranchCnec()
             .setId("busbarContingencyCnec")
             .addNetworkElement(networkElement)
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
-            .setInstant(instant)
+            .setInstant(Instant.CURATIVE)
             .setContingency(busbarSectionContingency)
             .add();
 
@@ -105,7 +104,7 @@ public class RangeActionSensitivityProviderTest {
             .setId("failureCnec")
             .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
-            .setInstant(crac.newInstant().setId("curative").setSeconds(1200).add())
+            .setInstant(Instant.CURATIVE)
             .setContingency(busBreakerContingency)
             .add();
 

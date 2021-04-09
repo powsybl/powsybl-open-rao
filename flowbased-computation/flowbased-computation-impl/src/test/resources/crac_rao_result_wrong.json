@@ -24,26 +24,6 @@
       "name": "DE-NL"
     }
   ],
-  "instants": [
-    {
-      "type": "Instant",
-      "id": "N",
-      "seconds": -1,
-      "name": "N"
-    },
-    {
-      "type": "Instant",
-      "id": "N-1",
-      "seconds": 60,
-      "name": "N-1"
-    },
-    {
-      "type": "Instant",
-      "id": "AfterCra",
-      "seconds": 1200,
-      "name": "AfterCra"
-    }
-  ],
   "contingencies": [
     {
       "type": "complex-contingency",
@@ -52,26 +32,6 @@
       "networkElements": [
         "FR-BE"
       ]
-    }
-  ],
-  "states": [
-    {
-      "type": "simple-state",
-      "id": "none-N",
-      "contingency": null,
-      "instant": "N"
-    },
-    {
-      "type": "simple-state",
-      "id": "N-1 FR-BE-N-1",
-      "contingency": "N-1 FR-BE",
-      "instant": "N-1"
-    },
-    {
-      "type": "simple-state",
-      "id": "N-1 FR-BE-AfterCra",
-      "contingency": "N-1 FR-BE",
-      "instant": "AfterCra"
     }
   ],
   "cnecs": [
@@ -88,7 +48,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-AfterCra"
+      "contingency": "N-1 FR-BE",
+      "instant": "curative"
     },
     {
       "type": "flow-cnec",
@@ -103,7 +64,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-AfterCra"
+      "contingency": "N-1 FR-BE",
+      "instant": "curative"
     },
     {
       "type": "flow-cnec",
@@ -118,7 +80,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-AfterCra"
+      "contingency": "N-1 FR-BE",
+      "instant": "curative"
     },
     {
       "type": "flow-cnec",
@@ -133,7 +96,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-AfterCra"
+      "contingency": "N-1 FR-BE",
+      "instant": "curative"
     },
     {
       "type": "flow-cnec",
@@ -148,7 +112,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -163,7 +128,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -178,7 +144,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -193,7 +160,8 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "N-1 FR-BE-N-1"
+      "contingency": "N-1 FR-BE",
+      "instant": "outage"
     },
     {
       "type": "flow-cnec",
@@ -208,7 +176,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "instant": "preventive"
     },
     {
       "type": "flow-cnec",
@@ -223,7 +191,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "instant": "preventive"
     },
     {
       "type": "flow-cnec",
@@ -238,7 +206,7 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "instant": "preventive"
     },
     {
       "type": "flow-cnec",
@@ -253,31 +221,23 @@
         "rule" : "ON_LEFT_SIDE"
       } ],
       "optimized": false,
-      "state": "none-N"
+      "instant": "preventive"
     }
   ],
   "rangeActions" : [],
   "networkActions" : [ {
-    "type" : "complex-network-action",
+    "type" : "network-action-impl",
     "id" : "Open line FR-BE",
     "name" : "Open line FR-BE",
     "operator" : "FR",
     "usageRules" : [ {
       "type" : "free-to-use",
       "usageMethod" : "AVAILABLE",
-      "instant" : "AfterCra"
+      "instant" : "curative"
     } ],
-    "elementaryNetworkActions" : [ {
-      "type" : "topology",
-      "id" : "Open line FR-BE",
-      "name" : "Open line FR-BE",
-      "operator" : "FR",
-      "usageRules" : [ {
-        "type" : "free-to-use",
-        "usageMethod" : "AVAILABLE",
-        "instant" : "AfterCra"
-      } ],
-      "networkElements" : [ "FR-BE" ],
+    "elementaryActions" : [ {
+      "type" : "topological-action",
+      "networkElement" : "FR-BE",
       "actionType" : "OPEN"
     } ],
     "extensions" : {
@@ -286,9 +246,9 @@
           "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
             "type" : "network-action-result",
             "activationMap" : {
-              "none-N" : false,
-              "N-1 FR-BE-N-1" : false,
-              "N-1 FR-BE-AfterCra" : false
+              "preventive" : false,
+              "N-1 FR-BE - outage" : false,
+              "N-1 FR-BE - curative" : false
             }
           }
         }
