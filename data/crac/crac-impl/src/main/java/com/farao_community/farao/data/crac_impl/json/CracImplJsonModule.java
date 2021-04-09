@@ -6,8 +6,7 @@
  */
 package com.farao_community.farao.data.crac_impl.json;
 
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import com.farao_community.farao.data.crac_impl.json.serializers.ComplexContingencySerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.FlowCnecImplSerializer;
@@ -19,10 +18,9 @@ import com.farao_community.farao.data.crac_impl.json.serializers.network_action.
 import com.farao_community.farao.data.crac_impl.json.serializers.range_action.PstRangeActionImplSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.FreeToUseSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.usage_rule.OnStateSerializer;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
+import com.farao_community.farao.data.crac_impl.FreeToUseImpl;
+import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**

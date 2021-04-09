@@ -3,9 +3,9 @@ package com.farao_community.farao.data.crac_impl.json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.InjectionSetpointImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpointImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
+import com.farao_community.farao.data.crac_impl.InjectionSetpointImpl;
+import com.farao_community.farao.data.crac_impl.PstSetpointImpl;
+import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 

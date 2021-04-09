@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_impl.usage_rule;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.PostContingencyState;
 import com.farao_community.farao.data.crac_impl.PreventiveState;
 import org.junit.Before;

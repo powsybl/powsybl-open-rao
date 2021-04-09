@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -30,6 +30,8 @@ public final class PstSetpointImpl implements PstSetpoint {
     private double setpoint;
     private RangeDefinition rangeDefinition;
 
+    @Deprecated
+    // TODO : convert to private package
     public PstSetpointImpl(NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
         this.networkElement = networkElement;
         this.setpoint = setpoint;

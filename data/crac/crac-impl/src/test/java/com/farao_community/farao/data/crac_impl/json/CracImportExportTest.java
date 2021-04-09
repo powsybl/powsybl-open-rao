@@ -15,11 +15,10 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_api.RangeType;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.*;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.threshold.*;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
+import com.farao_community.farao.data.crac_impl.FreeToUseImpl;
+import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

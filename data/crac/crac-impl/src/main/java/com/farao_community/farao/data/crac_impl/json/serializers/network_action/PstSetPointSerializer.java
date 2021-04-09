@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers.network_action;
 
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpointImpl;
+import com.farao_community.farao.data.crac_impl.PstSetpointImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;

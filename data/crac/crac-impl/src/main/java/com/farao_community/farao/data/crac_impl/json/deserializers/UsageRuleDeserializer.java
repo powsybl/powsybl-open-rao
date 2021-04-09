@@ -14,8 +14,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.PostContingencyState;
 import com.farao_community.farao.data.crac_impl.PreventiveState;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
+import com.farao_community.farao.data.crac_impl.FreeToUseImpl;
+import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 

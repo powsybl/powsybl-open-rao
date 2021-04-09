@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.usage_rule;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
@@ -25,6 +25,8 @@ public final class OnStateImpl extends AbstractUsageRule implements OnState {
 
     private State state;
 
+    @Deprecated
+    // TODO : convert to private package
     public OnStateImpl(UsageMethod usageMethod, State state) {
         super(usageMethod);
         this.state = state;

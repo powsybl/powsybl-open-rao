@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.usage_rule;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
@@ -33,10 +33,6 @@ public abstract class AbstractUsageRule implements UsageRule {
     @Override
     public UsageMethod getUsageMethod() {
         return usageMethod;
-    }
-
-    public void setUsageMethod(UsageMethod usageMethod) {
-        this.usageMethod = usageMethod;
     }
 
     @Override

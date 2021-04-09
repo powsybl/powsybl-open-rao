@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
+import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;

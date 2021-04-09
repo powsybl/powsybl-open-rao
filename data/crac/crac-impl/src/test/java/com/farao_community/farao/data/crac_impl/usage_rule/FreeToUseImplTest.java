@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.usage_rule;
 
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.FreeToUseImpl;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -22,9 +23,6 @@ public class FreeToUseImplTest {
     public void testGetterSetter() {
         FreeToUseImpl freeToUse = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
         assertEquals(Instant.PREVENTIVE, freeToUse.getInstant());
-
-        freeToUse.setIntant(Instant.OUTAGE);
-        assertEquals(Instant.OUTAGE, freeToUse.getInstant());
     }
 
     @Test

@@ -60,8 +60,11 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     Contingency getContingency(String id);
 
+    @Deprecated
+    // TODO : should we keep this ?
     void removeContingency(String id);
 
+    @Deprecated
     void addContingency(Contingency contingency);
 
     // States management
@@ -112,6 +115,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      */
     State getState(Contingency contingency, Instant instant);
 
+    @Deprecated
     void removeState(String stateId);
 
     /**
@@ -190,6 +194,8 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      *
      * @param cnecId: the Cnec identifier.
      */
+    @Deprecated
+    // TODO : should we keep this ?
     void removeCnec(String cnecId);
 
     /**
@@ -209,6 +215,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
         }
     }
 
+    @Deprecated
     void addCnec(Cnec<?> cnec);
 
     // Range actions management
@@ -236,6 +243,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * @param usageMethod: Specific usage method to select range actions.
      * @return A set of range actions.
      */
+    // TODO : remove Network from this
     Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod);
 
     /**
@@ -247,6 +255,8 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
     /**
      * @param id: id of the RangeAction to remove
      */
+    @Deprecated
+    // TODO : should we keep this ?
     void removeRangeAction(String id);
 
     // Network actions management
@@ -281,5 +291,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
     /**
      * @param id: id of the NetworkAction to remove
      */
+    @Deprecated
+    // TODO : should we keep this ?
     void removeNetworkAction(String id);
 }

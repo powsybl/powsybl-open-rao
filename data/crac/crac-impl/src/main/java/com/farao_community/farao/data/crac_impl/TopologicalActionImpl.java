@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -28,6 +28,8 @@ public final class TopologicalActionImpl implements TopologicalAction {
     private NetworkElement networkElement;
     private ActionType actionType;
 
+    @Deprecated
+    // TODO : convert to private package
     public TopologicalActionImpl(NetworkElement networkElement, ActionType actionType) {
         this.networkElement = networkElement;
         this.actionType = actionType;

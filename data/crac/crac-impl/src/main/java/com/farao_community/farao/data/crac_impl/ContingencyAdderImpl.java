@@ -52,6 +52,7 @@ public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyA
         }
         parent.addContingency(contingency);
         return parent.getContingency(contingency.getId());
+        // TODO : create additional states if there are RAs with "FreeToUse" usage rule (on curative/auto instant)
     }
 
     @Override

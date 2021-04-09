@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

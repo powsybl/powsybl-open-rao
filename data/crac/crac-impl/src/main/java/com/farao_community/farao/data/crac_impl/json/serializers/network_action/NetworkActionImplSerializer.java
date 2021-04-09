@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
 import com.farao_community.farao.data.crac_impl.json.serializers.AbstractRemedialActionSerializer;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
+import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;

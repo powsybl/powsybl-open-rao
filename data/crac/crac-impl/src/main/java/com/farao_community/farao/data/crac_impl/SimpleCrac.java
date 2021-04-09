@@ -20,7 +20,6 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import com.farao_community.farao.data.crac_impl.cnec.adder.FlowCnecAdderImpl;
 import com.farao_community.farao.data.crac_impl.json.serializers.FlowCnecImplSerializer;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImplAdder;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.iidm.network.Network;
@@ -78,11 +77,15 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return new HashSet<>(networkElements.values());
     }
 
+    // TODO : convert to private package
+    @Deprecated
     public NetworkElement addNetworkElement(String networkElementId) {
         return addNetworkElement(networkElementId, networkElementId);
     }
 
     @Override
+    // TODO : convert to private package
+    @Deprecated
     public Crac addNetworkElement(NetworkElement networkElement) {
         addNetworkElement(networkElement.getId(), networkElement.getName());
         return this;
@@ -98,6 +101,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
      * @param networkElementName: network element name for more human readable name
      * @return a network element object that is already defined in the crac
      */
+    // TODO : convert to private package
+    @Deprecated
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
         NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
         if (cracNetworkElement == null) {
@@ -134,6 +139,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return new ContingencyAdderImpl(this);
     }
 
+    // TODO : convert to private package
+    @Deprecated
     public Contingency addContingency(String id, String... networkElementIds) {
         Set<NetworkElement> networkElementsToAdd = new HashSet<>();
         for (String networkElementId: networkElementIds) {
@@ -145,6 +152,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    // TODO : convert to private package
+    @Deprecated
     public void addContingency(Contingency contingency) {
         // If no strictly equal elements are present in the Crac
         if (contingencies.values().stream().noneMatch(cracContingency -> cracContingency.equals(contingency))) {
@@ -178,7 +187,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return new HashSet<>(states.values());
     }
 
-    public final State getState(String id) {
+    @Deprecated
+    private final State getState(String id) {
         return states.get(id);
     }
 
@@ -214,11 +224,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    @Deprecated
     public void removeState(String id) {
         states.remove(id);
     }
 
-    private State addPreventiveState() {
+    State addPreventiveState() {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
@@ -228,7 +239,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         }
     }
 
-    private State addState(Contingency contingency, Instant instant) {
+    State addState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
         if (instant.equals(Instant.PREVENTIVE)) {
             throw new FaraoException("Impossible to add a preventive state with a contingency.");
@@ -301,6 +312,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         branchCnecs.remove(cnecId);
     }
 
+    @Deprecated
     public BranchCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant, double frm, boolean optimized, boolean monitored) {
         if (getNetworkElement(networkElementId) == null) {
             throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, networkElementId));
@@ -388,11 +400,15 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         });
     }
 
+    @Deprecated
+    // TODO : convert to private package
     public void addNetworkAction(NetworkAction networkAction) {
-        addStatesForRemedialAction(networkAction);
+        addStatesForRemedialAction(networkAction); // TODO : remove this ?
         networkActions.put(networkAction.getId(), networkAction);
     }
 
+    @Deprecated
+    // TODO : convert to private package
     public void addRangeAction(RangeAction rangeAction) {
         addStatesForRemedialAction(rangeAction);
         rangeActions.put(rangeAction.getId(), rangeAction);
@@ -416,6 +432,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    @Deprecated
+    // TODO : should we keep this ?
     public void removeNetworkAction(String id) {
         networkActions.remove(id);
     }
@@ -433,6 +451,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    @Deprecated
+    // TODO : should we keep this ?
     public void removeRangeAction(String id) {
         rangeActions.remove(id);
     }
@@ -456,6 +476,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
      * XnodeContingencies since they have to be synchronized with the network first in order to find the network elements
      * corresponding to the xnodes.
      */
+    @Deprecated
     private void addXnodeContingenciesNetworkElements() {
         contingencies.values().stream().filter(contingency -> contingency instanceof XnodeContingency)
                 .forEach(contingency -> contingency.getNetworkElements().forEach(networkElement -> {

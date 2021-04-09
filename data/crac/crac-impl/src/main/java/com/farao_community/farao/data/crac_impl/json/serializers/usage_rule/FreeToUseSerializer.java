@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_impl.json.serializers.usage_rule;
 
 import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
+import com.farao_community.farao.data.crac_impl.FreeToUseImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 

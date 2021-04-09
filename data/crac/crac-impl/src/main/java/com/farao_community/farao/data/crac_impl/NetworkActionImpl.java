@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.ElementaryAction;
 import com.farao_community.farao.data.crac_api.NetworkAction;
@@ -29,6 +29,8 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
 
     private Set<ElementaryAction> elementaryActions;
 
+    @Deprecated
+    // TODO : convert to private package
     public NetworkActionImpl(String id, String name, String operator, List<UsageRule> usageRules,
                              Set<ElementaryAction> elementaryNetworkActions) {
         super(id, name, operator, usageRules);

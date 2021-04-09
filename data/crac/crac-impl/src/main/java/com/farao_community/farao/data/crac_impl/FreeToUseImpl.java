@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.usage_rule;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
@@ -28,6 +28,8 @@ public final class FreeToUseImpl extends AbstractUsageRule implements FreeToUse 
 
     private Instant instant;
 
+    @Deprecated
+    // TODO : convert to private package
     public FreeToUseImpl(UsageMethod usageMethod, Instant instant) {
         super(usageMethod);
         this.instant = instant;
@@ -58,9 +60,5 @@ public final class FreeToUseImpl extends AbstractUsageRule implements FreeToUse 
     @Override
     public Instant getInstant() {
         return instant;
-    }
-
-    public void setIntant(Instant instant) {
-        this.instant = instant;
     }
 }

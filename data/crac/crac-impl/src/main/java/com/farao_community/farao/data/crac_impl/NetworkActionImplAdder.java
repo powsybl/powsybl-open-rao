@@ -1,20 +1,16 @@
-package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.AbstractRemedialActionAdder;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class NetworkActionImplAdder extends AbstractRemedialActionAdder<NetworkActionAdder> implements NetworkActionAdder {
 
-    private SimpleCrac owner;
     private Set<ElementaryAction> elementaryActions;
 
-    //todo move files and make it private package
-    public NetworkActionImplAdder(SimpleCrac owner) {
-        this.owner = owner;
+    NetworkActionImplAdder(SimpleCrac owner) {
+        super(owner);
         this.elementaryActions = new HashSet<>();
     }
 
@@ -42,12 +38,8 @@ public class NetworkActionImplAdder extends AbstractRemedialActionAdder<NetworkA
     public NetworkAction add() {
         checkId();
         NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions);
-        owner.addNetworkAction(networkAction);
+        getCrac().addNetworkAction(networkAction);
         return networkAction;
-    }
-
-    SimpleCrac getOwner() {
-        return owner;
     }
 
     void addElementaryAction(ElementaryAction elementaryAction) {

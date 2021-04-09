@@ -55,6 +55,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         return operator;
     }
 
+    @Deprecated
     public void setOperator(String operator) {
         this.operator = operator;
     }
@@ -65,11 +66,14 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     @Override
+    @Deprecated
+    // TODO : convert to private package
     public void addUsageRule(UsageRule usageRule) {
         usageRules.add(usageRule);
     }
 
     @Override
+    // TODO : remove network
     public UsageMethod getUsageMethod(Network network, State state) {
         List<UsageMethod> usageMethods = usageRules.stream()
             .map(usageRule -> usageRule.getUsageMethod(state))

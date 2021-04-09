@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
 import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
