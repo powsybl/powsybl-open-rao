@@ -7,12 +7,12 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
@@ -32,13 +32,10 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
     public MaxMinRelativeMarginFiller(LinearProblem linearProblem,
                                       LinearOptimizerInput linearOptimizerInput,
-                                      Unit unit,
-                                      double pstPenaltyCost,
-                                      double negativeMarginObjectiveCoefficient,
-                                      double ptdfSumLowerBound) {
-        super(linearProblem, linearOptimizerInput, unit, pstPenaltyCost);
-        this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
-        this.ptdfSumLowerBound = ptdfSumLowerBound;
+                                      LinearOptimizerParameters linearOptimizerParameters) {
+        super(linearProblem, linearOptimizerInput, linearOptimizerParameters);
+        this.negativeMarginObjectiveCoefficient = linearOptimizerParameters.getNegativeMarginObjectiveCoefficient();
+        this.ptdfSumLowerBound = linearOptimizerParameters.getNegativeMarginObjectiveCoefficient();
     }
 
     @Override

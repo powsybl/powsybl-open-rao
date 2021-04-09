@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -24,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD;
 import static java.lang.String.format;
 
 /**
@@ -40,16 +40,16 @@ public class CoreProblemFiller implements ProblemFiller {
     private LinearOptimizerInput linearOptimizerInput;
     private LinearProblem linearProblem;
 
-    public CoreProblemFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, double pstSensitivityThreshold, Map<String, Integer> maxPstPerTso) {
+    public CoreProblemFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
         this.linearProblem = linearProblem;
         this.linearOptimizerInput = linearOptimizerInput;
-        this.pstSensitivityThreshold = pstSensitivityThreshold;
-        this.maxPstPerTso = maxPstPerTso;
+        this.pstSensitivityThreshold = linearOptimizerParameters.getPstSensitivityThreshold();
+        this.maxPstPerTso = linearOptimizerParameters.getMaxPstPerTso();
     }
 
     // Method for tests
     public CoreProblemFiller() {
-        this(null, null, DEFAULT_PST_SENSITIVITY_THRESHOLD, null);
+        this(null, null, null);
     }
 
     @Override

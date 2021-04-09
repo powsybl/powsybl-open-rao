@@ -74,11 +74,14 @@ public class RaoResultDeserializer extends StdDeserializer<RaoResult> {
     private RaoResult.Status getStatusFromString(String status) {
         switch (status) {
 
+            case "DEFAULT":
+                return RaoResult.Status.DEFAULT;
+
+            case "FALLBACK":
+                return RaoResult.Status.FALLBACK;
+
             case "FAILURE":
                 return RaoResult.Status.FAILURE;
-
-            case "SUCCESS":
-                return RaoResult.Status.SUCCESS;
 
             case "UNDEFINED":
                 return RaoResult.Status.UNDEFINED;

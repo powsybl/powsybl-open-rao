@@ -20,6 +20,8 @@ import com.farao_community.farao.rao_commons.LoopFlowUtil;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.linear_optimisation.LoopFlowParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.MnecParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
@@ -270,23 +272,25 @@ class Leaf {
     }
 
     private IteratingLinearOptimizerParameters createIteratingLinearOptimizerParameters() {
+        MnecParameters mnecParameters = new MnecParameters(raoParameters.getMnecAcceptableMarginDiminution(),
+                raoParameters.getMnecViolationCost(),
+                raoParameters.getMnecConstraintAdjustmentCoefficient());
+        LoopFlowParameters loopFlowParameters = new LoopFlowParameters(raoParameters.isRaoWithLoopFlowLimitation(),
+                raoParameters.getLoopFlowApproximationLevel(),
+                raoParameters.getLoopFlowAcceptableAugmentation(),
+                raoParameters.getLoopFlowViolationCost(),
+                raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
         return IteratingLinearOptimizerParameters.create()
                 .withMaxIterations(raoParameters.getMaxIterations())
                 .withObjectiveFunction(raoParameters.getObjectiveFunction())
                 .withMaxPstPerTso(this.getMaxPstPerTso())
                 .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
                 .withOperatorsNotToOptimize(treeParameters.getOperatorsNotToOptimize())
-                .withMnecAcceptableMarginDiminution(raoParameters.getMnecAcceptableMarginDiminution())
-                .withLoopFlowApproximationLevel(raoParameters.getLoopFlowApproximationLevel())
-                .withLoopFlowConstraintAdjustmentCoefficient(raoParameters.getLoopFlowConstraintAdjustmentCoefficient())
-                .withLoopFlowViolationCost(raoParameters.getLoopFlowViolationCost())
-                .withLoopFlowAcceptableAugmentation(raoParameters.getLoopFlowAcceptableAugmentation())
-                .withMnecViolationCost(raoParameters.getMnecViolationCost())
-                .withMnecConstraintAdjustmentCoefficient(raoParameters.getMnecConstraintAdjustmentCoefficient())
                 .withNegativeMarginObjectiveCoefficient(raoParameters.getNegativeMarginObjectiveCoefficient())
                 .withPstPenaltyCost(raoParameters.getPstPenaltyCost())
                 .withPtdfSumLowerBound(raoParameters.getPtdfSumLowerBound())
-                .withRaoWithLoopFlowLimitation(raoParameters.isRaoWithLoopFlowLimitation())
+                .withMnecParameters(mnecParameters)
+                .withLoopFlowParameters(loopFlowParameters)
                 .build();
     }
 
@@ -404,6 +408,10 @@ class Leaf {
             }
         }
         return false;
+    }
+
+    boolean isFallback() {
+        return systematicSensitivityInterface.isFallback();
     }
 
     /**

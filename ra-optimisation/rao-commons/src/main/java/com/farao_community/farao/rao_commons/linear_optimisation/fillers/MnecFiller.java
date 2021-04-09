@@ -14,7 +14,9 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.MnecParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -34,18 +36,14 @@ public class MnecFiller implements ProblemFiller {
     private LinearProblem linearProblem;
     private LinearOptimizerInput linearOptimizerInput;
 
-    public MnecFiller(LinearProblem linearProblem,
-                      LinearOptimizerInput linearOptimizerInput,
-                      Unit unit,
-                      double mnecAcceptableMarginDiminution,
-                      double mnecViolationCost,
-                      double mnecConstraintAdjustmentCoefficient) {
+    public MnecFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
         this.linearProblem = linearProblem;
         this.linearOptimizerInput = linearOptimizerInput;
-        this.unit = unit;
-        this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
-        this.mnecViolationCost = mnecViolationCost;
-        this.mnecConstraintAdjustmentCoefficient = mnecConstraintAdjustmentCoefficient;
+        this.unit = linearOptimizerParameters.getObjectiveFunction().getUnit();
+        MnecParameters mnecParameters = linearOptimizerParameters.getMnecParameters();
+        this.mnecAcceptableMarginDiminution = mnecParameters.getMnecAcceptableMarginDiminution();
+        this.mnecViolationCost = mnecParameters.getMnecViolationCost();
+        this.mnecConstraintAdjustmentCoefficient = mnecParameters.getMnecConstraintAdjustmentCoefficient();
     }
 
     @Override

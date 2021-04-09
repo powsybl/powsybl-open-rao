@@ -250,9 +250,17 @@ public class SearchTree {
     }
 
     private RaoResult buildOutput() {
-        RaoResult raoResult = new RaoResult(optimalLeaf.getStatus().equals(Leaf.Status.ERROR) ? RaoResult.Status.FAILURE : RaoResult.Status.SUCCESS);
+        RaoResult raoResult = new RaoResult(getRaoResultStatus(optimalLeaf));
         raoResult.setPreOptimVariantId(rootLeaf.getPreOptimVariantId());
         raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
         return raoResult;
+    }
+
+    private RaoResult.Status getRaoResultStatus(Leaf leaf) {
+        if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
+            return RaoResult.Status.FAILURE;
+        } else {
+            return leaf.isFallback() ? RaoResult.Status.FALLBACK : RaoResult.Status.DEFAULT;
+        }
     }
 }

@@ -133,7 +133,12 @@ public class LinearRao implements RaoProvider {
      */
     private RaoResult buildSuccessfulRaoResultAndClearVariants(RaoData raoData, String postOptimVariantId, SystematicSensitivityInterface systematicSensitivityInterface) {
         // build RaoResult
-        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult raoResult;
+        if (systematicSensitivityInterface.isFallback()) {
+            raoResult = new RaoResult(RaoResult.Status.DEFAULT);
+        } else {
+            raoResult = new RaoResult(RaoResult.Status.FALLBACK);
+        }
         raoResult.setPreOptimVariantId(raoData.getPreOptimVariantId());
         raoResult.setPostOptimVariantId(postOptimVariantId);
 

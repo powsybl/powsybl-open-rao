@@ -21,8 +21,9 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 public class RaoResult extends AbstractExtendable<RaoResult> {
 
     public enum Status {
+        DEFAULT,
+        FALLBACK,
         FAILURE,
-        SUCCESS,
         UNDEFINED
     }
 
@@ -47,7 +48,7 @@ public class RaoResult extends AbstractExtendable<RaoResult> {
 
     @JsonIgnore
     public boolean isSuccessful() {
-        return status == Status.SUCCESS;
+        return status == Status.DEFAULT;
     }
 
     public void setPreOptimVariantId(String preOptimVariantId) {

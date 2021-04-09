@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -34,11 +35,11 @@ public class MaxMinMarginFiller implements ProblemFiller {
     protected LinearOptimizerInput linearOptimizerInput;
     protected LinearProblem linearProblem;
 
-    public MaxMinMarginFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, Unit unit, double pstPenaltyCost) {
+    public MaxMinMarginFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
         this.linearProblem = linearProblem;
         this.linearOptimizerInput = linearOptimizerInput;
-        this.unit = unit;
-        this.pstPenaltyCost = pstPenaltyCost;
+        this.unit = linearOptimizerParameters.getObjectiveFunction().getUnit();
+        this.pstPenaltyCost = linearOptimizerParameters.getPstPenaltyCost();
     }
 
     public void setUnit(Unit unit) {

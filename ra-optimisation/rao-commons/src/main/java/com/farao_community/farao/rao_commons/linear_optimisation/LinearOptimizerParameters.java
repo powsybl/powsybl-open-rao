@@ -10,24 +10,14 @@ public class LinearOptimizerParameters {
     private Map<String, Integer> maxPstPerTso;
     private double pstSensitivityThreshold;
     private Set<String> operatorsNotToOptimize;
-    private double mnecAcceptableMarginDiminution;
-    private RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
-    private double loopFlowConstraintAdjustmentCoefficient;
-    private double loopFlowViolationCost;
-    private double loopFlowAcceptableAugmentation;
-    private double mnecViolationCost;
-    private double mnecConstraintAdjustmentCoefficient;
     private double negativeMarginObjectiveCoefficient;
     private double pstPenaltyCost;
     private double ptdfSumLowerBound;
-    private boolean raoWithLoopFlowLimitation;
+    private MnecParameters mnecParameters;
+    private LoopFlowParameters loopFlowParameters;
 
     public static LinearOptimizerParametersBuilder create() {
         return new LinearOptimizerParametersBuilder();
-    }
-
-    public boolean isRaoWithLoopFlowLimitation() {
-        return raoWithLoopFlowLimitation;
     }
 
     public RaoParameters.ObjectiveFunction getObjectiveFunction() {
@@ -46,34 +36,6 @@ public class LinearOptimizerParameters {
         return operatorsNotToOptimize;
     }
 
-    public double getMnecAcceptableMarginDiminution() {
-        return mnecAcceptableMarginDiminution;
-    }
-
-    public RaoParameters.LoopFlowApproximationLevel getLoopFlowApproximationLevel() {
-        return loopFlowApproximationLevel;
-    }
-
-    public double getLoopFlowConstraintAdjustmentCoefficient() {
-        return loopFlowConstraintAdjustmentCoefficient;
-    }
-
-    public double getLoopFlowViolationCost() {
-        return loopFlowViolationCost;
-    }
-
-    public double getLoopFlowAcceptableAugmentation() {
-        return loopFlowAcceptableAugmentation;
-    }
-
-    public double getMnecViolationCost() {
-        return mnecViolationCost;
-    }
-
-    public double getMnecConstraintAdjustmentCoefficient() {
-        return mnecConstraintAdjustmentCoefficient;
-    }
-
     public double getNegativeMarginObjectiveCoefficient() {
         return negativeMarginObjectiveCoefficient;
     }
@@ -86,22 +48,24 @@ public class LinearOptimizerParameters {
         return ptdfSumLowerBound;
     }
 
+    public MnecParameters getMnecParameters() {
+        return mnecParameters;
+    }
+
+    public LoopFlowParameters getLoopFlowParameters() {
+        return loopFlowParameters;
+    }
+
     public static final class LinearOptimizerParametersBuilder {
         private RaoParameters.ObjectiveFunction objectiveFunction;
         private Map<String, Integer> maxPstPerTso;
         private double pstSensitivityThreshold;
         private Set<String> operatorsNotToOptimize;
-        private double mnecAcceptableMarginDiminution;
-        private RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
-        private double loopFlowConstraintAdjustmentCoefficient;
-        private double loopFlowViolationCost;
-        private double loopFlowAcceptableAugmentation;
-        private double mnecViolationCost;
-        private double mnecConstraintAdjustmentCoefficient;
+        private MnecParameters mnecParameters;
+        private LoopFlowParameters loopFlowParameters;
         private double negativeMarginObjectiveCoefficient;
         private double pstPenaltyCost;
         private double ptdfSumLowerBound;
-        private boolean raoWithLoopFlowLimitation;
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
@@ -123,41 +87,6 @@ public class LinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withMnecAcceptableMarginDiminution(double mnecAcceptableMarginDiminution) {
-            this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel) {
-            this.loopFlowApproximationLevel = loopFlowApproximationLevel;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withLoopFlowConstraintAdjustmentCoefficient(double loopFlowConstraintAdjustmentCoefficient) {
-            this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withLoopFlowViolationCost(double loopFlowViolationCost) {
-            this.loopFlowViolationCost = loopFlowViolationCost;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withLoopFlowAcceptableAugmentation(double loopFlowAcceptableAugmentation) {
-            this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withMnecViolationCost(double mnecViolationCost) {
-            this.mnecViolationCost = mnecViolationCost;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withMnecConstraintAdjustmentCoefficient(double mnecConstraintAdjustmentCoefficient) {
-            this.mnecConstraintAdjustmentCoefficient = mnecConstraintAdjustmentCoefficient;
-            return this;
-        }
-
         public LinearOptimizerParametersBuilder withNegativeMarginObjectiveCoefficient(double negativeMarginObjectiveCoefficient) {
             this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
             return this;
@@ -173,8 +102,13 @@ public class LinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withRaoWithLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
-            this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
+        public LinearOptimizerParametersBuilder withMnecParameters(MnecParameters mnecParameters) {
+            this.mnecParameters = mnecParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
+            this.loopFlowParameters = loopFlowParameters;
             return this;
         }
 
@@ -184,17 +118,11 @@ public class LinearOptimizerParameters {
             linearOptimizerParameters.maxPstPerTso = this.maxPstPerTso;
             linearOptimizerParameters.pstSensitivityThreshold = this.pstSensitivityThreshold;
             linearOptimizerParameters.operatorsNotToOptimize = this.operatorsNotToOptimize;
-            linearOptimizerParameters.mnecAcceptableMarginDiminution = this.mnecAcceptableMarginDiminution;
-            linearOptimizerParameters.loopFlowApproximationLevel = this.loopFlowApproximationLevel;
-            linearOptimizerParameters.loopFlowConstraintAdjustmentCoefficient = this.loopFlowConstraintAdjustmentCoefficient;
-            linearOptimizerParameters.loopFlowViolationCost = this.loopFlowViolationCost;
-            linearOptimizerParameters.loopFlowAcceptableAugmentation = this.loopFlowAcceptableAugmentation;
-            linearOptimizerParameters.mnecViolationCost = this.mnecViolationCost;
-            linearOptimizerParameters.mnecConstraintAdjustmentCoefficient = this.mnecConstraintAdjustmentCoefficient;
             linearOptimizerParameters.negativeMarginObjectiveCoefficient = this.negativeMarginObjectiveCoefficient;
             linearOptimizerParameters.pstPenaltyCost = this.pstPenaltyCost;
             linearOptimizerParameters.ptdfSumLowerBound = this.ptdfSumLowerBound;
-            linearOptimizerParameters.raoWithLoopFlowLimitation = this.raoWithLoopFlowLimitation;
+            linearOptimizerParameters.mnecParameters = this.mnecParameters;
+            linearOptimizerParameters.loopFlowParameters = this.loopFlowParameters;
             return linearOptimizerParameters;
         }
     }

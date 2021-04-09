@@ -26,7 +26,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
 import static java.lang.String.format;
@@ -69,62 +68,23 @@ public class LinearOptimizer {
         this.linearOptimizerInput = linearOptimizerInput;
         this.linearOptimizerParameters = linearOptimizerParameters;
         linearProblem = createLinearRaoProblem();
-        addCoreProblemFiller();
+
+        fillers.add(new CoreProblemFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters));
         if (linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
                 || linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
-            addMaxMinMarginFiller();
-            addMnecFiller();
+            fillers.add(new MaxMinMarginFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters));
+            fillers.add(new MnecFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters));
         } else if (linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
                 || linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
-            addMaxMinRelativeMarginFiller();
-            addMnecFiller();
+            fillers.add(new MaxMinRelativeMarginFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters));
+            fillers.add(new MnecFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters));
         }
         if (!Objects.isNull(linearOptimizerParameters.getOperatorsNotToOptimize()) && !linearOptimizerParameters.getOperatorsNotToOptimize().isEmpty()) {
-            addOperatorsNotToOptimizeFiller();
+            fillers.add(new OperatorsNotToOptimizeFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters));
         }
-        if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
-            addMaxLoopFlowFiller();
+        if (linearOptimizerParameters.getLoopFlowParameters().isRaoWithLoopFlowLimitation()) {
+            fillers.add(new MaxLoopFlowFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters));
         }
-    }
-
-    private void addCoreProblemFiller() {
-        fillers.add(new CoreProblemFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters.getPstSensitivityThreshold(), linearOptimizerParameters.getMaxPstPerTso()));
-
-    }
-
-    private void addMaxMinMarginFiller() {
-        fillers.add(new MaxMinMarginFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters.getObjectiveFunction().getUnit(), linearOptimizerParameters.getPstPenaltyCost()));
-    }
-
-    private void addMnecFiller() {
-        fillers.add(new MnecFiller(linearProblem,
-                linearOptimizerInput,
-                linearOptimizerParameters.getObjectiveFunction().getUnit(),
-                linearOptimizerParameters.getMnecAcceptableMarginDiminution(),
-                linearOptimizerParameters.getMnecViolationCost(),
-                linearOptimizerParameters.getMnecConstraintAdjustmentCoefficient()));
-    }
-
-    private void addMaxMinRelativeMarginFiller() {
-        fillers.add(new MaxMinRelativeMarginFiller(linearProblem,
-                linearOptimizerInput,
-                linearOptimizerParameters.getObjectiveFunction().getUnit(),
-                linearOptimizerParameters.getPstPenaltyCost(),
-                linearOptimizerParameters.getNegativeMarginObjectiveCoefficient(),
-                linearOptimizerParameters.getPtdfSumLowerBound()));
-    }
-
-    private void addOperatorsNotToOptimizeFiller() {
-        fillers.add(new OperatorsNotToOptimizeFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters.getOperatorsNotToOptimize()));
-    }
-
-    private void addMaxLoopFlowFiller() {
-        fillers.add(new MaxLoopFlowFiller(linearProblem,
-                linearOptimizerInput,
-                linearOptimizerParameters.getLoopFlowConstraintAdjustmentCoefficient(),
-                linearOptimizerParameters.getLoopFlowViolationCost(),
-                linearOptimizerParameters.getLoopFlowApproximationLevel(),
-                linearOptimizerParameters.getLoopFlowAcceptableAugmentation()));
     }
 
     /**
@@ -160,7 +120,7 @@ public class LinearOptimizer {
 
     // Methods for tests
     LinearOptimizer() {
-        this(Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller(new LinearProblem(), null, MEGAWATT, DEFAULT_PST_PENALTY_COST)));
+        this(Arrays.asList(new CoreProblemFiller(), new MaxMinMarginFiller(new LinearProblem(), null, null)));
     }
 
     LinearProblem createLinearRaoProblem() {

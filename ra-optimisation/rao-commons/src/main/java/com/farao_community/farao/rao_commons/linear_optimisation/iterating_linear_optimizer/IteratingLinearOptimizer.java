@@ -53,17 +53,11 @@ public final class IteratingLinearOptimizer {
                 .withMaxPstPerTso(iteratingLinearOptimizerParameters.getMaxPstPerTso())
                 .withPstSensitivityThreshold(iteratingLinearOptimizerParameters.getPstSensitivityThreshold())
                 .withOperatorsNotToOptimize(iteratingLinearOptimizerParameters.getOperatorsNotToOptimize())
-                .withMnecAcceptableMarginDiminution(iteratingLinearOptimizerParameters.getMnecAcceptableMarginDiminution())
-                .withLoopFlowApproximationLevel(iteratingLinearOptimizerParameters.getLoopFlowApproximationLevel())
-                .withLoopFlowConstraintAdjustmentCoefficient(iteratingLinearOptimizerParameters.getLoopFlowConstraintAdjustmentCoefficient())
-                .withLoopFlowViolationCost(iteratingLinearOptimizerParameters.getLoopFlowViolationCost())
-                .withLoopFlowAcceptableAugmentation(iteratingLinearOptimizerParameters.getLoopFlowAcceptableAugmentation())
-                .withMnecViolationCost(iteratingLinearOptimizerParameters.getMnecViolationCost())
-                .withMnecConstraintAdjustmentCoefficient(iteratingLinearOptimizerParameters.getMnecConstraintAdjustmentCoefficient())
                 .withNegativeMarginObjectiveCoefficient(iteratingLinearOptimizerParameters.getNegativeMarginObjectiveCoefficient())
                 .withPstPenaltyCost(iteratingLinearOptimizerParameters.getPstPenaltyCost())
                 .withPtdfSumLowerBound(iteratingLinearOptimizerParameters.getPtdfSumLowerBound())
-                .withRaoWithLoopFlowLimitation(iteratingLinearOptimizerParameters.isRaoWithLoopFlowLimitation())
+                .withMnecParameters(iteratingLinearOptimizerParameters.getMnecParameters())
+                .withLoopFlowParameters(iteratingLinearOptimizerParameters.getLoopFlowParameters())
                 .build();
     }
 
@@ -126,7 +120,9 @@ public final class IteratingLinearOptimizer {
                 bestIteratingLinearOptimizerOutput.setStatus(IteratingLinearOptimizerOutput.SolveStatus.OPTIMAL);
                 return bestIteratingLinearOptimizerOutput;
             } else {
-                updatedSensitivityAndLoopflowResults = applyRangeActionsAndRunSensitivityComputation(iteratingLinearOptimizerInput, linearOptimizerOutput.getRangeActionSetpoints(), updatedSensitivityAndLoopflowResults, iteration, iteratingLinearOptimizerParameters.getLoopFlowApproximationLevel());
+                updatedSensitivityAndLoopflowResults = applyRangeActionsAndRunSensitivityComputation(iteratingLinearOptimizerInput,
+                        linearOptimizerOutput.getRangeActionSetpoints(), updatedSensitivityAndLoopflowResults, iteration,
+                        iteratingLinearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel());
                 double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(updatedSensitivityAndLoopflowResults);
                 double virtualCost = objectiveFunctionEvaluator.computeVirtualCost(updatedSensitivityAndLoopflowResults);
                 if (functionalCost + virtualCost < bestIteratingLinearOptimizerOutput.getCost()) {

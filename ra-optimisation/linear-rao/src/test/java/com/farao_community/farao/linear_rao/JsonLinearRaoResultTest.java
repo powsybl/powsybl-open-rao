@@ -24,7 +24,7 @@ public class JsonLinearRaoResultTest extends AbstractConverterTest {
 
     @Before
     public void setUp() throws IOException {
-        raoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        raoResult = new RaoResult(RaoResult.Status.DEFAULT);
         raoResult.setPreOptimVariantId("variant1");
         raoResult.setPostOptimVariantId("variant2");
         super.setUp();

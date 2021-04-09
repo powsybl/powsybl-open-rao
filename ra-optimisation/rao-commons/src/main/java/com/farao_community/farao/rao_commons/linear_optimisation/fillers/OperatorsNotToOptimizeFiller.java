@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -39,11 +40,11 @@ public class OperatorsNotToOptimizeFiller implements ProblemFiller {
     private LinearOptimizerInput linearOptimizerInput;
     private double largestCnecThreshold;
 
-    public OperatorsNotToOptimizeFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, Set<String> operatorsNotToOptimize) {
+    public OperatorsNotToOptimizeFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
         this.linearProblem = linearProblem;
         this.linearOptimizerInput = linearOptimizerInput;
-        if (!Objects.isNull(operatorsNotToOptimize)) {
-            this.operatorsNotToOptimize = operatorsNotToOptimize;
+        if (!Objects.isNull(linearOptimizerParameters.getOperatorsNotToOptimize())) {
+            this.operatorsNotToOptimize = linearOptimizerParameters.getOperatorsNotToOptimize();
         } else {
             this.operatorsNotToOptimize = new HashSet<>();
         }

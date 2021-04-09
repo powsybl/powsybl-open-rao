@@ -13,7 +13,9 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.LoopFlowParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -32,16 +34,14 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
     public MaxLoopFlowFiller(LinearProblem linearProblem,
                              LinearOptimizerInput linearOptimizerInput,
-                             double loopFlowConstraintAdjustmentCoefficient,
-                             double loopFlowViolationCost,
-                             RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel,
-                             double loopFlowAcceptableAugmentation) {
+                             LinearOptimizerParameters linearOptimizerParameters) {
         this.linearProblem = linearProblem;
         this.linearOptimizerInput = linearOptimizerInput;
-        this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
-        this.loopFlowViolationCost = loopFlowViolationCost;
-        this.loopFlowApproximationLevel = loopFlowApproximationLevel;
-        this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
+        LoopFlowParameters loopFlowParameters = linearOptimizerParameters.getLoopFlowParameters();
+        this.loopFlowConstraintAdjustmentCoefficient = loopFlowParameters.getLoopFlowConstraintAdjustmentCoefficient();
+        this.loopFlowViolationCost = loopFlowParameters.getLoopFlowViolationCost();
+        this.loopFlowApproximationLevel = loopFlowParameters.getLoopFlowApproximationLevel();
+        this.loopFlowAcceptableAugmentation = loopFlowParameters.getLoopFlowAcceptableAugmentation();
     }
 
     @Override
