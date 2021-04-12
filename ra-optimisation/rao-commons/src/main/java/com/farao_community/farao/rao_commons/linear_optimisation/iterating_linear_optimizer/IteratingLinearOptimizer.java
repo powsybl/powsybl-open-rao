@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.iterating_line
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -34,7 +36,13 @@ public final class IteratingLinearOptimizer {
 
     }
 
-    private static LinearOptimizerInput createLinearOptimizerInput(IteratingLinearOptimizerInput iteratingLinearOptimizerInput) {
+    private static LinearOptimizerInput createLinearOptimizerInput(IteratingLinearOptimizerInput iteratingLinearOptimizerInput, IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters) {
+        removeRangeActionsWithWrongInitialSetpoint(iteratingLinearOptimizerInput.getRangeActions(),
+            iteratingLinearOptimizerInput.getPreperimeterSetpoints(), iteratingLinearOptimizerInput.getNetwork());
+        removeRangeActionsIfMaxNumberReached(iteratingLinearOptimizerInput.getRangeActions(),
+            iteratingLinearOptimizerParameters.getMaxPstPerTso(),
+            iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator().getMostLimitingElements(iteratingLinearOptimizerInput.getPreOptimSensitivityResults(), 1).get(0),
+            iteratingLinearOptimizerInput.getPreOptimSensitivityResults().getSystematicSensitivityResult());
         return LinearOptimizerInput.create()
                 .withCnecs(iteratingLinearOptimizerInput.getCnecs())
                 .withLoopflowCnecs(iteratingLinearOptimizerInput.getLoopflowCnecs())
@@ -82,6 +90,48 @@ public final class IteratingLinearOptimizer {
         return new IteratingLinearOptimizerOutput(solveStatus, functionalCost, virtualCost, rangeActionSetPoints, pstTaps, sensitivityAndLoopflowResults);
     }
 
+    /**
+     * If range action's initial setpoint does not respect its allowed range, this function filters it out
+     */
+    private static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, Map<RangeAction, Double> initialSetpoints, Network network) {
+        for (RangeAction rangeAction : rangeActions) {
+            double preperimeterSetPoint = initialSetpoints.get(rangeAction);
+            double minSetPoint = rangeAction.getMinValue(network, preperimeterSetPoint);
+            double maxSetPoint = rangeAction.getMaxValue(network, preperimeterSetPoint);
+            if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
+                LOGGER.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
+                    rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
+                rangeActions.remove(rangeAction);
+            }
+        }
+    }
+
+    /**
+     * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
+     * the least impact on the most limiting element
+     */
+    private static void removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActions, Map<String, Integer> maxPstPerTso, BranchCnec mostLimitingElement, SystematicSensitivityResult sensitivityResult) {
+        if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
+            maxPstPerTso.forEach((tso, maxPst) -> {
+                Set<RangeAction> pstsForTso = rangeActions.stream()
+                    .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
+                    .collect(Collectors.toSet());
+                if (pstsForTso.size() > maxPst) {
+                    LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
+                    pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, sensitivityResult))
+                        .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
+                        .forEach(rangeActions::remove);
+                }
+            });
+        }
+    }
+
+    static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, SystematicSensitivityResult sensitivityResult) {
+        Double sensi1 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra1, cnec));
+        Double sensi2 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra2, cnec));
+        return sensi1.compareTo(sensi2);
+    }
+
     public static IteratingLinearOptimizerOutput optimize(IteratingLinearOptimizerInput iteratingLinearOptimizerInput, IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters) {
 
         Network network = iteratingLinearOptimizerInput.getNetwork();
@@ -89,7 +139,9 @@ public final class IteratingLinearOptimizer {
         ObjectiveFunctionEvaluator objectiveFunctionEvaluator = iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator();
         SensitivityAndLoopflowResults preOptimSensitivityResults = iteratingLinearOptimizerInput.getPreOptimSensitivityResults();
 
-        LinearOptimizer linearOptimizer = new LinearOptimizer(createLinearOptimizerInput(iteratingLinearOptimizerInput), createLinearOptimizerParameters(iteratingLinearOptimizerParameters));
+        LinearOptimizer linearOptimizer = new LinearOptimizer(
+            createLinearOptimizerInput(iteratingLinearOptimizerInput, iteratingLinearOptimizerParameters),
+            createLinearOptimizerParameters(iteratingLinearOptimizerParameters));
 
         IteratingLinearOptimizerOutput bestIteratingLinearOptimizerOutput = createOutputFromPreOptimSituation(iteratingLinearOptimizerInput);
         SensitivityAndLoopflowResults updatedSensitivityAndLoopflowResults = preOptimSensitivityResults;

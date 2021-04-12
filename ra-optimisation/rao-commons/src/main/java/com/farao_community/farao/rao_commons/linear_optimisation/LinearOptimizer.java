@@ -69,7 +69,7 @@ public class LinearOptimizer {
         this.linearOptimizerParameters = linearOptimizerParameters;
         linearProblem = createLinearRaoProblem();
 
-        fillers.add(new CoreProblemFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters));
+        fillers.add(new CoreProblemFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters.getPstSensitivityThreshold()));
         if (linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
                 || linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
             fillers.add(new MaxMinMarginFiller(linearProblem, linearOptimizerInput, linearOptimizerParameters));

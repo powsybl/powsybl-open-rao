@@ -13,17 +13,13 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -32,34 +28,41 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CoreProblemFiller implements ProblemFiller {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreProblemFiller.class);
+    private static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.;
 
+    private final LinearProblem linearProblem;
+    private final Network network;
+    private final Set<BranchCnec> cnecs;
+    private final Map<RangeAction, Double> prePerimeterSetPointPerRangeAction;
     private final double pstSensitivityThreshold;
-    private final Map<String, Integer> maxPstPerTso;
-    private Set<RangeAction> availableRangeActions;
-    private LinearOptimizerInput linearOptimizerInput;
-    private LinearProblem linearProblem;
 
-    public CoreProblemFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
+    public CoreProblemFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, double pstSensitivityThreshold) {
         this.linearProblem = linearProblem;
-        this.linearOptimizerInput = linearOptimizerInput;
-        this.pstSensitivityThreshold = linearOptimizerParameters.getPstSensitivityThreshold();
-        this.maxPstPerTso = linearOptimizerParameters.getMaxPstPerTso();
+        this.network = linearOptimizerInput.getNetwork();
+        this.cnecs = linearOptimizerInput.getCnecs();
+        this.prePerimeterSetPointPerRangeAction = linearOptimizerInput.getPreperimeterSetpoints();
+        this.pstSensitivityThreshold = pstSensitivityThreshold;
     }
 
-    // Method for tests
+    public CoreProblemFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput) {
+        this(linearProblem, linearOptimizerInput, DEFAULT_PST_SENSITIVITY_THRESHOLD);
+    }
+
     public CoreProblemFiller() {
-        this(null, null, null);
+        this(null, LinearOptimizerInput.create().build(), 0.);
+    }
+
+    private Set<RangeAction> getRangeActions() {
+        return prePerimeterSetPointPerRangeAction.keySet();
     }
 
     @Override
     public void fill(SensitivityAndLoopflowResults sensitivityResult) {
-        availableRangeActions = computeAvailableRangeActions(sensitivityResult.getSystematicSensitivityResult());
         // add variables
         buildFlowVariables();
-        availableRangeActions.forEach(rangeAction -> {
-            double prePerimeterSetpoint = linearOptimizerInput.getPreperimeterSetpoints().get(rangeAction);
-            buildRangeActionSetPointVariables(linearOptimizerInput.getNetwork(), rangeAction, prePerimeterSetpoint);
+        getRangeActions().forEach(rangeAction -> {
+            double prePerimeterSetpoint = prePerimeterSetPointPerRangeAction.get(rangeAction);
+            buildRangeActionSetPointVariables(network, rangeAction, prePerimeterSetpoint);
             buildRangeActionAbsoluteVariationVariables(rangeAction);
             buildRangeActionGroupConstraint(rangeAction);
         });
@@ -76,67 +79,11 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     /**
-     * Filters out range actions that should not be used in the optimization, even if they are available in the perimeter
-     */
-    private Set<RangeAction> computeAvailableRangeActions(SystematicSensitivityResult sensitivityResult) {
-        Set<RangeAction> rangeActions = removeRangeActionsWithWrongInitialSetpoint(linearOptimizerInput.getRangeActions(),
-                linearOptimizerInput.getPreperimeterSetpoints(), linearOptimizerInput.getNetwork());
-        rangeActions = removeRangeActionsIfMaxNumberReached(sensitivityResult, rangeActions, linearOptimizerInput.getMostLimitingElement(), maxPstPerTso);
-        return rangeActions;
-    }
-
-    /**
-     * If range action's initial setpoint does not respect its allowed range, this function filters it out
-     */
-    private static Set<RangeAction> removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActionsToFilter, Map<RangeAction, Double> initialSetpoints, Network network) {
-        Set<RangeAction> filteredRangeActions = new HashSet<>(rangeActionsToFilter);
-        rangeActionsToFilter.stream().forEach(rangeAction -> {
-            double preperimeterSetPoint = initialSetpoints.get(rangeAction);
-            double minSetPoint = rangeAction.getMinValue(network, preperimeterSetPoint);
-            double maxSetPoint = rangeAction.getMaxValue(network, preperimeterSetPoint);
-            if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
-                LOGGER.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
-                        rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
-                filteredRangeActions.remove(rangeAction);
-            }
-        });
-        return filteredRangeActions;
-    }
-
-    /**
-     * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
-     * the least impact on the most limiting element
-     */
-    private static Set<RangeAction> removeRangeActionsIfMaxNumberReached(SystematicSensitivityResult sensitivityResult, Set<RangeAction> rangeActionsToFilter, BranchCnec mostLimitingElement, Map<String, Integer> maxPstPerTso) {
-        Set<RangeAction> filteredRangeActions = new HashSet<>(rangeActionsToFilter);
-        if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
-            maxPstPerTso.forEach((String tso, Integer maxPst) -> {
-                Set<RangeAction> pstsForTso = rangeActionsToFilter.stream()
-                        .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
-                        .collect(Collectors.toSet());
-                if (pstsForTso.size() > maxPst) {
-                    LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
-                    pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, sensitivityResult))
-                            .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
-                            .forEach(filteredRangeActions::remove);
-                }
-            });
-        }
-        return filteredRangeActions;
-    }
-
-    static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, SystematicSensitivityResult sensitivityResult) {
-        Double sensi1 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra1, cnec));
-        Double sensi2 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra2, cnec));
-        return sensi1.compareTo(sensi2);
-    }
-
-    /**
      * Build one flow variable F[c] for each Cnec c
      * This variable describes the estimated flow on the given Cnec c, in MEGAWATT
      */
     private void buildFlowVariables() {
-        linearOptimizerInput.getCnecs().forEach(cnec ->
+        cnecs.forEach(cnec ->
                 linearProblem.addFlowVariable(-linearProblem.infinity(), linearProblem.infinity(), cnec)
         );
     }
@@ -180,7 +127,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
     private void buildFlowConstraints(SystematicSensitivityResult sensitivityResult) {
-        linearOptimizerInput.getCnecs().forEach(cnec -> {
+        cnecs.forEach(cnec -> {
             // create constraint
             double referenceFlow = sensitivityResult.getReferenceFlow(cnec);
             MPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec);
@@ -203,7 +150,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
     private void updateFlowConstraints(SystematicSensitivityResult sensitivityResult) {
-        linearOptimizerInput.getCnecs().forEach(cnec -> {
+        cnecs.forEach(cnec -> {
             double referenceFlow = sensitivityResult.getReferenceFlow(cnec);
             MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
             if (flowConstraint == null) {
@@ -227,7 +174,7 @@ public class CoreProblemFiller implements ProblemFiller {
             throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
         }
 
-        availableRangeActions.forEach(rangeAction -> {
+        getRangeActions().forEach(rangeAction -> {
             if (rangeAction instanceof PstRangeAction) {
                 addImpactOfPstOnCnec(sensitivityResult, rangeAction, cnec, flowConstraint);
             } else {
@@ -245,7 +192,7 @@ public class CoreProblemFiller implements ProblemFiller {
         double sensitivity = sensitivityResult.getSensitivityOnFlow(rangeAction, cnec);
 
         if (Math.abs(sensitivity) >= pstSensitivityThreshold) {
-            double currentSetPoint = rangeAction.getCurrentValue(linearOptimizerInput.getNetwork());
+            double currentSetPoint = rangeAction.getCurrentValue(network);
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
             flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentSetPoint);
@@ -264,10 +211,10 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildRangeActionConstraints() {
-        availableRangeActions.forEach(rangeAction -> {
-            double preperimeterSetPoint = linearOptimizerInput.getPreperimeterSetpoints().get(rangeAction);
-            MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-preperimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
-            MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(preperimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.POSITIVE);
+        getRangeActions().forEach(rangeAction -> {
+            double prePerimeterSetPoint = prePerimeterSetPointPerRangeAction.get(rangeAction);
+            MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-prePerimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
+            MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(prePerimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.POSITIVE);
 
             MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
