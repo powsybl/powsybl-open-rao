@@ -16,8 +16,8 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
-import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
-import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
+import static com.farao_community.farao.data.crac_api.TapConvention.CENTERED_ON_ZERO;
+import static com.farao_community.farao.data.crac_api.TapConvention.STARTS_AT_ONE;
 import static org.junit.Assert.*;
 
 /**
@@ -33,7 +33,7 @@ public class PstSetpointImplTest extends AbstractRemedialActionTest {
             STARTS_AT_ONE);
 
         assertEquals(12, pstSetpoint.getSetpoint(), 0);
-        assertEquals(STARTS_AT_ONE, pstSetpoint.getRangeDefinition());
+        assertEquals(STARTS_AT_ONE, pstSetpoint.getTapConvention());
     }
 
     @Test

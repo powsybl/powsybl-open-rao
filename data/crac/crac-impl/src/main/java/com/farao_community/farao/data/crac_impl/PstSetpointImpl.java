@@ -10,13 +10,13 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.PstSetpoint;
-import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_api.TapConvention;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 
-import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
-import static com.farao_community.farao.data.crac_api.RangeDefinition.STARTS_AT_ONE;
+import static com.farao_community.farao.data.crac_api.TapConvention.CENTERED_ON_ZERO;
+import static com.farao_community.farao.data.crac_api.TapConvention.STARTS_AT_ONE;
 
 /**
  * PST setpoint remedial action: set a PST's tap at a given value.
@@ -29,18 +29,18 @@ public final class PstSetpointImpl implements PstSetpoint {
 
     private NetworkElement networkElement;
     private double setpoint;
-    private RangeDefinition rangeDefinition;
+    private TapConvention rangeDefinition;
 
     @Deprecated
     // TODO : convert to private package
-    public PstSetpointImpl(NetworkElement networkElement, double setpoint, RangeDefinition rangeDefinition) {
+    public PstSetpointImpl(NetworkElement networkElement, double setpoint, TapConvention rangeDefinition) {
         this.networkElement = networkElement;
         this.setpoint = setpoint;
         this.rangeDefinition = rangeDefinition;
     }
 
     @Override
-    public RangeDefinition getRangeDefinition() {
+    public TapConvention getTapConvention() {
         return this.rangeDefinition;
     }
 
@@ -94,7 +94,7 @@ public final class PstSetpointImpl implements PstSetpoint {
         PstSetpointImpl oPstSetPoint =  (PstSetpointImpl) o;
         return oPstSetPoint.getNetworkElement().equals(this.networkElement)
             && oPstSetPoint.getSetpoint() == this.setpoint
-            && oPstSetPoint.getRangeDefinition().equals(this.rangeDefinition);
+            && oPstSetPoint.getTapConvention().equals(this.rangeDefinition);
     }
 
     @Override

@@ -13,13 +13,13 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class RangeDefinitionTest {
+public class TapConventionTest {
 
     @Test
     public void basicTest() {
-        assertEquals(2, RangeDefinition.values().length);
-        RangeDefinition rangeDefinition1 = RangeDefinition.CENTERED_ON_ZERO;
-        RangeDefinition rangeDefinition2 = RangeDefinition.STARTS_AT_ONE;
+        assertEquals(2, TapConvention.values().length);
+        TapConvention tapConvention1 = TapConvention.CENTERED_ON_ZERO;
+        TapConvention tapConvention2 = TapConvention.STARTS_AT_ONE;
     }
 
 }

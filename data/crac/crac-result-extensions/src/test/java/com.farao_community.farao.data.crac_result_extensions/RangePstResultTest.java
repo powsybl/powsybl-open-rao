@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeResultTest {
+public class RangePstResultTest {
     private static final double EPSILON = 0.1;
     private String stateId;
     private PstRangeResult pstRangeResult;

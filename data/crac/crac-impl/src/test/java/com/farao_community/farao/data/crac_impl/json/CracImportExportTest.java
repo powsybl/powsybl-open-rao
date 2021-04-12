@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.*;
-import com.farao_community.farao.data.crac_impl.PstRangeImpl;
+import com.farao_community.farao.data.crac_impl.TapRangeImpl;
 import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.threshold.*;
@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static com.farao_community.farao.data.crac_api.RangeDefinition.CENTERED_ON_ZERO;
+import static com.farao_community.farao.data.crac_api.TapConvention.CENTERED_ON_ZERO;
 import static com.farao_community.farao.data.crac_impl.json.RoundTripUtil.roundTrip;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -111,8 +111,8 @@ public class CracImportExportTest {
                 "pstRangeName",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
-                Arrays.asList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
-                        new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
+                Arrays.asList(new TapRangeImpl(0, 16, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE),
+                        new TapRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.getNetworkElement("pst")
         ));
 
@@ -121,8 +121,8 @@ public class CracImportExportTest {
                 "pstRangeName2",
                 "RTE",
                 Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
-                Arrays.asList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE),
-                        new PstRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
+                Arrays.asList(new TapRangeImpl(0, 16, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE),
+                        new TapRangeImpl(-3, 3, RangeType.RELATIVE_TO_INITIAL_NETWORK, CENTERED_ON_ZERO)),
                 simpleCrac.addNetworkElement("pst2"),
                 "1"
         ));

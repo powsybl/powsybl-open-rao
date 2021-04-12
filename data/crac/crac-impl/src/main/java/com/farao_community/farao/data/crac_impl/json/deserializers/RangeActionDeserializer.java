@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.PstRangeImpl;
+import com.farao_community.farao.data.crac_impl.TapRangeImpl;
 import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -88,7 +88,7 @@ final class RangeActionDeserializer {
                 case RANGES:
                     jsonParser.nextToken();
                     if (type.equals(PST_RANGE_ACTION_IMPL_TYPE)) {
-                        ranges = jsonParser.readValueAs(new TypeReference<List<PstRangeImpl>>() {
+                        ranges = jsonParser.readValueAs(new TypeReference<List<TapRangeImpl>>() {
                         });
                     } else {
                         ranges = jsonParser.readValueAs(new TypeReference<List<Range>>() {
@@ -121,12 +121,12 @@ final class RangeActionDeserializer {
         RangeAction rangeAction;
         switch (type) {
             case PST_RANGE_ACTION_IMPL_TYPE:
-                List<PstRange> pstRanges = new ArrayList<>();
+                List<TapRange> pstRanges = new ArrayList<>();
                 for (Range range : ranges) {
-                    if (range instanceof PstRange) {
-                        pstRanges.add((PstRange) range);
+                    if (range instanceof TapRange) {
+                        pstRanges.add((TapRange) range);
                     } else {
-                        throw new FaraoException(String.format("Type of range action [%s] should have ranges of type PstRange.", type));
+                        throw new FaraoException(String.format("Type of range action [%s] should have ranges of type TapRange.", type));
                     }
                 }
                 rangeAction = new PstRangeActionImpl(id, name, operator, usageRules, pstRanges, networkElements.iterator().next(), groupId);

@@ -28,7 +28,7 @@ public class PstSetPointSerializer extends JsonSerializer<PstSetpointImpl> {
     public void serialize(PstSetpointImpl pstSetpoint, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeObjectField(NETWORK_ELEMENT, pstSetpoint.getNetworkElement().getId());
         jsonGenerator.writeNumberField(SETPOINT, pstSetpoint.getSetpoint());
-        jsonGenerator.writeObjectField(RANGE_DEFINITION, pstSetpoint.getRangeDefinition());
+        jsonGenerator.writeObjectField(RANGE_DEFINITION, pstSetpoint.getTapConvention());
     }
 
     @Override

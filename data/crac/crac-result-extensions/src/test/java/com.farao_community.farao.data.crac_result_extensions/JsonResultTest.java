@@ -68,7 +68,7 @@ public class JsonResultTest {
         simpleCrac.addNetworkAction(new NetworkActionImpl("topoRaId", "topoRaName", "RTE", new ArrayList<>(), Collections.singleton(topology)));
 
         // PstSetpointImpl
-        PstSetpointImpl pstSetpoint = new PstSetpointImpl(networkElement2, 12.0, RangeDefinition.CENTERED_ON_ZERO);
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(networkElement2, 12.0, TapConvention.CENTERED_ON_ZERO);
         simpleCrac.addNetworkAction(new NetworkActionImpl("pstSetPointRaId", "pstSetPointRaName", "RTE", new ArrayList<>(), Collections.singleton(pstSetpoint)));
 
         // add a ResultVariantManager to the Crac

@@ -7,8 +7,15 @@
 
 package com.farao_community.farao.data.crac_api;
 
-public interface PstRange extends Range {
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+public interface TapRange extends Range {
 
-    public RangeDefinition getRangeDefinition();
+    public TapConvention getTapConvention();
+
+    public int getMinTap();
+
+    public int getMaxTap();
 
 }

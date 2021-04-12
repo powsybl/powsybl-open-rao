@@ -220,7 +220,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
 
     // Range actions management
     /**
-     * Get a PstRangeAction adder, to add a {@code PstRange}
+     * Get a PstRangeAction adder, to add a {@code TapRange}
      * @return a {@code PstRangeActionAdder} instance
      */
     PstRangeActionAdder newPstRangeAction();
@@ -294,4 +294,9 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
     @Deprecated
     // TODO : should we keep this ?
     void removeNetworkAction(String id);
+
+
+    //todo add PstRangeAction
+
+    //todo add getRemedialActions
 }

@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,7 +19,7 @@ import static org.junit.Assert.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstRangeAdderImplTest {
+public class TapRangeAdderImplTest {
     private PstRangeActionAdder pstRangeActionAdder;
 
     @Before
@@ -37,19 +36,19 @@ public class PstRangeAdderImplTest {
         PstRangeAction pstRangeAction = pstRangeActionAdder.newPstRange()
             .withUnit(Unit.TAP)
             .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(RangeDefinition.CENTERED_ON_ZERO)
+            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
             .withMin(-5.)
             .withMax(10.)
             .add()
             .add();
 
         assertEquals(1, pstRangeAction.getRanges().size());
-        assertTrue(pstRangeAction.getRanges().get(0) instanceof PstRange);
+        assertTrue(pstRangeAction.getRanges().get(0) instanceof TapRange);
         assertEquals(-5., pstRangeAction.getRanges().get(0).getMin(), 1e-3);
         assertEquals(10., pstRangeAction.getRanges().get(0).getMax(), 1e-3);
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
         assertEquals(Unit.TAP, pstRangeAction.getRanges().get(0).getUnit());
-        assertEquals(RangeDefinition.CENTERED_ON_ZERO, ((PstRange) pstRangeAction.getRanges().get(0)).getRangeDefinition());
+        assertEquals(TapConvention.CENTERED_ON_ZERO, ((TapRange) pstRangeAction.getRanges().get(0)).getTapConvention());
     }
 
     @Test (expected = FaraoException.class)
@@ -57,7 +56,7 @@ public class PstRangeAdderImplTest {
         pstRangeActionAdder.newPstRange()
             .withUnit(Unit.TAP)
             .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(RangeDefinition.CENTERED_ON_ZERO)
+            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
             .withMin(-5.)
             .withMax(10.)
             .add();
@@ -68,7 +67,7 @@ public class PstRangeAdderImplTest {
         pstRangeActionAdder.newPstRange()
             .withUnit(Unit.TAP)
             .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(RangeDefinition.CENTERED_ON_ZERO)
+            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
             .withMin(-5.)
             .withMax(10.)
             .add();
@@ -79,7 +78,7 @@ public class PstRangeAdderImplTest {
         pstRangeActionAdder.newPstRange()
             .withUnit(Unit.TAP)
             .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(RangeDefinition.CENTERED_ON_ZERO)
+            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
             .withMin(-5.)
             .withMax(10.)
             .add();
@@ -90,7 +89,7 @@ public class PstRangeAdderImplTest {
         pstRangeActionAdder.newPstRange()
             .withUnit(Unit.TAP)
             .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(RangeDefinition.CENTERED_ON_ZERO)
+            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
             .withMin(-5.)
             .withMax(10.)
             .add();
@@ -101,7 +100,7 @@ public class PstRangeAdderImplTest {
         pstRangeActionAdder.newPstRange()
             .withUnit(Unit.TAP)
             .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(RangeDefinition.CENTERED_ON_ZERO)
+            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
             .withMin(-5.)
             .withMax(10.)
             .add();

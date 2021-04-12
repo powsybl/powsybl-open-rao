@@ -14,23 +14,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RangeImpl implements Range {
 
     private RangeType rangeType;
-    private double min;
-    private double max;
+
     private Unit unit;
 
     @JsonCreator
-    @Deprecated
-    // TODO : convert to private package
-    public RangeImpl(@JsonProperty("min") double min,
-                    @JsonProperty("max") double max,
-                    @JsonProperty("rangeType") RangeType rangeType,
-                    @JsonProperty("unit") Unit unit) {
-        this.min = min;
-        this.max = max;
+    RangeImpl(@JsonProperty("rangeType") RangeType rangeType,
+              @JsonProperty("unit") Unit unit) {
         this.rangeType = rangeType;
         this.unit = unit;
     }
@@ -38,14 +32,6 @@ public class RangeImpl implements Range {
     @Override
     public Unit getUnit() {
         return unit;
-    }
-
-    public double getMin() {
-        return min;
-    }
-
-    public double getMax() {
-        return max;
     }
 
     public RangeType getRangeType() {
@@ -61,17 +47,13 @@ public class RangeImpl implements Range {
             return false;
         }
         Range otherRange = (Range) o;
-        return rangeType.equals(otherRange.getRangeType())
-                && min == otherRange.getMin()
-                && max == otherRange.getMax();
+        return rangeType.equals(otherRange.getRangeType());
     }
 
     @Override
     public int hashCode() {
         int result = 0;
         result = 31 * result + rangeType.hashCode();
-        result = 31 * result + (int) min;
-        result = 31 * result + (int) max;
         return result;
     }
 }

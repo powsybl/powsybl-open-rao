@@ -34,7 +34,7 @@ final class ElementaryActionsDeserializer {
 
             ActionType actionType = null; // useful only if type is "topology"
             Double setpoint = null; // useful only if type is "pst-setpoint" or "injection-set-point"
-            RangeDefinition rangeDefinition = null;  // useful only if type is "pst-setpoint"
+            TapConvention rangeDefinition = null;  // useful only if type is "pst-setpoint"
 
             while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -60,7 +60,7 @@ final class ElementaryActionsDeserializer {
 
                     case RANGE_DEFINITION:
                         jsonParser.nextToken();
-                        rangeDefinition = jsonParser.readValueAs(RangeDefinition.class);
+                        rangeDefinition = jsonParser.readValueAs(TapConvention.class);
                         break;
 
                     default:

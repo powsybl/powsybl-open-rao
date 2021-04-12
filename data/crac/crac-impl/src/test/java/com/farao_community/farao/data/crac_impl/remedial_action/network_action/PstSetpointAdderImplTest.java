@@ -36,21 +36,21 @@ public class PstSetpointAdderImplTest {
         NetworkAction networkAction = networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId")
             .withSetpoint(0)
-            .withRangeDefinition(RangeDefinition.STARTS_AT_ONE)
+            .withTapConvention(TapConvention.STARTS_AT_ONE)
             .add()
             .add();
 
         PstSetpoint pstSetpoint = (PstSetpoint) networkAction.getElementaryActions().iterator().next();
         assertEquals("pstNetworkElementId", pstSetpoint.getNetworkElement().getId());
         assertEquals(0, pstSetpoint.getSetpoint(), 1e-3);
-        assertEquals(RangeDefinition.STARTS_AT_ONE, pstSetpoint.getRangeDefinition());
+        assertEquals(TapConvention.STARTS_AT_ONE, pstSetpoint.getTapConvention());
     }
 
     @Test (expected = FaraoException.class)
     public void testNoNetworkElement() {
         networkActionAdder.newPstSetPoint()
             .withSetpoint(0)
-            .withRangeDefinition(RangeDefinition.STARTS_AT_ONE)
+            .withTapConvention(TapConvention.STARTS_AT_ONE)
             .add()
             .add();
     }
@@ -59,7 +59,7 @@ public class PstSetpointAdderImplTest {
     public void testNoSetpoint() {
         networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId")
-            .withRangeDefinition(RangeDefinition.STARTS_AT_ONE)
+            .withTapConvention(TapConvention.STARTS_AT_ONE)
             .add()
             .add();
     }

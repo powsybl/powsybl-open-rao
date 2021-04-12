@@ -24,7 +24,7 @@ public interface PstRangeActionAdder extends RemedialActionAdder<PstRangeActionA
      */
     PstRangeActionAdder withGroupId(String groupId);
 
-    PstRangeAdder newPstRange();
+    TapRangeAdder newPstRange();
 
     /**
      * Add the new PST Range Action to the Crac

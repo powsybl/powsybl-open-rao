@@ -50,7 +50,7 @@ public class CracResultManager {
             statesAfterOptimizedState.forEach(state -> rangeActionResult.setSetPoint(state.getId(), setPointValueInNetwork));
             if (rangeAction instanceof PstRangeAction) {
                 PstRangeResult pstRangeResult = (PstRangeResult) rangeActionResult;
-                int tapValueInNetwork = ((PstRangeAction) rangeAction).computeTapPosition(setPointValueInNetwork);
+                int tapValueInNetwork = ((PstRangeAction) rangeAction).convertAngleToTap(setPointValueInNetwork);
                 statesAfterOptimizedState.forEach(state -> pstRangeResult.setTap(state.getId(), tapValueInNetwork));
             }
         }
@@ -217,7 +217,7 @@ public class CracResultManager {
      * @return a map containing the minimum margin for each best tap position (one or two taps)
      */
     Map<Integer, Double> computeMinMarginsForBestTaps(PstRangeAction pstRangeAction, double angle, List<BranchCnec> mostLimitingCnecs) {
-        int closestTap = pstRangeAction.computeTapPosition(angle);
+        int closestTap = pstRangeAction.convertAngleToTap(angle);
         double closestAngle = pstRangeAction.convertTapToAngle(closestTap);
 
         Integer otherTap = null;

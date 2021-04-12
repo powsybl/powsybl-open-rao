@@ -13,5 +13,5 @@ public interface PstSetpoint extends ElementaryAction {
 
     double getSetpoint();
 
-    RangeDefinition getRangeDefinition();
+    TapConvention getTapConvention();
 }

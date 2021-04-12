@@ -9,10 +9,10 @@
 
 package com.farao_community.farao.data.crac_impl.range_domain;
 
-import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.RangeType;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
-import com.farao_community.farao.data.crac_impl.PstRangeImpl;
+import com.farao_community.farao.data.crac_impl.TapRangeImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,14 +28,14 @@ public class RangeImplTest extends AbstractRemedialActionTest {
     private final double absMin = 1;
     private final double absMax = 32;
 
-    //todo : is it a test of RangeImpl or PstRangeImpl ?
-    private PstRangeImpl relativeFixedRange;
-    private PstRangeImpl absoluteFixedRange;
+    //todo : is it a test of RangeImpl or TapRangeImpl ?
+    private TapRangeImpl relativeFixedRange;
+    private TapRangeImpl absoluteFixedRange;
 
     @Before
     public void setUp() throws Exception {
-        relativeFixedRange = new PstRangeImpl(relMin, relMax, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.CENTERED_ON_ZERO);
-        absoluteFixedRange = new PstRangeImpl(absMin, absMax, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        relativeFixedRange = new TapRangeImpl(relMin, relMax, RangeType.RELATIVE_TO_INITIAL_NETWORK, TapConvention.CENTERED_ON_ZERO);
+        absoluteFixedRange = new TapRangeImpl(absMin, absMax, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
     }
 
     @Test
@@ -58,22 +58,22 @@ public class RangeImplTest extends AbstractRemedialActionTest {
 
     @Test
     public void getRangeDefinition() {
-        assertEquals(RangeDefinition.CENTERED_ON_ZERO, relativeFixedRange.getRangeDefinition());
-        assertEquals(RangeDefinition.STARTS_AT_ONE, absoluteFixedRange.getRangeDefinition());
+        assertEquals(TapConvention.CENTERED_ON_ZERO, relativeFixedRange.getTapConvention());
+        assertEquals(TapConvention.STARTS_AT_ONE, absoluteFixedRange.getTapConvention());
     }
 
     @Test
     public void testEquals() {
-        PstRangeImpl range1 = new PstRangeImpl(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
-        PstRangeImpl range2 = new PstRangeImpl(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
+        TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
 
         assertEquals(range1, range2);
     }
 
     @Test
     public void testHashCode() {
-        PstRangeImpl range1 = new PstRangeImpl(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
-        PstRangeImpl range2 = new PstRangeImpl(0, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
+        TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
 
         assertEquals(range1.hashCode(), range2.hashCode());
     }

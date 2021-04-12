@@ -8,6 +8,9 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnState;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +30,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
 
     private String networkElementId;
     private String networkElementName;
-    private List<PstRange> ranges;
+    private List<TapRange> ranges;
     private String groupId = null;
 
     @Override
@@ -59,23 +62,33 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     }
 
     @Override
-    public PstRangeAdder newPstRange() {
-        return new PstRangeAdderImpl(this);
+    public TapRangeAdder newPstRange() {
+        return new TapRangeAdderImpl(this);
     }
 
     @Override
     public PstRangeAction add() {
         checkId();
         assertAttributeNotNull(networkElementId, "PstRangeAction", "network element", "withNetworkElement()");
+        List<TapRange> validRanges = new ArrayList<>();
 
-        if (ranges.isEmpty()) {
-            LOGGER.warn("PstRangeAction {} does not contain any range, by default the range of the network will be used", id);
+        if (usageRules.stream().allMatch(this::isPreventiveUsageRule)) {
+            ranges.forEach(range -> {
+                if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {
+                    LOGGER.warn("RELATIVE_TO_PREVIOUS_INSTANT range has been filtered from PstRangeAction {}, as it is a preventive RA", id);
+                } else {
+                    validRanges.add(range);
+                }
+            });
+        }
+
+        if (validRanges.isEmpty()) {
+            LOGGER.warn("PstRangeAction {} does not contain any valid range, by default the range of the network will be used", id);
         }
 
         if (usageRules.isEmpty()) {
             LOGGER.warn("PstRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
-        //todo : pour un PST préventif pur, on ne peut pas définir une range relatif to previous instant (warning + filtre)
         //todo : check that initial tap is within range
 
         NetworkElement networkElement;
@@ -85,12 +98,18 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
             networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
         }
 
-        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, networkElement, groupId);
+        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId);
         this.getCrac().addRangeAction(pstWithRange);
         return pstWithRange;
     }
 
-    void addPstRange(PstRange pstRange) {
+    void addRange(TapRange pstRange) {
         ranges.add(pstRange);
     }
+
+    private boolean isPreventiveUsageRule(UsageRule usageRule) {
+        return  (usageRule instanceof FreeToUse && ((FreeToUse)usageRule).getInstant().equals(Instant.PREVENTIVE))
+            || (usageRule instanceof OnState && ((OnState) usageRule).getInstant().equals(Instant.PREVENTIVE));
+    }
+
 }

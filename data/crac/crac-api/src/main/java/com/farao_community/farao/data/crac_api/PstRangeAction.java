@@ -9,17 +9,20 @@ package com.farao_community.farao.data.crac_api;
 
 import com.powsybl.iidm.network.Network;
 
+import java.util.List;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface PstRangeAction extends RangeAction {
 
-    //todo : rename convertAngleToTap
-    int computeTapPosition(double finalAngle);
+    NetworkElement getNetworkElement();
 
-    int getCurrentTapPosition(Network network, RangeDefinition rangeDefinition);
+    List<TapRange> getRanges();
+
+    int getCurrentTapPosition(Network network, TapConvention rangeDefinition);
 
     double convertTapToAngle(int tap);
 
-    NetworkElement getNetworkElement();
+    int convertAngleToTap(double finalAngle);
 }

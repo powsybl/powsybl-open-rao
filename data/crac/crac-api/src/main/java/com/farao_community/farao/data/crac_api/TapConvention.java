@@ -12,7 +12,7 @@ package com.farao_community.farao.data.crac_api;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public enum RangeDefinition {
+public enum TapConvention {
     CENTERED_ON_ZERO, // Taps from -x to x
     STARTS_AT_ONE // Taps from 1 to y
 }

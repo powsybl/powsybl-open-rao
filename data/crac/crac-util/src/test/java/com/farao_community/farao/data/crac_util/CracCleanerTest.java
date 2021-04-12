@@ -12,15 +12,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.PostContingencyState;
-import com.farao_community.farao.data.crac_impl.XnodeContingency;
-import com.farao_community.farao.data.crac_impl.PstRangeImpl;
-import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
-import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
-import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
-import com.farao_community.farao.data.crac_impl.FreeToUseImpl;
-import com.farao_community.farao.data.crac_impl.OnStateImpl;
+import com.farao_community.farao.data.crac_impl.*;
+import com.farao_community.farao.data.crac_impl.TapRangeImpl;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import org.junit.Before;
@@ -117,7 +110,7 @@ public class CracCleanerTest {
             "pstRangeName",
             "RTE",
             Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
-            Collections.singletonList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
+            Collections.singletonList(new TapRangeImpl(0, 16, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("pst"));
 
         PstRangeActionImpl pstRangeAction2 = new PstRangeActionImpl(
@@ -125,7 +118,7 @@ public class CracCleanerTest {
             "pstRangeName2",
             "RTE",
             Collections.singletonList(new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE)),
-            Collections.singletonList(new PstRangeImpl(0, 16, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, RangeDefinition.STARTS_AT_ONE)),
+            Collections.singletonList(new TapRangeImpl(0, 16, RangeType.RELATIVE_TO_PREVIOUS_INSTANT, TapConvention.STARTS_AT_ONE)),
             simpleCrac.getNetworkElement("BBE2AA1  BBE3AA1  1"));
 
         simpleCrac.addNetworkAction(topoRa1);
@@ -235,7 +228,7 @@ public class CracCleanerTest {
             "pstRangeName",
             "RTE",
             usageRules,
-            Collections.singletonList(new PstRangeImpl(0, 16, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE)),
+            Collections.singletonList(new TapRangeImpl(0, 16, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE)),
             new NetworkElement("BBE1AA1  BBE2AA1  1")
         );
 

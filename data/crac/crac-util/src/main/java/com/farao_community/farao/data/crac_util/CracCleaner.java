@@ -148,7 +148,7 @@ public class CracCleaner {
         crac.getNetworkActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
 
          /* TODO : remove range actions with initial setpoints that do not respect their authorized range
-         This is not possible now since, for PstRange, we have to synchronize them first in order
+         This is not possible now since, for TapRange, we have to synchronize them first in order
          to be able to access current / min / max setpoints
          We can do this during CRAC refactoring (we should somehow merge CracCleaner.cleanCrac() & crac.synchronize() methods)
          For now, these "wrong" range actions are only handled in the LinearOptimizer (in the CoreProblemFiller)*/

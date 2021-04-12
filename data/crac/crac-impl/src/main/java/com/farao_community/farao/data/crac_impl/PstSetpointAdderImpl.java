@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.PstSetpointAdder;
-import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_api.TapConvention;
 
 import java.util.Objects;
 
@@ -24,7 +24,7 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
     private String networkElementId;
     private String networkElementName;
     private Double setpoint;
-    private RangeDefinition rangeDefinition;
+    private TapConvention rangeDefinition;
 
     PstSetpointAdderImpl(NetworkActionAdderImpl ownerAdder) {
         this.ownerAdder = ownerAdder;
@@ -50,7 +50,7 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
     }
 
     @Override
-    public PstSetpointAdder withRangeDefinition(RangeDefinition rangeDefinition) {
+    public PstSetpointAdder withTapConvention(TapConvention rangeDefinition) {
         this.rangeDefinition = rangeDefinition;
         return this;
     }
@@ -59,7 +59,7 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
     public NetworkActionAdder add() {
         assertAttributeNotNull(networkElementId, "PstSetPoint", "network element", "withNetworkElement()");
         assertAttributeNotNull(setpoint, "PstSetPoint", "setpoint", "withSetPoint()");
-        assertAttributeNotNull(rangeDefinition, "PstSetPoint", "range definition", "withRangeDefinition()");
+        assertAttributeNotNull(rangeDefinition, "PstSetPoint", "range definition", "withTapConvention()");
 
         NetworkElement networkElement;
         if (Objects.isNull(networkElementName)) {

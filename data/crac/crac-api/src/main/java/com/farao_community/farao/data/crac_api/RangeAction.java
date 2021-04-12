@@ -24,20 +24,14 @@ import java.util.Optional;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface RangeAction extends RemedialAction<RangeAction>, Synchronizable {
 
-    double getMinValue(Network network, double prePerimeterValue);
+    Optional<String> getGroupId();
 
-    double getMaxValue(Network network, double prePerimeterValue);
+    double getMinValue(double prePerimeterValue);
+
+    double getMaxValue(double prePerimeterValue);
 
     double getCurrentValue(Network network);
 
-    List<Range> getRanges();
-
-    // todo : remove ?
-    @Deprecated
-    void removeRange(Range range);
-
-    // The setpoint is computed by an optimiser.
     void apply(Network network, double setpoint);
 
-    Optional<String> getGroupId();
 }

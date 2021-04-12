@@ -1,14 +1,9 @@
-package com.farao_community.farao.data.crac_impl.remedial_action.range_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.Range;
-import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.RangeType;
-import com.farao_community.farao.data.crac_impl.AbstractRangeAction;
-import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
-import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
-import com.farao_community.farao.data.crac_impl.PstRangeImpl;
-import com.farao_community.farao.data.crac_impl.RangeImpl;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -34,7 +29,7 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
         // todo : review this test
 
         /*
-        HvdcRange mockedHvdcRange = Mockito.mock(PstRangeImpl.class);
+        HvdcRange mockedHvdcRange = Mockito.mock(TapRangeImpl.class);
 
         Range range1 = Mockito.mock(RangeImpl.class);
         Range range2 = Mockito.mock(RangeImpl.class);
@@ -59,7 +54,7 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
 
     @Test
     public void abstractElementaryEquals() {
-        PstRangeImpl range = new PstRangeImpl(1, 10, RangeType.ABSOLUTE, RangeDefinition.STARTS_AT_ONE);
+        TapRangeImpl range = new TapRangeImpl(1, 10, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
         AbstractRangeAction pst = new PstRangeActionImpl("pst_range_id", new NetworkElement("neID"));
         pst.addRange(range);
         AbstractRangeAction pstRange1 = new PstRangeActionImpl("pst_range_id", new NetworkElement("neID"));
@@ -67,7 +62,7 @@ abstract public class AbstractRangeActionTest extends AbstractRemedialActionTest
         assertEquals(pst.hashCode(), pstRange1.hashCode());
         assertEquals(pst, pstRange1);
         AbstractRangeAction pstDifferent = new PstRangeActionImpl("pst_range_id_2", new NetworkElement("neOther"));
-        pstDifferent.addRange(new PstRangeImpl(1, 10, RangeType.RELATIVE_TO_INITIAL_NETWORK, RangeDefinition.STARTS_AT_ONE));
+        pstDifferent.addRange(new TapRangeImpl(1, 10, RangeType.RELATIVE_TO_INITIAL_NETWORK, TapConvention.STARTS_AT_ONE));
         assertNotEquals(pst.hashCode(), pstDifferent.hashCode());
         assertNotEquals(pst, pstDifferent);
     }
