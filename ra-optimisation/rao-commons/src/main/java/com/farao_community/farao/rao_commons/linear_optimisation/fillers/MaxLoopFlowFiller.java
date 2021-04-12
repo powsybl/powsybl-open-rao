@@ -10,38 +10,34 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.LoopFlowParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MaxLoopFlowFiller implements ProblemFiller {
-    LinearOptimizerInput linearOptimizerInput;
-    private double loopFlowConstraintAdjustmentCoefficient;
-    private double loopFlowAcceptableAugmentation;
-    private double loopFlowViolationCost;
-    private RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
-    private LinearProblem linearProblem;
+    private final LinearProblem linearProblem;
+    private final Map<BranchCnec, Double> initialLoopFlowPerLoopFlowCnec;
+    private final LoopFlowParameters loopFlowParameters;
 
     public MaxLoopFlowFiller(LinearProblem linearProblem,
-                             LinearOptimizerInput linearOptimizerInput,
-                             LinearOptimizerParameters linearOptimizerParameters) {
+                             Map<BranchCnec, Double> initialLoopFlowPerLoopFlowCnec,
+                             LoopFlowParameters loopFlowParameters) {
         this.linearProblem = linearProblem;
-        this.linearOptimizerInput = linearOptimizerInput;
-        LoopFlowParameters loopFlowParameters = linearOptimizerParameters.getLoopFlowParameters();
-        this.loopFlowConstraintAdjustmentCoefficient = loopFlowParameters.getLoopFlowConstraintAdjustmentCoefficient();
-        this.loopFlowViolationCost = loopFlowParameters.getLoopFlowViolationCost();
-        this.loopFlowApproximationLevel = loopFlowParameters.getLoopFlowApproximationLevel();
-        this.loopFlowAcceptableAugmentation = loopFlowParameters.getLoopFlowAcceptableAugmentation();
+        this.initialLoopFlowPerLoopFlowCnec = initialLoopFlowPerLoopFlowCnec;
+        this.loopFlowParameters = loopFlowParameters;
+    }
+
+    private Set<BranchCnec> getLoopFlowCnecs() {
+        return initialLoopFlowPerLoopFlowCnec.keySet();
     }
 
     @Override
@@ -78,7 +74,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      */
     private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
 
-        for (BranchCnec cnec : linearOptimizerInput.getLoopflowCnecs()) {
+        for (BranchCnec cnec : getLoopFlowCnecs()) {
 
             // build loopFlow upper bound, with inputThreshold, initial loop-flows, and configuration parameters
             double loopFlowUpperBound = getLoopFlowUpperBound(cnec);
@@ -121,7 +117,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             negativeLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, -1);
 
             //update objective function with loopflowViolationCost
-            linearProblem.getObjective().setCoefficient(loopflowViolationVariable, loopFlowViolationCost);
+            linearProblem.getObjective().setCoefficient(loopflowViolationVariable, loopFlowParameters.getLoopFlowViolationCost());
         }
     }
 
@@ -130,11 +126,11 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      */
     private void updateLoopFlowConstraints(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
 
-        if (!loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange()) {
+        if (!loopFlowParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
             return;
         }
 
-        for (BranchCnec cnec : linearOptimizerInput.getLoopflowCnecs()) {
+        for (BranchCnec cnec : getLoopFlowCnecs()) {
 
             double loopFlowUpperBound = getLoopFlowUpperBound(cnec);
             if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
@@ -159,7 +155,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private double getLoopFlowUpperBound(BranchCnec cnec) {
         double loopFlowThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
         //TODO : move loopflow threshold
-        double initialLoopFlow = linearOptimizerInput.getInitialLoopflowInMW(cnec);
-        return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient);
+        double initialLoopFlow = initialLoopFlowPerLoopFlowCnec.get(cnec);
+        return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowParameters.getLoopFlowAcceptableAugmentation())
+            - loopFlowParameters.getLoopFlowConstraintAdjustmentCoefficient());
     }
 }

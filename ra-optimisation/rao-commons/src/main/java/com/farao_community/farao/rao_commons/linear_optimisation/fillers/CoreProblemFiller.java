@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -36,20 +35,27 @@ public class CoreProblemFiller implements ProblemFiller {
     private final Map<RangeAction, Double> prePerimeterSetPointPerRangeAction;
     private final double pstSensitivityThreshold;
 
-    public CoreProblemFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, double pstSensitivityThreshold) {
+    public CoreProblemFiller(LinearProblem linearProblem,
+                             Network network,
+                             Set<BranchCnec> cnecs,
+                             Map<RangeAction, Double> prePerimeterSetPointPerRangeAction,
+                             double pstSensitivityThreshold) {
         this.linearProblem = linearProblem;
-        this.network = linearOptimizerInput.getNetwork();
-        this.cnecs = linearOptimizerInput.getCnecs();
-        this.prePerimeterSetPointPerRangeAction = linearOptimizerInput.getPreperimeterSetpoints();
+        this.network = network;
+        this.cnecs = cnecs;
+        this.prePerimeterSetPointPerRangeAction = prePerimeterSetPointPerRangeAction;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
     }
 
-    public CoreProblemFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput) {
-        this(linearProblem, linearOptimizerInput, DEFAULT_PST_SENSITIVITY_THRESHOLD);
-    }
-
-    public CoreProblemFiller() {
-        this(null, LinearOptimizerInput.create().build(), 0.);
+    public CoreProblemFiller(LinearProblem linearProblem,
+                             Network network,
+                             Set<BranchCnec> cnecs,
+                             Map<RangeAction, Double> prePerimeterSetPointPerRangeAction) {
+        this.linearProblem = linearProblem;
+        this.network = network;
+        this.cnecs = cnecs;
+        this.prePerimeterSetPointPerRangeAction = prePerimeterSetPointPerRangeAction;
+        this.pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
     }
 
     private Set<RangeAction> getRangeActions() {

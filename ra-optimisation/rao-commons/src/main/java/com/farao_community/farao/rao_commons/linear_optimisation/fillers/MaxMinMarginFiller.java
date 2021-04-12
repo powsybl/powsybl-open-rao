@@ -10,17 +10,17 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -29,23 +29,19 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
+    protected final LinearProblem linearProblem;
+    protected final Set<BranchCnec> optimizedCnecs;
+    private final Set<RangeAction> rangeActions;
+    protected final Unit unit;
+    private final double pstPenaltyCost;
 
-    protected Unit unit;
-    private double pstPenaltyCost;
-    protected LinearOptimizerInput linearOptimizerInput;
-    protected LinearProblem linearProblem;
-
-    public MaxMinMarginFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
+    public MaxMinMarginFiller(LinearProblem linearProblem, Set<BranchCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, double pstPenaltyCost) {
         this.linearProblem = linearProblem;
-        this.linearOptimizerInput = linearOptimizerInput;
-        this.unit = linearOptimizerParameters.getObjectiveFunction().getUnit();
-        this.pstPenaltyCost = linearOptimizerParameters.getPstPenaltyCost();
-    }
-
-    public void setUnit(Unit unit) {
+        this.optimizedCnecs = optimizedCnecs;
+        this.rangeActions = rangeActions;
         this.unit = unit;
+        this.pstPenaltyCost = pstPenaltyCost;
     }
-    // End of methods for tests
 
     @Override
     public void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
@@ -72,7 +68,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void buildMinimumMarginVariable() {
 
-        if (linearOptimizerInput.getCnecs().stream().anyMatch(BranchCnec::isOptimized)) {
+        if (!optimizedCnecs.isEmpty()) {
             linearProblem.addMinimumMarginVariable(-linearProblem.infinity(), linearProblem.infinity());
         } else {
             // if there is no Cnecs, the minMarginVariable is forced to zero.
@@ -102,7 +98,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
-        linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isOptimized).forEach(cnec -> {
+        optimizedCnecs.forEach(cnec -> {
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {
@@ -153,7 +149,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
     private void fillObjectiveWithRangeActionPenaltyCost() {
-        linearOptimizerInput.getRangeActions().forEach(rangeAction -> {
+        rangeActions.forEach(rangeAction -> {
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
             // If the PST has been filtered out, then absoluteVariationVariable is null

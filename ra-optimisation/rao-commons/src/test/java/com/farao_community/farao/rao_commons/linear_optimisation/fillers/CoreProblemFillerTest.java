@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -51,18 +50,15 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
         maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0);
         initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, null);
     }
 
     @Test
     public void fillTestOnPreventive() {
-        LinearOptimizerInput linearOptimizerInput = LinearOptimizerInput.create()
-            .withNetwork(network)
-            .withCnecs(Set.of(cnec1))
-            .withRangeActions(Set.of(rangeAction))
-            .withPreperimeterSetpoints(Map.of(rangeAction, initialAlpha))
-            .build();
-        coreProblemFiller = new CoreProblemFiller(linearProblem, linearOptimizerInput);
+        coreProblemFiller = new CoreProblemFiller(
+            linearProblem,
+            network,
+            Set.of(cnec1),
+            Map.of(rangeAction, initialAlpha));
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
 
         // check range action setpoint variable
@@ -122,13 +118,12 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillTestOnPreventiveFiltered() {
-        LinearOptimizerInput linearOptimizerInput = LinearOptimizerInput.create()
-            .withNetwork(network)
-            .withCnecs(Set.of(cnec1))
-            .withRangeActions(Set.of(rangeAction))
-            .withPreperimeterSetpoints(Map.of(rangeAction, initialAlpha))
-            .build();
-        coreProblemFiller = new CoreProblemFiller(linearProblem, linearOptimizerInput, 2.5);
+        coreProblemFiller = new CoreProblemFiller(
+            linearProblem,
+            network,
+            Set.of(cnec1),
+            Map.of(rangeAction, initialAlpha),
+            2.5);
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
 
         // check range action setpoint variable
@@ -188,13 +183,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillTestOnCurative() {
-        LinearOptimizerInput linearOptimizerInput = LinearOptimizerInput.create()
-            .withNetwork(network)
-            .withCnecs(Set.of(cnec2))
-            .withRangeActions(Set.of(rangeAction))
-            .withPreperimeterSetpoints(Map.of(rangeAction, initialAlpha))
-            .build();
-        coreProblemFiller = new CoreProblemFiller(linearProblem, linearOptimizerInput);
+        coreProblemFiller = new CoreProblemFiller(
+            linearProblem,
+            network,
+            Set.of(cnec2),
+            Map.of(rangeAction, initialAlpha));
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
 
         // check range action setpoint variable
@@ -268,13 +261,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void updateTestOnPreventive() {
-        LinearOptimizerInput linearOptimizerInput = LinearOptimizerInput.create()
-            .withNetwork(network)
-            .withCnecs(Set.of(cnec1))
-            .withRangeActions(Set.of(rangeAction))
-            .withPreperimeterSetpoints(Map.of(rangeAction, initialAlpha))
-            .build();
-        coreProblemFiller = new CoreProblemFiller(linearProblem, linearOptimizerInput);
+        coreProblemFiller = new CoreProblemFiller(
+            linearProblem,
+            network,
+            Set.of(cnec1),
+            Map.of(rangeAction, initialAlpha));
 
         // fill a first time the linearRaoProblem with some data
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
@@ -322,13 +313,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void updateTestOnCurative() {
-        LinearOptimizerInput linearOptimizerInput = LinearOptimizerInput.create()
-            .withNetwork(network)
-            .withCnecs(Set.of(cnec2))
-            .withRangeActions(Set.of(rangeAction))
-            .withPreperimeterSetpoints(Map.of(rangeAction, initialAlpha))
-            .build();
-        coreProblemFiller = new CoreProblemFiller(linearProblem, linearOptimizerInput);
+        coreProblemFiller = new CoreProblemFiller(
+            linearProblem,
+            network,
+            Set.of(cnec2),
+            Map.of(rangeAction, initialAlpha));
 
         // fill a first time the linearRaoProblem with some data
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
@@ -401,13 +390,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
         RangeAction ra1 = crac.getRangeAction("pst1-group1");
         RangeAction ra2 = crac.getRangeAction("pst2-group1");
-        LinearOptimizerInput linearOptimizerInput = LinearOptimizerInput.create()
-            .withNetwork(network)
-            .withCnecs(Set.of(cnec1))
-            .withRangeActions(Set.of(rangeAction, ra1, ra2))
-            .withPreperimeterSetpoints(Map.of(rangeAction, initialAlpha, ra1, 0., ra2, 0.))
-            .build();
-        coreProblemFiller = new CoreProblemFiller(linearProblem, linearOptimizerInput);
+        coreProblemFiller = new CoreProblemFiller(
+            linearProblem,
+            network,
+            Set.of(cnec1),
+            Map.of(rangeAction, initialAlpha, ra1, 0., ra2, 0.));
 
         // fill a first time the linearRaoProblem with some data
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
@@ -427,13 +414,11 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void updateWithoutFillingTest() {
-        LinearOptimizerInput linearOptimizerInput = LinearOptimizerInput.create()
-            .withNetwork(network)
-            .withCnecs(Set.of(cnec1))
-            .withRangeActions(Set.of(rangeAction))
-            .withPreperimeterSetpoints(Map.of(rangeAction, initialAlpha))
-            .build();
-        coreProblemFiller = new CoreProblemFiller(linearProblem, linearOptimizerInput);
+        coreProblemFiller = new CoreProblemFiller(
+            linearProblem,
+            network,
+            Set.of(cnec1),
+            Map.of(rangeAction, initialAlpha));
         try {
             updateProblemWithCoreFiller();
             fail();

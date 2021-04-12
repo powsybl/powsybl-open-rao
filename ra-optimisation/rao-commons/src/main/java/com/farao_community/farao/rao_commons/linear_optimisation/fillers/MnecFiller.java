@@ -10,18 +10,16 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.MnecParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -29,21 +27,23 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecFiller implements ProblemFiller {
-    private Unit unit;
-    private double mnecAcceptableMarginDiminution;
-    private double mnecViolationCost;
-    private double mnecConstraintAdjustmentCoefficient;
-    private LinearProblem linearProblem;
-    private LinearOptimizerInput linearOptimizerInput;
+    private final LinearProblem linearProblem;
+    private final Map<BranchCnec, Double> initialFlowPerMnec;
+    private final Unit unit;
+    private final MnecParameters mnecParameters;
 
-    public MnecFiller(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
+    public MnecFiller(LinearProblem linearProblem,
+                      Map<BranchCnec, Double> initialFlowPerMnec,
+                      Unit unit,
+                      MnecParameters mnecParameters) {
         this.linearProblem = linearProblem;
-        this.linearOptimizerInput = linearOptimizerInput;
-        this.unit = linearOptimizerParameters.getObjectiveFunction().getUnit();
-        MnecParameters mnecParameters = linearOptimizerParameters.getMnecParameters();
-        this.mnecAcceptableMarginDiminution = mnecParameters.getMnecAcceptableMarginDiminution();
-        this.mnecViolationCost = mnecParameters.getMnecViolationCost();
-        this.mnecConstraintAdjustmentCoefficient = mnecParameters.getMnecConstraintAdjustmentCoefficient();
+        this.initialFlowPerMnec = initialFlowPerMnec;
+        this.unit = unit;
+        this.mnecParameters = mnecParameters;
+    }
+
+    private Set<BranchCnec> getMnecs() {
+        return initialFlowPerMnec.keySet();
     }
 
     @Override
@@ -59,17 +59,14 @@ public class MnecFiller implements ProblemFiller {
     }
 
     private void buildMarginViolationVariable() {
-        linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec ->
+        getMnecs().forEach(mnec ->
             linearProblem.addMnecViolationVariable(0, linearProblem.infinity(), mnec)
         );
     }
 
     private void buildMnecMarginConstraints() {
-        linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec -> {
-                if (Objects.isNull(mnec.getExtension(CnecResultExtension.class))) {
-                    return;
-                }
-                double mnecInitialFlow = linearOptimizerInput.getInitialFlowOnCnec(mnec, MEGAWATT);
+        getMnecs().forEach(mnec -> {
+                double mnecInitialFlow = initialFlowPerMnec.get(mnec);
 
                 MPVariable flowVariable = linearProblem.getFlowVariable(mnec);
 
@@ -85,7 +82,8 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> maxFlow = mnec.getUpperBound(Side.LEFT, MEGAWATT);
                 if (maxFlow.isPresent()) {
-                    double ub = Math.max(maxFlow.get(), mnecInitialFlow + mnecAcceptableMarginDiminution) - mnecConstraintAdjustmentCoefficient;
+                    double ub = Math.max(maxFlow.get(),  mnecInitialFlow + mnecParameters.getMnecAcceptableMarginDiminution());
+                    ub -= mnecParameters.getMnecConstraintAdjustmentCoefficient();
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
@@ -93,7 +91,8 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> minFlow = mnec.getLowerBound(Side.LEFT, MEGAWATT);
                 if (minFlow.isPresent()) {
-                    double lb = Math.min(minFlow.get(), mnecInitialFlow - mnecAcceptableMarginDiminution) + mnecConstraintAdjustmentCoefficient;
+                    double lb = Math.min(minFlow.get(), mnecInitialFlow - mnecParameters.getMnecAcceptableMarginDiminution());
+                    lb += mnecParameters.getMnecConstraintAdjustmentCoefficient();
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);
@@ -103,9 +102,9 @@ public class MnecFiller implements ProblemFiller {
     }
 
     public void fillObjectiveWithMnecPenaltyCost() {
-        linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec ->
+        getMnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec ->
             linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec),
-                    RaoUtil.getBranchFlowUnitMultiplier(mnec, Side.LEFT, MEGAWATT, unit) * mnecViolationCost)
+                    RaoUtil.getBranchFlowUnitMultiplier(mnec, Side.LEFT, MEGAWATT, unit) * mnecParameters.getMnecViolationCost())
         );
     }
 }

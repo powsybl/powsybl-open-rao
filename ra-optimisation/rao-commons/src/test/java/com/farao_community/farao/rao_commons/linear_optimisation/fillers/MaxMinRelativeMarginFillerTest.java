@@ -6,8 +6,7 @@
  */
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -15,6 +14,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Map;
+import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -28,37 +30,36 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(PowerMockRunner.class)
 public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
-
-    private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
-    BranchCnec cnecNl;
-    BranchCnec cnecFr;
 
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller();
-        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, 1000, 0.01);
+        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
+        double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        coreProblemFiller = new CoreProblemFiller(
+            linearProblem,
+            network,
+            Set.of(cnec1),
+            Map.of(rangeAction, initialAlpha));
+        coreProblemFiller.fill(sensitivityAndLoopflowResults);
     }
 
-    private void fillProblemWithCoreFiller() {
-        // arrange some additional data
-        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        raoData.getCracResultManager().applyRangeActionResultsOnNetwork();
-
-        // fill the problem : the core filler is required
-        coreProblemFiller.fill(raoData, linearProblem);
+    private void createProblem(Unit unit, double cnecInitialAbsolutePtdfSum) {
+        MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
+            linearProblem,
+            Map.of(cnec1, cnecInitialAbsolutePtdfSum),
+            Set.of(rangeAction),
+            unit,
+            DEFAULT_PST_PENALTY_COST,
+            1000,
+            0.01);
+        maxMinRelativeMarginFiller.fill(sensitivityAndLoopflowResults);
     }
 
     @Test
     public void fillWithMaxMinRelativeMarginInMegawatt() {
-        initRaoData(crac.getPreventiveState());
-        // this is almost a copy of fillWithMaxMinMarginInMegawatt()
-        // only the coefficients in the MinMargin constraint should be different
-        fillProblemWithCoreFiller();
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.9);
-        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.7);
-        maxMinRelativeMarginFiller.fill(raoData, linearProblem);
+        createProblem(MEGAWATT, 0.9);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -101,14 +102,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMaxMinRelativeMarginInAmpere() {
-        initRaoData(crac.getPreventiveState());
-        // this is almost a copy of fillWithMaxMinMarginInAmpere()
-        // only the objective function should be different
-        fillProblemWithCoreFiller();
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.005);
-        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.1);
-        maxMinRelativeMarginFiller.setUnit(AMPERE);
-        maxMinRelativeMarginFiller.fill(raoData, linearProblem);
+        createProblem(AMPERE, 0.005);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
