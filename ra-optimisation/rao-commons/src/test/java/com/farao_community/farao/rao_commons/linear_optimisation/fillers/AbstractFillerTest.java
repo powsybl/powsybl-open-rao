@@ -13,9 +13,7 @@ import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -56,8 +54,6 @@ abstract class AbstractFillerTest {
     static final double SENSI_CNEC2_IT2 = -7.0;
 
     // data related to the Range Action
-    static final int MIN_TAP = -16;
-    static final int MAX_TAP = 16;
     static final int TAP_INITIAL = 5;
     static final int TAP_IT2 = -7;
 
@@ -73,9 +69,9 @@ abstract class AbstractFillerTest {
     CoreProblemFiller coreProblemFiller;
     LinearProblem linearProblem;
     SystematicSensitivityResult systematicSensitivityResult;
-    RaoData raoData;
     Crac crac;
     Network network;
+    SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
     void init() {
         // arrange some data for all fillers test
@@ -102,13 +98,7 @@ abstract class AbstractFillerTest {
         when(systematicSensitivityResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
         when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
         when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
-    }
 
-    void initRaoData(State state) {
-        raoData = new RaoData(network, crac, state, Collections.singleton(state), null, null, null, new RaoParameters());
-        raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
-        raoData.setSystematicSensitivityResult(systematicSensitivityResult);
-        raoData.getCrac().getExtension(ResultVariantManager.class).setInitialVariantId(raoData.getWorkingVariantId());
-        raoData.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(raoData.getWorkingVariantId());
+        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Collections.emptyMap());
     }
 }
