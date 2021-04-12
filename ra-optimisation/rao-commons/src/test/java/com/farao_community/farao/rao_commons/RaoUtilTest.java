@@ -3,7 +3,8 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ *//*
+
 
 package com.farao_community.farao.rao_commons;
 
@@ -38,9 +39,11 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
 import static org.junit.Assert.*;
 
+*/
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
- */
+ *//*
+
 public class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private RaoParameters raoParameters;
@@ -311,3 +314,4 @@ public class RaoUtilTest {
     }
 }
 
+*/

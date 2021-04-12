@@ -10,18 +10,14 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoInputHelper;
+import com.farao_community.farao.rao_commons.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.compress.utils.Sets;
@@ -29,15 +25,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -46,20 +39,20 @@ public class MinMarginEvaluatorTest {
     private static final double DOUBLE_TOLERANCE = 1;
 
     private Crac crac;
-    private RaoData raoData;
     private SystematicSensitivityResult systematicSensitivityResult;
     private Network network;
-    private String initialVariant;
+    private LinearOptimizerInput linearOptimizerInput;
+    private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
+    private Map<BranchCnec, Double> prePerimeterMargins;
+    Map<BranchCnec, CnecResult> initialCnecResults;
 
     @Before
     public void setUp() {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
-        initialVariant = raoData.getPreOptimVariantId();
-        crac.getExtension(ResultVariantManager.class).setInitialVariantId(initialVariant);
 
+        initialCnecResults = new HashMap<>();
         setPtdfSum("cnec1basecase", 0.5);
         setPtdfSum("cnec1stateCurativeContingency1", 0.95);
         setPtdfSum("cnec1stateCurativeContingency2", 0.95);
@@ -80,69 +73,75 @@ public class MinMarginEvaluatorTest {
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec2basecase")))
                 .thenReturn(60.);
 
-        raoData.setSystematicSensitivityResult(systematicSensitivityResult);
+        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult);
+        prePerimeterMargins = new HashMap<>();
+
+        linearOptimizerInput = LinearOptimizerInput.create()
+                .withCnecs(crac.getBranchCnecs(crac.getPreventiveState()))
+                .withInitialCnecResults(initialCnecResults)
+                .withPrePerimeterCnecMarginsInAbsoluteMW(prePerimeterMargins)
+                .build();
     }
 
     private void setPtdfSum(String cnecId, double ptdfSum) {
-        crac.getBranchCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(initialVariant).setAbsolutePtdfSum(ptdfSum);
+        CnecResult cnecResult = new CnecResult();
+        cnecResult.setAbsolutePtdfSum(ptdfSum);
+        initialCnecResults.put(crac.getBranchCnec(cnecId), cnecResult);
     }
 
     @Test
     public void getCostInMegawatt() {
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, false);
-        assertEquals(-787, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.MEGAWATT, null, false);
+        assertEquals(-787, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
 
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, true, 0.01);
-        assertEquals(-787 / 0.4, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.MEGAWATT, null, true, 0.01);
+        assertEquals(-787 / 0.4, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getCostInMegawattSkipOperatorsNotToOptimize() {
         // cnec1 has a margin of 1400 MW "after optim"
         // cnec2 has a margin of 787 MW "after optim"
-        BranchCnec cnec1 = raoData.getCrac().getBranchCnec("cnec1basecase");
-        BranchCnec cnec2 = raoData.getCrac().getBranchCnec("cnec2basecase");
-
-        String mockPrePerimeterVariantId = raoData.getCracVariantManager().cloneWorkingVariant();
-        raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(initialVariant, mockPrePerimeterVariantId);
-        raoData.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(mockPrePerimeterVariantId);
+        BranchCnec cnec1 = crac.getBranchCnec("cnec1basecase");
+        BranchCnec cnec2 = crac.getBranchCnec("cnec2basecase");
 
         // If operator 2 doesn't share RA
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, Collections.singleton("operator2"), false);
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, Collections.singleton("operator2"), true, 0.01);
-        cnec1.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(100.0);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.MEGAWATT, Collections.singleton("operator2"), false);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.MEGAWATT, Collections.singleton("operator2"), true, 0.01);
+        //cnec1.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(100.0);
+        prePerimeterMargins.put(cnec1, 1400.0);
 
         // case 0 : margin on cnec2 is the same => cost is equal to margin on cnec1
         // (we're setting the 'old' flow here)
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(200.0);
-        assertEquals(-1400, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-1400 / 0.5, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        prePerimeterMargins.put(cnec2, 787.0);
+        assertEquals(-1400, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-1400 / 0.5, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
         // case 1 : margin on cnec2 is improved => cost is equal to margin on cnec1
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(300.0);
-        assertEquals(-1400, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-1400 / 0.5, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        prePerimeterMargins.put(cnec2, 687.0);
+        assertEquals(-1400, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-1400 / 0.5, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
         // case 2 : margin on cnec2 is the slightly improved => cost is equal to margin on cnec2
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(201.0);
-        assertEquals(-1400, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-1400 / 0.5, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        prePerimeterMargins.put(cnec2, 786.0);
+        assertEquals(-1400, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-1400 / 0.5, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
         // case 3 : margin on cnec2 is decreased and worse than on cnec1 => cost is equal to margin on cnec2
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(100.0);
-        assertEquals(-787, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-787 / 0.4, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        prePerimeterMargins.put(cnec2, 887.0);
+        assertEquals(-787, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-787 / 0.4, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
         // case 4 : margin on cnec2 is decreased but better than on cnec1 => cost is equal to margin on cnec1
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(100.0);
+        prePerimeterMargins.put(cnec2, 887.0);
         Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("cnec1basecase"))).thenReturn(1000.);
-        assertEquals(-500, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-500 / 0.5, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(-500, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-500 / 0.5, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getCostInAmpereWithMissingValues() {
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, false);
-        assertEquals(-1440, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.AMPERE, null, false);
+        assertEquals(-1440, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
 
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, true, 0.01);
-        assertEquals(-3600, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.AMPERE, null, true, 0.01);
+        assertEquals(-3600, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -155,51 +154,47 @@ public class MinMarginEvaluatorTest {
                 .thenReturn(10.);
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec2stateCurativeContingency2")))
                 .thenReturn(10.);
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, false);
-        assertEquals(-1440, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.AMPERE, null, false);
+        assertEquals(-1440, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
 
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, true, 0.01);
-        assertEquals(-3600, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.AMPERE, null, true, 0.01);
+        assertEquals(-3600, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getCostInAmpereSkipOperatorsNotToOptimize() {
         // cnec1 has a margin of 2249 A "after optim"
         // cnec2 has a margin of 1440 A "after optim"
-        BranchCnec cnec1 = raoData.getCrac().getBranchCnec("cnec1basecase");
-        BranchCnec cnec2 = raoData.getCrac().getBranchCnec("cnec2basecase");
-
-        String mockPrePerimeterVariantId = raoData.getCracVariantManager().cloneWorkingVariant();
-        raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(initialVariant, mockPrePerimeterVariantId);
-        raoData.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(mockPrePerimeterVariantId);
+        BranchCnec cnec1 = crac.getBranchCnec("cnec1basecase");
+        BranchCnec cnec2 = crac.getBranchCnec("cnec2basecase");
 
         // If operator 2 doesn't share RA
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, Collections.singleton("operator2"), false);
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, Collections.singleton("operator2"), true, 0.01);
-        cnec1.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(30.0);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.AMPERE, Collections.singleton("operator2"), false);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.AMPERE, Collections.singleton("operator2"), true, 0.01);
+        prePerimeterMargins.put(cnec1, 1400.0);
 
         // case 0 : margin on cnec2 is same => cost is equal to margin on cnec1
         // (we're setting the 'old' flow here)
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(60.0);
-        assertEquals(-2249, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-2249 / 0.5, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        prePerimeterMargins.put(cnec2, 787.0);
+        assertEquals(-2249, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-2249 / 0.5, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
         // case 1 : margin on cnec2 is improved => cost is equal to margin on cnec1
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(70.);
-        assertEquals(-2249, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-2249 / 0.5, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        prePerimeterMargins.put(cnec2, 687.0);
+        assertEquals(-2249, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-2249 / 0.5, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
         // case 2 : margin on cnec2 is slightly improved => cost is equal to margin on cnec1
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(61.);
-        assertEquals(-2249, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-2249 / 0.5, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        prePerimeterMargins.put(cnec2, 786.0);
+        assertEquals(-2249, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-2249 / 0.5, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
         // case 3 : margin on cnec2 is decreased and worse than on cnec1 => cost is equal to margin on cnec2
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(59.0);
-        assertEquals(-1440, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-1440 / 0.4, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        prePerimeterMargins.put(cnec2, 887.0);
+        assertEquals(-1440, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-1440 / 0.4, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
         // case 4 : margin on cnec2 is decreased but better than on cnec1 => cost is equal to margin on cnec1
-        cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInA(59.0);
+        prePerimeterMargins.put(cnec2, 887.0);
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec1basecase"))).thenReturn(1300.);
-        assertEquals(-979, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
-        assertEquals(-979 / 0.5, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        assertEquals(-979, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(-979 / 0.5, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -208,7 +203,7 @@ public class MinMarginEvaluatorTest {
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(300.).setMin(-300.).setUnit(Unit.MEGAWATT).add()
                 .optimized().monitored()
-                .setInstant(Instant.PREVENTIVE)
+                .setInstant(crac.getInstant("initial"))
                 .add();
 
         crac.desynchronize();
@@ -219,11 +214,11 @@ public class MinMarginEvaluatorTest {
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("mnec1basecase")))
                 .thenReturn(60.);
 
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, false);
-        assertEquals(-787, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.MEGAWATT, null, false);
+        assertEquals(-787, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
 
-        minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, false);
-        assertEquals(-1440, minMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.AMPERE, null, false);
+        assertEquals(-1440, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -235,21 +230,21 @@ public class MinMarginEvaluatorTest {
         setPtdfSum("cnec2stateCurativeContingency1", 0.006);
         setPtdfSum("cnec2stateCurativeContingency2", 0.006);
 
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, true, 0.02);
-        assertEquals(-39363, minRelativeMarginEvaluator.computeCost(raoData), DOUBLE_TOLERANCE);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, Unit.MEGAWATT, null, true, 0.02);
+        assertEquals(-39363, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test(expected = FaraoException.class)
     public void testRequirePtdfSumLb() {
-        new MinMarginEvaluator(Unit.MEGAWATT, null, true);
+        new MinMarginEvaluator(linearOptimizerInput, Unit.MEGAWATT, null, true);
     }
 
     @Test
     public void testMarginsInAmpereFromMegawattConversion() {
-        List<Double> margins = new MinMarginEvaluator(Unit.MEGAWATT, null, true, 0.001).getMarginsInAmpereFromMegawattConversion(raoData);
-        assertEquals(2, margins.size());
-        assertEquals(4254, margins.get(0), DOUBLE_TOLERANCE);
-        assertEquals(2990, margins.get(1), DOUBLE_TOLERANCE);
+        Map<BranchCnec, Double> margins = new MinMarginEvaluator(linearOptimizerInput, Unit.MEGAWATT, null, true, 0.001).getMarginsInAmpereFromMegawattConversion(systematicSensitivityResult);
+        assertEquals(2, margins.keySet().size());
+        assertEquals(2990, margins.get(crac.getBranchCnec("cnec2basecase")), DOUBLE_TOLERANCE);
+        assertEquals(4254, margins.get(crac.getBranchCnec("cnec1basecase")), DOUBLE_TOLERANCE);
     }
 
     private Set<BranchCnec> setUpMockCnecs(boolean optimized, boolean monitored) {
@@ -287,19 +282,13 @@ public class MinMarginEvaluatorTest {
     @Test
     public void testPureMnecs() {
         Set<BranchCnec> mnecs = setUpMockCnecs(false, true);
-        ResultVariantManager mockResultManager = Mockito.mock(ResultVariantManager.class);
-        Mockito.when(mockResultManager.getInitialVariantId()).thenReturn(null);
-        Mockito.when(mockResultManager.getPrePerimeterVariantId()).thenReturn(null);
-        Crac mockCrac = Mockito.mock(SimpleCrac.class);
-        Mockito.when(mockCrac.getExtension(eq(ResultVariantManager.class))).thenReturn(mockResultManager);
-        RaoData mockRaoData = Mockito.mock(RaoData.class);
-        Mockito.when(mockRaoData.getCnecs()).thenReturn(mnecs);
-        Mockito.when(mockRaoData.getCrac()).thenReturn(mockCrac);
+        LinearOptimizerInput linearOptimizerInputMock = Mockito.mock(LinearOptimizerInput.class);
+        Mockito.when(linearOptimizerInputMock.getCnecs()).thenReturn(mnecs);
 
-        assertEquals(0, new MinMarginEvaluator(MEGAWATT, null, false, 0.02).computeCost(mockRaoData), DOUBLE_TOLERANCE);
-        assertEquals(0, new MinMarginEvaluator(MEGAWATT, null, true, 0.02).computeCost(mockRaoData), DOUBLE_TOLERANCE);
-        assertEquals(0, new MinMarginEvaluator(AMPERE, null, false, 0.02).computeCost(mockRaoData), DOUBLE_TOLERANCE);
-        assertEquals(0, new MinMarginEvaluator(AMPERE, null, true, 0.02).computeCost(mockRaoData), DOUBLE_TOLERANCE);
+        assertEquals(0, new MinMarginEvaluator(linearOptimizerInputMock, MEGAWATT, null, false, 0.02).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(0, new MinMarginEvaluator(linearOptimizerInputMock, MEGAWATT, null, true, 0.02).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(0, new MinMarginEvaluator(linearOptimizerInputMock, AMPERE, null, false, 0.02).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        assertEquals(0, new MinMarginEvaluator(linearOptimizerInputMock, AMPERE, null, true, 0.02).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
 }

@@ -3,7 +3,8 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ *//*
+
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
@@ -24,10 +25,12 @@ import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALT
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
+*/
 /**
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
- */
+ *//*
+
 @RunWith(PowerMockRunner.class)
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
@@ -147,7 +150,9 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         }
     }
 
-    @Test(expected = Test.None.class /* no exception expected */)
+    @Test(expected = Test.None.class */
+/* no exception expected *//*
+)
     public void fillWithMissingRangeActionVariables() {
         initRaoData(crac.getPreventiveState());
         // FlowVariables present , but not the absoluteRangeActionVariables present,
@@ -198,3 +203,4 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 }
 
+*/

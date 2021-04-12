@@ -3,7 +3,8 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ *//*
+
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
@@ -40,9 +41,11 @@ import java.util.Collections;
 
 import static org.junit.Assert.*;
 
+*/
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
- */
+ *//*
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(LinearProblem.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
@@ -246,3 +249,4 @@ public class LinearOptimizerTest {
         Assert.assertEquals(0, pstRangeResult.getTap(preventiveState), 0.1);
     }
 }
+*/
