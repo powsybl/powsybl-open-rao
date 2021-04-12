@@ -160,7 +160,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void skipPureMnecsInMinMarginDef() {
-        crac.newBranchCnec().setId("MNEC - N - preventive")
+        crac.newFlowCnec().setId("MNEC - N - preventive")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
                 .newThreshold().setRule(BranchThresholdRule.ON_RIGHT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
@@ -179,7 +179,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void dontSkipCnecsMnecsInMinMarginDef() {
-        crac.newBranchCnec().setId("MNEC - N - preventive")
+        crac.newFlowCnec().setId("MNEC - N - preventive")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
                 .newThreshold().setRule(BranchThresholdRule.ON_RIGHT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()

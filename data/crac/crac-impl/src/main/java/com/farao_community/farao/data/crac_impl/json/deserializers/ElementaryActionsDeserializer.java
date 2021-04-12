@@ -2,6 +2,8 @@ package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.InjectionSetpointImpl;
 import com.farao_community.farao.data.crac_impl.PstSetpointImpl;

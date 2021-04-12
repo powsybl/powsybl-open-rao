@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;

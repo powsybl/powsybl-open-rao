@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.TopologicalAction;
+import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;

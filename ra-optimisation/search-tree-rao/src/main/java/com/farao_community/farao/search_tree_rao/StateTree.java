@@ -9,6 +9,8 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -78,7 +80,7 @@ public class StateTree {
     }
 
     static Set<String> findOperatorsNotSharingCras(Crac crac, Network network, Set<State> optimizedStates) {
-        Set<String> tsos = crac.getBranchCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
+        Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
         tsos.addAll(crac.getRangeActions().stream().map(RangeAction::getOperator).collect(Collectors.toSet()));
         tsos.addAll(crac.getNetworkActions().stream().map(NetworkAction::getOperator).collect(Collectors.toSet()));
         // <!> If a CNEC's operator is null, filter it out of the list of operators not sharing CRAs

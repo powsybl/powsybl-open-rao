@@ -26,7 +26,7 @@ public class PostContingencyStateTest {
     public void create() {
         NetworkElement networkElement = new NetworkElement("basicElemId", "basicElemName");
         state =  new PostContingencyState(
-            new ComplexContingency("contingencyId", "contingencyName", Collections.singleton(networkElement)),
+            new ContingencyImpl("contingencyId", "contingencyName", Collections.singleton(networkElement)),
             Instant.CURATIVE
         );
     }
@@ -34,12 +34,12 @@ public class PostContingencyStateTest {
     @Test
     public void testEquals() {
         PostContingencyState state1 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.OUTAGE
         );
 
         PostContingencyState state2 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.OUTAGE
         );
 
@@ -49,12 +49,12 @@ public class PostContingencyStateTest {
     @Test
     public void testNotEqualsByInstant() {
         PostContingencyState state1 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.OUTAGE
         );
 
         PostContingencyState state2 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.CURATIVE
         );
 
@@ -64,12 +64,12 @@ public class PostContingencyStateTest {
     @Test
     public void testNotEqualsByContingency() {
         PostContingencyState state1 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.PREVENTIVE
         );
 
         PostContingencyState state2 = new PostContingencyState(
-            new ComplexContingency("contingency 2", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 2", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.PREVENTIVE
         );
 
@@ -79,12 +79,12 @@ public class PostContingencyStateTest {
     @Test
     public void testNotEqualsByContingencyElements() {
         PostContingencyState state1 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.PREVENTIVE
         );
 
         PostContingencyState state2 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-2"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-2"))),
             Instant.PREVENTIVE
         );
 
@@ -99,7 +99,7 @@ public class PostContingencyStateTest {
     @Test
     public void testToStringAfterContingency() {
         PostContingencyState state1 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.OUTAGE
         );
 
@@ -109,12 +109,12 @@ public class PostContingencyStateTest {
     @Test
     public void testCompareTo() {
         PostContingencyState state1 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.OUTAGE
         );
 
         PostContingencyState state2 = new PostContingencyState(
-            new ComplexContingency("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
+            new ContingencyImpl("contingency 1", Collections.singleton(new NetworkElement("network-element-1"))),
             Instant.CURATIVE
         );
 

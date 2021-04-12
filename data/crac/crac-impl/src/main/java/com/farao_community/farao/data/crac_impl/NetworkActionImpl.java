@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.ElementaryAction;
-import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;

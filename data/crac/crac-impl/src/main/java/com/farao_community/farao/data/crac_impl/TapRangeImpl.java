@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.TapConvention;
-import com.farao_community.farao.data.crac_api.TapRange;
-import com.farao_community.farao.data.crac_api.RangeType;
+import com.farao_community.farao.data.crac_api.range_action.TapRange;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

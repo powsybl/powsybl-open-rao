@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.powsybl.commons.extensions.AbstractExtension;
 

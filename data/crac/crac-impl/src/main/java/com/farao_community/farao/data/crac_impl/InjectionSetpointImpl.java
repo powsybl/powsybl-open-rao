@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.InjectionSetpoint;
+import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.*;

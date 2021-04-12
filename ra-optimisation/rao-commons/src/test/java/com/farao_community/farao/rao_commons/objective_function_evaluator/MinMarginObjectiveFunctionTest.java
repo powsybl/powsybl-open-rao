@@ -62,7 +62,7 @@ public class MinMarginObjectiveFunctionTest {
         raoParameters.setPtdfSumLowerBound(ptdfSumLowerBound);
 
         minRelativeMarginObjectiveFunction = new MinMarginObjectiveFunction(raoParameters, null);
-        crac.newBranchCnec().setId("MNEC1 - initial-instant - preventive")
+        crac.newFlowCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FR-BE").add()
                 .newThreshold().setMin(-commonThreshold).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(commonThreshold).setUnit(unit).add()
                 .optimized().monitored()
@@ -79,7 +79,7 @@ public class MinMarginObjectiveFunctionTest {
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
         Random rand = new Random();
-        crac.getBranchCnecs().forEach(cnec ->
+        crac.getFlowCnecs().forEach(cnec ->
                 cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setAbsolutePtdfSum(rand.nextDouble())
         );
 
@@ -94,12 +94,12 @@ public class MinMarginObjectiveFunctionTest {
         double initFlow = commonThreshold - initMargin;
         double newFlow = commonThreshold - newMargin;
         if (unit == Unit.MEGAWATT) {
-            crac.getBranchCnecs().forEach(cnec ->
+            crac.getFlowCnecs().forEach(cnec ->
                     cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInMW(initFlow)
             );
             Mockito.when(sensiResult.getReferenceFlow(Mockito.any())).thenReturn(newFlow);
         } else {
-            crac.getBranchCnecs().forEach(cnec ->
+            crac.getFlowCnecs().forEach(cnec ->
                     cnec.getExtension(CnecResultExtension.class).getVariant(TEST_VARIANT).setFlowInA(initFlow)
             );
             Mockito.when(sensiResult.getReferenceIntensity(Mockito.any())).thenReturn(newFlow);

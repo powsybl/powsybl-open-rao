@@ -32,7 +32,7 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
         // Crac
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
-        simpleCrac.newBranchCnec()
+        simpleCrac.newFlowCnec()
             .setId("cnec1")
             .newNetworkElement().setId("ne1").add()
             .setInstant(Instant.PREVENTIVE)
@@ -40,7 +40,7 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
             .add();
         simpleCrac.getBranchCnec("cnec1").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100, Unit.AMPERE));
 
-        simpleCrac.newBranchCnec()
+        simpleCrac.newFlowCnec()
             .setId("cnec2")
             .newNetworkElement().setId("ne2").add()
             .setInstant(Instant.PREVENTIVE)
@@ -48,7 +48,7 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
             .add();
         simpleCrac.getBranchCnec("cnec2").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(30, Unit.PERCENT_IMAX));
 
-        simpleCrac.newBranchCnec()
+        simpleCrac.newFlowCnec()
             .setId("cnec3")
             .newNetworkElement().setId("ne3").add()
             .setInstant(Instant.PREVENTIVE)

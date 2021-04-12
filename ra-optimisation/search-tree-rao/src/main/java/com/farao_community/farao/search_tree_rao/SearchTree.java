@@ -7,7 +7,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.farao_community.farao.rao_commons.RaoData;

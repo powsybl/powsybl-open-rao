@@ -99,7 +99,7 @@ public class Cne {
         Crac crac = cneHelper.getCrac();
 
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();
-        crac.getBranchCnecs().stream().sorted(Comparator.comparing(Identifiable::getId))
+        crac.getFlowCnecs().stream().sorted(Comparator.comparing(Identifiable::getId))
                 .forEach(cnec -> createConstraintSeriesOfACnec(cnec, cneHelper, constraintSeriesList, isRelativePositiveMargins()));
 
         ConstraintSeries preventiveB56 = newConstraintSeries(generateRandomMRID(), B56_BUSINESS_TYPE);
@@ -123,7 +123,7 @@ public class Cne {
      */
     // TODO : change this if RaoParameters is added to RaoResult, and RaoResult accessible in exporter
     private boolean isRelativePositiveMargins() {
-        return cneHelper.getCrac().getBranchCnecs().stream().anyMatch(branchCnec ->
+        return cneHelper.getCrac().getFlowCnecs().stream().anyMatch(branchCnec ->
             !Double.isNaN(branchCnec.getExtension(CnecResultExtension.class).getVariant(cneHelper.getPreOptimVariantId()).getAbsolutePtdfSum())
         );
     }

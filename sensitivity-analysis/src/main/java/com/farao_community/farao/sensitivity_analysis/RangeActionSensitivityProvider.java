@@ -9,7 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityVariable;

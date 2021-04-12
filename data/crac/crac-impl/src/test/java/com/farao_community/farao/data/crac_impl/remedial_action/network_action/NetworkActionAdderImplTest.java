@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCracFactory;

@@ -10,18 +10,15 @@ package com.farao_community.farao.data.crac_api;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface ContingencyAdder extends NetworkElementParent<ContingencyAdder>, IdentifiableAdder<ContingencyAdder> {
+public interface ContingencyAdder extends IdentifiableAdder<ContingencyAdder> {
+
+    ContingencyAdder withNetworkElement(String networkElementId);
+
+    ContingencyAdder withNetworkElement(String networkElementId, String networkElementName);
 
     /**
      * Add the new contingency to the Crac
      * @return the created {@code Contingency} instance
      */
     Contingency add();
-
-    /**
-     * Add an xnode to the contingency, using its ID
-     * @param xnodeId: the Xnode's ID
-     * @return the {@code ContingencyAdder} instance
-     */
-    ContingencyAdder addXnode(String xnodeId);
 }

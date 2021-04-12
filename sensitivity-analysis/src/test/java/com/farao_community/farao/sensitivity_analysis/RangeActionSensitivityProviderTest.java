@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.ContingencyImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
@@ -45,33 +45,33 @@ public class RangeActionSensitivityProviderTest {
         network.getVoltageLevel("BBE1AA2").getNodeBreakerView().newBusbarSection().setId("BB1").setNode(1).add();
 
         Crac crac = CommonCracCreation.createWithPstRange();
-        ComplexContingency generatorContingency = new ComplexContingency("contingency-generator");
+        ContingencyImpl generatorContingency = new ContingencyImpl("contingency-generator");
         generatorContingency.addNetworkElement(new NetworkElement("BBE1AA1 _generator"));
-        ComplexContingency hvdcContingency = new ComplexContingency("contingency-hvdc");
+        ContingencyImpl hvdcContingency = new ContingencyImpl("contingency-hvdc");
         hvdcContingency.addNetworkElement(new NetworkElement("HVDC1"));
-        ComplexContingency busbarSectionContingency = new ComplexContingency("contingency-busbar-section");
+        ContingencyImpl busbarSectionContingency = new ContingencyImpl("contingency-busbar-section");
         hvdcContingency.addNetworkElement(new NetworkElement("BB1"));
         crac.addContingency(generatorContingency);
         crac.addContingency(hvdcContingency);
         crac.addContingency(busbarSectionContingency);
 
-        NetworkElement networkElement = crac.getBranchCnecs().iterator().next().getNetworkElement();
+        NetworkElement networkElement = crac.getFlowCnecs().iterator().next().getNetworkElement();
 
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setId("generatorContingencyCnec")
             .addNetworkElement(networkElement)
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
             .setInstant(Instant.CURATIVE)
             .setContingency(generatorContingency)
             .add();
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setId("hvdcContingencyCnec")
             .addNetworkElement(networkElement)
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
             .setInstant(Instant.CURATIVE)
             .setContingency(hvdcContingency)
             .add();
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setId("busbarContingencyCnec")
             .addNetworkElement(networkElement)
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
@@ -79,7 +79,7 @@ public class RangeActionSensitivityProviderTest {
             .setContingency(busbarSectionContingency)
             .add();
 
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<Contingency> contingencyList = provider.getContingencies(network);
@@ -96,11 +96,11 @@ public class RangeActionSensitivityProviderTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPstRange();
 
-        ComplexContingency busBreakerContingency = new ComplexContingency("contingency-fail");
+        ContingencyImpl busBreakerContingency = new ContingencyImpl("contingency-fail");
         busBreakerContingency.addNetworkElement(new NetworkElement("FFR3AA1"));
         crac.addContingency(busBreakerContingency);
 
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setId("failureCnec")
             .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
@@ -119,7 +119,7 @@ public class RangeActionSensitivityProviderTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(),
-                crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+                crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC (2 network elements) and 1 range action
         List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
@@ -134,7 +134,7 @@ public class RangeActionSensitivityProviderTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(),
-                crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+                crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
@@ -149,7 +149,7 @@ public class RangeActionSensitivityProviderTest {
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(),
-                crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+                crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);

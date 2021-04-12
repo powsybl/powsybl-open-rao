@@ -10,7 +10,7 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_commons.RaoUtil;
 

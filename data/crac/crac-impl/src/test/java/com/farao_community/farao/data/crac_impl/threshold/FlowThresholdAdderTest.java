@@ -12,13 +12,14 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_impl.BranchThresholdAdderImpl;
 import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.farao_community.farao.data.crac_api.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -37,7 +38,7 @@ public class FlowThresholdAdderTest {
 
     @Test
     public void testAddThresholdInMW() {
-        BranchCnec cnec = crac.newBranchCnec()
+        BranchCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").setInstant(Instant.OUTAGE).setContingency(contingency)
             .newNetworkElement().withId("neID").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setMin(-250.0).setMax(1000.0).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -49,7 +50,7 @@ public class FlowThresholdAdderTest {
     @Test
     public void testAddThresholdInA() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        BranchCnec cnec = crac.newBranchCnec()
+        BranchCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").setInstant(Instant.OUTAGE).setContingency(contingency)
             .newNetworkElement().withId("BBE1AA1  BBE2AA1  1").add()
             .newThreshold().setUnit(Unit.AMPERE).setMin(-1000.).setMax(1000.).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -64,7 +65,7 @@ public class FlowThresholdAdderTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         String lineId = "BBE1AA1  BBE2AA1  1";
         double lineLimit = network.getLine(lineId).getCurrentLimits1().getPermanentLimit();
-        BranchCnec cnec = crac.newBranchCnec()
+        BranchCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").setInstant(Instant.CURATIVE).setContingency(contingency)
             .newNetworkElement().withId(lineId).add()
             .newThreshold().setUnit(Unit.PERCENT_IMAX).setMin(-0.8).setMax(0.5).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -81,12 +82,12 @@ public class FlowThresholdAdderTest {
 
     @Test(expected = FaraoException.class)
     public void testUnsupportedUnitFail() {
-        crac.newBranchCnec().newThreshold().setUnit(Unit.KILOVOLT);
+        crac.newFlowCnec().newThreshold().setUnit(Unit.KILOVOLT);
     }
 
     @Test(expected = FaraoException.class)
     public void testNoUnitFail() {
-        crac.newBranchCnec().newThreshold()
+        crac.newFlowCnec().newThreshold()
             .setMax(1000.0)
             .setRule(BranchThresholdRule.ON_LEFT_SIDE)
             .add();
@@ -94,7 +95,7 @@ public class FlowThresholdAdderTest {
 
     @Test(expected = FaraoException.class)
     public void testNoValueFail() {
-        crac.newBranchCnec().newThreshold()
+        crac.newFlowCnec().newThreshold()
             .setUnit(Unit.AMPERE)
             .setRule(BranchThresholdRule.ON_LEFT_SIDE)
             .add();
@@ -102,7 +103,7 @@ public class FlowThresholdAdderTest {
 
     @Test(expected = FaraoException.class)
     public void testNoSideFail() {
-        crac.newBranchCnec().newThreshold()
+        crac.newFlowCnec().newThreshold()
             .setUnit(Unit.AMPERE)
             .add();
     }

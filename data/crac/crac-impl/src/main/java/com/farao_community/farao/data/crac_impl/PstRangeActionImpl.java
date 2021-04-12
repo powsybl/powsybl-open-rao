@@ -9,6 +9,9 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.Range;
+import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.*;
@@ -302,7 +305,6 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
     public Set<NetworkElement> getNetworkElements() {
         return Collections.singleton(networkElement);
     }
-
 
     @Override
     public boolean equals(Object o) {

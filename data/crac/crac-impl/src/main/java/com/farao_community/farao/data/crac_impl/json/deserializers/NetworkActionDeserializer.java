@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;

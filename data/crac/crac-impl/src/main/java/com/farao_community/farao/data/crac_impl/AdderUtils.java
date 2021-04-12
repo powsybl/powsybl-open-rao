@@ -4,9 +4,10 @@ import com.farao_community.farao.commons.FaraoException;
 
 import java.util.Objects;
 
-public class AdderUtils {
+public final class AdderUtils {
 
-    private AdderUtils() {}
+    private AdderUtils() {
+    }
 
     // todo: make class private package once all java file are on the same level
     public static String missingAttributeError(String className, String attributeDescription, String methodName) {

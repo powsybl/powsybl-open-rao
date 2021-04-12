@@ -9,9 +9,10 @@ package com.farao_community.farao.data.crac_impl.utils;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.ContingencyImpl;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
@@ -32,10 +33,10 @@ public final class CommonCracCreation {
     public static SimpleCrac create() {
         SimpleCrac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
-        ComplexContingency contingency1 = new ComplexContingency("Contingency FR1 FR3", "Trip of FFR1AA1 FFR3AA1 1",
+        ContingencyImpl contingency1 = new ContingencyImpl("Contingency FR1 FR3", "Trip of FFR1AA1 FFR3AA1 1",
             new HashSet<>(Collections.singletonList(new NetworkElement("FFR1AA1  FFR3AA1  1"))));
         crac.addContingency(contingency1);
-        ComplexContingency contingency2 = new ComplexContingency("Contingency FR1 FR2", "Trip of FFR1AA1 FFR2AA1 1",
+        ContingencyImpl contingency2 = new ContingencyImpl("Contingency FR1 FR2", "Trip of FFR1AA1 FFR2AA1 1",
             new HashSet<>(Collections.singletonList(new NetworkElement("FFR1AA1  FFR2AA1  1"))));
         crac.addContingency(contingency2);
 
@@ -43,7 +44,7 @@ public final class CommonCracCreation {
         NetworkElement monitoredElement1 = new NetworkElement("BBE2AA1  FFR3AA1  1");
         NetworkElement monitoredElement2 = new NetworkElement("FFR2AA1  DDE3AA1  1");
 
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withId("cnec1basecase")
             .addNetworkElement(monitoredElement1)
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
@@ -52,7 +53,7 @@ public final class CommonCracCreation {
             .setOperator("operator1")
             .add();
 
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withId("cnec1stateCurativeContingency1")
             .addNetworkElement(monitoredElement1)
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
@@ -62,7 +63,7 @@ public final class CommonCracCreation {
             .setOperator("operator1")
             .add();
 
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withId("cnec1stateCurativeContingency2")
             .addNetworkElement(monitoredElement1)
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
@@ -72,7 +73,7 @@ public final class CommonCracCreation {
             .setOperator("operator1")
             .add();
 
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withId("cnec2basecase")
             .addNetworkElement(monitoredElement2)
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
@@ -82,7 +83,7 @@ public final class CommonCracCreation {
             .setOperator("operator2")
             .add();
 
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency1")
             .addNetworkElement(monitoredElement2)
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
@@ -93,7 +94,7 @@ public final class CommonCracCreation {
             .setOperator("operator2")
             .add();
 
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withId("cnec2stateCurativeContingency2")
             .addNetworkElement(monitoredElement2)
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()

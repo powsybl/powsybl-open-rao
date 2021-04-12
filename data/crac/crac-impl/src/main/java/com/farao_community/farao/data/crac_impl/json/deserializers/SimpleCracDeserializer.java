@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_impl.NetworkElementImpl;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
@@ -62,7 +64,7 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
 
                 case NETWORK_ELEMENTS:
                     jsonParser.nextToken();
-                    Set<NetworkElement> networkElements = jsonParser.readValueAs(new TypeReference<Set<NetworkElement>>() {
+                    Set<NetworkElementImpl> networkElements = jsonParser.readValueAs(new TypeReference<Set<NetworkElementImpl>>() {
                     });
                     networkElements.forEach(simpleCrac::addNetworkElement);
                     break;

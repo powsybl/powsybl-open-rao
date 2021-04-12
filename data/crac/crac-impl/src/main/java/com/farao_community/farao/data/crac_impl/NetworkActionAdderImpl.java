@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

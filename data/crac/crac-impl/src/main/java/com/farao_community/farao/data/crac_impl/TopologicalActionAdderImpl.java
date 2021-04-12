@@ -7,6 +7,10 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
+import com.farao_community.farao.data.crac_api.network_action.TopologicalActionAdder;
 
 import java.util.Objects;
 

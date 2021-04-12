@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
@@ -85,8 +86,8 @@ abstract class AbstractFillerTest {
         crac.synchronize(network);
 
         // get cnec and rangeAction
-        cnec1 = crac.getBranchCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
-        cnec2 = crac.getBranchCnecs().stream().filter(c -> c.getId().equals(CNEC_2_ID)).findFirst().orElseThrow(FaraoException::new);
+        cnec1 = crac.getFlowCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
+        cnec2 = crac.getFlowCnecs().stream().filter(c -> c.getId().equals(CNEC_2_ID)).findFirst().orElseThrow(FaraoException::new);
         rangeAction = crac.getRangeAction(RANGE_ACTION_ID);
         rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
         rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("N-1 NL1-NL3", Instant.OUTAGE)));

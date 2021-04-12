@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.PstSetpoint;
+import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.AbstractRemedialActionTest;
 import com.farao_community.farao.data.crac_impl.PstSetpointImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;

@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.powsybl.iidm.network.Network;

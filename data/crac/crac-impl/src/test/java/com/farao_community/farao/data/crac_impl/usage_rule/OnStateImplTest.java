@@ -9,14 +9,13 @@ package com.farao_community.farao.data.crac_impl.usage_rule;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.ContingencyImpl;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.PostContingencyState;
 import com.farao_community.farao.data.crac_impl.PreventiveState;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.farao_community.farao.data.crac_api.Instant.CURATIVE;
 import static org.junit.Assert.*;
 
 /**
@@ -31,8 +30,8 @@ public class OnStateImplTest {
     @Before
     public void setUp() {
         initialState = new PreventiveState();
-        curativeState1 = new PostContingencyState(new ComplexContingency("contingency1"), Instant.CURATIVE);
-        curativeState2 = new PostContingencyState(new ComplexContingency("contingency2"), Instant.CURATIVE);
+        curativeState1 = new PostContingencyState(new ContingencyImpl("contingency1"), Instant.CURATIVE);
+        curativeState2 = new PostContingencyState(new ContingencyImpl("contingency2"), Instant.CURATIVE);
     }
 
     @Test

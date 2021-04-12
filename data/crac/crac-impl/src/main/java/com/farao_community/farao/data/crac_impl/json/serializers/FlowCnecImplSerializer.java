@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl.json.serializers;
 
-import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
+import com.farao_community.farao.data.crac_impl.FlowCnecImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;

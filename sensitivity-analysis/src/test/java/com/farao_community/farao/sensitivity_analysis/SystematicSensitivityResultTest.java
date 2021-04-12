@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
@@ -61,10 +61,10 @@ public class SystematicSensitivityResultTest {
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         // Ra Provider
-        rangeActionSensitivityProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        rangeActionSensitivityProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Ptdf Provider
-        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT));
+        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
 
         nStateCnec = crac.getBranchCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");

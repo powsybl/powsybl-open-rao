@@ -130,7 +130,7 @@ public class ContingencyAdderImplTest {
         crac.newContingency().withId("cont").add();
         assertEquals(1, crac.getContingencies().size());
         assertNotNull(crac.getContingency("cont"));
-        assertTrue(crac.getContingency("cont") instanceof ComplexContingency);
+        assertTrue(crac.getContingency("cont") instanceof ContingencyImpl);
         assertEquals(0, crac.getContingency("cont").getNetworkElements().size());
     }
 }

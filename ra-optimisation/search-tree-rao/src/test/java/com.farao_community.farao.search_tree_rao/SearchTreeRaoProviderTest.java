@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
@@ -244,7 +245,7 @@ public class SearchTreeRaoProviderTest {
     @Test
     public void testMergeObjectiveFunctionCostIgnorePerimetersWithPureMnecs() {
         Contingency contingency = crac.addContingency("pure_mnecs_cont", "BBE2AA1  FFR3AA1  1");
-        BranchCnec mnec = crac.newBranchCnec().setId("pure_mnec")
+        BranchCnec mnec = crac.newFlowCnec().setId("pure_mnec")
                 .setContingency(contingency).setInstant(Instant.CURATIVE)
                 .newNetworkElement().setId("BBE2AA1  FFR3AA1  1").add()
                 .newThreshold().setMax(1000.).setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()

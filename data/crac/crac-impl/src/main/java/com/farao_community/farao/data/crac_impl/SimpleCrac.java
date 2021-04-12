@@ -10,15 +10,18 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.cnec.adder.BranchCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
-import com.farao_community.farao.data.crac_impl.cnec.adder.FlowCnecAdderImpl;
 import com.farao_community.farao.data.crac_impl.json.serializers.FlowCnecImplSerializer;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -39,12 +42,11 @@ import static java.lang.String.format;
 public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
-    private static final String SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE = "A contingency with the same ID (%s) but a different network elements already exists.";
 
     private final Map<String, NetworkElement> networkElements = new HashMap<>();
     private final Map<String, Contingency> contingencies = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
-    private final Map<String, BranchCnec> branchCnecs = new HashMap<>();
+    private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
     private final Map<String, RangeAction> rangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
     private boolean isSynchronized = false;
@@ -68,11 +70,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public NetworkElementAdder<Crac> newNetworkElement() {
-        return new NetworkElementAdderImpl<>(this);
-    }
-
-    @Override
     public final Set<NetworkElement> getNetworkElements() {
         return new HashSet<>(networkElements.values());
     }
@@ -83,7 +80,6 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return addNetworkElement(networkElementId, networkElementId);
     }
 
-    @Override
     // TODO : convert to private package
     @Deprecated
     public Crac addNetworkElement(NetworkElement networkElement) {
@@ -106,7 +102,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
         NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
         if (cracNetworkElement == null) {
-            cracNetworkElement = new NetworkElement(networkElementId, networkElementName);
+            cracNetworkElement = new NetworkElementImpl(networkElementId, networkElementName);
         } else if (!cracNetworkElement.getName().equals(networkElementName)) {
             throw new FaraoException(format(SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE, networkElementId));
         }
@@ -139,48 +135,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return new ContingencyAdderImpl(this);
     }
 
-    // TODO : convert to private package
-    @Deprecated
-    public Contingency addContingency(String id, String... networkElementIds) {
-        Set<NetworkElement> networkElementsToAdd = new HashSet<>();
-        for (String networkElementId: networkElementIds) {
-            networkElementsToAdd.add(addNetworkElement(networkElementId));
-        }
-        Contingency contingency = new ComplexContingency(id, networkElementsToAdd);
-        addContingency(contingency);
-        return Objects.requireNonNull(getContingency(contingency.getId()));
-    }
-
     @Override
     // TODO : convert to private package
     @Deprecated
     public void addContingency(Contingency contingency) {
-        // If no strictly equal elements are present in the Crac
-        if (contingencies.values().stream().noneMatch(cracContingency -> cracContingency.equals(contingency))) {
-            // If an element with the same ID is present
-            if (contingencies.values().stream().anyMatch(cracContingency -> cracContingency.getId().equals(contingency.getId()))) {
-                throw new FaraoException(format(SAME_CONTINGENCY_ID_DIFFERENT_ELEMENTS_ERROR_MESSAGE, contingency.getId()));
-            }
-
-            if (contingency instanceof XnodeContingency) {
-                // We cannot iterate through an XnodeContingency's network elements before it is synchronized
-                contingencies.put(contingency.getId(), contingency);
-            } else {
-                /*
-                 * A contingency contains several network elements to trip. When adding a contingency, all the contained
-                 * network elements have to be in the networkElements list of the crac.
-                 * Here we go through all the network elements of the contingency, if an equal element is already present in
-                 * the crac list we can directly pick its reference, if not we first have to create a new element of the
-                 * list copying the network element contained in the contingency.
-                 * Then we can create a new contingency referring to network elements already presents in the crac.
-                 */
-                Set<NetworkElement> networkElementsFromInternalSet = new HashSet<>();
-                for (NetworkElement networkElement : contingency.getNetworkElements()) {
-                    networkElementsFromInternalSet.add(addNetworkElement(networkElement.getId(), networkElement.getName()));
-                }
-                contingencies.put(contingency.getId(), new ComplexContingency(contingency.getId(), contingency.getName(), networkElementsFromInternalSet));
-            }
-        }
+        contingencies.put(contingency.getId(), contingency);
     }
 
     public final Set<State> getStates() {
@@ -285,35 +244,55 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public BranchCnecAdder newBranchCnec() {
+    public FlowCnecAdder newFlowCnec() {
         return new FlowCnecAdderImpl(this);
     }
 
     @Override
+    public Set<Cnec> getCnecs() {
+        return new HashSet<>(flowCnecs.values());
+    }
+
+    @Override
+    public Cnec getCnec(String cnecId) {
+        return flowCnecs.get(cnecId);
+    }
+
+    @Override
     public BranchCnec getBranchCnec(String id) {
-        return branchCnecs.get(id);
+        return flowCnecs.get(id);
+    }
+
+    @Override
+    public Set<BranchCnec> getBranchCnecs() {
+        return new HashSet<>(flowCnecs.values());
+    }
+
+    @Override
+    public FlowCnec getFlowCnec(String flowCnecId) {
+        return flowCnecs.get(flowCnecId);
     }
 
     @JsonSerialize(contentUsing = FlowCnecImplSerializer.class)
     @Override
-    public Set<BranchCnec> getBranchCnecs() {
-        return new HashSet<>(branchCnecs.values());
+    public Set<FlowCnec> getFlowCnecs() {
+        return new HashSet<>(flowCnecs.values());
     }
 
     @Override
     public Set<BranchCnec> getBranchCnecs(State state) {
-        return branchCnecs.values().stream()
+        return flowCnecs.values().stream()
             .filter(cnec -> cnec.getState().equals(state))
             .collect(Collectors.toSet());
     }
 
     @Override
     public void removeCnec(String cnecId) {
-        branchCnecs.remove(cnecId);
+        flowCnecs.remove(cnecId);
     }
 
     @Deprecated
-    public BranchCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant, double frm, boolean optimized, boolean monitored) {
+    public FlowCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant, double frm, boolean optimized, boolean monitored) {
         if (getNetworkElement(networkElementId) == null) {
             throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, networkElementId));
         }
@@ -321,50 +300,60 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));
         }
         State state = addState(contingency, instant);
-        BranchCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), operator, state, optimized, monitored, branchThresholds, frm);
-        branchCnecs.put(id, cnec);
+        FlowCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), operator, state, optimized, monitored, branchThresholds, frm);
+        flowCnecs.put(id, cnec);
         return cnec;
     }
 
-    public BranchCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant, double frm) {
+    @Deprecated
+    public FlowCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant, double frm) {
         return addCnec(id, name, networkElementId, operator, branchThresholds, contingency, instant, frm, true, false);
     }
 
-    public BranchCnec addCnec(String id, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant) {
+    @Deprecated
+    public FlowCnec addCnec(String id, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant) {
         return addCnec(id, id, networkElementId, operator, branchThresholds, contingency, instant, 0);
     }
 
-    public BranchCnec addPreventiveCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, double frm, boolean optimized, boolean monitored) {
+    @Deprecated
+    public FlowCnec addPreventiveCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, double frm, boolean optimized, boolean monitored) {
         if (getNetworkElement(networkElementId) == null) {
             throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, networkElementId));
         }
         State state = addPreventiveState();
-        BranchCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), operator, state, optimized, monitored, branchThresholds, frm);
-        branchCnecs.put(id, cnec);
+        FlowCnec cnec = new FlowCnecImpl(id, name, getNetworkElement(networkElementId), operator, state, optimized, monitored, branchThresholds, frm);
+        flowCnecs.put(id, cnec);
         return cnec;
     }
 
+    @Deprecated
     public BranchCnec addPreventiveCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, double frm) {
         return addPreventiveCnec(id, name, networkElementId, operator, branchThresholds, frm, true, false);
     }
 
+    @Deprecated
     public BranchCnec addPreventiveCnec(String id, String networkElementId, String operator, Set<BranchThreshold> branchThresholds) {
         return addPreventiveCnec(id, id, networkElementId, operator, branchThresholds, 0);
     }
 
+    void addFlowCnec(FlowCnec flowCnec) {
+        flowCnecs.put(flowCnec.getId(), flowCnec);
+    }
+
+    @Deprecated
     @Override
     public void addCnec(Cnec<?> cnec) {
         // add cnec
-        if (cnec instanceof BranchCnec) {
+        if (cnec instanceof FlowCnec) {
             State state = addState(cnec.getState());
             NetworkElement networkElement = addNetworkElement(cnec.getNetworkElement().getId(), cnec.getNetworkElement().getName());
-            BranchCnec branchCnec = (BranchCnec) cnec;
-            branchCnecs.put(cnec.getId(), branchCnec.copy(networkElement, state));
+            FlowCnec flowCnec = (FlowCnec) cnec;
+            flowCnecs.put(cnec.getId(), flowCnec);
 
             // add extensions
             if (!cnec.getExtensions().isEmpty()) {
                 BranchCnec cnecInCrac = getBranchCnec(cnec.getId());
-                ExtensionsHandler.getExtensionsSerializers().addExtensions(cnecInCrac, branchCnec.getExtensions());
+                ExtensionsHandler.getExtensionsSerializers().addExtensions(cnecInCrac, flowCnec.getExtensions());
             }
         }
     }
@@ -404,13 +393,15 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     // TODO : convert to private package
     public void addNetworkAction(NetworkAction networkAction) {
         addStatesForRemedialAction(networkAction); // TODO : remove this ?
+        // TODO : verify ID is unique
         networkActions.put(networkAction.getId(), networkAction);
     }
 
     @Deprecated
     // TODO : convert to private package
     public void addRangeAction(RangeAction rangeAction) {
-        addStatesForRemedialAction(rangeAction);
+        addStatesForRemedialAction(rangeAction); // TODO : remove this ?
+        // TODO : verify ID is unique
         rangeActions.put(rangeAction.getId(), rangeAction);
     }
 
@@ -462,33 +453,16 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         if (isSynchronized) {
             throw new AlreadySynchronizedException(format("Crac %s has already been synchronized", getId()));
         }
-        branchCnecs.values().forEach(cnec -> cnec.synchronize(network));
+        flowCnecs.values().forEach(cnec -> cnec.synchronize(network));
         rangeActions.values().forEach(rangeAction -> rangeAction.synchronize(network));
         contingencies.values().forEach(contingency -> contingency.synchronize(network));
-        addXnodeContingenciesNetworkElements();
         networkDate = network.getCaseDate();
         isSynchronized = true;
     }
 
-    /**
-     * This method adds network elements from XnodeContingencies to the crac.
-     * For ComplexContingencies, they are added when the contingencies are added to the crac. This is not possible for
-     * XnodeContingencies since they have to be synchronized with the network first in order to find the network elements
-     * corresponding to the xnodes.
-     */
-    @Deprecated
-    private void addXnodeContingenciesNetworkElements() {
-        contingencies.values().stream().filter(contingency -> contingency instanceof XnodeContingency)
-                .forEach(contingency -> contingency.getNetworkElements().forEach(networkElement -> {
-                    if (getNetworkElement(networkElement.getId()) == null) {
-                        addNetworkElement(networkElement);
-                    }
-                }));
-    }
-
     @Override
     public void desynchronize() {
-        branchCnecs.values().forEach(Synchronizable::desynchronize);
+        flowCnecs.values().forEach(Synchronizable::desynchronize);
         rangeActions.values().forEach(Synchronizable::desynchronize);
         contingencies.values().forEach(Synchronizable::desynchronize);
         networkDate = null;

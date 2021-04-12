@@ -8,8 +8,8 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -137,7 +137,7 @@ public final class RaoData {
             perimeter.forEach(state -> cnecs.addAll(crac.getBranchCnecs(state)));
             perimeterCnecs = cnecs;
         } else {
-            perimeterCnecs = crac.getBranchCnecs();
+            perimeterCnecs = crac.getFlowCnecs();
         }
     }
 

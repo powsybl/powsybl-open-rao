@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.PstSetpoint;
+import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_api.TapConvention;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;

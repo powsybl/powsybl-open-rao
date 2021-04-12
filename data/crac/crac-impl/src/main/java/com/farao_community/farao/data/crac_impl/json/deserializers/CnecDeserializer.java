@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
-import com.farao_community.farao.data.crac_impl.threshold.BranchThresholdImpl;
+import com.farao_community.farao.data.crac_impl.BranchThresholdImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;

@@ -89,7 +89,7 @@ public class MnecViolationCostEvaluatorTest {
 
         Crac crac = CommonCracCreation.create();
 
-        mnec = crac.newBranchCnec().setId("MNEC1 - initial-instant - preventive")
+        mnec = crac.newFlowCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FFR2AA1  FFR3AA1  1").add()
                 .newThreshold().setMin(-MNEC_THRESHOLD).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(MNEC_THRESHOLD).setUnit(unit).add()
                 .optimized().monitored()

@@ -61,7 +61,7 @@ public class OperatorsNotToOptimizeFillerTest extends AbstractFillerTest {
 
     private void setupOperatorsNotToOptimize() {
         // Add a cnec
-        crac.newBranchCnec().setId("Line NL - N - preventive")
+        crac.newFlowCnec().setId("Line NL - N - preventive")
                 .newNetworkElement().setId("NNL1AA1  NNL2AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(800.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
                 .optimized()
@@ -115,13 +115,13 @@ public class OperatorsNotToOptimizeFillerTest extends AbstractFillerTest {
     @Test
     public void testGetLargestCnecThreshold2() {
         setupOperatorsNotToOptimize();
-        crac.newBranchCnec().setId("Pure MNEC")
+        crac.newFlowCnec().setId("Pure MNEC")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(3000.0).setMin(-3000.).setUnit(Unit.MEGAWATT).add()
                 .monitored()
                 .setInstant(Instant.PREVENTIVE)
                 .add();
-        crac.newBranchCnec().setId("CNEC MNEC")
+        crac.newFlowCnec().setId("CNEC MNEC")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(2000.0).setMin(-2500.).setUnit(Unit.MEGAWATT).add()
                 .monitored()

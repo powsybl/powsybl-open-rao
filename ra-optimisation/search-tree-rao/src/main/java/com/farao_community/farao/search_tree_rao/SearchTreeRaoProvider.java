@@ -117,7 +117,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         // log results
         if (mergedRaoResults.isSuccessful()) {
-            SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), mergedRaoResults.getPostOptimVariantId(), parameters.getObjectiveFunction().getUnit(), parameters.getObjectiveFunction().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getFlowCnecs(), mergedRaoResults.getPostOptimVariantId(), parameters.getObjectiveFunction().getUnit(), parameters.getObjectiveFunction().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
         return CompletableFuture.completedFuture(mergedRaoResults);
 
@@ -138,7 +138,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE, stateTree.getOperatorsNotSharingCras());
         new InitialSensitivityAnalysis(raoData).run();
         RaoResult raoResult = new SearchTree().run(raoData, raoParameters, treeParameters).join();
-        SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), raoResult.getPostOptimVariantId(), raoParameters.getObjectiveFunction().getUnit(), raoParameters.getObjectiveFunction().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getFlowCnecs(), raoResult.getPostOptimVariantId(), raoParameters.getObjectiveFunction().getUnit(), raoParameters.getObjectiveFunction().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         return CompletableFuture.completedFuture(raoResult);
     }
 
@@ -239,7 +239,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     private void mergeCnecResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
-        crac.getBranchCnecs().forEach(cnec -> {
+        crac.getFlowCnecs().forEach(cnec -> {
             State optimizedState = stateTree.getOptimizedState(cnec.getState());
             if (!optimizedState.equals(crac.getPreventiveState())) {
                 String optimizedVariantId = curativeRaoResults.get(optimizedState).getPostOptimVariantId();

@@ -308,19 +308,19 @@ final class ExampleGenerator {
     static Crac crac() {
         Crac crac = new SimpleCracFactory().create("test-crac");
 
-        crac.newBranchCnec().setId("FR-BE1").setInstant(Instant.PREVENTIVE)
+        crac.newFlowCnec().setId("FR-BE1").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("FR-BE1").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newBranchCnec().setId("FR-DE").setInstant(Instant.PREVENTIVE)
+        crac.newFlowCnec().setId("FR-DE").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("FR-DE").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newBranchCnec().setId("BE2-NL").setInstant(Instant.PREVENTIVE)
+        crac.newFlowCnec().setId("BE2-NL").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("BE2-NL").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newBranchCnec().setId("DE-NL").setInstant(Instant.PREVENTIVE)
+        crac.newFlowCnec().setId("DE-NL").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("DE-NL").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newBranchCnec().setId("BE1-BE2").setInstant(Instant.PREVENTIVE)
+        crac.newFlowCnec().setId("BE1-BE2").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("BE1-BE2").add()
             .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
 

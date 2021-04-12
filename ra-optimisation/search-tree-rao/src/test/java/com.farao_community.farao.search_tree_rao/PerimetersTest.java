@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
@@ -38,48 +39,48 @@ public class PerimetersTest {
         crac.newContingency().setId("contingency-1").add();
         crac.newContingency().setId("contingency-2").add();
         crac.newContingency().setId("contingency-3").add();
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setInstant(Instant.PREVENTIVE)
             .setId("cnec1-preventive")
             .newNetworkElement().setId("ne1").add()
             .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(200.).setMin(-200.).add()
             .add();
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setInstant(Instant.OUTAGE)
             .setContingency(crac.getContingency("contingency-1"))
             .setId("cnec1-outage1")
             .newNetworkElement().setId("ne1").add()
             .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(400.).setMin(-400.).add()
             .add();
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setInstant(Instant.CURATIVE)
             .setContingency(crac.getContingency("contingency-1"))
             .setId("cnec1-curative1")
             .newNetworkElement().setId("ne1").add()
             .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(200.).setMin(-200.).add()
             .add();
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setInstant(Instant.OUTAGE).
             setContingency(crac.getContingency("contingency-2"))
             .setId("cnec1-outage2")
             .newNetworkElement().setId("ne1").add()
             .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(500.).setMin(-500.).add()
             .add();
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setInstant(Instant.CURATIVE)
             .setContingency(crac.getContingency("contingency-2"))
             .setId("cnec1-curative2")
             .newNetworkElement().setId("ne1").add()
             .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(200.).setMin(-200.).add()
             .add();
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setInstant(Instant.OUTAGE)
             .setContingency(crac.getContingency("contingency-3"))
             .setId("cnec1-outage3")
             .newNetworkElement().setId("ne1").add()
             .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMax(200.).setMin(-200.).add()
             .add();
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .setInstant(Instant.CURATIVE)
             .setContingency(crac.getContingency("contingency-3"))
             .setId("cnec1-curative3")

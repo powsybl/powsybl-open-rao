@@ -8,6 +8,8 @@
 package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import org.junit.Before;

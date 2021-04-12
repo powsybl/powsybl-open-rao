@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_impl.json.serializers.range_action;
 
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
-import com.farao_community.farao.data.crac_api.Range;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.Range;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.json.JsonSerializationNames;
 import com.farao_community.farao.data.crac_impl.json.serializers.AbstractRemedialActionSerializer;
 import com.farao_community.farao.data.crac_impl.AbstractRangeAction;

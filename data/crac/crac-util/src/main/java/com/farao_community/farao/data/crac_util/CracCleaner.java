@@ -9,6 +9,10 @@ package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.Range;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
@@ -38,7 +42,7 @@ public class CracCleaner {
 
         // remove Cnec whose NetworkElement is absent from the network
         ArrayList<BranchCnec> absentFromNetworkCnecs = new ArrayList<>();
-        crac.getBranchCnecs().forEach(cnec -> {
+        crac.getFlowCnecs().forEach(cnec -> {
             if (network.getBranch(cnec.getNetworkElement().getId()) == null) {
                 absentFromNetworkCnecs.add(cnec);
                 report.add(String.format("[REMOVED] Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
@@ -49,7 +53,7 @@ public class CracCleaner {
         if (CHECK_CNEC_MNEC.isEnabled()) {
             // remove Cnecs that are neither optimized nor monitored
             ArrayList<BranchCnec> unmonitoredCnecs = new ArrayList<>();
-            crac.getBranchCnecs().forEach(cnec -> {
+            crac.getFlowCnecs().forEach(cnec -> {
                 if (!cnec.isOptimized() && !cnec.isMonitored()) {
                     unmonitoredCnecs.add(cnec);
                     report.add(String.format("[REMOVED] Cnec %s with network element [%s] is neither optimized nor monitored. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));

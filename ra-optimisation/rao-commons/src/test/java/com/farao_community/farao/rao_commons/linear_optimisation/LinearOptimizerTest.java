@@ -10,7 +10,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
@@ -92,7 +92,7 @@ public class LinearOptimizerTest {
     private SystematicSensitivityResult createSystematicResult() {
         SystematicSensitivityResult result = Mockito.mock(SystematicSensitivityResult.class);
         Mockito.when(result.isSuccess()).thenReturn(true);
-        crac.getBranchCnecs().forEach(cnec -> {
+        crac.getFlowCnecs().forEach(cnec -> {
             Mockito.when(result.getReferenceFlow(cnec)).thenReturn(499.);
             Mockito.when(result.getReferenceIntensity(cnec)).thenReturn(11.);
             crac.getRangeActions().forEach(rangeAction -> {

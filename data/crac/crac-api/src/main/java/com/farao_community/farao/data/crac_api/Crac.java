@@ -8,10 +8,15 @@
 package com.farao_community.farao.data.crac_api;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.cnec.adder.BranchCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
@@ -35,7 +40,7 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElementParent<Crac> {
+public interface Crac extends Identifiable<Crac>, Synchronizable {
 
     DateTime getNetworkDate();
 
@@ -170,7 +175,11 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * Get a {@code Cnec} adder, to add a cnec to the Crac
      * @return a {@code CnecAdder} instance
      */
-    BranchCnecAdder newBranchCnec();
+    FlowCnecAdder newFlowCnec();
+
+    Set<Cnec> getCnecs();
+
+    Cnec getCnec(String cnecId);
 
     /**
      * Gather all the Cnecs present in the Crac. It returns a set because Cnecs
@@ -179,6 +188,8 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      *
      * @return A set of Cnecs.
      */
+    @Deprecated
+    // Use getCnecs() or getFlowCnecs() instead
     Set<BranchCnec> getBranchCnecs();
 
     /**
@@ -187,7 +198,13 @@ public interface Crac extends Identifiable<Crac>, Synchronizable, NetworkElement
      * @param branchCnecId : the Cnec identifier.
      * @return The Cnec with the id given in argument. Or null if it does not exist.
      */
+    @Deprecated
+    // Use getCnec() or getFlowCnec() instead
     BranchCnec getBranchCnec(String branchCnecId);
+
+    Set<FlowCnec> getFlowCnecs();
+
+    FlowCnec getFlowCnec(String flowCnecId);
 
     /**
      * Remove a Cnec by its id

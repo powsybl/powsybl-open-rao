@@ -204,7 +204,7 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void testIgnoreMnecs() {
-        crac.newBranchCnec().setId("mnec1basecase")
+        crac.newFlowCnec().setId("mnec1basecase")
                 .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
                 .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(300.).setMin(-300.).setUnit(Unit.MEGAWATT).add()
                 .optimized().monitored()

@@ -11,6 +11,9 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.flowbased_computation.*;
@@ -62,7 +65,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
-                .withPtdfSensitivities(glsk, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .build();
 
         // Preventive perimeter

@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
+import com.farao_community.farao.data.crac_impl.FlowCnecImpl;
 import org.junit.Test;
 import org.mockito.Mockito;
 

@@ -52,7 +52,7 @@ public class RaoDataTest {
     @Test
     public void testNoPerimeter() {
         RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), null, null, null, null, new RaoParameters());
-        assertEquals(crac.getBranchCnecs().size(), raoData.getCnecs().size());
+        assertEquals(crac.getFlowCnecs().size(), raoData.getCnecs().size());
     }
 
     @Test

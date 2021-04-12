@@ -12,8 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
-import com.farao_community.farao.data.crac_impl.threshold.BranchThresholdImpl;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -116,22 +115,22 @@ public class CracFileTest {
     @Test
     public void testAddContingency() {
         assertEquals(0, simpleCrac.getContingencies().size());
-        simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne1"))));
+        simpleCrac.addContingency(new ContingencyImpl("contingency-1", Collections.singleton(new NetworkElement("ne1"))));
         assertEquals(1, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getContingency("contingency-1"));
         try {
-            simpleCrac.addContingency(new ComplexContingency("contingency-1", Collections.singleton(new NetworkElement("ne2"))));
+            simpleCrac.addContingency(new ContingencyImpl("contingency-1", Collections.singleton(new NetworkElement("ne2"))));
             fail();
         } catch (FaraoException e) {
             assertEquals("A contingency with the same ID (contingency-1) but a different network elements already exists.", e.getMessage());
         }
         try {
-            simpleCrac.addContingency(new ComplexContingency("contingency-2", Collections.singleton(new NetworkElement("ne1"))));
+            simpleCrac.addContingency(new ContingencyImpl("contingency-2", Collections.singleton(new NetworkElement("ne1"))));
         } catch (FaraoException e) {
             fail();
         }
         assertEquals(2, simpleCrac.getContingencies().size());
-        simpleCrac.addContingency(new ComplexContingency("contingency-3", Collections.singleton(new NetworkElement("ne3"))));
+        simpleCrac.addContingency(new ContingencyImpl("contingency-3", Collections.singleton(new NetworkElement("ne3"))));
         assertEquals(3, simpleCrac.getContingencies().size());
         assertNotNull(simpleCrac.getContingency("contingency-3"));
         assertNull(simpleCrac.getContingency("contingency-fail"));
@@ -173,7 +172,7 @@ public class CracFileTest {
 
     @Test
     public void testGetStateWithNotExistingContingency() {
-        Contingency contingency = new ComplexContingency("co", Set.of(new NetworkElement("ne")));
+        Contingency contingency = new ContingencyImpl("co", Set.of(new NetworkElement("ne")));
         assertNull(simpleCrac.getState(contingency, CURATIVE));
     }
 
@@ -192,7 +191,7 @@ public class CracFileTest {
     @Test(expected = FaraoException.class)
     public void testAddCnecFromDataFailsBecauseOfContingency() {
         simpleCrac.addNetworkElement("ne");
-        Contingency co = new ComplexContingency("co", Collections.singleton(new NetworkElement("ne-co")));
+        Contingency co = new ContingencyImpl("co", Collections.singleton(new NetworkElement("ne-co")));
         simpleCrac.addCnec(
             "cnec-id",
             "ne",
@@ -246,7 +245,7 @@ public class CracFileTest {
 
     @Test(expected = FaraoException.class)
     public void testAddCnecFromExistingCnecFailsBecauseOfContingency() {
-        Contingency co = new ComplexContingency("co", Collections.singleton(new NetworkElement("ne-co")));
+        Contingency co = new ContingencyImpl("co", Collections.singleton(new NetworkElement("ne-co")));
         State state = new PostContingencyState(co, OUTAGE);
         BranchCnec cnec = new FlowCnecImpl(
             "cnec",
@@ -306,7 +305,7 @@ public class CracFileTest {
     @Test
     public void testAddCnecWithAlreadyExistingState() {
         simpleCrac.addContingency("co", "ne-co");
-        Contingency coSame = new ComplexContingency("co", Set.of(new NetworkElement("ne-co")));
+        Contingency coSame = new ContingencyImpl("co", Set.of(new NetworkElement("ne-co")));
         BranchCnec cnec = new FlowCnecImpl(
             "cnec-id",
             new NetworkElement("ne"),
@@ -345,11 +344,11 @@ public class CracFileTest {
             0.
         );
 
-        assertEquals(0, simpleCrac.getBranchCnecs().size());
+        assertEquals(0, simpleCrac.getFlowCnecs().size());
         simpleCrac.addCnec(cnec1);
-        assertEquals(1, simpleCrac.getBranchCnecs().size());
+        assertEquals(1, simpleCrac.getFlowCnecs().size());
         simpleCrac.addCnec(cnec2);
-        assertEquals(1, simpleCrac.getBranchCnecs().size());
+        assertEquals(1, simpleCrac.getFlowCnecs().size());
     }
 
     @Test
@@ -363,7 +362,7 @@ public class CracFileTest {
 
         simpleCrac.addRangeAction(rangeAction);
 
-        assertEquals(0, simpleCrac.getBranchCnecs().size());
+        assertEquals(0, simpleCrac.getFlowCnecs().size());
     }
 
     @Test(expected = FaraoException.class)

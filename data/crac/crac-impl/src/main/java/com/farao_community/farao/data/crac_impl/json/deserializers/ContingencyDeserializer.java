@@ -10,9 +10,8 @@ package com.farao_community.farao.data.crac_impl.json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.ContingencyImpl;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.XnodeContingency;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -32,7 +31,7 @@ final class ContingencyDeserializer {
     private ContingencyDeserializer() { }
 
     static void deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
-        // cannot be done in a standard ComplexContingency deserializer as it requires the simpleCrac to
+        // cannot be done in a standard ContingencyImpl deserializer as it requires the simpleCrac to
         // compare the NetworkElement ids of the ComplexContingency with the NetworkElements of the SimpleCrac
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -82,12 +81,7 @@ final class ContingencyDeserializer {
 
             Set<NetworkElement> networkElements = DeserializerUtils.getNetworkElementsFromIds(networkElementsIds, simpleCrac);
 
-            Contingency contingency;
-            if (!Objects.isNull(type) && type.equals(XNODE_CONTINGENCY_TYPE)) {
-                contingency = new XnodeContingency(id, name, xnodeIds);
-            } else {
-                contingency = new ComplexContingency(id, name, networkElements);
-            }
+            Contingency contingency = new ContingencyImpl(id, name, networkElements);
             simpleCrac.addContingency(contingency);
         }
     }

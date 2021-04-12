@@ -11,15 +11,14 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.adder.BranchCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.cnec.adder.FlowCnecAdderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Optional;
 
-import static com.farao_community.farao.data.crac_api.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static org.junit.Assert.*;
 
 /**
@@ -43,14 +42,14 @@ public class FlowCnecAdderImplTest {
 
     @Test(expected = FaraoException.class)
     public void testUniqueNetworkElement() {
-        crac.newBranchCnec()
+        crac.newFlowCnec()
                 .newNetworkElement().withId("neId1").withName("neName1").add()
                 .newNetworkElement();
     }
 
     @Test(expected = FaraoException.class)
     public void testNoIdFail() {
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withName("cnecName1")
             .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
@@ -61,7 +60,7 @@ public class FlowCnecAdderImplTest {
 
     @Test(expected = FaraoException.class)
     public void testNoStateInstantFail() {
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withId("cnecId1")
             .withName("cnecName1")
             .setContingency(contingency1)
@@ -72,7 +71,7 @@ public class FlowCnecAdderImplTest {
 
     @Test(expected = FaraoException.class)
     public void testNoNetworkElementFail() {
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withId("cnecId1")
             .withName("cnecName1")
             .setInstant(Instant.OUTAGE)
@@ -83,7 +82,7 @@ public class FlowCnecAdderImplTest {
 
     @Test(expected = FaraoException.class)
     public void testNoThresholdFail() {
-        crac.newBranchCnec()
+        crac.newFlowCnec()
             .withId("cnecId1")
             .withName("cnecName1")
             .setInstant(Instant.OUTAGE)
@@ -94,7 +93,7 @@ public class FlowCnecAdderImplTest {
 
     @Test
     public void testAdd() {
-        BranchCnec cnec1 = crac.newBranchCnec()
+        BranchCnec cnec1 = crac.newFlowCnec()
             .withId("cnecId1")
             .withName("cnecName1")
             .setInstant(Instant.OUTAGE)
@@ -103,14 +102,14 @@ public class FlowCnecAdderImplTest {
             .newNetworkElement().withId("neId1").withName("neName1").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.0).add()
             .add();
-        BranchCnec cnec2 = crac.newBranchCnec()
+        BranchCnec cnec2 = crac.newFlowCnec()
             .withId("cnecId2")
             .setInstant(Instant.PREVENTIVE)
             .setOperator("cnec2Operator")
             .newNetworkElement().withId("neId2").add()
             .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(500.0).add()
             .add();
-        assertEquals(2, crac.getBranchCnecs().size());
+        assertEquals(2, crac.getFlowCnecs().size());
 
         // Verify 1st cnec content
         assertEquals(cnec1, crac.getBranchCnec("cnecId1"));
@@ -137,7 +136,7 @@ public class FlowCnecAdderImplTest {
     public void testFrmHandling() {
         double maxValueInMw = 100.0;
         double frmInMw = 5.0;
-        BranchCnecAdder cnecAdder = crac.newBranchCnec();
+        FlowCnecAdder cnecAdder = crac.newFlowCnec();
         BranchCnec cnec = cnecAdder.withId("Cnec ID")
             .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
@@ -151,7 +150,7 @@ public class FlowCnecAdderImplTest {
 
     @Test
     public void testNotOptimizedMonitored() {
-        BranchCnecAdder cnecAdder = crac.newBranchCnec();
+        FlowCnecAdder cnecAdder = crac.newFlowCnec();
         BranchCnec cnec = cnecAdder.withId("Cnec ID")
             .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
@@ -165,7 +164,7 @@ public class FlowCnecAdderImplTest {
 
     @Test
     public void testOptimizedNotMonitored() {
-        BranchCnecAdder cnecAdder = crac.newBranchCnec();
+        FlowCnecAdder cnecAdder = crac.newFlowCnec();
         BranchCnec cnec = cnecAdder.withId("Cnec ID")
             .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)
@@ -179,7 +178,7 @@ public class FlowCnecAdderImplTest {
 
     @Test
     public void testNotOptimizedNotMonitored() {
-        BranchCnecAdder cnecAdder = crac.newBranchCnec();
+        FlowCnecAdder cnecAdder = crac.newFlowCnec();
         BranchCnec cnec = cnecAdder.withId("Cnec ID")
             .setInstant(Instant.OUTAGE)
             .setContingency(contingency1)

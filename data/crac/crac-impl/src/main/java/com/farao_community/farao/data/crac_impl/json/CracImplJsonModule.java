@@ -7,8 +7,8 @@
 package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.data.crac_impl.*;
-import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
-import com.farao_community.farao.data.crac_impl.json.serializers.ComplexContingencySerializer;
+import com.farao_community.farao.data.crac_impl.FlowCnecImpl;
+import com.farao_community.farao.data.crac_impl.json.serializers.ContingencyImplSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.FlowCnecImplSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.SimpleCracSerializer;
 import com.farao_community.farao.data.crac_impl.json.serializers.network_action.InjectionSetPointSerializer;
@@ -30,7 +30,7 @@ public class CracImplJsonModule extends SimpleModule {
 
     public CracImplJsonModule() {
         super();
-        this.addSerializer(ComplexContingency.class, new ComplexContingencySerializer());
+        this.addSerializer(ContingencyImpl.class, new ContingencyImplSerializer());
         this.addSerializer(FreeToUseImpl.class, new FreeToUseSerializer());
         this.addSerializer(OnStateImpl.class, new OnStateSerializer());
         this.addSerializer(NetworkActionImpl.class, new NetworkActionImplSerializer());

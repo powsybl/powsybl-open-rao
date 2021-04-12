@@ -8,15 +8,15 @@ package com.farao_community.farao.data.crac_impl.json;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.TapRangeImpl;
-import com.farao_community.farao.data.crac_api.RangeType;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
-import com.farao_community.farao.data.crac_impl.threshold.*;
 import com.farao_community.farao.data.crac_impl.FreeToUseImpl;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import org.joda.time.DateTime;
@@ -137,7 +137,7 @@ public class CracImportExportTest {
         assertEquals(6, crac.getNetworkElements().size());
         assertEquals(2, crac.getStates().size());
         assertEquals(3, crac.getContingencies().size());
-        assertEquals(5, crac.getBranchCnecs().size());
+        assertEquals(5, crac.getFlowCnecs().size());
         assertEquals(2, crac.getRangeActions().size());
         assertEquals(3, crac.getNetworkActions().size());
         assertEquals(4, crac.getBranchCnec("cnec2prev").getThresholds().size());

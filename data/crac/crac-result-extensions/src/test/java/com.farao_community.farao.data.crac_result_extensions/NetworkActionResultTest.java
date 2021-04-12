@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
+import com.farao_community.farao.data.crac_impl.ContingencyImpl;
 import com.farao_community.farao.data.crac_impl.PostContingencyState;
 import com.farao_community.farao.data.crac_impl.PreventiveState;
 import org.junit.Before;
@@ -37,10 +37,10 @@ public class NetworkActionResultTest {
     public void setUp() {
         states = new HashSet<>();
         initialState = new PreventiveState();
-        outage1 = new PostContingencyState(new ComplexContingency("co1"), Instant.OUTAGE);
-        curative1 = new PostContingencyState(new ComplexContingency("co1"), Instant.CURATIVE);
-        outage2 = new PostContingencyState(new ComplexContingency("co2"), Instant.OUTAGE);
-        curative2 = new PostContingencyState(new ComplexContingency("co2"), Instant.CURATIVE);
+        outage1 = new PostContingencyState(new ContingencyImpl("co1"), Instant.OUTAGE);
+        curative1 = new PostContingencyState(new ContingencyImpl("co1"), Instant.CURATIVE);
+        outage2 = new PostContingencyState(new ContingencyImpl("co2"), Instant.OUTAGE);
+        curative2 = new PostContingencyState(new ContingencyImpl("co2"), Instant.CURATIVE);
         states.add(initialState.getId());
         states.add(outage1.getId());
         states.add(curative1.getId());

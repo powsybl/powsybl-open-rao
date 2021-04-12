@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.PstSetpointImpl;
@@ -41,13 +42,13 @@ public class JsonResultTest {
         // Crac
         SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
-        simpleCrac.newBranchCnec()
+        simpleCrac.newFlowCnec()
             .setId("cnec1prev")
             .newNetworkElement().setId("ne1").add()
             .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-500.).add()
             .setInstant(Instant.PREVENTIVE)
             .add();
-        simpleCrac.newBranchCnec()
+        simpleCrac.newFlowCnec()
             .setId("cnec2prev")
             .newNetworkElement().setId("ne2").add()
             .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).add()
@@ -145,7 +146,7 @@ public class JsonResultTest {
         assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, crac.getExtension(CracResultExtension.class).getVariant("variant1").getNetworkSecurityStatus());
 
         // assert that cnecs exist in the crac
-        assertEquals(2, crac.getBranchCnecs().size());
+        assertEquals(2, crac.getFlowCnecs().size());
         assertNotNull(crac.getBranchCnec("cnec1prev"));
         assertNotNull(crac.getBranchCnec("cnec2prev"));
 

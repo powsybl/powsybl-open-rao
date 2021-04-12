@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_api.threshold;
 
-import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

@@ -62,6 +62,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I>, Synchronizable
      *
      * @return An object of the specific type {@link I} with copied inner objects.
      */
+    @Deprecated
     I copy();
 
     /**
@@ -70,6 +71,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I>, Synchronizable
      *
      * @return An object of the specific type {@link I} with copied inner objects.
      */
+    @Deprecated
     I copy(NetworkElement networkElement, State state);
 
     /**

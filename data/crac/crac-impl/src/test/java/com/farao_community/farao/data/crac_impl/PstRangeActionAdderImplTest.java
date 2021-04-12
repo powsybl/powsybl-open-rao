@@ -10,6 +10,8 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,16 +109,16 @@ public class PstRangeActionAdderImplTest {
     public void testNoIdFail() {
         crac.newPstRangeAction()
             .withOperator("BE")
-            .withNetworkElement(networkElementId)
-            .add();
+                .withNetworkElement(networkElementId)
+                .add();
     }
 
     @Test(expected = FaraoException.class)
     public void testNoNetworkElementFail() {
-         crac.newPstRangeAction()
-            .withId("id1")
-            .withOperator("BE")
-            .add();
+        crac.newPstRangeAction()
+                .withId("id1")
+                .withOperator("BE")
+                .add();
     }
 
 }

@@ -13,9 +13,6 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.cnec.AbstractBranchCnec;
-import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
-import com.farao_community.farao.data.crac_impl.threshold.BranchThresholdImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
@@ -30,7 +27,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_api.Side.LEFT;
+import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static org.junit.Assert.*;
 
 /**
