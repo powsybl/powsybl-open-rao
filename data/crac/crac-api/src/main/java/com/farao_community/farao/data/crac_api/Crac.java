@@ -207,6 +207,8 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      */
     void removeCnec(String cnecId);
 
+    void removeFlowCnec(String flowCnecId);
+
     /**
      * Gather all the Cnecs of a specified State. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.

@@ -9,28 +9,25 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -172,8 +169,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void removeContingency(String id) {
-        //todo : smartest implementation
-        contingencies.remove(id);
+        if (isContingencyUsedWithinCrac(id)) {
+            throw new FaraoException(format("Contingency %s is used within a CNEC or an OnState UsageRule. Please remove all references to the contingency first.", id);
+        } else {
+            contingencies.remove(id);
+        }
     }
 
     @Override
@@ -181,6 +181,23 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Deprecated
     public void addContingency(Contingency contingency) {
         contingencies.put(contingency.getId(), contingency);
+    }
+
+    /**
+     * Check if a contingency is referenced in the CRAC (ie in a Cnec or in a RemedialAction's UsageRule)
+     * @param contingencyId: ID of the contingency
+     * @return true if the contingency is referenced in a Cnec or in a RemedialAction's UsageRule
+     */
+    private boolean isContingencyUsedWithinCrac(String contingencyId) {
+        if (getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
+                        && cnec.getState().getContingency().get().getId().equals(contingencyId))) {
+            return true;
+        } else if (getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(List::stream)
+                        .anyMatch(usageMethod -> (usageMethod instanceof OnStateImpl)
+                                && ((OnStateImpl) usageMethod).getContingency().getId().equals(contingencyId))) {
+            return true;
+        }
+        return false;
     }
 
     //endregion
@@ -322,20 +339,19 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<Cnec> getCnecs(State state) {
-        //todo
-        return null;
+        return new HashSet<>(getFlowCnecs(state));
     }
 
     @Override
     public Cnec getCnec(String cnecId) {
-        return flowCnecs.get(cnecId);
+        return getFlowCnec(cnecId);
     }
 
     @Override
     @Deprecated
     //keep method
     public BranchCnec getBranchCnec(String id) {
-        return flowCnecs.get(id);
+        return getFlowCnec(id);
     }
 
     @Override
@@ -343,6 +359,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     //keep method
     public Set<BranchCnec> getBranchCnecs() {
         return new HashSet<>(flowCnecs.values());
+    }
+
+    @Override
+    @Deprecated
+    //keep method
+    public Set<BranchCnec> getBranchCnecs(State state) {
+        return new HashSet<>(getFlowCnecs(state));
     }
 
     @Override
@@ -357,22 +380,32 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<FlowCnec> getFlowCnecs(State state) {
-        //todo
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public Set<BranchCnec> getBranchCnecs(State state) {
         return flowCnecs.values().stream()
-            .filter(cnec -> cnec.getState().equals(state))
-            .collect(Collectors.toSet());
+                .filter(cnec -> cnec.getState().equals(state))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public void removeCnec(String cnecId) {
-        //todo : smarter implementation
-        flowCnecs.remove(cnecId);
+        // In the future, if handling multiple Cnec types, we will have to do more things here
+        removeFlowCnec(cnecId);
+    }
+
+    @Override
+    public void removeFlowCnec(String flowCnecId) {
+        FlowCnec flowCnecToRemove = flowCnecs.get(flowCnecId);
+        if (Objects.isNull(flowCnecToRemove)) {
+            return;
+        }
+        String neId = flowCnecToRemove.getNetworkElement().getId();
+        String stateId = flowCnecToRemove.getState().getId();
+        flowCnecs.remove(flowCnecId);
+        if (!isNetworkElementUsedWithinCrac(neId)) {
+            networkElements.remove(neId);
+        }
+        if (!isStateUsedWithinCrac(stateId)) {
+            states.remove(stateId);
+        }
     }
 
     @Deprecated
