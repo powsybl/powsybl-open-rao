@@ -36,8 +36,6 @@ import static org.mockito.Mockito.when;
 @PrepareForTest({RaoUtil.class})
 public class CoreProblemFillerTest extends AbstractFillerTest {
 
-    SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
-
     // some additional data
     private double minAlpha;
     private double maxAlpha;

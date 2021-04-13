@@ -7,6 +7,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -41,7 +42,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha));
+            Map.of(rangeAction, initialAlpha),
+            RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD);
         maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), MEGAWATT, DEFAULT_PST_PENALTY_COST);
     }
 

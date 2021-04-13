@@ -46,8 +46,8 @@ public final class BestTapFinder {
         Map<PstRangeAction, Integer> bestTaps = new HashMap<>();
         Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 
-        optimalSetPointPerPst.forEach(((pstRangeAction, setPoint) ->
-            minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, setPoint, mostLimitingCnecs, sensitivityResult))));
+        optimalSetPointPerPst.forEach((pstRangeAction, setPoint) ->
+            minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, setPoint, mostLimitingCnecs, sensitivityResult)));
 
         Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
