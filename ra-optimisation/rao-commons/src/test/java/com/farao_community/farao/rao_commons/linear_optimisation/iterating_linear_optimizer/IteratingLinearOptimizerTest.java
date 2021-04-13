@@ -100,19 +100,6 @@ public class IteratingLinearOptimizerTest {
         Map<RangeAction, Double> prePerimeterSetpoints = new HashMap<>();
         prePerimeterSetpoints.put(crac.getRangeAction("PRA_PST_BE"), 0.);
 
-        CnecResults initialCnecResults = new CnecResults();
-        Map<BranchCnec, Double> initialFlowsInMW = new HashMap<>();
-        Map<BranchCnec, Double> initialFlowsInA = new HashMap<>();
-        Map<BranchCnec, Double> absolutePtdfSums = new HashMap<>();
-        crac.getBranchCnecs().forEach(cnec -> {
-            initialFlowsInMW.put(cnec, 0.);
-            initialFlowsInA.put(cnec, 0.);
-            absolutePtdfSums.put(cnec, 0.);
-        });
-        initialCnecResults.setFlowsInMW(initialFlowsInMW);
-        initialCnecResults.setFlowsInA(initialFlowsInA);
-        initialCnecResults.setAbsolutePtdfSums(absolutePtdfSums);
-
         iteratingLinearOptimizerInput = IteratingLinearOptimizerInput.create()
                 .withObjectiveFunctionEvaluator(costEvaluator)
                 .withSystematicSensitivityInterface(systematicSensitivityInterface)
@@ -166,7 +153,6 @@ public class IteratingLinearOptimizerTest {
                 }
                 Map<RangeAction, Double> rangeActionSetpoints = new HashMap<>();
                 rangeActionSetpoints.put(crac.getRangeAction("PRA_PST_BE"), setPoint);
-                //crac.getExtension(CracResultExtension.class).getVariant(raoData.getWorkingVariantId()).setFunctionalCost(cost);
                 count += 1;
 
                 return new LinearOptimizerOutput(LinearOptimizerOutput.SolveStatus.OPTIMAL, rangeActionSetpoints, new HashMap<>());
@@ -198,7 +184,6 @@ public class IteratingLinearOptimizerTest {
     public void optimizeWithInfeasibility() {
         Mockito.when(costEvaluator.computeFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
 
-        //Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("INFEASIBLE");
         Mockito.when(linearOptimizer.optimize(any())).thenReturn(new LinearOptimizerOutput(LinearOptimizerOutput.SolveStatus.INFEASIBLE, new HashMap<>(), new HashMap<>()));
         try {
             PowerMockito.whenNew(LinearOptimizer.class).withAnyArguments().thenReturn(linearOptimizer);
