@@ -29,15 +29,15 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     private final Map<BranchCnec, Double> initialAbsolutePtdfSumPerOptimizedCnec;
-    private final MaxMinRelativeMarginParameters parameters;
+    private final MaxMinRelativeMarginParameters relativeParameters;
 
     public MaxMinRelativeMarginFiller(LinearProblem linearProblem,
                                       Map<BranchCnec, Double> initialAbsolutePtdfSumPerOptimizedCnec,
                                       Set<RangeAction> rangeActions,
-                                      MaxMinRelativeMarginParameters parameters) {
-        super(linearProblem, initialAbsolutePtdfSumPerOptimizedCnec.keySet(), rangeActions, parameters);
+                                      MaxMinRelativeMarginParameters relativeParameters) {
+        super(linearProblem, initialAbsolutePtdfSumPerOptimizedCnec.keySet(), rangeActions, relativeParameters);
         this.initialAbsolutePtdfSumPerOptimizedCnec = initialAbsolutePtdfSumPerOptimizedCnec;
-        this.parameters = parameters;
+        this.relativeParameters = relativeParameters;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         }
         minNegMargin.setUb(.0);
         MPObjective objective = linearProblem.getObjective();
-        objective.setCoefficient(minNegMargin, -1 * parameters.getNegativeMarginObjectiveCoefficient());
+        objective.setCoefficient(minNegMargin, -1 * relativeParameters.getNegativeMarginObjectiveCoefficient());
     }
 
     /**
@@ -80,7 +80,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
         optimizedCnecs.forEach(cnec -> {
-            double relMarginCoef = Math.max(initialAbsolutePtdfSumPerOptimizedCnec.get(cnec), parameters.getPtdfSumLowerBound());
+            double relMarginCoef = Math.max(initialAbsolutePtdfSumPerOptimizedCnec.get(cnec), relativeParameters.getPtdfSumLowerBound());
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {
@@ -91,7 +91,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             Optional<Double> maxFlow;
             minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
             maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            double unitConversionCoefficient = RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, parameters.getUnit(), MEGAWATT);
+            double unitConversionCoefficient = RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, relativeParameters.getUnit(), MEGAWATT);
             //TODO : check that using only Side.LEFT is sufficient
 
             if (minFlow.isPresent()) {
