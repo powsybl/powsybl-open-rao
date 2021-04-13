@@ -81,6 +81,11 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     }
 
     @Override
+    public J withNetworkElement(String networkElementId) {
+        return withNetworkElement(networkElementId, networkElementId);
+    }
+
+    @Override
     public J withOperator(String operator) {
         this.operator = operator;
         return (J) this;
