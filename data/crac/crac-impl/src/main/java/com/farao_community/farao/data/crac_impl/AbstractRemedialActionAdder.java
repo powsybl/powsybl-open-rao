@@ -23,9 +23,9 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
 
     protected String operator;
     protected List<UsageRule> usageRules = new ArrayList<>();
-    private SimpleCrac crac;
+    private CracImpl crac;
 
-    AbstractRemedialActionAdder(SimpleCrac crac) {
+    AbstractRemedialActionAdder(CracImpl crac) {
         Objects.requireNonNull(crac);
         this.crac = crac;
     }
@@ -50,7 +50,7 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
         this.usageRules.add(usageRule);
     }
 
-    SimpleCrac getCrac() {
+    CracImpl getCrac() {
         return this.crac;
     }
 

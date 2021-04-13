@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.crac_io_json.json;
 
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_io_json.json.deserializers.SimpleCracDeserializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +54,7 @@ public final class RoundTripUtil {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
-            module.addDeserializer(SimpleCrac.class, new SimpleCracDeserializer());
+            module.addDeserializer(CracImpl.class, new SimpleCracDeserializer());
             objectMapper.registerModule(module);
             return objectMapper.readValue(inputStream, objectClass);
         } catch (IOException e) {

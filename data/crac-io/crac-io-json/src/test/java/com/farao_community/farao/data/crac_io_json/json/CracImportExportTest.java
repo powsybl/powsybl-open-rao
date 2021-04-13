@@ -37,7 +37,7 @@ public class CracImportExportTest {
 
     @Test
     public void cracTest() {
-        SimpleCrac simpleCrac = new SimpleCrac("cracId");
+        CracImpl simpleCrac = new CracImpl("cracId");
 
         Contingency contingency = simpleCrac.addContingency("contingencyId", "neId");
         simpleCrac.addContingency("contingency2Id", "neId1", "neId2");
@@ -132,7 +132,7 @@ public class CracImportExportTest {
         simpleCrac.addContingency(new XnodeContingency("unsynced-xnode-cont-id", "unsynced-xnode-cont-name",
                 Set.of("xnode1", "xnode2")));
 
-        Crac crac = roundTrip(simpleCrac, SimpleCrac.class);
+        Crac crac = roundTrip(simpleCrac, CracImpl.class);
 
         assertEquals(6, crac.getNetworkElements().size());
         assertEquals(2, crac.getStates().size());

@@ -26,7 +26,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
 
     protected Set<BranchThreshold> thresholds = new HashSet<>();
 
-    public FlowCnecAdderImpl(SimpleCrac owner) {
+    public FlowCnecAdderImpl(CracImpl owner) {
         super(owner);
     }
 

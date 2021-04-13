@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_io_json.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +21,7 @@ final class DeserializerUtils {
 
     private DeserializerUtils() { }
 
-    static Set<NetworkElement> getNetworkElementsFromIds(Set<String> networkElementsIds, SimpleCrac simpleCrac) {
+    static Set<NetworkElement> getNetworkElementsFromIds(Set<String> networkElementsIds, CracImpl simpleCrac) {
         Set<NetworkElement> networkElements = new HashSet<>();
         networkElementsIds.forEach(neId -> {
             NetworkElement ne = simpleCrac.getNetworkElement(neId);

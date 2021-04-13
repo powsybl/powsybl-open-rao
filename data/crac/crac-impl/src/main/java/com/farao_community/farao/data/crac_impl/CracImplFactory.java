@@ -17,9 +17,9 @@ import com.google.auto.service.AutoService;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 @AutoService(CracFactory.class)
-public class SimpleCracFactory implements CracFactory {
+public class CracImplFactory implements CracFactory {
 
-    private static final String NAME = "SimpleCracFactory";
+    private static final String NAME = "CracImplFactory";
 
     @Override
     public String getName() {
@@ -28,11 +28,11 @@ public class SimpleCracFactory implements CracFactory {
 
     @Override
     public Crac create(String id, String name) {
-        return new SimpleCrac(id, name);
+        return new CracImpl(id, name);
     }
 
     @Override
     public Crac create(String id) {
-        return new SimpleCrac(id);
+        return new CracImpl(id);
     }
 }

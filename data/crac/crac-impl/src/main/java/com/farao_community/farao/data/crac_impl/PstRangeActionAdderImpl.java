@@ -39,7 +39,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         return "PstRangeAction";
     }
 
-    PstRangeActionAdderImpl(SimpleCrac owner) {
+    PstRangeActionAdderImpl(CracImpl owner) {
         super(owner);
         this.ranges = new ArrayList<>();
     }

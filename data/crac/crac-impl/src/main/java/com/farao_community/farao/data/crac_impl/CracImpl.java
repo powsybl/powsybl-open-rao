@@ -37,7 +37,7 @@ import static java.lang.String.format;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
+public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
 
@@ -50,11 +50,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private boolean isSynchronized = false;
     private DateTime networkDate = null;
 
-    public SimpleCrac(String id, String name) {
+    public CracImpl(String id, String name) {
         super(id, name);
     }
 
-    public SimpleCrac(String id) {
+    public CracImpl(String id) {
         this(id, id);
     }
 

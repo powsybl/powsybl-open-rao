@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
+import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.commons.EICode;
@@ -306,7 +306,7 @@ final class ExampleGenerator {
     }
 
     static Crac crac() {
-        Crac crac = new SimpleCracFactory().create("test-crac");
+        Crac crac = new CracImplFactory().create("test-crac");
 
         crac.newFlowCnec().setId("FR-BE1").setInstant(Instant.PREVENTIVE)
             .newNetworkElement().setId("FR-BE1").add()

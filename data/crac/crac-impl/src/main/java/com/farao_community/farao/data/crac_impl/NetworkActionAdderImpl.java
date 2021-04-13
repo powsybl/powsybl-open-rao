@@ -23,7 +23,7 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkActionAdderImpl.class);
     private Set<ElementaryAction> elementaryActions;
 
-    NetworkActionAdderImpl(SimpleCrac owner) {
+    NetworkActionAdderImpl(CracImpl owner) {
         super(owner);
         this.elementaryActions = new HashSet<>();
     }

@@ -20,11 +20,11 @@ import static java.lang.String.format;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyAdder> implements ContingencyAdder {
-    SimpleCrac owner;
+    CracImpl owner;
     private final Set<NetworkElement> networkElements = new HashSet<>();
     private final Set<String> xnodeIds = new HashSet<>();
 
-    public ContingencyAdderImpl(SimpleCrac owner) {
+    public ContingencyAdderImpl(CracImpl owner) {
         Objects.requireNonNull(owner);
         this.owner = owner;
     }

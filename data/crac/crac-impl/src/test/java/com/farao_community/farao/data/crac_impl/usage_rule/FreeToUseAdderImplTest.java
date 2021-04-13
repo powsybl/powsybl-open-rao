@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
+import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class FreeToUseAdderImplTest {
 
     @Before
     public void setUp() {
-        Crac crac = new SimpleCracFactory().create("cracId");
+        Crac crac = new CracImplFactory().create("cracId");
         remedialActionAdder = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")

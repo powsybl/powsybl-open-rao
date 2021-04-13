@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
+import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class OnStateAdderImplTest {
 
     @Before
     public void setUp() {
-        Crac crac = new SimpleCracFactory().create("cracId");
+        Crac crac = new CracImplFactory().create("cracId");
 
         contingency = crac.newContingency()
             .withId("contingencyId")

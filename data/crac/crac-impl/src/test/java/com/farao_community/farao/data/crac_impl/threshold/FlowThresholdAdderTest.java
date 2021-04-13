@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.BranchThresholdAdderImpl;
-import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
+import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -32,7 +32,7 @@ public class FlowThresholdAdderTest {
 
     @Before
     public void setUp() {
-        crac = new SimpleCracFactory().create("test-crac");
+        crac = new CracImplFactory().create("test-crac");
         contingency = crac.newContingency().withId("conId").add();
     }
 

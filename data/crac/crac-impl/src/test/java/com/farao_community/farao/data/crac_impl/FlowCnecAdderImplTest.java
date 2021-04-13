@@ -26,12 +26,12 @@ import static org.junit.Assert.*;
  */
 public class FlowCnecAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
-    private SimpleCrac crac;
+    private CracImpl crac;
     private Contingency contingency1;
 
     @Before
     public void setUp() {
-        crac = new SimpleCrac("test-crac");
+        crac = new CracImpl("test-crac");
         contingency1 = crac.newContingency().withId("conId1").add();
     }
 

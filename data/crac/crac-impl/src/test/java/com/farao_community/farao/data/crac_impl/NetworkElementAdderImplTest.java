@@ -25,7 +25,7 @@ public class NetworkElementAdderImplTest {
 
     @Before
     public void setUp() {
-        crac = new SimpleCracFactory().create("test-crac");
+        crac = new CracImplFactory().create("test-crac");
     }
 
     @Test

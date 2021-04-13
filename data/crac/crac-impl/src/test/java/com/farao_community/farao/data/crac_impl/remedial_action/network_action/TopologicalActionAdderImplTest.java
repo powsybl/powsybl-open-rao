@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
-import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
+import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class TopologicalActionAdderImplTest {
 
     @Before
     public void setUp() {
-        Crac crac = new SimpleCracFactory().create("cracId");
+        Crac crac = new CracImplFactory().create("cracId");
         networkActionAdder = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")

@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_impl.ContingencyImpl;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,9 +29,9 @@ final class ContingencyDeserializer {
 
     private ContingencyDeserializer() { }
 
-    static void deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    static void deserialize(JsonParser jsonParser, CracImpl simpleCrac) throws IOException {
         // cannot be done in a standard ContingencyImpl deserializer as it requires the simpleCrac to
-        // compare the NetworkElement ids of the ComplexContingency with the NetworkElements of the SimpleCrac
+        // compare the NetworkElement ids of the ComplexContingency with the NetworkElements of the CracImpl
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
@@ -47,7 +47,7 @@ final class ContingencyDeserializer {
                     case TYPE:
                         type = jsonParser.nextTextValue();
                         if (!type.equals(COMPLEX_CONTINGENCY_TYPE) && !type.equals(XNODE_CONTINGENCY_TYPE)) {
-                            throw new FaraoException(String.format("SimpleCrac can only deserialize %s and %s contingency types", COMPLEX_CONTINGENCY_TYPE, XNODE_CONTINGENCY_TYPE));
+                            throw new FaraoException(String.format("CracImpl can only deserialize %s and %s contingency types", COMPLEX_CONTINGENCY_TYPE, XNODE_CONTINGENCY_TYPE));
                         }
                         break;
 

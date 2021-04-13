@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -52,7 +52,7 @@ public class LinearOptimizerTest {
     private LinearOptimizer linearOptimizer;
     private LinearProblem linearProblemMock;
     private Network network;
-    private SimpleCrac crac;
+    private CracImpl crac;
     private RaoData raoData;
     private CracResultManager cracResultManager;
     private MPVariable rangeActionSetPoint;

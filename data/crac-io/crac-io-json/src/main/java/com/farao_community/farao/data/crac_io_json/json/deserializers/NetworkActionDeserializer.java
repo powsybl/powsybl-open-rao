@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -36,7 +36,7 @@ final class NetworkActionDeserializer {
     private NetworkActionDeserializer() {
     }
 
-    static Set<NetworkAction> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
+    static Set<NetworkAction> deserialize(JsonParser jsonParser, CracImpl simpleCrac, DeserializationContext deserializationContext) throws IOException {
         // cannot be done in a standard NetworkAction deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the NetworkAction with the NetworkElements of the Crac
 
@@ -58,7 +58,7 @@ final class NetworkActionDeserializer {
                     case TYPE:
                         String type = jsonParser.nextTextValue();
                         if (!type.equals(NETWORK_ACTION_IMPL_TYPE)) {
-                            throw new FaraoException(String.format("Type of network action [%s] not handled by SimpleCrac deserializer.", type));
+                            throw new FaraoException(String.format("Type of network action [%s] not handled by CracImpl deserializer.", type));
                         }
                         break;
 

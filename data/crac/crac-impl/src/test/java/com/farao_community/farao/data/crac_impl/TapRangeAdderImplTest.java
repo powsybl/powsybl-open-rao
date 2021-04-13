@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
-import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,7 +27,7 @@ public class TapRangeAdderImplTest {
 
     @Before
     public void setUp() {
-        Crac crac = new SimpleCracFactory().create("cracId");
+        Crac crac = new CracImplFactory().create("cracId");
         pstRangeActionAdder = crac.newPstRangeAction()
             .withId("pstRangeActionId")
             .withName("pstRangeActionName")

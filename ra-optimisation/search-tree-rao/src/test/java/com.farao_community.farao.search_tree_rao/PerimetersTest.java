@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.powsybl.iidm.network.Network;
@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class PerimetersTest {
 
-    private SimpleCrac crac;
+    private CracImpl crac;
     private Network network;
     private StateTree stateTree;
 
@@ -35,7 +35,7 @@ public class PerimetersTest {
     public void setUp() {
         network = Mockito.mock(Network.class);
 
-        crac = new SimpleCrac("crac-id");
+        crac = new CracImpl("crac-id");
         crac.newContingency().setId("contingency-1").add();
         crac.newContingency().setId("contingency-2").add();
         crac.newContingency().setId("contingency-3").add();

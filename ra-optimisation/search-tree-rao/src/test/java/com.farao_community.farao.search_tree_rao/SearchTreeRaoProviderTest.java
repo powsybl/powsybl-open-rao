@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
@@ -38,7 +38,7 @@ public class SearchTreeRaoProviderTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
-    private SimpleCrac crac;
+    private CracImpl crac;
     private String initialVariantId;
     private String postOptimPrevVariantId;
     private String postOptimCurVariantId;

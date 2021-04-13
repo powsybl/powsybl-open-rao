@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -23,12 +22,12 @@ import static org.junit.Assert.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PstRangeActionAdderImplTest {
-    private SimpleCrac crac;
+    private CracImpl crac;
     private String networkElementId;
 
     @Before
     public void setUp() {
-        crac = new SimpleCrac("test-crac");
+        crac = new CracImpl("test-crac");
         networkElementId = "BBE2AA1  BBE3AA1  1";
     }
 

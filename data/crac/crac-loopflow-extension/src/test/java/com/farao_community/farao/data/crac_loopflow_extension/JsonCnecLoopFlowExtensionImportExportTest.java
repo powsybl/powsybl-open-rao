@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class JsonCnecLoopFlowExtensionImportExportTest {
     @Test
     public void roundTripTest() {
         // Crac
-        SimpleCrac simpleCrac = new SimpleCrac("cracId");
+        CracImpl simpleCrac = new CracImpl("cracId");
 
         simpleCrac.newFlowCnec()
             .setId("cnec1")

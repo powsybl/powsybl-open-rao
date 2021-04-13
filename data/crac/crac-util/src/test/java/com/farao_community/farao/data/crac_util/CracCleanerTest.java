@@ -41,7 +41,7 @@ public class CracCleanerTest {
 
     @Test
     public void testCleanCrac() {
-        SimpleCrac simpleCrac = new SimpleCrac("cracId");
+        CracImpl simpleCrac = new CracImpl("cracId");
 
         Contingency contingency = simpleCrac.addContingency("contingencyId", "FFR1AA1  FFR2AA1  1");
         simpleCrac.addContingency("contingency2Id", "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE3AA1  1");
@@ -155,7 +155,7 @@ public class CracCleanerTest {
     }
 
     private Crac createTestCrac() {
-        CracFactory factory = CracFactory.find("SimpleCracFactory");
+        CracFactory factory = CracFactory.find("CracImplFactory");
         Crac crac = factory.create("test-crac");
         crac.newFlowCnec().setId("BBE1AA1  BBE2AA1  1").optimized().monitored()
                 .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
@@ -204,7 +204,7 @@ public class CracCleanerTest {
 
     @Test
     public void testRemoveOnStateUsageRule() {
-        SimpleCrac crac = new SimpleCrac("cracId");
+        CracImpl crac = new CracImpl("cracId");
 
         Contingency contingencyOk = crac.newContingency().setId("cont_exists").newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add().add();
         Contingency contingencyNok = crac.newContingency().setId("cont_unknown").newNetworkElement().setId("unknown").add().add();

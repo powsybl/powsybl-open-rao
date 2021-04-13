@@ -32,11 +32,11 @@ import static org.junit.Assert.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class CracFileTest {
-    private SimpleCrac simpleCrac;
+    private CracImpl simpleCrac;
 
     @Before
     public void setUp() {
-        simpleCrac = new SimpleCrac("test-crac");
+        simpleCrac = new CracImpl("test-crac");
     }
 
     @Test

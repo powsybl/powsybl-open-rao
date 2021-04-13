@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
@@ -32,9 +32,9 @@ import static com.farao_community.farao.data.crac_io_json.json.JsonSerialization
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
+public class SimpleCracSerializer extends JsonSerializer<CracImpl> {
     @Override
-    public void serialize(SimpleCrac value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(CracImpl value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStringField(ID, value.getId());
         gen.writeStringField(NAME, value.getName());
         if (value.getNetworkDate() != null) {
@@ -72,7 +72,7 @@ public class SimpleCracSerializer extends JsonSerializer<SimpleCrac> {
     }
 
     @Override
-    public void serializeWithType(SimpleCrac value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
+    public void serializeWithType(CracImpl value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
         WritableTypeId writableTypeId = typeSer.typeId(value, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, writableTypeId);
         serialize(value, gen, serializers);

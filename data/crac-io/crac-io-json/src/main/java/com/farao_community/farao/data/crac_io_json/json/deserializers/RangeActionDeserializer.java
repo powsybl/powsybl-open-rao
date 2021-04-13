@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.range_action.Range;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.TapRangeImpl;
 import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.fasterxml.jackson.core.JsonParser;
@@ -38,7 +38,7 @@ final class RangeActionDeserializer {
 
     private RangeActionDeserializer() { }
 
-    static void deserialize(JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
+    static void deserialize(JsonParser jsonParser, CracImpl simpleCrac, DeserializationContext deserializationContext) throws IOException {
         // cannot be done in a standard RangeAction deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the RangeAction with the NetworkElements of the Crac
 
@@ -57,7 +57,7 @@ final class RangeActionDeserializer {
         }
     }
 
-    private static RangeAction deserializeRangeAction(String type, JsonParser jsonParser, SimpleCrac simpleCrac, DeserializationContext deserializationContext) throws IOException {
+    private static RangeAction deserializeRangeAction(String type, JsonParser jsonParser, CracImpl simpleCrac, DeserializationContext deserializationContext) throws IOException {
         String id = null;
         String name = null;
         String operator = null;
@@ -135,7 +135,7 @@ final class RangeActionDeserializer {
                 rangeAction = new PstRangeActionImpl(id, name, operator, usageRules, pstRanges, networkElements.iterator().next(), groupId);
                 break;
             default:
-                throw new FaraoException(String.format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
+                throw new FaraoException(String.format("Type of range action [%s] not handled by CracImpl deserializer.", type));
         }
         ExtensionsHandler.getExtensionsSerializers().addExtensions(rangeAction, extensions);
         return rangeAction;

@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_impl.NetworkElementImpl;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -33,12 +33,12 @@ import static com.farao_community.farao.data.crac_io_json.json.JsonSerialization
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
+public class SimpleCracDeserializer extends JsonDeserializer<CracImpl> {
 
     @Override
-    public SimpleCrac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public CracImpl deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
-        // the Json file should start with the id and the name of the SimpleCrac
+        // the Json file should start with the id and the name of the CracImpl
         if (!jsonParser.getCurrentName().equals(ID)) {
             throw new FaraoException("'id' field is expected in the third line of the json file.");
         }
@@ -50,9 +50,9 @@ public class SimpleCracDeserializer extends JsonDeserializer<SimpleCrac> {
         }
         String name = jsonParser.nextTextValue();
 
-        SimpleCrac simpleCrac = new SimpleCrac(id, name);
+        CracImpl simpleCrac = new CracImpl(id, name);
 
-        // deserialize the following lines of the SimpleCrac
+        // deserialize the following lines of the CracImpl
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
 

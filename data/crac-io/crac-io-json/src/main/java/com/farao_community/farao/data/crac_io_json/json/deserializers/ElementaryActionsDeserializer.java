@@ -4,7 +4,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.InjectionSetpointImpl;
 import com.farao_community.farao.data.crac_impl.PstSetpointImpl;
 import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
@@ -22,7 +22,7 @@ final class ElementaryActionsDeserializer {
     private ElementaryActionsDeserializer() {
     }
 
-    static Set<ElementaryAction> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    static Set<ElementaryAction> deserialize(JsonParser jsonParser, CracImpl simpleCrac) throws IOException {
         // cannot be done in a standard deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the NetworkAction with the NetworkElements of the Crac
 

@@ -11,11 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.PostContingencyState;
-import com.farao_community.farao.data.crac_impl.PreventiveState;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.FreeToUseImpl;
-import com.farao_community.farao.data.crac_impl.OnStateImpl;
+import com.farao_community.farao.data.crac_impl.*;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -33,7 +30,7 @@ final class UsageRuleDeserializer {
 
     private UsageRuleDeserializer() { }
 
-    static List<UsageRule> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    static List<UsageRule> deserialize(JsonParser jsonParser, CracImpl simpleCrac) throws IOException {
         // cannot be done in a standard UsageRule deserializer as it requires the simpleCrac to compare
         // the state of the OnState UsageRules with the states in the Crac
         List<UsageRule> usageRules = new ArrayList<>();
@@ -60,7 +57,7 @@ final class UsageRuleDeserializer {
                     break;
 
                 default:
-                    throw new FaraoException(format("Type of range action [%s] not handled by SimpleCrac deserializer.", type));
+                    throw new FaraoException(format("Type of range action [%s] not handled by CracImpl deserializer.", type));
             }
 
             usageRules.add(usageRule);
@@ -94,7 +91,7 @@ final class UsageRuleDeserializer {
         return new FreeToUseImpl(usageMethod, instant);
     }
 
-    private static OnStateImpl deserializeOnStateUsageRule(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
+    private static OnStateImpl deserializeOnStateUsageRule(JsonParser jsonParser, CracImpl simpleCrac) throws IOException {
 
         UsageMethod usageMethod = null;
         String contingencyId = null;

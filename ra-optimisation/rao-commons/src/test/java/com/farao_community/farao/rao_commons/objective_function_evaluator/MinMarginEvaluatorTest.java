@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
@@ -290,7 +290,7 @@ public class MinMarginEvaluatorTest {
         ResultVariantManager mockResultManager = Mockito.mock(ResultVariantManager.class);
         Mockito.when(mockResultManager.getInitialVariantId()).thenReturn(null);
         Mockito.when(mockResultManager.getPrePerimeterVariantId()).thenReturn(null);
-        Crac mockCrac = Mockito.mock(SimpleCrac.class);
+        Crac mockCrac = Mockito.mock(CracImpl.class);
         Mockito.when(mockCrac.getExtension(eq(ResultVariantManager.class))).thenReturn(mockResultManager);
         RaoData mockRaoData = Mockito.mock(RaoData.class);
         Mockito.when(mockRaoData.getCnecs()).thenReturn(mnecs);

@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends AbstractIdentifiableAdder<J> implements CnecAdder<J> {
 
-    protected SimpleCrac owner;
+    protected CracImpl owner;
     protected String networkElementId;
     protected String networkElementName;
     protected Instant instant;
@@ -28,7 +28,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     protected double reliabilityMargin = .0;
     protected String operator;
 
-    protected AbstractCnecAdderImpl(SimpleCrac owner) {
+    protected AbstractCnecAdderImpl(CracImpl owner) {
         Objects.requireNonNull(owner);
         this.owner = owner;
     }

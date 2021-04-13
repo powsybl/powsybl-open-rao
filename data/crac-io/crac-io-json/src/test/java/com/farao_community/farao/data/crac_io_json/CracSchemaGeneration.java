@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_io_json;
 
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -30,7 +30,7 @@ final class CracSchemaGeneration {
     public static void main(String[] args) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         JsonSchemaGenerator generator = new JsonSchemaGenerator(mapper);
-        JsonSchema jsonSchema = generator.generateSchema(SimpleCrac.class);
+        JsonSchema jsonSchema = generator.generateSchema(CracImpl.class);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
         StringWriter json = new StringWriter();

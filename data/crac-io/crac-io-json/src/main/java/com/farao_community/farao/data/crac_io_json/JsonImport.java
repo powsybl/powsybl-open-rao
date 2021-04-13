@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_io_json.json.deserializers.SimpleCracDeserializer;
 import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,9 +43,9 @@ public class JsonImport implements CracImporter {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             SimpleModule module = new SimpleModule();
-            module.addDeserializer(SimpleCrac.class, new SimpleCracDeserializer());
+            module.addDeserializer(CracImpl.class, new SimpleCracDeserializer());
             objectMapper.registerModule(module);
-            return objectMapper.readValue(inputStream, SimpleCrac.class);
+            return objectMapper.readValue(inputStream, CracImpl.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -13,23 +13,23 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class SimpleCracFactoryTest {
-    final String factoryName = "SimpleCracFactory";
+public class CracImplFactoryTest {
+    final String factoryName = "CracImplFactory";
 
     @Test
     public void testDependencyInjection() {
-        assertEquals(factoryName, new SimpleCracFactory().getName());
+        assertEquals(factoryName, new CracImplFactory().getName());
         CracFactory factory = CracFactory.find(factoryName);
         assertNotNull(factory);
-        assertEquals(factory.getClass(), SimpleCracFactory.class);
+        assertEquals(factory.getClass(), CracImplFactory.class);
     }
 
     @Test
     public void testCreateSimpleCrac() {
         String id = "idForTest";
         String name = "testName";
-        Crac crac = new SimpleCracFactory().create(id, name);
-        assertEquals(crac.getClass(), SimpleCrac.class);
+        Crac crac = new CracImplFactory().create(id, name);
+        assertEquals(crac.getClass(), CracImpl.class);
         assertEquals(crac.getId(), id);
         assertEquals(crac.getName(), name);
     }

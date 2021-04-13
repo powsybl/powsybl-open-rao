@@ -12,12 +12,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.ContingencyImpl;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
-import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
-import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
-import com.farao_community.farao.data.crac_impl.OnStateImpl;
+import com.farao_community.farao.data.crac_impl.*;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 
 import java.util.*;
 
@@ -30,8 +26,8 @@ public final class CommonCracCreation {
 
     }
 
-    public static SimpleCrac create() {
-        SimpleCrac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
+    public static CracImpl create() {
+        CracImpl crac = new CracImpl("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
         ContingencyImpl contingency1 = new ContingencyImpl("Contingency FR1 FR3", "Trip of FFR1AA1 FFR3AA1 1",
             new HashSet<>(Collections.singletonList(new NetworkElement("FFR1AA1  FFR3AA1  1"))));
@@ -107,8 +103,8 @@ public final class CommonCracCreation {
         return crac;
     }
 
-    public static SimpleCrac createWithPstRange() {
-        SimpleCrac crac = create();
+    public static CracImpl createWithPstRange() {
+        CracImpl crac = create();
 
         //NetworkElement
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
@@ -120,8 +116,8 @@ public final class CommonCracCreation {
         return crac;
     }
 
-    public static SimpleCrac createWithCurativePstRange() {
-        SimpleCrac crac = create();
+    public static CracImpl createWithCurativePstRange() {
+        CracImpl crac = create();
 
         //NetworkElement
         NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
@@ -134,8 +130,8 @@ public final class CommonCracCreation {
         return crac;
     }
 
-    public static SimpleCrac createWithSwitch() {
-        SimpleCrac crac = create();
+    public static CracImpl createWithSwitch() {
+        CracImpl crac = create();
 
         NetworkElement switchElement = new NetworkElement("NNL3AA11 NNL3AA12 1", "NNL3AA11 NNL3AA12 1 name");
         TopologicalActionImpl topologicalAction = new TopologicalActionImpl(switchElement, ActionType.OPEN);

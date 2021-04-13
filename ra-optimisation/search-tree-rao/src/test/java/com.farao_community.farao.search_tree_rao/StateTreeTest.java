@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
  */
 public class StateTreeTest {
 
-    private SimpleCrac crac;
+    private CracImpl crac;
     private Network network;
     private StateTree stateTree;
     private State preventiveState;
