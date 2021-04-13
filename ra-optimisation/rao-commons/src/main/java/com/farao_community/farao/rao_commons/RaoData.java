@@ -231,12 +231,24 @@ public final class RaoData {
         return prePerimeterSetPoints;
     }
 
-    public Map<BranchCnec, CnecResult> getInitialCnecResults() {
-        Map<BranchCnec, CnecResult> initialCnecResults = new HashMap<>();
+    public CnecResults getInitialCnecResults() {
+        CnecResults cnecResults = new CnecResults();
+        Map<BranchCnec, Double> flowsInMW = new HashMap<>();
+        Map<BranchCnec, Double> flowsInA = new HashMap<>();
+        Map<BranchCnec, Double> loopflowsInMW = new HashMap<>();
+        Map<BranchCnec, Double> loopflowThresholdInMW = new HashMap<>();
+        Map<BranchCnec, Double> commercialFlowsInMW = new HashMap<>();
+        Map<BranchCnec, Double> absolutePtdfSums = new HashMap<>();
         for (BranchCnec cnec : getCnecs()) {
-            initialCnecResults.put(cnec, cnec.getExtension(CnecResultExtension.class).getVariant(getCrac().getExtension(ResultVariantManager.class).getInitialVariantId()));
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(getCrac().getExtension(ResultVariantManager.class).getInitialVariantId());
+            flowsInMW.put(cnec, cnecResult.getFlowInMW());
+            flowsInA.put(cnec, cnecResult.getFlowInA());
+            loopflowsInMW.put(cnec, cnecResult.getLoopflowInMW());
+            loopflowThresholdInMW.put(cnec, cnecResult.getLoopflowThresholdInMW());
+            commercialFlowsInMW.put(cnec, cnecResult.getCommercialFlowInMW());
+            absolutePtdfSums.put(cnec, cnecResult.getAbsolutePtdfSum());
         }
-        return initialCnecResults;
+        return cnecResults;
     }
 
     public Map<BranchCnec, Double> getPrePerimeterMarginsInAbsoluteMW() {

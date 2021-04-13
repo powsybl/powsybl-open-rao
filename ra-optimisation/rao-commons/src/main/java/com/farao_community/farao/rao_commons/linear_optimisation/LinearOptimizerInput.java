@@ -3,7 +3,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.rao_commons.CnecResults;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -21,7 +21,7 @@ public class LinearOptimizerInput {
     private Network network;
     private Map<RangeAction, Double> preperimeterSetpoints; // can be removed if we don't change taps in the network after each depth
     private List<BranchCnec> mostLimitingElements;
-    private Map<BranchCnec, CnecResult> initialCnecResults;
+    private CnecResults initialCnecResults;
     private Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
 
     public static LinearOptimizerInputBuilder create() {
@@ -57,25 +57,47 @@ public class LinearOptimizerInput {
     }
 
     public double getInitialAbsolutePtdfSum(BranchCnec cnec) {
-        return initialCnecResults.get(cnec).getAbsolutePtdfSum();
+        return initialCnecResults.getAbsolutePtdfSums().get(cnec);
     }
 
-    public double getInitialFlowOnCnec(BranchCnec cnec, Unit unit) {
+    public Map<BranchCnec, Double> getInitialAbsolutePtdfSums() {
+        return initialCnecResults.getAbsolutePtdfSums();
+    }
+
+    public double getInitialFlow(BranchCnec cnec, Unit unit) {
         if (unit == MEGAWATT) {
-            return initialCnecResults.get(cnec).getFlowInMW();
+            return initialCnecResults.getFlowsInMW().get(cnec);
         } else if (unit == AMPERE) {
-            return initialCnecResults.get(cnec).getFlowInA();
+            return initialCnecResults.getFlowsInA().get(cnec);
+        } else {
+            throw new NotImplementedException("Flows on branches are only implemented in MW and AMPERE units");
+        }
+    }
+
+    public Map<BranchCnec, Double> getInitialFlows(Unit unit) {
+        if (unit == MEGAWATT) {
+            return initialCnecResults.getFlowsInMW();
+        } else if (unit == AMPERE) {
+            return initialCnecResults.getFlowsInA();
         } else {
             throw new NotImplementedException("Flows on branches are only implemented in MW and AMPERE units");
         }
     }
 
     public double getInitialLoopflowInMW(BranchCnec cnec) {
-        return initialCnecResults.get(cnec).getLoopflowInMW();
+        return initialCnecResults.getLoopflowsInMW().get(cnec);
     }
 
-    public double getPrePerimeterMarginsInAbsoluteMW(BranchCnec cnec) {
+    public Map<BranchCnec, Double> getInitialLoopflowsInMW() {
+        return initialCnecResults.getLoopflowsInMW();
+    }
+
+    public double getPrePerimeterMarginInAbsoluteMW(BranchCnec cnec) {
         return prePerimeterCnecMarginsInAbsoluteMW.get(cnec);
+    }
+
+    public Map<BranchCnec, Double> getPrePerimeterMarginsInAbsoluteMW() {
+        return prePerimeterCnecMarginsInAbsoluteMW;
     }
 
     public static final class LinearOptimizerInputBuilder {
@@ -85,7 +107,7 @@ public class LinearOptimizerInput {
         private Network network;
         private Map<RangeAction, Double> preperimeterSetpoints;
         private List<BranchCnec> mostLimitingElements;
-        private Map<BranchCnec, CnecResult> initialCnecResults;
+        private CnecResults initialCnecResults;
         private Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
 
         public LinearOptimizerInputBuilder withLoopflowCnecs(Set<BranchCnec> loopflowCnecs) {
@@ -118,7 +140,7 @@ public class LinearOptimizerInput {
             return this;
         }
 
-        public LinearOptimizerInputBuilder withInitialCnecResults(Map<BranchCnec, CnecResult> initialCnecResults) {
+        public LinearOptimizerInputBuilder withInitialCnecResults(CnecResults initialCnecResults) {
             this.initialCnecResults = initialCnecResults;
             return this;
         }

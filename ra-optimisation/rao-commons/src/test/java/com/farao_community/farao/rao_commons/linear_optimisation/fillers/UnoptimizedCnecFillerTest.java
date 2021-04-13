@@ -3,7 +3,8 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ *//*
+
 
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
@@ -30,9 +31,11 @@ import static com.farao_community.farao.rao_api.RaoParameters.*;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
+*/
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- */
+ *//*
+
 @RunWith(PowerMockRunner.class)
 public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
@@ -212,3 +215,4 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         assertEquals(2 * maxAbsThreshold, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
     }
 }
+*/

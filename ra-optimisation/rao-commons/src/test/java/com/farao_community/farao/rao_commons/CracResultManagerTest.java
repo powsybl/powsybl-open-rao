@@ -3,7 +3,8 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ *//*
+
 
 package com.farao_community.farao.rao_commons;
 
@@ -33,10 +34,12 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
+*/
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
- */
+ *//*
+
 public class CracResultManagerTest {
 
     private static final double DOUBLE_TOLERANCE = 0.1;
@@ -329,3 +332,4 @@ public class CracResultManagerTest {
         assertEquals(16, bestTaps.get(pstRangeAction).intValue());
     }
 }
+*/
