@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_api.TapConvention;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 
@@ -24,7 +23,6 @@ import static com.farao_community.farao.data.crac_api.TapConvention.STARTS_AT_ON
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@JsonTypeName("pst-setpoint")
 public final class PstSetpointImpl implements PstSetpoint {
 
     private NetworkElement networkElement;

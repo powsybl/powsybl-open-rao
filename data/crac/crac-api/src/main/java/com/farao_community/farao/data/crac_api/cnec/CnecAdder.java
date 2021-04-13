@@ -60,4 +60,7 @@ public interface CnecAdder<J extends CnecAdder<J>> extends IdentifiableAdder<J> 
     J withMonitored(boolean monitored);
 
     J withNetworkElement(String networkElementId, String networkElementName);
+
+    J withNetworkElement(String networkElementId);
+
 }

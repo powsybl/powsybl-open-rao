@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -23,7 +22,6 @@ import org.apache.commons.lang3.NotImplementedException;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@JsonTypeName("topological-action")
 public final class TopologicalActionImpl implements TopologicalAction {
 
     private NetworkElement networkElement;

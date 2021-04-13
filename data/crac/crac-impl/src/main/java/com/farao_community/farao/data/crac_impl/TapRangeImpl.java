@@ -11,24 +11,18 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class TapRangeImpl extends RangeImpl implements TapRange {
+public class TapRangeImpl extends AbstractRange implements TapRange {
 
     private TapConvention rangeDefinition;
     private int minTap;
     private int maxTap;
 
-    @JsonCreator
-    TapRangeImpl(@JsonProperty("min") int minTap,
-                 @JsonProperty("max") int maxTap,
-                 @JsonProperty("rangeType") RangeType rangeType,
-                 @JsonProperty("rangeDefinition") TapConvention rangeDefinition) {
+    TapRangeImpl(int minTap, int maxTap, RangeType rangeType, TapConvention rangeDefinition) {
         super(rangeType, Unit.TAP);
         this.minTap = minTap;
         this.maxTap = maxTap;

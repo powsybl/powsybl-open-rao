@@ -5,11 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -21,7 +20,7 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class TopologicalActionImplTest extends AbstractRemedialActionTest {
+public class TopologicalActionImplTest {
 
     private TopologicalActionImpl topologyOpen;
     private TopologicalActionImpl topologyClose;
@@ -29,11 +28,11 @@ public class TopologicalActionImplTest extends AbstractRemedialActionTest {
     @Before
     public void setUp() {
         topologyOpen = new TopologicalActionImpl(
-                new NetworkElement("FFR2AA1  DDE3AA1  1"),
+                new NetworkElementImpl("FFR2AA1  DDE3AA1  1"),
                 ActionType.OPEN
         );
         topologyClose = new TopologicalActionImpl(
-                new NetworkElement("FFR2AA1  DDE3AA1  1"),
+                new NetworkElementImpl("FFR2AA1  DDE3AA1  1"),
                 ActionType.CLOSE
         );
     }
@@ -64,7 +63,7 @@ public class TopologicalActionImplTest extends AbstractRemedialActionTest {
         Network network = NetworkImportsUtil.import12NodesNetworkWithSwitch();
         String switchNetworkElementId = "NNL3AA11 NNL3AA12 1";
 
-        NetworkElement networkElement = new NetworkElement(switchNetworkElementId);
+        NetworkElement networkElement = new NetworkElementImpl(switchNetworkElementId);
         TopologicalActionImpl openSwitchTopology = new TopologicalActionImpl(
             networkElement,
             ActionType.OPEN);
@@ -84,7 +83,7 @@ public class TopologicalActionImplTest extends AbstractRemedialActionTest {
     public void applyOnUnsupportedElement() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         TopologicalActionImpl topologyOnNode = new TopologicalActionImpl(
-                new NetworkElement("FFR2AA1"),
+                new NetworkElementImpl("FFR2AA1"),
                 ActionType.OPEN);
 
         topologyOnNode.apply(network);

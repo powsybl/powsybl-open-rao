@@ -90,7 +90,8 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         if (usageRules.isEmpty()) {
             LOGGER.warn("PstRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
-        //todo : check that initial tap is within range
+
+        //todo : check that initial tap is within range (requires initial tap to be in the adder, not in the synchronization)
 
         NetworkElement networkElement;
         if (Objects.isNull(networkElementName)) {

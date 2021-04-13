@@ -12,17 +12,12 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_io_json.json.serializers.usage_rule.OnStateSerializer;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * The UsageMethod of the OnStateImpl UsageRule is only effective in a given State.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("on-state")
-@JsonSerialize(using = OnStateSerializer.class)
 public final class OnStateImpl extends AbstractUsageRule implements OnState {
 
     private State state;

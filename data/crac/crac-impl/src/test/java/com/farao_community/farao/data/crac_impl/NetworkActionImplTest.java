@@ -5,13 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.NetworkActionImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -37,8 +35,8 @@ public class NetworkActionImplTest {
         mockedUsageRule2 = Mockito.mock(UsageRule.class);
         mockedElementaryAction1 = Mockito.mock(ElementaryAction.class);
         mockedElementaryAction2 = Mockito.mock(ElementaryAction.class);
-        Mockito.when(mockedElementaryAction1.getNetworkElement()).thenReturn(new NetworkElement("ne1"));
-        Mockito.when(mockedElementaryAction2.getNetworkElement()).thenReturn(new NetworkElement("ne2"));
+        Mockito.when(mockedElementaryAction1.getNetworkElement()).thenReturn(new NetworkElementImpl("ne1"));
+        Mockito.when(mockedElementaryAction2.getNetworkElement()).thenReturn(new NetworkElementImpl("ne2"));
     }
 
     @Test

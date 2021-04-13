@@ -7,10 +7,9 @@
  *
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_impl.InjectionSetpointImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -21,7 +20,7 @@ import static org.junit.Assert.*;
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-public class InjectionSetpointImplTest extends AbstractRemedialActionTest {
+public class InjectionSetpointImplTest {
 
     @Test
     public void getSetpoint() {
@@ -34,7 +33,7 @@ public class InjectionSetpointImplTest extends AbstractRemedialActionTest {
     public void applyOnGenerator() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl generatorSetpoint = new InjectionSetpointImpl(
-                new NetworkElement("FFR1AA1 _generator"),
+                new NetworkElementImpl("FFR1AA1 _generator"),
                 100);
 
         generatorSetpoint.apply(network);
@@ -45,7 +44,7 @@ public class InjectionSetpointImplTest extends AbstractRemedialActionTest {
     public void applyOnLoad() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         InjectionSetpointImpl loadSetpoint = new InjectionSetpointImpl(
-                new NetworkElement("FFR1AA1 _load"),
+                new NetworkElementImpl("FFR1AA1 _load"),
                 100);
 
         loadSetpoint.apply(network);
@@ -57,7 +56,7 @@ public class InjectionSetpointImplTest extends AbstractRemedialActionTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         NetworkImportsUtil.addDanglingLine(network);
         InjectionSetpointImpl danglingLineSetpoint = new InjectionSetpointImpl(
-                new NetworkElement("DL1"),
+                new NetworkElementImpl("DL1"),
                 100);
 
         danglingLineSetpoint.apply(network);

@@ -90,6 +90,27 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         return networkElements.getOrDefault(id, null);
     }
 
+    private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
+
+        if (contingencies.values().stream()
+            .flatMap(co -> co.getNetworkElements().stream())
+            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
+            return true;
+        } else if (flowCnecs.values().stream()
+            .anyMatch(cnec -> cnec.getNetworkElement().getId().equals(networkElementId))) {
+            return true;
+        } else if (rangeActions.values().stream()
+            .flatMap(ra -> ra.getNetworkElements().stream())
+            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
+            return true;
+        } else if (networkActions.values().stream()
+            .flatMap(ra -> ra.getNetworkElements().stream())
+            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * This method add a network element to the crac internal set and returns a network element of this set.
      * If an element with the same data is already added, the element of the internal set will be returned,
@@ -235,6 +256,23 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             states.put(state.getId(), state);
             return state;
         }
+    }
+
+    private boolean isStateUsedWithinCrac(String stateId) {
+
+        if (flowCnecs.values().stream()
+            .anyMatch(cnec -> cnec.getState().getId().equals(stateId))) {
+            return true;
+        } else if (rangeActions.values().stream()
+            .flatMap(ra -> ra.getUsageRules().stream())
+            .anyMatch(ur -> ur instanceof OnState && ((OnState) ur).getState().getId().equals(stateId))) {
+            return true;
+        } else if (networkActions.values().stream()
+            .flatMap(ra -> ra.getUsageRules().stream())
+            .anyMatch(ur -> ur instanceof OnState && ((OnState) ur).getState().getId().equals(stateId))) {
+            return true;
+        }
+        return false;
     }
 
     @Deprecated
@@ -488,9 +526,28 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
 
     @Override
-    // TODO : should we keep this ?
     public void removeRangeAction(String id) {
+
+        RangeAction rangeActionToRemove = rangeActions.get(id);
+        if (Objects.isNull(rangeActionToRemove)) {
+            return;
+        }
+
+        Set<NetworkElement> associatedNetworkElements = rangeActionToRemove.getNetworkElements();
+        Set<State> associatedStates = rangeActionToRemove.getUsageRules().stream()
+            .filter(ur -> ur instanceof OnState)
+            .map(ur -> ((OnState) ur).getState())
+            .collect(Collectors.toSet());
+
         rangeActions.remove(id);
+
+        associatedNetworkElements.stream()
+            .filter(ne -> isNetworkElementUsedWithinCrac(ne.getId()))
+            .forEach(ne -> networkElements.remove(ne.getId()));
+
+        associatedStates.stream()
+            .filter(st -> isStateUsedWithinCrac(st.getId()))
+            .forEach(st -> states.remove(st.getId()));
     }
 
 
@@ -531,8 +588,27 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void removeNetworkAction(String id) {
-        //todo
+
+        NetworkAction networkActionToRemove = networkActions.get(id);
+        if (Objects.isNull(networkActionToRemove)) {
+            return;
+        }
+
+        Set<NetworkElement> associatedNetworkElements = networkActionToRemove.getNetworkElements();
+        Set<State> associatedStates = networkActionToRemove.getUsageRules().stream()
+            .filter(ur -> ur instanceof OnState)
+            .map(ur -> ((OnState) ur).getState())
+            .collect(Collectors.toSet());
+
         networkActions.remove(id);
+
+        associatedNetworkElements.stream()
+            .filter(ne -> isNetworkElementUsedWithinCrac(ne.getId()))
+            .forEach(ne -> networkElements.remove(ne.getId()));
+
+        associatedStates.stream()
+            .filter(st -> isStateUsedWithinCrac(st.getId()))
+            .forEach(st -> states.remove(st.getId()));
     }
 
     @Deprecated

@@ -56,11 +56,7 @@ public class TopologicalActionAdderImpl implements TopologicalActionAdder {
         assertAttributeNotNull(actionType, "TopologicalAction", "action type", "withActionType()");
 
         NetworkElement networkElement;
-        if (Objects.isNull(networkElementName)) {
-            networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId);
-        } else {
-            networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
-        }
+        networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
 
         TopologicalAction topologicalAction = new TopologicalActionImpl(networkElement, actionType);
         ownerAdder.addElementaryAction(topologicalAction);

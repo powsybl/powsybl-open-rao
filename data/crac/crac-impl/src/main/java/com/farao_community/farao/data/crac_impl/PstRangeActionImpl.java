@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.Range;
 import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -25,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("pst-range-action-impl")
 public final class PstRangeActionImpl extends AbstractRangeAction implements PstRangeAction {
 
     private List<TapRange> ranges;
@@ -125,13 +123,13 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
     }
 
     // Min value allowed by a range (from Crac)
-    protected double getMinValueWithRange(TapRange range, double prePerimeterValue) {
+    private double getMinValueWithRange(TapRange range, double prePerimeterValue) {
         int prePerimeterTapPosition = convertAngleToTap(prePerimeterValue);
         return Math.min(lowTapPositionRangeIntersection(prePerimeterTapPosition, range), highTapPositionRangeIntersection(prePerimeterTapPosition, range));
     }
 
     // Max value allowed by a range (from Crac)
-    protected double getMaxValueWithRange(TapRange range, double prePerimeterValue) {
+    private double getMaxValueWithRange(TapRange range, double prePerimeterValue) {
         int prePerimeterTapPosition = convertAngleToTap(prePerimeterValue);
         return Math.max(lowTapPositionRangeIntersection(prePerimeterTapPosition, range), highTapPositionRangeIntersection(prePerimeterTapPosition, range));
     }

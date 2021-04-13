@@ -53,13 +53,7 @@ public class InjectionSetpointAdderImpl implements InjectionSetpointAdder {
         assertAttributeNotNull(networkElementId, "InjectionSetPoint", "network element", "withNetworkElement()");
         assertAttributeNotNull(setpoint, "InjectionSetPoint", "setpoint", "withSetPoint()");
 
-        NetworkElement networkElement;
-        if (Objects.isNull(networkElementName)) {
-            networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId);
-        } else {
-            networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
-        }
-
+        NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
         InjectionSetpoint injectionSetpoint = new InjectionSetpointImpl(networkElement, setpoint);
         ownerAdder.addElementaryAction(injectionSetpoint);
         return ownerAdder;

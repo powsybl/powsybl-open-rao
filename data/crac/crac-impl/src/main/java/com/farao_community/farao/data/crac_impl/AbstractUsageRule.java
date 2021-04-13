@@ -9,19 +9,12 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Business object of a usage rule in the CRAC file
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = FreeToUseImpl.class, name = "free-to-use"),
-        @JsonSubTypes.Type(value = OnStateImpl.class, name = "on-state")
-    })
 public abstract class AbstractUsageRule implements UsageRule {
 
     protected UsageMethod usageMethod;

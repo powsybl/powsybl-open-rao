@@ -4,14 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
 import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +20,7 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class TopologicalActionAdderImplTest {
+public class InjectionSetpointAdderImplTest {
 
     private NetworkActionAdder networkActionAdder;
 
@@ -36,29 +35,29 @@ public class TopologicalActionAdderImplTest {
 
     @Test
     public void testOk() {
-        NetworkAction networkAction = networkActionAdder.newTopologicalAction()
-            .withNetworkElement("branchNetworkElementId")
-            .withActionType(ActionType.OPEN)
+        NetworkAction networkAction = networkActionAdder.newInjectionSetPoint()
+            .withNetworkElement("groupNetworkElementId")
+            .withSetpoint(100.)
             .add()
             .add();
 
-        TopologicalAction topologicalAction = (TopologicalAction) networkAction.getElementaryActions().iterator().next();
-        assertEquals("branchNetworkElementId", topologicalAction.getNetworkElement().getId());
-        assertEquals(ActionType.OPEN, topologicalAction.getActionType());
+        InjectionSetpoint injectionSetpoint = (InjectionSetpoint) networkAction.getElementaryActions().iterator().next();
+        assertEquals("groupNetworkElementId", injectionSetpoint.getNetworkElement().getId());
+        assertEquals(100., injectionSetpoint.getSetpoint(), 1e-3);
     }
 
     @Test (expected = FaraoException.class)
     public void testNoNetworkElement() {
-        networkActionAdder.newTopologicalAction()
-            .withActionType(ActionType.OPEN)
+        networkActionAdder.newInjectionSetPoint()
+            .withSetpoint(100.)
             .add()
             .add();
     }
 
     @Test (expected = FaraoException.class)
-    public void testNoActionType() {
-        networkActionAdder.newTopologicalAction()
-            .withNetworkElement("branchNetworkElementId")
+    public void testNoSetpoint() {
+        networkActionAdder.newInjectionSetPoint()
+            .withNetworkElement("groupNetworkElementId")
             .add()
             .add();
     }

@@ -16,15 +16,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RangeImpl implements Range {
+public abstract class AbstractRange implements Range {
 
     private RangeType rangeType;
 
     private Unit unit;
 
-    @JsonCreator
-    RangeImpl(@JsonProperty("rangeType") RangeType rangeType,
-              @JsonProperty("unit") Unit unit) {
+    AbstractRange(RangeType rangeType, Unit unit) {
         this.rangeType = rangeType;
         this.unit = unit;
     }

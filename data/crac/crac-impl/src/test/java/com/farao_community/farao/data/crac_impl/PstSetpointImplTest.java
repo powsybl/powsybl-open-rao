@@ -5,12 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
-import com.farao_community.farao.data.crac_impl.PstSetpointImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -22,12 +20,12 @@ import static org.junit.Assert.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstSetpointImplTest extends AbstractRemedialActionTest {
+public class PstSetpointImplTest {
 
     @Test
     public void basicMethods() {
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
-            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             12,
             STARTS_AT_ONE);
 
@@ -38,7 +36,7 @@ public class PstSetpointImplTest extends AbstractRemedialActionTest {
     @Test
     public void applyStartsAtOne1() {
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
-            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             12,
             STARTS_AT_ONE);
 
@@ -51,7 +49,7 @@ public class PstSetpointImplTest extends AbstractRemedialActionTest {
     @Test
     public void applyStartsAtOne2() {
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
-            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             12,
             STARTS_AT_ONE);
 
@@ -63,7 +61,7 @@ public class PstSetpointImplTest extends AbstractRemedialActionTest {
     @Test
     public void applyCenteredOnZero() {
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
-            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             -9,
             CENTERED_ON_ZERO);
 
@@ -76,7 +74,7 @@ public class PstSetpointImplTest extends AbstractRemedialActionTest {
     public void applyOutOfBoundStartsAtOne() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
-                new NetworkElement("BBE2AA1  BBE3AA1  1"),
+                new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
                 50,
                 STARTS_AT_ONE);
         try {
@@ -91,7 +89,7 @@ public class PstSetpointImplTest extends AbstractRemedialActionTest {
     public void applyOutOfBoundCenteredOnZero() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
-                new NetworkElement("BBE2AA1  BBE3AA1  1"),
+                new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
                 50,
                 CENTERED_ON_ZERO);
         try {
@@ -105,19 +103,19 @@ public class PstSetpointImplTest extends AbstractRemedialActionTest {
     @Test
     public void equals() {
         PstSetpoint pstSetpoint = new PstSetpointImpl(
-            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             -9,
             CENTERED_ON_ZERO);
         assertEquals(pstSetpoint, pstSetpoint);
 
         PstSetpoint samePstSetpoint = new PstSetpointImpl(
-            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             -9,
             CENTERED_ON_ZERO);
         assertEquals(samePstSetpoint, samePstSetpoint);
 
         PstSetpoint differentPstSetpoint = new PstSetpointImpl(
-            new NetworkElement("BBE2AA1  BBE3AA1  1"),
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
             -9,
             STARTS_AT_ONE);
         assertNotEquals(pstSetpoint, differentPstSetpoint);

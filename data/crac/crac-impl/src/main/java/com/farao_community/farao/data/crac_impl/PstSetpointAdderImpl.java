@@ -61,13 +61,7 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
         assertAttributeNotNull(setpoint, "PstSetPoint", "setpoint", "withSetPoint()");
         assertAttributeNotNull(rangeDefinition, "PstSetPoint", "range definition", "withTapConvention()");
 
-        NetworkElement networkElement;
-        if (Objects.isNull(networkElementName)) {
-            networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId);
-        } else {
-            networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
-        }
-
+        NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(networkElement, setpoint, rangeDefinition);
         ownerAdder.addElementaryAction(pstSetpoint);
         return ownerAdder;
