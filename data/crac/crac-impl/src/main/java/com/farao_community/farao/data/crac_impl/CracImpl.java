@@ -28,9 +28,7 @@ import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -47,7 +45,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, Contingency> contingencies = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
-    private final Map<String, PstRangeAction> pstRangeAction = new HashMap<>();
+    private final Map<String, PstRangeAction> pstRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
     private boolean isSynchronized = false;
     private DateTime networkDate = null;
@@ -457,7 +455,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<RemedialAction> getRemedialActions() {
         Set<RemedialAction> remedialActions = new HashSet<>();
-        remedialActions.addAll(pstRangeAction.values());
+        remedialActions.addAll(pstRangeActions.values());
         remedialActions.addAll(networkActions.values());
         return remedialActions;
     }
@@ -502,32 +500,32 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<PstRangeAction> getPstRangeActions() {
-        //Todo
-        return null;
+        return new HashSet<>(pstRangeActions.values());
     }
 
     @Override
     public PstRangeAction getPstRangeAction(String pstRangeActionId) {
-        //Todo
-        return null;
+        return pstRangeActions.get(pstRangeActionId);
     }
 
     @Override
     public Set<RangeAction> getRangeActions() {
-        return new HashSet<>(rangeActions.values());
+        // the only implementation of RangeAction is PstRangeActions
+        return new HashSet<>(pstRangeActions.values());
     }
-
 
     @Override
     public Set<RangeAction> getRangeActions(State state, UsageMethod usageMethod) {
-        return rangeActions.values().stream()
+        // the only implementation of RangeAction is PstRangeActions
+        return pstRangeActions.values().stream()
             .filter(rangeAction -> rangeAction.getUsageMethod(state).equals(usageMethod))
             .collect(Collectors.toSet());
     }
 
     @Override
     public RangeAction getRangeAction(String id) {
-        return rangeActions.get(id);
+        // the only implementation of RangeAction is PstRangeActions
+        return pstRangeActions.get(id);
     }
 
 
@@ -562,7 +560,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public void addRangeAction(RangeAction rangeAction) {
         addStatesForRemedialAction(rangeAction); // TODO : remove this ?
         // TODO : verify ID is unique
-        rangeActions.put(rangeAction.getId(), rangeAction);
+        pstRangeActions.put(rangeAction.getId(), (PstRangeAction) rangeAction);
     }
 
     // endregion
