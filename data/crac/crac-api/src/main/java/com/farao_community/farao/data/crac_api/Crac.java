@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -42,11 +44,16 @@ import static java.lang.String.format;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface Crac extends Identifiable<Crac>, Synchronizable {
 
+    @Deprecated
+    //todo: delete
+    // use crac creation context instead
     DateTime getNetworkDate();
 
+    @Deprecated
     Set<NetworkElement> getNetworkElements();
 
-    NetworkElement getNetworkElement(String netorkElementId);
+    @Deprecated
+    NetworkElement getNetworkElement(String networkElementId);
 
     // Contingencies management
     /**
@@ -63,13 +70,13 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      */
     Set<Contingency> getContingencies();
 
+    //todo : javadoc
     Contingency getContingency(String id);
 
-    @Deprecated
-    // TODO : should we keep this ?
     void removeContingency(String id);
 
     @Deprecated
+    //todo: delete it
     void addContingency(Contingency contingency);
 
     // States management
@@ -120,9 +127,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      */
     State getState(Contingency contingency, Instant instant);
 
-    @Deprecated
-    void removeState(String stateId);
-
     /**
      * Unordered set of States defined at the same instant. It will be either the preventive state or
      * the set of all the states defined at the same instant after all the contingencies. It is a set
@@ -169,41 +173,31 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
         return getState(getContingency(contingencyId), instant);
     }
 
-    // Cnecs management
+    void removeState(String stateId);
 
+    // Cnecs management
     /**
      * Get a {@code Cnec} adder, to add a cnec to the Crac
      * @return a {@code CnecAdder} instance
      */
     FlowCnecAdder newFlowCnec();
 
+    //todo : javadoc
     Set<Cnec> getCnecs();
 
+    //todo : javadoc
+    Set<Cnec> getCnecs(State state);
+
+    //todo : javadoc
     Cnec getCnec(String cnecId);
 
-    /**
-     * Gather all the Cnecs present in the Crac. It returns a set because Cnecs
-     * must not be duplicated and there is no defined order for Cnecs.
-     *
-     *
-     * @return A set of Cnecs.
-     */
-    @Deprecated
-    // Use getCnecs() or getFlowCnecs() instead
-    Set<BranchCnec> getBranchCnecs();
-
-    /**
-     * Find a Cnec by its id
-     *
-     * @param branchCnecId : the Cnec identifier.
-     * @return The Cnec with the id given in argument. Or null if it does not exist.
-     */
-    @Deprecated
-    // Use getCnec() or getFlowCnec() instead
-    BranchCnec getBranchCnec(String branchCnecId);
-
+    //todo: javadoc
     Set<FlowCnec> getFlowCnecs();
 
+    //todo: javadoc
+    Set<FlowCnec> getFlowCnecs(State state);
+
+    //todo: javadoc
     FlowCnec getFlowCnec(String flowCnecId);
 
     /**
@@ -211,8 +205,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      *
      * @param cnecId: the Cnec identifier.
      */
-    @Deprecated
-    // TODO : should we keep this ?
     void removeCnec(String cnecId);
 
     /**
@@ -222,6 +214,9 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @param state : The state on which we want to select Cnecs.
      * @return A set of Cnecs.
      */
+    @Deprecated
+    //todo: keep deprecated (might be usefull when we will have other BranchCnec than FlowCnec)
+    // Use getCnec() or getFlowCnec() instead
     Set<BranchCnec> getBranchCnecs(State state);
 
     default Set<BranchCnec> getBranchCnecs(String contingencyId, Instant instant) {
@@ -232,15 +227,56 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
         }
     }
 
+    /**
+     * Gather all the Cnecs present in the Crac. It returns a set because Cnecs
+     * must not be duplicated and there is no defined order for Cnecs.
+     *
+     *
+     * @return A set of Cnecs.
+     */
     @Deprecated
+    //todo: keep deprecated (might be usefull when we will have other BranchCnec than FlowCnec)
+    // Use getCnecs() or getFlowCnecs() instead
+    Set<BranchCnec> getBranchCnecs();
+
+    /**
+     * Find a Cnec by its id
+     *
+     * @param branchCnecId : the Cnec identifier.
+     * @return The Cnec with the id given in argument. Or null if it does not exist.
+     */
+    @Deprecated
+    //todo: keep deprecated (might be usefull when we will have other BranchCnec than FlowCnec)
+    // Use getCnec() or getFlowCnec() instead
+    BranchCnec getBranchCnec(String branchCnecId);
+
+
+    @Deprecated
+    //todo: delete
+    // Use newFlowCnec() instead
     void addCnec(Cnec<?> cnec);
+
+    // Remedial actions management
+
+    //todo : javadoc
+    Set<RemedialAction> getRemedialActions();
+
+    //todo : javadoc
+    RemedialAction getRemedialAction(String remedialActionId);
+
 
     // Range actions management
     /**
-     * Get a PstRangeAction adder, to add a {@code TapRange}
+     * Get a PstRangeAction adder, to add a {@code PstRangeAction}
      * @return a {@code PstRangeActionAdder} instance
      */
     PstRangeActionAdder newPstRangeAction();
+
+    //todo: javadoc
+    Set<PstRangeAction> getPstRangeActions();
+
+    //todo: javadocc
+    PstRangeAction getPstRangeAction(String pstRangeActionId);
 
     /**
      * Gather all the range actions present in the Crac. It returns a set because range
@@ -255,13 +291,11 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * unavailable). A network is required to determine the usage method. It returns a set because range
      * actions must not be duplicated and there is no defined order for range actions.
      *
-     * @param network: Network on which the usage method of range actions has to be evaluated.
      * @param state: Specific state on which range actions can be selected.
      * @param usageMethod: Specific usage method to select range actions.
      * @return A set of range actions.
      */
-    // TODO : remove Network from this
-    Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod);
+    Set<RangeAction> getRangeActions(State state, UsageMethod usageMethod);
 
     /**
      * @param id: id of the RangeAction to get
@@ -272,11 +306,13 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     /**
      * @param id: id of the RangeAction to remove
      */
-    @Deprecated
-    // TODO : should we keep this ?
     void removeRangeAction(String id);
 
     // Network actions management
+
+    //todo : javadoc
+    NetworkActionAdder newNetworkAction();
+
     /**
      * Gather all the network actions present in the Crac. It returns a set because network
      * actions must not be duplicated and there is no defined order for network actions.
@@ -295,7 +331,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * @param usageMethod: Specific usage method to select network actions.
      * @return A set of network actions.
      */
-    Set<NetworkAction> getNetworkActions(Network network, State state, UsageMethod usageMethod);
+    Set<NetworkAction> getNetworkActions(State state, UsageMethod usageMethod);
 
     /**
      * @param id: id of the NetworkAction to get
@@ -303,17 +339,9 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      */
     NetworkAction getNetworkAction(String id);
 
-    NetworkActionAdder newNetworkAction();
-
     /**
      * @param id: id of the NetworkAction to remove
      */
-    @Deprecated
-    // TODO : should we keep this ?
     void removeNetworkAction(String id);
 
-
-    //todo add PstRangeAction
-
-    //todo add getRemedialActions
 }

@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
@@ -38,7 +39,6 @@ import static java.lang.String.format;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("simple-crac")
 public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
@@ -61,30 +61,35 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    @Deprecated
+    //todo: delete
     public DateTime getNetworkDate() {
         return networkDate;
     }
 
+    @Deprecated
+    //todo: delete
     public void setNetworkDate(DateTime networkDate) {
         this.networkDate = networkDate;
     }
 
+
+    // ========================================
+    // region NetworkElements management
+    // ========================================
+
     @Override
+    @Deprecated
+    //todo: delete
     public final Set<NetworkElement> getNetworkElements() {
         return new HashSet<>(networkElements.values());
     }
 
-    // TODO : convert to private package
+    @Override
     @Deprecated
-    public NetworkElement addNetworkElement(String networkElementId) {
-        return addNetworkElement(networkElementId, networkElementId);
-    }
-
-    // TODO : convert to private package
-    @Deprecated
-    public Crac addNetworkElement(NetworkElement networkElement) {
-        addNetworkElement(networkElement.getId(), networkElement.getName());
-        return this;
+    //todo: delete
+    public final NetworkElement getNetworkElement(String id) {
+        return networkElements.getOrDefault(id, null);
     }
 
     /**
@@ -100,6 +105,9 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     // TODO : convert to private package
     @Deprecated
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
+        if (networkElementName == null) {
+            networkElementName = networkElementId;
+        }
         NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
         if (cracNetworkElement == null) {
             cracNetworkElement = new NetworkElementImpl(networkElementId, networkElementName);
@@ -110,9 +118,27 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return cracNetworkElement;
     }
 
+    // TODO : delete method
+    @Deprecated
+    public NetworkElement addNetworkElement(String networkElementId) {
+        return addNetworkElement(networkElementId, networkElementId);
+    }
+
+    //todo: delete method
+    @Deprecated
+    public Crac addNetworkElement(NetworkElement networkElement) {
+        addNetworkElement(networkElement.getId(), networkElement.getName());
+        return this;
+    }
+
+    //endregion
+    // ========================================
+    // region Contingencies management
+    // ========================================
+
     @Override
-    public final NetworkElement getNetworkElement(String id) {
-        return networkElements.getOrDefault(id, null);
+    public ContingencyAdder newContingency() {
+        return new ContingencyAdderImpl(this);
     }
 
     @Override
@@ -127,12 +153,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void removeContingency(String id) {
+        //todo : smartest implementation
         contingencies.remove(id);
-    }
-
-    @Override
-    public ContingencyAdder newContingency() {
-        return new ContingencyAdderImpl(this);
     }
 
     @Override
@@ -142,13 +164,14 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         contingencies.put(contingency.getId(), contingency);
     }
 
+    //endregion
+    // ========================================
+    // region States management
+    // ========================================
+
+    @Override
     public final Set<State> getStates() {
         return new HashSet<>(states.values());
-    }
-
-    @Deprecated
-    private final State getState(String id) {
-        return states.get(id);
     }
 
     @Override
@@ -184,6 +207,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     @Deprecated
+    //todo: delete
     public void removeState(String id) {
         states.remove(id);
     }
@@ -215,8 +239,10 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         }
     }
 
+    @Deprecated
+    //todo : delete with addCnec and addRemedialAction (only used there)
     private State addState(PostContingencyState postContingencyState) {
-        if (getState(postContingencyState.getId()) == null) {
+        if (states.get(postContingencyState.getId()) == null) {
             Optional<Contingency> optContingency = postContingencyState.getContingency();
             if (optContingency.isPresent()) {
                 Contingency contingency = optContingency.get();
@@ -229,10 +255,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
                 throw new FaraoException("Post contingency state should always have a contingency.");
             }
         } else {
-            return getState(postContingencyState.getId());
+            return states.get(postContingencyState.getId());
         }
     }
 
+    @Deprecated
+    //todo : delete with addCnec and addRemedialAction (only used there)
     private State addState(State state) {
         if (state instanceof PreventiveState) {
             return addPreventiveState();
@@ -242,6 +270,11 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
             throw new FaraoException(format("Type %s of state is not handled by simple crac.", state.getClass()));
         }
     }
+
+    //endregion
+    // ========================================
+    // region Cnec management
+    // ========================================
 
     @Override
     public FlowCnecAdder newFlowCnec() {
@@ -254,16 +287,26 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public Set<Cnec> getCnecs(State state) {
+        //todo
+        return null;
+    }
+
+    @Override
     public Cnec getCnec(String cnecId) {
         return flowCnecs.get(cnecId);
     }
 
     @Override
+    @Deprecated
+    //keep method
     public BranchCnec getBranchCnec(String id) {
         return flowCnecs.get(id);
     }
 
     @Override
+    @Deprecated
+    //keep method
     public Set<BranchCnec> getBranchCnecs() {
         return new HashSet<>(flowCnecs.values());
     }
@@ -273,13 +316,19 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         return flowCnecs.get(flowCnecId);
     }
 
-    @JsonSerialize(contentUsing = FlowCnecImplSerializer.class)
     @Override
     public Set<FlowCnec> getFlowCnecs() {
         return new HashSet<>(flowCnecs.values());
     }
 
     @Override
+    public Set<FlowCnec> getFlowCnecs(State state) {
+        //todo
+        return null;
+    }
+
+    @Override
+    @Deprecated
     public Set<BranchCnec> getBranchCnecs(State state) {
         return flowCnecs.values().stream()
             .filter(cnec -> cnec.getState().equals(state))
@@ -288,10 +337,12 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void removeCnec(String cnecId) {
+        //todo : smarter implementation
         flowCnecs.remove(cnecId);
     }
 
     @Deprecated
+    //todo : delete
     public FlowCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant, double frm, boolean optimized, boolean monitored) {
         if (getNetworkElement(networkElementId) == null) {
             throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, networkElementId));
@@ -306,16 +357,19 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Deprecated
+    //todo : delete
     public FlowCnec addCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant, double frm) {
         return addCnec(id, name, networkElementId, operator, branchThresholds, contingency, instant, frm, true, false);
     }
 
     @Deprecated
+    //todo : delete
     public FlowCnec addCnec(String id, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, Contingency contingency, Instant instant) {
         return addCnec(id, id, networkElementId, operator, branchThresholds, contingency, instant, 0);
     }
 
     @Deprecated
+    //todo : delete
     public FlowCnec addPreventiveCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, double frm, boolean optimized, boolean monitored) {
         if (getNetworkElement(networkElementId) == null) {
             throw new FaraoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, networkElementId));
@@ -327,11 +381,13 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Deprecated
+    //todo : delete
     public BranchCnec addPreventiveCnec(String id, String name, String networkElementId, String operator, Set<BranchThreshold> branchThresholds, double frm) {
         return addPreventiveCnec(id, name, networkElementId, operator, branchThresholds, frm, true, false);
     }
 
     @Deprecated
+    //todo : delete
     public BranchCnec addPreventiveCnec(String id, String networkElementId, String operator, Set<BranchThreshold> branchThresholds) {
         return addPreventiveCnec(id, id, networkElementId, operator, branchThresholds, 0);
     }
@@ -342,6 +398,7 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
 
     @Deprecated
     @Override
+    //todo : delete
     public void addCnec(Cnec<?> cnec) {
         // add cnec
         if (cnec instanceof FlowCnec) {
@@ -358,21 +415,23 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         }
     }
 
+    // endregion
+    // ========================================
+    // region RemedialActions management
+    // ========================================
+
     @Override
-    public PstRangeActionAdder newPstRangeAction() {
-        return new PstRangeActionAdderImpl(this);
+    public Set<RemedialAction> getRemedialActions() {
+        return null;
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
-        return new HashSet<>(rangeActions.values());
+    public RemedialAction getRemedialAction(String remedialActionId) {
+        return null;
     }
 
-    @Override
-    public Set<NetworkAction> getNetworkActions() {
-        return new HashSet<>(networkActions.values());
-    }
-
+    @Deprecated
+    //todo : delete with addNetworkAction and addPstRangeAction
     private void addStatesForRemedialAction(RemedialAction<?> remedialAction) {
         remedialAction.getNetworkElements().forEach(this::addNetworkElement);
         remedialAction.getUsageRules().forEach(usageRule -> {
@@ -389,13 +448,53 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         });
     }
 
-    @Deprecated
-    // TODO : convert to private package
-    public void addNetworkAction(NetworkAction networkAction) {
-        addStatesForRemedialAction(networkAction); // TODO : remove this ?
-        // TODO : verify ID is unique
-        networkActions.put(networkAction.getId(), networkAction);
+    // endregion
+    // ========================================
+    // region RangeAction management
+    // ========================================
+
+    @Override
+    public PstRangeActionAdder newPstRangeAction() {
+        return new PstRangeActionAdderImpl(this);
     }
+
+    @Override
+    public Set<PstRangeAction> getPstRangeActions() {
+        //Todo
+        return null;
+    }
+
+    @Override
+    public PstRangeAction getPstRangeAction(String pstRangeActionId) {
+        //Todo
+        return null;
+    }
+
+    @Override
+    public Set<RangeAction> getRangeActions() {
+        return new HashSet<>(rangeActions.values());
+    }
+
+
+    @Override
+    public Set<RangeAction> getRangeActions(State state, UsageMethod usageMethod) {
+        return rangeActions.values().stream()
+            .filter(rangeAction -> rangeAction.getUsageMethod(state).equals(usageMethod))
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public RangeAction getRangeAction(String id) {
+        return rangeActions.get(id);
+    }
+
+
+    @Override
+    // TODO : should we keep this ?
+    public void removeRangeAction(String id) {
+        rangeActions.remove(id);
+    }
+
 
     @Deprecated
     // TODO : convert to private package
@@ -405,10 +504,20 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         rangeActions.put(rangeAction.getId(), rangeAction);
     }
 
+    // endregion
+    // ========================================
+    // region NetworkAction management
+    // ========================================
+
     @Override
-    public Set<NetworkAction> getNetworkActions(Network network, State state, UsageMethod usageMethod) {
+    public Set<NetworkAction> getNetworkActions() {
+        return new HashSet<>(networkActions.values());
+    }
+
+    @Override
+    public Set<NetworkAction> getNetworkActions(State state, UsageMethod usageMethod) {
         return networkActions.values().stream()
-            .filter(networkAction -> networkAction.getUsageMethod(network, state).equals(usageMethod))
+            .filter(networkAction -> networkAction.getUsageMethod(state).equals(usageMethod))
             .collect(Collectors.toSet());
     }
 
@@ -423,30 +532,21 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    @Deprecated
-    // TODO : should we keep this ?
     public void removeNetworkAction(String id) {
+        //todo
         networkActions.remove(id);
     }
 
-    @Override
-    public Set<RangeAction> getRangeActions(Network network, State state, UsageMethod usageMethod) {
-        return rangeActions.values().stream()
-            .filter(rangeAction -> rangeAction.getUsageMethod(network, state).equals(usageMethod))
-            .collect(Collectors.toSet());
-    }
-
-    @Override
-    public RangeAction getRangeAction(String id) {
-        return rangeActions.get(id);
-    }
-
-    @Override
     @Deprecated
-    // TODO : should we keep this ?
-    public void removeRangeAction(String id) {
-        rangeActions.remove(id);
+    // TODO : convert to private package
+    public void addNetworkAction(NetworkAction networkAction) {
+        addStatesForRemedialAction(networkAction); // TODO : remove this ?
+        // TODO : verify ID is unique
+        networkActions.put(networkAction.getId(), networkAction);
     }
+
+    // endregion
+
 
     @Override
     public void synchronize(Network network) {
@@ -459,6 +559,8 @@ public class SimpleCrac extends AbstractIdentifiable<Crac> implements Crac {
         networkDate = network.getCaseDate();
         isSynchronized = true;
     }
+
+
 
     @Override
     public void desynchronize() {

@@ -30,7 +30,7 @@ import static org.mockito.Mockito.spy;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PstRangeActionImplTest extends AbstractRangeActionTest {
+public class PstRangeActionImplTest {
     private String networkElementId;
     private Network network;
     private PhaseTapChanger phaseTapChanger;
@@ -41,7 +41,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         networkElementId = "BBE2AA1  BBE3AA1  1";
-        networkElement = new NetworkElement(networkElementId);
+        networkElement = new NetworkElementImpl(networkElementId);
         phaseTapChanger = network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger();
         freeToUse = new FreeToUseImpl(UsageMethod.AVAILABLE, Instant.PREVENTIVE);
     }
@@ -92,7 +92,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
 
     @Test
     public void applyOnUnknownPst() {
-        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), new NetworkElement("unknown PST"), "groupId");
+        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), new NetworkElementImpl("unknown PST"), "groupId");
         try {
             pstRangeAction.apply(network, 50);
             fail();
@@ -118,7 +118,7 @@ public class PstRangeActionImplTest extends AbstractRangeActionTest {
 
     @Test
     public void pstWithoutSpecificRange() {
-        PstRangeActionImpl pstRangeActionWithoutSpecificRange = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), new NetworkElement("unknown PST"), "groupId");
+        PstRangeActionImpl pstRangeActionWithoutSpecificRange = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), new NetworkElementImpl("unknown PST"), "groupId");
         pstRangeActionWithoutSpecificRange.synchronize(network);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition()).getAlpha(), pstRangeActionWithoutSpecificRange.getMinValue(pstRangeActionWithoutSpecificRange.getCurrentValue(network)), 0);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getHighTapPosition()).getAlpha(), pstRangeActionWithoutSpecificRange.getMaxValue(pstRangeActionWithoutSpecificRange.getCurrentValue(network)), 0);

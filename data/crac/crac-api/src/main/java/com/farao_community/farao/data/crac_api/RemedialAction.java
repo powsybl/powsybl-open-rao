@@ -31,10 +31,11 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
 
     String getOperator();
 
-    UsageMethod getUsageMethod(Network network, State state);
+    UsageMethod getUsageMethod(State state);
 
     List<UsageRule> getUsageRules();
 
+    @Deprecated
     void addUsageRule(UsageRule usageRule);
 
     /**

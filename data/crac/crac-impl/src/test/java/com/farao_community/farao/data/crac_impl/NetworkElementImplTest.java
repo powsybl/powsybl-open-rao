@@ -5,9 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_api;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -23,11 +24,11 @@ import static org.junit.Assert.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 
-public class NetworkElementTest {
+public class NetworkElementImplTest {
 
     @Test
     public void testConstructorElementTest() {
-        NetworkElement networkElement = new NetworkElement("basicElemId", "basicElemName");
+        NetworkElement networkElement = new NetworkElementImpl("basicElemId", "basicElemName");
         assertEquals("basicElemId", networkElement.getId());
         assertEquals("basicElemName", networkElement.getName());
         assertEquals("basicElemId", networkElement.toString());
@@ -35,31 +36,31 @@ public class NetworkElementTest {
 
     @Test
     public void testDifferent() {
-        NetworkElement networkElement1 = new NetworkElement("network-element-1", "name-1");
-        NetworkElement networkElement2 = new NetworkElement("network-element-2", "name-2");
+        NetworkElement networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
+        NetworkElement networkElement2 = new NetworkElementImpl("network-element-2", "name-2");
 
         assertNotEquals(networkElement1, networkElement2);
     }
 
     @Test
     public void testEqualWithDifferentNames() {
-        NetworkElement networkElement1 = new NetworkElement("network-element-1", "name-1");
-        NetworkElement networkElement2 = new NetworkElement("network-element-1", "name-2");
+        NetworkElement networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
+        NetworkElement networkElement2 = new NetworkElementImpl("network-element-1", "name-2");
 
         assertEquals(networkElement1, networkElement2);
     }
 
     @Test
     public void testEqualWithSameNames() {
-        NetworkElement networkElement1 = new NetworkElement("network-element-1", "name-1");
-        NetworkElement networkElement2 = new NetworkElement("network-element-1", "name-1");
+        NetworkElement networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
+        NetworkElement networkElement2 = new NetworkElementImpl("network-element-1", "name-1");
 
         assertEquals(networkElement1, networkElement2);
     }
 
     @Test
     public void testSimpleConstructor() {
-        NetworkElement networkElement = new NetworkElement("network-element");
+        NetworkElement networkElement = new NetworkElementImpl("network-element");
 
         assertEquals("network-element", networkElement.getId());
         assertEquals("network-element", networkElement.getName());
@@ -67,7 +68,7 @@ public class NetworkElementTest {
 
     @Test
     public void testHashCode() {
-        NetworkElement networkElement = new NetworkElement("network-element");
+        NetworkElement networkElement = new NetworkElementImpl("network-element");
 
         assertEquals("network-element".hashCode(), networkElement.getId().hashCode());
     }
@@ -79,43 +80,43 @@ public class NetworkElementTest {
         Set<Optional<Country>> countries;
 
         // Branch
-        countries = new NetworkElement("FFR2AA1  DDE3AA1  1").getLocation(network);
+        countries = new NetworkElementImpl("FFR2AA1  DDE3AA1  1").getLocation(network);
         assertEquals(2, countries.size());
         assertTrue(countries.contains(Optional.of(Country.FR)));
         assertTrue(countries.contains(Optional.of(Country.DE)));
 
         // Branch
-        countries = new NetworkElement("BBE2AA1  BBE3AA1  1").getLocation(network);
+        countries = new NetworkElementImpl("BBE2AA1  BBE3AA1  1").getLocation(network);
         assertEquals(1, countries.size());
         assertTrue(countries.contains(Optional.of(Country.BE)));
 
         // Switch
-        countries = new NetworkElement("NNL3AA11 NNL3AA12 1").getLocation(network);
+        countries = new NetworkElementImpl("NNL3AA11 NNL3AA12 1").getLocation(network);
         assertEquals(1, countries.size());
         assertTrue(countries.contains(Optional.of(Country.NL)));
 
         // Generator
-        countries = new NetworkElement("FFR1AA1 _generator").getLocation(network);
+        countries = new NetworkElementImpl("FFR1AA1 _generator").getLocation(network);
         assertEquals(1, countries.size());
         assertTrue(countries.contains(Optional.of(Country.FR)));
 
         // Load
-        countries = new NetworkElement("NNL1AA1 _load").getLocation(network);
+        countries = new NetworkElementImpl("NNL1AA1 _load").getLocation(network);
         assertEquals(1, countries.size());
         assertTrue(countries.contains(Optional.of(Country.NL)));
 
         // Bus
-        countries = new NetworkElement("NNL2AA1 ").getLocation(network);
+        countries = new NetworkElementImpl("NNL2AA1 ").getLocation(network);
         assertEquals(1, countries.size());
         assertTrue(countries.contains(Optional.of(Country.NL)));
 
         // Voltage level
-        countries = new NetworkElement("BBE1AA1").getLocation(network);
+        countries = new NetworkElementImpl("BBE1AA1").getLocation(network);
         assertEquals(1, countries.size());
         assertTrue(countries.contains(Optional.of(Country.BE)));
 
         // Substation
-        countries = new NetworkElement("DDE3AA").getLocation(network);
+        countries = new NetworkElementImpl("DDE3AA").getLocation(network);
         assertEquals(1, countries.size());
         assertTrue(countries.contains(Optional.of(Country.DE)));
     }
@@ -123,12 +124,12 @@ public class NetworkElementTest {
     @Test(expected = FaraoException.class)
     public void testGetLocationAbsent() {
         Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
-        new NetworkElement("non-existent").getLocation(network);
+        new NetworkElementImpl("non-existent").getLocation(network);
     }
 
     @Test(expected = NotImplementedException.class)
     public void testGetLocationOnUnsupportedType() {
         Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
-        new NetworkElement("TestCase12NodesWithSwitch").getLocation(network);
+        new NetworkElementImpl("TestCase12NodesWithSwitch").getLocation(network);
     }
 }

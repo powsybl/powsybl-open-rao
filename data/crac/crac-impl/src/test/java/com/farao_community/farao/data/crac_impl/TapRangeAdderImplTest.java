@@ -38,75 +38,63 @@ public class TapRangeAdderImplTest {
     @Test
     public void testOk() {
         PstRangeAction pstRangeAction = pstRangeActionAdder.newPstRange()
-            .withUnit(Unit.TAP)
             .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
-            .withMin(-5.)
-            .withMax(10.)
+            .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+            .withMinTap(-5)
+            .withMaxTap(10)
             .add()
             .add();
 
         assertEquals(1, pstRangeAction.getRanges().size());
-        assertTrue(pstRangeAction.getRanges().get(0) instanceof TapRange);
-        assertEquals(-5., pstRangeAction.getRanges().get(0).getMin(), 1e-3);
-        assertEquals(10., pstRangeAction.getRanges().get(0).getMax(), 1e-3);
+        assertEquals(-5, pstRangeAction.getRanges().get(0).getMinTap());
+        assertEquals(10, pstRangeAction.getRanges().get(0).getMaxTap());
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
         assertEquals(Unit.TAP, pstRangeAction.getRanges().get(0).getUnit());
-        assertEquals(TapConvention.CENTERED_ON_ZERO, ((TapRange) pstRangeAction.getRanges().get(0)).getTapConvention());
+        assertEquals(TapConvention.CENTERED_ON_ZERO, (pstRangeAction.getRanges().get(0)).getTapConvention());
+    }
+
+    @Test
+    public void testNoMin() {
+        PstRangeAction pstRangeAction = pstRangeActionAdder.newPstRange()
+            .withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK)
+            .withTapConvention(TapConvention.STARTS_AT_ONE)
+            .withMaxTap(16)
+            .add()
+            .add();
+
+        assertEquals(1, pstRangeAction.getRanges().size());
+        assertEquals(Integer.MIN_VALUE, pstRangeAction.getRanges().get(0).getMinTap());
+        assertEquals(16, pstRangeAction.getRanges().get(0).getMaxTap());
+        assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, pstRangeAction.getRanges().get(0).getRangeType());
+        assertEquals(Unit.TAP, pstRangeAction.getRanges().get(0).getUnit());
+        assertEquals(TapConvention.STARTS_AT_ONE, (pstRangeAction.getRanges().get(0)).getTapConvention());
     }
 
     @Test (expected = FaraoException.class)
     public void testNoRangeType() {
         pstRangeActionAdder.newPstRange()
-            .withUnit(Unit.TAP)
-            .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
-            .withMin(-5.)
-            .withMax(10.)
+            .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+            .withMinTap(-5)
+            .withMaxTap(10)
             .add();
     }
 
     @Test (expected = FaraoException.class)
-    public void testNoRangeDefinition() {
+    public void testNoTypeConvention() {
         pstRangeActionAdder.newPstRange()
-            .withUnit(Unit.TAP)
             .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
-            .withMin(-5.)
-            .withMax(10.)
-            .add();
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testNoUnit() {
-        pstRangeActionAdder.newPstRange()
-            .withUnit(Unit.TAP)
-            .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
-            .withMin(-5.)
-            .withMax(10.)
+            .withMinTap(-5)
+            .withMaxTap(10)
             .add();
     }
 
     @Test (expected = FaraoException.class)
     public void testMinGreaterThanMax() {
         pstRangeActionAdder.newPstRange()
-            .withUnit(Unit.TAP)
             .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
-            .withMin(-5.)
-            .withMax(10.)
-            .add();
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testNonIntegerTaps() {
-        pstRangeActionAdder.newPstRange()
-            .withUnit(Unit.TAP)
-            .withRangeType(RangeType.ABSOLUTE)
-            .withRangeDefinition(TapConvention.CENTERED_ON_ZERO)
-            .withMin(-5.)
-            .withMax(10.)
+            .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+            .withMinTap(5)
+            .withMaxTap(-10)
             .add();
     }
 }
