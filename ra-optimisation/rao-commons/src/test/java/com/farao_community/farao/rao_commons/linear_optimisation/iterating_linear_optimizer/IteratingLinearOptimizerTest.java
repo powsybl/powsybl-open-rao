@@ -8,9 +8,13 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
+import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
+import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -199,6 +203,54 @@ public class IteratingLinearOptimizerTest {
         assertEquals(LinearProblem.SolveStatus.INFEASIBLE, iteratingLinearOptimizerOutput.getSolveStatus());
         assertEquals(100., iteratingLinearOptimizerOutput.getCost(), DOUBLE_TOLERANCE);
         assertEquals(0., iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testRemoveRangeActionsIfMaxNumberReached() {
+        PstRangeActionImpl rangeActionToRemove = new PstRangeActionImpl("PRA_PST_BE_2", "PRA_PST_BE_2", "BE", new NetworkElement("BBE2AA1  BBE3AA1  1"));
+        rangeActionToRemove.addRange(new PstRangeImpl(5, 10, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
+        rangeActionToRemove.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        ((SimpleCrac) crac).addRangeAction(rangeActionToRemove);
+        Network network = iteratingLinearOptimizerInput.getNetwork();
+        crac.desynchronize();
+        crac.synchronize(network);
+
+        Map<String, Integer> maxPstPerTso = new HashMap<>();
+        maxPstPerTso.put("BE", 1);
+
+        BranchCnec mostLimitingCnec = crac.getBranchCnec("NNL1AA1  NNL2AA1  1");
+        SystematicSensitivityResult sensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        Mockito.when(sensitivityResult.getSensitivityOnFlow(crac.getRangeAction("PRA_PST_BE"), mostLimitingCnec)).thenReturn(5.);
+        Mockito.when(sensitivityResult.getSensitivityOnFlow(crac.getRangeAction("PRA_PST_BE_2"), mostLimitingCnec)).thenReturn(1.);
+
+        Set<RangeAction> rangeActions = crac.getRangeActions();
+        assertEquals(2, rangeActions.size());
+        IteratingLinearOptimizer.removeRangeActionsIfMaxNumberReached(rangeActions, maxPstPerTso, mostLimitingCnec, sensitivityResult);
+
+        assertEquals(1, rangeActions.size());
+        assertTrue(rangeActions.contains(crac.getRangeAction("PRA_PST_BE")));
+        assertFalse(rangeActions.contains(crac.getRangeAction("PRA_PST_BE_2")));
+    }
+
+    @Test
+    public void testRemoveRangeActionsWithWrongInitialSetpoint() {
+        PstRangeActionImpl rangeActionToRemove = new PstRangeActionImpl("PRA_PST_BE_2", "PRA_PST_BE_2", "BE", new NetworkElement("BBE2AA1  BBE3AA1  1"));
+        rangeActionToRemove.addRange(new PstRangeImpl(5, 10, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
+        rangeActionToRemove.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        ((SimpleCrac) crac).addRangeAction(rangeActionToRemove);
+        Network network = iteratingLinearOptimizerInput.getNetwork();
+        crac.desynchronize();
+        crac.synchronize(network);
+
+        Map<RangeAction, Double> initialSetpoints = new HashMap<>();
+        Set<RangeAction> rangeActions = crac.getRangeActions();
+        rangeActions.forEach(rangeAction -> initialSetpoints.put(rangeAction, 0.));
+        assertEquals(2, rangeActions.size());
+        IteratingLinearOptimizer.removeRangeActionsWithWrongInitialSetpoint(rangeActions, initialSetpoints, network);
+
+        assertEquals(1, rangeActions.size());
+        assertTrue(rangeActions.contains(crac.getRangeAction("PRA_PST_BE")));
+        assertFalse(rangeActions.contains(crac.getRangeAction("PRA_PST_BE_2")));
     }
 }
 

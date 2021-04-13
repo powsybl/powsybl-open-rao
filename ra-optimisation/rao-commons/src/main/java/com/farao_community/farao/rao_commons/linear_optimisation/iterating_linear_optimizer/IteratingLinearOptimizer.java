@@ -94,7 +94,9 @@ public final class IteratingLinearOptimizer {
     /**
      * If range action's initial setpoint does not respect its allowed range, this function filters it out
      */
-    private static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, Map<RangeAction, Double> initialSetpoints, Network network) {
+    static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, Map<RangeAction, Double> initialSetpoints, Network network) {
+        //a temp set is needed to avoid ConcurrentModificationExceptions when trying to remove a range action from a set we are looping on
+        Set<RangeAction> rangeActionsToRemove = new HashSet<>();
         for (RangeAction rangeAction : rangeActions) {
             double preperimeterSetPoint = initialSetpoints.get(rangeAction);
             double minSetPoint = rangeAction.getMinValue(network, preperimeterSetPoint);
@@ -102,16 +104,17 @@ public final class IteratingLinearOptimizer {
             if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
                 LOGGER.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
                     rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
-                rangeActions.remove(rangeAction);
+                rangeActionsToRemove.add(rangeAction);
             }
         }
+        rangeActionsToRemove.forEach(rangeActions::remove);
     }
 
     /**
      * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
      * the least impact on the most limiting element
      */
-    private static void removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActions, Map<String, Integer> maxPstPerTso, BranchCnec mostLimitingElement, SystematicSensitivityResult sensitivityResult) {
+    static void removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActions, Map<String, Integer> maxPstPerTso, BranchCnec mostLimitingElement, SystematicSensitivityResult sensitivityResult) {
         if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
             maxPstPerTso.forEach((tso, maxPst) -> {
                 Set<RangeAction> pstsForTso = rangeActions.stream()
@@ -127,7 +130,7 @@ public final class IteratingLinearOptimizer {
         }
     }
 
-    static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, SystematicSensitivityResult sensitivityResult) {
+    private static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, SystematicSensitivityResult sensitivityResult) {
         Double sensi1 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra1, cnec));
         Double sensi2 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra2, cnec));
         return sensi1.compareTo(sensi2);
