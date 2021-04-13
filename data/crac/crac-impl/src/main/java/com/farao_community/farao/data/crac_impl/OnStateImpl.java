@@ -31,7 +31,7 @@ public final class OnStateImpl extends AbstractUsageRule implements OnState {
 
     @Override
     public UsageMethod getUsageMethod(State state) {
-        return this.state.equals(state) ? usageMethod : UsageMethod.UNDEFINED;
+        return this.state.equals(state) ? usageMethod : UsageMethod.UNAVAILABLE;
     }
 
     @Override

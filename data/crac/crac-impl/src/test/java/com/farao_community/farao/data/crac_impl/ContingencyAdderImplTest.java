@@ -35,19 +35,11 @@ public class ContingencyAdderImplTest {
         Contingency con1 = crac.newContingency()
                 .withId("conId1")
                 .withName("conName1")
-                .newNetworkElement()
-                .withId("neId1")
-                .withName("neName1")
-                .add()
+                .withNetworkElement("neId1", "neName1")
                 .add();
         Contingency con2 = crac.newContingency()
-                .newNetworkElement()
-                .withId("neId2-1")
-                .add()
-                .newNetworkElement()
-                .withId("neId2-2")
-                .withName("neName2-2")
-                .add()
+                .withNetworkElement("neId2-1")
+                .withNetworkElement("neId2-2", "neName2-2")
                 .withId("conId2")
                 .add();
         assertEquals(2, crac.getContingencies().size());
@@ -82,47 +74,13 @@ public class ContingencyAdderImplTest {
     public void testAddWithNoIdFail() {
         crac.newContingency()
                 .withName("conName1")
-                .newNetworkElement()
-                .withId("neId1")
-                .withName("neName1")
-                .add()
+                .withNetworkElement("neId1", "neName1")
                 .add();
     }
 
     @Test(expected = NullPointerException.class)
     public void testNullParentFail() {
         ContingencyAdderImpl tmp = new ContingencyAdderImpl(null);
-    }
-
-    @Test
-    public void testAddXnodeContingency() {
-        crac.newContingency().withId("cont").withName("cont-name").addXnode("xnode1").addXnode("xnode2").add();
-        assertEquals(1, crac.getContingencies().size());
-        assertNotNull(crac.getContingency("cont"));
-        assertTrue(crac.getContingency("cont") instanceof XnodeContingency);
-        XnodeContingency contingency = (XnodeContingency) crac.getContingency("cont");
-        assertEquals("cont", contingency.getId());
-        assertEquals("cont-name", contingency.getName());
-        assertFalse(contingency.isSynchronized());
-        assertEquals(2, contingency.getXnodeIds().size());
-        assertTrue(contingency.getXnodeIds().contains("xnode1"));
-        assertTrue(contingency.getXnodeIds().contains("xnode2"));
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testAddXnodeToNetworkElementsError() {
-        crac.newContingency().withId("cont")
-                .newNetworkElement().withId("neId1").add()
-                .addXnode("xnode1")
-                .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testAddNetworkElementToXnodesError() {
-        crac.newContingency().withId("cont")
-                .addXnode("xnode1")
-                .newNetworkElement().withId("neId1").add()
-                .add();
     }
 
     @Test

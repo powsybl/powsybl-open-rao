@@ -6,12 +6,10 @@
  */
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpointAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-
-import java.util.Objects;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 

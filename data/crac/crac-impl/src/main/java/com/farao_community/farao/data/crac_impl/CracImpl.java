@@ -101,7 +101,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         } else if (getRemedialActions().stream()
             .map(RemedialAction::getNetworkElements)
             .flatMap(Set::stream)
-            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
+            .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))) {
             return true;
         }
 
@@ -121,13 +121,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     // TODO : convert to private package
     @Deprecated
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
-        if (networkElementName == null) {
-            networkElementName = networkElementId;
-        }
+        String name = (networkElementName != null) ? networkElementName : networkElementId;
         NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
         if (cracNetworkElement == null) {
-            cracNetworkElement = new NetworkElementImpl(networkElementId, networkElementName);
-        } else if (!cracNetworkElement.getName().equals(networkElementName)) {
+            cracNetworkElement = new NetworkElementImpl(networkElementId, name);
+        } else if (!cracNetworkElement.getName().equals(name)) {
             throw new FaraoException(format(SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE, networkElementId));
         }
         networkElements.put(networkElementId, cracNetworkElement);
@@ -529,11 +527,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         removeNetworkAction(remedialActionId);
     }
 
-    private Set<State> getAssociatedStates (RemedialAction<?> remedialAction) {
+    private Set<State> getAssociatedStates(RemedialAction<?> remedialAction) {
         return remedialAction.getUsageRules().stream()
-            .filter(ur -> ur instanceof OnState)
-            .map(ur -> ((OnState) ur).getState())
-            .collect(Collectors.toSet());
+                .filter(ur -> ur instanceof OnState)
+                .map(ur -> ((OnState) ur).getState())
+                .collect(Collectors.toSet());
     }
 
     // endregion
@@ -663,7 +661,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     // endregion
-
 
     @Override
     public void synchronize(Network network) {

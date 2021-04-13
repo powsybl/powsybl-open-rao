@@ -19,10 +19,8 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
-import java.time.OffsetDateTime;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -251,7 +249,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     //todo: keep deprecated (might be usefull when we will have other BranchCnec than FlowCnec)
     // Use getCnec() or getFlowCnec() instead
     BranchCnec getBranchCnec(String branchCnecId);
-
 
     @Deprecated
     //todo: delete

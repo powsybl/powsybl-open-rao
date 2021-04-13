@@ -49,7 +49,7 @@ public final class FreeToUseImpl extends AbstractUsageRule implements FreeToUse 
 
     @Override
     public UsageMethod getUsageMethod(State state) {
-        return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
+        return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNAVAILABLE;
     }
 
     @Override

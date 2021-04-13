@@ -11,7 +11,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
-import com.farao_community.farao.data.crac_impl.TapRangeImpl;
 import org.junit.Before;
 import org.junit.Test;
 

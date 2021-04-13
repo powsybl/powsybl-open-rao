@@ -6,12 +6,10 @@
  */
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.network_action.PstSetpointAdder;
 import com.farao_community.farao.data.crac_api.TapConvention;
-
-import java.util.Objects;
+import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.network_action.PstSetpointAdder;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 

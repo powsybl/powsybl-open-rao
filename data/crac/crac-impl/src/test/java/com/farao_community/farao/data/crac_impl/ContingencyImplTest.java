@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
@@ -16,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,13 +38,13 @@ public class ContingencyImplTest {
     @Test
     public void testDifferentWithDifferentIds() {
         ContingencyImpl contingencyImpl1 = new ContingencyImpl(
-            "contingency-1",
-            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
+            "contingency-1", "contingency",
+            Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
         );
 
         ContingencyImpl contingencyImpl2 = new ContingencyImpl(
-            "contingency-2",
-            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
+            "contingency-2", "contingency",
+            Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
         );
 
         assertNotEquals(contingencyImpl1, contingencyImpl2);
@@ -53,13 +53,13 @@ public class ContingencyImplTest {
     @Test
     public void testDifferentWithDifferentObjects() {
         ContingencyImpl contingencyImpl1 = new ContingencyImpl(
-            "contingency-1",
-            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
+            "contingency-1", "contingency-1",
+            Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
         );
 
         ContingencyImpl contingencyImpl2 = new ContingencyImpl(
-            "contingency-1",
-            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-5")).collect(Collectors.toSet())
+            "contingency-1", "contingency-1",
+            Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-5")).collect(Collectors.toSet())
         );
 
         assertNotEquals(contingencyImpl1, contingencyImpl2);
@@ -68,13 +68,13 @@ public class ContingencyImplTest {
     @Test
     public void testEqual() {
         ContingencyImpl contingencyImpl1 = new ContingencyImpl(
-            "contingency-1",
-            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
+            "contingency-1", "contingency-1",
+            Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
         );
 
         ContingencyImpl contingencyImpl2 = new ContingencyImpl(
-            "contingency-1",
-            Stream.of(new NetworkElement("network-element-1"), new NetworkElement("network-element-2")).collect(Collectors.toSet())
+            "contingency-1", "contingency-1",
+            Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
         );
 
         assertEquals(contingencyImpl1, contingencyImpl2);
@@ -82,16 +82,14 @@ public class ContingencyImplTest {
 
     @Test(expected = FaraoException.class)
     public void testApplyFails() {
-        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency");
-        contingencyImpl.addNetworkElement(new NetworkElement("None"));
+        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("None")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
         contingencyImpl.apply(network, computationManager);
     }
 
     @Test
     public void testApplyOnBranch() {
-        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency");
-        contingencyImpl.addNetworkElement(new NetworkElement("FRANCE_BELGIUM_1"));
+        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("FRANCE_BELGIUM_1")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
         assertFalse(network.getBranch("FRANCE_BELGIUM_1").getTerminal1().connect());
         contingencyImpl.apply(network, computationManager);
@@ -100,8 +98,7 @@ public class ContingencyImplTest {
 
     @Test
     public void testApplyOnGenerator() {
-        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency");
-        contingencyImpl.addNetworkElement(new NetworkElement("GENERATOR_FR_2"));
+        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("GENERATOR_FR_2")));
         assertEquals(1, contingencyImpl.getNetworkElements().size());
         assertTrue(network.getGenerator("GENERATOR_FR_2").getTerminal().isConnected());
         contingencyImpl.apply(network, computationManager);
@@ -110,7 +107,7 @@ public class ContingencyImplTest {
 
     @Test
     public void testSynchronize() {
-        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency");
+        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.emptySet());
         assertTrue(contingencyImpl.isSynchronized());
         contingencyImpl.desynchronize();
         assertTrue(contingencyImpl.isSynchronized());
