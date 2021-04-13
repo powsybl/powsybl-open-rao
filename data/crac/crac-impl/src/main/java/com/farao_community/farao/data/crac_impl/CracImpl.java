@@ -28,7 +28,9 @@ import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -45,7 +47,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, Contingency> contingencies = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
-    private final Map<String, RangeAction> rangeActions = new HashMap<>();
+    private final Map<String, PstRangeAction> pstRangeAction = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
     private boolean isSynchronized = false;
     private DateTime networkDate = null;
@@ -92,22 +94,20 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
 
-        if (contingencies.values().stream()
+        if (getContingencies().stream()
             .flatMap(co -> co.getNetworkElements().stream())
             .anyMatch(ne -> ne.getId().equals(networkElementId))) {
             return true;
-        } else if (flowCnecs.values().stream()
+        } else if (getCnecs().stream()
             .anyMatch(cnec -> cnec.getNetworkElement().getId().equals(networkElementId))) {
             return true;
-        } else if (rangeActions.values().stream()
-            .flatMap(ra -> ra.getNetworkElements().stream())
-            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
-            return true;
-        } else if (networkActions.values().stream()
-            .flatMap(ra -> ra.getNetworkElements().stream())
+        } else if (getRemedialActions().stream()
+            .map(RemedialAction::getNetworkElements)
+            .flatMap(Set::stream)
             .anyMatch(ne -> ne.getId().equals(networkElementId))) {
             return true;
         }
+
         return false;
     }
 
@@ -260,18 +260,16 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     private boolean isStateUsedWithinCrac(String stateId) {
 
-        if (flowCnecs.values().stream()
+        if (getCnecs().stream()
             .anyMatch(cnec -> cnec.getState().getId().equals(stateId))) {
             return true;
-        } else if (rangeActions.values().stream()
-            .flatMap(ra -> ra.getUsageRules().stream())
-            .anyMatch(ur -> ur instanceof OnState && ((OnState) ur).getState().getId().equals(stateId))) {
-            return true;
-        } else if (networkActions.values().stream()
-            .flatMap(ra -> ra.getUsageRules().stream())
+        } else if (getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(List::stream)
             .anyMatch(ur -> ur instanceof OnState && ((OnState) ur).getState().getId().equals(stateId))) {
             return true;
         }
+
         return false;
     }
 
@@ -458,12 +456,20 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<RemedialAction> getRemedialActions() {
-        return null;
+        Set<RemedialAction> remedialActions = new HashSet<>();
+        remedialActions.addAll(pstRangeAction.values());
+        remedialActions.addAll(networkActions.values());
+        return remedialActions;
     }
 
     @Override
     public RemedialAction getRemedialAction(String remedialActionId) {
-        return null;
+        RemedialAction remedialAction = getNetworkAction(remedialActionId);
+        if (!Objects.isNull(remedialAction)) {
+            return remedialAction;
+        } else {
+            return getPstRangeAction(remedialActionId);
+        }
     }
 
     @Deprecated
