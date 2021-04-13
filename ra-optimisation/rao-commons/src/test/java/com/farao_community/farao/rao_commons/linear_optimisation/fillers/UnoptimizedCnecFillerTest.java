@@ -3,7 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- *//*
+ */
 
 
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
@@ -14,6 +14,8 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -27,20 +29,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.rao_api.RaoParameters.*;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
-*/
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- *//*
-
+ */
 @RunWith(PowerMockRunner.class)
 public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     private MaxMinMarginFiller maxMinMarginFiller;
-    private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
     BranchCnec cnecNl;
     BranchCnec cnecFr;
@@ -93,7 +92,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     @Test
     public void testCnecsNotToOptimizeBinaryVar() {
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnecNl, cnecFr), Set.of(rangeAction), MEGAWATT, DEFAULT_PST_PENALTY_COST);
+        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnecNl, cnecFr), Set.of(rangeAction), new MaxMinMarginParameters(MEGAWATT));
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), Set.of(cnecFr, cnecNl));
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
         unoptimizedCnecFiller.fill(sensitivityAndLoopflowResults);
@@ -127,7 +126,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     @Test
     public void testExcludeCnecsNotToOptimizeInMinMargin() {
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnecNl, cnecFr), Set.of(rangeAction), MEGAWATT, DEFAULT_PST_PENALTY_COST);
+        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnecNl, cnecFr), Set.of(rangeAction), new MaxMinMarginParameters(MEGAWATT));
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), Set.of(cnecFr, cnecNl));
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
         unoptimizedCnecFiller.fill(sensitivityAndLoopflowResults);
@@ -150,7 +149,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     @Test
     public void testCnecsNotToOptimizeBinaryVarRelative() {
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnecNl, cnecFr), Set.of(rangeAction), MEGAWATT, DEFAULT_PST_PENALTY_COST);
+        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnecNl, cnecFr), Set.of(rangeAction), new MaxMinMarginParameters(MEGAWATT));
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), Set.of(cnecFr, cnecNl));
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
         unoptimizedCnecFiller.fill(sensitivityAndLoopflowResults);
@@ -184,14 +183,11 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     @Test
     public void testExcludeCnecsNotToOptimizeInMinMarginRelative() {
-        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
+        MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
             linearProblem,
             Map.of(cnecFr, 600., cnecNl, 400.),
             Collections.emptySet(),
-            MEGAWATT,
-            DEFAULT_PST_PENALTY_COST,
-            DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT,
-            DEFAULT_PTDF_SUM_LOWER_BOUND);
+            new MaxMinRelativeMarginParameters(MEGAWATT));
 
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), Set.of(cnecFr, cnecNl));
         maxMinRelativeMarginFiller.fill(sensitivityAndLoopflowResults);
@@ -215,4 +211,3 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         assertEquals(2 * maxAbsThreshold, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
     }
 }
-*/

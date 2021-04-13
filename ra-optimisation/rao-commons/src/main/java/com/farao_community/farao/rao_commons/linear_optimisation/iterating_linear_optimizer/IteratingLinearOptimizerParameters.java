@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.LoopFlowParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.MnecParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LoopFlowParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
 
 import java.util.Map;
 import java.util.Set;

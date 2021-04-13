@@ -8,7 +8,6 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Side;
@@ -16,6 +15,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -32,15 +32,16 @@ public class MaxMinMarginFiller implements ProblemFiller {
     protected final LinearProblem linearProblem;
     protected final Set<BranchCnec> optimizedCnecs;
     private final Set<RangeAction> rangeActions;
-    protected final Unit unit;
-    private final double pstPenaltyCost;
+    protected MaxMinMarginParameters parameters;
 
-    public MaxMinMarginFiller(LinearProblem linearProblem, Set<BranchCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, double pstPenaltyCost) {
+    public MaxMinMarginFiller(LinearProblem linearProblem,
+                              Set<BranchCnec> optimizedCnecs,
+                              Set<RangeAction> rangeActions,
+                              MaxMinMarginParameters parameters) {
         this.linearProblem = linearProblem;
         this.optimizedCnecs = optimizedCnecs;
         this.rangeActions = rangeActions;
-        this.unit = unit;
-        this.pstPenaltyCost = pstPenaltyCost;
+        this.parameters = parameters;
     }
 
     @Override
@@ -109,7 +110,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
             Optional<Double> maxFlow;
             minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
             maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            double unitConversionCoefficient = RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, unit, MEGAWATT);
+            double unitConversionCoefficient = RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, parameters.getUnit(), MEGAWATT);
             //TODO : check that using only Side.LEFT is sufficient
 
             if (minFlow.isPresent()) {
@@ -154,7 +155,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
             // If the PST has been filtered out, then absoluteVariationVariable is null
             if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, parameters.getPstPenaltyCost());
             }
         });
     }

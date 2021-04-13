@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- *//*
+ */
 
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -26,10 +27,10 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-*/
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- *//*
+ */
 
 @RunWith(PowerMockRunner.class)
 public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
@@ -53,10 +54,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             linearProblem,
             Map.of(cnec1, cnecInitialAbsolutePtdfSum),
             Set.of(rangeAction),
-            unit,
-            DEFAULT_PST_PENALTY_COST,
-            1000,
-            0.01);
+            new MaxMinRelativeMarginParameters(unit));
         maxMinRelativeMarginFiller.fill(sensitivityAndLoopflowResults);
     }
 
@@ -149,4 +147,3 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertEquals(7, linearProblem.getSolver().numConstraints());
     }
 }
-*/

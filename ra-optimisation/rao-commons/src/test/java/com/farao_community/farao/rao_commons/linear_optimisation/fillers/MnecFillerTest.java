@@ -3,7 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- *//*
+ */
 
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.MnecParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -29,11 +29,10 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-*/
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- *//*
-
+ */
 @RunWith(PowerMockRunner.class)
 public class MnecFillerTest extends AbstractFillerTest {
 
@@ -157,4 +156,3 @@ public class MnecFillerTest extends AbstractFillerTest {
         });
     }
 }
-*/

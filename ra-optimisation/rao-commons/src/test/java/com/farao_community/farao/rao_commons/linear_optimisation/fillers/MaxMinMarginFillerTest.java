@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -44,7 +45,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             Map.of(rangeAction, initialAlpha),
             RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD);
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), MEGAWATT, DEFAULT_PST_PENALTY_COST);
+        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), new MaxMinMarginParameters(MEGAWATT));
     }
 
     @Test
@@ -92,7 +93,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
     @Test
     public void fillWithMaxMinMarginInAmpere() {
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), AMPERE, DEFAULT_PST_PENALTY_COST);
+        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), new MaxMinMarginParameters(AMPERE));
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);

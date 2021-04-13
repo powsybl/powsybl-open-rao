@@ -15,6 +15,9 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPSolver;
 import org.slf4j.Logger;
@@ -75,8 +78,7 @@ public class LinearOptimizer {
                 linearProblem,
                 linearOptimizerInput.getCnecs().stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
                 linearOptimizerInput.getRangeActions(),
-                unit,
-                linearOptimizerParameters.getPstPenaltyCost()));
+                new MaxMinMarginParameters(unit, linearOptimizerParameters.getPstPenaltyCost())));
             fillers.add(new MnecFiller(
                 linearProblem,
                 linearOptimizerInput.getCnecs().stream()
@@ -95,10 +97,11 @@ public class LinearOptimizer {
                     .filter(Cnec::isOptimized)
                     .collect(Collectors.toMap(Function.identity(), linearOptimizerInput::getInitialAbsolutePtdfSum)),
                 linearOptimizerInput.getRangeActions(),
-                unit,
-                linearOptimizerParameters.getPstPenaltyCost(),
-                linearOptimizerParameters.getNegativeMarginObjectiveCoefficient(),
-                linearOptimizerParameters.getPtdfSumLowerBound()));
+                new MaxMinRelativeMarginParameters(
+                    unit,
+                    linearOptimizerParameters.getPstPenaltyCost(),
+                    linearOptimizerParameters.getNegativeMarginObjectiveCoefficient(),
+                    linearOptimizerParameters.getPtdfSumLowerBound())));
             fillers.add(new MnecFiller(
                 linearProblem,
                 linearOptimizerInput.getCnecs().stream()
