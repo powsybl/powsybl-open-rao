@@ -54,6 +54,18 @@ public class CoreProblemFiller implements ProblemFiller {
         this(linearProblem, network, cnecs, prePerimeterSetPointPerRangeAction, DEFAULT_PST_SENSITIVITY_THRESHOLD);
     }
 
+    final Set<BranchCnec> getCnecs() {
+        return cnecs;
+    }
+
+    final Map<RangeAction, Double> getPrePerimeterSetPointPerRangeAction() {
+        return prePerimeterSetPointPerRangeAction;
+    }
+
+    final double getPstSensitivityThreshold() {
+        return pstSensitivityThreshold;
+    }
+
     private Set<RangeAction> getRangeActions() {
         return prePerimeterSetPointPerRangeAction.keySet();
     }

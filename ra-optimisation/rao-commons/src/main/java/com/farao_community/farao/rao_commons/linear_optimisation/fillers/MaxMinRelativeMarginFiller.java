@@ -40,6 +40,14 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         this.relativeParameters = relativeParameters;
     }
 
+    final Map<BranchCnec, Double> getInitialAbsolutePtdfSumPerOptimizedCnec() {
+        return initialAbsolutePtdfSumPerOptimizedCnec;
+    }
+
+    final MaxMinRelativeMarginParameters getRelativeParameters() {
+        return relativeParameters;
+    }
+
     @Override
     public void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         super.fill(sensitivityAndLoopflowResults);

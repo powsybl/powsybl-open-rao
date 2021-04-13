@@ -36,6 +36,14 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this.loopFlowParameters = loopFlowParameters;
     }
 
+    final Map<BranchCnec, Double> getInitialLoopFlowPerLoopFlowCnec() {
+        return initialLoopFlowPerLoopFlowCnec;
+    }
+
+    final LoopFlowParameters getLoopFlowParameters() {
+        return loopFlowParameters;
+    }
+
     private Set<BranchCnec> getLoopFlowCnecs() {
         return initialLoopFlowPerLoopFlowCnec.keySet();
     }

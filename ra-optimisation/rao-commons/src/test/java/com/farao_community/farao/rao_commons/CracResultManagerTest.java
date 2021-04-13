@@ -331,5 +331,109 @@ public class CracResultManagerTest {
         assertEquals(1, bestTaps.size());
         assertEquals(16, bestTaps.get(pstRangeAction).intValue());
     }
+
+
+
+    /*private void setUpForFillCracResults(boolean curativePst) {
+        PstRangeAction rangeAction;
+        if (curativePst) {
+            rangeAction = new PstRangeActionImpl("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
+            rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3", Instant.CURATIVE)));
+        } else {
+            rangeAction = new PstRangeActionImpl("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
+            rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        }
+        crac = CommonCracCreation.create();
+        crac.addRangeAction(rangeAction);
+        crac.synchronize(network);
+        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
+        cracResultManager = raoData.getCracResultManager();
+        Mockito.when(linearProblemMock.getRangeActionSetPointVariable(rangeAction)).thenReturn(rangeActionSetPoint);
+        Mockito.when(linearProblemMock.getAbsoluteRangeActionVariationVariable(rangeAction)).thenReturn(rangeActionAbsoluteVariation);
+        Mockito.when(linearProblemMock.getAbsoluteRangeActionVariationConstraint(rangeAction, LinearProblem.AbsExtension.POSITIVE)).thenReturn(absoluteRangeActionVariationConstraint);
+    }*/
+
+    /*@Test
+    public void fillPstResultWithNoActivationAndNeutralRangeAction() {
+        setUpForFillCracResults(false);
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.0);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(0.0);
+
+        cracResultManager.fillRangeActionResultsWithLinearProblem(linearProblemMock);
+
+        String preventiveState = raoData.getCrac().getPreventiveState().getId();
+        RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
+        Assert.assertEquals(0, pstRangeResult.getSetPoint(preventiveState), 0.1);
+        assertTrue(pstRangeResult.isActivated(preventiveState));
+    }
+
+    @Test
+    public void fillPstResultWithNegativeActivation() {
+        setUpForFillCracResults(false);
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.39);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 - 5.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(5.0);
+
+        cracResultManager.fillRangeActionResultsWithLinearProblem(linearProblemMock);
+
+        String preventiveState = raoData.getCrac().getPreventiveState().getId();
+        RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
+        Assert.assertEquals(Integer.valueOf(-12), pstRangeResult.getTap(preventiveState));
+        Assert.assertEquals(0.39 - 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
+    }
+
+    @Test
+    public void fillPstResultWithPositiveActivation() {
+        setUpForFillCracResults(false);
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.39);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 + 5.0);
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(5.0);
+
+        cracResultManager.fillRangeActionResultsWithLinearProblem(linearProblemMock);
+
+        String preventiveState = raoData.getCrac().getPreventiveState().getId();
+        RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
+        Assert.assertEquals(Integer.valueOf(14), pstRangeResult.getTap(preventiveState));
+        Assert.assertEquals(0.39 + 5, pstRangeResult.getSetPoint(preventiveState), ANGLE_TAP_APPROX_TOLERANCE);
+    }
+
+    @Test
+    public void fillPstResultWithAngleTooHigh() {
+        setUpForFillCracResults(false);
+        Mockito.when(absoluteRangeActionVariationConstraint.lb()).thenReturn(0.39);
+        Mockito.when(rangeActionSetPoint.solutionValue()).thenReturn(0.39 + 99.0); // value out of PST Range
+        Mockito.when(rangeActionAbsoluteVariation.solutionValue()).thenReturn(99.0);
+
+        try {
+            cracResultManager.fillRangeActionResultsWithLinearProblem(linearProblemMock);
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+        }
+    }
+
+    @Test
+    public void fillCurativePstResults() {
+        setUpForFillCracResults(true);
+
+        cracResultManager.fillRangeActionResultsWithNetworkValues();
+        raoData.getCracVariantManager().setWorkingVariant(raoData.getCracVariantManager().cloneWorkingVariant());
+        cracResultManager.fillRangeActionResultsWithLinearProblem(linearProblemMock);
+
+        String preventiveState = raoData.getCrac().getPreventiveState().getId();
+
+        RangeActionResultExtension pstRangeResultMap = raoData.getCrac().getRangeAction("idPstRa").getExtension(RangeActionResultExtension.class);
+        PstRangeResult pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getPreOptimVariantId());
+        Assert.assertEquals(0, pstRangeResult.getSetPoint(preventiveState), 0.1);
+        Assert.assertEquals(0, pstRangeResult.getTap(preventiveState), 0.1);
+
+        pstRangeResult = (PstRangeResult) pstRangeResultMap.getVariant(raoData.getWorkingVariantId());
+        Assert.assertEquals(0, pstRangeResult.getSetPoint(preventiveState), 0.1);
+        Assert.assertEquals(0, pstRangeResult.getTap(preventiveState), 0.1);
+    }
 }
 */

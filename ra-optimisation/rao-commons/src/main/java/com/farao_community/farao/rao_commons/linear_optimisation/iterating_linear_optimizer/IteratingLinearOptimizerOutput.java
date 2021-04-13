@@ -4,30 +4,24 @@ import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerOutput;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 
 import java.util.Map;
 
 public class IteratingLinearOptimizerOutput {
-    public enum SolveStatus {
-        OPTIMAL,
-        FEASIBLE,
-        INFEASIBLE,
-        UNBOUNDED,
-        ABNORMAL,
-        NOT_SOLVED
-    }
-    private SolveStatus solveStatus;
+
+    private LinearProblem.SolveStatus solveStatus;
     private final double functionalCost;
     private final double virtualCost;
     private final Map<RangeAction, Double> rangeActionSetpoints;
     private final Map<PstRangeAction, Integer> pstRangeActionTaps;
     private final SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
-    public IteratingLinearOptimizerOutput(SolveStatus solveStatus, double functionalCost, double virtualCost, LinearOptimizerOutput linearOptimizerOutput, SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public IteratingLinearOptimizerOutput(LinearProblem.SolveStatus solveStatus, double functionalCost, double virtualCost, LinearOptimizerOutput linearOptimizerOutput, SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         this(solveStatus, functionalCost, virtualCost, linearOptimizerOutput.getRangeActionSetpoints(), linearOptimizerOutput.getPstRangeActionTaps(), sensitivityAndLoopflowResults);
     }
 
-    public IteratingLinearOptimizerOutput(SolveStatus solveStatus, double functionalCost, double virtualCost, Map<RangeAction, Double> optimalRangeActionSetpoints, Map<PstRangeAction, Integer> optimalPstRangeActionTaps, SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public IteratingLinearOptimizerOutput(LinearProblem.SolveStatus solveStatus, double functionalCost, double virtualCost, Map<RangeAction, Double> optimalRangeActionSetpoints, Map<PstRangeAction, Integer> optimalPstRangeActionTaps, SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         this.functionalCost = functionalCost;
         this.virtualCost = virtualCost;
         this.sensitivityAndLoopflowResults = sensitivityAndLoopflowResults;
@@ -36,11 +30,11 @@ public class IteratingLinearOptimizerOutput {
         this.pstRangeActionTaps = optimalPstRangeActionTaps;
     }
 
-    void setStatus(SolveStatus solveStatus) {
+    void setStatus(LinearProblem.SolveStatus solveStatus) {
         this.solveStatus = solveStatus;
     }
 
-    public SolveStatus getSolveStatus() {
+    public LinearProblem.SolveStatus getSolveStatus() {
         return solveStatus;
     }
 

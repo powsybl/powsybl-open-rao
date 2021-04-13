@@ -11,7 +11,6 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
@@ -26,7 +25,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.junit.Assert.*;
@@ -38,6 +36,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(PowerMockRunner.class)
 public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
+    private static final double MAX_ABS_THRESHOLD = 1000;
 
     private MaxMinMarginFiller maxMinMarginFiller;
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
@@ -66,34 +65,9 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testGetLargestCnecThreshold1() {
-        assertEquals(1000, UnoptimizedCnecFiller.getLargestCnecThreshold(Set.of(cnecFr, cnecNl)), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testGetLargestCnecThreshold2() {
-        crac.newBranchCnec().setId("Pure MNEC")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(3000.0).setMin(-3000.).setUnit(Unit.MEGAWATT).add()
-                .monitored()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
-        crac.newBranchCnec().setId("CNEC MNEC")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(2000.0).setMin(-2500.).setUnit(Unit.MEGAWATT).add()
-                .monitored()
-                .optimized()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
-        assertEquals(2500,
-            UnoptimizedCnecFiller.getLargestCnecThreshold(crac.getBranchCnecs().stream().filter(Cnec::isOptimized).collect(Collectors.toSet())),
-            DOUBLE_TOLERANCE);
-    }
-
-    @Test
     public void testCnecsNotToOptimizeBinaryVar() {
         maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnecNl, cnecFr), Set.of(rangeAction), new MaxMinMarginParameters(MEGAWATT));
-        unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), Set.of(cnecFr, cnecNl));
+        unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), MAX_ABS_THRESHOLD);
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
         unoptimizedCnecFiller.fill(sensitivityAndLoopflowResults);
 
@@ -127,11 +101,9 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
     @Test
     public void testExcludeCnecsNotToOptimizeInMinMargin() {
         maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnecNl, cnecFr), Set.of(rangeAction), new MaxMinMarginParameters(MEGAWATT));
-        unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), Set.of(cnecFr, cnecNl));
+        unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), MAX_ABS_THRESHOLD);
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
         unoptimizedCnecFiller.fill(sensitivityAndLoopflowResults);
-
-        double maxAbsThreshold = 1000;
 
         // Test that cnecFr's constraint does not have a bigM
         assertEquals(750.0, linearProblem.getMinimumMarginConstraint(cnecFr, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
@@ -140,17 +112,17 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         // Test that cnecNl's constraint does have a bigM
         MPVariable marginDecreaseVariable = linearProblem.getMarginDecreaseBinaryVariable(cnecNl);
         MPConstraint minMarginDefMin = linearProblem.getMinimumMarginConstraint(cnecNl, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        assertEquals(1000 + 2 * maxAbsThreshold, minMarginDefMin.ub(), DOUBLE_TOLERANCE);
-        assertEquals(2 * maxAbsThreshold, minMarginDefMin.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
+        assertEquals(1000 + 2 * MAX_ABS_THRESHOLD, minMarginDefMin.ub(), DOUBLE_TOLERANCE);
+        assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMin.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
         MPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecNl, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        assertEquals(800 + 2 * maxAbsThreshold, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
-        assertEquals(2 * maxAbsThreshold, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
+        assertEquals(800 + 2 * MAX_ABS_THRESHOLD, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
+        assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testCnecsNotToOptimizeBinaryVarRelative() {
         maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnecNl, cnecFr), Set.of(rangeAction), new MaxMinMarginParameters(MEGAWATT));
-        unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), Set.of(cnecFr, cnecNl));
+        unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), MAX_ABS_THRESHOLD);
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
         unoptimizedCnecFiller.fill(sensitivityAndLoopflowResults);
 
@@ -189,11 +161,9 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
             Collections.emptySet(),
             new MaxMinRelativeMarginParameters(MEGAWATT));
 
-        unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), Set.of(cnecFr, cnecNl));
+        unoptimizedCnecFiller = new UnoptimizedCnecFiller(linearProblem, Map.of(cnecNl, 400.), MAX_ABS_THRESHOLD);
         maxMinRelativeMarginFiller.fill(sensitivityAndLoopflowResults);
         unoptimizedCnecFiller.fill(sensitivityAndLoopflowResults);
-
-        double maxAbsThreshold = 1000;
 
         // Test that cnecFr's constraint does not have a bigM
         assertEquals(750.0, linearProblem.getMinimumMarginConstraint(cnecFr, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
@@ -204,10 +174,10 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         // Test that cnecNl's constraint does have a bigM
         MPVariable marginDecreaseVariable = linearProblem.getMarginDecreaseBinaryVariable(cnecNl);
         MPConstraint minMarginDefMin = linearProblem.getMinimumMarginConstraint(cnecNl, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        assertEquals(1000 + 2 * maxAbsThreshold, minMarginDefMin.ub(), DOUBLE_TOLERANCE);
-        assertEquals(2 * maxAbsThreshold, minMarginDefMin.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
+        assertEquals(1000 + 2 * MAX_ABS_THRESHOLD, minMarginDefMin.ub(), DOUBLE_TOLERANCE);
+        assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMin.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
         MPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecNl, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        assertEquals(800 + 2 * maxAbsThreshold, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
-        assertEquals(2 * maxAbsThreshold, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
+        assertEquals(800 + 2 * MAX_ABS_THRESHOLD, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
+        assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
     }
 }

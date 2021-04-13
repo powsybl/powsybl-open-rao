@@ -13,6 +13,9 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
+import org.apache.commons.lang3.NotImplementedException;
+
+import static java.lang.String.format;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -34,6 +37,34 @@ public class LinearProblem {
     private static final String MNEC_VIOLATION = "mnecviolation";
     private static final String MNEC_FLOW = "mnecflow";
     private static final String MARGIN_DECREASE = "margindecrease";
+
+    public enum SolveStatus {
+        OPTIMAL,
+        FEASIBLE,
+        INFEASIBLE,
+        UNBOUNDED,
+        ABNORMAL,
+        NOT_SOLVED
+    }
+
+    private static SolveStatus convertSolveStatus(MPSolver.ResultStatus status) {
+        switch (status) {
+            case OPTIMAL:
+                return SolveStatus.OPTIMAL;
+            case ABNORMAL:
+                return SolveStatus.ABNORMAL;
+            case FEASIBLE:
+                return SolveStatus.FEASIBLE;
+            case UNBOUNDED:
+                return SolveStatus.UNBOUNDED;
+            case INFEASIBLE:
+                return SolveStatus.INFEASIBLE;
+            case NOT_SOLVED:
+                return SolveStatus.NOT_SOLVED;
+            default:
+                throw new NotImplementedException(format("Status %s not handled.", status));
+        }
+    }
 
     public enum AbsExtension {
         POSITIVE,
@@ -274,8 +305,8 @@ public class LinearProblem {
         return MPSolver.infinity();
     }
 
-    public MPSolver.ResultStatus solve() {
-        return solver.solve();
+    public SolveStatus solve() {
+        return convertSolveStatus(solver.solve());
     }
 
     public MPSolver getSolver() {

@@ -44,6 +44,18 @@ public class MaxMinMarginFiller implements ProblemFiller {
         this.parameters = parameters;
     }
 
+    final Set<BranchCnec> getOptimizedCnecs() {
+        return optimizedCnecs;
+    }
+
+    final Set<RangeAction> getRangeActions() {
+        return rangeActions;
+    }
+
+    final MaxMinMarginParameters getParameters() {
+        return parameters;
+    }
+
     @Override
     public void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         // build variables

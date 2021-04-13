@@ -42,6 +42,14 @@ public class MnecFiller implements ProblemFiller {
         this.mnecParameters = mnecParameters;
     }
 
+    final Map<BranchCnec, Double> getInitialFlowPerMnec() {
+        return initialFlowPerMnec;
+    }
+
+    final MnecParameters getMnecParameters() {
+        return mnecParameters;
+    }
+
     private Set<BranchCnec> getMnecs() {
         return initialFlowPerMnec.keySet();
     }

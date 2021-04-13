@@ -8,18 +8,13 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LinearOptimizerParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.google.ortools.linearsolver.MPSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +23,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
+import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
+import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFillerType.*;
 
 /**
  * An optimizer dedicated to the construction and solving of a linear problem.
@@ -56,79 +53,33 @@ public class LinearOptimizer {
      * the creation/update of one part of the optimisation problem (i.e. of some
      * variables and constraints of the optimisation problem.
      */
-    private final List<ProblemFiller> fillers = new ArrayList<>();
+    private final List<ProblemFiller> fillers;
 
     private final LinearOptimizerInput linearOptimizerInput;
 
     public LinearOptimizer(LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
+        this(new LinearProblem(), linearOptimizerInput, linearOptimizerParameters);
+    }
+
+    public LinearOptimizer(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
         this.linearOptimizerInput = linearOptimizerInput;
-        linearProblem = createLinearRaoProblem();
-
-        Unit unit = linearOptimizerParameters.getObjectiveFunction().getUnit();
-
-        fillers.add(new CoreProblemFiller(
-            linearProblem,
-            linearOptimizerInput.getNetwork(),
-            linearOptimizerInput.getCnecs(),
-            linearOptimizerInput.getPreperimeterSetpoints(),
-            linearOptimizerParameters.getPstSensitivityThreshold()));
-        if (linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_AMPERE)
-                || linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_MARGIN_IN_MEGAWATT)) {
-            fillers.add(new MaxMinMarginFiller(
-                linearProblem,
-                linearOptimizerInput.getCnecs().stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
-                linearOptimizerInput.getRangeActions(),
-                new MaxMinMarginParameters(unit, linearOptimizerParameters.getPstPenaltyCost())));
-            fillers.add(new MnecFiller(
-                linearProblem,
-                linearOptimizerInput.getCnecs().stream()
-                    .filter(Cnec::isMonitored)
-                    .collect(Collectors.toMap(
-                        Function.identity(),
-                        mnec -> linearOptimizerInput.getInitialFlow(mnec, unit))
-                    ),
-                unit,
-                linearOptimizerParameters.getMnecParameters()));
-        } else if (linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
-                || linearOptimizerParameters.getObjectiveFunction().equals(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)) {
-            fillers.add(new MaxMinRelativeMarginFiller(
-                linearProblem,
-                linearOptimizerInput.getCnecs().stream()
-                    .filter(Cnec::isOptimized)
-                    .collect(Collectors.toMap(Function.identity(), linearOptimizerInput::getInitialAbsolutePtdfSum)),
-                linearOptimizerInput.getRangeActions(),
-                new MaxMinRelativeMarginParameters(
-                    unit,
-                    linearOptimizerParameters.getPstPenaltyCost(),
-                    linearOptimizerParameters.getNegativeMarginObjectiveCoefficient(),
-                    linearOptimizerParameters.getPtdfSumLowerBound())));
-            fillers.add(new MnecFiller(
-                linearProblem,
-                linearOptimizerInput.getCnecs().stream()
-                    .filter(Cnec::isMonitored)
-                    .collect(Collectors.toMap(
-                        Function.identity(),
-                        mnec -> linearOptimizerInput.getInitialFlow(mnec, unit))
-                    ),
-                unit,
-                linearOptimizerParameters.getMnecParameters()));
+        this.linearProblem = linearProblem;
+        ProblemFillerFactory factory = new ProblemFillerFactory(linearProblem, linearOptimizerInput, linearOptimizerParameters);
+        fillers = new ArrayList<>();
+        fillers.add(factory.createProblemFiller(CORE));
+        RaoParameters.ObjectiveFunction objectiveFunction = linearOptimizerParameters.getObjectiveFunction();
+        if (objectiveFunction == MAX_MIN_MARGIN_IN_AMPERE || objectiveFunction == MAX_MIN_MARGIN_IN_MEGAWATT) {
+            fillers.add(factory.createProblemFiller(MAX_MIN_MARGIN));
+            fillers.add(factory.createProblemFiller(MNEC));
+        } else if (objectiveFunction == MAX_MIN_RELATIVE_MARGIN_IN_AMPERE || objectiveFunction == MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) {
+            fillers.add(factory.createProblemFiller(MAX_MIN_RELATIVE_MARGIN));
+            fillers.add(factory.createProblemFiller(MNEC));
         }
         if (!Objects.isNull(linearOptimizerParameters.getOperatorsNotToOptimize()) && !linearOptimizerParameters.getOperatorsNotToOptimize().isEmpty()) {
-            fillers.add(new UnoptimizedCnecFiller(
-                linearProblem,
-                linearOptimizerInput.getCnecs().stream()
-                    .filter(BranchCnec::isOptimized)
-                    .filter(cnec -> linearOptimizerParameters.getOperatorsNotToOptimize().contains(cnec.getOperator()))
-                    .collect(Collectors.toMap(
-                        Function.identity(),
-                        linearOptimizerInput::getPrePerimeterMarginInAbsoluteMW)),
-                linearOptimizerInput.getCnecs()));
+            fillers.add(factory.createProblemFiller(UNOPTIMIZED_CNEC));
         }
-        if (linearOptimizerParameters.getLoopFlowParameters().isRaoWithLoopFlowLimitation()) {
-            fillers.add(new MaxLoopFlowFiller(
-                linearProblem,
-                linearOptimizerInput.getLoopflowCnecs().stream().collect(Collectors.toMap(Function.identity(), linearOptimizerInput::getInitialLoopflowInMW)),
-                linearOptimizerParameters.getLoopFlowParameters()));
+        if (linearOptimizerParameters.getLoopFlowParameters() != null) {
+            fillers.add(factory.createProblemFiller(MAX_LOOP_FLOW));
         }
     }
 
@@ -154,7 +105,7 @@ public class LinearOptimizer {
             updateProblem(sensitivityAndLoopflowResults);
         }
 
-        LinearOptimizerOutput.SolveStatus solveStatus = solveProblem();
+        LinearProblem.SolveStatus solveStatus = solveProblem();
 
         return generateOutput(solveStatus, sensitivityAndLoopflowResults.getSystematicSensitivityResult());
     }
@@ -183,11 +134,10 @@ public class LinearOptimizer {
         }
     }
 
-    private LinearOptimizerOutput.SolveStatus solveProblem() {
+    private LinearProblem.SolveStatus solveProblem() {
         try {
-            MPSolver.ResultStatus resultStatus = linearProblem.solve();
-            LinearOptimizerOutput.SolveStatus solveStatus = getSolveStatus(resultStatus);
-            if (!solveStatus.equals(LinearOptimizerOutput.SolveStatus.OPTIMAL)) {
+            LinearProblem.SolveStatus solveStatus = linearProblem.solve();
+            if (solveStatus != LinearProblem.SolveStatus.OPTIMAL) {
                 LOGGER.warn("Solving of the linear problem failed with MPSolver status {}", solveStatus.name());
                 //Do not throw an exception is solver solution not "OPTIMAL". Handle the status in LinearRao.runLinearRao
             }
@@ -199,26 +149,8 @@ public class LinearOptimizer {
         }
     }
 
-    private LinearOptimizerOutput.SolveStatus getSolveStatus(MPSolver.ResultStatus resultStatus) {
-        switch (resultStatus) {
-            case OPTIMAL:
-                return LinearOptimizerOutput.SolveStatus.OPTIMAL;
-            case FEASIBLE:
-                return LinearOptimizerOutput.SolveStatus.FEASIBLE;
-            case INFEASIBLE:
-                return LinearOptimizerOutput.SolveStatus.INFEASIBLE;
-            case UNBOUNDED:
-                return LinearOptimizerOutput.SolveStatus.UNBOUNDED;
-            case NOT_SOLVED:
-                return LinearOptimizerOutput.SolveStatus.NOT_SOLVED;
-            case ABNORMAL:
-            default:
-                return LinearOptimizerOutput.SolveStatus.ABNORMAL;
-        }
-    }
-
-    private LinearOptimizerOutput generateOutput(LinearOptimizerOutput.SolveStatus solveStatus, SystematicSensitivityResult sensitivityResult) {
-        if (!solveStatus.equals(LinearOptimizerOutput.SolveStatus.OPTIMAL)) {
+    private LinearOptimizerOutput generateOutput(LinearProblem.SolveStatus solveStatus, SystematicSensitivityResult sensitivityResult) {
+        if (solveStatus != LinearProblem.SolveStatus.OPTIMAL) {
             // TODO : return initial values?
             return new LinearOptimizerOutput(solveStatus, null, null);
         } else {
