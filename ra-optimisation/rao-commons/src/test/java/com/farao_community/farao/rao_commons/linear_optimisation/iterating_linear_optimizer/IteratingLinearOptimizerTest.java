@@ -18,8 +18,9 @@ import com.farao_community.farao.rao_commons.CnecResults;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerOutput;
-import com.farao_community.farao.rao_commons.linear_optimisation.LoopFlowParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.MnecParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LoopFlowParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -74,7 +75,6 @@ public class IteratingLinearOptimizerTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        //raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
 
         costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
         Mockito.when(costEvaluator.computeFunctionalCost(any())).thenReturn(0.);
@@ -155,7 +155,7 @@ public class IteratingLinearOptimizerTest {
                 rangeActionSetpoints.put(crac.getRangeAction("PRA_PST_BE"), setPoint);
                 count += 1;
 
-                return new LinearOptimizerOutput(LinearOptimizerOutput.SolveStatus.OPTIMAL, rangeActionSetpoints, new HashMap<>());
+                return new LinearOptimizerOutput(LinearProblem.SolveStatus.OPTIMAL, rangeActionSetpoints, new HashMap<>());
             }
         }).when(linearOptimizer).optimize(any());
 
@@ -175,7 +175,7 @@ public class IteratingLinearOptimizerTest {
 
         // check results
         assertNotNull(iteratingLinearOptimizerOutput);
-        assertEquals(IteratingLinearOptimizerOutput.SolveStatus.OPTIMAL, iteratingLinearOptimizerOutput.getSolveStatus());
+        assertEquals(LinearProblem.SolveStatus.OPTIMAL, iteratingLinearOptimizerOutput.getSolveStatus());
         assertEquals(20, iteratingLinearOptimizerOutput.getCost(), DOUBLE_TOLERANCE);
         assertEquals(3., iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
     }
@@ -184,7 +184,7 @@ public class IteratingLinearOptimizerTest {
     public void optimizeWithInfeasibility() {
         Mockito.when(costEvaluator.computeFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
 
-        Mockito.when(linearOptimizer.optimize(any())).thenReturn(new LinearOptimizerOutput(LinearOptimizerOutput.SolveStatus.INFEASIBLE, new HashMap<>(), new HashMap<>()));
+        Mockito.when(linearOptimizer.optimize(any())).thenReturn(new LinearOptimizerOutput(LinearProblem.SolveStatus.INFEASIBLE, new HashMap<>(), new HashMap<>()));
         try {
             PowerMockito.whenNew(LinearOptimizer.class).withAnyArguments().thenReturn(linearOptimizer);
         } catch (Exception e) {
@@ -196,7 +196,7 @@ public class IteratingLinearOptimizerTest {
 
         // check results
         assertNotNull(iteratingLinearOptimizerOutput);
-        assertEquals(IteratingLinearOptimizerOutput.SolveStatus.INFEASIBLE, iteratingLinearOptimizerOutput.getSolveStatus());
+        assertEquals(LinearProblem.SolveStatus.INFEASIBLE, iteratingLinearOptimizerOutput.getSolveStatus());
         assertEquals(100., iteratingLinearOptimizerOutput.getCost(), DOUBLE_TOLERANCE);
         assertEquals(0., iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
     }
