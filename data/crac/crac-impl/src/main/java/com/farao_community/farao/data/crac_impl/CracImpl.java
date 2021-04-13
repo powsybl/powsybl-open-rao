@@ -170,7 +170,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public void removeContingency(String id) {
         if (isContingencyUsedWithinCrac(id)) {
-            throw new FaraoException(format("Contingency %s is used within a CNEC or an OnState UsageRule. Please remove all references to the contingency first.", id);
+            throw new FaraoException(format("Contingency %s is used within a CNEC or an OnState UsageRule. Please remove all references to the contingency first.", id));
         } else {
             contingencies.remove(id);
         }
