@@ -11,12 +11,13 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -30,13 +31,15 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 public class MnecViolationCostEvaluator implements CostEvaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MnecViolationCostEvaluator.class);
 
-    private LinearOptimizerInput linearOptimizerInput;
+    private Set<BranchCnec> cnecs;
+    private Map<BranchCnec, Double> initialFlows;
     private Unit unit;
     private double mnecAcceptableMarginDiminution;
     private double mnecViolationCost;
 
-    public MnecViolationCostEvaluator(LinearOptimizerInput linearOptimizerInput, Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
-        this.linearOptimizerInput = linearOptimizerInput;
+    public MnecViolationCostEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> initialFlows, Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
+        this.cnecs = cnecs;
+        this.initialFlows = initialFlows;
         if ((unit != MEGAWATT) && (unit != AMPERE)) {
             throw new NotImplementedException("MNEC violation cost is only implemented in MW and AMPERE units");
         }
@@ -52,9 +55,9 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         }
         double totalMnecMarginViolation = 0;
         boolean mnecsSkipped = false;
-        for (BranchCnec cnec : linearOptimizerInput.getCnecs()) {
+        for (BranchCnec cnec : cnecs) {
             if (cnec.isMonitored()) {
-                double initialFlow = linearOptimizerInput.getInitialFlowOnCnec(cnec, unit);
+                double initialFlow = initialFlows.get(cnec);
                 if (Double.isNaN(initialFlow)) {
                     // Sensitivity results are not available, skip cnec
                     // (happens on search tree rao rootleaf evaluation)

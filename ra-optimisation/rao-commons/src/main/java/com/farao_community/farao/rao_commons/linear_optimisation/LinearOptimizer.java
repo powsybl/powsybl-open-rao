@@ -91,7 +91,7 @@ public class LinearOptimizer {
                     .filter(Cnec::isMonitored)
                     .collect(Collectors.toMap(
                         Function.identity(),
-                        mnec -> linearOptimizerInput.getInitialFlowOnCnec(mnec, unit))
+                        mnec -> linearOptimizerInput.getInitialFlow(mnec, unit))
                     ),
                 unit,
                 linearOptimizerParameters.getMnecParameters()));
@@ -113,7 +113,7 @@ public class LinearOptimizer {
                     .filter(Cnec::isMonitored)
                     .collect(Collectors.toMap(
                         Function.identity(),
-                        mnec -> linearOptimizerInput.getInitialFlowOnCnec(mnec, unit))
+                        mnec -> linearOptimizerInput.getInitialFlow(mnec, unit))
                     ),
                 unit,
                 linearOptimizerParameters.getMnecParameters()));
@@ -126,7 +126,7 @@ public class LinearOptimizer {
                     .filter(cnec -> linearOptimizerParameters.getOperatorsNotToOptimize().contains(cnec.getOperator()))
                     .collect(Collectors.toMap(
                         Function.identity(),
-                        linearOptimizerInput::getPrePerimeterMarginsInAbsoluteMW)),
+                        linearOptimizerInput::getPrePerimeterMarginInAbsoluteMW)),
                 linearOptimizerInput.getCnecs()));
         }
         if (linearOptimizerParameters.getLoopFlowParameters().isRaoWithLoopFlowLimitation()) {

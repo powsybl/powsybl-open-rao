@@ -3,8 +3,8 @@ package com.farao_community.farao.rao_commons.linear_optimisation.iterating_line
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.rao_commons.CnecResults;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -20,7 +20,7 @@ public class IteratingLinearOptimizerInput {
     private Set<RangeAction> rangeActions;
     private Network network;
     private Map<RangeAction, Double> preperimeterSetpoints; // can be removed if we don't change taps in the network after each depth
-    private Map<BranchCnec, CnecResult> initialCnecResults;
+    private CnecResults initialCnecResults;
     private Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
     private SensitivityAndLoopflowResults preOptimSensitivityResults;
     private SystematicSensitivityInterface systematicSensitivityInterface;
@@ -52,7 +52,7 @@ public class IteratingLinearOptimizerInput {
         return preperimeterSetpoints;
     }
 
-    public Map<BranchCnec, CnecResult> getInitialCnecResults() {
+    public CnecResults getInitialCnecResults() {
         return initialCnecResults;
     }
 
@@ -86,7 +86,7 @@ public class IteratingLinearOptimizerInput {
         private Set<RangeAction> rangeActions;
         private Network network;
         private Map<RangeAction, Double> preperimeterSetpoints;
-        private Map<BranchCnec, CnecResult> initialCnecResults;
+        private CnecResults initialCnecResults;
         private Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
         private SensitivityAndLoopflowResults preOptimSensitivityResults;
         private SystematicSensitivityInterface systematicSensitivityInterface;
@@ -119,7 +119,7 @@ public class IteratingLinearOptimizerInput {
             return this;
         }
 
-        public IteratingLinearOptimizerInputBuilder withInitialCnecResults(Map<BranchCnec, CnecResult> initialCnecResults) {
+        public IteratingLinearOptimizerInputBuilder withInitialCnecResults(CnecResults initialCnecResults) {
             this.initialCnecResults = initialCnecResults;
             return this;
         }

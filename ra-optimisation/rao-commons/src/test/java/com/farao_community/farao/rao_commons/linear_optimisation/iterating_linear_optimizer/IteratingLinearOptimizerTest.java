@@ -207,7 +207,7 @@ public class IteratingLinearOptimizerTest {
     /**
      * Create a situation with 2 PSTs of the same operator
      */
-    private void setUpWithTwoPsts() {
+/*    private void setUpWithTwoPsts() {
         network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         crac = CommonCracCreation.create();
 

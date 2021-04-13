@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +36,18 @@ public class MinMarginEvaluator implements CostEvaluator {
     private boolean relativePositiveMargins;
     private double ptdfSumLowerBound;
     Set<String> operatorsNotToOptimize;
-    LinearOptimizerInput linearOptimizerInput;
+    Set<BranchCnec> cnecs;
+    Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW;
+    Map<BranchCnec, Double> initialAbsolutePtdfSums;
 
-    public MinMarginEvaluator(LinearOptimizerInput linearOptimizerInput, Unit unit, Set<String> operatorsNotToOptimize, boolean relativePositiveMargins) {
-        this(linearOptimizerInput, unit, operatorsNotToOptimize, relativePositiveMargins, 0);
+    public MinMarginEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW, Map<BranchCnec, Double> initialAbsolutePtdfSums, Unit unit, Set<String> operatorsNotToOptimize, boolean relativePositiveMargins) {
+        this(cnecs, prePerimeterMarginsInAbsoluteMW, initialAbsolutePtdfSums, unit, operatorsNotToOptimize, relativePositiveMargins, 0);
     }
 
-    public MinMarginEvaluator(LinearOptimizerInput linearOptimizerInput, Unit unit, Set<String> operatorsNotToOptimize, boolean relativePositiveMargins, double ptdfSumLowerBound) {
-        this.linearOptimizerInput = linearOptimizerInput;
+    public MinMarginEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW, Map<BranchCnec, Double> initialAbsolutePtdfSums, Unit unit, Set<String> operatorsNotToOptimize, boolean relativePositiveMargins, double ptdfSumLowerBound) {
+        this.cnecs = cnecs;
+        this.prePerimeterMarginsInAbsoluteMW = prePerimeterMarginsInAbsoluteMW;
+        this.initialAbsolutePtdfSums = initialAbsolutePtdfSums;
         if (relativePositiveMargins && ptdfSumLowerBound <= 0) {
             throw new FaraoException("Please provide a (strictly positive) PTDF sum lower bound for relative margins.");
         }
@@ -82,13 +85,13 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getRelativeCoef(BranchCnec cnec) {
-        return relativePositiveMargins ? 1 / Math.max(linearOptimizerInput.getInitialAbsolutePtdfSum(cnec), ptdfSumLowerBound) : 1;
+        return relativePositiveMargins ? 1 / Math.max(initialAbsolutePtdfSums.get(cnec), ptdfSumLowerBound) : 1;
     }
 
     private double getCnecMargin(SystematicSensitivityResult sensitivityResult, BranchCnec cnec, Unit unit) {
         if (operatorsNotToOptimize.contains(cnec.getOperator())) {
             // do not consider this kind of cnecs if they have a better margin than before optimization
-            double prePerimeterMarginInAbsoluteMW = linearOptimizerInput.getPrePerimeterMarginsInAbsoluteMW(cnec);
+            double prePerimeterMarginInAbsoluteMW = prePerimeterMarginsInAbsoluteMW.get(cnec);
             double newMarginInAbsoluteMW = cnec.computeMargin(sensitivityResult.getReferenceFlow(cnec), Side.LEFT, MEGAWATT);
             if (newMarginInAbsoluteMW > prePerimeterMarginInAbsoluteMW - .0001 * Math.abs(prePerimeterMarginInAbsoluteMW)) {
                 return Double.MAX_VALUE;
@@ -102,7 +105,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getMinMarginInMegawatt(SystematicSensitivityResult sensitivityResult) {
-        if (linearOptimizerInput.getCnecs().stream().noneMatch(BranchCnec::isOptimized)) {
+        if (cnecs.stream().noneMatch(BranchCnec::isOptimized)) {
             // There are only pure MNECs
             return 0;
         }
@@ -110,7 +113,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     private double getMinMarginInAmpere(SystematicSensitivityResult sensitivityResult) {
-        if (linearOptimizerInput.getCnecs().stream().noneMatch(BranchCnec::isOptimized)) {
+        if (cnecs.stream().noneMatch(BranchCnec::isOptimized)) {
             // There are only pure MNECs
             return 0;
         }
@@ -129,14 +132,14 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     private Map<BranchCnec, Double> getMargins(SystematicSensitivityResult sensitivityResult, Unit unit) {
         Map<BranchCnec, Double> marginsInAmpere = new HashMap<>();
-        linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isOptimized).
+        cnecs.stream().filter(BranchCnec::isOptimized).
                 forEach(cnec -> marginsInAmpere.put(cnec, getCnecMargin(sensitivityResult, cnec, unit)));
         return marginsInAmpere;
     }
 
     Map<BranchCnec, Double> getMarginsInAmpereFromMegawattConversion(SystematicSensitivityResult sensitivityResult) {
         Map<BranchCnec, Double> margins = new HashMap<>();
-        linearOptimizerInput.getCnecs().stream().filter(BranchCnec::isOptimized).forEach(cnec -> {
+        cnecs.stream().filter(BranchCnec::isOptimized).forEach(cnec -> {
                 double leftFlowInMW = sensitivityResult.getReferenceFlow(cnec);
                 margins.put(cnec, cnec.computeMargin(leftFlowInMW * RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, MEGAWATT, AMPERE), Side.LEFT, AMPERE) * getRelativeCoef(cnec));
             }

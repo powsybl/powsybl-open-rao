@@ -114,12 +114,16 @@ public final class RaoUtil {
     }
 
     public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoData raoData, RaoParameters raoParameters, Set<String> operatorsNotToOptimize) {
+        CnecResults initialCnecResults = raoData.getInitialCnecResults();
         switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
-            case MAX_MIN_MARGIN_IN_MEGAWATT:
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
+                return new MinMarginObjectiveFunction(raoData.getCnecs(), raoData.getLoopflowCnecs(), raoData.getPrePerimeterMarginsInAbsoluteMW(),
+                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInA(), initialCnecResults.getLoopflowsInMW(), raoParameters, operatorsNotToOptimize);
+            case MAX_MIN_MARGIN_IN_MEGAWATT:
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
-                return new MinMarginObjectiveFunction(raoData.createObjectiveFunctionInput(), raoParameters, operatorsNotToOptimize);
+                return new MinMarginObjectiveFunction(raoData.getCnecs(), raoData.getLoopflowCnecs(), raoData.getPrePerimeterMarginsInAbsoluteMW(),
+                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInMW(), initialCnecResults.getLoopflowsInMW(), raoParameters, operatorsNotToOptimize);
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }

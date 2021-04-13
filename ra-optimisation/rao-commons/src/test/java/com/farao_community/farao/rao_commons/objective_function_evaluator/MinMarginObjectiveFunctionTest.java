@@ -8,24 +8,21 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
@@ -44,9 +41,9 @@ public class MinMarginObjectiveFunctionTest {
     MinMarginEvaluator minMarginEvaluator;
     MinMarginEvaluator minRelativeMarginEvaluator;
     MinMarginObjectiveFunction minRelativeMarginObjectiveFunction;
-    private static final String TEST_VARIANT = "test-variant";
-    LinearOptimizerInput linearOptimizerInput;
+    Set<BranchCnec> cnecs;
     Map<BranchCnec, Double> prePerimeterMargins;
+    Map<BranchCnec, Double> initialPtdfSums;
     SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
     private void setUp(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost, RaoParameters.ObjectiveFunction objectiveFunction) {
@@ -58,19 +55,14 @@ public class MinMarginObjectiveFunctionTest {
         Mockito.when(sensiResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
         sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(sensiResult);
 
-        Map<BranchCnec, CnecResult> initialCnecResults = new HashMap<>();
+        cnecs = crac.getBranchCnecs();
         prePerimeterMargins = new HashMap<>();
-
-        linearOptimizerInput = LinearOptimizerInput.create()
-                .withCnecs(crac.getBranchCnecs())
-                .withInitialCnecResults(initialCnecResults)
-                .withPrePerimeterCnecMarginsInAbsoluteMW(prePerimeterMargins)
-                .build();
+        initialPtdfSums = new HashMap<>();
 
         this.unit = unit;
-        minMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, unit, null, false);
-        minRelativeMarginEvaluator = new MinMarginEvaluator(linearOptimizerInput, unit, null, true, ptdfSumLowerBound);
-        mnecViolationCostEvaluator = new MnecViolationCostEvaluator(linearOptimizerInput, unit, mnecAcceptableMarginDiminution, mnecViolationCost);
+        minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, unit, null, false);
+        minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, unit, null, true, ptdfSumLowerBound);
+        mnecViolationCostEvaluator = new MnecViolationCostEvaluator(cnecs, new HashMap<>(), unit, mnecAcceptableMarginDiminution, mnecViolationCost);
 
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.setMnecAcceptableMarginDiminution(mnecAcceptableMarginDiminution);
@@ -78,12 +70,12 @@ public class MinMarginObjectiveFunctionTest {
         raoParameters.setObjectiveFunction(objectiveFunction);
         raoParameters.setPtdfSumLowerBound(ptdfSumLowerBound);
 
-        minRelativeMarginObjectiveFunction = new MinMarginObjectiveFunction(linearOptimizerInput, raoParameters, null);
+        minRelativeMarginObjectiveFunction = new MinMarginObjectiveFunction(cnecs, new HashSet<>(), prePerimeterMargins, initialPtdfSums, new HashMap<>(), new HashMap<>(), raoParameters, null);
         crac.newBranchCnec().setId("MNEC1 - initial-instant - preventive")
                 .newNetworkElement().setId("FR-BE").add()
                 .newThreshold().setMin(-commonThreshold).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(commonThreshold).setUnit(unit).add()
                 .optimized().monitored()
-                .setInstant(crac.getInstant("initial"))
+                .setInstant(Instant.PREVENTIVE)
                 .add();
 
         crac.desynchronize();
@@ -92,12 +84,7 @@ public class MinMarginObjectiveFunctionTest {
         RaoInputHelper.synchronize(crac, network);
 
         Random rand = new Random();
-        crac.getBranchCnecs().forEach(cnec -> {
-                CnecResult cnecResult = new CnecResult();
-                cnecResult.setAbsolutePtdfSum(rand.nextDouble());
-                initialCnecResults.put(cnec, cnecResult);
-            }
-        );
+        crac.getBranchCnecs().forEach(cnec -> initialPtdfSums.put(cnec, rand.nextDouble()));
 
     }
 
