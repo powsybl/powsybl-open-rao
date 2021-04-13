@@ -9,6 +9,9 @@ package com.farao_community.farao.data.crac_api.range_action;
 
 import com.farao_community.farao.commons.Unit;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public interface Range {
 
     public RangeType getRangeType();

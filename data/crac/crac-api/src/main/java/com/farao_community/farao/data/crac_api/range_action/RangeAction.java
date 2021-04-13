@@ -10,30 +10,48 @@ package com.farao_community.farao.data.crac_api.range_action;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.Synchronizable;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
 
 /**
  * Remedial action interface specifying an action of type range.
- * This means that there is a value to set and this value should be within a range.
- * The apply method involves a {@link Network} and a double (setpoint's value),
- * that's why there is a need to define this interface besides the {@link NetworkAction} interface
+ *
+ * When applying a Range Action, a setpoint (double value) must be set. This setpoint
+ * must be included within a range, delimited by minimum and maximum values.
+ *
+ * The apply method therefore involves a {@link Network} and a setpoint (double value).
+ * The presence of this double in the apply() method explains why this interface
+ * has been designed besides the {@link NetworkAction} interface
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface RangeAction extends RemedialAction<RangeAction>, Synchronizable {
 
-    Optional<String> getGroupId();
-
-    double getMinValue(double prePerimeterValue);
-
-    double getMaxValue(double prePerimeterValue);
-
-    double getCurrentValue(Network network);
-
+    /**
+     * Apply the action on a given network, with a given setpoint
+     */
     void apply(Network network, double setpoint);
 
+    /**
+     * Get the lower bound of the range within which the setpoint must remain
+     */
+    double getMinValue(double prePerimeterValue);
+
+    /**
+     * Get the upper bound of the range within which the setpoint must remain
+     */
+    double getMaxValue(double prePerimeterValue);
+
+    /**
+     * Get the value of the setpoint of the Range Action for a given Network
+     */
+    double getCurrentValue(Network network);
+
+    /**
+     * Get the groupId of the Range Action. All Range Action which share the
+     * same groupId should have the same setpoint.
+     */
+    Optional<String> getGroupId();
 }

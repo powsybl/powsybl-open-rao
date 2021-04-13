@@ -523,6 +523,19 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         });
     }
 
+    @Override
+    public void removeRemedialAction(String remedialActionId) {
+        removePstRangeAction(remedialActionId);
+        removeNetworkAction(remedialActionId);
+    }
+
+    private Set<State> getAssociatedStates (RemedialAction<?> remedialAction) {
+        return remedialAction.getUsageRules().stream()
+            .filter(ur -> ur instanceof OnState)
+            .map(ur -> ((OnState) ur).getState())
+            .collect(Collectors.toSet());
+    }
+
     // endregion
     // ========================================
     // region RangeAction management
@@ -545,13 +558,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<RangeAction> getRangeActions() {
-        // the only implementation of RangeAction is PstRangeActions
+        // the only implementation of RangeAction is for now PstRangeAction
         return new HashSet<>(pstRangeActions.values());
     }
 
     @Override
     public Set<RangeAction> getRangeActions(State state, UsageMethod usageMethod) {
-        // the only implementation of RangeAction is PstRangeActions
+        // the only implementation of RangeAction is for now PstRangeAction
         return pstRangeActions.values().stream()
             .filter(rangeAction -> rangeAction.getUsageMethod(state).equals(usageMethod))
             .collect(Collectors.toSet());
@@ -559,36 +572,30 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public RangeAction getRangeAction(String id) {
-        // the only implementation of RangeAction is PstRangeActions
+        // the only implementation of RangeAction is for now PstRangeAction
         return pstRangeActions.get(id);
     }
 
-
     @Override
-    public void removeRangeAction(String id) {
+    public void removePstRangeAction(String id) {
 
-        RangeAction rangeActionToRemove = rangeActions.get(id);
+        PstRangeAction rangeActionToRemove = pstRangeActions.get(id);
         if (Objects.isNull(rangeActionToRemove)) {
             return;
         }
 
         Set<NetworkElement> associatedNetworkElements = rangeActionToRemove.getNetworkElements();
-        Set<State> associatedStates = rangeActionToRemove.getUsageRules().stream()
-            .filter(ur -> ur instanceof OnState)
-            .map(ur -> ((OnState) ur).getState())
-            .collect(Collectors.toSet());
+        Set<State> associatedStates = getAssociatedStates(rangeActionToRemove);
 
-        rangeActions.remove(id);
+        pstRangeActions.remove(id);
 
         associatedNetworkElements.stream()
             .filter(ne -> isNetworkElementUsedWithinCrac(ne.getId()))
             .forEach(ne -> networkElements.remove(ne.getId()));
-
         associatedStates.stream()
             .filter(st -> isStateUsedWithinCrac(st.getId()))
             .forEach(st -> states.remove(st.getId()));
     }
-
 
     @Deprecated
     // TODO : convert to private package
@@ -634,10 +641,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         }
 
         Set<NetworkElement> associatedNetworkElements = networkActionToRemove.getNetworkElements();
-        Set<State> associatedStates = networkActionToRemove.getUsageRules().stream()
-            .filter(ur -> ur instanceof OnState)
-            .map(ur -> ((OnState) ur).getState())
-            .collect(Collectors.toSet());
+        Set<State> associatedStates = getAssociatedStates(networkActionToRemove);
 
         networkActions.remove(id);
 
@@ -667,18 +671,16 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             throw new AlreadySynchronizedException(format("Crac %s has already been synchronized", getId()));
         }
         flowCnecs.values().forEach(cnec -> cnec.synchronize(network));
-        rangeActions.values().forEach(rangeAction -> rangeAction.synchronize(network));
+        pstRangeActions.values().forEach(rangeAction -> rangeAction.synchronize(network));
         contingencies.values().forEach(contingency -> contingency.synchronize(network));
         networkDate = network.getCaseDate();
         isSynchronized = true;
     }
 
-
-
     @Override
     public void desynchronize() {
         flowCnecs.values().forEach(Synchronizable::desynchronize);
-        rangeActions.values().forEach(Synchronizable::desynchronize);
+        pstRangeActions.values().forEach(Synchronizable::desynchronize);
         contingencies.values().forEach(Synchronizable::desynchronize);
         networkDate = null;
         isSynchronized = false;

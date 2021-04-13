@@ -266,6 +266,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     //todo : javadoc
     RemedialAction getRemedialAction(String remedialActionId);
 
+    void removeRemedialAction(String id);
 
     // Range actions management
     /**
@@ -308,7 +309,7 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
     /**
      * @param id: id of the RangeAction to remove
      */
-    void removeRangeAction(String id);
+    void removePstRangeAction(String id);
 
     // Network actions management
 
@@ -328,7 +329,6 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
      * unavailable). To determine this usage method it requires a network. It returns a set because network
      * actions must not be duplicated and there is no defined order for network actions.
      *
-     * @param network: Network on which the usage method of network actions has to be evaluated.
      * @param state: Specific state on which network actions can be selected.
      * @param usageMethod: Specific usage method to select network actions.
      * @return A set of network actions.

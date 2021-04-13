@@ -8,14 +8,12 @@
 package com.farao_community.farao.data.crac_api.usage_rule;
 
 import com.farao_community.farao.data.crac_api.State;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * The UsageRule defines conditions under which a RemedialAction can be used.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface UsageRule {
 
     UsageMethod getUsageMethod();

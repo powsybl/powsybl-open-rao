@@ -7,29 +7,31 @@
 
 package com.farao_community.farao.data.crac_api.network_action;
 
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Set;
 
 /**
  * Remedial action interface specifying a direct action on the network.
+ *
  * The Network Action is completely defined by itself.
- * It involves a Set of {@link NetworkElement}s.
- * When the apply method is called, an action is triggered on these NetworkElement.
+ * It involves a Set of {@link ElementaryAction}.
+ * When the apply method is called, an action is triggered on each of these Elementary
+ * Actions.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface NetworkAction extends RemedialAction<NetworkAction> {
 
     /**
-     * Trigger the actions on the NetworkElements, in a given network.
-     * @param network The network in which the actions are triggered
+     * Apply the action on a given network.
      */
     void apply(Network network);
 
+    /**
+     * Get the set of the elementary actions constituting then network action
+     */
     Set<ElementaryAction> getElementaryActions();
 }
