@@ -248,9 +248,9 @@ public class ProblemFillerFactoryTest {
         MnecFiller pfImpl = (MnecFiller) pf;
 
         // It has got only the monitored CNECs
-        assertEquals(crac.getBranchCnecs().stream().filter(Cnec::isMonitored).count(), pfImpl.getInitialFlowPerMnec().size());
-        assertEquals(initialFlowPerCnec.get(cnecMnec), pfImpl.getInitialFlowPerMnec().get(cnecMnec));
-        assertEquals(initialFlowPerCnec.get(pureMnec), pfImpl.getInitialFlowPerMnec().get(pureMnec));
+        assertEquals(crac.getBranchCnecs().stream().filter(Cnec::isMonitored).count(), pfImpl.getInitialFlowInMWPerMnec().size());
+        assertEquals(initialFlowPerCnec.get(cnecMnec), pfImpl.getInitialFlowInMWPerMnec().get(cnecMnec));
+        assertEquals(initialFlowPerCnec.get(pureMnec), pfImpl.getInitialFlowInMWPerMnec().get(pureMnec));
         // Default mnec parameter values
         assertEquals(RaoParameters.DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION,
             pfImpl.getMnecParameters().getMnecAcceptableMarginDiminution(), DOUBLE_TOLERANCE);

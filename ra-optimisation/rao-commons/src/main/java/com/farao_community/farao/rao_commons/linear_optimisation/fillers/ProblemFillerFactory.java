@@ -96,7 +96,7 @@ public final class ProblemFillerFactory {
                 .filter(Cnec::isMonitored)
                 .collect(Collectors.toMap(
                     Function.identity(),
-                    mnec -> input.getInitialFlow(mnec, parameters.getUnit()))
+                    mnec -> input.getInitialFlow(mnec, MEGAWATT))
                 ),
             parameters.getUnit(),
             parameters.getMnecParameters());

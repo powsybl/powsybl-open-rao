@@ -28,22 +28,22 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MnecFiller implements ProblemFiller {
     private final LinearProblem linearProblem;
-    private final Map<BranchCnec, Double> initialFlowPerMnec;
+    private final Map<BranchCnec, Double> initialFlowInMWPerMnec;
     private final Unit unit;
     private final MnecParameters mnecParameters;
 
     public MnecFiller(LinearProblem linearProblem,
-                      Map<BranchCnec, Double> initialFlowPerMnec,
+                      Map<BranchCnec, Double> initialFlowInMWPerMnec,
                       Unit unit,
                       MnecParameters mnecParameters) {
         this.linearProblem = linearProblem;
-        this.initialFlowPerMnec = initialFlowPerMnec;
+        this.initialFlowInMWPerMnec = initialFlowInMWPerMnec;
         this.unit = unit;
         this.mnecParameters = mnecParameters;
     }
 
-    final Map<BranchCnec, Double> getInitialFlowPerMnec() {
-        return initialFlowPerMnec;
+    final Map<BranchCnec, Double> getInitialFlowInMWPerMnec() {
+        return initialFlowInMWPerMnec;
     }
 
     final MnecParameters getMnecParameters() {
@@ -51,7 +51,7 @@ public class MnecFiller implements ProblemFiller {
     }
 
     private Set<BranchCnec> getMnecs() {
-        return initialFlowPerMnec.keySet();
+        return initialFlowInMWPerMnec.keySet();
     }
 
     @Override
@@ -74,7 +74,7 @@ public class MnecFiller implements ProblemFiller {
 
     private void buildMnecMarginConstraints() {
         getMnecs().forEach(mnec -> {
-                double mnecInitialFlow = initialFlowPerMnec.get(mnec);
+                double mnecInitialFlowInMW = initialFlowInMWPerMnec.get(mnec);
 
                 MPVariable flowVariable = linearProblem.getFlowVariable(mnec);
 
@@ -90,7 +90,7 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> maxFlow = mnec.getUpperBound(Side.LEFT, MEGAWATT);
                 if (maxFlow.isPresent()) {
-                    double ub = Math.max(maxFlow.get(),  mnecInitialFlow + mnecParameters.getMnecAcceptableMarginDiminution());
+                    double ub = Math.max(maxFlow.get(),  mnecInitialFlowInMW + mnecParameters.getMnecAcceptableMarginDiminution());
                     ub -= mnecParameters.getMnecConstraintAdjustmentCoefficient();
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
@@ -99,7 +99,7 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> minFlow = mnec.getLowerBound(Side.LEFT, MEGAWATT);
                 if (minFlow.isPresent()) {
-                    double lb = Math.min(minFlow.get(), mnecInitialFlow - mnecParameters.getMnecAcceptableMarginDiminution());
+                    double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecParameters.getMnecAcceptableMarginDiminution());
                     lb += mnecParameters.getMnecConstraintAdjustmentCoefficient();
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
