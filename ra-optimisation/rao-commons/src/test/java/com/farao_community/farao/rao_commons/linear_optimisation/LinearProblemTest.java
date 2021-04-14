@@ -3,7 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- *//*
+ */
 
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
@@ -24,12 +24,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-*/
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
- *//*
-
+ */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(MPSolver.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
@@ -146,4 +145,3 @@ public class LinearProblemTest {
         assertNotNull(linearProblem.getObjective());
     }
 }
-*/

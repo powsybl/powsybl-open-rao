@@ -35,6 +35,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 public class MnecFillerTest extends AbstractFillerTest {
+    private static final double PST_SENSITIVITY_THRESHOLD = 0.0;
 
     private BranchCnec mnec1;
     private BranchCnec mnec2;
@@ -68,7 +69,8 @@ public class MnecFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(mnec1, mnec2),
-            Collections.emptyMap()
+            Collections.emptyMap(),
+            PST_SENSITIVITY_THRESHOLD
         );
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
     }
@@ -101,9 +103,8 @@ public class MnecFillerTest extends AbstractFillerTest {
     public void testAddMnecMinFlowConstraints() {
         fillProblemWithFiller(Unit.MEGAWATT);
 
-        crac.getBranchCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec -> {
-            assertNull(linearProblem.getMnecFlowConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD));
-        });
+        crac.getBranchCnecs().stream().filter(cnec -> !cnec.isMonitored()).forEach(cnec ->
+            assertNull(linearProblem.getMnecFlowConstraint(cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD)));
 
         MPConstraint ct1Max = linearProblem.getMnecFlowConstraint(mnec1, LinearProblem.MarginExtension.BELOW_THRESHOLD);
         assertNotNull(ct1Max);

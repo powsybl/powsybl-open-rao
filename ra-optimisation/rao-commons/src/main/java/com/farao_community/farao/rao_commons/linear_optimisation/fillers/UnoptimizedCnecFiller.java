@@ -28,7 +28,6 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UnoptimizedCnecFiller implements ProblemFiller {
-
     private final LinearProblem linearProblem;
     private final Map<BranchCnec, Double> initialFlowInMWPerUnoptimizedCnec;
     private final double highestThresholdValue;

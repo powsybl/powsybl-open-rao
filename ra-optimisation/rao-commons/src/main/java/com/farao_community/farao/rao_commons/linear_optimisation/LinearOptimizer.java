@@ -75,10 +75,10 @@ public class LinearOptimizer {
             fillers.add(factory.createProblemFiller(MAX_MIN_RELATIVE_MARGIN));
             fillers.add(factory.createProblemFiller(MNEC));
         }
-        if (!Objects.isNull(linearOptimizerParameters.getOperatorsNotToOptimize()) && !linearOptimizerParameters.getOperatorsNotToOptimize().isEmpty()) {
+        if (linearOptimizerParameters.getOperatorsNotToOptimize() != null && !linearOptimizerParameters.getOperatorsNotToOptimize().isEmpty()) {
             fillers.add(factory.createProblemFiller(UNOPTIMIZED_CNEC));
         }
-        if (linearOptimizerParameters.getLoopFlowParameters() != null) {
+        if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
             fillers.add(factory.createProblemFiller(MAX_LOOP_FLOW));
         }
     }

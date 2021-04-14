@@ -33,7 +33,11 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(PowerMockRunner.class)
 public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
-    static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
+    private static final double PST_SENSITIVITY_THRESHOLD = 0.0;
+    private static final double PST_PENALTY_COST = 0.01;
+    private static final double NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
+    private static final double PTDF_SUM_LOWER_BOUND = 0.01;
+    private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
 
     @Before
     public void setUp() {
@@ -44,7 +48,8 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha));
+            Map.of(rangeAction, initialAlpha),
+            PST_SENSITIVITY_THRESHOLD);
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
     }
 
@@ -53,7 +58,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             linearProblem,
             Map.of(cnec1, cnecInitialAbsolutePtdfSum),
             Set.of(rangeAction),
-            new MaxMinRelativeMarginParameters(unit));
+            new MaxMinRelativeMarginParameters(unit, PST_PENALTY_COST, NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT, PTDF_SUM_LOWER_BOUND));
         maxMinRelativeMarginFiller.fill(sensitivityAndLoopflowResults);
     }
 

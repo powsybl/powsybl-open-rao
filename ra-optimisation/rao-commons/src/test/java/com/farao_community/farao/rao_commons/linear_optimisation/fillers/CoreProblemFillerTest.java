@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({RaoUtil.class})
 public class CoreProblemFillerTest extends AbstractFillerTest {
+    private static final double PST_SENSITIVITY_THRESHOLD = 0.0;
 
     // some additional data
     private double minAlpha;
@@ -57,7 +58,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
             network,
             Set.of(cnec1),
             Map.of(rangeAction, initialAlpha),
-            RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD);
+            PST_SENSITIVITY_THRESHOLD);
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
 
         // check range action setpoint variable

@@ -18,7 +18,6 @@ import com.farao_community.farao.rao_commons.CnecResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.parameters.*;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -33,9 +32,15 @@ import static org.junit.Assert.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class ProblemFillerFactoryTest {
+    private static final double PST_SENSITIVITY_THRESHOLD = 0.0;
+    private static final double PST_PENALTY_COST = 0.01;
+    private static final double NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
+    private static final double PTDF_SUM_LOWER_BOUND = 0.01;
+    private static final double LOOP_FLOW_ACCEPTABLE_AUGMENTATION = 0.0;
+    private static final double LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
+    private static final double LOOP_FLOW_VIOLATION_COST = 0.0;
     private static final double DOUBLE_TOLERANCE = 0.01;
 
-    private Network network;
     private Crac crac;
     private LinearOptimizerInput input;
     private LinearOptimizerParameters parameters;
@@ -44,8 +49,6 @@ public class ProblemFillerFactoryTest {
     private BranchCnec cnecMnec;
     private BranchCnec pureMnec;
     private BranchCnec loopFlowCnec;
-    private RangeAction ra1;
-    private RangeAction ra2;
 
     private Map<BranchCnec, Double> initialAbsolutePtdfSumPerCnec;
     private Map<BranchCnec, Double> initialFlowPerCnec;
@@ -103,7 +106,7 @@ public class ProblemFillerFactoryTest {
             .setMinValue(-5.)
             .setMaxValue(5.)
             .add();
-        ra1 = crac.getRangeAction("pst1");
+        RangeAction ra1 = crac.getRangeAction("pst1");
 
         crac.newPstRangeAction()
             .setId("pst2")
@@ -112,7 +115,7 @@ public class ProblemFillerFactoryTest {
             .setMinValue(-5.)
             .setMaxValue(5.)
             .add();
-        ra2 = crac.getRangeAction("pst2");
+        RangeAction ra2 = crac.getRangeAction("pst2");
 
         initialFlowPerCnec = Map.of(
             pureCnec, 200.,
@@ -146,7 +149,6 @@ public class ProblemFillerFactoryTest {
             .withMostLimitingElements(List.of(cnecMnec, pureCnec, loopFlowCnec))
             .withRangeActions(crac.getRangeActions())
             .withPreperimeterSetpoints(Map.of(ra1, 0., ra2, 0.))
-            .withNetwork(network)
             .build();
 
         parameters = LinearOptimizerParameters.create().build();
@@ -164,7 +166,7 @@ public class ProblemFillerFactoryTest {
         // It has all the range actions with their initial set points
         assertEquals(crac.getRangeActions().size(), pfImpl.getPrePerimeterSetPointPerRangeAction().size());
         // Default pst sensitivity threshold value
-        assertEquals(CoreProblemFiller.DEFAULT_PST_SENSITIVITY_THRESHOLD, pfImpl.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertEquals(PST_SENSITIVITY_THRESHOLD, pfImpl.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -184,7 +186,7 @@ public class ProblemFillerFactoryTest {
     public void createMaxMinMarginFiller() {
         parameters = LinearOptimizerParameters.create()
             .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
-            .withPstPenaltyCost(MaxMinMarginParameters.DEFAULT_PST_PENALTY_COST)
+            .withPstPenaltyCost(PST_PENALTY_COST)
             .build();
         ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input, parameters).createMaxMinMarginFiller();
 
@@ -196,17 +198,17 @@ public class ProblemFillerFactoryTest {
         // It has got all the range actions
         assertEquals(crac.getRangeActions().size(), pfImpl.getRangeActions().size());
         // Default max min margin parameter values
-        assertEquals(parameters.getObjectiveFunction().getUnit(), pfImpl.getParameters().getUnit());
-        assertEquals(MaxMinMarginParameters.DEFAULT_PST_PENALTY_COST, pfImpl.getParameters().getPstPenaltyCost(), DOUBLE_TOLERANCE);
+        assertEquals(parameters.getUnit(), pfImpl.getParameters().getUnit());
+        assertEquals(PST_PENALTY_COST, pfImpl.getParameters().getPstPenaltyCost(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void createMaxMinRelativeMarginFiller() {
         parameters = LinearOptimizerParameters.create()
             .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
-            .withPstPenaltyCost(MaxMinMarginParameters.DEFAULT_PST_PENALTY_COST)
-            .withNegativeMarginObjectiveCoefficient(MaxMinRelativeMarginParameters.DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT)
-            .withPtdfSumLowerBound(MaxMinRelativeMarginParameters.DEFAULT_PTDF_SUM_LOWER_BOUND)
+            .withPstPenaltyCost(PST_PENALTY_COST)
+            .withNegativeMarginObjectiveCoefficient(NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT)
+            .withPtdfSumLowerBound(PTDF_SUM_LOWER_BOUND)
             .build();
         ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input, parameters).createMaxMinRelativeMarginFiller();
 
@@ -222,12 +224,12 @@ public class ProblemFillerFactoryTest {
         // It has got all the range actions
         assertEquals(crac.getRangeActions().size(), pfImpl.getRangeActions().size());
         // Default max min margin parameter values
-        assertEquals(parameters.getObjectiveFunction().getUnit(), pfImpl.getParameters().getUnit());
-        assertEquals(MaxMinMarginParameters.DEFAULT_PST_PENALTY_COST,
+        assertEquals(parameters.getUnit(), pfImpl.getParameters().getUnit());
+        assertEquals(PST_PENALTY_COST,
             pfImpl.getParameters().getPstPenaltyCost(), DOUBLE_TOLERANCE);
-        assertEquals(MaxMinRelativeMarginParameters.DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT,
+        assertEquals(NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT,
             pfImpl.getRelativeParameters().getNegativeMarginObjectiveCoefficient(), DOUBLE_TOLERANCE);
-        assertEquals(MaxMinRelativeMarginParameters.DEFAULT_PTDF_SUM_LOWER_BOUND,
+        assertEquals(PTDF_SUM_LOWER_BOUND,
             pfImpl.getRelativeParameters().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
     }
 
@@ -280,11 +282,10 @@ public class ProblemFillerFactoryTest {
     public void createMaxLoopFlowFiller() {
         parameters = LinearOptimizerParameters.create()
             .withLoopFlowParameters(new LoopFlowParameters(
-                true,
                 RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
-                RaoParameters.DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION,
-                RaoParameters.DEFAULT_LOOP_FLOW_VIOLATION_COST,
-                RaoParameters.DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT
+                LOOP_FLOW_ACCEPTABLE_AUGMENTATION,
+                LOOP_FLOW_VIOLATION_COST,
+                LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT
             ))
 
             .build();
@@ -299,11 +300,11 @@ public class ProblemFillerFactoryTest {
         // Default loop-flow parameter values
         assertEquals(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
             pfImpl.getLoopFlowParameters().getLoopFlowApproximationLevel());
-        assertEquals(RaoParameters.DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION,
+        assertEquals(LOOP_FLOW_ACCEPTABLE_AUGMENTATION,
             pfImpl.getLoopFlowParameters().getLoopFlowAcceptableAugmentation(), DOUBLE_TOLERANCE);
-        assertEquals(RaoParameters.DEFAULT_LOOP_FLOW_VIOLATION_COST,
+        assertEquals(LOOP_FLOW_VIOLATION_COST,
             pfImpl.getLoopFlowParameters().getLoopFlowViolationCost(), DOUBLE_TOLERANCE);
-        assertEquals(RaoParameters.DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT,
+        assertEquals(LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT,
             pfImpl.getLoopFlowParameters().getLoopFlowConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
     }
 }

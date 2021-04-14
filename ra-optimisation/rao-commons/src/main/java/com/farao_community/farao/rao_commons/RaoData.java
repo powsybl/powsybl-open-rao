@@ -274,7 +274,6 @@ public final class RaoData {
                 .withInitialCnecResults(getInitialCnecResults())
                 .withLoopflowCnecs(getLoopflowCnecs())
                 .withNetwork(getNetwork())
-                .withPrePerimeterCnecMarginsInAbsoluteMW(getPrePerimeterMarginsInAbsoluteMW())
                 .withPreperimeterSetpoints(getPrePerimeterSetPoints())
                 .withRangeActions(getAvailableRangeActions())
                 .build();

@@ -33,12 +33,13 @@ import static org.junit.Assert.*;
 
 @RunWith(PowerMockRunner.class)
 public class MaxLoopFlowFillerTest extends AbstractFillerTest {
+    private static final double PST_SENSITIVITY_THRESHOLD = 0.0;
 
     @Before
     public void setUp() {
         init();
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        coreProblemFiller = new CoreProblemFiller(linearProblem, network, Set.of(cnec1), Map.of(rangeAction, initialAlpha));
+        coreProblemFiller = new CoreProblemFiller(linearProblem, network, Set.of(cnec1), Map.of(rangeAction, initialAlpha), PST_SENSITIVITY_THRESHOLD);
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
     }
@@ -46,7 +47,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     public void testFill1() {
         LoopFlowParameters parameters = new LoopFlowParameters(
-            true,
             RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
             13.,
             10.,
@@ -81,7 +81,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     public void testFill2() {
         LoopFlowParameters parameters = new LoopFlowParameters(
-            true,
             RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
             30.,
             10.,
@@ -116,7 +115,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     public void testShouldUpdate() {
         LoopFlowParameters parameters = new LoopFlowParameters(
-            true,
             RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST,
             0.,
             10.,
@@ -152,7 +150,6 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     @Test
     public void testShouldNotUpdate() {
         LoopFlowParameters parameters = new LoopFlowParameters(
-            true,
             RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO,
             0.,
             10.,

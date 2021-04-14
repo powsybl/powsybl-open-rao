@@ -7,14 +7,13 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.parameters;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.RaoParameters;
 
-import java.util.Map;
 import java.util.Set;
 
 public class LinearOptimizerParameters {
     private RaoParameters.ObjectiveFunction objectiveFunction;
-    private Map<String, Integer> maxPstPerTso;
     private double pstSensitivityThreshold;
     private Set<String> operatorsNotToOptimize;
     private double negativeMarginObjectiveCoefficient;
@@ -31,8 +30,8 @@ public class LinearOptimizerParameters {
         return objectiveFunction;
     }
 
-    public Map<String, Integer> getMaxPstPerTso() {
-        return maxPstPerTso;
+    public Unit getUnit() {
+        return objectiveFunction.getUnit();
     }
 
     public double getPstSensitivityThreshold() {
@@ -59,13 +58,16 @@ public class LinearOptimizerParameters {
         return mnecParameters;
     }
 
+    public boolean isRaoWithLoopFlowLimitation() {
+        return loopFlowParameters != null;
+    }
+
     public LoopFlowParameters getLoopFlowParameters() {
         return loopFlowParameters;
     }
 
     public static final class LinearOptimizerParametersBuilder {
         private RaoParameters.ObjectiveFunction objectiveFunction;
-        private Map<String, Integer> maxPstPerTso;
         private double pstSensitivityThreshold;
         private Set<String> operatorsNotToOptimize;
         private MnecParameters mnecParameters;
@@ -76,11 +78,6 @@ public class LinearOptimizerParameters {
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withMaxPstPerTso(Map<String, Integer> maxPstPerTso) {
-            this.maxPstPerTso = maxPstPerTso;
             return this;
         }
 
@@ -122,7 +119,6 @@ public class LinearOptimizerParameters {
         public LinearOptimizerParameters build() {
             LinearOptimizerParameters linearOptimizerParameters = new LinearOptimizerParameters();
             linearOptimizerParameters.objectiveFunction = this.objectiveFunction;
-            linearOptimizerParameters.maxPstPerTso = this.maxPstPerTso;
             linearOptimizerParameters.pstSensitivityThreshold = this.pstSensitivityThreshold;
             linearOptimizerParameters.operatorsNotToOptimize = this.operatorsNotToOptimize;
             linearOptimizerParameters.negativeMarginObjectiveCoefficient = this.negativeMarginObjectiveCoefficient;

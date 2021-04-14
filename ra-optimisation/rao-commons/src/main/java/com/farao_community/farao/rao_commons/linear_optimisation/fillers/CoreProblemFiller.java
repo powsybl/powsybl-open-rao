@@ -27,8 +27,6 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CoreProblemFiller implements ProblemFiller {
-    public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
-
     private final LinearProblem linearProblem;
     private final Network network;
     private final Set<BranchCnec> cnecs;
@@ -45,13 +43,6 @@ public class CoreProblemFiller implements ProblemFiller {
         this.cnecs = cnecs;
         this.prePerimeterSetPointPerRangeAction = prePerimeterSetPointPerRangeAction;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
-    }
-
-    public CoreProblemFiller(LinearProblem linearProblem,
-                             Network network,
-                             Set<BranchCnec> cnecs,
-                             Map<RangeAction, Double> prePerimeterSetPointPerRangeAction) {
-        this(linearProblem, network, cnecs, prePerimeterSetPointPerRangeAction, DEFAULT_PST_SENSITIVITY_THRESHOLD);
     }
 
     final Set<BranchCnec> getCnecs() {

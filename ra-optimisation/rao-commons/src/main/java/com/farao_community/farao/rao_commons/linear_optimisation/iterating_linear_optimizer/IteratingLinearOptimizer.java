@@ -49,7 +49,6 @@ public final class IteratingLinearOptimizer {
                 .withLoopflowCnecs(iteratingLinearOptimizerInput.getLoopflowCnecs())
                 .withInitialCnecResults(iteratingLinearOptimizerInput.getInitialCnecResults())
                 .withNetwork(iteratingLinearOptimizerInput.getNetwork())
-                .withPrePerimeterCnecMarginsInAbsoluteMW(iteratingLinearOptimizerInput.getPrePerimeterCnecMarginsInAbsoluteMW())
                 .withPreperimeterSetpoints(iteratingLinearOptimizerInput.getPreperimeterSetpoints())
                 .withRangeActions(iteratingLinearOptimizerInput.getRangeActions())
                 .withMostLimitingElements(iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator().getMostLimitingElements(iteratingLinearOptimizerInput.getPreOptimSensitivityResults(), 10))
@@ -59,7 +58,6 @@ public final class IteratingLinearOptimizer {
     private static LinearOptimizerParameters createLinearOptimizerParameters(IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters) {
         return LinearOptimizerParameters.create()
                 .withObjectiveFunction(iteratingLinearOptimizerParameters.getObjectiveFunction())
-                .withMaxPstPerTso(iteratingLinearOptimizerParameters.getMaxPstPerTso())
                 .withPstSensitivityThreshold(iteratingLinearOptimizerParameters.getPstSensitivityThreshold())
                 .withOperatorsNotToOptimize(iteratingLinearOptimizerParameters.getOperatorsNotToOptimize())
                 .withNegativeMarginObjectiveCoefficient(iteratingLinearOptimizerParameters.getNegativeMarginObjectiveCoefficient())

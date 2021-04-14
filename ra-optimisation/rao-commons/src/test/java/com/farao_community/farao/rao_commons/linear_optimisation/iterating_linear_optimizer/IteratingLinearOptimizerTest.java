@@ -117,9 +117,18 @@ public class IteratingLinearOptimizerTest {
                 .build();
 
         RaoParameters raoParameters = new RaoParameters();
-        LoopFlowParameters loopFlowParameters = new LoopFlowParameters(raoParameters.isRaoWithLoopFlowLimitation(), raoParameters.getLoopFlowApproximationLevel(),
-                raoParameters.getLoopFlowAcceptableAugmentation(), raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
-        MnecParameters mnecParameters = new MnecParameters(raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost(), raoParameters.getMnecConstraintAdjustmentCoefficient());
+
+        LoopFlowParameters loopFlowParameters = new LoopFlowParameters(
+            raoParameters.getLoopFlowApproximationLevel(),
+            raoParameters.getLoopFlowAcceptableAugmentation(),
+            raoParameters.getLoopFlowViolationCost(),
+            raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
+
+        MnecParameters mnecParameters = new MnecParameters(
+            raoParameters.getMnecAcceptableMarginDiminution(),
+            raoParameters.getMnecViolationCost(),
+            raoParameters.getMnecConstraintAdjustmentCoefficient());
+
         iteratingLinearOptimizerParameters = IteratingLinearOptimizerParameters.create()
                 .withLoopFlowParameters(loopFlowParameters)
                 .withMnecParameters(mnecParameters)

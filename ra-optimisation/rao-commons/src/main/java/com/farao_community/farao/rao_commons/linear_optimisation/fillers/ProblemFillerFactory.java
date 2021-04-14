@@ -29,7 +29,6 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class ProblemFillerFactory {
-
     private final LinearProblem linearProblem;
     private final LinearOptimizerInput input;
     private final LinearOptimizerParameters parameters;
@@ -73,7 +72,7 @@ public final class ProblemFillerFactory {
             linearProblem,
             input.getCnecs().stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
             input.getRangeActions(),
-            new MaxMinMarginParameters(parameters.getObjectiveFunction().getUnit(), parameters.getPstPenaltyCost()));
+            new MaxMinMarginParameters(parameters.getUnit(), parameters.getPstPenaltyCost()));
     }
 
     ProblemFiller createMaxMinRelativeMarginFiller() {
@@ -84,7 +83,7 @@ public final class ProblemFillerFactory {
                 .collect(Collectors.toMap(Function.identity(), input::getInitialAbsolutePtdfSum)),
             input.getRangeActions(),
             new MaxMinRelativeMarginParameters(
-                parameters.getObjectiveFunction().getUnit(),
+                parameters.getUnit(),
                 parameters.getPstPenaltyCost(),
                 parameters.getNegativeMarginObjectiveCoefficient(),
                 parameters.getPtdfSumLowerBound()));
@@ -97,9 +96,9 @@ public final class ProblemFillerFactory {
                 .filter(Cnec::isMonitored)
                 .collect(Collectors.toMap(
                     Function.identity(),
-                    mnec -> input.getInitialFlow(mnec, parameters.getObjectiveFunction().getUnit()))
+                    mnec -> input.getInitialFlow(mnec, parameters.getUnit()))
                 ),
-            parameters.getObjectiveFunction().getUnit(),
+            parameters.getUnit(),
             parameters.getMnecParameters());
     }
 

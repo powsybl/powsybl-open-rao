@@ -13,18 +13,12 @@ import com.farao_community.farao.commons.Unit;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class MaxMinMarginParameters {
-    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
-
     protected final Unit unit;
-    protected double pstPenaltyCost;
+    protected final double pstPenaltyCost;
 
     public MaxMinMarginParameters(Unit unit, double pstPenaltyCost) {
         this.unit = unit;
         this.pstPenaltyCost = pstPenaltyCost;
-    }
-
-    public MaxMinMarginParameters(Unit unit) {
-        this(unit, DEFAULT_PST_PENALTY_COST);
     }
 
     public final Unit getUnit() {
