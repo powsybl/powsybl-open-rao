@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -28,39 +27,47 @@ public class NetworkElementImplTest {
 
     @Test
     public void testConstructorElementTest() {
-        NetworkElement networkElement = new NetworkElementImpl("basicElemId", "basicElemName");
+        NetworkElementImpl networkElement = new NetworkElementImpl("basicElemId", "basicElemName");
         assertEquals("basicElemId", networkElement.getId());
         assertEquals("basicElemName", networkElement.getName());
         assertEquals("basicElemId", networkElement.toString());
     }
 
     @Test
+    public void testEqualsLimits() {
+        NetworkElementImpl networkElement = new NetworkElementImpl("network-element-1", "name-1");
+        assertEquals(networkElement, networkElement);
+        assertNotEquals(networkElement, null);
+        assertNotEquals(networkElement, 1);
+    }
+
+    @Test
     public void testDifferent() {
-        NetworkElement networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
-        NetworkElement networkElement2 = new NetworkElementImpl("network-element-2", "name-2");
+        NetworkElementImpl networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
+        NetworkElementImpl networkElement2 = new NetworkElementImpl("network-element-2", "name-2");
 
         assertNotEquals(networkElement1, networkElement2);
     }
 
     @Test
     public void testEqualWithDifferentNames() {
-        NetworkElement networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
-        NetworkElement networkElement2 = new NetworkElementImpl("network-element-1", "name-2");
+        NetworkElementImpl networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
+        NetworkElementImpl networkElement2 = new NetworkElementImpl("network-element-1", "name-2");
 
         assertEquals(networkElement1, networkElement2);
     }
 
     @Test
     public void testEqualWithSameNames() {
-        NetworkElement networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
-        NetworkElement networkElement2 = new NetworkElementImpl("network-element-1", "name-1");
+        NetworkElementImpl networkElement1 = new NetworkElementImpl("network-element-1", "name-1");
+        NetworkElementImpl networkElement2 = new NetworkElementImpl("network-element-1", "name-1");
 
         assertEquals(networkElement1, networkElement2);
     }
 
     @Test
     public void testSimpleConstructor() {
-        NetworkElement networkElement = new NetworkElementImpl("network-element");
+        NetworkElementImpl networkElement = new NetworkElementImpl("network-element");
 
         assertEquals("network-element", networkElement.getId());
         assertEquals("network-element", networkElement.getName());
@@ -68,9 +75,9 @@ public class NetworkElementImplTest {
 
     @Test
     public void testHashCode() {
-        NetworkElement networkElement = new NetworkElementImpl("network-element");
+        NetworkElementImpl networkElement = new NetworkElementImpl("network-element");
 
-        assertEquals("network-element".hashCode(), networkElement.getId().hashCode());
+        assertEquals("network-element".hashCode(), networkElement.hashCode());
     }
 
     @Test

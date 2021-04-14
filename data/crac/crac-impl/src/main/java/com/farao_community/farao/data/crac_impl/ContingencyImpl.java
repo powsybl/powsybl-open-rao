@@ -46,6 +46,7 @@ public class ContingencyImpl extends AbstractIdentifiable<Contingency> implement
         this.networkElements = new HashSet<>();
     }
 
+    @Deprecated
     public void addNetworkElement(NetworkElement networkElement) {
         networkElements.add(networkElement);
     }

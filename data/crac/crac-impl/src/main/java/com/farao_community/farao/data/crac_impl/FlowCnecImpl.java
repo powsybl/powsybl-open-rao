@@ -241,9 +241,10 @@ public class FlowCnecImpl extends AbstractBranchCnec implements FlowCnec {
     }
 
     @Override
+    @Deprecated
     public void setReliabilityMargin(double reliabilityMargin) {
         if (reliabilityMargin < 0) {
-            throw new FaraoException();
+            throw new FaraoException("Reliability margin should be positive.");
         }
         this.frm = reliabilityMargin;
     }

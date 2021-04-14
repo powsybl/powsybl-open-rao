@@ -34,7 +34,9 @@ public interface BranchCnec extends Cnec<BranchCnec> {
      * Enables to add a {@link BranchThreshold} to the {@code BranchCnec}.
      *
      * @param branchThreshold: The {@link BranchThreshold} to be added to the {@code BranchCnec}
+     * @deprecated You will not be able to add thresholds to created CNECs anymore. Please use the {@link CnecAdder} with the {@link ThresholdAdder} accordingly.
      */
+    @Deprecated
     void addThreshold(BranchThreshold branchThreshold);
 
     /**

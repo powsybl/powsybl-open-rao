@@ -5,15 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl.threshold;
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.BranchThresholdAdderImpl;
-import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class FlowThresholdAdderTest {
+public class BranchThresholdAdderImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private Crac crac;
     private Contingency contingency;

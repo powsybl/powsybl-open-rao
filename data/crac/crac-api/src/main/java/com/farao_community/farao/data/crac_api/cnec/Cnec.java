@@ -55,6 +55,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I>, Synchronizable
      * @param reliabilityMargin : Value of the margin. If negative it would be more permissive than what would be
      *                          defined in the {@code thresholds}.
      */
+    @Deprecated
     void setReliabilityMargin(double reliabilityMargin);
 
     /**

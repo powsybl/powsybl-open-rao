@@ -48,11 +48,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
                 throw new FaraoException(String.format("Contingency %s of Cnec %s does not exist in the crac. Use crac.newContingency() first.", contingencyId, id));
             }
         }
-        if (Objects.isNull(networkElementName)) {
-            this.owner.addNetworkElement(networkElementId);
-        } else {
-            this.owner.addNetworkElement(networkElementId, networkElementName);
-        }
+        this.owner.addNetworkElement(networkElementId, networkElementName);
     }
 
     @Override
@@ -75,9 +71,13 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
 
     @Override
     public J withNetworkElement(String networkElementId, String networkElementName) {
-        this.networkElementId = networkElementId;
-        this.networkElementName = networkElementName;
-        return (J) this;
+        if (this.networkElementId != null) {
+            throw new FaraoException("Cannot add multiple network elements for a cnec.");
+        } else {
+            this.networkElementId = networkElementId;
+            this.networkElementName = networkElementName;
+            return (J) this;
+        }
     }
 
     @Override
