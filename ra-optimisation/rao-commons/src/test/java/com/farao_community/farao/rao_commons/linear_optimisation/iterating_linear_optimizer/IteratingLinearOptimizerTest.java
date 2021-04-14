@@ -108,7 +108,6 @@ public class IteratingLinearOptimizerTest {
                 .withObjectiveFunctionEvaluator(costEvaluator)
                 .withSystematicSensitivityInterface(systematicSensitivityInterface)
                 .withPreOptimSensitivityResults(preOptimSensitivityResults)
-                .withPrePerimeterCnecMarginsInAbsoluteMW(new HashMap<>())
                 .withPreperimeterSetpoints(prePerimeterSetpoints)
                 .withNetwork(network)
                 .withRangeActions(crac.getRangeActions())

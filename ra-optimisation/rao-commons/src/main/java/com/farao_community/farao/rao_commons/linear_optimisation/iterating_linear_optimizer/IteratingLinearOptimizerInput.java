@@ -21,7 +21,6 @@ public class IteratingLinearOptimizerInput {
     private Network network;
     private Map<RangeAction, Double> preperimeterSetpoints; // can be removed if we don't change taps in the network after each depth
     private CnecResults initialCnecResults;
-    private Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
     private SensitivityAndLoopflowResults preOptimSensitivityResults;
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
@@ -56,10 +55,6 @@ public class IteratingLinearOptimizerInput {
         return initialCnecResults;
     }
 
-    public Map<BranchCnec, Double> getPrePerimeterCnecMarginsInAbsoluteMW() {
-        return prePerimeterCnecMarginsInAbsoluteMW;
-    }
-
     public SensitivityAndLoopflowResults getPreOptimSensitivityResults() {
         return preOptimSensitivityResults;
     }
@@ -87,7 +82,6 @@ public class IteratingLinearOptimizerInput {
         private Network network;
         private Map<RangeAction, Double> preperimeterSetpoints;
         private CnecResults initialCnecResults;
-        private Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
         private SensitivityAndLoopflowResults preOptimSensitivityResults;
         private SystematicSensitivityInterface systematicSensitivityInterface;
         private ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
@@ -121,11 +115,6 @@ public class IteratingLinearOptimizerInput {
 
         public IteratingLinearOptimizerInputBuilder withInitialCnecResults(CnecResults initialCnecResults) {
             this.initialCnecResults = initialCnecResults;
-            return this;
-        }
-
-        public IteratingLinearOptimizerInputBuilder withPrePerimeterCnecMarginsInAbsoluteMW(Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW) {
-            this.prePerimeterCnecMarginsInAbsoluteMW = prePerimeterCnecMarginsInAbsoluteMW;
             return this;
         }
 
@@ -163,7 +152,6 @@ public class IteratingLinearOptimizerInput {
             iteratingLinearOptimizerInput.network = this.network;
             iteratingLinearOptimizerInput.preperimeterSetpoints = this.preperimeterSetpoints;
             iteratingLinearOptimizerInput.initialCnecResults = this.initialCnecResults;
-            iteratingLinearOptimizerInput.prePerimeterCnecMarginsInAbsoluteMW = this.prePerimeterCnecMarginsInAbsoluteMW;
             iteratingLinearOptimizerInput.preOptimSensitivityResults = this.preOptimSensitivityResults;
             iteratingLinearOptimizerInput.systematicSensitivityInterface = this.systematicSensitivityInterface;
             iteratingLinearOptimizerInput.objectiveFunctionEvaluator = this.objectiveFunctionEvaluator;

@@ -262,7 +262,6 @@ class Leaf {
                 .withNetwork(raoData.getNetwork())
                 .withPreperimeterSetpoints(raoData.getPrePerimeterSetPoints())
                 .withInitialCnecResults(raoData.getInitialCnecResults())
-                .withPrePerimeterCnecMarginsInAbsoluteMW(raoData.getPrePerimeterMarginsInAbsoluteMW())
                 .withPreOptimSensitivityResults(raoData.getSensitivityAndLoopflowResults())
                 .withSystematicSensitivityInterface(linearOptimizerSystematicSensitivityInterface)
                 .withObjectiveFunctionEvaluator(objectiveFunctionEvaluator)
