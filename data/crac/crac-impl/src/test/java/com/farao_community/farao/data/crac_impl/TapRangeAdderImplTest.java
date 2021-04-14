@@ -31,7 +31,8 @@ public class TapRangeAdderImplTest {
         pstRangeActionAdder = crac.newPstRangeAction()
             .withId("pstRangeActionId")
             .withName("pstRangeActionName")
-            .withOperator("operator");
+            .withOperator("operator")
+            .withNetworkElement("networkElementId");
     }
 
     @Test
@@ -94,6 +95,16 @@ public class TapRangeAdderImplTest {
             .withTapConvention(TapConvention.CENTERED_ON_ZERO)
             .withMinTap(5)
             .withMaxTap(-10)
+            .add();
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testStartsAtOneWithNegativeTaps() {
+        pstRangeActionAdder.newPstRange()
+            .withRangeType(RangeType.ABSOLUTE)
+            .withTapConvention(TapConvention.STARTS_AT_ONE)
+            .withMinTap(-5)
+            .withMaxTap(-3)
             .add();
     }
 }

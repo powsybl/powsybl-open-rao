@@ -70,7 +70,8 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + groupId.hashCode();
+        String nonNullGroupId = groupId == null ? "" : groupId;
+        result = 31 * result + nonNullGroupId.hashCode();
         return result;
     }
 }

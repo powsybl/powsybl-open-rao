@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
@@ -71,6 +72,11 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     public PstRangeAction add() {
         checkId();
         assertAttributeNotNull(networkElementId, "PstRangeAction", "network element", "withNetworkElement()");
+
+        if (!Objects.isNull(getCrac().getRemedialAction(id))) {
+            throw new FaraoException(String.format("A remedial action with id %s already exists", id));
+        }
+
         List<TapRange> validRanges = new ArrayList<>();
 
         if (usageRules.stream().allMatch(this::isPreventiveUsageRule)) {
@@ -93,13 +99,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
 
         //todo : check that initial tap is within range (requires initial tap to be in the adder, not in the synchronization)
 
-        NetworkElement networkElement;
-        if (Objects.isNull(networkElementName)) {
-            networkElement = this.getCrac().addNetworkElement(networkElementId);
-        } else {
-            networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        }
-
+        NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
         PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId);
         this.getCrac().addRangeAction(pstWithRange);
         return pstWithRange;

@@ -16,7 +16,13 @@ import com.farao_community.farao.data.crac_api.State;
  */
 public interface UsageRule {
 
+    /**
+     * Get the {@link UsageMethod} of the usage rule
+     */
     UsageMethod getUsageMethod();
 
+    /**
+     * Get the {@link UsageMethod} of the usage rule on a given state
+     */
     UsageMethod getUsageMethod(State state);
 }

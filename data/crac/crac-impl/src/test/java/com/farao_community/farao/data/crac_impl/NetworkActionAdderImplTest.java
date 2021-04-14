@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -164,5 +165,26 @@ public class NetworkActionAdderImplTest {
                 .withSetpoint(6)
                 .add()
             .add();
+    }
+
+
+    @Test
+    public void testIdNotUnique() {
+        crac.newPstRangeAction()
+            .withId("sameId")
+            .withOperator("BE")
+            .withNetworkElement("networkElementId")
+            .add();
+
+        try {
+            crac.newNetworkAction()
+                .withId("sameId")
+                .withOperator("BE")
+                .add();
+
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+        }
     }
 }

@@ -90,35 +90,26 @@ public class PstRangeActionImplTest {
         }
     }
 
-    @Test
+    @Test (expected = FaraoException.class)
     public void applyOnUnknownPst() {
         PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), new NetworkElementImpl("unknown PST"), "groupId");
-        try {
             pstRangeAction.apply(network, 50);
-            fail();
-        } catch (FaraoException e) {
-            assertEquals("PST unknown pst does not exist in the current network", e.getMessage());
-        }
     }
 
-    @Test
+    @Test (expected = FaraoException.class)
     public void applyOnTransformerWithNoPhaseShifter() {
         Network network = Importers.loadNetwork(
             "TestCase12Nodes_no_pst.uct",
             getClass().getResourceAsStream("/TestCase12Nodes_no_pst.uct"));
 
         PstRangeActionImpl notAPstRangeAction = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), networkElement, "groupId");
-        try {
-            notAPstRangeAction.apply(network, 50);
-            fail();
-        } catch (FaraoException e) {
-            assertEquals(String.format("Transformer %s is not a PST but is defined as a TapRange", notAPstRangeAction.getId()), e.getMessage());
-        }
+        notAPstRangeAction.apply(network, 50);
+
     }
 
     @Test
     public void pstWithoutSpecificRange() {
-        PstRangeActionImpl pstRangeActionWithoutSpecificRange = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), new NetworkElementImpl("unknown PST"), "groupId");
+        PstRangeActionImpl pstRangeActionWithoutSpecificRange = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), new NetworkElementImpl(networkElementId), "groupId");
         pstRangeActionWithoutSpecificRange.synchronize(network);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition()).getAlpha(), pstRangeActionWithoutSpecificRange.getMinValue(pstRangeActionWithoutSpecificRange.getCurrentValue(network)), 0);
         assertEquals(phaseTapChanger.getStep(phaseTapChanger.getHighTapPosition()).getAlpha(), pstRangeActionWithoutSpecificRange.getMaxValue(pstRangeActionWithoutSpecificRange.getCurrentValue(network)), 0);
@@ -191,7 +182,7 @@ public class PstRangeActionImplTest {
             pst.getCurrentValue(network);
             fail();
         } catch (FaraoException e) {
-            assertEquals("PST pst_range_id have not been synchronized so tap cannot be converted to angle", e.getMessage());
+            //should throw
         }
     }
 
@@ -268,7 +259,7 @@ public class PstRangeActionImplTest {
 
     @Test
     public void getMinValueWithNoSynchronizationFails() {
-        PstRangeActionImpl pst = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), networkElement);
+        PstRangeActionImpl pst = new PstRangeActionImpl("pst_range_id", "name", "operator", List.of(freeToUse), new ArrayList<>(), networkElement);
         try {
             pst.getCurrentValue(network);
             fail();
@@ -279,7 +270,7 @@ public class PstRangeActionImplTest {
 
     @Test
     public void synchronizeTwiceFails() {
-        PstRangeActionImpl pst = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), networkElement);
+        PstRangeActionImpl pst = new PstRangeActionImpl("pst_range_id", "name", "operator", List.of(freeToUse), new ArrayList<>(), networkElement);
         pst.synchronize(network);
         try {
             pst.synchronize(network);

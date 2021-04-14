@@ -68,8 +68,12 @@ public class TapRangeAdderImpl implements TapRangeAdder {
             throw new FaraoException("Max tap of TapRange must be equal or greater than min tap.");
         }
 
-        if (rangeDefinition.equals(TapConvention.STARTS_AT_ONE) && minTap < 1) {
-            throw new FaraoException("TapRange with STARTS_AT_ONE must have a min and max taps higher than 1");
+        if (minTap != Integer.MIN_VALUE && rangeDefinition.equals(TapConvention.STARTS_AT_ONE) && minTap < 1) {
+            throw new FaraoException("TapRange with STARTS_AT_ONE must have a min tap higher than 1");
+        }
+
+        if (rangeDefinition.equals(TapConvention.STARTS_AT_ONE) && maxTap < 1) {
+            throw new FaraoException("TapRange with STARTS_AT_ONE must have a max tap higher than 1");
         }
 
         TapRange pstRange = new TapRangeImpl(minTap, maxTap, rangeType, rangeDefinition);

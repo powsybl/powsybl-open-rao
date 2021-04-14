@@ -34,6 +34,32 @@ public class PstRangeActionAdderImplTest {
     @Test
     public void testAdd() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withNetworkElement(networkElementId)
+            .withGroupId("groupId1")
+            .newPstRange()
+                .withMinTap(-10)
+                .withMaxTap(10)
+                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+                .withRangeType(RangeType.ABSOLUTE)
+                .add()
+            .newFreeToUseUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .add();
+
+        assertEquals(1, crac.getRangeActions().size());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals("BE", pstRangeAction.getOperator());
+        assertEquals(1, pstRangeAction.getRanges().size());
+        assertEquals(1, pstRangeAction.getUsageRules().size());
+    }
+
+    @Test
+    public void testAddWithoutGroupId() {
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
@@ -116,6 +142,25 @@ public class PstRangeActionAdderImplTest {
                 .withId("id1")
                 .withOperator("BE")
                 .add();
+    }
+
+    @Test
+    public void testIdNotUnique() {
+        crac.newNetworkAction()
+            .withId("sameId")
+            .withOperator("BE")
+            .add();
+
+        try {
+            crac.newPstRangeAction()
+                .withId("sameId")
+                .withOperator("BE")
+                .withNetworkElement("networkElementId")
+                .add();
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+        }
     }
 
 }

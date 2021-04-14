@@ -7,11 +7,13 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.network_action.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -52,6 +54,9 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
     public NetworkAction add() {
         checkId();
 
+        if (!Objects.isNull(getCrac().getRemedialAction(id))) {
+            throw new FaraoException(String.format("A remedial action with id %s already exists", id));
+        }
         if (usageRules.isEmpty()) {
             LOGGER.warn("NetworkAction {} does not contain any usage rule, by default it will never be available", id);
         }
