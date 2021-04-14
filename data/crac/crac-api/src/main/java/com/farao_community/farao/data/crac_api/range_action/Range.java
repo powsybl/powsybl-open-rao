@@ -10,12 +10,20 @@ package com.farao_community.farao.data.crac_api.range_action;
 import com.farao_community.farao.commons.Unit;
 
 /**
+ * Generic interface for the definition of ranges
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface Range {
 
+    /**
+     * Get the {@link RangeType} of the range
+     */
     public RangeType getRangeType();
 
+    /**
+     * Get the {@link Unit} in which the bounds of the range are defined
+     */
     public Unit getUnit();
 
 }

@@ -7,9 +7,15 @@
 package com.farao_community.farao.data.crac_api.network_action;
 
 /***
+ * An injection setpoint is an Elementary Action which consists in changing
+ * the value of a given injection in the network.
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface InjectionSetpoint extends ElementaryAction {
 
+    /**
+     * Get the new setpoint that will be applied on the network element of the action
+     */
     double getSetpoint();
 }

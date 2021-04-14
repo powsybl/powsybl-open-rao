@@ -96,13 +96,13 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
      * Min angle value allowed by all ranges and the physical limitations of the PST itself
      */
     @Override
-    public double getMinValue(double prePerimeterValue) {
+    public double getMinValue(double previousInstantValue) {
         if (!isSynchronized) {
             throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its min value cannot be accessed", getId()));
         }
         double minValue = Math.min(convertTapToAngle(lowTapPosition), convertTapToAngle(highTapPosition));
         for (TapRange range: ranges) {
-            minValue = Math.max(getMinValueWithRange(range, prePerimeterValue), minValue);
+            minValue = Math.max(getMinValueWithRange(range, previousInstantValue), minValue);
         }
         return minValue;
     }
@@ -111,13 +111,13 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
      * Max angle value allowed by all ranges and the physical limitations of the PST itself
      */
     @Override
-    public double getMaxValue(double prePerimeterValue) {
+    public double getMaxValue(double previousInstantValue) {
         if (!isSynchronized) {
             throw new NotSynchronizedException(String.format("PST %s have not been synchronized so its max value cannot be accessed", getId()));
         }
         double maxValue = Math.max(convertTapToAngle(lowTapPosition), convertTapToAngle(highTapPosition));
         for (TapRange range: ranges) {
-            maxValue = Math.min(getMaxValueWithRange(range, prePerimeterValue), maxValue);
+            maxValue = Math.min(getMaxValueWithRange(range, previousInstantValue), maxValue);
         }
         return maxValue;
     }

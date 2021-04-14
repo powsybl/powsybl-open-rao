@@ -17,7 +17,7 @@ public interface PstSetpointAdder {
 
     PstSetpointAdder withNetworkElement(String networkElementId);
 
-    PstSetpointAdder withSetpoint(double setPoint);
+    PstSetpointAdder withSetpoint(int setPoint);
 
     PstSetpointAdder withTapConvention(TapConvention rangeDefinition);
 

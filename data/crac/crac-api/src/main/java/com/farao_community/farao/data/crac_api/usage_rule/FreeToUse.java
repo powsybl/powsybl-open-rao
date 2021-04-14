@@ -16,5 +16,9 @@ import com.farao_community.farao.data.crac_api.Instant;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface FreeToUse extends UsageRule {
+
+    /**
+     * Get the Instant of the free to use
+     */
     Instant getInstant();
 }

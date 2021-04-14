@@ -21,7 +21,7 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
     private NetworkActionAdderImpl ownerAdder;
     private String networkElementId;
     private String networkElementName;
-    private Double setpoint;
+    private Integer setpoint;
     private TapConvention rangeDefinition;
 
     PstSetpointAdderImpl(NetworkActionAdderImpl ownerAdder) {
@@ -42,7 +42,7 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
     }
 
     @Override
-    public PstSetpointAdder withSetpoint(double setPoint) {
+    public PstSetpointAdder withSetpoint(int setPoint) {
         this.setpoint = setPoint;
         return this;
     }

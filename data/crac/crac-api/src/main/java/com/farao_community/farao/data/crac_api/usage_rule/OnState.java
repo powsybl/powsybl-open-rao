@@ -18,9 +18,19 @@ import com.farao_community.farao.data.crac_api.State;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface OnState extends UsageRule {
+
+    /**
+     * Get the State of the OnState usage rule
+     */
     State getState();
 
+    /**
+     * Get the Contingency associated to the state of the OnState usage rule
+     */
     Contingency getContingency();
 
+    /**
+     * Get the Instant associated to the state of the OnState usage rule
+     */
     Instant getInstant();
 }

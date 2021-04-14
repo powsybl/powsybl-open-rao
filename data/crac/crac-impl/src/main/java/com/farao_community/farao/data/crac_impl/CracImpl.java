@@ -588,10 +588,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         pstRangeActions.remove(id);
 
         associatedNetworkElements.stream()
-            .filter(ne -> isNetworkElementUsedWithinCrac(ne.getId()))
+            .filter(ne -> !isNetworkElementUsedWithinCrac(ne.getId()))
             .forEach(ne -> networkElements.remove(ne.getId()));
         associatedStates.stream()
-            .filter(st -> isStateUsedWithinCrac(st.getId()))
+            .filter(st -> !isStateUsedWithinCrac(st.getId()))
             .forEach(st -> states.remove(st.getId()));
     }
 
@@ -644,11 +644,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         networkActions.remove(id);
 
         associatedNetworkElements.stream()
-            .filter(ne -> isNetworkElementUsedWithinCrac(ne.getId()))
+            .filter(ne -> !isNetworkElementUsedWithinCrac(ne.getId()))
             .forEach(ne -> networkElements.remove(ne.getId()));
 
         associatedStates.stream()
-            .filter(st -> isStateUsedWithinCrac(st.getId()))
+            .filter(st -> !isStateUsedWithinCrac(st.getId()))
             .forEach(st -> states.remove(st.getId()));
     }
 

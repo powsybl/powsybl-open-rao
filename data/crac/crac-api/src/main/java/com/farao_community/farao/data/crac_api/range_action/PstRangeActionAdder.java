@@ -19,18 +19,9 @@ public interface PstRangeActionAdder extends RemedialActionAdder<PstRangeActionA
 
     PstRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    /**
-     * Set the group ID if the PST is part of a group
-     * @param groupId: ID of the group
-     * @return the {@code PstRangeActionAdder} instance
-     */
     PstRangeActionAdder withGroupId(String groupId);
 
     TapRangeAdder newPstRange();
 
-    /**
-     * Add the new PST Range Action to the Crac
-     * @return the {@code Crac} instance
-     */
     PstRangeAction add();
 }

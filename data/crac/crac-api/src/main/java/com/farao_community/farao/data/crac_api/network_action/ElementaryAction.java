@@ -4,13 +4,23 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+/**
+ * Generic interface for the definition of elementary actions
+ *
+ * An elementary action is an action on the network which can be
+ * activated by a {@link NetworkAction}
+ *
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public interface ElementaryAction {
+
     /**
-     * Apply the actions on a given network.
-     * @param network The network in which the action is triggered
+     * Apply the elementary action on a given network.
      */
     void apply(Network network);
 
+    /**
+     * Get the Network Element associated to the elementary action
+     */
     NetworkElement getNetworkElement();
 }

@@ -26,12 +26,12 @@ import static com.farao_community.farao.data.crac_api.TapConvention.STARTS_AT_ON
 public final class PstSetpointImpl implements PstSetpoint {
 
     private NetworkElement networkElement;
-    private double setpoint;
+    private int setpoint;
     private TapConvention rangeDefinition;
 
     @Deprecated
     // TODO : convert to private package
-    public PstSetpointImpl(NetworkElement networkElement, double setpoint, TapConvention rangeDefinition) {
+    public PstSetpointImpl(NetworkElement networkElement, int setpoint, TapConvention rangeDefinition) {
         this.networkElement = networkElement;
         this.setpoint = setpoint;
         this.rangeDefinition = rangeDefinition;
@@ -43,7 +43,7 @@ public final class PstSetpointImpl implements PstSetpoint {
     }
 
     @Override
-    public double getSetpoint() {
+    public int getSetpoint() {
         return this.setpoint;
     }
 

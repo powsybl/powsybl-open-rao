@@ -10,14 +10,25 @@ package com.farao_community.farao.data.crac_api.range_action;
 import com.farao_community.farao.data.crac_api.TapConvention;
 
 /**
+ * Interface dedicated to the definition of the ranges of PSTs
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface TapRange extends Range {
 
+    /**
+     * Get the {@link TapConvention} of the range
+     */
     public TapConvention getTapConvention();
 
+    /**
+     * Get the minimum tap of the range
+     */
     public int getMinTap();
 
+    /**
+     * Get the maximum tap of the range
+     */
     public int getMaxTap();
 
 }

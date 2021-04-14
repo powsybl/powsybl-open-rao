@@ -37,12 +37,12 @@ public interface RangeAction extends RemedialAction<RangeAction>, Synchronizable
     /**
      * Get the lower bound of the range within which the setpoint must remain
      */
-    double getMinValue(double prePerimeterValue);
+    double getMinValue(double previousInstantValue);
 
     /**
      * Get the upper bound of the range within which the setpoint must remain
      */
-    double getMaxValue(double prePerimeterValue);
+    double getMaxValue(double previousInstantValue);
 
     /**
      * Get the value of the setpoint of the Range Action for a given Network
