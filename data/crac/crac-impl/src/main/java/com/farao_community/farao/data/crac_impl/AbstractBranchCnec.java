@@ -57,6 +57,7 @@ public abstract class AbstractBranchCnec extends AbstractCnec<BranchCnec> implem
     }
 
     @Override
+    @Deprecated
     public void addThreshold(BranchThreshold branchThreshold) {
         checkAndInitThreshold(branchThreshold);
         bounds.resetBounds();

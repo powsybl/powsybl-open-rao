@@ -2,10 +2,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -13,12 +9,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-@JsonIdentityInfo(scope = NetworkElement.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> implements NetworkElement {
-    @JsonCreator
+
     @Deprecated
     //todo : make private package
-    public NetworkElementImpl(@JsonProperty("id") String id, @JsonProperty("name") String name) {
+    public NetworkElementImpl(String id, String name) {
         super(id, name);
     }
 

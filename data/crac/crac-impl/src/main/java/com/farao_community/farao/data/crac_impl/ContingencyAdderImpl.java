@@ -22,7 +22,6 @@ import static java.lang.String.format;
 public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyAdder> implements ContingencyAdder {
     CracImpl owner;
     private final Set<NetworkElement> networkElements = new HashSet<>();
-    private final Set<String> xnodeIds = new HashSet<>();
 
     public ContingencyAdderImpl(CracImpl owner) {
         Objects.requireNonNull(owner);
@@ -49,12 +48,7 @@ public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyA
          * list copying the network element contained in the contingency.
          * Then we can create a new contingency referring to network elements already presents in the crac.
          */
-        NetworkElement networkElement;
-        if (Objects.isNull(networkElementName)) {
-            networkElement = this.owner.addNetworkElement(networkElementId);
-        } else {
-            networkElement = this.owner.addNetworkElement(networkElementId, networkElementName);
-        }
+        NetworkElement networkElement = this.owner.addNetworkElement(networkElementId, networkElementName);
         this.networkElements.add(networkElement);
         return this;
     }

@@ -71,6 +71,10 @@ public class ContingencyImplTest {
             "contingency-1", "contingency-1",
             Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
         );
+        assertEquals(contingencyImpl1, contingencyImpl1);
+        assertEquals(contingencyImpl1.hashCode(), contingencyImpl1.hashCode());
+        assertNotEquals(contingencyImpl1, null);
+        assertNotEquals(contingencyImpl1, 1.0);
 
         ContingencyImpl contingencyImpl2 = new ContingencyImpl(
             "contingency-1", "contingency-1",
@@ -78,6 +82,14 @@ public class ContingencyImplTest {
         );
 
         assertEquals(contingencyImpl1, contingencyImpl2);
+        assertEquals(contingencyImpl1.hashCode(), contingencyImpl2.hashCode());
+
+        ContingencyImpl contingencyImpl3 = new ContingencyImpl(
+                "contingency-3", "contingency-1",
+                Stream.of(new NetworkElementImpl("network-element-1"), new NetworkElementImpl("network-element-2")).collect(Collectors.toSet())
+        );
+        assertNotEquals(contingencyImpl1, contingencyImpl3);
+        assertTrue(contingencyImpl1.hashCode() < contingencyImpl3.hashCode());
     }
 
     @Test(expected = FaraoException.class)
@@ -103,6 +115,16 @@ public class ContingencyImplTest {
         assertTrue(network.getGenerator("GENERATOR_FR_2").getTerminal().isConnected());
         contingencyImpl.apply(network, computationManager);
         assertFalse(network.getGenerator("GENERATOR_FR_2").getTerminal().isConnected());
+    }
+
+    @Test
+    public void testApplyOnDanglingLine() {
+        Network network = Importers.loadNetwork("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/TestCase12NodesHvdc.uct"));
+        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.singleton(new NetworkElementImpl("BBE2AA1  XLI_OB1B 1")));
+        assertEquals(1, contingencyImpl.getNetworkElements().size());
+        assertTrue(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
+        contingencyImpl.apply(network, computationManager);
+        assertFalse(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
     }
 
     @Test

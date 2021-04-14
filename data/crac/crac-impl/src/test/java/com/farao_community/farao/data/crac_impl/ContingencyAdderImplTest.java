@@ -91,4 +91,33 @@ public class ContingencyAdderImplTest {
         assertTrue(crac.getContingency("cont") instanceof ContingencyImpl);
         assertEquals(0, crac.getContingency("cont").getNetworkElements().size());
     }
+
+    @Test
+    public void testAddExistingSameContingency() {
+        Contingency contingency1 = crac.newContingency()
+                .withId("conId1")
+                .withName("conName1")
+                .withNetworkElement("neId1", "neName1")
+                .add();
+        Contingency contingency2 = crac.newContingency()
+                .withId("conId1")
+                .withName("conName1")
+                .withNetworkElement("neId1", "neName1")
+                .add();
+        assertSame(contingency1, contingency2);
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testAddExistingDifferentContingency() {
+        crac.newContingency()
+                .withId("conId1")
+                .withName("conName1")
+                .withNetworkElement("neId1", "neName1")
+                .add();
+        crac.newContingency()
+                .withId("conId1")
+                .withName("conName1")
+                .withNetworkElement("neId2", "neName1")
+                .add();
+    }
 }

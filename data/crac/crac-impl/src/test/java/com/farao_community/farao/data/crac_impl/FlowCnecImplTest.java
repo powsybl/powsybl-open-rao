@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
@@ -57,6 +58,11 @@ public class FlowCnecImplTest {
     private void fillThresholdsAndSynchronize(AbstractBranchCnec cnec) {
         thresholds.forEach(cnec::addThreshold);
         cnec.synchronize(network12nodes);
+    }
+
+    private AbstractBranchCnec initLineCnec(Set<BranchThresholdImpl> thresholds) {
+        State state = Mockito.mock(State.class);
+        return new FlowCnecImpl("line-cnec", "line-cnec", new NetworkElementImpl("FFR2AA1  FFR3AA1  1"), "FR", state, true, false, new HashSet<>(), 0.0);
     }
 
     @Test
@@ -349,6 +355,13 @@ public class FlowCnecImplTest {
     }
 
     @Test
+    public void testCnecWithMissingCurrentLimit2() {
+        network12nodes = Importers.loadNetwork("TestCase2Nodes_missingCurrentLimits.xiidm", getClass().getResourceAsStream("/TestCase2Nodes_missingCurrentLimits.xiidm"));
+        testOnSynchronize("FRANCE_BELGIUM_2", BranchThresholdRule.ON_LEFT_SIDE, 721.688);
+        testOnSynchronize("FRANCE_BELGIUM_2", BranchThresholdRule.ON_RIGHT_SIDE, 721.688 / 2);
+    }
+
+    @Test
     public void testCopy() {
         thresholds.add(new BranchThresholdImpl(Unit.MEGAWATT, -500., null, BranchThresholdRule.ON_LEFT_SIDE));
         thresholds.add(new BranchThresholdImpl(Unit.MEGAWATT, -200., 200., BranchThresholdRule.ON_LEFT_SIDE));
@@ -411,5 +424,28 @@ public class FlowCnecImplTest {
         assertEquals(2, countries.size());
         assertTrue(countries.contains(Optional.of(Country.DE)));
         assertTrue(countries.contains(Optional.of(Country.NL)));
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testCnecWithMissingCurrentLimits() {
+        State state = Mockito.mock(State.class);
+        AbstractBranchCnec lineCnec = new FlowCnecImpl("line-cnec", "line-cnec", new NetworkElementImpl("DDE1AA1  DDE3AA1  1"), "FR", state, true, false, new HashSet<>(), 0.0);
+        lineCnec.synchronize(network12nodes);
+    }
+
+    @Test
+    public void testEquals() {
+        assertEquals(lineCnec, lineCnec);
+        assertNotEquals(lineCnec, transformerCnec);
+        assertNotEquals(lineCnec, null);
+        assertNotEquals(lineCnec, 1);
+        assertEquals(lineCnec, new FlowCnecImpl("line-cnec", "line-cnec", new NetworkElementImpl("FFR2AA1  FFR3AA1  1"), "FR", lineCnec.getState(), true, false, new HashSet<>(), 0.0));
+    }
+
+    @Test
+    public void testHashCode() {
+        assertEquals(lineCnec.hashCode(), lineCnec.hashCode());
+        assertNotEquals(lineCnec.hashCode(), transformerCnec.hashCode());
+        assertEquals(lineCnec.hashCode(), (new FlowCnecImpl("line-cnec", "line-cnec", new NetworkElementImpl("FFR2AA1  FFR3AA1  1"), "FR", lineCnec.getState(), true, false, new HashSet<>(), 0.0)).hashCode());
     }
 }
