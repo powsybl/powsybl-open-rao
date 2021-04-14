@@ -167,7 +167,6 @@ public class NetworkActionAdderImplTest {
             .add();
     }
 
-
     @Test
     public void testIdNotUnique() {
         crac.newPstRangeAction()

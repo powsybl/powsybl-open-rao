@@ -93,7 +93,7 @@ public class PstRangeActionImplTest {
     @Test (expected = FaraoException.class)
     public void applyOnUnknownPst() {
         PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("id", "name", "operator", List.of(freeToUse), new ArrayList<>(), new NetworkElementImpl("unknown PST"), "groupId");
-            pstRangeAction.apply(network, 50);
+        pstRangeAction.apply(network, 50);
     }
 
     @Test (expected = FaraoException.class)

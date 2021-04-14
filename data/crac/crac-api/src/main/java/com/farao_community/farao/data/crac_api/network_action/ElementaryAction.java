@@ -1,7 +1,6 @@
 package com.farao_community.farao.data.crac_api.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Network;
 
 /**
