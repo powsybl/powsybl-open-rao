@@ -12,17 +12,7 @@ package com.farao_community.farao.data.crac_api;
  */
 public interface IdentifiableAdder<I> {
 
-    /**
-     * Set the ID of the {@link Identifiable}
-     * @param id: ID to set
-     * @return the {@code IdentifiableAdder} instance
-     */
     I withId(String id);
 
-    /**
-     * Set the name of the {@link Identifiable}
-     * @param name: Name to set
-     * @return the {@code IdentifiableAdder} instance
-     */
     I withName(String name);
 }

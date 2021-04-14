@@ -14,24 +14,9 @@ import com.farao_community.farao.commons.Unit;
  */
 public interface ThresholdAdder<I extends ThresholdAdder<I>> {
 
-    /**
-     * Set the unit for the threshold to add to cnec
-     * @param unit: unit of the threshold
-     * @return the {@code ThresholdAdder} instance
-     */
     I withUnit(Unit unit);
 
-    /**
-     * Set the value of the threshold to add to cnec
-     * @param max: value of threshold
-     * @return the {@code ThresholdAdder} instance
-     */
     I withMax(Double max);
 
-    /**
-     * Set the value of the threshold to add to cnec
-     * @param min: value of threshold
-     * @return the {@code ThresholdAdder} instance
-     */
     I withMin(Double min);
 }

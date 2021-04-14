@@ -85,13 +85,13 @@ public abstract class AbstractBranchCnec extends AbstractCnec<BranchCnec> implem
             case ON_REGULATED_SIDE:
                 // TODO: This is verified only when the network is in UCTE format.
                 //  Make it cleaner when we will have to work with other network format and the ON_REGULATED_SIDE rule
-                branchThreshold.setSide(Side.LEFT);
+                ((BranchThresholdImpl) branchThreshold).setSide(Side.LEFT);
                 break;
             case ON_RIGHT_SIDE:
             case ON_NON_REGULATED_SIDE:
                 // TODO: This is verified only when the network is in UCTE format.
                 //  Make it cleaner when we will have to work with other network format and the ON_NON_REGULATED_SIDE rule
-                branchThreshold.setSide(Side.RIGHT);
+                ((BranchThresholdImpl) branchThreshold).setSide(Side.RIGHT);
                 break;
             default:
                 break;
@@ -112,16 +112,16 @@ public abstract class AbstractBranchCnec extends AbstractCnec<BranchCnec> implem
                     break; // These cases have already been handled at object creation or when adding thresholds
                 case ON_LOW_VOLTAGE_LEVEL:
                     if (getNominalVoltage(Side.LEFT) <= getNominalVoltage(Side.RIGHT)) {
-                        threshold.setSide(Side.LEFT);
+                        ((BranchThresholdImpl) threshold).setSide(Side.LEFT);
                     } else {
-                        threshold.setSide(Side.RIGHT);
+                        ((BranchThresholdImpl) threshold).setSide(Side.RIGHT);
                     }
                     break;
                 case ON_HIGH_VOLTAGE_LEVEL:
                     if (getNominalVoltage(Side.LEFT) < getNominalVoltage(Side.RIGHT)) {
-                        threshold.setSide(Side.RIGHT);
+                        ((BranchThresholdImpl) threshold).setSide(Side.RIGHT);
                     } else {
-                        threshold.setSide(Side.LEFT);
+                        ((BranchThresholdImpl) threshold).setSide(Side.LEFT);
                     }
                     break;
                 default:

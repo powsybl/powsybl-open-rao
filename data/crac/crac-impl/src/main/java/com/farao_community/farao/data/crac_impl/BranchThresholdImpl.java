@@ -51,8 +51,7 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
         return side;
     }
 
-    @Override
-    public void setSide(Side side) {
+    void setSide(Side side) {
         this.side = side;
     }
 

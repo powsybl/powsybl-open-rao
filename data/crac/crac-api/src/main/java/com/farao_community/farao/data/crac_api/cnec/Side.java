@@ -10,11 +10,10 @@ package com.farao_community.farao.data.crac_api.cnec;
 import com.powsybl.iidm.network.Branch;
 
 /**
- * Side
+ * Side of a branch
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
 public enum Side {
     LEFT(Branch.Side.ONE),
     RIGHT(Branch.Side.TWO);

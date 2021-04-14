@@ -16,9 +16,5 @@ public interface ContingencyAdder extends IdentifiableAdder<ContingencyAdder> {
 
     ContingencyAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    /**
-     * Add the new contingency to the Crac
-     * @return the created {@code Contingency} instance
-     */
     Contingency add();
 }

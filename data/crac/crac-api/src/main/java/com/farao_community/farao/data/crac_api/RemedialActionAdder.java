@@ -20,5 +20,4 @@ public interface RemedialActionAdder<T extends RemedialActionAdder<T>> extends I
     FreeToUseAdder<T> newFreeToUseUsageRule();
 
     OnStateAdder<T> newOnStateUsageRule();
-
 }

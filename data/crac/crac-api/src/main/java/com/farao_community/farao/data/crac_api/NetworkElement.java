@@ -14,15 +14,18 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Element of the network in the CRAC file.
+ * Element of the network referenced in the Crac
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public interface NetworkElement extends Identifiable<NetworkElement> {
+
     /**
-     * Returns the location of the network element, as a set of optional countries
-     * @param network: the network object used to look for the network element
-     * @return a set of optional countries containing the network element
+     * Returns the location of the cnec, as a set of optional countries
+     *
+     * @param network: the network object used to look for the location of the network element of the Cnec
+     * @return a set of optional countries containing the cnec location(s). Note that a Cnec on a interconnection can
+     * belong to two countries.
      */
     Set<Optional<Country>> getLocation(Network network);
 }

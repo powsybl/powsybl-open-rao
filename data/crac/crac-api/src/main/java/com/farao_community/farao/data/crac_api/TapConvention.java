@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_api;
 
 /**
- * Definition of the range
+ * Convention to define range or setpoint of PSTs
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */

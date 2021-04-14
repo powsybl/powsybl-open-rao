@@ -7,22 +7,38 @@
 
 package com.farao_community.farao.data.crac_api;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.util.Optional;
 
 /**
+ * A State is a situation defined by an {@link Instant} and an optional {@link Contingency}
+ *
+ * It can be the preventive state, which takes place at Instant.PREVENTIVE.
+ *
+ * Or a post-contingency state, which takes place at another instant than
+ * Instant.PREVENTIVE, and after a given contingency.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface State extends Comparable<State> {
 
+    /**
+     * Get the id of the state
+     */
     String getId();
 
+    /**
+     * Get the instant of the state
+     */
     Instant getInstant();
 
+    /**
+     * Get the contingency of the state. It is empty for the preventive state
+     */
     Optional<Contingency> getContingency();
 
+    /**
+     * Returns a boolean indicating whether or not the state is the preventive one
+     */
     default boolean isPreventive() {
         return getContingency().isEmpty();
     }

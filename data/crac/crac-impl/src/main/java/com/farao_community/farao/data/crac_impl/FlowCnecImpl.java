@@ -242,6 +242,7 @@ public class FlowCnecImpl extends AbstractBranchCnec implements FlowCnec {
 
     @Override
     @Deprecated
+    //todo: delete method
     public void setReliabilityMargin(double reliabilityMargin) {
         if (reliabilityMargin < 0) {
             throw new FaraoException("Reliability margin should be positive.");
@@ -251,12 +252,14 @@ public class FlowCnecImpl extends AbstractBranchCnec implements FlowCnec {
 
     @Override
     @Deprecated
+    //todo: delete method
     public FlowCnec copy() {
         return new FlowCnecImpl(getId(), getName(), networkElement, getOperator(), state, optimized, monitored, thresholds, frm);
     }
 
     @Override
     @Deprecated
+    //todo: delete method
     public FlowCnec copy(NetworkElement networkElement, State state) {
         return new FlowCnecImpl(getId(), getName(), networkElement, getOperator(), state, optimized, monitored, thresholds, frm);
     }
