@@ -16,17 +16,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class TopologicalActionAdderImplTest {
 
+    private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
     @Before
     public void setUp() {
-        Crac crac = new CracImplFactory().create("cracId");
+        crac = new CracImplFactory().create("cracId");
         networkActionAdder = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -44,6 +46,8 @@ public class TopologicalActionAdderImplTest {
         TopologicalAction topologicalAction = (TopologicalAction) networkAction.getElementaryActions().iterator().next();
         assertEquals("branchNetworkElementId", topologicalAction.getNetworkElement().getId());
         assertEquals(ActionType.OPEN, topologicalAction.getActionType());
+        assertEquals(1, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement("branchNetworkElementId"));
     }
 
     @Test (expected = FaraoException.class)

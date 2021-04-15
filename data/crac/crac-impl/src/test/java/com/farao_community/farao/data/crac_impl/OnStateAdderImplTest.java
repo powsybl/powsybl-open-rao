@@ -17,20 +17,20 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class OnStateAdderImplTest {
 
+    private Crac crac;
     private Contingency contingency;
     private NetworkActionAdder remedialActionAdder;
 
     @Before
     public void setUp() {
-        Crac crac = new CracImplFactory().create("cracId");
+        crac = new CracImplFactory().create("cracId");
 
         contingency = crac.newContingency()
             .withId("contingencyId")
@@ -57,6 +57,8 @@ public class OnStateAdderImplTest {
         assertEquals(Instant.CURATIVE, ((OnState) remedialAction.getUsageRules().get(0)).getState().getInstant());
         assertEquals(contingency, ((OnState) remedialAction.getUsageRules().get(0)).getState().getContingency().orElse(null));
         assertEquals(UsageMethod.AVAILABLE, ((OnState) remedialAction.getUsageRules().get(0)).getUsageMethod());
+        assertEquals(1, crac.getStates().size());
+        assertNotNull(crac.getState("contingencyId", Instant.CURATIVE));
     }
 
     @Test (expected = FaraoException.class)

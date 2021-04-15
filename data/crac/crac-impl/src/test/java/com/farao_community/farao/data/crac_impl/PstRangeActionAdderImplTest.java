@@ -15,6 +15,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.*;
 
 /**
@@ -55,6 +57,8 @@ public class PstRangeActionAdderImplTest {
         assertEquals("BE", pstRangeAction.getOperator());
         assertEquals(1, pstRangeAction.getRanges().size());
         assertEquals(1, pstRangeAction.getUsageRules().size());
+        assertEquals(1, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement(networkElementId));
     }
 
     @Test

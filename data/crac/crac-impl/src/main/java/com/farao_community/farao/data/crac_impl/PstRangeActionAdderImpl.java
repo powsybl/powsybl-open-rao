@@ -101,7 +101,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
         PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId);
-        this.getCrac().addRangeAction(pstWithRange);
+        this.getCrac().addPstRangeAction(pstWithRange);
         return pstWithRange;
     }
 

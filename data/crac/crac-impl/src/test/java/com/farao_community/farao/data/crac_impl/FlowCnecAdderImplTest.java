@@ -131,6 +131,23 @@ public class FlowCnecAdderImplTest {
         assertEquals("neId2", cnec2.getNetworkElement().getName());
         assertEquals(500.0, cnec2.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(cnec2.getLowerBound(LEFT, Unit.MEGAWATT).isPresent());
+
+        // Verify that network elements were created
+        crac.newFlowCnec()
+                .withId("cnecId3")
+                .withInstant(Instant.PREVENTIVE)
+                .withOperator("cnec2Operator")
+                .withNetworkElement("neId2") // same as cnec2
+                .newThreshold().withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(500.0).add()
+                .add();
+        assertEquals(2, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement("neId1"));
+        assertNotNull(crac.getNetworkElement("neId2"));
+
+        // Verify states were created
+        assertEquals(2, crac.getStates().size());
+        assertNotNull(crac.getPreventiveState());
+        assertNotNull(crac.getState(contingency1Id, Instant.OUTAGE));
     }
 
     @Test

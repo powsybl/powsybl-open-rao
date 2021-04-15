@@ -15,17 +15,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class InjectionSetpointAdderImplTest {
 
+    private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
     @Before
     public void setUp() {
-        Crac crac = new CracImplFactory().create("cracId");
+        crac = new CracImplFactory().create("cracId");
         networkActionAdder = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -43,6 +45,8 @@ public class InjectionSetpointAdderImplTest {
         InjectionSetpoint injectionSetpoint = (InjectionSetpoint) networkAction.getElementaryActions().iterator().next();
         assertEquals("groupNetworkElementId", injectionSetpoint.getNetworkElement().getId());
         assertEquals(100., injectionSetpoint.getSetpoint(), 1e-3);
+        assertEquals(1, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement("groupNetworkElementId"));
     }
 
     @Test (expected = FaraoException.class)

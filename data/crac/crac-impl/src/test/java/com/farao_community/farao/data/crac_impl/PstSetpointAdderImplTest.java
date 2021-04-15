@@ -16,17 +16,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PstSetpointAdderImplTest {
 
+    private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
     @Before
     public void setUp() {
-        Crac crac = new CracImplFactory().create("cracId");
+        crac = new CracImplFactory().create("cracId");
         networkActionAdder = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
@@ -47,6 +49,8 @@ public class PstSetpointAdderImplTest {
         assertEquals("pstNetworkElementId", pstSetpoint.getNetworkElement().getId());
         assertEquals(0, pstSetpoint.getSetpoint(), 1e-3);
         assertEquals(TapConvention.STARTS_AT_ONE, pstSetpoint.getTapConvention());
+        assertEquals(1, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement("pstNetworkElementId"));
     }
 
     @Test (expected = FaraoException.class)

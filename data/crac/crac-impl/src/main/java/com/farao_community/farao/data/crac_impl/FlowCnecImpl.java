@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Network;
@@ -34,7 +33,6 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonTypeName("flow-cnec")
 public class FlowCnecImpl extends AbstractBranchCnec implements FlowCnec {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowCnecImpl.class);
     private static final String TIE_LINE_WARN = "For tie-line {}, the network element ID {} is not half1 nor half2 IDs. Most limiting threshold will be taken.";

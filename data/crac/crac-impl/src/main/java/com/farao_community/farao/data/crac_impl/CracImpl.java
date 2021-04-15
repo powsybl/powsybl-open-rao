@@ -22,7 +22,6 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
@@ -77,20 +76,35 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     @Deprecated
-    //todo: delete
+    //todo: make private package or delete
     public final Set<NetworkElement> getNetworkElements() {
         return new HashSet<>(networkElements.values());
     }
 
     @Override
     @Deprecated
-    //todo: delete
+    //todo: make private package or delete
     public final NetworkElement getNetworkElement(String id) {
         return networkElements.getOrDefault(id, null);
     }
 
-    private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
+    /**
+     * Removes NetworkElement objects from the Crac, if they are not used within other objects of the Crac.
+     * Only NetworkElement objects that are not referenced are removed.
+     * @param networkElementIds: IDs of the network elements to remove
+     */
+    void safeRemoveNetworkElements(Set<String> networkElementIds) {
+        networkElementIds.stream()
+                .filter(networkElementId -> !isNetworkElementUsedWithinCrac(networkElementId))
+                .forEach(networkElements::remove);
+    }
 
+    /**
+     * Check if a NetworkElement is referenced in the CRAC (ie in a Contingency, a Cnec or a RemedialAction)
+     * @param networkElementId: ID of the NetworkElement
+     * @return true if the NetworkElement is referenced in a Contingency, a Cnec or a RemedialAction
+     */
+    private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
         if (getContingencies().stream()
             .flatMap(co -> co.getNetworkElements().stream())
             .anyMatch(ne -> ne.getId().equals(networkElementId))) {
@@ -118,8 +132,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @param networkElementName: network element name for more human readable name
      * @return a network element object that is already defined in the crac
      */
-    // TODO : convert to private package
     @Deprecated
+    // TODO : convert to private package
     public NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
         String name = (networkElementName != null) ? networkElementName : networkElementId;
         NetworkElement cracNetworkElement = getNetworkElement(networkElementId);
@@ -182,9 +196,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     /**
-     * Check if a contingency is referenced in the CRAC (ie in a Cnec or in a RemedialAction's UsageRule)
-     * @param contingencyId: ID of the contingency
-     * @return true if the contingency is referenced in a Cnec or in a RemedialAction's UsageRule
+     * Check if a Contingency is referenced in the CRAC (ie in a Cnec or in a RemedialAction's UsageRule)
+     * @param contingencyId: ID of the Contingency
+     * @return true if the Contingency is referenced in a Cnec or in a RemedialAction's UsageRule
      */
     private boolean isContingencyUsedWithinCrac(String contingencyId) {
         if (getCnecs().stream().anyMatch(cnec -> cnec.getState().getContingency().isPresent()
@@ -209,7 +223,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    @JsonIgnore
     public State getPreventiveState() {
         return states.get("preventive");
     }
@@ -273,8 +286,23 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         }
     }
 
-    private boolean isStateUsedWithinCrac(String stateId) {
+    /**
+     * Removes State objects from the Crac, if they are not used within other objects of the Crac
+     * Only State objects that are not referenced are removed.
+     * @param stateIds: IDs of the States to remove
+     */
+    void safeRemoveStates(Set<String> stateIds) {
+        stateIds.stream()
+                .filter(stateId -> !isStateUsedWithinCrac(stateId))
+                .forEach(states::remove);
+    }
 
+    /**
+     * Check if a State is referenced in the CRAC (ie in a Cnec or a RemedialAction's UsageRule)
+     * @param stateId: ID of the State
+     * @return true if the State is referenced in a Cnec or a RemedialAction's UsageRule
+     */
+    private boolean isStateUsedWithinCrac(String stateId) {
         if (getCnecs().stream()
             .anyMatch(cnec -> cnec.getState().getId().equals(stateId))) {
             return true;
@@ -347,21 +375,18 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     @Deprecated
-    //keep method
     public BranchCnec getBranchCnec(String id) {
         return getFlowCnec(id);
     }
 
     @Override
     @Deprecated
-    //keep method
     public Set<BranchCnec> getBranchCnecs() {
         return new HashSet<>(flowCnecs.values());
     }
 
     @Override
     @Deprecated
-    //keep method
     public Set<BranchCnec> getBranchCnecs(State state) {
         return new HashSet<>(getFlowCnecs(state));
     }
@@ -398,12 +423,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         String neId = flowCnecToRemove.getNetworkElement().getId();
         String stateId = flowCnecToRemove.getState().getId();
         flowCnecs.remove(flowCnecId);
-        if (!isNetworkElementUsedWithinCrac(neId)) {
-            networkElements.remove(neId);
-        }
-        if (!isStateUsedWithinCrac(stateId)) {
-            states.remove(stateId);
-        }
+        safeRemoveNetworkElements(Collections.singleton(neId));
+        safeRemoveStates(Collections.singleton(stateId));
     }
 
     @Deprecated
@@ -576,31 +597,31 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void removePstRangeAction(String id) {
-
         PstRangeAction rangeActionToRemove = pstRangeActions.get(id);
         if (Objects.isNull(rangeActionToRemove)) {
             return;
         }
 
-        Set<NetworkElement> associatedNetworkElements = rangeActionToRemove.getNetworkElements();
-        Set<State> associatedStates = getAssociatedStates(rangeActionToRemove);
+        Set<String> associatedNetworkElementsIds = rangeActionToRemove.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> associatedStatesIds = getAssociatedStates(rangeActionToRemove).stream().map(State::getId).collect(Collectors.toSet());
 
         pstRangeActions.remove(id);
 
-        associatedNetworkElements.stream()
-            .filter(ne -> isNetworkElementUsedWithinCrac(ne.getId()))
-            .forEach(ne -> networkElements.remove(ne.getId()));
-        associatedStates.stream()
-            .filter(st -> isStateUsedWithinCrac(st.getId()))
-            .forEach(st -> states.remove(st.getId()));
+        safeRemoveNetworkElements(associatedNetworkElementsIds);
+        safeRemoveStates(associatedStatesIds);
+    }
+
+    @Deprecated
+    // TODO : delete this
+    public void addRangeAction(RangeAction rangeAction) {
+        addPstRangeAction((PstRangeAction) rangeAction);
     }
 
     @Deprecated
     // TODO : convert to private package
-    public void addRangeAction(RangeAction rangeAction) {
-        addStatesForRemedialAction(rangeAction); // TODO : remove this ?
-        // TODO : verify ID is unique
-        pstRangeActions.put(rangeAction.getId(), (PstRangeAction) rangeAction);
+    public void addPstRangeAction(PstRangeAction pstRangeAction) {
+        addStatesForRemedialAction(pstRangeAction); // TODO : remove this ?
+        pstRangeActions.put(pstRangeAction.getId(), pstRangeAction);
     }
 
     // endregion
@@ -632,31 +653,24 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void removeNetworkAction(String id) {
-
         NetworkAction networkActionToRemove = networkActions.get(id);
         if (Objects.isNull(networkActionToRemove)) {
             return;
         }
 
-        Set<NetworkElement> associatedNetworkElements = networkActionToRemove.getNetworkElements();
-        Set<State> associatedStates = getAssociatedStates(networkActionToRemove);
+        Set<String> associatedNetworkElementsIds = networkActionToRemove.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> associatedStatesIds = getAssociatedStates(networkActionToRemove).stream().map(State::getId).collect(Collectors.toSet());
 
         networkActions.remove(id);
 
-        associatedNetworkElements.stream()
-            .filter(ne -> isNetworkElementUsedWithinCrac(ne.getId()))
-            .forEach(ne -> networkElements.remove(ne.getId()));
-
-        associatedStates.stream()
-            .filter(st -> isStateUsedWithinCrac(st.getId()))
-            .forEach(st -> states.remove(st.getId()));
+        safeRemoveNetworkElements(associatedNetworkElementsIds);
+        safeRemoveStates(associatedStatesIds);
     }
 
     @Deprecated
     // TODO : convert to private package
     public void addNetworkAction(NetworkAction networkAction) {
         addStatesForRemedialAction(networkAction); // TODO : remove this ?
-        // TODO : verify ID is unique
         networkActions.put(networkAction.getId(), networkAction);
     }
 
