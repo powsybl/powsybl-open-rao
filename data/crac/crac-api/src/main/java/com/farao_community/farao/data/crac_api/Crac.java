@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.joda.time.DateTime;
 
 import java.util.*;
@@ -27,6 +26,8 @@ import static java.lang.String.format;
 
 /**
  * Interface to manage CRAC.
+ * CRAC stands for Contingency list, Remedial Actions and additional Constraints
+ *
  * It involves:
  * <ul>
  *     <li>{@link Instant} objects</li>
@@ -39,60 +40,44 @@ import static java.lang.String.format;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface Crac extends Identifiable<Crac>, Synchronizable {
 
-    @Deprecated
-    //todo: delete
-    // use crac creation context instead
-    DateTime getNetworkDate();
-
-    @Deprecated
-    Set<NetworkElement> getNetworkElements();
-
-    @Deprecated
-    NetworkElement getNetworkElement(String networkElementId);
-
     // Contingencies management
+
     /**
-     * Get a {@code Contingency} adder, to add a contingency to the Crac
-     * @return a {@code ContingencyAdder} instance
+     * Get a {@link ContingencyAdder}, to add a contingency to the Crac
      */
     ContingencyAdder newContingency();
 
     /**
      * Gather all the contingencies present in the Crac. It returns a set because contingencies
      * must not be duplicated and there is no defined order for contingencies.
-     *
-     * @return A set of contingencies.
      */
     Set<Contingency> getContingencies();
 
-    //todo : javadoc
+    /**
+     * Get a contingency given its id. Returns null if the contingency does not exist.
+     */
     Contingency getContingency(String id);
 
+    /**
+     * Remove a contingency - identified by its id - from the Crac
+     */
     void removeContingency(String id);
 
-    @Deprecated
-    //todo: delete it
-    void addContingency(Contingency contingency);
-
     // States management
-    /**
-     * Select the preventive state. This state must be unique. It's the only state that is
-     * defined with no contingency.
-     *
-     * @return The preventive state of the problem definition.
-     */
-    State getPreventiveState();
 
     /**
      * Gather all the states present in the Crac. It returns a set because states must not
      * be duplicated and there is no defined order for states.
-     *
-     * @return Unordered set of states
      */
     Set<State> getStates();
+
+    /**
+     * Select the preventive state. This state is unique. It's the only state that is
+     * defined on the preventive instant, with no contingency.
+     */
+    State getPreventiveState();
 
     /**
      * Chronological list of states after a defined contingency. The chronology is defined by
@@ -171,176 +156,215 @@ public interface Crac extends Identifiable<Crac>, Synchronizable {
         return getState(getContingency(contingencyId), instant);
     }
 
-    void removeState(String stateId);
-
     // Cnecs management
+
     /**
-     * Get a {@code Cnec} adder, to add a cnec to the Crac
-     * @return a {@code CnecAdder} instance
+     * Get a {@link FlowCnecAdder} adder, to add a {@link FlowCnec} to the Crac
      */
     FlowCnecAdder newFlowCnec();
 
-    //todo : javadoc
-    Set<Cnec> getCnecs();
-
-    //todo : javadoc
-    Set<Cnec> getCnecs(State state);
-
-    //todo : javadoc
-    Cnec getCnec(String cnecId);
-
-    //todo: javadoc
-    Set<FlowCnec> getFlowCnecs();
-
-    //todo: javadoc
-    Set<FlowCnec> getFlowCnecs(State state);
-
-    //todo: javadoc
-    FlowCnec getFlowCnec(String flowCnecId);
-
     /**
-     * Remove a Cnec by its id
-     *
-     * @param cnecId: the Cnec identifier.
+     * Gather all the Cnecs present in the Crac. It returns a set because Cnecs must not
+     * be duplicated and there is no defined order for Cnecs.
      */
-    void removeCnec(String cnecId);
-
-    void removeFlowCnec(String flowCnecId);
+    Set<Cnec> getCnecs();
 
     /**
      * Gather all the Cnecs of a specified State. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.
-     *
-     * @param state : The state on which we want to select Cnecs.
-     * @return A set of Cnecs.
      */
-    @Deprecated
-    //todo: keep deprecated (might be usefull when we will have other BranchCnec than FlowCnec)
-    // Use getCnec() or getFlowCnec() instead
-    Set<BranchCnec> getBranchCnecs(State state);
-
-    default Set<BranchCnec> getBranchCnecs(String contingencyId, Instant instant) {
-        if (getState(contingencyId, instant) != null) {
-            return getBranchCnecs(getState(contingencyId, instant));
-        } else {
-            return new HashSet<>();
-        }
-    }
+    Set<Cnec> getCnecs(State state);
 
     /**
-     * Gather all the Cnecs present in the Crac. It returns a set because Cnecs
+     * Find a Cnec by its id, returns null if the Cnec does not exists
+     */
+    Cnec getCnec(String cnecId);
+
+    /**
+     * Gather all the BranchCnecs present in the Crac. It returns a set because Cnecs
      * must not be duplicated and there is no defined order for Cnecs.
      *
-     *
-     * @return A set of Cnecs.
+     * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
+    // keep the method (might be usefull when we will have other BranchCnec than FlowCnec)
     @Deprecated
-    //todo: keep deprecated (might be usefull when we will have other BranchCnec than FlowCnec)
-    // Use getCnecs() or getFlowCnecs() instead
     Set<BranchCnec> getBranchCnecs();
 
     /**
-     * Find a Cnec by its id
+     * Gather all the BranchCnecs of a specified State. It returns a set because Cnecs
+     * must not be duplicated and there is no defined order for Cnecs.
      *
-     * @param branchCnecId : the Cnec identifier.
-     * @return The Cnec with the id given in argument. Or null if it does not exist.
+     * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
+    // keep the method (might be usefull when we will have other BranchCnec than FlowCnec)
     @Deprecated
-    //todo: keep deprecated (might be usefull when we will have other BranchCnec than FlowCnec)
-    // Use getCnec() or getFlowCnec() instead
+    Set<BranchCnec> getBranchCnecs(State state);
+
+    /**
+     * Find a BranchCnec by its id, returns null if the BranchCnec does not exists
+     *
+     * @deprecated consider using getCnec() or getFlowCnec() instead
+     */
+    // keep the method (might be usefull when we will have other BranchCnec than FlowCnec)
+    @Deprecated
     BranchCnec getBranchCnec(String branchCnecId);
 
-    @Deprecated
-    //todo: delete
-    // Use newFlowCnec() instead
-    void addCnec(Cnec<?> cnec);
+    /**
+     * Gather all the FlowCnec present in the Crac. It returns a set because Cnecs must not
+     * be duplicated and there is no defined order for Cnecs.
+     */
+    Set<FlowCnec> getFlowCnecs();
+
+    /**
+     * Gather all the Cnecs of a specified State. It returns a set because Cnecs must not be
+     * duplicated and there is no defined order for Cnecs.
+     */
+    Set<FlowCnec> getFlowCnecs(State state);
+
+    /**
+     * Find a FlowCnec by its id, returns null if the FlowCnec does not exists
+     */
+    FlowCnec getFlowCnec(String flowCnecId);
+
+    /**
+     * Remove a Cnec - identified by its id - from the Crac
+     */
+    void removeCnec(String cnecId);
+
+    /**
+     * Remove a FlowCnec - identified by its id - from the Crac
+     */
+    void removeFlowCnec(String flowCnecId);
 
     // Remedial actions management
 
-    //todo : javadoc
+    /**
+     * Gather all the remedial actions present in the Crac. It returns a set because remedial
+     * actions must not be duplicated and there is no defined order for remedial actions.
+     */
     Set<RemedialAction> getRemedialActions();
 
-    //todo : javadoc
+    /**
+     * Find a remedial action by its id, returns null if the remedial action does not exists
+     */
     RemedialAction getRemedialAction(String remedialActionId);
 
+    /**
+     * Remove a remedial action - identified by its id - from the Crac
+     */
     void removeRemedialAction(String id);
 
     // Range actions management
+
     /**
-     * Get a PstRangeAction adder, to add a {@code PstRangeAction}
-     * @return a {@code PstRangeActionAdder} instance
+     * Get a {@link PstRangeActionAdder}, to add a {@link PstRangeAction} to the crac
      */
     PstRangeActionAdder newPstRangeAction();
-
-    //todo: javadoc
-    Set<PstRangeAction> getPstRangeActions();
-
-    //todo: javadocc
-    PstRangeAction getPstRangeAction(String pstRangeActionId);
 
     /**
      * Gather all the range actions present in the Crac. It returns a set because range
      * actions must not be duplicated and there is no defined order for range actions.
-     *
-     * @return A set of range actions.
      */
     Set<RangeAction> getRangeActions();
 
     /**
      * Gather all the range actions of a specified state with the specified usage method (available, forced or
-     * unavailable). A network is required to determine the usage method. It returns a set because range
-     * actions must not be duplicated and there is no defined order for range actions.
-     *
-     * @param state: Specific state on which range actions can be selected.
-     * @param usageMethod: Specific usage method to select range actions.
-     * @return A set of range actions.
+     * unavailable).
      */
     Set<RangeAction> getRangeActions(State state, UsageMethod usageMethod);
 
     /**
-     * @param id: id of the RangeAction to get
-     * @return null if the RangeAction does not exist in the Crac, the RangeAction otherwise
+     * Find a range action by its id, returns null if the range action does not exists
      */
     RangeAction getRangeAction(String id);
 
     /**
-     * @param id: id of the RangeAction to remove
+     * Gather all the PstRangeAction present in the Crac. It returns a set because remedial
+     * actions must not be duplicated and there is no defined order for remedial actions.
+     */
+    Set<PstRangeAction> getPstRangeActions();
+
+    /**
+     * Find a PstRangeAction by its id, returns null if the remedial action does not exists
+     */
+    PstRangeAction getPstRangeAction(String pstRangeActionId);
+
+    /**
+     * Remove a PstRangeAction - identified by its id - from the Crac
      */
     void removePstRangeAction(String id);
 
     // Network actions management
 
-    //todo : javadoc
+    /**
+     * Get a {@link NetworkActionAdder}, to add a {@link NetworkAction} to the crac
+     */
     NetworkActionAdder newNetworkAction();
 
     /**
      * Gather all the network actions present in the Crac. It returns a set because network
      * actions must not be duplicated and there is no defined order for network actions.
-     *
-     * @return A set of network actions.
      */
     Set<NetworkAction> getNetworkActions();
 
     /**
      * Gather all the network actions of a specified state with the specified usage method (available, forced or
-     * unavailable). To determine this usage method it requires a network. It returns a set because network
-     * actions must not be duplicated and there is no defined order for network actions.
-     *
-     * @param state: Specific state on which network actions can be selected.
-     * @param usageMethod: Specific usage method to select network actions.
-     * @return A set of network actions.
+     * unavailable).
      */
     Set<NetworkAction> getNetworkActions(State state, UsageMethod usageMethod);
 
     /**
-     * @param id: id of the NetworkAction to get
-     * @return null if the NetworkAction does not exist in the Crac, the NetworkAction otherwise
+     * Find a NetworkAction by its id, returns null if the network action does not exists
      */
     NetworkAction getNetworkAction(String id);
 
     /**
-     * @param id: id of the NetworkAction to remove
+     * Remove a NetworkAction - identified by its id - from the Crac
      */
     void removeNetworkAction(String id);
 
+    // deprecated methods to be deleted
+
+    /**
+     * @deprecated use the CracCreationContext to store that kind of information instead
+     */
+    @Deprecated
+    //todo: delete method
+    DateTime getNetworkDate();
+
+    /**
+     * @deprecated one can look directly in the network elements of a Cnec, Contingency, and/or RemedialAction instead
+     */
+    @Deprecated
+    //todo: delete method
+    Set<NetworkElement> getNetworkElements();
+
+    /**
+     * @deprecated one can look directly in the network elements of a Cnec, Contingency, and/or RemedialAction instead
+     */
+    @Deprecated
+    //todo: delete method
+    NetworkElement getNetworkElement(String networkElementId);
+
+    /**
+     * @deprecated use newContingency() instead
+     */
+    @Deprecated
+    //todo: delete method
+    void addContingency(Contingency contingency);
+
+    /**
+     * @deprecated states cannot be added or removed anymore, they are automatically created/removed with the other elements
+     * of the Crac (Contingencies, Cnec, RemedialAction, ...)
+     */
+    @Deprecated
+    //todo: delete method
+    void removeState(String stateId);
+
+    /**
+     * @deprecated use newFlowCnec() instead
+     */
+    @Deprecated
+    //todo: delete method
+    void addCnec(Cnec<?> cnec);
 }

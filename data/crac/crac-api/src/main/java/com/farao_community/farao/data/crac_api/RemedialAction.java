@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  *
  * A Remedial Action contains {@link UsageRule} which defines conditions under which it can be used.
  * For instance, most remedial actions cannot be used in all {@link State}, and the usage rules of the
- * remedial action specify on which state the usage rule is available.
+ * remedial action specify on which state the it is available.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -39,14 +39,15 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     String getOperator();
 
     /**
-     * Get the {@link UsageMethod} of the Remedial Action in a given state
-     */
-    UsageMethod getUsageMethod(State state);
-
-    /**
      * Get the list of {@link UsageRule} of the Remedial Action
      */
     List<UsageRule> getUsageRules();
+
+    /**
+     * Get the {@link UsageMethod} of the Remedial Action in a given state, deduced from the
+     * usage rules of the remedial action
+     */
+    UsageMethod getUsageMethod(State state);
 
     /**
      * Gather all the network elements present in the remedial action. It returns a set because network
