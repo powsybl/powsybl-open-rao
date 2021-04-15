@@ -7,35 +7,25 @@
 
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_impl.NetworkElementImpl;
-import com.farao_community.farao.data.crac_impl.CracImpl;
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.json.JsonUtil;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
-import java.util.*;
-
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationNames.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracDeserializer extends JsonDeserializer<CracImpl> {
-
+public class CracDeserializer extends JsonDeserializer<Crac> {
     @Override
+    public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+        return null;
+    }
+
+   /* @Override
     public CracImpl deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
         // the Json file should start with the id and the name of the CracImpl
@@ -102,5 +92,5 @@ public class CracDeserializer extends JsonDeserializer<CracImpl> {
             }
         }
         return simpleCrac;
-    }
+    }*/
 }

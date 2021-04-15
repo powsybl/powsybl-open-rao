@@ -21,16 +21,20 @@ public final class JsonSerializationNames {
 
     public static final String NETWORK_ELEMENT = "networkElement";
     public static final String NETWORK_ELEMENTS = "networkElements";
+    public static final String NETWORK_ELEMENT_ID = "networkElementId";
 
     public static final String GROUP_ID = "groupId";
 
     public static final String CONTINGENCY = "contingency";
     public static final String CONTINGENCIES = "contingencies";
+    public static final String CONTINGENCY_ID = "contingencyId";
 
     public static final String INSTANT = "instant";
 
     public static final String CNEC = "cnec";
     public static final String CNECS = "cnecs";
+
+    public static final String FLOW_CNECS = "flowCnecs";
 
     public static final String THRESHOLDS = "thresholds";
     public static final String FRM = "frm";
@@ -57,6 +61,12 @@ public final class JsonSerializationNames {
     public static final String ACTION_TYPE = "actionType";
 
     public static final String XNODE_IDS = "xnodeIds";
+
+    // instants
+    public static final String PREVENTIVE_INSTANT = "preventive";
+    public static final String OUTAGE_INSTANT = "outage";
+    public static final String AUTO_INSTANT = "auto";
+    public static final String CURATIVE_INSTANT = "curative";
 
     // implementation class types
     public static final String SIMPLE_STATE_TYPE = "simple-state";

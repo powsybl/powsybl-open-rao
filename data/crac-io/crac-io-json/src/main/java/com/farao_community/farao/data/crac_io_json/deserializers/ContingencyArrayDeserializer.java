@@ -7,25 +7,13 @@
 
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationNames.*;
-
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 final class ContingencyArrayDeserializer {
 
     private ContingencyArrayDeserializer() { }
-
+/*
     static void deserialize(JsonParser jsonParser, Crac crac) throws IOException {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -38,12 +26,12 @@ final class ContingencyArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
 
-                    /*case TYPE:
+                    case TYPE:
                         type = jsonParser.nextTextValue();
                         if (!type.equals(COMPLEX_CONTINGENCY_TYPE) && !type.equals(XNODE_CONTINGENCY_TYPE)) {
                             throw new FaraoException(String.format("CracImpl can only deserialize %s and %s contingency types", COMPLEX_CONTINGENCY_TYPE, XNODE_CONTINGENCY_TYPE));
                         }
-                        break;*/
+                        break;
 
                     case ID:
                         id = jsonParser.nextTextValue();
@@ -73,5 +61,5 @@ final class ContingencyArrayDeserializer {
             //add contingency in Crac
 
         }
-    }
+    }*/
 }

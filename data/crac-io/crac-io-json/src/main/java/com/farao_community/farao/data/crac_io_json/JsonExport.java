@@ -9,16 +9,14 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.farao_community.farao.data.crac_io_json.serializers.CracSerializer;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
-
-import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
+import java.nio.charset.Charset;
 
 /**
  * CRAC object export in json format
@@ -37,6 +35,15 @@ public class JsonExport implements CracExporter {
 
     @Override
     public void exportCrac(Crac crac, OutputStream outputStream) {
+        try {
+            outputStream.write(CracSerializer.serializeCrac(crac).getBytes(Charset.forName("UTF-8")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*@Override
+    public void exportCrac(Crac crac, OutputStream outputStream) {
 
         try {
             ObjectMapper objectMapper = createObjectMapper();
@@ -48,7 +55,7 @@ public class JsonExport implements CracExporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
+    }*/
 
     @Override
     public void exportCrac(Crac crac, Network network, OutputStream outputStream) {

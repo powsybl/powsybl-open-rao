@@ -25,6 +25,11 @@
             <artifactId>farao-crac-io-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${json.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
