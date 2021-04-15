@@ -13,9 +13,10 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_util.CracCleaner;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -35,8 +36,6 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 public class MnecFillerTest extends AbstractFillerTest {
-    private static final double PST_SENSITIVITY_THRESHOLD = 0.0;
-
     private BranchCnec mnec1;
     private BranchCnec mnec2;
 
@@ -69,18 +68,22 @@ public class MnecFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(mnec1, mnec2),
-            Collections.emptyMap(),
-            PST_SENSITIVITY_THRESHOLD
-        );
+            Collections.emptyMap());
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
     }
 
     private void fillProblemWithFiller(Unit unit) {
+        if (unit == Unit.MEGAWATT) {
+            ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
+        } else {
+            ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        }
+        ParametersProvider.getMnecParameters().setMnecAcceptableMarginDiminution(50);
+        ParametersProvider.getMnecParameters().setMnecViolationCost(10);
+        ParametersProvider.getMnecParameters().setMnecConstraintAdjustmentCoefficient(3.5);
         MnecFiller mnecFiller = new MnecFiller(
             linearProblem,
-            Map.of(mnec1, 900., mnec2, -200.),
-            unit,
-            new MnecParameters(50, 10, 3.5));
+            Map.of(mnec1, 900., mnec2, -200.));
         mnecFiller.fill(sensitivityAndLoopflowResults);
     }
 

@@ -8,8 +8,9 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -30,13 +31,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-
 @RunWith(PowerMockRunner.class)
 public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
-    private static final double PST_SENSITIVITY_THRESHOLD = 0.0;
-    private static final double PST_PENALTY_COST = 0.01;
-    private static final double NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
-    private static final double PTDF_SUM_LOWER_BOUND = 0.01;
     private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
 
     @Before
@@ -48,17 +44,22 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha),
-            PST_SENSITIVITY_THRESHOLD);
+            Map.of(rangeAction, initialAlpha));
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
+        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
+        ParametersProvider.getMaxMinRelativeMarginParameters().setNegativeMarginObjectiveCoefficient(1000);
     }
 
     private void createProblem(Unit unit, double cnecInitialAbsolutePtdfSum) {
+        if (unit == Unit.MEGAWATT) {
+            ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
+        } else {
+            ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        }
         MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
             linearProblem,
             Map.of(cnec1, cnecInitialAbsolutePtdfSum),
-            Set.of(rangeAction),
-            new MaxMinRelativeMarginParameters(unit, PST_PENALTY_COST, NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT, PTDF_SUM_LOWER_BOUND));
+            Set.of(rangeAction));
         maxMinRelativeMarginFiller.fill(sensitivityAndLoopflowResults);
     }
 

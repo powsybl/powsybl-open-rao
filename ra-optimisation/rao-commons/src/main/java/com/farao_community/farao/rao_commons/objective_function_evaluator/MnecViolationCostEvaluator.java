@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,21 +32,18 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 public class MnecViolationCostEvaluator implements CostEvaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MnecViolationCostEvaluator.class);
 
-    private Set<BranchCnec> cnecs;
-    private Map<BranchCnec, Double> initialFlows;
-    private Unit unit;
-    private double mnecAcceptableMarginDiminution;
-    private double mnecViolationCost;
+    private final Set<BranchCnec> cnecs;
+    private final Map<BranchCnec, Double> initialFlows;
+    private final Unit unit = ParametersProvider.getUnit();
+    private final double mnecAcceptableMarginDiminution = ParametersProvider.getMnecParameters().getMnecAcceptableMarginDiminution();
+    private final double mnecViolationCost = ParametersProvider.getMnecParameters().getMnecViolationCost();
 
-    public MnecViolationCostEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> initialFlows, Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
+    public MnecViolationCostEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> initialFlows) {
         this.cnecs = cnecs;
         this.initialFlows = initialFlows;
-        if ((unit != MEGAWATT) && (unit != AMPERE)) {
+        if (unit != MEGAWATT && unit != AMPERE) {
             throw new NotImplementedException("MNEC violation cost is only implemented in MW and AMPERE units");
         }
-        this.unit = unit;
-        this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
-        this.mnecViolationCost = mnecViolationCost;
     }
 
     @Override

@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,32 +33,20 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 public class MinMarginEvaluator implements CostEvaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MinMarginEvaluator.class);
 
-    private Unit unit;
-    private boolean relativePositiveMargins;
-    private double ptdfSumLowerBound;
-    Set<String> operatorsNotToOptimize;
     Set<BranchCnec> cnecs;
     Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW;
     Map<BranchCnec, Double> initialAbsolutePtdfSums;
+    private final Unit unit = ParametersProvider.getUnit();
+    private final boolean relativePositiveMargins = ParametersProvider.hasRelativeMargins();
+    private final double ptdfSumLowerBound = ParametersProvider.getMaxMinRelativeMarginParameters().getPtdfSumLowerBound();
+    private final Set<String> operatorsNotToOptimize = ParametersProvider.getCoreParameters().getOperatorsNotToOptimize();
 
-    public MinMarginEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW, Map<BranchCnec, Double> initialAbsolutePtdfSums, Unit unit, Set<String> operatorsNotToOptimize, boolean relativePositiveMargins) {
-        this(cnecs, prePerimeterMarginsInAbsoluteMW, initialAbsolutePtdfSums, unit, operatorsNotToOptimize, relativePositiveMargins, 0);
-    }
-
-    public MinMarginEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW, Map<BranchCnec, Double> initialAbsolutePtdfSums, Unit unit, Set<String> operatorsNotToOptimize, boolean relativePositiveMargins, double ptdfSumLowerBound) {
+    public MinMarginEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW, Map<BranchCnec, Double> initialAbsolutePtdfSums) {
         this.cnecs = cnecs;
         this.prePerimeterMarginsInAbsoluteMW = prePerimeterMarginsInAbsoluteMW;
         this.initialAbsolutePtdfSums = initialAbsolutePtdfSums;
         if (relativePositiveMargins && ptdfSumLowerBound <= 0) {
             throw new FaraoException("Please provide a (strictly positive) PTDF sum lower bound for relative margins.");
-        }
-        this.unit = unit;
-        this.relativePositiveMargins = relativePositiveMargins;
-        this.ptdfSumLowerBound = ptdfSumLowerBound;
-        if (!Objects.isNull(operatorsNotToOptimize)) {
-            this.operatorsNotToOptimize = operatorsNotToOptimize;
-        } else {
-            this.operatorsNotToOptimize = new HashSet<>();
         }
     }
 

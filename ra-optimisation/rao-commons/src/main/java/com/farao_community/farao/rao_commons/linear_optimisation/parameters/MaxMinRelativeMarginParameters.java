@@ -7,18 +7,18 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.parameters;
 
-import com.farao_community.farao.commons.Unit;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class MaxMinRelativeMarginParameters extends MaxMinMarginParameters {
-    private final double negativeMarginObjectiveCoefficient;
-    private final double ptdfSumLowerBound;
+public class MaxMinRelativeMarginParameters {
+    private double negativeMarginObjectiveCoefficient;
+    private double ptdfSumLowerBound;
 
-    public MaxMinRelativeMarginParameters(Unit unit, double pstPenaltyCost, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
-        super(unit, pstPenaltyCost);
+    public void setNegativeMarginObjectiveCoefficient(double negativeMarginObjectiveCoefficient) {
         this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
+    }
+
+    public void setPtdfSumLowerBound(double ptdfSumLowerBound) {
         this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
 

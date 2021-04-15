@@ -19,8 +19,7 @@ import java.util.List;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
-
-    private double fallBackOvercost;
+    private final double fallBackOvercost;
 
     public SensitivityFallbackOvercostEvaluator(double overcost) {
         this.fallBackOvercost = overcost;

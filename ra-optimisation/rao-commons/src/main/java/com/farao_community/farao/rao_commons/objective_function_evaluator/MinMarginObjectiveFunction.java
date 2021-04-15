@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 
 import java.util.List;
 import java.util.Map;
@@ -23,14 +24,13 @@ import java.util.Set;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
-
-    private Unit unit;
-    private boolean isRaoWithLoopFlow;
-    private MinMarginEvaluator minMarginEvaluator;
-    private MnecViolationCostEvaluator mnecViolationCostEvaluator;
-    private LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
-    private SensitivityFallbackOvercostEvaluator sensitivityFallbackOvercostEvaluator;
-    private boolean relativePositiveMargins;
+    private final MinMarginEvaluator minMarginEvaluator;
+    private final MnecViolationCostEvaluator mnecViolationCostEvaluator;
+    private final LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
+    private final SensitivityFallbackOvercostEvaluator sensitivityFallbackOvercostEvaluator;
+    private final Unit unit = ParametersProvider.getUnit();
+    private final boolean relativePositiveMargins = ParametersProvider.hasRelativeMargins();
+    private final boolean raoWithLoopFlowLimitation = ParametersProvider.isRaoWithLoopFlowLimitation();
 
     public MinMarginObjectiveFunction(Set<BranchCnec> cnecs,
                                       Set<BranchCnec> loopflowCnecs,
@@ -38,25 +38,21 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
                                       Map<BranchCnec, Double> initialAbsolutePtdfSums,
                                       Map<BranchCnec, Double> initialFlows,
                                       Map<BranchCnec, Double> initialLoopflowsInMW,
-                                      RaoParameters raoParameters,
-                                      Set<String> operatorsNotToOptimize) {
-        switch (raoParameters.getObjectiveFunction()) {
+                                      double sensitivityFallbackOverCost) {
+        switch (ParametersProvider.getObjectiveFuntion()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_MARGIN_IN_MEGAWATT:
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
-                this.unit = raoParameters.getObjectiveFunction().getUnit();
-                this.relativePositiveMargins = raoParameters.getObjectiveFunction().relativePositiveMargins();
                 break;
             default:
-                throw new FaraoException(String.format("%s is not a MinMarginObjectiveFunction", raoParameters.getObjectiveFunction().toString()));
+                throw new FaraoException(String.format("%s is not a MinMarginObjectiveFunction", ParametersProvider.getObjectiveFuntion().toString()));
         }
 
-        this.minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMarginsInAbsoluteMW, initialAbsolutePtdfSums, this.unit, operatorsNotToOptimize, this.relativePositiveMargins, raoParameters.getPtdfSumLowerBound());
-        this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(cnecs, initialFlows, unit, raoParameters.getMnecAcceptableMarginDiminution(), raoParameters.getMnecViolationCost());
-        this.isRaoWithLoopFlow = raoParameters.isRaoWithLoopFlowLimitation();
-        this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(loopflowCnecs, initialLoopflowsInMW, raoParameters.getLoopFlowViolationCost(), raoParameters.getLoopFlowAcceptableAugmentation());
-        this.sensitivityFallbackOvercostEvaluator = new SensitivityFallbackOvercostEvaluator(raoParameters.getFallbackOverCost());
+        this.minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMarginsInAbsoluteMW, initialAbsolutePtdfSums);
+        this.mnecViolationCostEvaluator = new MnecViolationCostEvaluator(cnecs, initialFlows);
+        this.loopFlowViolationCostEvaluator = new LoopFlowViolationCostEvaluator(loopflowCnecs, initialLoopflowsInMW);
+        this.sensitivityFallbackOvercostEvaluator = new SensitivityFallbackOvercostEvaluator(sensitivityFallbackOverCost);
     }
 
     public boolean isRelative() {
@@ -78,7 +74,7 @@ public class MinMarginObjectiveFunction implements ObjectiveFunctionEvaluator {
     public double computeVirtualCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         double baseVirtualCost = mnecViolationCostEvaluator.computeCost(sensitivityAndLoopflowResults) + sensitivityFallbackOvercostEvaluator.computeCost(sensitivityAndLoopflowResults);
 
-        if (isRaoWithLoopFlow) {
+        if (raoWithLoopFlowLimitation) {
             return baseVirtualCost + loopFlowViolationCostEvaluator.computeCost(sensitivityAndLoopflowResults);
         } else {
             return baseVirtualCost;

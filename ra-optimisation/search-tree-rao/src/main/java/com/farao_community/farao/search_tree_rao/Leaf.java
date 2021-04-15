@@ -16,18 +16,14 @@ import com.farao_community.farao.data.crac_result_extensions.NetworkActionResult
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.LoopFlowUtil;
-import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoUtil;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LoopFlowParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
+import com.farao_community.farao.rao_commons.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -93,6 +89,7 @@ class Leaf {
         this.treeParameters = treeParameters;
         this.raoData = raoData;
         preOptimVariantId = raoData.getPreOptimVariantId();
+        setLinearOptimizationParameters();
         systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
             raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
 
@@ -116,6 +113,7 @@ class Leaf {
         networkActions.add(networkAction);
         this.raoParameters = raoParameters;
         this.treeParameters = treeParameters;
+        setLinearOptimizationParameters();
 
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(network));
@@ -130,8 +128,7 @@ class Leaf {
             raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
         }
         status = Status.CREATED;
-
-        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters, treeParameters.getOperatorsNotToOptimize());
+        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters);
     }
 
     RaoData getRaoData() {
@@ -175,7 +172,7 @@ class Leaf {
             LOGGER.debug("Leaf has already been evaluated");
             SensitivityAndLoopflowResults sensitivityAndLoopflowResults = raoData.getSensitivityAndLoopflowResults();
 
-            objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters, treeParameters.getOperatorsNotToOptimize());
+            objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters);
             raoData.getCracResultManager().fillCracResultWithCosts(
                 objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults));
             return;
@@ -196,7 +193,7 @@ class Leaf {
 
             // we have to do this here because we need pre-perimeter flows
             // to put in the evaluator input
-            objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters, treeParameters.getOperatorsNotToOptimize());
+            objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, raoParameters);
 
             SensitivityAndLoopflowResults sensitivityAndLoopflowResults = raoData.getSensitivityAndLoopflowResults();
             raoData.getCracResultManager().fillCracResultWithCosts(
@@ -255,10 +252,15 @@ class Leaf {
         SystematicSensitivityInterface linearOptimizerSystematicSensitivityInterface =
                 RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
                         raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
+        Set<RangeAction> optimizableRangeActions = new HashSet<>(raoData.getAvailableRangeActions());
+        removeRangeActionsWithWrongInitialSetpoint(optimizableRangeActions, raoData.getPrePerimeterSetPoints(), raoData.getNetwork());
+        removeRangeActionsIfMaxNumberReached(optimizableRangeActions, getMaxPstPerTso(),
+            objectiveFunctionEvaluator.getMostLimitingElements(raoData.getSensitivityAndLoopflowResults(), 1).get(0),
+            raoData.getSensitivityAndLoopflowResults().getSystematicSensitivityResult());
         return IteratingLinearOptimizerInput.create()
                 .withLoopflowCnecs(raoData.getLoopflowCnecs())
                 .withCnecs(raoData.getCnecs())
-                .withRangeActions(raoData.getAvailableRangeActions())
+                .withRangeActions(optimizableRangeActions)
                 .withNetwork(raoData.getNetwork())
                 .withPreperimeterSetpoints(raoData.getPrePerimeterSetPoints())
                 .withInitialCnecResults(raoData.getInitialCnecResults())
@@ -270,28 +272,76 @@ class Leaf {
                 .build();
     }
 
-    private IteratingLinearOptimizerParameters createIteratingLinearOptimizerParameters() {
-        MnecParameters mnecParameters = new MnecParameters(
-            raoParameters.getMnecAcceptableMarginDiminution(),
-            raoParameters.getMnecViolationCost(),
-            raoParameters.getMnecConstraintAdjustmentCoefficient());
-        LoopFlowParameters loopFlowParameters = new LoopFlowParameters(
-            raoParameters.getLoopFlowApproximationLevel(),
-            raoParameters.getLoopFlowAcceptableAugmentation(),
-            raoParameters.getLoopFlowViolationCost(),
-            raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
-        return IteratingLinearOptimizerParameters.create()
-                .withMaxIterations(raoParameters.getMaxIterations())
-                .withObjectiveFunction(raoParameters.getObjectiveFunction())
-                .withMaxPstPerTso(this.getMaxPstPerTso())
-                .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
-                .withOperatorsNotToOptimize(treeParameters.getOperatorsNotToOptimize())
-                .withNegativeMarginObjectiveCoefficient(raoParameters.getNegativeMarginObjectiveCoefficient())
-                .withPstPenaltyCost(raoParameters.getPstPenaltyCost())
-                .withPtdfSumLowerBound(raoParameters.getPtdfSumLowerBound())
-                .withMnecParameters(mnecParameters)
-                .withLoopFlowParameters(loopFlowParameters)
-                .build();
+    /**
+     * If range action's initial setpoint does not respect its allowed range, this function filters it out
+     */
+    static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, Map<RangeAction, Double> initialSetpoints, Network network) {
+        //a temp set is needed to avoid ConcurrentModificationExceptions when trying to remove a range action from a set we are looping on
+        Set<RangeAction> rangeActionsToRemove = new HashSet<>();
+        for (RangeAction rangeAction : rangeActions) {
+            double preperimeterSetPoint = initialSetpoints.get(rangeAction);
+            double minSetPoint = rangeAction.getMinValue(network, preperimeterSetPoint);
+            double maxSetPoint = rangeAction.getMaxValue(network, preperimeterSetPoint);
+            if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
+                LOGGER.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
+                    rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
+                rangeActionsToRemove.add(rangeAction);
+            }
+        }
+        rangeActionsToRemove.forEach(rangeActions::remove);
+    }
+
+    /**
+     * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
+     * the least impact on the most limiting element
+     */
+    static void removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActions, Map<String, Integer> maxPstPerTso, BranchCnec mostLimitingElement, SystematicSensitivityResult sensitivityResult) {
+        if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
+            maxPstPerTso.forEach((tso, maxPst) -> {
+                Set<RangeAction> pstsForTso = rangeActions.stream()
+                    .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
+                    .collect(Collectors.toSet());
+                if (pstsForTso.size() > maxPst) {
+                    LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
+                    pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, sensitivityResult))
+                        .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
+                        .forEach(rangeActions::remove);
+                }
+            });
+        }
+    }
+
+    private static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, SystematicSensitivityResult sensitivityResult) {
+        Double sensi1 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra1, cnec));
+        Double sensi2 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra2, cnec));
+        return sensi1.compareTo(sensi2);
+    }
+
+    private void setLinearOptimizationParameters() {
+        ParametersProvider.getIteratingLinearOptimizerParameters().setMaxIterations(raoParameters.getMaxIterations());
+
+        ParametersProvider.getCoreParameters().setObjectiveFunction(raoParameters.getObjectiveFunction());
+        ParametersProvider.getCoreParameters().setPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold());
+        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(treeParameters.getOperatorsNotToOptimize());
+
+        ParametersProvider.getMnecParameters().setMnecViolationCost(raoParameters.getMnecViolationCost());
+        ParametersProvider.getMnecParameters().setMnecAcceptableMarginDiminution(raoParameters.getMnecAcceptableMarginDiminution());
+        ParametersProvider.getMnecParameters().setMnecConstraintAdjustmentCoefficient(raoParameters.getMnecConstraintAdjustmentCoefficient());
+
+        ParametersProvider.getMaxMinMarginParameters().setPstPenaltyCost(raoParameters.getPstPenaltyCost());
+
+        if (ParametersProvider.hasRelativeMargins()) {
+            ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(raoParameters.getPtdfSumLowerBound());
+            ParametersProvider.getMaxMinRelativeMarginParameters().setNegativeMarginObjectiveCoefficient(raoParameters.getNegativeMarginObjectiveCoefficient());
+        }
+
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            ParametersProvider.getCoreParameters().setRaoWithLoopFlowLimitation(true);
+            ParametersProvider.getLoopFlowParameters().setLoopFlowApproximationLevel(raoParameters.getLoopFlowApproximationLevel());
+            ParametersProvider.getLoopFlowParameters().setLoopFlowAcceptableAugmentation(raoParameters.getLoopFlowAcceptableAugmentation());
+            ParametersProvider.getLoopFlowParameters().setLoopFlowViolationCost(raoParameters.getLoopFlowViolationCost());
+            ParametersProvider.getLoopFlowParameters().setLoopFlowConstraintAdjustmentCoefficient(raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
+        }
     }
 
     /**
@@ -309,8 +359,8 @@ class Leaf {
             if (!raoData.getAvailableRangeActions().isEmpty()) {
                 LOGGER.debug("Optimizing leaf...");
                 IteratingLinearOptimizerInput iteratingLinearOptimizerInput = createIteratingLinearOptimizerInput();
-                IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters = createIteratingLinearOptimizerParameters();
-                IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput, iteratingLinearOptimizerParameters);
+                setLinearOptimizationParameters();
+                IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput);
                 optimizedVariantId = raoData.getCracVariantManager().cloneWorkingVariant();
                 raoData.getCracVariantManager().setWorkingVariant(optimizedVariantId);
                 raoData.getCracResultManager().fillResultsFromIteratingLinearOptimizerOutput(iteratingLinearOptimizerOutput, optimizedVariantId);

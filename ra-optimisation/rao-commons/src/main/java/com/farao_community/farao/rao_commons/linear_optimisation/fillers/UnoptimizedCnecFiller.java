@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -30,21 +31,18 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 public class UnoptimizedCnecFiller implements ProblemFiller {
     private final LinearProblem linearProblem;
     private final Map<BranchCnec, Double> initialFlowInMWPerUnoptimizedCnec;
-    private final double highestThresholdValue;
+    private final double highestThresholdValue = ParametersProvider.getUnoptimizedCnecParameters().getHighestThresholdValue();
 
-    public UnoptimizedCnecFiller(LinearProblem linearProblem,
-                                 Map<BranchCnec, Double> initialFlowInMWPerUnoptimizedCnec,
-                                 double highestThresholdValue) {
+    public UnoptimizedCnecFiller(LinearProblem linearProblem, Map<BranchCnec, Double> initialFlowInMWPerUnoptimizedCnec) {
         this.linearProblem = linearProblem;
         this.initialFlowInMWPerUnoptimizedCnec = initialFlowInMWPerUnoptimizedCnec;
-        this.highestThresholdValue = highestThresholdValue;
     }
 
     final Map<BranchCnec, Double> getInitialFlowInMWPerUnoptimizedCnec() {
         return initialFlowInMWPerUnoptimizedCnec;
     }
 
-    public double getHighestThresholdValue() {
+    final double getHighestThresholdValue() {
         return highestThresholdValue;
     }
 
@@ -134,7 +132,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
 
-        double bigM = 2 * this.highestThresholdValue;
+        double bigM = 2 * highestThresholdValue;
         getUnoptimizedCnecs().forEach(cnec -> {
             MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
             if (marginDecreaseBinaryVariable == null) {

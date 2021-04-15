@@ -15,15 +15,16 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.crac_util.CracCleaner;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +35,6 @@ import static org.junit.Assert.assertEquals;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecViolationCostEvaluatorTest {
-
     private final static double MNEC_THRESHOLD = 1000.;
     private static final double DOUBLE_TOLERANCE = 0.1;
 
@@ -44,43 +44,96 @@ public class MnecViolationCostEvaluatorTest {
     private MnecViolationCostEvaluator evaluator1;
     private MnecViolationCostEvaluator evaluator2;
     private static final String TEST_VARIANT = "test-variant";
-    private LinearOptimizerInput linearOptimizerInput;
     private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
     private Map<BranchCnec, Double> initialFlows;
     private Set<BranchCnec> cnecs;
 
     @Test
-    public void testVirtualCostComputationInMW() {
+    public void testVirtualCostComputationInMWForEvaluator1() {
+        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
+        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
+        ParametersProvider.getMnecParameters().setMnecAcceptableMarginDiminution(50);
+        ParametersProvider.getMnecParameters().setMnecViolationCost(10);
         setUp(Unit.MEGAWATT);
-        testCost(-100, 0, 0, 0);
-        testCost(-100, -50, 0, 0);
-        testCost(-100, -150, 0, 60);
-        testCost(-100, -200, 500, 160);
-        testCost(-100, -250, 1000, 260);
-        testCost(30, 0, 0, 0);
-        testCost(30, -20, 0, 40);
-        testCost(30, -50, 300, 100);
-        testCost(200, 200, 0, 0);
-        testCost(200, 100, 0, 0);
-        testCost(200, 0, 0, 0);
-        testCost(200, -10, 100, 20);
+        evaluator1 = new MnecViolationCostEvaluator(cnecs, initialFlows);
+        testCost(-100, 0, 0, evaluator1);
+        testCost(-100, -50, 0, evaluator1);
+        testCost(-100, -150, 0, evaluator1);
+        testCost(-100, -200, 500, evaluator1);
+        testCost(-100, -250, 1000, evaluator1);
+        testCost(30, 0, 0, evaluator1);
+        testCost(30, -20, 0, evaluator1);
+        testCost(30, -50, 300, evaluator1);
+        testCost(200, 200, 0, evaluator1);
+        testCost(200, 100, 0, evaluator1);
+        testCost(200, 0, 0, evaluator1);
+        testCost(200, -10, 100, evaluator1);
     }
 
     @Test
-    public void testVirtualCostComputationInA() {
+    public void testVirtualCostComputationInAForEvaluator1() {
+        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
+        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        ParametersProvider.getMnecParameters().setMnecAcceptableMarginDiminution(50);
+        ParametersProvider.getMnecParameters().setMnecViolationCost(10);
         setUp(Unit.AMPERE);
-        testCost(-100, 0, 0, 0);
-        testCost(-100, -50, 0, 0);
-        testCost(-100, -150, 0, 42.3);
-        testCost(-100, -200, 278.3, 142.3);
-        testCost(-100, -250, 778.3, 242.3);
-        testCost(30, 0, 0, 0);
-        testCost(30, -20, 0, 40);
-        testCost(30, -50, 78.3, 100);
-        testCost(200, 200, 0, 0);
-        testCost(200, 100, 0, 0);
-        testCost(200, 0, 0, 0);
-        testCost(200, -10, 100, 20);
+        evaluator1 = new MnecViolationCostEvaluator(cnecs, initialFlows);
+        testCost(-100, 0, 0, evaluator1);
+        testCost(-100, -50, 0, evaluator1);
+        testCost(-100, -150, 0, evaluator1);
+        testCost(-100, -200, 278.3, evaluator1);
+        testCost(-100, -250, 778.3, evaluator1);
+        testCost(30, 0, 0, evaluator1);
+        testCost(30, -20, 0, evaluator1);
+        testCost(30, -50, 78.3, evaluator1);
+        testCost(200, 200, 0, evaluator1);
+        testCost(200, 100, 0, evaluator1);
+        testCost(200, 0, 0, evaluator1);
+        testCost(200, -10, 100, evaluator1);
+    }
+
+    @Test
+    public void testVirtualCostComputationInMWForEvaluator2() {
+        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
+        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
+        ParametersProvider.getMnecParameters().setMnecAcceptableMarginDiminution(20);
+        ParametersProvider.getMnecParameters().setMnecViolationCost(2);
+        setUp(Unit.MEGAWATT);
+        evaluator2 = new MnecViolationCostEvaluator(cnecs, initialFlows);
+        testCost(-100, 0, 0, evaluator2);
+        testCost(-100, -50, 0, evaluator2);
+        testCost(-100, -150, 60, evaluator2);
+        testCost(-100, -200, 160, evaluator2);
+        testCost(-100, -250, 260, evaluator2);
+        testCost(30, 0, 0, evaluator2);
+        testCost(30, -20, 40, evaluator2);
+        testCost(30, -50, 100, evaluator2);
+        testCost(200, 200, 0, evaluator2);
+        testCost(200, 100, 0, evaluator2);
+        testCost(200, 0, 0, evaluator2);
+        testCost(200, -10, 20, evaluator2);
+    }
+
+    @Test
+    public void testVirtualCostComputationInAForEvaluator2() {
+        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
+        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        ParametersProvider.getMnecParameters().setMnecAcceptableMarginDiminution(20);
+        ParametersProvider.getMnecParameters().setMnecViolationCost(2);
+        setUp(Unit.AMPERE);
+        evaluator2 = new MnecViolationCostEvaluator(cnecs, initialFlows);
+        testCost(-100, 0, 0, evaluator2);
+        testCost(-100, -50, 0, evaluator2);
+        testCost(-100, -150, 42.3, evaluator2);
+        testCost(-100, -200, 142.3, evaluator2);
+        testCost(-100, -250, 242.3, evaluator2);
+        testCost(30, 0, 0, evaluator2);
+        testCost(30, -20, 40, evaluator2);
+        testCost(30, -50, 100, evaluator2);
+        testCost(200, 200, 0, evaluator2);
+        testCost(200, 100, 0, evaluator2);
+        testCost(200, 0, 0, evaluator2);
+        testCost(200, -10, 20, evaluator2);
     }
 
     private void setUp(Unit unit) {
@@ -111,8 +164,7 @@ public class MnecViolationCostEvaluatorTest {
         sensiResult = Mockito.mock(SystematicSensitivityResult.class);
         sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(sensiResult);
 
-        evaluator1 = new MnecViolationCostEvaluator(cnecs, initialFlows, unit, 50, 10);
-        evaluator2 = new MnecViolationCostEvaluator(cnecs, initialFlows, unit, 20, 2);
+        evaluator2 = new MnecViolationCostEvaluator(cnecs, initialFlows);
     }
 
     private void testCost(double initFlow, double newFlow, MnecViolationCostEvaluator evaluator, double expectedCost) {
@@ -125,19 +177,11 @@ public class MnecViolationCostEvaluatorTest {
         assertEquals(expectedCost, evaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
-    private void testCost(double initMargin, double newMargin, double expectedCostWithEval1, double expectedCostWithEval2) {
+    private void testCost(double initMargin, double newMargin, double expectedCostWithEval, MnecViolationCostEvaluator evaluator) {
         double initFlow = MNEC_THRESHOLD - initMargin;
         double newFlow = MNEC_THRESHOLD - newMargin;
 
-        testCost(initFlow, newFlow, evaluator1, expectedCostWithEval1);
-        testCost(-initFlow, -newFlow, evaluator1, expectedCostWithEval1);
-
-        testCost(initFlow, newFlow, evaluator2, expectedCostWithEval2);
-        testCost(-initFlow, -newFlow, evaluator2, expectedCostWithEval2);
-    }
-
-    @Test(expected = NotImplementedException.class)
-    public void testCrash() {
-        new MnecViolationCostEvaluator(cnecs, initialFlows, Unit.KILOVOLT, 0, 0);
+        testCost(initFlow, newFlow, evaluator, expectedCostWithEval);
+        testCost(-initFlow, -newFlow, evaluator, expectedCostWithEval);
     }
 }

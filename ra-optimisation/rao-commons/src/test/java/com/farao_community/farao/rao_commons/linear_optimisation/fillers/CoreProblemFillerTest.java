@@ -10,9 +10,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -49,6 +49,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
         maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0);
         initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        ParametersProvider.getCoreParameters().setPstSensitivityThreshold(0.);
     }
 
     @Test
@@ -57,8 +58,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha),
-            PST_SENSITIVITY_THRESHOLD);
+            Map.of(rangeAction, initialAlpha));
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
 
         // check range action setpoint variable
@@ -118,12 +118,12 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillTestOnPreventiveFiltered() {
+        ParametersProvider.getCoreParameters().setPstSensitivityThreshold(2.5);
         coreProblemFiller = new CoreProblemFiller(
             linearProblem,
             network,
             Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha),
-            2.5);
+            Map.of(rangeAction, initialAlpha));
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
 
         // check range action setpoint variable
@@ -187,8 +187,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(cnec2),
-            Map.of(rangeAction, initialAlpha),
-            RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD);
+            Map.of(rangeAction, initialAlpha));
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
 
         // check range action setpoint variable
@@ -266,8 +265,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha),
-            RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD);
+            Map.of(rangeAction, initialAlpha));
 
         // fill a first time the linearRaoProblem with some data
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
@@ -319,8 +317,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(cnec2),
-            Map.of(rangeAction, initialAlpha),
-            RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD);
+            Map.of(rangeAction, initialAlpha));
 
         // fill a first time the linearRaoProblem with some data
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
@@ -397,8 +394,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha, ra1, 0., ra2, 0.),
-            RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD);
+            Map.of(rangeAction, initialAlpha, ra1, 0., ra2, 0.));
 
         // fill a first time the linearRaoProblem with some data
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
@@ -422,8 +418,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
             linearProblem,
             network,
             Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha),
-            RaoParameters.DEFAULT_PST_SENSITIVITY_THRESHOLD);
+            Map.of(rangeAction, initialAlpha));
         try {
             updateProblemWithCoreFiller();
             fail();

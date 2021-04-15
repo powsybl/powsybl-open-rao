@@ -7,13 +7,14 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
@@ -29,23 +30,27 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     private final Map<BranchCnec, Double> initialAbsolutePtdfSumPerOptimizedCnec;
-    private final MaxMinRelativeMarginParameters relativeParameters;
+    private final Unit unit = ParametersProvider.getUnit();
+    private final double ptdfSumLowerBound = ParametersProvider.getMaxMinRelativeMarginParameters().getPtdfSumLowerBound();
+    private final double negativeMarginObjectiveCoefficient = ParametersProvider.getMaxMinRelativeMarginParameters().getNegativeMarginObjectiveCoefficient();
 
     public MaxMinRelativeMarginFiller(LinearProblem linearProblem,
                                       Map<BranchCnec, Double> initialAbsolutePtdfSumPerOptimizedCnec,
-                                      Set<RangeAction> rangeActions,
-                                      MaxMinRelativeMarginParameters relativeParameters) {
-        super(linearProblem, initialAbsolutePtdfSumPerOptimizedCnec.keySet(), rangeActions, relativeParameters);
+                                      Set<RangeAction> rangeActions) {
+        super(linearProblem, initialAbsolutePtdfSumPerOptimizedCnec.keySet(), rangeActions);
         this.initialAbsolutePtdfSumPerOptimizedCnec = initialAbsolutePtdfSumPerOptimizedCnec;
-        this.relativeParameters = relativeParameters;
     }
 
     final Map<BranchCnec, Double> getInitialAbsolutePtdfSumPerOptimizedCnec() {
         return initialAbsolutePtdfSumPerOptimizedCnec;
     }
 
-    final MaxMinRelativeMarginParameters getRelativeParameters() {
-        return relativeParameters;
+    final double getPtdfSumLowerBound() {
+        return ptdfSumLowerBound;
+    }
+
+    final double getNegativeMarginObjectiveCoefficient() {
+        return negativeMarginObjectiveCoefficient;
     }
 
     @Override
@@ -68,7 +73,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         }
         minNegMargin.setUb(.0);
         MPObjective objective = linearProblem.getObjective();
-        objective.setCoefficient(minNegMargin, -1 * relativeParameters.getNegativeMarginObjectiveCoefficient());
+        objective.setCoefficient(minNegMargin, -1 * negativeMarginObjectiveCoefficient);
     }
 
     /**
@@ -88,7 +93,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
         optimizedCnecs.forEach(cnec -> {
-            double relMarginCoef = Math.max(initialAbsolutePtdfSumPerOptimizedCnec.get(cnec), relativeParameters.getPtdfSumLowerBound());
+            double relMarginCoef = Math.max(initialAbsolutePtdfSumPerOptimizedCnec.get(cnec), ptdfSumLowerBound);
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {
@@ -99,7 +104,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             Optional<Double> maxFlow;
             minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
             maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            double unitConversionCoefficient = RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, relativeParameters.getUnit(), MEGAWATT);
+            double unitConversionCoefficient = RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, unit, MEGAWATT);
             //TODO : check that using only Side.LEFT is sufficient
 
             if (minFlow.isPresent()) {

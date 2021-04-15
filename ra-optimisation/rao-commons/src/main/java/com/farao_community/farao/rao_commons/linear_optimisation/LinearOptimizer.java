@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,17 +56,17 @@ public class LinearOptimizer {
 
     private final LinearOptimizerInput linearOptimizerInput;
 
-    public LinearOptimizer(LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
-        this(new LinearProblem(), linearOptimizerInput, linearOptimizerParameters);
+    public LinearOptimizer(LinearOptimizerInput linearOptimizerInput) {
+        this(new LinearProblem(), linearOptimizerInput);
     }
 
-    public LinearOptimizer(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
+    public LinearOptimizer(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput) {
         this.linearOptimizerInput = linearOptimizerInput;
         this.linearProblem = linearProblem;
-        ProblemFillerFactory factory = new ProblemFillerFactory(linearProblem, linearOptimizerInput, linearOptimizerParameters);
+        ProblemFillerFactory factory = new ProblemFillerFactory(linearProblem, linearOptimizerInput);
         fillers = new ArrayList<>();
         fillers.add(factory.createProblemFiller(CORE));
-        RaoParameters.ObjectiveFunction objectiveFunction = linearOptimizerParameters.getObjectiveFunction();
+        RaoParameters.ObjectiveFunction objectiveFunction = ParametersProvider.getObjectiveFuntion();
         if (objectiveFunction == MAX_MIN_MARGIN_IN_AMPERE || objectiveFunction == MAX_MIN_MARGIN_IN_MEGAWATT) {
             fillers.add(factory.createProblemFiller(MAX_MIN_MARGIN));
             fillers.add(factory.createProblemFiller(MNEC));
@@ -75,10 +74,11 @@ public class LinearOptimizer {
             fillers.add(factory.createProblemFiller(MAX_MIN_RELATIVE_MARGIN));
             fillers.add(factory.createProblemFiller(MNEC));
         }
-        if (linearOptimizerParameters.getOperatorsNotToOptimize() != null && !linearOptimizerParameters.getOperatorsNotToOptimize().isEmpty()) {
+        if (ParametersProvider.getCoreParameters().getOperatorsNotToOptimize() != null
+            && !ParametersProvider.getCoreParameters().getOperatorsNotToOptimize().isEmpty()) {
             fillers.add(factory.createProblemFiller(UNOPTIMIZED_CNEC));
         }
-        if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
+        if (ParametersProvider.isRaoWithLoopFlowLimitation()) {
             fillers.add(factory.createProblemFiller(MAX_LOOP_FLOW));
         }
     }

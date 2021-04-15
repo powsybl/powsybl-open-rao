@@ -19,7 +19,7 @@ public class LinearOptimizerInput {
     private Set<BranchCnec> cnecs;
     private Set<RangeAction> rangeActions;
     private Network network;
-    private Map<RangeAction, Double> preperimeterSetpoints; // can be removed if we don't change taps in the network after each depth
+    private Map<RangeAction, Double> prePerimeterSetpoints; // can be removed if we don't change taps in the network after each depth
     private List<BranchCnec> mostLimitingElements;
     private CnecResults initialCnecResults;
 
@@ -43,8 +43,8 @@ public class LinearOptimizerInput {
         return network;
     }
 
-    public Map<RangeAction, Double> getPreperimeterSetpoints() {
-        return preperimeterSetpoints;
+    public Map<RangeAction, Double> getPrePerimeterSetpoints() {
+        return prePerimeterSetpoints;
     }
 
     public BranchCnec getMostLimitingElement() {
@@ -142,7 +142,7 @@ public class LinearOptimizerInput {
             linearOptimizerInput.cnecs = this.cnecs;
             linearOptimizerInput.rangeActions = this.rangeActions;
             linearOptimizerInput.network = this.network;
-            linearOptimizerInput.preperimeterSetpoints = this.preperimeterSetpoints;
+            linearOptimizerInput.prePerimeterSetpoints = this.preperimeterSetpoints;
             linearOptimizerInput.mostLimitingElements = this.mostLimitingElements;
             linearOptimizerInput.initialCnecResults = this.initialCnecResults;
             return linearOptimizerInput;

@@ -7,8 +7,9 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -19,8 +20,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.commons.Unit.AMPERE;
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
@@ -30,23 +29,20 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
-    private static final double PST_SENSITIVITY_THRESHOLD = 0.0;
-    private static final double PST_PENALTY_COST = 0.01;
-
     private MaxMinMarginFiller maxMinMarginFiller;
 
     @Before
     public void setUp() {
         init();
+        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
         coreProblemFiller = new CoreProblemFiller(
             linearProblem,
             network,
             Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha),
-            PST_SENSITIVITY_THRESHOLD);
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), new MaxMinMarginParameters(MEGAWATT, PST_PENALTY_COST));
+            Map.of(rangeAction, initialAlpha));
+        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction));
     }
 
     @Test
@@ -93,8 +89,9 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMaxMinMarginInAmpere() {
+        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), new MaxMinMarginParameters(AMPERE, PST_PENALTY_COST));
+        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction));
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);

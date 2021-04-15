@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Side;
@@ -15,7 +16,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -32,16 +33,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
     protected final LinearProblem linearProblem;
     protected final Set<BranchCnec> optimizedCnecs;
     private final Set<RangeAction> rangeActions;
-    protected MaxMinMarginParameters parameters;
+    private final Unit unit = ParametersProvider.getUnit();
+    protected double pstPenaltyCost = ParametersProvider.getMaxMinMarginParameters().getPstPenaltyCost();
 
-    public MaxMinMarginFiller(LinearProblem linearProblem,
-                              Set<BranchCnec> optimizedCnecs,
-                              Set<RangeAction> rangeActions,
-                              MaxMinMarginParameters parameters) {
+    public MaxMinMarginFiller(LinearProblem linearProblem, Set<BranchCnec> optimizedCnecs, Set<RangeAction> rangeActions) {
         this.linearProblem = linearProblem;
         this.optimizedCnecs = optimizedCnecs;
         this.rangeActions = rangeActions;
-        this.parameters = parameters;
     }
 
     final Set<BranchCnec> getOptimizedCnecs() {
@@ -52,8 +50,12 @@ public class MaxMinMarginFiller implements ProblemFiller {
         return rangeActions;
     }
 
-    final MaxMinMarginParameters getParameters() {
-        return parameters;
+    final Unit getUnit() {
+        return unit;
+    }
+
+    final double getPstPenaltyCost() {
+        return pstPenaltyCost;
     }
 
     @Override
@@ -122,7 +124,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
             Optional<Double> maxFlow;
             minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
             maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            double unitConversionCoefficient = RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, parameters.getUnit(), MEGAWATT);
+            double unitConversionCoefficient = RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, unit, MEGAWATT);
             //TODO : check that using only Side.LEFT is sufficient
 
             if (minFlow.isPresent()) {
@@ -167,7 +169,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
             // If the PST has been filtered out, then absoluteVariationVariable is null
             if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, parameters.getPstPenaltyCost());
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
             }
         });
     }

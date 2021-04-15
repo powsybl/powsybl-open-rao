@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -29,25 +29,34 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 public class MnecFiller implements ProblemFiller {
     private final LinearProblem linearProblem;
     private final Map<BranchCnec, Double> initialFlowInMWPerMnec;
-    private final Unit unit;
-    private final MnecParameters mnecParameters;
+    private final Unit unit = ParametersProvider.getUnit();
+    private final double mnecViolationCost = ParametersProvider.getMnecParameters().getMnecViolationCost();
+    private final double mnecAcceptableMarginDiminution = ParametersProvider.getMnecParameters().getMnecAcceptableMarginDiminution();
+    private final double mnecConstraintAdjustmentCoefficient = ParametersProvider.getMnecParameters().getMnecConstraintAdjustmentCoefficient();
 
-    public MnecFiller(LinearProblem linearProblem,
-                      Map<BranchCnec, Double> initialFlowInMWPerMnec,
-                      Unit unit,
-                      MnecParameters mnecParameters) {
+    public MnecFiller(LinearProblem linearProblem, Map<BranchCnec, Double> initialFlowInMWPerMnec) {
         this.linearProblem = linearProblem;
         this.initialFlowInMWPerMnec = initialFlowInMWPerMnec;
-        this.unit = unit;
-        this.mnecParameters = mnecParameters;
     }
 
     final Map<BranchCnec, Double> getInitialFlowInMWPerMnec() {
         return initialFlowInMWPerMnec;
     }
 
-    final MnecParameters getMnecParameters() {
-        return mnecParameters;
+    final Unit getUnit() {
+        return unit;
+    }
+
+    final double getMnecViolationCost() {
+        return mnecViolationCost;
+    }
+
+    final double getMnecAcceptableMarginDiminution() {
+        return mnecAcceptableMarginDiminution;
+    }
+
+    final double getMnecConstraintAdjustmentCoefficient() {
+        return mnecConstraintAdjustmentCoefficient;
     }
 
     private Set<BranchCnec> getMnecs() {
@@ -90,8 +99,7 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> maxFlow = mnec.getUpperBound(Side.LEFT, MEGAWATT);
                 if (maxFlow.isPresent()) {
-                    double ub = Math.max(maxFlow.get(),  mnecInitialFlowInMW + mnecParameters.getMnecAcceptableMarginDiminution());
-                    ub -= mnecParameters.getMnecConstraintAdjustmentCoefficient();
+                    double ub = Math.max(maxFlow.get(),  mnecInitialFlowInMW + mnecAcceptableMarginDiminution) - mnecConstraintAdjustmentCoefficient;
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
@@ -99,8 +107,7 @@ public class MnecFiller implements ProblemFiller {
 
                 Optional<Double> minFlow = mnec.getLowerBound(Side.LEFT, MEGAWATT);
                 if (minFlow.isPresent()) {
-                    double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecParameters.getMnecAcceptableMarginDiminution());
-                    lb += mnecParameters.getMnecConstraintAdjustmentCoefficient();
+                    double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecAcceptableMarginDiminution) + mnecConstraintAdjustmentCoefficient;
                     MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);
@@ -112,7 +119,7 @@ public class MnecFiller implements ProblemFiller {
     public void fillObjectiveWithMnecPenaltyCost() {
         getMnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec ->
             linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec),
-                    RaoUtil.getBranchFlowUnitMultiplier(mnec, Side.LEFT, MEGAWATT, unit) * mnecParameters.getMnecViolationCost())
+                    RaoUtil.getBranchFlowUnitMultiplier(mnec, Side.LEFT, MEGAWATT, unit) * ParametersProvider.getMnecParameters().getMnecViolationCost())
         );
     }
 }

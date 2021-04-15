@@ -10,12 +10,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation.iterating_line
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.RangeDefinition;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -25,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -33,17 +30,13 @@ import java.util.stream.Collectors;
 public final class IteratingLinearOptimizer {
     protected static final Logger LOGGER = LoggerFactory.getLogger(IteratingLinearOptimizer.class);
 
+    private static final IteratingLinearOptimizerParameters PARAMETERS = ParametersProvider.getIteratingLinearOptimizerParameters();
+
     private IteratingLinearOptimizer() {
 
     }
 
-    private static LinearOptimizerInput createLinearOptimizerInput(IteratingLinearOptimizerInput iteratingLinearOptimizerInput, IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters) {
-        removeRangeActionsWithWrongInitialSetpoint(iteratingLinearOptimizerInput.getRangeActions(),
-            iteratingLinearOptimizerInput.getPreperimeterSetpoints(), iteratingLinearOptimizerInput.getNetwork());
-        removeRangeActionsIfMaxNumberReached(iteratingLinearOptimizerInput.getRangeActions(),
-            iteratingLinearOptimizerParameters.getMaxPstPerTso(),
-            iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator().getMostLimitingElements(iteratingLinearOptimizerInput.getPreOptimSensitivityResults(), 1).get(0),
-            iteratingLinearOptimizerInput.getPreOptimSensitivityResults().getSystematicSensitivityResult());
+    private static LinearOptimizerInput createLinearOptimizerInput(IteratingLinearOptimizerInput iteratingLinearOptimizerInput) {
         return LinearOptimizerInput.create()
                 .withCnecs(iteratingLinearOptimizerInput.getCnecs())
                 .withLoopflowCnecs(iteratingLinearOptimizerInput.getLoopflowCnecs())
@@ -52,19 +45,6 @@ public final class IteratingLinearOptimizer {
                 .withPreperimeterSetpoints(iteratingLinearOptimizerInput.getPreperimeterSetpoints())
                 .withRangeActions(iteratingLinearOptimizerInput.getRangeActions())
                 .withMostLimitingElements(iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator().getMostLimitingElements(iteratingLinearOptimizerInput.getPreOptimSensitivityResults(), 10))
-                .build();
-    }
-
-    private static LinearOptimizerParameters createLinearOptimizerParameters(IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters) {
-        return LinearOptimizerParameters.create()
-                .withObjectiveFunction(iteratingLinearOptimizerParameters.getObjectiveFunction())
-                .withPstSensitivityThreshold(iteratingLinearOptimizerParameters.getPstSensitivityThreshold())
-                .withOperatorsNotToOptimize(iteratingLinearOptimizerParameters.getOperatorsNotToOptimize())
-                .withNegativeMarginObjectiveCoefficient(iteratingLinearOptimizerParameters.getNegativeMarginObjectiveCoefficient())
-                .withPstPenaltyCost(iteratingLinearOptimizerParameters.getPstPenaltyCost())
-                .withPtdfSumLowerBound(iteratingLinearOptimizerParameters.getPtdfSumLowerBound())
-                .withMnecParameters(iteratingLinearOptimizerParameters.getMnecParameters())
-                .withLoopFlowParameters(iteratingLinearOptimizerParameters.getLoopFlowParameters())
                 .build();
     }
 
@@ -89,66 +69,16 @@ public final class IteratingLinearOptimizer {
         return new IteratingLinearOptimizerOutput(solveStatus, functionalCost, virtualCost, rangeActionSetPoints, pstTaps, sensitivityAndLoopflowResults);
     }
 
-    /**
-     * If range action's initial setpoint does not respect its allowed range, this function filters it out
-     */
-    static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, Map<RangeAction, Double> initialSetpoints, Network network) {
-        //a temp set is needed to avoid ConcurrentModificationExceptions when trying to remove a range action from a set we are looping on
-        Set<RangeAction> rangeActionsToRemove = new HashSet<>();
-        for (RangeAction rangeAction : rangeActions) {
-            double preperimeterSetPoint = initialSetpoints.get(rangeAction);
-            double minSetPoint = rangeAction.getMinValue(network, preperimeterSetPoint);
-            double maxSetPoint = rangeAction.getMaxValue(network, preperimeterSetPoint);
-            if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
-                LOGGER.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
-                    rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
-                rangeActionsToRemove.add(rangeAction);
-            }
-        }
-        rangeActionsToRemove.forEach(rangeActions::remove);
-    }
-
-    /**
-     * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
-     * the least impact on the most limiting element
-     */
-    static void removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActions, Map<String, Integer> maxPstPerTso, BranchCnec mostLimitingElement, SystematicSensitivityResult sensitivityResult) {
-        if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
-            maxPstPerTso.forEach((tso, maxPst) -> {
-                Set<RangeAction> pstsForTso = rangeActions.stream()
-                    .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
-                    .collect(Collectors.toSet());
-                if (pstsForTso.size() > maxPst) {
-                    LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
-                    pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, sensitivityResult))
-                        .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
-                        .forEach(rangeActions::remove);
-                }
-            });
-        }
-    }
-
-    private static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, SystematicSensitivityResult sensitivityResult) {
-        Double sensi1 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra1, cnec));
-        Double sensi2 = Math.abs(sensitivityResult.getSensitivityOnFlow(ra2, cnec));
-        return sensi1.compareTo(sensi2);
-    }
-
-    public static IteratingLinearOptimizerOutput optimize(IteratingLinearOptimizerInput iteratingLinearOptimizerInput, IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters) {
-
-        Network network = iteratingLinearOptimizerInput.getNetwork();
-        SystematicSensitivityInterface systematicSensitivityInterface = iteratingLinearOptimizerInput.getSystematicSensitivityInterface();
+    public static IteratingLinearOptimizerOutput optimize(IteratingLinearOptimizerInput iteratingLinearOptimizerInput) {
         ObjectiveFunctionEvaluator objectiveFunctionEvaluator = iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator();
         SensitivityAndLoopflowResults preOptimSensitivityResults = iteratingLinearOptimizerInput.getPreOptimSensitivityResults();
 
-        LinearOptimizer linearOptimizer = new LinearOptimizer(
-            createLinearOptimizerInput(iteratingLinearOptimizerInput, iteratingLinearOptimizerParameters),
-            createLinearOptimizerParameters(iteratingLinearOptimizerParameters));
+        LinearOptimizer linearOptimizer = new LinearOptimizer(createLinearOptimizerInput(iteratingLinearOptimizerInput));
 
         IteratingLinearOptimizerOutput bestIteratingLinearOptimizerOutput = createOutputFromPreOptimSituation(iteratingLinearOptimizerInput);
         SensitivityAndLoopflowResults updatedSensitivityAndLoopflowResults = preOptimSensitivityResults;
 
-        for (int iteration = 1; iteration <= iteratingLinearOptimizerParameters.getMaxIterations(); iteration++) {
+        for (int iteration = 1; iteration <= PARAMETERS.getMaxIterations(); iteration++) {
             LinearOptimizerOutput linearOptimizerOutput;
             try {
                 LOGGER.debug("Iteration {} - linear optimization [start]", iteration);
@@ -175,8 +105,7 @@ public final class IteratingLinearOptimizer {
                 return bestIteratingLinearOptimizerOutput;
             } else {
                 updatedSensitivityAndLoopflowResults = applyRangeActionsAndRunSensitivityComputation(iteratingLinearOptimizerInput,
-                        linearOptimizerOutput.getRangeActionSetpoints(), updatedSensitivityAndLoopflowResults, iteration,
-                        iteratingLinearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel());
+                        linearOptimizerOutput.getRangeActionSetpoints(), updatedSensitivityAndLoopflowResults, iteration);
                 double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(updatedSensitivityAndLoopflowResults);
                 double virtualCost = objectiveFunctionEvaluator.computeVirtualCost(updatedSensitivityAndLoopflowResults);
                 if (functionalCost + virtualCost < bestIteratingLinearOptimizerOutput.getCost()) {
@@ -216,8 +145,7 @@ public final class IteratingLinearOptimizer {
     private static SensitivityAndLoopflowResults applyRangeActionsAndRunSensitivityComputation(IteratingLinearOptimizerInput iteratingLinearOptimizerInput,
                                                                                                Map<RangeAction, Double> rangeActionSetPoints,
                                                                                                SensitivityAndLoopflowResults sensitivityAndLoopflowResults,
-                                                                                               int iteration,
-                                                                                               RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel) throws SensitivityAnalysisException {
+                                                                                               int iteration) {
         Network network = iteratingLinearOptimizerInput.getNetwork();
         SystematicSensitivityInterface systematicSensitivityInterface = iteratingLinearOptimizerInput.getSystematicSensitivityInterface();
         rangeActionSetPoints.keySet().forEach(rangeAction -> rangeAction.apply(network, rangeActionSetPoints.get(rangeAction)));
@@ -227,7 +155,8 @@ public final class IteratingLinearOptimizer {
             SystematicSensitivityResult updatedSensiResult = systematicSensitivityInterface.run(network);
             LOGGER.debug("Iteration {} - systematic analysis [end]", iteration);
 
-            if (loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange()) {
+            if (ParametersProvider.isRaoWithLoopFlowLimitation()
+                && ParametersProvider.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
                 return new SensitivityAndLoopflowResults(updatedSensiResult, LoopFlowUtil.computeCommercialFlows(network, iteratingLinearOptimizerInput.getLoopflowCnecs(), iteratingLinearOptimizerInput.getGlskProvider(), iteratingLinearOptimizerInput.getReferenceProgram(), updatedSensiResult));
             } else {
                 return new SensitivityAndLoopflowResults(updatedSensiResult, sensitivityAndLoopflowResults.getCommercialFlows());

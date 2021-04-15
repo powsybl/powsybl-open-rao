@@ -10,14 +10,14 @@ package com.farao_community.farao.rao_commons.linear_optimisation.parameters;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class MaxMinMarginParameters {
-    protected double pstPenaltyCost;
+public class UnoptimizedCnecParameters {
+    private double highestThresholdValue;
 
-    public void setPstPenaltyCost(double pstPenaltyCost) {
-        this.pstPenaltyCost = pstPenaltyCost;
+    public double getHighestThresholdValue() {
+        return highestThresholdValue;
     }
 
-    public final double getPstPenaltyCost() {
-        return pstPenaltyCost;
+    public void setHighestThresholdValue(double highestThresholdValue) {
+        this.highestThresholdValue = highestThresholdValue;
     }
 }

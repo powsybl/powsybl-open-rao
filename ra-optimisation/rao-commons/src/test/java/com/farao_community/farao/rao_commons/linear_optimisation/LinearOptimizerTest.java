@@ -10,9 +10,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
@@ -31,6 +29,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 
 
 /**
@@ -41,8 +41,6 @@ import static org.junit.Assert.*;
 @PrepareForTest({LinearProblem.class, LinearOptimizer.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LinearOptimizerTest {
-    private static final double ANGLE_TAP_APPROX_TOLERANCE = 0.5;
-
     private LinearOptimizer linearOptimizer;
     private LinearProblem linearProblemMock;
     private Network network;
@@ -66,20 +64,16 @@ public class LinearOptimizerTest {
             )))
             .build();
 
-        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
-            .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
-            .build();
-
         linearProblemMock = Mockito.mock(LinearProblem.class);
         Mockito.when(linearProblemMock.solve()).thenReturn(LinearProblem.SolveStatus.OPTIMAL);
-        Mockito.when(linearProblemMock.addMinimumMarginConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
-        Mockito.when(linearProblemMock.addFlowConstraint(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
-        Mockito.when(linearProblemMock.getFlowConstraint(Mockito.any())).thenReturn(Mockito.mock(MPConstraint.class));
-        Mockito.when(linearProblemMock.getFlowVariable(Mockito.any())).thenReturn(Mockito.mock(MPVariable.class));
+        Mockito.when(linearProblemMock.addMinimumMarginConstraint(anyDouble(), anyDouble(), any(), any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearProblemMock.addFlowConstraint(anyDouble(), anyDouble(), any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearProblemMock.getFlowConstraint(any())).thenReturn(Mockito.mock(MPConstraint.class));
+        Mockito.when(linearProblemMock.getFlowVariable(any())).thenReturn(Mockito.mock(MPVariable.class));
         Mockito.when(linearProblemMock.getMinimumMarginVariable()).thenReturn(Mockito.mock(MPVariable.class));
         Mockito.when(linearProblemMock.getObjective()).thenReturn(Mockito.mock(MPObjective.class));
 
-        linearOptimizer = new LinearOptimizer(linearProblemMock, linearOptimizerInput, linearOptimizerParameters);
+        linearOptimizer = new LinearOptimizer(linearProblemMock, linearOptimizerInput);
 
         SystematicSensitivityResult result = createSystematicResult();
         sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(result, Collections.emptyMap());
@@ -119,7 +113,7 @@ public class LinearOptimizerTest {
 
     @Test
     public void testFillerError() {
-        Mockito.when(linearProblemMock.getObjective()).thenReturn(null);
+        Mockito.when(linearProblemMock.getFlowVariable(any())).thenReturn(null);
         try {
             linearOptimizer.optimize(sensitivityAndLoopflowResults);
             fail();
@@ -131,7 +125,7 @@ public class LinearOptimizerTest {
     @Test
     public void testUpdateError() {
         linearOptimizer.optimize(sensitivityAndLoopflowResults);
-        Mockito.when(linearProblemMock.getFlowConstraint(Mockito.any())).thenReturn(null);
+        Mockito.when(linearProblemMock.getFlowConstraint(any())).thenReturn(null);
         try {
             linearOptimizer.optimize(sensitivityAndLoopflowResults);
             fail();

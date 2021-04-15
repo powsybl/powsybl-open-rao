@@ -10,14 +10,14 @@ package com.farao_community.farao.rao_commons.linear_optimisation.parameters;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class MaxMinMarginParameters {
-    protected double pstPenaltyCost;
+public class IteratingLinearOptimizerParameters {
+    private int maxIterations;
 
-    public void setPstPenaltyCost(double pstPenaltyCost) {
-        this.pstPenaltyCost = pstPenaltyCost;
+    public int getMaxIterations() {
+        return maxIterations;
     }
 
-    public final double getPstPenaltyCost() {
-        return pstPenaltyCost;
+    public void setMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
     }
 }
