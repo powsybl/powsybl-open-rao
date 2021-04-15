@@ -232,13 +232,21 @@ public class IteratingLinearOptimizerTest {
         Mockito.when(sensitivityResult.getSensitivityOnFlow(crac.getRangeAction("PRA_PST_BE"), mostLimitingCnec)).thenReturn(5.);
         Mockito.when(sensitivityResult.getSensitivityOnFlow(crac.getRangeAction("PRA_PST_BE_2"), mostLimitingCnec)).thenReturn(1.);
 
+        Map<RangeAction, Double> prePerimeterSetPoints = new HashMap<>();
+        crac.getRangeActions().forEach(rangeAction -> prePerimeterSetPoints.put(rangeAction, 0.));
+
         Set<RangeAction> rangeActions = crac.getRangeActions();
         assertEquals(2, rangeActions.size());
-        IteratingLinearOptimizer.removeRangeActionsIfMaxNumberReached(rangeActions, maxPstPerTso, mostLimitingCnec, sensitivityResult);
+        assertEquals(2, prePerimeterSetPoints.size());
+        IteratingLinearOptimizer.removeRangeActionsIfMaxNumberReached(rangeActions, prePerimeterSetPoints, maxPstPerTso, mostLimitingCnec, sensitivityResult);
 
         assertEquals(1, rangeActions.size());
         assertTrue(rangeActions.contains(crac.getRangeAction("PRA_PST_BE")));
         assertFalse(rangeActions.contains(crac.getRangeAction("PRA_PST_BE_2")));
+
+        assertEquals(1, prePerimeterSetPoints.size());
+        assertTrue(prePerimeterSetPoints.containsKey(crac.getRangeAction("PRA_PST_BE")));
+        assertFalse(prePerimeterSetPoints.containsKey(crac.getRangeAction("PRA_PST_BE_2")));
     }
 
     @Test
@@ -255,11 +263,16 @@ public class IteratingLinearOptimizerTest {
         Set<RangeAction> rangeActions = crac.getRangeActions();
         rangeActions.forEach(rangeAction -> initialSetpoints.put(rangeAction, 0.));
         assertEquals(2, rangeActions.size());
+        assertEquals(2, initialSetpoints.size());
         IteratingLinearOptimizer.removeRangeActionsWithWrongInitialSetpoint(rangeActions, initialSetpoints, network);
 
         assertEquals(1, rangeActions.size());
         assertTrue(rangeActions.contains(crac.getRangeAction("PRA_PST_BE")));
         assertFalse(rangeActions.contains(crac.getRangeAction("PRA_PST_BE_2")));
+
+        assertEquals(1, initialSetpoints.size());
+        assertTrue(initialSetpoints.containsKey(crac.getRangeAction("PRA_PST_BE")));
+        assertFalse(initialSetpoints.containsKey(crac.getRangeAction("PRA_PST_BE_2")));
     }
 }
 

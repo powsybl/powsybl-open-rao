@@ -21,6 +21,7 @@ public class LinearOptimizerParameters {
     private double ptdfSumLowerBound;
     private MnecParameters mnecParameters;
     private LoopFlowParameters loopFlowParameters;
+    private boolean raoWithLoopFlowLimitation;
 
     public static LinearOptimizerParametersBuilder create() {
         return new LinearOptimizerParametersBuilder();
@@ -59,7 +60,7 @@ public class LinearOptimizerParameters {
     }
 
     public boolean isRaoWithLoopFlowLimitation() {
-        return loopFlowParameters != null;
+        return raoWithLoopFlowLimitation;
     }
 
     public LoopFlowParameters getLoopFlowParameters() {
@@ -75,6 +76,7 @@ public class LinearOptimizerParameters {
         private double negativeMarginObjectiveCoefficient;
         private double pstPenaltyCost;
         private double ptdfSumLowerBound;
+        private boolean raoWithLoopFlowLimitation;
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
@@ -116,6 +118,11 @@ public class LinearOptimizerParameters {
             return this;
         }
 
+        public LinearOptimizerParametersBuilder withRaoLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
+            this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
+            return this;
+        }
+
         public LinearOptimizerParameters build() {
             LinearOptimizerParameters linearOptimizerParameters = new LinearOptimizerParameters();
             linearOptimizerParameters.objectiveFunction = this.objectiveFunction;
@@ -126,6 +133,7 @@ public class LinearOptimizerParameters {
             linearOptimizerParameters.ptdfSumLowerBound = this.ptdfSumLowerBound;
             linearOptimizerParameters.mnecParameters = this.mnecParameters;
             linearOptimizerParameters.loopFlowParameters = this.loopFlowParameters;
+            linearOptimizerParameters.raoWithLoopFlowLimitation = this.raoWithLoopFlowLimitation;
             return linearOptimizerParameters;
         }
     }

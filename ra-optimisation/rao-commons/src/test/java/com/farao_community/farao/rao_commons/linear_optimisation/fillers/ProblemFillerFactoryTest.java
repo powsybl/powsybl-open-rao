@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -142,6 +143,9 @@ public class ProblemFillerFactoryTest {
         initialCnecResults.setLoopflowsInMW(initialLoopFlowPerCnec);
         initialCnecResults.setAbsolutePtdfSums(initialAbsolutePtdfSumPerCnec);
 
+        Map<BranchCnec, Double> prePerimeterCnecMarginsInMW = new HashMap<>();
+        crac.getBranchCnecs().forEach(cnec -> prePerimeterCnecMarginsInMW.put(cnec, 100.));
+
         input = LinearOptimizerInput.create()
             .withCnecs(crac.getBranchCnecs())
             .withLoopflowCnecs(Set.of(loopFlowCnec))
@@ -149,6 +153,7 @@ public class ProblemFillerFactoryTest {
             .withMostLimitingElements(List.of(cnecMnec, pureCnec, loopFlowCnec))
             .withRangeActions(crac.getRangeActions())
             .withPreperimeterSetpoints(Map.of(ra1, 0., ra2, 0.))
+            .withPrePerimeterCnecMarginsInMW(prePerimeterCnecMarginsInMW)
             .build();
 
         parameters = LinearOptimizerParameters.create().build();

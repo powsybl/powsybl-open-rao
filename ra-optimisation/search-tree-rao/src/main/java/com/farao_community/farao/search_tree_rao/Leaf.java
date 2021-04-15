@@ -277,10 +277,10 @@ class Leaf {
             raoParameters.getMnecViolationCost(),
             raoParameters.getMnecConstraintAdjustmentCoefficient());
         LoopFlowParameters loopFlowParameters = new LoopFlowParameters(
-            raoParameters.getLoopFlowApproximationLevel(),
-            raoParameters.getLoopFlowAcceptableAugmentation(),
-            raoParameters.getLoopFlowViolationCost(),
-            raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
+                raoParameters.getLoopFlowApproximationLevel(),
+                raoParameters.getLoopFlowAcceptableAugmentation(),
+                raoParameters.getLoopFlowViolationCost(),
+                raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
         return IteratingLinearOptimizerParameters.create()
                 .withMaxIterations(raoParameters.getMaxIterations())
                 .withObjectiveFunction(raoParameters.getObjectiveFunction())
@@ -292,6 +292,7 @@ class Leaf {
                 .withPtdfSumLowerBound(raoParameters.getPtdfSumLowerBound())
                 .withMnecParameters(mnecParameters)
                 .withLoopFlowParameters(loopFlowParameters)
+                .withRaoWithLoopFlowLimitation(raoParameters.isRaoWithLoopFlowLimitation())
                 .build();
     }
 

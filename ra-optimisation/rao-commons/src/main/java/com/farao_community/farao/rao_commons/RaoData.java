@@ -248,6 +248,12 @@ public final class RaoData {
             commercialFlowsInMW.put(cnec, cnecResult.getCommercialFlowInMW());
             absolutePtdfSums.put(cnec, cnecResult.getAbsolutePtdfSum());
         }
+        cnecResults.setAbsolutePtdfSums(absolutePtdfSums);
+        cnecResults.setFlowsInMW(flowsInMW);
+        cnecResults.setFlowsInA(flowsInA);
+        cnecResults.setLoopflowsInMW(loopflowsInMW);
+        cnecResults.setLoopflowThresholdInMW(loopflowThresholdInMW);
+        cnecResults.setCommercialFlowsInMW(commercialFlowsInMW);
         return cnecResults;
     }
 

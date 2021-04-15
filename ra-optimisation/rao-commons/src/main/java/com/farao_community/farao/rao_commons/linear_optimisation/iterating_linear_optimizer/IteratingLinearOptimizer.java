@@ -41,6 +41,7 @@ public final class IteratingLinearOptimizer {
         removeRangeActionsWithWrongInitialSetpoint(iteratingLinearOptimizerInput.getRangeActions(),
             iteratingLinearOptimizerInput.getPreperimeterSetpoints(), iteratingLinearOptimizerInput.getNetwork());
         removeRangeActionsIfMaxNumberReached(iteratingLinearOptimizerInput.getRangeActions(),
+            iteratingLinearOptimizerInput.getPreperimeterSetpoints(),
             iteratingLinearOptimizerParameters.getMaxPstPerTso(),
             iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator().getMostLimitingElements(iteratingLinearOptimizerInput.getPreOptimSensitivityResults(), 1).get(0),
             iteratingLinearOptimizerInput.getPreOptimSensitivityResults().getSystematicSensitivityResult());
@@ -52,6 +53,7 @@ public final class IteratingLinearOptimizer {
                 .withPreperimeterSetpoints(iteratingLinearOptimizerInput.getPreperimeterSetpoints())
                 .withRangeActions(iteratingLinearOptimizerInput.getRangeActions())
                 .withMostLimitingElements(iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator().getMostLimitingElements(iteratingLinearOptimizerInput.getPreOptimSensitivityResults(), 10))
+                .withPrePerimeterCnecMarginsInMW(iteratingLinearOptimizerInput.getPrePerimeterCnecMarginsInAbsoluteMW())
                 .build();
     }
 
@@ -65,6 +67,7 @@ public final class IteratingLinearOptimizer {
                 .withPtdfSumLowerBound(iteratingLinearOptimizerParameters.getPtdfSumLowerBound())
                 .withMnecParameters(iteratingLinearOptimizerParameters.getMnecParameters())
                 .withLoopFlowParameters(iteratingLinearOptimizerParameters.getLoopFlowParameters())
+                .withRaoLoopFlowLimitation(iteratingLinearOptimizerParameters.isRaoWithLoopFlowLimitation())
                 .build();
     }
 
@@ -105,14 +108,17 @@ public final class IteratingLinearOptimizer {
                 rangeActionsToRemove.add(rangeAction);
             }
         }
-        rangeActionsToRemove.forEach(rangeActions::remove);
+        rangeActionsToRemove.forEach(rangeAction -> {
+            rangeActions.remove(rangeAction);
+            initialSetpoints.remove(rangeAction);
+        });
     }
 
     /**
      * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
      * the least impact on the most limiting element
      */
-    static void removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActions, Map<String, Integer> maxPstPerTso, BranchCnec mostLimitingElement, SystematicSensitivityResult sensitivityResult) {
+    static void removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActions, Map<RangeAction, Double> prePerimeterSetpoints, Map<String, Integer> maxPstPerTso, BranchCnec mostLimitingElement, SystematicSensitivityResult sensitivityResult) {
         if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
             maxPstPerTso.forEach((tso, maxPst) -> {
                 Set<RangeAction> pstsForTso = rangeActions.stream()
@@ -122,7 +128,11 @@ public final class IteratingLinearOptimizer {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
                     pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, sensitivityResult))
                         .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
-                        .forEach(rangeActions::remove);
+                        .forEach(rangeAction -> {
+                            rangeActions.remove(rangeAction);
+                            prePerimeterSetpoints.remove(rangeAction);
+                        });
+
                 }
             });
         }

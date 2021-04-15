@@ -28,6 +28,7 @@ public class IteratingLinearOptimizerParameters {
     private double ptdfSumLowerBound;
     private MnecParameters mnecParameters;
     private LoopFlowParameters loopFlowParameters;
+    private boolean raoWithLoopFlowLimitation;
 
     public static IteratingLinearOptimizerParametersBuilder create() {
         return new IteratingLinearOptimizerParametersBuilder();
@@ -73,6 +74,10 @@ public class IteratingLinearOptimizerParameters {
         return loopFlowParameters;
     }
 
+    public boolean isRaoWithLoopFlowLimitation() {
+        return raoWithLoopFlowLimitation;
+    }
+
     public static final class IteratingLinearOptimizerParametersBuilder {
         private int maxIterations;
         private RaoParameters.ObjectiveFunction objectiveFunction;
@@ -84,6 +89,7 @@ public class IteratingLinearOptimizerParameters {
         private double ptdfSumLowerBound;
         private MnecParameters mnecParameters;
         private LoopFlowParameters loopFlowParameters;
+        private boolean raoWithLoopFlowLimitation;
 
         public IteratingLinearOptimizerParametersBuilder withMaxIterations(int maxIterations) {
             this.maxIterations = maxIterations;
@@ -135,6 +141,11 @@ public class IteratingLinearOptimizerParameters {
             return this;
         }
 
+        public IteratingLinearOptimizerParametersBuilder withRaoWithLoopFlowLimitation(boolean raoWithLoopFlowLimitation) {
+            this.raoWithLoopFlowLimitation = raoWithLoopFlowLimitation;
+            return this;
+        }
+
         public IteratingLinearOptimizerParameters build() {
             IteratingLinearOptimizerParameters iteratingLinearOptimizerParameters = new IteratingLinearOptimizerParameters();
             iteratingLinearOptimizerParameters.maxIterations = this.maxIterations;
@@ -147,6 +158,7 @@ public class IteratingLinearOptimizerParameters {
             iteratingLinearOptimizerParameters.ptdfSumLowerBound = this.ptdfSumLowerBound;
             iteratingLinearOptimizerParameters.mnecParameters = this.mnecParameters;
             iteratingLinearOptimizerParameters.loopFlowParameters = this.loopFlowParameters;
+            iteratingLinearOptimizerParameters.raoWithLoopFlowLimitation = this.raoWithLoopFlowLimitation;
             return iteratingLinearOptimizerParameters;
         }
     }
