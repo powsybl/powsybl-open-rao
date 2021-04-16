@@ -22,7 +22,7 @@ public abstract class AbstractJsonSerializer<T> extends JsonSerializer<T> {
     public void serializeWithType(T value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider, TypeSerializer typeSerializer) throws IOException {
 
         /*
-        FARAO does not explicitly writes the type of each object in its Json format
+        FARAO does not explicitly write the type of each object in its Json format
         The type of each object can be implicitly deduced from its position in the Json format
         A more compact format can therefore be provided than if the type were written.
          */

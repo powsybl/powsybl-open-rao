@@ -22,13 +22,11 @@ import java.util.Objects;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("branch-threshold")
 public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshold {
 
     /**
      * Side of the network element which is monitored
      */
-    @JsonIgnore
     protected Side side;
 
     /**
@@ -37,10 +35,7 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
     protected final BranchThresholdRule rule;
 
     @JsonCreator
-    public BranchThresholdImpl(@JsonProperty("unit") Unit unit,
-                               @JsonProperty("min") Double min,
-                               @JsonProperty("max") Double max,
-                               @JsonProperty("rule") BranchThresholdRule rule) {
+    public BranchThresholdImpl(Unit unit, Double min, Double max, BranchThresholdRule rule) {
         super(unit, min, max);
         this.rule = rule;
     }

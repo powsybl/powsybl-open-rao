@@ -7,59 +7,52 @@
 
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.ContingencyAdder;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 final class ContingencyArrayDeserializer {
 
     private ContingencyArrayDeserializer() { }
-/*
-    static void deserialize(JsonParser jsonParser, Crac crac) throws IOException {
 
+    static void deserialize(JsonParser jsonParser, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-
-            // String type = null;
-            String id = null;
-            String name = null;
-            Set<String> networkElementsId = new HashSet<>();
-
+            ContingencyAdder adder = crac.newContingency();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
-
-                    case TYPE:
-                        type = jsonParser.nextTextValue();
-                        if (!type.equals(COMPLEX_CONTINGENCY_TYPE) && !type.equals(XNODE_CONTINGENCY_TYPE)) {
-                            throw new FaraoException(String.format("CracImpl can only deserialize %s and %s contingency types", COMPLEX_CONTINGENCY_TYPE, XNODE_CONTINGENCY_TYPE));
-                        }
-                        break;
-
                     case ID:
-                        id = jsonParser.nextTextValue();
+                        adder.withId(jsonParser.nextTextValue());
                         break;
-
                     case NAME:
-                        name = jsonParser.nextTextValue();
+                        adder.withName(jsonParser.nextTextValue());
                         break;
-
-                    case NETWORK_ELEMENTS:
+                    case NETWORK_ELEMENTS_IDS:
                         jsonParser.nextToken();
-                        networkElementsIds = jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
+                        Set<String> networkElementIds = jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
                         });
+                        networkElementIds.forEach(neId ->
+                                adder.withNetworkElement(neId, networkElementsNamesPerId.get(neId))
+                        );
                         break;
-
-                    case XNODE_IDS:
-                        jsonParser.nextToken();
-                        xnodeIds = jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
-                        });
-                        break;
-
                     default:
-                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                        throw new FaraoException("Unexpected field in Contingency: " + jsonParser.getCurrentName());
                 }
             }
-
-            //add contingency in Crac
-
+            adder.add();
         }
-    }*/
+    }
 }

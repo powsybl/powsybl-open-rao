@@ -9,18 +9,14 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class DeserializedNetworkElement {
+public class DeserializedNetworkElement {
 
     private String id;
     private String name;
 
-    DeserializedNetworkElement(String id) {
-        this.id = id;
-    }
-
     DeserializedNetworkElement(String id, String name) {
         this.id = id;
-        this.name = name;
+        this.name = (name != null) ? name : id;
     }
 
     public String getId() {

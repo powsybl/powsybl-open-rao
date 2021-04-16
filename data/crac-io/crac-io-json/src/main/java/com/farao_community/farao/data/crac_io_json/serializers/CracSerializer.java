@@ -1,82 +1,121 @@
+/*
+ *  Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ */
+
 package com.farao_community.farao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.commons.json.JsonUtil;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationNames.*;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class CracSerializer {
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
-    public static String serializeCrac(Crac crac) {
-        return buildJsonCrac(crac).toString(1);
-    }
+/**
+ * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
+ */
+public class CracSerializer extends AbstractJsonSerializer<Crac> {
 
-    private static JSONObject buildJsonCrac(Crac crac) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(NAME, crac.getName());
-        jsonObject.put(NETWORK_ELEMENTS, serializeNetworkElements(crac));
-        jsonObject.put(FLOW_CNECS, serializeFlowCnecs(crac));
-        return jsonObject;
-    }
+    @Override
+    public void serialize(Crac crac, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 
-    private static JSONArray serializeNetworkElements(Crac crac) {
-        // cheat : using crac.getNetworkElements() for now, which may become invisible
-        JSONArray array = new JSONArray();
-        crac.getNetworkElements().forEach(networkElement -> array.put(serializeNetworkElement(networkElement)));
-        return array;
-    }
+        // todo: suggestion, ajouter une petite en-tête pour dire que le Crac a été généré par farao avec un lien vers le site web ?
 
-    private static JSONObject serializeNetworkElement(NetworkElement networkElement) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(ID, networkElement.getId());
-        jsonObject.put(NAME, networkElement.getName());
-        return jsonObject;
-    }
+        gen.writeStringField(ID, crac.getId());
+        gen.writeStringField(NAME, crac.getName());
 
-    private static JSONArray serializeFlowCnecs(Crac crac) {
-        JSONArray array = new JSONArray();
-        crac.getFlowCnecs().forEach(flowCnec -> array.put(serializeFlowCnec(flowCnec)));
-        return array;
-    }
-
-    private static JSONObject serializeFlowCnec(FlowCnec flowCnec) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(ID, flowCnec.getId());
-        jsonObject.put(NAME, flowCnec.getName());
-        jsonObject.put(NETWORK_ELEMENT_ID, flowCnec.getNetworkElement().getId());
-        jsonObject.put(OPERATOR, flowCnec.getOperator());
-        jsonObject.put(INSTANT, serializeInstant(flowCnec.getState().getInstant()));
-        if (flowCnec.getState().getContingency().isPresent()) {
-            jsonObject.put(CONTINGENCY_ID, flowCnec.getState().getContingency().orElseThrow().getId());
+        writeNetworkElements(crac, gen);
+        writeContingencies(crac, gen);
+        writeFlowCnecs(crac, gen);
+        /*
+        gen.writeArrayFieldStart(CNECS);
+        for (BranchCnec cnec : value.getFlowCnecs()) {
+            gen.writeObject(cnec);
         }
-        jsonObject.put(OPTIMIZED, flowCnec.isOptimized());
-        jsonObject.put(MONITORED, flowCnec.isMonitored());
-        jsonObject.put(FRM, flowCnec.getReliabilityMargin());
-        jsonObject.put(THRESHOLDS, serializeThresholds(flowCnec));
-        return jsonObject;
-    }
-
-    private static String serializeInstant(Instant instant) {
-        switch (instant) {
-            case PREVENTIVE:
-                return PREVENTIVE_INSTANT;
-            case OUTAGE:
-                return OUTAGE_INSTANT;
-            case AUTO:
-                return  AUTO_INSTANT;
-            case CURATIVE:
-                return CURATIVE_INSTANT;
-            default:
-                throw new FaraoException(String.format("Unsupported instant %s", instant));
+        gen.writeEndArray();
+        gen.writeArrayFieldStart(RANGE_ACTIONS);
+        for (RangeAction rangeAction: value.getRangeActions()) {
+            gen.writeObject(rangeAction);
         }
+        gen.writeEndArray();
+        gen.writeArrayFieldStart(NETWORK_ACTIONS);
+        for (NetworkAction networkAction : value.getNetworkActions()) {
+            gen.writeObject(networkAction);
+        }
+        gen.writeEndArray();
+
+         */
+        JsonUtil.writeExtensions(crac, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
     }
 
-    private static JSONObject serializeThresholds(FlowCnec flowCnec) {
-        return null; // todo
+    private void writeNetworkElements(Crac crac, JsonGenerator gen) throws IOException {
+        Set<NetworkElement> networkElements = new HashSet<>();
+
+        // Get network elements from Cnecs
+        Set<NetworkElement> cnecNetworkElements = crac.getCnecs().stream().map(Cnec::getNetworkElement).collect(Collectors.toSet());
+        networkElements.addAll(cnecNetworkElements);
+
+        // Get network elements from Contingencies
+        Set<NetworkElement> contingencyNetworkElements = crac.getContingencies().stream().map(Contingency::getNetworkElements).flatMap(Set::stream).collect(Collectors.toSet());
+        networkElements.addAll(contingencyNetworkElements);
+
+        // Get network elements from RemedialActions
+        Set<NetworkElement> remedialActionNetworkElements = new HashSet<>();
+        crac.getRemedialActions().forEach(remedialAction -> remedialActionNetworkElements.addAll(remedialAction.getNetworkElements()));
+        networkElements.addAll(remedialActionNetworkElements);
+
+        // Write all
+        gen.writeArrayFieldStart(NETWORK_ELEMENTS);
+
+        List<NetworkElement> sortedListOfNetworkElements = networkElements.stream()
+                .sorted(Comparator.comparing(NetworkElement::getId))
+                .collect(Collectors.toList());
+
+        for (NetworkElement networkElement : sortedListOfNetworkElements) {
+            gen.writeObject(networkElement);
+        }
+
+        gen.writeEndArray();
+    }
+
+    private void writeContingencies(Crac crac, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(CONTINGENCIES);
+
+        List<Contingency> sortedListOfContingencies = crac.getContingencies().stream()
+                .sorted(Comparator.comparing(Contingency::getId))
+                .collect(Collectors.toList());
+
+        for (Contingency contingency : sortedListOfContingencies) {
+            gen.writeObject(contingency);
+        }
+
+        gen.writeEndArray();
+    }
+
+    private void writeFlowCnecs(Crac crac, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(FLOW_CNECS);
+
+        List<FlowCnec> sortedListOfCnecs = crac.getFlowCnecs().stream()
+                .sorted(Comparator.comparing(FlowCnec::getId))
+                .collect(Collectors.toList());
+
+        for (FlowCnec flowCnec : sortedListOfCnecs) {
+            gen.writeObject(flowCnec);
+        }
+
+        gen.writeEndArray();
     }
 }
