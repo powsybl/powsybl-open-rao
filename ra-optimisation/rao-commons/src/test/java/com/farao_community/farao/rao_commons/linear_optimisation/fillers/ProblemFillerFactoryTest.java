@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,7 @@ public class ProblemFillerFactoryTest {
     private Map<BranchCnec, Double> initialAbsolutePtdfSumPerCnec;
     private Map<BranchCnec, Double> initialFlowPerCnec;
     private Map<BranchCnec, Double> initialLoopFlowPerCnec;
+    private Map<BranchCnec, Double> prePerimeterCnecMarginsInMW;
 
     @Before
     public void setUp() {
@@ -134,6 +136,9 @@ public class ProblemFillerFactoryTest {
         initialCnecResults.setLoopflowsInMW(initialLoopFlowPerCnec);
         initialCnecResults.setAbsolutePtdfSums(initialAbsolutePtdfSumPerCnec);
 
+        prePerimeterCnecMarginsInMW = new HashMap<>();
+        crac.getBranchCnecs().forEach(cnec -> prePerimeterCnecMarginsInMW.put(cnec, 100.));
+
         input = LinearOptimizerInput.create()
             .withCnecs(crac.getBranchCnecs())
             .withLoopflowCnecs(Set.of(loopFlowCnec))
@@ -141,6 +146,7 @@ public class ProblemFillerFactoryTest {
             .withMostLimitingElements(List.of(cnecMnec, pureCnec, loopFlowCnec))
             .withRangeActions(crac.getRangeActions())
             .withPreperimeterSetpoints(Map.of(ra1, 0., ra2, 0.))
+            .withPrePerimeterCnecMarginsInMW(prePerimeterCnecMarginsInMW)
             .build();
 
         ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
@@ -245,9 +251,9 @@ public class ProblemFillerFactoryTest {
         UnoptimizedCnecFiller pfImpl = (UnoptimizedCnecFiller) pf;
 
         // It has got only the french optimized CNECs
-        assertEquals(crac.getBranchCnecs().stream().filter(cnec -> cnec.getOperator().equals("FR")).count(), pfImpl.getInitialFlowInMWPerUnoptimizedCnec().size());
-        assertEquals(initialFlowPerCnec.get(pureCnec), pfImpl.getInitialFlowInMWPerUnoptimizedCnec().get(pureCnec));
-        assertEquals(initialFlowPerCnec.get(cnecMnec), pfImpl.getInitialFlowInMWPerUnoptimizedCnec().get(cnecMnec));
+        assertEquals(crac.getBranchCnecs().stream().filter(cnec -> cnec.getOperator().equals("FR")).count(), pfImpl.getPrePerimeterMarginInMWPerUnoptimizedCnec().size());
+        assertEquals(prePerimeterCnecMarginsInMW.get(pureCnec), pfImpl.getPrePerimeterMarginInMWPerUnoptimizedCnec().get(pureCnec));
+        assertEquals(prePerimeterCnecMarginsInMW.get(pureCnec), pfImpl.getPrePerimeterMarginInMWPerUnoptimizedCnec().get(cnecMnec));
         // Threshold of the pure-cnec
         assertEquals(2000., ParametersProvider.getUnoptimizedCnecParameters().getHighestThresholdValue(), DOUBLE_TOLERANCE);
     }

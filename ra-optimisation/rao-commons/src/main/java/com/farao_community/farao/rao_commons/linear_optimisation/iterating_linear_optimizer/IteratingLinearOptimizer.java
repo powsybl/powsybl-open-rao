@@ -45,6 +45,7 @@ public final class IteratingLinearOptimizer {
                 .withPreperimeterSetpoints(iteratingLinearOptimizerInput.getPreperimeterSetpoints())
                 .withRangeActions(iteratingLinearOptimizerInput.getRangeActions())
                 .withMostLimitingElements(iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator().getMostLimitingElements(iteratingLinearOptimizerInput.getPreOptimSensitivityResults(), 10))
+                .withPrePerimeterCnecMarginsInMW(iteratingLinearOptimizerInput.getPrePerimeterCnecMarginsInAbsoluteMW())
                 .build();
     }
 

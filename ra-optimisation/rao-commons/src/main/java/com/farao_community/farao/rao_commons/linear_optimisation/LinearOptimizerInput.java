@@ -22,6 +22,7 @@ public class LinearOptimizerInput {
     private Map<RangeAction, Double> prePerimeterSetpoints; // can be removed if we don't change taps in the network after each depth
     private List<BranchCnec> mostLimitingElements;
     private CnecResults initialCnecResults;
+    private Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
 
     public static LinearOptimizerInputBuilder create() {
         return new LinearOptimizerInputBuilder();
@@ -91,6 +92,10 @@ public class LinearOptimizerInput {
         return initialCnecResults.getLoopflowsInMW();
     }
 
+    public double getPrePerimeterMarginInMW(BranchCnec cnec) {
+        return prePerimeterCnecMarginsInAbsoluteMW.get(cnec);
+    }
+
     public static final class LinearOptimizerInputBuilder {
         private Set<BranchCnec> loopflowCnecs;
         private Set<BranchCnec> cnecs;
@@ -99,6 +104,7 @@ public class LinearOptimizerInput {
         private Map<RangeAction, Double> preperimeterSetpoints;
         private List<BranchCnec> mostLimitingElements;
         private CnecResults initialCnecResults;
+        private Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW;
 
         public LinearOptimizerInputBuilder withLoopflowCnecs(Set<BranchCnec> loopflowCnecs) {
             this.loopflowCnecs = loopflowCnecs;
@@ -135,6 +141,11 @@ public class LinearOptimizerInput {
             return this;
         }
 
+        public LinearOptimizerInputBuilder withPrePerimeterCnecMarginsInMW(Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW) {
+            this.prePerimeterCnecMarginsInAbsoluteMW = prePerimeterCnecMarginsInAbsoluteMW;
+            return this;
+        }
+
         public LinearOptimizerInput build() {
             // TODO : check non null arguments
             LinearOptimizerInput linearOptimizerInput = new LinearOptimizerInput();
@@ -145,6 +156,7 @@ public class LinearOptimizerInput {
             linearOptimizerInput.prePerimeterSetpoints = this.preperimeterSetpoints;
             linearOptimizerInput.mostLimitingElements = this.mostLimitingElements;
             linearOptimizerInput.initialCnecResults = this.initialCnecResults;
+            linearOptimizerInput.prePerimeterCnecMarginsInAbsoluteMW = this.prePerimeterCnecMarginsInAbsoluteMW;
             return linearOptimizerInput;
         }
     }

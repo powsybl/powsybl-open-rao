@@ -253,8 +253,9 @@ class Leaf {
                 RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData,
                         raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
         Set<RangeAction> optimizableRangeActions = new HashSet<>(raoData.getAvailableRangeActions());
-        removeRangeActionsWithWrongInitialSetpoint(optimizableRangeActions, raoData.getPrePerimeterSetPoints(), raoData.getNetwork());
-        removeRangeActionsIfMaxNumberReached(optimizableRangeActions, getMaxPstPerTso(),
+        Map<RangeAction, Double> optimizableRangeActionSetPoints = new HashMap<>(raoData.getPrePerimeterSetPoints());
+        removeRangeActionsWithWrongInitialSetpoint(optimizableRangeActions, optimizableRangeActionSetPoints, raoData.getNetwork());
+        removeRangeActionsIfMaxNumberReached(optimizableRangeActions, optimizableRangeActionSetPoints, getMaxPstPerTso(),
             objectiveFunctionEvaluator.getMostLimitingElements(raoData.getSensitivityAndLoopflowResults(), 1).get(0),
             raoData.getSensitivityAndLoopflowResults().getSystematicSensitivityResult());
         return IteratingLinearOptimizerInput.create()
@@ -262,7 +263,8 @@ class Leaf {
                 .withCnecs(raoData.getCnecs())
                 .withRangeActions(optimizableRangeActions)
                 .withNetwork(raoData.getNetwork())
-                .withPreperimeterSetpoints(raoData.getPrePerimeterSetPoints())
+                .withPreperimeterSetpoints(optimizableRangeActionSetPoints)
+                .withPrePerimeterCnecMarginsInMW(raoData.getPrePerimeterMarginsInAbsoluteMW())
                 .withInitialCnecResults(raoData.getInitialCnecResults())
                 .withPreOptimSensitivityResults(raoData.getSensitivityAndLoopflowResults())
                 .withSystematicSensitivityInterface(linearOptimizerSystematicSensitivityInterface)
@@ -275,11 +277,11 @@ class Leaf {
     /**
      * If range action's initial setpoint does not respect its allowed range, this function filters it out
      */
-    static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, Map<RangeAction, Double> initialSetpoints, Network network) {
+    static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, Map<RangeAction, Double> prePerimeterSetPoints, Network network) {
         //a temp set is needed to avoid ConcurrentModificationExceptions when trying to remove a range action from a set we are looping on
         Set<RangeAction> rangeActionsToRemove = new HashSet<>();
         for (RangeAction rangeAction : rangeActions) {
-            double preperimeterSetPoint = initialSetpoints.get(rangeAction);
+            double preperimeterSetPoint = prePerimeterSetPoints.get(rangeAction);
             double minSetPoint = rangeAction.getMinValue(network, preperimeterSetPoint);
             double maxSetPoint = rangeAction.getMaxValue(network, preperimeterSetPoint);
             if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
@@ -288,24 +290,30 @@ class Leaf {
                 rangeActionsToRemove.add(rangeAction);
             }
         }
-        rangeActionsToRemove.forEach(rangeActions::remove);
+        rangeActionsToRemove.forEach(rangeAction -> {
+            rangeActions.remove(rangeAction);
+            prePerimeterSetPoints.remove(rangeAction);
+        });
     }
 
     /**
      * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
      * the least impact on the most limiting element
      */
-    static void removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActions, Map<String, Integer> maxPstPerTso, BranchCnec mostLimitingElement, SystematicSensitivityResult sensitivityResult) {
+    static void removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActions, Map<RangeAction, Double> prePerimeterSetpoints, Map<String, Integer> maxPstPerTso, BranchCnec mostLimitingElement, SystematicSensitivityResult sensitivityResult) {
         if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
             maxPstPerTso.forEach((tso, maxPst) -> {
                 Set<RangeAction> pstsForTso = rangeActions.stream()
-                    .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
-                    .collect(Collectors.toSet());
+                        .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
+                        .collect(Collectors.toSet());
                 if (pstsForTso.size() > maxPst) {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
                     pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, sensitivityResult))
-                        .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
-                        .forEach(rangeActions::remove);
+                            .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
+                            .forEach(rangeAction -> {
+                                rangeActions.remove(rangeAction);
+                                prePerimeterSetpoints.remove(rangeAction);
+                            });
                 }
             });
         }
