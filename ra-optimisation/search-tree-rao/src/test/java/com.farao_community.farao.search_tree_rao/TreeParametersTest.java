@@ -63,7 +63,6 @@ public class TreeParametersTest {
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());
         assertEquals(4, treeParameters.getLeavesInParallel());
-        assertNull(treeParameters.getOperatorsNotToOptimize());
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
 
         searchTreeRaoParameters.setPreventiveRaoStopCriterion(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE);
@@ -75,7 +74,6 @@ public class TreeParametersTest {
         assertTrue(treeParameters.getMaxPstPerTso().isEmpty());
         assertTrue(treeParameters.getMaxRaPerTso().isEmpty());
         assertEquals(8, treeParameters.getLeavesInParallel());
-        assertNull(treeParameters.getOperatorsNotToOptimize());
         compareCommonParameters(treeParameters, searchTreeRaoParameters);
     }
 

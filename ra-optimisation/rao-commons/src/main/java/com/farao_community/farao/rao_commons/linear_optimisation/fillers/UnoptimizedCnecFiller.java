@@ -12,11 +12,12 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.UnoptimizedCnecParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -30,17 +31,21 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class UnoptimizedCnecFiller implements ProblemFiller {
     private final LinearProblem linearProblem;
-    private final Map<BranchCnec, Double> prePerimeterMarginInMWPerUnoptimizedCnec;
-    private final double highestThresholdValue = ParametersProvider.getUnoptimizedCnecParameters().getHighestThresholdValue();
+    private final Map<BranchCnec, Double> prePerimeterMarginInMWPerOptimizedCnec;
+    private final Set<String> operatorsNotToOptimize;
+    private final double highestThresholdValue;
 
     public UnoptimizedCnecFiller(LinearProblem linearProblem,
-                                 Map<BranchCnec, Double> prePerimeterMarginInMWPerUnoptimizedCnec) {
+                                 Map<BranchCnec, Double> prePerimeterMarginInMWPerOptimizedCnec,
+                                 UnoptimizedCnecParameters unoptimizedCnecParameters) {
         this.linearProblem = linearProblem;
-        this.prePerimeterMarginInMWPerUnoptimizedCnec = prePerimeterMarginInMWPerUnoptimizedCnec;
+        this.prePerimeterMarginInMWPerOptimizedCnec = prePerimeterMarginInMWPerOptimizedCnec;
+        this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
+        this.highestThresholdValue = unoptimizedCnecParameters.getHighestThresholdValue();
     }
 
-    final Map<BranchCnec, Double> getPrePerimeterMarginInMWPerUnoptimizedCnec() {
-        return prePerimeterMarginInMWPerUnoptimizedCnec;
+    final Map<BranchCnec, Double> getPrePerimeterMarginInMWPerOptimizedCnec() {
+        return prePerimeterMarginInMWPerOptimizedCnec;
     }
 
     final double getHighestThresholdValue() {
@@ -48,7 +53,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     }
 
     private Set<BranchCnec> getUnoptimizedCnecs() {
-        return prePerimeterMarginInMWPerUnoptimizedCnec.keySet();
+        return prePerimeterMarginInMWPerOptimizedCnec.keySet().stream()
+                .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -89,7 +96,9 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         double worstMarginDecrease = 20 * highestThresholdValue;
         // No margin should be smaller than the worst margin computed above, otherwise it means the linear optimizer or the search tree rao is degrading the situation
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
-        prePerimeterMarginInMWPerUnoptimizedCnec.forEach((cnec, prePerimeterMargin) -> {
+        getUnoptimizedCnecs().forEach(cnec -> {
+            double prePerimeterMargin = prePerimeterMarginInMWPerOptimizedCnec.get(cnec);
+
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
             if (flowVariable == null) {
                 throw new FaraoException(String.format("Flow variable has not yet been created for Cnec %s", cnec.getId()));

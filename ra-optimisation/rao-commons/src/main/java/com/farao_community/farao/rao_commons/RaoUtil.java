@@ -19,6 +19,7 @@ import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -92,38 +93,38 @@ public final class RaoUtil {
         }
     }
 
-    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters, RaoData raoData, boolean withPtdfSensitivitiesForLoopFlows) {
+    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoData raoData, boolean withPtdfSensitivitiesForLoopFlows) {
 
         Set<Unit> flowUnits = new HashSet<>();
         flowUnits.add(Unit.MEGAWATT);
-        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+        if (!raoData.getRaoParameters().getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
             flowUnits.add(Unit.AMPERE);
         }
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
             .builder()
-            .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
-            .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
+            .withDefaultParameters(raoData.getRaoParameters().getDefaultSensitivityAnalysisParameters())
+            .withFallbackParameters(raoData.getRaoParameters().getFallbackSensitivityAnalysisParameters())
             .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs(), flowUnits);
 
-        if (raoParameters.isRaoWithLoopFlowLimitation() && withPtdfSensitivitiesForLoopFlows) {
+        if (withPtdfSensitivitiesForLoopFlows) {
             builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs(), flowUnits);
         }
 
         return builder.build();
     }
 
-    public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoData raoData, RaoParameters raoParameters) {
+    public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoData raoData, LinearOptimizerParameters linearOptimizerParameters, double fallbackOverCost) {
         CnecResults initialCnecResults = raoData.getInitialCnecResults();
-        switch (raoParameters.getObjectiveFunction()) {
+        switch (linearOptimizerParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
                 return new MinMarginObjectiveFunction(raoData.getCnecs(), raoData.getLoopflowCnecs(), raoData.getPrePerimeterMarginsInAbsoluteMW(),
-                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInA(), initialCnecResults.getLoopflowsInMW(), raoParameters.getFallbackOverCost());
+                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInA(), initialCnecResults.getLoopflowsInMW(), linearOptimizerParameters, fallbackOverCost);
             case MAX_MIN_MARGIN_IN_MEGAWATT:
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
                 return new MinMarginObjectiveFunction(raoData.getCnecs(), raoData.getLoopflowCnecs(), raoData.getPrePerimeterMarginsInAbsoluteMW(),
-                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInMW(), initialCnecResults.getLoopflowsInMW(), raoParameters.getFallbackOverCost());
+                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInMW(), initialCnecResults.getLoopflowsInMW(), linearOptimizerParameters, fallbackOverCost);
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }

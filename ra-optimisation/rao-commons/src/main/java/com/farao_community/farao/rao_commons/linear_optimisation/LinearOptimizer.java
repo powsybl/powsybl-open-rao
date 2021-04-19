@@ -14,6 +14,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
 import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFillerType.*;
+import static java.lang.String.format;
 
 /**
  * An optimizer dedicated to the construction and solving of a linear problem.
@@ -56,29 +58,31 @@ public class LinearOptimizer {
 
     private final LinearOptimizerInput linearOptimizerInput;
 
-    public LinearOptimizer(LinearOptimizerInput linearOptimizerInput) {
-        this(new LinearProblem(), linearOptimizerInput);
+    public LinearOptimizer(LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
+        this(new LinearProblem(), linearOptimizerInput, linearOptimizerParameters);
     }
 
-    public LinearOptimizer(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput) {
+    public LinearOptimizer(LinearProblem linearProblem, LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
         this.linearOptimizerInput = linearOptimizerInput;
         this.linearProblem = linearProblem;
-        ProblemFillerFactory factory = new ProblemFillerFactory(linearProblem, linearOptimizerInput);
+        ProblemFillerFactory factory = new ProblemFillerFactory(linearProblem, linearOptimizerInput, linearOptimizerParameters);
         fillers = new ArrayList<>();
         fillers.add(factory.createProblemFiller(CORE));
-        RaoParameters.ObjectiveFunction objectiveFunction = ParametersProvider.getObjectiveFuntion();
+        RaoParameters.ObjectiveFunction objectiveFunction = linearOptimizerParameters.getObjectiveFunction();
         if (objectiveFunction == MAX_MIN_MARGIN_IN_AMPERE || objectiveFunction == MAX_MIN_MARGIN_IN_MEGAWATT) {
             fillers.add(factory.createProblemFiller(MAX_MIN_MARGIN));
-            fillers.add(factory.createProblemFiller(MNEC));
         } else if (objectiveFunction == MAX_MIN_RELATIVE_MARGIN_IN_AMPERE || objectiveFunction == MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) {
             fillers.add(factory.createProblemFiller(MAX_MIN_RELATIVE_MARGIN));
+        } else {
+            throw new NotImplementedException(format("Unhandled objective function : %s", objectiveFunction));
+        }
+        if (linearOptimizerParameters.hasMonitoredElements()) {
             fillers.add(factory.createProblemFiller(MNEC));
         }
-        if (ParametersProvider.getCoreParameters().getOperatorsNotToOptimize() != null
-            && !ParametersProvider.getCoreParameters().getOperatorsNotToOptimize().isEmpty()) {
+        if (linearOptimizerParameters.hasOperatorsNotToOptimize()) {
             fillers.add(factory.createProblemFiller(UNOPTIMIZED_CNEC));
         }
-        if (ParametersProvider.isRaoWithLoopFlowLimitation()) {
+        if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
             fillers.add(factory.createProblemFiller(MAX_LOOP_FLOW));
         }
     }

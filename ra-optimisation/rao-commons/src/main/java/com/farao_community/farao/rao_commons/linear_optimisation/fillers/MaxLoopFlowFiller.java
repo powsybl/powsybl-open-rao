@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LoopFlowParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -27,14 +27,18 @@ import java.util.Set;
 public class MaxLoopFlowFiller implements ProblemFiller {
     private final LinearProblem linearProblem;
     private final Map<BranchCnec, Double> initialLoopFlowPerLoopFlowCnec;
-    private final RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel = ParametersProvider.getLoopFlowParameters().getLoopFlowApproximationLevel();
-    private final double loopFlowAcceptableAugmentation = ParametersProvider.getLoopFlowParameters().getLoopFlowAcceptableAugmentation();
-    private final double loopFlowViolationCost = ParametersProvider.getLoopFlowParameters().getLoopFlowViolationCost();
-    private final double loopFlowConstraintAdjustmentCoefficient = ParametersProvider.getLoopFlowParameters().getLoopFlowConstraintAdjustmentCoefficient();
+    private final RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
+    private final double loopFlowAcceptableAugmentation;
+    private final double loopFlowViolationCost;
+    private final double loopFlowConstraintAdjustmentCoefficient;
 
-    public MaxLoopFlowFiller(LinearProblem linearProblem, Map<BranchCnec, Double> initialLoopFlowPerLoopFlowCnec) {
+    public MaxLoopFlowFiller(LinearProblem linearProblem, Map<BranchCnec, Double> initialLoopFlowPerLoopFlowCnec, LoopFlowParameters loopFlowParameters) {
         this.linearProblem = linearProblem;
         this.initialLoopFlowPerLoopFlowCnec = initialLoopFlowPerLoopFlowCnec;
+        this.loopFlowApproximationLevel = loopFlowParameters.getLoopFlowApproximationLevel();
+        this.loopFlowAcceptableAugmentation = loopFlowParameters.getLoopFlowAcceptableAugmentation();
+        this.loopFlowViolationCost = loopFlowParameters.getLoopFlowViolationCost();
+        this.loopFlowConstraintAdjustmentCoefficient = loopFlowParameters.getLoopFlowConstraintAdjustmentCoefficient();
     }
 
     final Map<BranchCnec, Double> getInitialLoopFlowPerLoopFlowCnec() {

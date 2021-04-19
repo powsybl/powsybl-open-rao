@@ -7,9 +7,9 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -30,23 +30,30 @@ import static org.junit.Assert.*;
 @RunWith(PowerMockRunner.class)
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
     private MaxMinMarginFiller maxMinMarginFiller;
+    private MaxMinMarginParameters maxMinMarginParameters;
 
     @Before
     public void setUp() {
         init();
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
         coreProblemFiller = new CoreProblemFiller(
-            linearProblem,
-            network,
-            Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha));
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction));
+                linearProblem,
+                network,
+                Set.of(cnec1),
+                Map.of(rangeAction, initialAlpha),
+                0);
+        maxMinMarginParameters = new MaxMinMarginParameters(0.01);
     }
 
     @Test
     public void fillWithMaxMinMarginInMegawatt() {
+        maxMinMarginFiller = new MaxMinMarginFiller(
+                linearProblem,
+                Set.of(cnec1),
+                Set.of(rangeAction),
+                Unit.MEGAWATT,
+                maxMinMarginParameters);
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
 
@@ -89,9 +96,13 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMaxMinMarginInAmpere() {
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        maxMinMarginFiller = new MaxMinMarginFiller(
+                linearProblem,
+                Set.of(cnec1),
+                Set.of(rangeAction),
+                Unit.AMPERE,
+                maxMinMarginParameters);
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction));
         maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
@@ -128,6 +139,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillWithMissingFlowVariables() {
+        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), Unit.MEGAWATT, maxMinMarginParameters);
         // AbsoluteRangeActionVariables present, but no the FlowVariables
         linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
         try {
@@ -140,6 +152,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test(expected = Test.None.class) // no exception expected
     public void fillWithMissingRangeActionVariables() {
+        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), Unit.MEGAWATT, maxMinMarginParameters);
         // FlowVariables present , but not the absoluteRangeActionVariables present,
         // This should work since range actions can be filtered out by the CoreProblemFiller if their number
         // exceeds the max-pst-per-tso parameter

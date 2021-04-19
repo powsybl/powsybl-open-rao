@@ -21,7 +21,9 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -55,6 +57,8 @@ public class RaoUtilTest {
     private Network network;
     private Crac crac;
     private String variantId;
+    private LinearOptimizerParameters linearOptimizerParameters;
+    private double fallbackOverCost;
 
     @Before
     public void setUp() {
@@ -65,6 +69,7 @@ public class RaoUtilTest {
                 .withNetworkVariantId(variantId)
                 .build();
         raoParameters = new RaoParameters();
+        fallbackOverCost = raoParameters.getFallbackOverCost();
         raoData = new RaoData(network, crac, crac.getPreventiveState(), crac.getStates(Instant.PREVENTIVE), null, null, null, raoParameters);
         raoDataSpy = Mockito.spy(raoData);
         Mockito.doReturn(new CnecResults()).when(raoDataSpy).getInitialCnecResults();
@@ -83,37 +88,48 @@ public class RaoUtilTest {
 
     @Test
     public void createCostEvaluatorFromRaoParametersMegawatt() {
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoDataSpy, raoParameters);
+        linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoDataSpy, linearOptimizerParameters, fallbackOverCost);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
     }
 
     @Test
     public void createCostEvaluatorFromRaoParametersAmps() {
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
-        ParametersProvider.getCoreParameters().setObjectiveFunction(MAX_MIN_MARGIN_IN_AMPERE);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoDataSpy, raoParameters);
+        linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(MAX_MIN_MARGIN_IN_AMPERE)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoDataSpy, linearOptimizerParameters, fallbackOverCost);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(AMPERE, costEvaluator.getUnit());
     }
 
     @Test
     public void createCostEvaluatorFromRaoParametersRelativeMW() {
-        RaoParameters raoParameters = new RaoParameters();
-        ParametersProvider.getCoreParameters().setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoDataSpy, raoParameters);
+        linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoDataSpy, linearOptimizerParameters, fallbackOverCost);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(MEGAWATT, costEvaluator.getUnit());
     }
 
     @Test
     public void createCostEvaluatorFromRaoParametersRelativeAmps() {
-        RaoParameters raoParameters = new RaoParameters();
-        ParametersProvider.getCoreParameters().setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoDataSpy, raoParameters);
+        linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoDataSpy, linearOptimizerParameters, fallbackOverCost);
         assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
         assertEquals(AMPERE, costEvaluator.getUnit());
     }
@@ -136,7 +152,7 @@ public class RaoUtilTest {
                 raoInput.getGlskProvider(),
                 raoInput.getBaseCracVariantId(),
                 raoParameters);
-        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, false);
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoData, false);
         assertNotNull(systematicSensitivityInterface);
     }
 
@@ -183,7 +199,7 @@ public class RaoUtilTest {
                 raoInput.getGlskProvider(),
                 raoInput.getBaseCracVariantId(),
                 raoParameters);
-        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, true);
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoData, true);
         assertNotNull(systematicSensitivityInterface);
     }
 

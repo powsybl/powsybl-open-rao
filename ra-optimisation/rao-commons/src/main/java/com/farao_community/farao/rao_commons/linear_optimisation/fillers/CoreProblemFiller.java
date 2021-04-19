@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -32,16 +31,18 @@ public class CoreProblemFiller implements ProblemFiller {
     private final Network network;
     private final Set<BranchCnec> cnecs;
     private final Map<RangeAction, Double> prePerimeterSetPointPerRangeAction;
-    private final double pstSensitivityThreshold = ParametersProvider.getCoreParameters().getPstSensitivityThreshold();
+    private final double pstSensitivityThreshold;
 
     public CoreProblemFiller(LinearProblem linearProblem,
                              Network network,
                              Set<BranchCnec> cnecs,
-                             Map<RangeAction, Double> prePerimeterSetPointPerRangeAction) {
+                             Map<RangeAction, Double> prePerimeterSetPointPerRangeAction,
+                             double pstSensitivityThreshold) {
         this.linearProblem = linearProblem;
         this.network = network;
         this.cnecs = cnecs;
         this.prePerimeterSetPointPerRangeAction = prePerimeterSetPointPerRangeAction;
+        this.pstSensitivityThreshold = pstSensitivityThreshold;
     }
 
     final Set<BranchCnec> getCnecs() {

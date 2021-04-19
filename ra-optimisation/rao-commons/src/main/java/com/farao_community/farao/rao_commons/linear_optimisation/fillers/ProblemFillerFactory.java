@@ -7,16 +7,13 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
-import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -29,10 +26,12 @@ import static java.lang.String.format;
 public final class ProblemFillerFactory {
     private final LinearProblem linearProblem;
     private final LinearOptimizerInput input;
+    private final LinearOptimizerParameters linearOptimizerParameters;
 
-    public ProblemFillerFactory(LinearProblem linearProblem, LinearOptimizerInput input) {
+    public ProblemFillerFactory(LinearProblem linearProblem, LinearOptimizerInput input, LinearOptimizerParameters linearOptimizerParameters) {
         this.linearProblem = linearProblem;
         this.input = input;
+        this.linearOptimizerParameters = linearOptimizerParameters;
     }
 
     public ProblemFiller createProblemFiller(ProblemFillerType type) {
@@ -59,14 +58,17 @@ public final class ProblemFillerFactory {
                 linearProblem,
                 input.getNetwork(),
                 input.getCnecs(),
-                input.getPrePerimeterSetpoints());
+                input.getPrePerimeterSetpoints(),
+                linearOptimizerParameters.getPstSensitivityThreshold());
     }
 
     ProblemFiller createMaxMinMarginFiller() {
         return new MaxMinMarginFiller(
                 linearProblem,
                 input.getCnecs().stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
-                input.getRangeActions());
+                input.getRangeActions(),
+                linearOptimizerParameters.getUnit(),
+                linearOptimizerParameters.getMaxMinMarginParameters());
     }
 
     ProblemFiller createMaxMinRelativeMarginFiller() {
@@ -75,7 +77,9 @@ public final class ProblemFillerFactory {
                 input.getCnecs().stream()
                         .filter(Cnec::isOptimized)
                         .collect(Collectors.toMap(Function.identity(), input::getInitialAbsolutePtdfSum)),
-                input.getRangeActions());
+                input.getRangeActions(),
+                linearOptimizerParameters.getUnit(),
+                linearOptimizerParameters.getMaxMinRelativeMarginParameters());
     }
 
     ProblemFiller createMnecFiller() {
@@ -86,41 +90,27 @@ public final class ProblemFillerFactory {
                         .collect(Collectors.toMap(
                             Function.identity(),
                             mnec -> input.getInitialFlow(mnec, MEGAWATT))
-                        ));
+                        ),
+                linearOptimizerParameters.getUnit(),
+                linearOptimizerParameters.getMnecParameters());
     }
 
     ProblemFiller createUnoptimizedCnecFiller() {
-        ParametersProvider.getUnoptimizedCnecParameters().setHighestThresholdValue(getLargestCnecThreshold(input.getCnecs()));
         return new UnoptimizedCnecFiller(
                 linearProblem,
                 input.getCnecs().stream()
                         .filter(BranchCnec::isOptimized)
-                        .filter(cnec -> ParametersProvider.getCoreParameters().getOperatorsNotToOptimize().contains(cnec.getOperator()))
+                        .filter(cnec -> linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize().contains(cnec.getOperator()))
                         .collect(Collectors.toMap(
                                 Function.identity(),
-                                input::getPrePerimeterMarginInMW)));
-    }
-
-    static double getLargestCnecThreshold(Set<BranchCnec> cnecs) {
-        double max = 0;
-        for (BranchCnec cnec : cnecs) {
-            if (cnec.isOptimized()) {
-                Optional<Double> minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
-                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
-                    max = Math.abs(minFlow.get());
-                }
-                Optional<Double> maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
-                    max = Math.abs(maxFlow.get());
-                }
-            }
-        }
-        return max;
+                                input::getPrePerimeterMarginInMW)),
+                linearOptimizerParameters.getUnoptimizedCnecParameters());
     }
 
     ProblemFiller createMaxLoopFlowFiller() {
         return new MaxLoopFlowFiller(
                 linearProblem,
-                input.getLoopflowCnecs().stream().collect(Collectors.toMap(Function.identity(), input::getInitialLoopflowInMW)));
+                input.getLoopflowCnecs().stream().collect(Collectors.toMap(Function.identity(), input::getInitialLoopflowInMW)),
+                linearOptimizerParameters.getLoopFlowParameters());
     }
 }

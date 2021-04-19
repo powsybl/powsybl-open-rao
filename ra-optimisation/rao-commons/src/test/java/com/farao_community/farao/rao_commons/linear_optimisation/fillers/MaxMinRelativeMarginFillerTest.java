@@ -8,9 +8,8 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -34,6 +33,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(PowerMockRunner.class)
 public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
+    private MaxMinRelativeMarginParameters parameters;
 
     @Before
     public void setUp() {
@@ -41,25 +41,22 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
         coreProblemFiller = new CoreProblemFiller(
-            linearProblem,
-            network,
-            Set.of(cnec1),
-            Map.of(rangeAction, initialAlpha));
+                linearProblem,
+                network,
+                Set.of(cnec1),
+                Map.of(rangeAction, initialAlpha),
+                0);
         coreProblemFiller.fill(sensitivityAndLoopflowResults);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setNegativeMarginObjectiveCoefficient(1000);
+        parameters = new MaxMinRelativeMarginParameters(0.01, 1000, 0.01);
     }
 
     private void createProblem(Unit unit, double cnecInitialAbsolutePtdfSum) {
-        if (unit == Unit.MEGAWATT) {
-            ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
-        } else {
-            ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
-        }
         MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
-            linearProblem,
-            Map.of(cnec1, cnecInitialAbsolutePtdfSum),
-            Set.of(rangeAction));
+                linearProblem,
+                Map.of(cnec1, cnecInitialAbsolutePtdfSum),
+                Set.of(rangeAction),
+                unit,
+                parameters);
         maxMinRelativeMarginFiller.fill(sensitivityAndLoopflowResults);
     }
 

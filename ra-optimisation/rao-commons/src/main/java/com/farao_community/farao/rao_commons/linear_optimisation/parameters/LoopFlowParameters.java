@@ -10,24 +10,15 @@ package com.farao_community.farao.rao_commons.linear_optimisation.parameters;
 import com.farao_community.farao.rao_api.RaoParameters.LoopFlowApproximationLevel;
 
 public class LoopFlowParameters {
-    private LoopFlowApproximationLevel loopFlowApproximationLevel;
-    private double loopFlowAcceptableAugmentation;
-    private double loopFlowViolationCost;
-    private double loopFlowConstraintAdjustmentCoefficient;
+    private final LoopFlowApproximationLevel loopFlowApproximationLevel;
+    private final double loopFlowAcceptableAugmentation;
+    private final double loopFlowViolationCost;
+    private final double loopFlowConstraintAdjustmentCoefficient;
 
-    public void setLoopFlowApproximationLevel(LoopFlowApproximationLevel loopFlowApproximationLevel) {
+    public LoopFlowParameters(LoopFlowApproximationLevel loopFlowApproximationLevel, double loopFlowAcceptableAugmentation, double loopFlowViolationCost, double loopFlowConstraintAdjustmentCoefficient) {
         this.loopFlowApproximationLevel = loopFlowApproximationLevel;
-    }
-
-    public void setLoopFlowAcceptableAugmentation(double loopFlowAcceptableAugmentation) {
         this.loopFlowAcceptableAugmentation = loopFlowAcceptableAugmentation;
-    }
-
-    public void setLoopFlowViolationCost(double loopFlowViolationCost) {
         this.loopFlowViolationCost = loopFlowViolationCost;
-    }
-
-    public void setLoopFlowConstraintAdjustmentCoefficient(double loopFlowConstraintAdjustmentCoefficient) {
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowConstraintAdjustmentCoefficient;
     }
 

@@ -13,6 +13,7 @@ import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
@@ -78,11 +79,11 @@ public class LinearRao implements RaoProvider {
         }
 
         this.unit = raoParameters.getObjectiveFunction().getUnit();
-        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoData, raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange());
         // TODO : add max pst per tso parameter here if it should be supported in LinearRao
         // TODO : delete LinearRao or adapt to the rao refacto
         IteratingLinearOptimizer iteratingLinearOptimizer = null;
-        return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData), raoParameters);
+        return run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, new InitialSensitivityAnalysis(raoData, LinearOptimizerParameters.create().build()), raoParameters);
     }
 
     // This method is useful for testing to be able to mock systematicSensitivityComputation

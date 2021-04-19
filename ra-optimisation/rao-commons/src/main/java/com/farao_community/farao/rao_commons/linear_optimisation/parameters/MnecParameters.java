@@ -8,22 +8,13 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.parameters;
 
 public class MnecParameters {
-    private double mnecAcceptableMarginDiminution;
-    private double mnecViolationCost;
-    private double mnecConstraintAdjustmentCoefficient;
+    private final double mnecAcceptableMarginDiminution;
+    private final double mnecViolationCost;
+    private final double mnecConstraintAdjustmentCoefficient;
 
-    public MnecParameters() {
-    }
-
-    public void setMnecAcceptableMarginDiminution(double mnecAcceptableMarginDiminution) {
+    public MnecParameters(double mnecAcceptableMarginDiminution, double mnecViolationCost, double mnecConstraintAdjustmentCoefficient) {
         this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
-    }
-
-    public void setMnecViolationCost(double mnecViolationCost) {
         this.mnecViolationCost = mnecViolationCost;
-    }
-
-    public void setMnecConstraintAdjustmentCoefficient(double mnecConstraintAdjustmentCoefficient) {
         this.mnecConstraintAdjustmentCoefficient = mnecConstraintAdjustmentCoefficient;
     }
 

@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +34,16 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
 
     private final Set<BranchCnec> cnecs;
     private final Map<BranchCnec, Double> initialFlows;
-    private final Unit unit = ParametersProvider.getUnit();
-    private final double mnecAcceptableMarginDiminution = ParametersProvider.getMnecParameters().getMnecAcceptableMarginDiminution();
-    private final double mnecViolationCost = ParametersProvider.getMnecParameters().getMnecViolationCost();
+    private final Unit unit;
+    private final double mnecAcceptableMarginDiminution;
+    private final double mnecViolationCost;
 
-    public MnecViolationCostEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> initialFlows) {
+    public MnecViolationCostEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> initialFlows, Unit unit, MnecParameters mnecParameters) {
         this.cnecs = cnecs;
         this.initialFlows = initialFlows;
+        this.unit = unit;
+        mnecAcceptableMarginDiminution = mnecParameters.getMnecAcceptableMarginDiminution();
+        mnecViolationCost = mnecParameters.getMnecViolationCost();
         if (unit != MEGAWATT && unit != AMPERE) {
             throw new NotImplementedException("MNEC violation cost is only implemented in MW and AMPERE units");
         }

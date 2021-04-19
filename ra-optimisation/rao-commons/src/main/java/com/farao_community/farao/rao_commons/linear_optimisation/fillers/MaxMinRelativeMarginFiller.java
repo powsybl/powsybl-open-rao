@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
@@ -30,15 +30,20 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     private final Map<BranchCnec, Double> initialAbsolutePtdfSumPerOptimizedCnec;
-    private final Unit unit = ParametersProvider.getUnit();
-    private final double ptdfSumLowerBound = ParametersProvider.getMaxMinRelativeMarginParameters().getPtdfSumLowerBound();
-    private final double negativeMarginObjectiveCoefficient = ParametersProvider.getMaxMinRelativeMarginParameters().getNegativeMarginObjectiveCoefficient();
+    private final Unit unit;
+    private final double ptdfSumLowerBound;
+    private final double negativeMarginObjectiveCoefficient;
 
     public MaxMinRelativeMarginFiller(LinearProblem linearProblem,
                                       Map<BranchCnec, Double> initialAbsolutePtdfSumPerOptimizedCnec,
-                                      Set<RangeAction> rangeActions) {
-        super(linearProblem, initialAbsolutePtdfSumPerOptimizedCnec.keySet(), rangeActions);
+                                      Set<RangeAction> rangeActions,
+                                      Unit unit,
+                                      MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
+        super(linearProblem, initialAbsolutePtdfSumPerOptimizedCnec.keySet(), rangeActions, unit, maxMinRelativeMarginParameters);
         this.initialAbsolutePtdfSumPerOptimizedCnec = initialAbsolutePtdfSumPerOptimizedCnec;
+        this.unit = unit;
+        this.ptdfSumLowerBound = maxMinRelativeMarginParameters.getPtdfSumLowerBound();
+        this.negativeMarginObjectiveCoefficient = maxMinRelativeMarginParameters.getNegativeMarginObjectiveCoefficient();
     }
 
     final Map<BranchCnec, Double> getInitialAbsolutePtdfSumPerOptimizedCnec() {

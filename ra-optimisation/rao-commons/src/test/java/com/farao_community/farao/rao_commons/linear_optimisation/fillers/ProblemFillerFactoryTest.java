@@ -17,7 +17,8 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.CnecResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -47,6 +48,8 @@ public class ProblemFillerFactoryTest {
     private Map<BranchCnec, Double> initialFlowPerCnec;
     private Map<BranchCnec, Double> initialLoopFlowPerCnec;
     private Map<BranchCnec, Double> prePerimeterCnecMarginsInMW;
+
+    private LinearOptimizerParameters parameters;
 
     @Before
     public void setUp() {
@@ -148,14 +151,16 @@ public class ProblemFillerFactoryTest {
             .withPreperimeterSetpoints(Map.of(ra1, 0., ra2, 0.))
             .withPrePerimeterCnecMarginsInMW(prePerimeterCnecMarginsInMW)
             .build();
-
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
     }
 
     @Test
     public void createCoreProblemFillerWithDefaultParameters() {
-        ParametersProvider.getCoreParameters().setPstSensitivityThreshold(0.25);
-        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input).createCoreProblemFiller();
+        parameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.25)
+                .build();
+        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input, parameters).createCoreProblemFiller();
 
         assertTrue(pf instanceof CoreProblemFiller);
         CoreProblemFiller pfImpl = (CoreProblemFiller) pf;
@@ -170,8 +175,12 @@ public class ProblemFillerFactoryTest {
 
     @Test
     public void createMaxMinMarginFillerInMW() {
-        ParametersProvider.getMaxMinMarginParameters().setPstPenaltyCost(10);
-        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input).createMaxMinMarginFiller();
+        parameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(10))
+                .withPstSensitivityThreshold(2.5)
+                .build();
+        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input, parameters).createMaxMinMarginFiller();
 
         assertTrue(pf instanceof MaxMinMarginFiller);
         MaxMinMarginFiller pfImpl = (MaxMinMarginFiller) pf;
@@ -187,20 +196,25 @@ public class ProblemFillerFactoryTest {
 
     @Test
     public void createMaxMinMarginFillerInA() {
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
-        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input).createMaxMinMarginFiller();
+        parameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(2.5)
+                .build();
+        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input, parameters).createMaxMinMarginFiller();
 
         assertEquals(Unit.AMPERE, ((MaxMinMarginFiller) pf).getUnit());
     }
 
     @Test
     public void createMaxMinRelativeMarginFiller() {
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        ParametersProvider.getMaxMinMarginParameters().setPstPenaltyCost(10);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.2);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setNegativeMarginObjectiveCoefficient(5000);
+        parameters = LinearOptimizerParameters.create()
+            .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)
+            .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(10, 5000, 0.2))
+            .withPstSensitivityThreshold(2.5)
+            .build();
 
-        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input).createMaxMinRelativeMarginFiller();
+        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input, parameters).createMaxMinRelativeMarginFiller();
 
         assertTrue(pf instanceof MaxMinRelativeMarginFiller);
         MaxMinRelativeMarginFiller pfImpl = (MaxMinRelativeMarginFiller) pf;
@@ -222,12 +236,14 @@ public class ProblemFillerFactoryTest {
 
     @Test
     public void createMnecFillerInMW() {
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
-        ParametersProvider.getMnecParameters().setMnecViolationCost(50);
-        ParametersProvider.getMnecParameters().setMnecAcceptableMarginDiminution(10);
-        ParametersProvider.getMnecParameters().setMnecConstraintAdjustmentCoefficient(1);
+        parameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(2.5)
+                .withMnecParameters(new MnecParameters(10, 50, 1))
+                .build();
 
-        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input).createMnecFiller();
+        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input, parameters).createMnecFiller();
 
         assertTrue(pf instanceof MnecFiller);
         MnecFiller pfImpl = (MnecFiller) pf;
@@ -244,28 +260,39 @@ public class ProblemFillerFactoryTest {
 
     @Test
     public void createUnoptimizedCnecFiller() {
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Set.of("FR"));
-        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input).createUnoptimizedCnecFiller();
+        parameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(2.5)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("FR"), 2000))
+                .build();
+        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input, parameters).createUnoptimizedCnecFiller();
 
         assertTrue(pf instanceof UnoptimizedCnecFiller);
         UnoptimizedCnecFiller pfImpl = (UnoptimizedCnecFiller) pf;
 
         // It has got only the french optimized CNECs
-        assertEquals(crac.getBranchCnecs().stream().filter(cnec -> cnec.getOperator().equals("FR")).count(), pfImpl.getPrePerimeterMarginInMWPerUnoptimizedCnec().size());
-        assertEquals(prePerimeterCnecMarginsInMW.get(pureCnec), pfImpl.getPrePerimeterMarginInMWPerUnoptimizedCnec().get(pureCnec));
-        assertEquals(prePerimeterCnecMarginsInMW.get(pureCnec), pfImpl.getPrePerimeterMarginInMWPerUnoptimizedCnec().get(cnecMnec));
+        assertEquals(crac.getBranchCnecs().stream().filter(cnec -> cnec.getOperator().equals("FR")).count(), pfImpl.getPrePerimeterMarginInMWPerOptimizedCnec().size());
+        assertEquals(prePerimeterCnecMarginsInMW.get(pureCnec), pfImpl.getPrePerimeterMarginInMWPerOptimizedCnec().get(pureCnec));
+        assertEquals(prePerimeterCnecMarginsInMW.get(pureCnec), pfImpl.getPrePerimeterMarginInMWPerOptimizedCnec().get(cnecMnec));
         // Threshold of the pure-cnec
-        assertEquals(2000., ParametersProvider.getUnoptimizedCnecParameters().getHighestThresholdValue(), DOUBLE_TOLERANCE);
+        assertEquals(2000., pfImpl.getHighestThresholdValue(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void createMaxLoopFlowFiller() {
-        ParametersProvider.getLoopFlowParameters().setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowViolationCost(200);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowAcceptableAugmentation(50);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowConstraintAdjustmentCoefficient(10);
+        parameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(2.5)
+                .withLoopFlowParameters(new LoopFlowParameters(
+                        RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
+                        50,
+                        200,
+                        10))
+                .build();
 
-        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input).createMaxLoopFlowFiller();
+        ProblemFiller pf = new ProblemFillerFactory(Mockito.mock(LinearProblem.class), input, parameters).createMaxLoopFlowFiller();
 
         assertTrue(pf instanceof MaxLoopFlowFiller);
         MaxLoopFlowFiller pfImpl = (MaxLoopFlowFiller) pf;

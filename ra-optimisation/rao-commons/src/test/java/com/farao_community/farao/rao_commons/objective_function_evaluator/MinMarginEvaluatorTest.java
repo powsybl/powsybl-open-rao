@@ -19,7 +19,10 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.compress.utils.Sets;
@@ -86,20 +89,31 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getCostInMegawatt() {
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        LinearOptimizerParameters linearOptimizerParameters1 = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters1);
         assertEquals(-787, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
 
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        LinearOptimizerParameters linearOptimizerParameters2 = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters2);
         assertEquals(-787 / 0.4, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getCostInMegawattSkipOperatorsNotToOptimize() {
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Set.of("operator2"));
+        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("operator2"), 2000))
+                .build();
 
         // cnec1 has a margin of 1400 MW "after optim"
         // cnec2 has a margin of 787 MW "after optim"
@@ -107,7 +121,7 @@ public class MinMarginEvaluatorTest {
         BranchCnec cnec2 = crac.getBranchCnec("cnec2basecase");
 
         // If operator 2 doesn't share RA
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters);
         //cnec1.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(100.0);
         prePerimeterMargins.put(cnec1, 1400.0);
 
@@ -132,9 +146,12 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getCostInMegawattSkipOperatorsNotToOptimizeInRelative() {
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Set.of("operator2"));
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
+        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.01))
+                .withPstSensitivityThreshold(0.01)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("operator2"), 2000))
+                .build();
 
         // cnec1 has a margin of 1400 MW "after optim"
         // cnec2 has a margin of 787 MW "after optim"
@@ -142,7 +159,7 @@ public class MinMarginEvaluatorTest {
         BranchCnec cnec2 = crac.getBranchCnec("cnec2basecase");
 
         // If operator 2 doesn't share RA
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters);
         //cnec1.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(100.0);
         prePerimeterMargins.put(cnec1, 1400.0);
 
@@ -167,20 +184,25 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getCostInAmpereWithMissingValues() {
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        LinearOptimizerParameters linearOptimizerParameters1 = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters1);
         assertEquals(-1440, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
 
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        LinearOptimizerParameters linearOptimizerParameters2 = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters2);
         assertEquals(-3600, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getCostInAmpereWithNoMissingValues() {
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec1stateCurativeContingency1")))
                 .thenReturn(10.);
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec1stateCurativeContingency2")))
@@ -190,20 +212,31 @@ public class MinMarginEvaluatorTest {
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec2stateCurativeContingency2")))
                 .thenReturn(10.);
 
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        LinearOptimizerParameters linearOptimizerParameters1 = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters1);
         assertEquals(-1440, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
 
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        LinearOptimizerParameters linearOptimizerParameters2 = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters2);
         assertEquals(-3600, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getCostInAmpereSkipOperatorsNotToOptimize() {
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Set.of("operator2"));
+        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("operator2"), 2000))
+                .build();
 
         // cnec1 has a margin of 2249 A "after optim"
         // cnec2 has a margin of 1440 A "after optim"
@@ -211,7 +244,7 @@ public class MinMarginEvaluatorTest {
         BranchCnec cnec2 = crac.getBranchCnec("cnec2basecase");
 
         // If operator 2 doesn't share RA
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters);
         prePerimeterMargins.put(cnec1, 1400.0);
 
         // case 0 : margin on cnec2 is same => cost is equal to margin on cnec1
@@ -235,9 +268,12 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getCostInAmpereSkipOperatorsNotToOptimizeInRelative() {
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Set.of("operator2"));
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.01);
+        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.01))
+                .withPstSensitivityThreshold(0.01)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("operator2"), 2000))
+                .build();
 
         // cnec1 has a margin of 2249 A "after optim"
         // cnec2 has a margin of 1440 A "after optim"
@@ -245,7 +281,7 @@ public class MinMarginEvaluatorTest {
         BranchCnec cnec2 = crac.getBranchCnec("cnec2basecase");
 
         // If operator 2 doesn't share RA
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters);
         prePerimeterMargins.put(cnec1, 1400.0);
 
         // case 0 : margin on cnec2 is same => cost is equal to margin on cnec1
@@ -284,21 +320,30 @@ public class MinMarginEvaluatorTest {
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("mnec1basecase")))
                 .thenReturn(60.);
 
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
-        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        LinearOptimizerParameters linearOptimizerParameters1 = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters1);
         assertEquals(-787, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
 
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
-        minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        LinearOptimizerParameters linearOptimizerParameters2 = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        minMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters2);
         assertEquals(-1440, minMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testMinimumPtdfSum() {
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.02);
+        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.02))
+                .withPstSensitivityThreshold(0.01)
+                .build();
 
         setPtdfSum("cnec1basecase", 0.005);
         setPtdfSum("cnec1stateCurativeContingency1", 0.0095);
@@ -307,24 +352,30 @@ public class MinMarginEvaluatorTest {
         setPtdfSum("cnec2stateCurativeContingency1", 0.006);
         setPtdfSum("cnec2stateCurativeContingency2", 0.006);
 
-        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        MinMarginEvaluator minRelativeMarginEvaluator = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters);
         assertEquals(-39363, minRelativeMarginEvaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
     @Test(expected = FaraoException.class)
     public void testRequirePtdfSumLb() {
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0);
-        new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums);
+        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0))
+                .withPstSensitivityThreshold(0.01)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("operator2"), 2000))
+                .build();
+        new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters);
     }
 
     @Test
     public void testMarginsInAmpereFromMegawattConversion() {
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.001);
-        Map<BranchCnec, Double> margins = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums).getMarginsInAmpereFromMegawattConversion(systematicSensitivityResult);
+        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.001))
+                .withPstSensitivityThreshold(0.01)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("operator2"), 2000))
+                .build();
+        Map<BranchCnec, Double> margins = new MinMarginEvaluator(cnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters).getMarginsInAmpereFromMegawattConversion(systematicSensitivityResult);
         assertEquals(2, margins.keySet().size());
         assertEquals(2990, margins.get(crac.getBranchCnec("cnec2basecase")), DOUBLE_TOLERANCE);
         assertEquals(4254, margins.get(crac.getBranchCnec("cnec1basecase")), DOUBLE_TOLERANCE);
@@ -366,17 +417,36 @@ public class MinMarginEvaluatorTest {
     public void testPureMnecs() {
         Set<BranchCnec> mnecs = setUpMockCnecs(false, true);
 
-        ParametersProvider.getCoreParameters().setOperatorsNotToOptimize(Collections.emptySet());
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT);
-        assertEquals(0, new MinMarginEvaluator(mnecs, prePerimeterMargins, initialPtdfSums).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
-        assertEquals(0, new MinMarginEvaluator(mnecs, prePerimeterMargins, initialPtdfSums).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.02);
-        assertEquals(0, new MinMarginEvaluator(mnecs, prePerimeterMargins, initialPtdfSums).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
-        ParametersProvider.getCoreParameters().setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        ParametersProvider.getMaxMinRelativeMarginParameters().setPtdfSumLowerBound(0.02);
-        assertEquals(0, new MinMarginEvaluator(mnecs, prePerimeterMargins, initialPtdfSums).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        assertEquals(0, new MinMarginEvaluator(mnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+
+        linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("operator2"), 2000))
+                .build();
+        assertEquals(0, new MinMarginEvaluator(mnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+
+        linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.02))
+                .withPstSensitivityThreshold(0.01)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("operator2"), 2000))
+                .build();
+        assertEquals(0, new MinMarginEvaluator(mnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+
+        linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE)
+                .withMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(0.01, 1000, 0.02))
+                .withPstSensitivityThreshold(0.01)
+                .withUnoptimizedCnecParameters(new UnoptimizedCnecParameters(Set.of("operator2"), 2000))
+                .build();
+        assertEquals(0, new MinMarginEvaluator(mnecs, prePerimeterMargins, initialPtdfSums, linearOptimizerParameters).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
     }
 
 }

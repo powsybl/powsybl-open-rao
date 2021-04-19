@@ -7,17 +7,25 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.parameters;
 
+import java.util.Set;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class UnoptimizedCnecParameters {
-    private double highestThresholdValue;
+    Set<String> operatorNotToOptimize;
+    private final double highestThresholdValue;
+
+    public UnoptimizedCnecParameters(Set<String> operatorNotToOptimize, double highestThresholdValue) {
+        this.operatorNotToOptimize = operatorNotToOptimize;
+        this.highestThresholdValue = highestThresholdValue;
+    }
+
+    public Set<String> getOperatorsNotToOptimize() {
+        return operatorNotToOptimize;
+    }
 
     public double getHighestThresholdValue() {
         return highestThresholdValue;
-    }
-
-    public void setHighestThresholdValue(double highestThresholdValue) {
-        this.highestThresholdValue = highestThresholdValue;
     }
 }

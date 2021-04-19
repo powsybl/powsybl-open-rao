@@ -17,7 +17,7 @@ import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerOutput;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -58,6 +58,7 @@ public class IteratingLinearOptimizerTest {
     private LinearOptimizer linearOptimizer;
     private ObjectiveFunctionEvaluator costEvaluator;
     private Crac crac;
+    private LinearOptimizerParameters linearOptimizerParameters;
 
     private void mockNativeLibraryLoader() {
         PowerMockito.mockStatic(NativeLibraryLoader.class);
@@ -107,7 +108,7 @@ public class IteratingLinearOptimizerTest {
                 .withInitialCnecResults(new CnecResults())
                 .build();
 
-        ParametersProvider.getIteratingLinearOptimizerParameters().setMaxIterations(5);
+        linearOptimizerParameters = Mockito.mock(LinearOptimizerParameters.class);
 
         linearOptimizer = Mockito.mock(LinearOptimizer.class);
         // TODO: PowerMockito.whenNew(LinearOptimizer.class).withAnyArguments().
@@ -152,7 +153,7 @@ public class IteratingLinearOptimizerTest {
         }
 
         // run an iterating optimization
-        IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput);
+        IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput, linearOptimizerParameters, 5);
 
         // check results
         assertNotNull(iteratingLinearOptimizerOutput);
@@ -173,7 +174,7 @@ public class IteratingLinearOptimizerTest {
         }
 
         // run an iterating optimization
-        IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput);
+        IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput, linearOptimizerParameters, 5);
 
         // check results
         assertNotNull(iteratingLinearOptimizerOutput);

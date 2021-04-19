@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -33,13 +33,15 @@ public class MaxMinMarginFiller implements ProblemFiller {
     protected final LinearProblem linearProblem;
     protected final Set<BranchCnec> optimizedCnecs;
     private final Set<RangeAction> rangeActions;
-    private final Unit unit = ParametersProvider.getUnit();
-    protected double pstPenaltyCost = ParametersProvider.getMaxMinMarginParameters().getPstPenaltyCost();
+    private final Unit unit;
+    protected double pstPenaltyCost;
 
-    public MaxMinMarginFiller(LinearProblem linearProblem, Set<BranchCnec> optimizedCnecs, Set<RangeAction> rangeActions) {
+    public MaxMinMarginFiller(LinearProblem linearProblem, Set<BranchCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.linearProblem = linearProblem;
         this.optimizedCnecs = optimizedCnecs;
         this.rangeActions = rangeActions;
+        this.unit = unit;
+        this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
     }
 
     final Set<BranchCnec> getOptimizedCnecs() {

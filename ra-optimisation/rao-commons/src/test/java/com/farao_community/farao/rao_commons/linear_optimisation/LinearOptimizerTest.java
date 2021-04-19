@@ -10,7 +10,9 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 import com.farao_community.farao.data.crac_impl.SimpleCrac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
@@ -45,6 +47,7 @@ public class LinearOptimizerTest {
     private LinearProblem linearProblemMock;
     private Network network;
     private SimpleCrac crac;
+    private LinearOptimizerParameters linearOptimizerParameters;
 
     private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
@@ -73,7 +76,12 @@ public class LinearOptimizerTest {
         Mockito.when(linearProblemMock.getMinimumMarginVariable()).thenReturn(Mockito.mock(MPVariable.class));
         Mockito.when(linearProblemMock.getObjective()).thenReturn(Mockito.mock(MPObjective.class));
 
-        linearOptimizer = new LinearOptimizer(linearProblemMock, linearOptimizerInput);
+        linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0.01)
+                .build();
+        linearOptimizer = new LinearOptimizer(linearProblemMock, linearOptimizerInput, linearOptimizerParameters);
 
         SystematicSensitivityResult result = createSystematicResult();
         sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(result, Collections.emptyMap());

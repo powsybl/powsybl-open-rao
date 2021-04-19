@@ -13,7 +13,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.parameters;
 public class MaxMinMarginParameters {
     protected double pstPenaltyCost;
 
-    public void setPstPenaltyCost(double pstPenaltyCost) {
+    public MaxMinMarginParameters(double pstPenaltyCost) {
         this.pstPenaltyCost = pstPenaltyCost;
     }
 

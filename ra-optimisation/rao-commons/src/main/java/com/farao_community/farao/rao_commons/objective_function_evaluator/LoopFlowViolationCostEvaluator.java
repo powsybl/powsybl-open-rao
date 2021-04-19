@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LoopFlowParameters;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,18 +27,21 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     private final Set<BranchCnec> loopflowCnecs;
     private final Map<BranchCnec, Double> initialLoopflowsInMW;
+    private final double loopFlowViolationCost;
+    private final double loopFlowAcceptableAugmentation;
 
-    LoopFlowViolationCostEvaluator(Set<BranchCnec> loopflowCnecs, Map<BranchCnec, Double> initialLoopflowsInMW) {
+    LoopFlowViolationCostEvaluator(Set<BranchCnec> loopflowCnecs, Map<BranchCnec, Double> initialLoopflowsInMW, LoopFlowParameters loopFlowParameters) {
         this.loopflowCnecs = loopflowCnecs;
         this.initialLoopflowsInMW = initialLoopflowsInMW;
+        this.loopFlowViolationCost = loopFlowParameters.getLoopFlowViolationCost();
+        this.loopFlowAcceptableAugmentation = loopFlowParameters.getLoopFlowAcceptableAugmentation();
     }
 
     @Override
     public double computeCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         double cost = loopflowCnecs
             .stream()
-            .mapToDouble(cnec -> getLoopFlowExcess(sensitivityAndLoopflowResults, cnec) *
-                ParametersProvider.getLoopFlowParameters().getLoopFlowViolationCost())
+            .mapToDouble(cnec -> getLoopFlowExcess(sensitivityAndLoopflowResults, cnec) * loopFlowViolationCost)
             .sum();
 
         if (cost > 0) {
@@ -66,7 +69,6 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         //TODO: move threshold
         double loopFlowThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
         double initialLoopFlow = initialLoopflowsInMW.get(cnec);
-        return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) +
-            ParametersProvider.getLoopFlowParameters().getLoopFlowAcceptableAugmentation()));
+        return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }
 }

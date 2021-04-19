@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.ParametersProvider;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LoopFlowParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -33,26 +33,29 @@ import static org.junit.Assert.*;
 
 @RunWith(PowerMockRunner.class)
 public class MaxLoopFlowFillerTest extends AbstractFillerTest {
+    private LoopFlowParameters loopFlowParameters;
 
     @Before
     public void setUp() {
         init();
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        coreProblemFiller = new CoreProblemFiller(linearProblem, network, Set.of(cnec1), Map.of(rangeAction, initialAlpha));
+        coreProblemFiller = new CoreProblemFiller(linearProblem, network, Set.of(cnec1), Map.of(rangeAction, initialAlpha), 0);
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
     }
 
     @Test
     public void testFill1() {
-        ParametersProvider.getLoopFlowParameters().setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowAcceptableAugmentation(13.);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowViolationCost(10.);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowConstraintAdjustmentCoefficient(5.);
+        loopFlowParameters = new LoopFlowParameters(
+                RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
+                13,
+                10,
+                5);
 
         MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(
-            linearProblem,
-            Map.of(cnec1, 0.));
+                linearProblem,
+                Map.of(cnec1, 0.),
+                loopFlowParameters);
 
         sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 49.));
 
@@ -77,14 +80,16 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testFill2() {
-        ParametersProvider.getLoopFlowParameters().setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowAcceptableAugmentation(30.);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowViolationCost(10.);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowConstraintAdjustmentCoefficient(5.);
+        loopFlowParameters = new LoopFlowParameters(
+                RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
+                30,
+                10,
+                5);
 
         MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(
-            linearProblem,
-            Map.of(cnec1, 80.));
+                linearProblem,
+                Map.of(cnec1, 80.),
+                loopFlowParameters);
 
         sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 49.));
 
@@ -109,14 +114,16 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testShouldUpdate() {
-        ParametersProvider.getLoopFlowParameters().setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowAcceptableAugmentation(0.);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowViolationCost(10.);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowConstraintAdjustmentCoefficient(5.);
+        loopFlowParameters = new LoopFlowParameters(
+                RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST,
+                0,
+                10,
+                5);
 
         MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(
-            linearProblem,
-            Map.of(cnec1, 0.));
+                linearProblem,
+                Map.of(cnec1, 0.),
+                loopFlowParameters);
 
         sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 49.));
 
@@ -142,14 +149,16 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testShouldNotUpdate() {
-        ParametersProvider.getLoopFlowParameters().setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowAcceptableAugmentation(0.);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowViolationCost(10.);
-        ParametersProvider.getLoopFlowParameters().setLoopFlowConstraintAdjustmentCoefficient(5.);
+        loopFlowParameters = new LoopFlowParameters(
+                RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO,
+                0,
+                10,
+                5);
 
         MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(
-            linearProblem,
-            Map.of(cnec1, 0.));
+                linearProblem,
+                Map.of(cnec1, 0.),
+                loopFlowParameters);
 
         sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 49.));
 

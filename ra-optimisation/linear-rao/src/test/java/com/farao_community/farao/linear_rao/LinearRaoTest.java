@@ -32,8 +32,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.Collections;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -103,7 +102,7 @@ public class LinearRaoTest {
     @Test(expected = LinearOptimisationException.class)
     public void runLinearRaoWithLinearOptimisationError() {
         Mockito.when(initialSensitivityAnalysis.run()).thenReturn(null);
-        Mockito.when(iteratingLinearOptimizer.optimize(any())).thenThrow(new LinearOptimisationException("error with optim"));
+        Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), anyInt())).thenThrow(new LinearOptimisationException("error with optim"));
         linearRao.run(raoData, systematicSensitivityInterface, iteratingLinearOptimizer, initialSensitivityAnalysis, raoParameters).join();
     }
 
