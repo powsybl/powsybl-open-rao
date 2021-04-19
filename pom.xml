@@ -92,6 +92,7 @@
             ../distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution/target/site/jacoco-aggregate/jacoco.xml,
             ../../../distribution/target/site/jacoco-aggregate/jacoco.xml
+            ../../../../distribution/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- Dependencies versions -->
