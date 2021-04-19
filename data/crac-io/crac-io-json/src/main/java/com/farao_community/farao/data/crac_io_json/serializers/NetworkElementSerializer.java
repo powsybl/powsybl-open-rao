@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationNames.*;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

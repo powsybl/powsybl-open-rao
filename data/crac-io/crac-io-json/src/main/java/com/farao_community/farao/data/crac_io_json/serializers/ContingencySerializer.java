@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationNames.*;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -29,9 +29,9 @@ public class ContingencySerializer extends AbstractJsonSerializer<Contingency> {
             gen.writeStringField(NAME, value.getName());
         }
 
-        gen.writeArrayFieldStart(NETWORK_ELEMENTS);
+        gen.writeArrayFieldStart(NETWORK_ELEMENTS_IDS);
         for (NetworkElement networkElement: value.getNetworkElements()) {
-            gen.writeObject(networkElement);
+            gen.writeString(networkElement.getId());
         }
         gen.writeEndArray();
     }
