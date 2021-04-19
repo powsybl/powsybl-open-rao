@@ -40,7 +40,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         this.highestThresholdValue = highestThresholdValue;
     }
 
-    final Map<BranchCnec, Double> getInitialFlowInMWPerUnoptimizedCnec() {
+    final Map<BranchCnec, Double> getUnoptimizedCnecsPrePerimeterMarginsInMW() {
         return unoptimizedCnecsPrePerimeterMarginsInMW;
     }
 

@@ -21,6 +21,7 @@ import com.farao_community.farao.rao_commons.CracResultManager;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.farao_community.farao.util.FaraoNetworkPool;
@@ -39,6 +40,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,7 +52,7 @@ import static org.mockito.Mockito.when;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({NativeLibraryLoader.class, SearchTreeRaoLogger.class, SystematicSensitivityInterface.class, Leaf.class, SearchTree.class, RaoUtil.class})
+@PrepareForTest({NativeLibraryLoader.class, SearchTreeRaoLogger.class, SystematicSensitivityInterface.class, Leaf.class, SearchTree.class, RaoUtil.class, IteratingLinearOptimizer.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class SearchTreeTest {
 
@@ -86,14 +88,16 @@ public class SearchTreeTest {
         LoadFlow.Runner loadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
         when(loadFlowRunner.run(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
 
+        IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = Mockito.mock(IteratingLinearOptimizerOutput.class);
+
         mockNativeLibraryLoader();
-        PowerMockito.doReturn("successful").when(iteratingLinearOptimizer).optimize(any());
-        PowerMockito.mockStatic(RaoUtil.class);
-        PowerMockito.when(RaoUtil.createLinearOptimizer(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizer);
+        PowerMockito.mockStatic(IteratingLinearOptimizer.class);
+        PowerMockito.when(IteratingLinearOptimizer.optimize(any(), any())).thenAnswer(invocationOnMock -> iteratingLinearOptimizerOutput);
 
         CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());
         Mockito.when(raoData.getCracResultManager()).thenReturn(spiedCracResultManager);
         Mockito.when(raoData.getSystematicSensitivityResult()).thenReturn(Mockito.mock(SystematicSensitivityResult.class));
+        Mockito.doReturn(new HashMap<>()).when(raoData).getPrePerimeterSetPoints();
         Mockito.doNothing().when(spiedCracResultManager).fillCracResultWithCosts(anyDouble(), anyDouble());
         Mockito.doNothing().when(spiedCracResultManager).fillCnecResultWithFlows();
 
@@ -115,7 +119,7 @@ public class SearchTreeTest {
 
         RaoResult result = searchTree.run(raoData, raoParameters, treeParameters).join();
         assertNotNull(result);
-        assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
+        assertEquals(RaoResult.Status.DEFAULT, result.getStatus());
     }
 
     @Test(expected = NotImplementedException.class)
