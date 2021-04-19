@@ -10,11 +10,8 @@ package com.farao_community.farao.data.crac_util;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.Range;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
@@ -72,7 +69,7 @@ public class CracCleaner {
                 }
             });
         }
-        absentFromNetworkRangeActions.forEach(rangeAction -> crac.removeRangeAction(rangeAction.getId()));
+        absentFromNetworkRangeActions.forEach(rangeAction -> crac.removeRemedialAction(rangeAction.getId()));
 
         // remove NetworkAction whose NetworkElement is absent from the network
         ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
@@ -128,7 +125,7 @@ public class CracCleaner {
         // remove Cnec whose contingency does not exist anymore
         removedContingencies.forEach(contingency ->
             crac.getStatesFromContingency(contingency.getId()).forEach(state ->
-                crac.getBranchCnecs(state).forEach(cnec -> {
+                crac.getCnecs(state).forEach(cnec -> {
                     crac.removeCnec(cnec.getId());
                     report.add(String.format("[REMOVED] Cnec %s is removed because its associated contingency [%s] has been removed", cnec.getId(), contingency.getId()));
                 })
@@ -161,24 +158,6 @@ public class CracCleaner {
         removedContingencies.forEach(contingency -> crac.removeContingency(contingency.getId()));
         removedStates.forEach(state -> crac.removeState(state.getId()));
         report.forEach(LOGGER::warn);
-
-        // remove PstRanges with a RELATIVE_TO_PREVIOUS_INSTANT for preventive PST RAs
-        List<RangeAction> removedRangeActions = new ArrayList<>();
-        crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(ra -> ra.getUsageRules().size() == 1).forEach(ra -> {
-            List<Range> removedRanges = new ArrayList<>();
-            ra.getRanges().forEach(range -> {
-                if (range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_INSTANT) {
-                    report.add(String.format("[REMOVED] Range Action %s is a preventive range action with a range relative to previous instant. That range has been removed.", ra.getId()));
-                    removedRanges.add(range);
-                }
-            });
-            removedRanges.forEach(ra::removeRange);
-            if (ra.getRanges().isEmpty()) {
-                report.add(String.format("[REMOVED] Range Action %s has no ranges. It has been removed from the Crac.", ra.getId()));
-                removedRangeActions.add(ra);
-            }
-        });
-        removedRangeActions.forEach(ra -> crac.removeRangeAction(ra.getId()));
 
         return report;
     }

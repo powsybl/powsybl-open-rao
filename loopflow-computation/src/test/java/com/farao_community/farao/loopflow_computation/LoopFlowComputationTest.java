@@ -48,7 +48,7 @@ public class LoopFlowComputationTest {
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(crac, glsk);
 
         LoopFlowComputation loopFlowComputation = new LoopFlowComputation(glsk, referenceProgram);
-        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(network, ptdfsAndFlows, crac.getFlowCnecs());
+        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(network, ptdfsAndFlows, crac.getBranchCnecs());
 
         assertEquals(-50., loopFlowResult.getLoopFlow(crac.getBranchCnec("FR-BE1")), DOUBLE_TOLERANCE);
         assertEquals(200., loopFlowResult.getLoopFlow(crac.getBranchCnec("BE1-BE2")), DOUBLE_TOLERANCE);

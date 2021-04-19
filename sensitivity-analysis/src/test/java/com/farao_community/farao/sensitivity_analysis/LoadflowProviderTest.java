@@ -32,7 +32,7 @@ public class LoadflowProviderTest {
     public void inAmpereAndMegawatt() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        LoadflowProvider provider = new LoadflowProvider(crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
@@ -45,7 +45,7 @@ public class LoadflowProviderTest {
     public void inMegawattOnly() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+        LoadflowProvider provider = new LoadflowProvider(crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT));
 
         // Common Crac contains 6 CNEC (2 network element) and 1 range action
         List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);

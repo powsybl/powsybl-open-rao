@@ -49,7 +49,7 @@ public class PtdfSensitivityProviderTest {
 
     @Test
     public void getFactorsOnCommonCrac() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT));
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getAdditionalFactors(network);
         assertEquals(8, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
@@ -64,7 +64,7 @@ public class PtdfSensitivityProviderTest {
 
     @Test
     public void testDoNotHandleAmpere() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE));
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getBranchCnecs(), Collections.singleton(Unit.AMPERE));
         assertFalse(ptdfSensitivityProvider.factorsInAmpere);
         assertTrue(ptdfSensitivityProvider.factorsInMegawatt);
     }

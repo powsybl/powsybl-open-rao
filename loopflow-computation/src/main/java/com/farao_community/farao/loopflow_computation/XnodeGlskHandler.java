@@ -9,6 +9,7 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
@@ -47,9 +48,9 @@ class XnodeGlskHandler {
     private Set<BranchCnec> branchCnecSet;
     private Network network;
 
-    XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<BranchCnec> branchCnecSet, Network network) {
+    XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<BranchCnec> branchCnecs, Network network) {
         this.glskZonalData = glskZonalData;
-        this.branchCnecSet = branchCnecSet;
+        this.branchCnecSet = branchCnecs;
         this.network = network;
         this.invalidGlskPerContingency = buildInvalidGlskPerContingency();
     }

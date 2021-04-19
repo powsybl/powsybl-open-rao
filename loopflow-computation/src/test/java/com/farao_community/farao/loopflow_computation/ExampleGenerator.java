@@ -308,21 +308,65 @@ final class ExampleGenerator {
     static Crac crac() {
         Crac crac = new CracImplFactory().create("test-crac");
 
-        crac.newFlowCnec().setId("FR-BE1").setInstant(Instant.PREVENTIVE)
-            .newNetworkElement().setId("FR-BE1").add()
-            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newFlowCnec().setId("FR-DE").setInstant(Instant.PREVENTIVE)
-            .newNetworkElement().setId("FR-DE").add()
-            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newFlowCnec().setId("BE2-NL").setInstant(Instant.PREVENTIVE)
-            .newNetworkElement().setId("BE2-NL").add()
-            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newFlowCnec().setId("DE-NL").setInstant(Instant.PREVENTIVE)
-            .newNetworkElement().setId("DE-NL").add()
-            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        crac.newFlowCnec().setId("BE1-BE2").setInstant(Instant.PREVENTIVE)
-            .newNetworkElement().setId("BE1-BE2").add()
-            .newThreshold().setMin(-200.).setMax(200.).setUnit(MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
+        crac.newFlowCnec()
+            .withId("FR-BE1")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("FR-BE1")
+            .newThreshold()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .add()
+            .add();
+
+        crac.newFlowCnec()
+            .withId("FR-DE")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("FR-DE")
+            .newThreshold()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .add()
+            .add();
+
+        crac.newFlowCnec()
+            .withId("BE2-NL")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("BE2-NL")
+            .newThreshold()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .add()
+            .add();
+
+        crac.newFlowCnec()
+            .withId("DE-NL")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("DE-NL")
+            .newThreshold()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .add()
+            .add();
+
+        crac.newFlowCnec()
+            .withId("BE1-BE2")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("BE1-BE2")
+            .newThreshold()
+                .withMin(-200.)
+                .withMax(200.)
+                .withUnit(MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .add()
+            .add();
 
         return crac;
     }

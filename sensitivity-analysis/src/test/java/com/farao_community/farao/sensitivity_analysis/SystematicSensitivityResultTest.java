@@ -55,16 +55,16 @@ public class SystematicSensitivityResultTest {
     @Before
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.createWithPstRange();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange();
 
         ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         // Ra Provider
-        rangeActionSensitivityProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        rangeActionSensitivityProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Ptdf Provider
-        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT));
 
         nStateCnec = crac.getBranchCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");

@@ -65,7 +65,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
-                .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .build();
 
         // Preventive perimeter
@@ -78,7 +78,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         // Curative perimeter
         if (afterCraInstant != null) {
-            statesWithCras = findStatesWithCras(crac, network);
+            statesWithCras = findStatesWithCras(crac);
             crac.getStatesFromInstant(afterCraInstant).forEach(state -> handleCurativeState(state, network, crac, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
         } else {
             LOGGER.info("No curative computation in flowbased because 2 or less instants are defined in crac.");
@@ -133,7 +133,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         }
     }
 
-    private Set<State> findStatesWithCras(Crac crac, Network network) {
+    private Set<State> findStatesWithCras(Crac crac) {
         ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
 
         String variantPostOptimIdTmp = null;
@@ -155,17 +155,17 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             crac.getRangeActions().forEach(rangeAction -> findStatesWithRangeCra(rangeAction, variantPostOptimId, crac.getPreventiveState(), crac.getStates()));
 
         } else {
-            crac.getStates().forEach(state -> findAllStatesWithCraUsageMethod(state, network, crac.getNetworkActions()));
+            crac.getStates().forEach(state -> findAllStatesWithCraUsageMethod(state, crac.getNetworkActions()));
         }
 
         LOGGER.debug("{} curative states with CRAs.", statesWithCras.size());
         return statesWithCras;
     }
 
-    private void findAllStatesWithCraUsageMethod(State state, Network network, Set<NetworkAction> networkActions) {
+    private void findAllStatesWithCraUsageMethod(State state, Set<NetworkAction> networkActions) {
         if (state.getInstant() == afterCraInstant) {
             Optional<NetworkAction> fittingAction = networkActions.stream().filter(networkAction ->
-                networkAction.getUsageMethod(network, state) != null).findAny();
+                networkAction.getUsageMethod(state) != null).findAny();
             if (fittingAction.isPresent()) {
                 statesWithCras.add(state);
             }
@@ -263,7 +263,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         return branchResultList;
     }
 
-    private DataMonitoredBranch buildDataMonitoredBranch(BranchCnec cnec, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
+    private DataMonitoredBranch buildDataMonitoredBranch(BranchCnec<?> cnec, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
         double maxThreshold = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
         double minThreshold = cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         return new DataMonitoredBranch(
