@@ -20,7 +20,7 @@ import com.farao_community.farao.data.crac_impl.*;
 import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -291,8 +291,8 @@ public class LeafTest {
 
         raoParameters.setRaoWithLoopFlowLimitation(true);
         for (BranchCnec cnec : crac.getBranchCnecs(crac.getPreventiveState())) {
-            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100, Unit.PERCENT_IMAX);
-            cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+            LoopFlowThresholdImpl cnecLoopFlowExtension = new LoopFlowThresholdImpl(100, Unit.PERCENT_IMAX);
+            cnec.addExtension(LoopFlowThresholdImpl.class, cnecLoopFlowExtension);
         }
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, raoParameters);
 

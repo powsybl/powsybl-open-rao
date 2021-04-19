@@ -33,7 +33,7 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FlowCnecImpl extends AbstractBranchCnec implements FlowCnec {
+public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCnec {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowCnecImpl.class);
     private static final String TIE_LINE_WARN = "For tie-line {}, the network element ID {} is not half1 nor half2 IDs. Most limiting threshold will be taken.";
     private static final String IMAX_CONVERSION_WARN = "Imax on side {} for the network element {} will be converted.";

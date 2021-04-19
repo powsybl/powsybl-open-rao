@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -47,19 +48,19 @@ public class FlowCnecImplTest {
         UcteAliasesCreation.createAliases(network12nodes);
     }
 
-    private AbstractBranchCnec initLineCnec(Set<BranchThreshold> thresholds) {
+    private FlowCnec initLineCnec(Set<BranchThreshold> thresholds) {
         State state = Mockito.mock(State.class);
         return new FlowCnecImpl("line-cnec", "line-cnec", new NetworkElementImpl("FFR2AA1  FFR3AA1  1"), "FR", state, true, false, thresholds, 0.0);
     }
 
-    private AbstractBranchCnec initTransformerCnec(Set<BranchThreshold> thresholds) {
+    private FlowCnec initTransformerCnec(Set<BranchThreshold> thresholds) {
         State state = Mockito.mock(State.class);
         return new FlowCnecImpl("transformer-cnec", "transformer-cnec", new NetworkElementImpl("BBE1AA1  BBE1AA2  1"), "BE", state, true, false, thresholds, 0.0);
     }
 
     @Test
     public void testComputeMarginOnLineWithOneThresholdOnLeftSameUnitMW() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE)));
+        FlowCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE)));
         lineCnec.synchronize(network12nodes);
         assertEquals(500, lineCnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(lineCnec.getLowerBound(LEFT, Unit.MEGAWATT).isPresent());
@@ -71,7 +72,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testComputeMarginOnLineWithOneThresholdOnRightSameUnitMW() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_RIGHT_SIDE)));
+        FlowCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_RIGHT_SIDE)));
         lineCnec.synchronize(network12nodes);
         assertEquals(200, lineCnec.computeMargin(300, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(459, lineCnec.computeMargin(300, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
@@ -79,7 +80,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testComputeMarginOnLineWithOneThresholdOnLeftSameUnitAmps() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.AMPERE, null, 500., BranchThresholdRule.ON_LEFT_SIDE)));
+        FlowCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.AMPERE, null, 500., BranchThresholdRule.ON_LEFT_SIDE)));
         lineCnec.synchronize(network12nodes);
         assertEquals(329, lineCnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(lineCnec.getLowerBound(LEFT, Unit.MEGAWATT).isPresent());
@@ -91,7 +92,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testComputeMarginOnLineWithOneThresholdOnRightSameUnitAmps() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.AMPERE, null, 500., BranchThresholdRule.ON_RIGHT_SIDE)));
+        FlowCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.AMPERE, null, 500., BranchThresholdRule.ON_RIGHT_SIDE)));
         lineCnec.synchronize(network12nodes);
         assertEquals(29, lineCnec.computeMargin(300, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(200, lineCnec.computeMargin(300, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
@@ -103,7 +104,7 @@ public class FlowCnecImplTest {
     // whether the limit is defined on LEFT or RIGHT side.
     @Test
     public void testComputeMarginOnTransformerWithOneThresholdOnLeftSameUnitMW() {
-        AbstractBranchCnec transformerCnec = initTransformerCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE)));
+        FlowCnec transformerCnec = initTransformerCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE)));
         transformerCnec.synchronize(network12nodes);
         assertEquals(500, transformerCnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(transformerCnec.getLowerBound(LEFT, Unit.MEGAWATT).isPresent());
@@ -115,7 +116,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testComputeMarginOnTransformerWithOneThresholdOnRightSameUnitMW() {
-        AbstractBranchCnec transformerCnec = initTransformerCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_RIGHT_SIDE)));
+        FlowCnec transformerCnec = initTransformerCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_RIGHT_SIDE)));
         transformerCnec.synchronize(network12nodes);
         assertEquals(200, transformerCnec.computeMargin(300, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(1012, transformerCnec.computeMargin(300, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
@@ -133,7 +134,7 @@ public class FlowCnecImplTest {
     //     margin method, that will convert threshold to MW 500A -> 328,7MW, then make the difference 328,7 - 300 = 28,7MW
     @Test
     public void testComputeMarginOnTransformerWithOneThresholdOnLeftSameUnitAmps() {
-        AbstractBranchCnec transformerCnec = initTransformerCnec(Set.of(new BranchThresholdImpl(Unit.AMPERE, null, 500., BranchThresholdRule.ON_LEFT_SIDE)));
+        FlowCnec transformerCnec = initTransformerCnec(Set.of(new BranchThresholdImpl(Unit.AMPERE, null, 500., BranchThresholdRule.ON_LEFT_SIDE)));
         transformerCnec.synchronize(network12nodes);
         assertEquals(500, transformerCnec.getUpperBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(transformerCnec.getLowerBound(LEFT, Unit.AMPERE).isPresent());
@@ -145,7 +146,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testComputeMarginOnTransformerWithOneThresholdOnRightSameUnitAmps() {
-        AbstractBranchCnec transformerCnec = initTransformerCnec(Set.of(new BranchThresholdImpl(Unit.AMPERE, null, 500., BranchThresholdRule.ON_RIGHT_SIDE)));
+        FlowCnec transformerCnec = initTransformerCnec(Set.of(new BranchThresholdImpl(Unit.AMPERE, null, 500., BranchThresholdRule.ON_RIGHT_SIDE)));
         transformerCnec.synchronize(network12nodes);
         assertEquals(563, transformerCnec.computeMargin(300, LEFT, Unit.AMPERE), DOUBLE_TOLERANCE);
         assertEquals(329, transformerCnec.getUpperBound(LEFT, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
@@ -157,7 +158,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testComputeMarginOnLineWithSeveralThresholdsWithLimitingOnLeftOrRightSide() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(
+        FlowCnec lineCnec = initLineCnec(Set.of(
                 new BranchThresholdImpl(Unit.MEGAWATT, null, 100., BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, -200., null, BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_RIGHT_SIDE),
@@ -172,7 +173,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testComputeMarginOnLineWithSeveralThresholdsWithBoth() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(
+        FlowCnec lineCnec = initLineCnec(Set.of(
                 new BranchThresholdImpl(Unit.MEGAWATT, null, 100., BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, -200., null, BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_RIGHT_SIDE),
@@ -189,7 +190,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testComputeMarginOnTransformerWithSeveralThresholdsInAmps() {
-        AbstractBranchCnec transformerCnec = initTransformerCnec(Set.of(
+        FlowCnec transformerCnec = initTransformerCnec(Set.of(
                 new BranchThresholdImpl(Unit.AMPERE, null, 100., BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.AMPERE, -70., null, BranchThresholdRule.ON_LEFT_SIDE),
                 // This threshold is 86A on LEFT side, so it's limiting for DIRECT but not for OPPOSITE flow
@@ -217,8 +218,8 @@ public class FlowCnecImplTest {
     public void synchronizeTwoCnecsCreatedWithSameThresholdObject() {
         State state = Mockito.mock(State.class);
         BranchThreshold relativeFlowThreshold = new BranchThresholdImpl(Unit.PERCENT_IMAX, null, 0.5, BranchThresholdRule.ON_LEFT_SIDE);
-        BranchCnec cnecOnLine1 = new FlowCnecImpl("cnec1", "cnec1", new NetworkElementImpl("DDE1AA1  DDE2AA1  1"), "D7", state, true, false, Collections.singleton(relativeFlowThreshold), 0.);
-        BranchCnec cnecOnLine2 = new FlowCnecImpl("cnec2", "cnec2", new NetworkElementImpl("BBE2AA1  X_BEFR1  1"), "BE", state, true, false, Collections.singleton(relativeFlowThreshold), 0.);
+        FlowCnec cnecOnLine1 = new FlowCnecImpl("cnec1", "cnec1", new NetworkElementImpl("DDE1AA1  DDE2AA1  1"), "D7", state, true, false, Collections.singleton(relativeFlowThreshold), 0.);
+        FlowCnec cnecOnLine2 = new FlowCnecImpl("cnec2", "cnec2", new NetworkElementImpl("BBE2AA1  X_BEFR1  1"), "BE", state, true, false, Collections.singleton(relativeFlowThreshold), 0.);
 
         cnecOnLine2.synchronize(network12nodes);
         cnecOnLine1.synchronize(network12nodes);
@@ -231,7 +232,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void severalThresholdTest1() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(
+        FlowCnec lineCnec = initLineCnec(Set.of(
                 new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, -200., null, BranchThresholdRule.ON_LEFT_SIDE)
         ));
@@ -243,7 +244,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void severalThresholdTest2() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(
+        FlowCnec lineCnec = initLineCnec(Set.of(
                 new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, -200., null, BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, null, 490., BranchThresholdRule.ON_RIGHT_SIDE),
@@ -257,7 +258,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void unboundedCnecInOppositeDirection() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(
+        FlowCnec lineCnec = initLineCnec(Set.of(
                 new BranchThresholdImpl(Unit.MEGAWATT, null, 500., BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, null, 200., BranchThresholdRule.ON_LEFT_SIDE)
         ));
@@ -270,7 +271,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void unboundedCnecInDirectDirection() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(
+        FlowCnec lineCnec = initLineCnec(Set.of(
                 new BranchThresholdImpl(Unit.MEGAWATT, -500., null, BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, -200., null, BranchThresholdRule.ON_LEFT_SIDE)
         ));
@@ -283,7 +284,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void marginsWithNegativeAndPositiveLimits() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, -200., 500., BranchThresholdRule.ON_LEFT_SIDE)));
+        FlowCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, -200., 500., BranchThresholdRule.ON_LEFT_SIDE)));
         lineCnec.synchronize(network12nodes);
 
         assertEquals(-100, lineCnec.computeMargin(-300, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -294,7 +295,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void marginsWithPositiveLimits() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, 300., 500., BranchThresholdRule.ON_LEFT_SIDE)));
+        FlowCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, 300., 500., BranchThresholdRule.ON_LEFT_SIDE)));
         lineCnec.synchronize(network12nodes);
 
         assertEquals(-600, lineCnec.computeMargin(-300, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -305,7 +306,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void marginsWithNegativeLimits() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, -500., -300., BranchThresholdRule.ON_LEFT_SIDE)));
+        FlowCnec lineCnec = initLineCnec(Set.of(new BranchThresholdImpl(Unit.MEGAWATT, -500., -300., BranchThresholdRule.ON_LEFT_SIDE)));
         lineCnec.synchronize(network12nodes);
 
         assertEquals(-300, lineCnec.computeMargin(-800, LEFT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -316,7 +317,7 @@ public class FlowCnecImplTest {
 
     public void testOnSynchronize(String networkElementId, BranchThresholdRule rule, double expectedValue) {
         BranchThreshold threshold = new BranchThresholdImpl(Unit.PERCENT_IMAX, null, 1., rule);
-        BranchCnec cnec = new FlowCnecImpl("cnec", "cnec", new NetworkElementImpl(networkElementId), "FR", Mockito.mock(State.class), true, false, Set.of(threshold), 0.);
+        FlowCnec cnec = new FlowCnecImpl("cnec", "cnec", new NetworkElementImpl(networkElementId), "FR", Mockito.mock(State.class), true, false, Set.of(threshold), 0.);
         cnec.synchronize(network12nodes);
         assertEquals(expectedValue, cnec.getUpperBound(threshold.getSide(), Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
@@ -368,7 +369,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testCopy() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(
+        FlowCnec lineCnec = initLineCnec(Set.of(
                 new BranchThresholdImpl(Unit.MEGAWATT, -500., null, BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, -200., 200., BranchThresholdRule.ON_LEFT_SIDE)
         ));
@@ -389,7 +390,7 @@ public class FlowCnecImplTest {
 
     @Test
     public void testCopyWithArguments() {
-        AbstractBranchCnec lineCnec = initLineCnec(Set.of(
+        FlowCnec lineCnec = initLineCnec(Set.of(
                 new BranchThresholdImpl(Unit.MEGAWATT, -500., null, BranchThresholdRule.ON_LEFT_SIDE),
                 new BranchThresholdImpl(Unit.MEGAWATT, -200., 200., BranchThresholdRule.ON_LEFT_SIDE)
         ));
@@ -444,8 +445,8 @@ public class FlowCnecImplTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        AbstractBranchCnec lineCnec = initLineCnec(Collections.emptySet());
-        AbstractBranchCnec transformerCnec = initTransformerCnec(Collections.emptySet());
+        FlowCnec lineCnec = initLineCnec(Collections.emptySet());
+        FlowCnec transformerCnec = initTransformerCnec(Collections.emptySet());
 
         assertEquals(lineCnec, lineCnec);
         assertNotEquals(lineCnec, transformerCnec);

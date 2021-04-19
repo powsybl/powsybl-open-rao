@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
 import com.farao_community.farao.data.crac_result_extensions.CracResult;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -148,11 +148,11 @@ public final class RaoData {
     private void computeLoopflowCnecs() {
         if (!raoParameters.getLoopflowCountries().isEmpty()) {
             loopflowCnecs = perimeterCnecs.stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
+                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThresholdImpl.class)) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
                 .collect(Collectors.toSet());
         } else {
             loopflowCnecs = perimeterCnecs.stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)))
+                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThresholdImpl.class)))
                 .collect(Collectors.toSet());
         }
     }

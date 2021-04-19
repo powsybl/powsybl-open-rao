@@ -126,7 +126,7 @@ public final class CracResultUtil {
      */
     public static void applyAllNetworkRemedialActionsForState(Network network, Crac crac, State state) {
         crac.getNetworkActions().forEach(na -> {
-            UsageMethod usageMethod = na.getUsageMethod(network, state);
+            UsageMethod usageMethod = na.getUsageMethod(state);
             if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
                 na.apply(network);
             }

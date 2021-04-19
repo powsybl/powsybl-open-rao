@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 /**
@@ -19,7 +19,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
+public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implements LoopFlowThreshold {
 
     /*
      - if the unit is PERCENT_IMAX, the input flow threshold should be between 0 and 100
@@ -30,37 +30,43 @@ public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
     private double inputThreshold;
     private Unit inputThresholdUnit;
 
-    public CnecLoopFlowExtension(double inputThreshold, Unit inputThresholdUnit) {
-        if (inputThresholdUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
+    @Deprecated
+    //todo: make private package
+    public LoopFlowThresholdImpl(double value, Unit unit) {
+        if (unit.getPhysicalParameter() != PhysicalParameter.FLOW) {
             throw new FaraoException("Loopflow thresholds can only be defined in AMPERE, MEGAWATT or PERCENT_IMAX");
         }
 
-        this.inputThreshold = inputThreshold;
-        this.inputThresholdUnit = inputThresholdUnit;
+        this.inputThreshold = value;
+        this.inputThresholdUnit = unit;
     }
 
-    public double getInputThreshold() {
+    @Override
+    public double getValue() {
         return inputThreshold;
     }
 
-    public Unit getInputThresholdUnit() {
+    @Override
+    public Unit getUnit() {
         return inputThresholdUnit;
     }
 
+    @Override
     public double getThresholdWithReliabilityMargin(Unit requestedUnit) {
         switch (requestedUnit) {
             case MEGAWATT:
-                return getInputThreshold(requestedUnit) - this.getExtendable().getReliabilityMargin();
+                return getThreshold(requestedUnit) - this.getExtendable().getReliabilityMargin();
             case AMPERE:
-                return getInputThreshold(requestedUnit) - convertMWToA(this.getExtendable().getReliabilityMargin());
+                return getThreshold(requestedUnit) - convertMWToA(this.getExtendable().getReliabilityMargin());
             case PERCENT_IMAX:
-                return getInputThreshold(requestedUnit) - convertAToPercentImax(convertMWToA(this.getExtendable().getReliabilityMargin()));
+                return getThreshold(requestedUnit) - convertAToPercentImax(convertMWToA(this.getExtendable().getReliabilityMargin()));
             default:
                 throw new FaraoException("Loopflow thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
         }
     }
 
-    public double getInputThreshold(Unit requestedUnit) {
+    @Override
+    public double getThreshold(Unit requestedUnit) {
 
         if (requestedUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
             throw new FaraoException("Loopflow thresholds can only be returned in AMPERE, MEGAWATT or PERCENT_IMAX");
@@ -97,11 +103,6 @@ public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
         throw new FaraoException(String.format("Cannot convert %s into %s", inputThresholdUnit, requestedUnit));
     }
 
-    @Override
-    public String getName() {
-        return "CnecLoopFlowExtension";
-    }
-
     private double convertMWToA(double valueInMW) {
         return valueInMW * 1000 / (getExtendable().getNominalVoltage(Side.LEFT) * Math.sqrt(3));
     }
@@ -111,11 +112,11 @@ public class CnecLoopFlowExtension extends AbstractExtension<BranchCnec> {
     }
 
     private double convertAToPercentImax(double valueInA) {
-        return valueInA * 100 / getCnecFmaxWithoutFrmInA();
+        return valueInA / getCnecFmaxWithoutFrmInA();
     }
 
     private double convertPercentImaxToA(double valueInPercent) {
-        return valueInPercent * getCnecFmaxWithoutFrmInA() / 100;
+        return valueInPercent * getCnecFmaxWithoutFrmInA();
     }
 
     private double getCnecFmaxWithoutFrmInA() {

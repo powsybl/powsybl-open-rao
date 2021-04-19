@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,7 +94,7 @@ public class FlowCnecAdderImplTest {
 
     @Test
     public void testAdd() {
-        BranchCnec cnec1 = crac.newFlowCnec()
+        FlowCnec cnec1 = crac.newFlowCnec()
             .withId("cnecId1")
             .withName("cnecName1")
             .withInstant(Instant.OUTAGE)
@@ -103,7 +103,7 @@ public class FlowCnecAdderImplTest {
             .withNetworkElement("neId1", "neName1")
             .newThreshold().withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(1000.0).withMin(-1000.0).add()
             .add();
-        BranchCnec cnec2 = crac.newFlowCnec()
+        FlowCnec cnec2 = crac.newFlowCnec()
             .withId("cnecId2")
             .withInstant(Instant.PREVENTIVE)
             .withOperator("cnec2Operator")
@@ -154,7 +154,7 @@ public class FlowCnecAdderImplTest {
     public void testFrmHandling() {
         double maxValueInMw = 100.0;
         double frmInMw = 5.0;
-        BranchCnec cnec = crac.newFlowCnec().withId("Cnec ID")
+        FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
             .withNetworkElement("Network Element ID")
@@ -167,7 +167,7 @@ public class FlowCnecAdderImplTest {
 
     @Test
     public void testNotOptimizedMonitored() {
-        BranchCnec cnec = crac.newFlowCnec().withId("Cnec ID")
+        FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
             .withNetworkElement("Network Element ID")
@@ -180,7 +180,7 @@ public class FlowCnecAdderImplTest {
 
     @Test
     public void testOptimizedNotMonitored() {
-        BranchCnec cnec = crac.newFlowCnec().withId("Cnec ID")
+        FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
             .withNetworkElement("Network Element ID")
@@ -193,7 +193,7 @@ public class FlowCnecAdderImplTest {
 
     @Test
     public void testNotOptimizedNotMonitored() {
-        BranchCnec cnec = crac.newFlowCnec().withId("Cnec ID")
+        FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
             .withInstant(Instant.OUTAGE)
             .withContingency(contingency1Id)
             .withNetworkElement("Network Element ID")
@@ -205,7 +205,7 @@ public class FlowCnecAdderImplTest {
 
     @Test
     public void testNotOptimizedNotMonitored2() {
-        BranchCnec cnec = crac.newFlowCnec().withId("Cnec ID")
+        FlowCnec cnec = crac.newFlowCnec().withId("Cnec ID")
                 .withInstant(Instant.OUTAGE)
                 .withContingency(contingency1Id)
                 .withNetworkElement("Network Element ID")

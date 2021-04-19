@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_impl.AbstractRangeAction;
 import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -49,11 +49,11 @@ public class CracResultManagerTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.create();
 
-        CnecLoopFlowExtension cnecLoopFlowExtension1 = new CnecLoopFlowExtension(100., Unit.MEGAWATT);
-        CnecLoopFlowExtension cnecLoopFlowExtension2 = new CnecLoopFlowExtension(100., Unit.MEGAWATT);
+        LoopFlowThresholdImpl cnecLoopFlowExtension1 = new LoopFlowThresholdImpl(100., Unit.MEGAWATT);
+        LoopFlowThresholdImpl cnecLoopFlowExtension2 = new LoopFlowThresholdImpl(100., Unit.MEGAWATT);
 
-        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension1);
-        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension2);
+        crac.getBranchCnec("cnec1basecase").addExtension(LoopFlowThresholdImpl.class, cnecLoopFlowExtension1);
+        crac.getBranchCnec("cnec2basecase").addExtension(LoopFlowThresholdImpl.class, cnecLoopFlowExtension2);
         crac.getBranchCnec("cnec2basecase").setReliabilityMargin(20);
 
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());

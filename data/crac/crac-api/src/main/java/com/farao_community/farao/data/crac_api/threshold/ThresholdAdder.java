@@ -14,6 +14,9 @@ import com.farao_community.farao.commons.Unit;
  */
 public interface ThresholdAdder<I extends ThresholdAdder<I>> {
 
+    /**
+     * if unit is PERCENT_IMAX, the min/max value should be between -1 and 1, where 1 = 100%.
+     */
     I withUnit(Unit unit);
 
     I withMax(Double max);

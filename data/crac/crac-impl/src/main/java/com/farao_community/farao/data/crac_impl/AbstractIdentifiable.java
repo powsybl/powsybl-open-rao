@@ -8,8 +8,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.Identifiable;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.commons.extensions.AbstractExtendable;
 
 /**
@@ -17,7 +15,6 @@ import com.powsybl.commons.extensions.AbstractExtendable;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I> {
 
     private final String id;
@@ -49,9 +46,8 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    @JsonIgnore
     public String getImplementationName() {
-        return null;
+        return "Default";
     }
 
     /**

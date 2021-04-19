@@ -26,7 +26,7 @@ import static java.lang.String.format;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public abstract class AbstractBranchCnec extends AbstractCnec<BranchCnec> implements BranchCnec {
+public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends AbstractCnec<T> implements BranchCnec<T> {
 
     protected Set<BranchThreshold> thresholds;
     protected BranchBoundsCache bounds = new BranchBoundsCache();

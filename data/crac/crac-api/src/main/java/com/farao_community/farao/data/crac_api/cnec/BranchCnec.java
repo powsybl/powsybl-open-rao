@@ -23,7 +23,7 @@ import java.util.Set;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface BranchCnec extends Cnec<BranchCnec> {
+public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
 
     /**
      * Getter of the {@link BranchThreshold} below which the {@link PhysicalParameter} of this {@code BranchCnec}

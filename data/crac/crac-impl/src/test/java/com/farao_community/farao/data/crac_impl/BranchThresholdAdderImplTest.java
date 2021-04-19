@@ -38,7 +38,7 @@ public class BranchThresholdAdderImplTest {
 
     @Test
     public void testAddThresholdInMW() {
-        BranchCnec cnec = crac.newFlowCnec()
+        BranchCnec<?> cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("neID")
             .newThreshold().withUnit(Unit.MEGAWATT).withMin(-250.0).withMax(1000.0).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -50,7 +50,7 @@ public class BranchThresholdAdderImplTest {
     @Test
     public void testAddThresholdInA() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        BranchCnec cnec = crac.newFlowCnec()
+        BranchCnec<?>  cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -65,7 +65,7 @@ public class BranchThresholdAdderImplTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         String lineId = "BBE1AA1  BBE2AA1  1";
         double lineLimit = network.getLine(lineId).getCurrentLimits1().getPermanentLimit();
-        BranchCnec cnec = crac.newFlowCnec()
+        BranchCnec<?>  cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.CURATIVE).withContingency(contingency.getId())
             .withNetworkElement(lineId)
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.8).withMax(0.5).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -105,6 +105,7 @@ public class BranchThresholdAdderImplTest {
     public void testNoSideFail() {
         crac.newFlowCnec().newThreshold()
             .withUnit(Unit.AMPERE)
+            .withMax(1000.0)
             .add();
     }
 }

@@ -136,6 +136,7 @@ public final class CommonCracCreation {
             .withContingency("Contingency FR1 FR2")
             .withOptimized(true)
             .withOperator("operator2")
+            .withReliabilityMargin(95.)
             .newThreshold()
                 .withUnit(Unit.MEGAWATT)
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
