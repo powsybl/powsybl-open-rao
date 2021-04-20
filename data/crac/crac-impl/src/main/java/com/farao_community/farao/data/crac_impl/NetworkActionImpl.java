@@ -5,12 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_impl;
+package com.farao_community.farao.data.crac_impl.remedial_action.network_action;
 
-import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.ElementaryAction;
+import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.farao_community.farao.data.crac_impl.remedial_action.AbstractRemedialAction;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.Network;
 
@@ -22,15 +23,12 @@ import java.util.Set;
  * Group of simple elementary remedial actions (setpoint, open/close, ...).
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @JsonTypeName("network-action-impl")
 public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> implements NetworkAction {
 
     private Set<ElementaryAction> elementaryActions;
 
-    @Deprecated
-    // TODO : convert to private package
     public NetworkActionImpl(String id, String name, String operator, List<UsageRule> usageRules,
                              Set<ElementaryAction> elementaryNetworkActions) {
         super(id, name, operator, usageRules);

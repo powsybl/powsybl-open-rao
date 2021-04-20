@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -36,13 +37,15 @@ public class InitialSensitivityAnalysis {
     private RaoData raoData;
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private RaoParameters raoParameters;
+    private LinearOptimizerParameters linearOptimizerParameters;
 
-    public InitialSensitivityAnalysis(RaoData raoData) {
+    public InitialSensitivityAnalysis(RaoData raoData, LinearOptimizerParameters linearOptimizerParameters) {
         // it is actually quite strange to ask for a RaoData here, but it is required in
         // order to use the fillResultsWithXXX() methods of the CracResultManager.
 
         this.raoData = raoData;
         this.raoParameters = raoData.getRaoParameters();
+        this.linearOptimizerParameters = linearOptimizerParameters;
         this.systematicSensitivityInterface = getSystematicSensitivityInterface();
     }
 
@@ -86,9 +89,9 @@ public class InitialSensitivityAnalysis {
     }
 
     private void fillObjectiveFunction() {
-        ObjectiveFunctionEvaluator objectiveFunction = RaoUtil.createObjectiveFunction(raoParameters, null);
+        ObjectiveFunctionEvaluator objectiveFunction = RaoUtil.createObjectiveFunction(raoData, linearOptimizerParameters, raoParameters.getFallbackOverCost());
         raoData.getCracResultManager().fillCracResultWithCosts(
-            objectiveFunction.getFunctionalCost(raoData), objectiveFunction.getVirtualCost(raoData));
+            objectiveFunction.computeFunctionalCost(raoData.getSensitivityAndLoopflowResults()), objectiveFunction.computeVirtualCost(raoData.getSensitivityAndLoopflowResults()));
     }
 
     private void fillReferenceLoopFlow() {

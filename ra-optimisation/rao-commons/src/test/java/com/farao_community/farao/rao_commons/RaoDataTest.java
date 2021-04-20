@@ -3,7 +3,8 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ *//*
+
 
 package com.farao_community.farao.rao_commons;
 
@@ -26,9 +27,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.*;
+*/
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
- */
+ *//*
+
 public class RaoDataTest {
 
     private Network network;
@@ -217,3 +220,4 @@ public class RaoDataTest {
         Assert.assertEquals(Integer.valueOf(0), ((PstRangeResult) rangeActionResult).getTap(crac.getState(contingency, Instant.CURATIVE).getId()));
     }
 }
+*/

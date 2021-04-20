@@ -7,176 +7,157 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.data.crac_result_extensions.CracResult;
-import com.farao_community.farao.rao_commons.CracVariantManager;
+import com.farao_community.farao.data.crac_api.PstRangeAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.rao_commons.LoopFlowUtil;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.linear_optimisation.*;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
-import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimisationException;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-import static java.lang.String.format;
+import java.util.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class IteratingLinearOptimizer {
+public final class IteratingLinearOptimizer {
     protected static final Logger LOGGER = LoggerFactory.getLogger(IteratingLinearOptimizer.class);
-    protected static final String UNEXPECTED_BEHAVIOR = "Iteration %d - Linear Optimization found a worse result than previous iteration, with a minimum margin from %.2f to %.2f %s (optimisation criterion : from %.2f to %.2f)";
-    protected static final String IMPROVEMENT = "Iteration %d - Better solution found with a minimum margin of %.2f %s (optimisation criterion : %.2f)";
-    protected static final String SAME_RESULTS = "Iteration %d - same results as previous iterations, optimal solution found";
-    protected static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_START = "Iteration %d - systematic analysis [start]";
-    protected static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_END = "Iteration %d - systematic analysis [end]";
-    protected static final String SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR = "Sensitivity computation failed at iteration %d on %s mode: %s";
-    protected static final String LINEAR_OPTIMIZATION_START = "Iteration %d - linear optimization [start]";
-    protected static final String LINEAR_OPTIMIZATION_END = "Iteration %d - linear optimization [end]";
-    protected static final String LINEAR_OPTIMIZATION_INFEASIBLE = "Iteration %d - linear optimization cannot find OPTIMAL solution";
-    protected static final String LINEAR_OPTIMIZATION_ERROR = "Linear optimization failed at iteration %d: %s";
 
-    protected RaoData raoData;
-    protected CracVariantManager cracVariantManager;
-    protected String bestVariantId;
-    protected SystematicSensitivityInterface systematicSensitivityInterface;
-    protected ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
-    protected LinearOptimizer linearOptimizer;
-    protected IteratingLinearOptimizerParameters parameters;
+    private IteratingLinearOptimizer() {
 
-    public IteratingLinearOptimizer(List<ProblemFiller> fillers,
-                                    SystematicSensitivityInterface systematicSensitivityInterface,
-                                    ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
-                                    IteratingLinearOptimizerParameters parameters) {
-        this(systematicSensitivityInterface, objectiveFunctionEvaluator, new LinearOptimizer(fillers), parameters);
     }
 
-    // Method for tests
-    IteratingLinearOptimizer(SystematicSensitivityInterface systematicSensitivityInterface,
-                             ObjectiveFunctionEvaluator objectiveFunctionEvaluator,
-                             LinearOptimizer linearOptimizer,
-                             IteratingLinearOptimizerParameters parameters) {
-        this.systematicSensitivityInterface = systematicSensitivityInterface;
-        this.objectiveFunctionEvaluator = objectiveFunctionEvaluator;
-        this.linearOptimizer = linearOptimizer;
-        this.parameters = parameters;
+    private static LinearOptimizerInput createLinearOptimizerInput(IteratingLinearOptimizerInput iteratingLinearOptimizerInput) {
+        return LinearOptimizerInput.create()
+                .withCnecs(iteratingLinearOptimizerInput.getCnecs())
+                .withLoopflowCnecs(iteratingLinearOptimizerInput.getLoopflowCnecs())
+                .withInitialCnecResults(iteratingLinearOptimizerInput.getInitialCnecResults())
+                .withNetwork(iteratingLinearOptimizerInput.getNetwork())
+                .withPreperimeterSetpoints(iteratingLinearOptimizerInput.getPreperimeterSetpoints())
+                .withRangeActions(iteratingLinearOptimizerInput.getRangeActions())
+                .withMostLimitingElements(iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator().getMostLimitingElements(iteratingLinearOptimizerInput.getPreOptimSensitivityResults(), 10))
+                .withPrePerimeterCnecMarginsInMW(iteratingLinearOptimizerInput.getPrePerimeterCnecMarginsInAbsoluteMW())
+                .build();
     }
 
-    public ObjectiveFunctionEvaluator getObjectiveFunctionEvaluator() {
-        return objectiveFunctionEvaluator;
-    }
+    private static IteratingLinearOptimizerOutput createOutputFromPreOptimSituation(IteratingLinearOptimizerInput iteratingLinearOptimizerInput) {
+        ObjectiveFunctionEvaluator objectiveFunctionEvaluator = iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator();
+        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = iteratingLinearOptimizerInput.getPreOptimSensitivityResults();
+        Network network = iteratingLinearOptimizerInput.getNetwork();
 
-    public IteratingLinearOptimizerParameters getParameters() {
-        return parameters;
-    }
-
-    public String optimize(RaoData raoData) {
-        this.raoData = raoData;
-        cracVariantManager = raoData.getCracVariantManager();
-        bestVariantId = raoData.getPreOptimVariantId();
-        if (!raoData.hasSensitivityValues()) {
-            runSensitivityAndUpdateResults();
-        }
-        String optimizedVariantId;
-        for (int iteration = 1; iteration <= parameters.getMaxIterations(); iteration++) {
-            optimizedVariantId = cracVariantManager.cloneWorkingVariant();
-            raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(cracVariantManager.getWorkingVariantId(), optimizedVariantId);
-            //TODO : copy crac results from one variant to the next in CracVariantManager.cloneWorkingVariant() ?
-            cracVariantManager.setWorkingVariant(optimizedVariantId);
-            optimize(iteration);
-            if (hasNotOptimized() // If optimization fails iteration can stop
-                    || !hasRemedialActionsChanged(optimizedVariantId, iteration)
-                    || !evaluateNewCost(optimizedVariantId, iteration)
-                    || !hasCostImproved(optimizedVariantId, iteration)) {
-                return getBestVariantWithSafeDelete(optimizedVariantId);
+        LinearProblem.SolveStatus solveStatus = LinearProblem.SolveStatus.NOT_SOLVED;
+        double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults);
+        double virtualCost = objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults);
+        Map<RangeAction, Double> rangeActionSetPoints = new HashMap<>();
+        Map<PstRangeAction, Integer> pstTaps = new HashMap<>();
+        for (RangeAction rangeAction : iteratingLinearOptimizerInput.getRangeActions()) {
+            rangeActionSetPoints.put(rangeAction, rangeAction.getCurrentValue(network));
+            if (rangeAction instanceof PstRangeAction) {
+                PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+                pstTaps.put(pstRangeAction, pstRangeAction.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO));
             }
-            updateBestVariantId(optimizedVariantId);
         }
-        return bestVariantId;
+
+        return new IteratingLinearOptimizerOutput(solveStatus, functionalCost, virtualCost, rangeActionSetPoints, pstTaps, sensitivityAndLoopflowResults);
     }
 
-    private void optimize(int iteration) {
-        try {
-            LOGGER.info(format(LINEAR_OPTIMIZATION_START, iteration));
-            linearOptimizer.optimize(raoData);
-            if (hasNotOptimized()) {
-                LOGGER.info(format(LINEAR_OPTIMIZATION_INFEASIBLE, iteration)); //handle INFEASIBLE solver status
+    public static IteratingLinearOptimizerOutput optimize(IteratingLinearOptimizerInput iteratingLinearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters, double maxIteration) {
+        ObjectiveFunctionEvaluator objectiveFunctionEvaluator = iteratingLinearOptimizerInput.getObjectiveFunctionEvaluator();
+        SensitivityAndLoopflowResults preOptimSensitivityResults = iteratingLinearOptimizerInput.getPreOptimSensitivityResults();
+
+        LinearOptimizer linearOptimizer = new LinearOptimizer(createLinearOptimizerInput(iteratingLinearOptimizerInput), linearOptimizerParameters);
+
+        IteratingLinearOptimizerOutput bestIteratingLinearOptimizerOutput = createOutputFromPreOptimSituation(iteratingLinearOptimizerInput);
+        SensitivityAndLoopflowResults updatedSensitivityAndLoopflowResults = preOptimSensitivityResults;
+
+        for (int iteration = 1; iteration <= maxIteration; iteration++) {
+            LinearOptimizerOutput linearOptimizerOutput;
+            try {
+                LOGGER.debug("Iteration {} - linear optimization [start]", iteration);
+                linearOptimizerOutput = linearOptimizer.optimize(updatedSensitivityAndLoopflowResults);
+                LOGGER.debug("Iteration {} - linear optimization [end]", iteration);
+            } catch (LinearOptimisationException e) {
+                LOGGER.error("Linear optimization failed at iteration {}: {}", iteration, e.getMessage());
+                bestIteratingLinearOptimizerOutput.setStatus(LinearProblem.SolveStatus.ABNORMAL);
+                return bestIteratingLinearOptimizerOutput;
             }
-            LOGGER.info(format(LINEAR_OPTIMIZATION_END, iteration));
-        } catch (LinearOptimisationException e) {
-            LOGGER.error(format(LINEAR_OPTIMIZATION_ERROR, iteration, e.getMessage()));
+
+            if (linearOptimizerOutput.getSolveStatus() != LinearProblem.SolveStatus.OPTIMAL) {
+                LOGGER.warn("Iteration {} - linear optimization cannot find OPTIMAL solution", iteration);
+                if (iteration > 1) {
+                    bestIteratingLinearOptimizerOutput.setStatus(LinearProblem.SolveStatus.FEASIBLE);
+                } else {
+                    bestIteratingLinearOptimizerOutput.setStatus(linearOptimizerOutput.getSolveStatus());
+                }
+                return bestIteratingLinearOptimizerOutput;
+            } else if (!hasRemedialActionsChanged(bestIteratingLinearOptimizerOutput, linearOptimizerOutput, iteration)) {
+                // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
+                LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
+                bestIteratingLinearOptimizerOutput.setStatus(LinearProblem.SolveStatus.OPTIMAL);
+                return bestIteratingLinearOptimizerOutput;
+            } else {
+                updatedSensitivityAndLoopflowResults = applyRangeActionsAndRunSensitivityComputation(iteratingLinearOptimizerInput,
+                        linearOptimizerOutput.getRangeActionSetpoints(), updatedSensitivityAndLoopflowResults, linearOptimizerParameters, iteration);
+                double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(updatedSensitivityAndLoopflowResults);
+                double virtualCost = objectiveFunctionEvaluator.computeVirtualCost(updatedSensitivityAndLoopflowResults);
+                if (functionalCost + virtualCost < bestIteratingLinearOptimizerOutput.getCost()) {
+                    LOGGER.info("Iteration {} - Better solution found with a minimum margin of {} {} (optimisation criterion : {})",
+                            iteration, -functionalCost, objectiveFunctionEvaluator.getUnit(), functionalCost + virtualCost);
+                    bestIteratingLinearOptimizerOutput = new IteratingLinearOptimizerOutput(LinearProblem.SolveStatus.FEASIBLE, functionalCost, virtualCost,
+                            linearOptimizerOutput, updatedSensitivityAndLoopflowResults);
+                } else {
+                    LOGGER.info("Iteration {} - Linear Optimization found a worse result than previous iteration, with a minimum margin from {} to {} {} (optimisation criterion : from {} to {})",
+                            iteration, -bestIteratingLinearOptimizerOutput.getFunctionalCost(), -functionalCost, objectiveFunctionEvaluator.getUnit(), bestIteratingLinearOptimizerOutput.getCost(), functionalCost + virtualCost);
+                    bestIteratingLinearOptimizerOutput.setStatus(LinearProblem.SolveStatus.OPTIMAL);
+                    return bestIteratingLinearOptimizerOutput;
+                }
+            }
         }
+        return bestIteratingLinearOptimizerOutput;
     }
 
-    private boolean hasNotOptimized() {
-        return !linearOptimizer.getSolverResultStatusString().equals("OPTIMAL");
-    }
+    private static boolean hasRemedialActionsChanged(IteratingLinearOptimizerOutput bestIteratingLinearOptimizerOutput, LinearOptimizerOutput linearOptimizerOutput, int iteration) {
+        Map<RangeAction, Double> newSetPoints = linearOptimizerOutput.getRangeActionSetpoints();
+        Map<RangeAction, Double> bestSetPoints = bestIteratingLinearOptimizerOutput.getRangeActionSetpoints();
 
-    private boolean hasRemedialActionsChanged(String optimizedVariantId, int iteration) {
-        // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
-        if (raoData.getCracResultManager().sameRemedialActions(bestVariantId, optimizedVariantId)) {
-            LOGGER.info(format(SAME_RESULTS, iteration));
-            return false;
-        } else {
-            return true;
+        for (Map.Entry<RangeAction, Double> newSetPointEntry : newSetPoints.entrySet()) {
+            if (Math.abs(newSetPointEntry.getValue() - bestSetPoints.get(newSetPointEntry.getKey())) > Math.max(1e-2 * Math.abs(bestSetPoints.get(newSetPointEntry.getKey())), 1e-3)) {
+                return true;
+            }
         }
+
+        return false;
     }
 
-    protected boolean evaluateNewCost(String optimizedVariantId, int iteration) {
-        // If evaluating the new cost fails iteration can stop
-        cracVariantManager.setWorkingVariant(optimizedVariantId);
+    private static SensitivityAndLoopflowResults applyRangeActionsAndRunSensitivityComputation(IteratingLinearOptimizerInput iteratingLinearOptimizerInput,
+                                                                                               Map<RangeAction, Double> rangeActionSetPoints,
+                                                                                               SensitivityAndLoopflowResults sensitivityAndLoopflowResults,
+                                                                                               LinearOptimizerParameters linearOptimizerParameters,
+                                                                                               int iteration) {
+        Network network = iteratingLinearOptimizerInput.getNetwork();
+        SystematicSensitivityInterface systematicSensitivityInterface = iteratingLinearOptimizerInput.getSystematicSensitivityInterface();
+        rangeActionSetPoints.keySet().forEach(rangeAction -> rangeAction.apply(network, rangeActionSetPoints.get(rangeAction)));
+
+        LOGGER.debug("Iteration {} - systematic analysis [start]", iteration);
         try {
-            LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_START, iteration));
-            runSensitivityAndUpdateResults();
-            LOGGER.info(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_END, iteration));
-            return true;
+            SystematicSensitivityResult updatedSensiResult = systematicSensitivityInterface.run(network);
+            LOGGER.debug("Iteration {} - systematic analysis [end]", iteration);
+
+            if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()
+                && linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
+                return new SensitivityAndLoopflowResults(updatedSensiResult, LoopFlowUtil.computeCommercialFlows(network, iteratingLinearOptimizerInput.getLoopflowCnecs(), iteratingLinearOptimizerInput.getGlskProvider(), iteratingLinearOptimizerInput.getReferenceProgram(), updatedSensiResult));
+            } else {
+                return new SensitivityAndLoopflowResults(updatedSensiResult, sensitivityAndLoopflowResults.getCommercialFlows());
+            }
         } catch (SensitivityAnalysisException e) {
-            LOGGER.error(format(SYSTEMATIC_SENSITIVITY_COMPUTATION_ERROR, iteration,
-                    systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage()));
-            return false;
+            LOGGER.error("Sensitivity computation failed at iteration {} on {} mode: {}", iteration, systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage());
+            return sensitivityAndLoopflowResults;
         }
-    }
-
-    private boolean hasCostImproved(String optimizedVariantId, int iteration) {
-        // If the cost has not improved iteration can stop
-        CracResult bestVariantResult = raoData.getCracResult(bestVariantId);
-        CracResult optimizedVariantResult = raoData.getCracResult(optimizedVariantId);
-        if (optimizedVariantResult.getCost() < bestVariantResult.getCost()) {
-            LOGGER.warn(format(IMPROVEMENT, iteration, -optimizedVariantResult.getFunctionalCost(),
-                    objectiveFunctionEvaluator.getUnit(), optimizedVariantResult.getCost()));
-            return true;
-        } else { // unexpected behaviour, stop the search
-            LOGGER.warn(format(UNEXPECTED_BEHAVIOR, iteration, -bestVariantResult.getFunctionalCost(),
-                    -optimizedVariantResult.getFunctionalCost(), objectiveFunctionEvaluator.getUnit(), bestVariantResult.getCost(),
-                    optimizedVariantResult.getCost()));
-            return false;
-        }
-    }
-
-    private String getBestVariantWithSafeDelete(String variantToDelete) {
-        cracVariantManager.setWorkingVariant(bestVariantId);
-        if (!variantToDelete.equals(raoData.getPreOptimVariantId())) {
-            cracVariantManager.deleteVariant(variantToDelete, false);
-        }
-        return bestVariantId;
-    }
-
-    private void updateBestVariantId(String optimizedVariantId) {
-        cracVariantManager.setWorkingVariant(optimizedVariantId);
-        if (!bestVariantId.equals(raoData.getPreOptimVariantId())) {
-            cracVariantManager.deleteVariant(bestVariantId, false);
-        }
-        bestVariantId = optimizedVariantId;
-    }
-
-    void runSensitivityAndUpdateResults() {
-        raoData.setSystematicSensitivityResult(
-            systematicSensitivityInterface.run(raoData.getNetwork()));
-
-        raoData.getCracResultManager().fillCnecResultWithFlows();
-        raoData.getCracResultManager().fillCracResultWithCosts(objectiveFunctionEvaluator.getFunctionalCost(raoData), objectiveFunctionEvaluator.getVirtualCost(raoData));
     }
 }

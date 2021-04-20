@@ -5,18 +5,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_commons.CnecResults;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerOutput;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -33,31 +34,31 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
+
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({NativeLibraryLoader.class})
+@PrepareForTest({NativeLibraryLoader.class, IteratingLinearOptimizer.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class IteratingLinearOptimizerTest {
 
     private static final double DOUBLE_TOLERANCE = 0.1;
 
-    private IteratingLinearOptimizerParameters parameters;
+    private IteratingLinearOptimizerInput iteratingLinearOptimizerInput;
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private LinearOptimizer linearOptimizer;
     private ObjectiveFunctionEvaluator costEvaluator;
     private Crac crac;
-    private RaoData raoData;
-    private List<String> workingVariants;
+    private LinearOptimizerParameters linearOptimizerParameters;
 
     private void mockNativeLibraryLoader() {
         PowerMockito.mockStatic(NativeLibraryLoader.class);
@@ -71,13 +72,15 @@ public class IteratingLinearOptimizerTest {
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         Network network = NetworkImportsUtil.import12NodesNetwork();
         crac.synchronize(network);
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
-        parameters = new IteratingLinearOptimizerParameters(10, 0);
 
-        workingVariants = new ArrayList<>();
+        costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
+        Mockito.when(costEvaluator.computeFunctionalCost(any())).thenReturn(0.);
+        Mockito.when(costEvaluator.computeVirtualCost(any())).thenReturn(0.);
+        List<BranchCnec> cnecList = new ArrayList<>();
+        crac.getBranchCnecs().forEach(cnec -> cnecList.add(cnec));
+        Mockito.when(costEvaluator.getMostLimitingElements(any(), anyInt())).thenReturn(cnecList);
+
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
-        linearOptimizer = Mockito.mock(LinearOptimizer.class);
-
         SystematicSensitivityResult systematicSensitivityResult1 = Mockito.mock(SystematicSensitivityResult.class);
         SystematicSensitivityResult systematicSensitivityResult2 = Mockito.mock(SystematicSensitivityResult.class);
         SystematicSensitivityResult systematicSensitivityResult3 = Mockito.mock(SystematicSensitivityResult.class);
@@ -87,116 +90,176 @@ public class IteratingLinearOptimizerTest {
         Mockito.when(systematicSensitivityResult3.getReferenceFlow(Mockito.any())).thenReturn(20.);
         Mockito.when(systematicSensitivityResult3.getReferenceFlow(Mockito.any())).thenReturn(0.);
         Mockito.when(systematicSensitivityInterface.run(Mockito.any()))
-            .thenReturn(systematicSensitivityResult1, systematicSensitivityResult2, systematicSensitivityResult3, systematicSensitivityResult4);
+                .thenReturn(systematicSensitivityResult1, systematicSensitivityResult2, systematicSensitivityResult3, systematicSensitivityResult4);
+
+        SensitivityAndLoopflowResults preOptimSensitivityResults = new SensitivityAndLoopflowResults(null, null);
+
+        Map<RangeAction, Double> prePerimeterSetpoints = new HashMap<>();
+        prePerimeterSetpoints.put(crac.getRangeAction("PRA_PST_BE"), 0.);
+
+        iteratingLinearOptimizerInput = IteratingLinearOptimizerInput.create()
+                .withObjectiveFunctionEvaluator(costEvaluator)
+                .withSystematicSensitivityInterface(systematicSensitivityInterface)
+                .withPreOptimSensitivityResults(preOptimSensitivityResults)
+                .withPreperimeterSetpoints(prePerimeterSetpoints)
+                .withNetwork(network)
+                .withRangeActions(crac.getRangeActions())
+                .withCnecs(crac.getBranchCnecs())
+                .withInitialCnecResults(new CnecResults())
+                .build();
+
+        linearOptimizerParameters = Mockito.mock(LinearOptimizerParameters.class);
+
+        linearOptimizer = Mockito.mock(LinearOptimizer.class);
+        // TODO: PowerMockito.whenNew(LinearOptimizer.class).withAnyArguments().
 
         // mock linear optimisation engine
         // linear optimisation returns always the same value -> optimal solution is 1.0 for all RAs
         doAnswer(new Answer() {
             private int count = 1;
             public Object answer(InvocationOnMock invocation) {
-                Object[] args = invocation.getArguments();
-                RaoData raoData = (RaoData) args[0];
                 double setPoint;
-                double cost;
                 switch (count) {
                     case 1:
                         setPoint = 1.0;
-                        cost = 50.;
                         break;
                     case 2:
                         setPoint = 3.0;
-                        cost = 20;
                         break;
                     case 3:
                         setPoint = 3.0;
-                        cost = 0;
                         break;
                     default:
                         setPoint = 0;
-                        cost = 0;
                         break;
                 }
-                workingVariants.add(raoData.getWorkingVariantId());
-                crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
-                    .getVariant(raoData.getWorkingVariantId())
-                    .setSetPoint(crac.getPreventiveState().getId(), setPoint);
-                crac.getExtension(CracResultExtension.class).getVariant(raoData.getWorkingVariantId())
-                    .setFunctionalCost(cost);
+                Map<RangeAction, Double> rangeActionSetpoints = new HashMap<>();
+                rangeActionSetpoints.put(crac.getRangeAction("PRA_PST_BE"), setPoint);
                 count += 1;
 
-                return raoData;
+                return new LinearOptimizerOutput(LinearProblem.SolveStatus.OPTIMAL, rangeActionSetpoints, new HashMap<>());
             }
         }).when(linearOptimizer).optimize(any());
 
-        costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
-        Mockito.when(costEvaluator.getFunctionalCost(raoData)).thenReturn(0.);
-        Mockito.when(costEvaluator.getVirtualCost(raoData)).thenReturn(0.);
     }
 
     @Test
     public void optimize() {
-        String preOptimVariant = raoData.getPreOptimVariantId();
-
-        Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("OPTIMAL");
-        Mockito.when(costEvaluator.getFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
+        Mockito.when(costEvaluator.computeFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
+        try {
+            PowerMockito.whenNew(LinearOptimizer.class).withAnyArguments().thenReturn(linearOptimizer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // run an iterating optimization
-        String bestVariantId = new IteratingLinearOptimizer(
-            systematicSensitivityInterface,
-            costEvaluator,
-            linearOptimizer,
-            parameters).optimize(raoData);
+        IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput, linearOptimizerParameters, 5);
 
         // check results
-        assertNotNull(bestVariantId);
-        assertEquals(100, crac.getExtension(CracResultExtension.class).getVariant(preOptimVariant).getCost(), DOUBLE_TOLERANCE);
-        assertEquals(20, crac.getExtension(CracResultExtension.class).getVariant(bestVariantId).getCost(), DOUBLE_TOLERANCE);
+        assertNotNull(iteratingLinearOptimizerOutput);
+        assertEquals(LinearProblem.SolveStatus.OPTIMAL, iteratingLinearOptimizerOutput.getSolveStatus());
+        assertEquals(20, iteratingLinearOptimizerOutput.getCost(), DOUBLE_TOLERANCE);
+        assertEquals(3., iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
+    }
 
-        // In the end CRAC should contain results only for pre-optim variant and post-optim variant
-        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(preOptimVariant));
-        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(1)));
-        assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(0)));
+    @Test
+    public void optimizeWorseResult() {
+        Mockito.when(costEvaluator.computeFunctionalCost(Mockito.any())).thenReturn(100., 50., 70.);
+        try {
+            PowerMockito.whenNew(LinearOptimizer.class).withAnyArguments().thenReturn(linearOptimizer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
-            .getVariant(preOptimVariant)
-            .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
-        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
-            .getVariant(preOptimVariant)
-            .getSetPoint(crac.getState("N-1 NL1-NL3", Instant.OUTAGE).getId()), DOUBLE_TOLERANCE);
+        // run an iterating optimization
+        IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput, linearOptimizerParameters, 5);
 
-        assertEquals(3, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
-            .getVariant(bestVariantId)
-            .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
+        // check results
+        assertNotNull(iteratingLinearOptimizerOutput);
+        assertEquals(LinearProblem.SolveStatus.OPTIMAL, iteratingLinearOptimizerOutput.getSolveStatus());
+        assertEquals(50, iteratingLinearOptimizerOutput.getCost(), DOUBLE_TOLERANCE);
+        assertEquals(1., iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void optimizeWithInfeasibility() {
-        String preOptimVariant = raoData.getWorkingVariantId();
+        Mockito.when(costEvaluator.computeFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
 
-        Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("INFEASIBLE");
-        Mockito.when(costEvaluator.getFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
+        Mockito.when(linearOptimizer.optimize(any())).thenReturn(new LinearOptimizerOutput(LinearProblem.SolveStatus.INFEASIBLE, new HashMap<>(), new HashMap<>()));
+        try {
+            PowerMockito.whenNew(LinearOptimizer.class).withAnyArguments().thenReturn(linearOptimizer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // run an iterating optimization
-        String bestVariantId = new IteratingLinearOptimizer(
-            systematicSensitivityInterface,
-            costEvaluator,
-            linearOptimizer,
-            parameters).optimize(raoData);
+        IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput, linearOptimizerParameters, 5);
 
         // check results
-        assertNotNull(bestVariantId);
-        assertEquals(100, crac.getExtension(CracResultExtension.class).getVariant(preOptimVariant).getCost(), DOUBLE_TOLERANCE);
-        assertEquals(100, crac.getExtension(CracResultExtension.class).getVariant(bestVariantId).getCost(), DOUBLE_TOLERANCE);
-
-        // In the end CRAC should contain results only for pre-optim variant and post-optim variant
-        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains(preOptimVariant));
-        assertFalse(crac.getExtension(ResultVariantManager.class).getVariants().contains(workingVariants.get(0)));
-
-        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
-            .getVariant(preOptimVariant)
-            .getSetPoint(crac.getPreventiveState().getId()), DOUBLE_TOLERANCE);
-        assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
-            .getVariant(preOptimVariant)
-            .getSetPoint(crac.getState("N-1 NL1-NL3", Instant.OUTAGE).getId()), DOUBLE_TOLERANCE);
+        assertNotNull(iteratingLinearOptimizerOutput);
+        assertEquals(LinearProblem.SolveStatus.INFEASIBLE, iteratingLinearOptimizerOutput.getSolveStatus());
+        assertEquals(100., iteratingLinearOptimizerOutput.getCost(), DOUBLE_TOLERANCE);
+        assertEquals(0., iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
     }
+
+    /*@Test
+    public void testRemoveRangeActionsIfMaxNumberReached() {
+        PstRangeActionImpl rangeActionToRemove = new PstRangeActionImpl("PRA_PST_BE_2", "PRA_PST_BE_2", "BE", new NetworkElement("BBE2AA1  BBE3AA1  1"));
+        rangeActionToRemove.addRange(new PstRangeImpl(5, 10, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
+        rangeActionToRemove.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        ((SimpleCrac) crac).addRangeAction(rangeActionToRemove);
+        Network network = iteratingLinearOptimizerInput.getNetwork();
+        crac.desynchronize();
+        crac.synchronize(network);
+
+        Map<String, Integer> maxPstPerTso = new HashMap<>();
+        maxPstPerTso.put("BE", 1);
+
+        BranchCnec mostLimitingCnec = crac.getBranchCnec("NNL1AA1  NNL2AA1  1");
+        SystematicSensitivityResult sensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        Mockito.when(sensitivityResult.getSensitivityOnFlow(crac.getRangeAction("PRA_PST_BE"), mostLimitingCnec)).thenReturn(5.);
+        Mockito.when(sensitivityResult.getSensitivityOnFlow(crac.getRangeAction("PRA_PST_BE_2"), mostLimitingCnec)).thenReturn(1.);
+
+        Map<RangeAction, Double> prePerimeterSetPoints = new HashMap<>();
+        crac.getRangeActions().forEach(rangeAction -> prePerimeterSetPoints.put(rangeAction, 0.));
+
+        Set<RangeAction> rangeActions = crac.getRangeActions();
+        assertEquals(2, rangeActions.size());
+        assertEquals(2, prePerimeterSetPoints.size());
+        IteratingLinearOptimizer.removeRangeActionsIfMaxNumberReached(rangeActions, prePerimeterSetPoints, maxPstPerTso, mostLimitingCnec, sensitivityResult);
+
+        assertEquals(1, rangeActions.size());
+        assertTrue(rangeActions.contains(crac.getRangeAction("PRA_PST_BE")));
+        assertFalse(rangeActions.contains(crac.getRangeAction("PRA_PST_BE_2")));
+
+        assertEquals(1, prePerimeterSetPoints.size());
+        assertTrue(prePerimeterSetPoints.containsKey(crac.getRangeAction("PRA_PST_BE")));
+        assertFalse(prePerimeterSetPoints.containsKey(crac.getRangeAction("PRA_PST_BE_2")));
+    }
+
+    @Test
+    public void testRemoveRangeActionsWithWrongInitialSetpoint() {
+        PstRangeActionImpl rangeActionToRemove = new PstRangeActionImpl("PRA_PST_BE_2", "PRA_PST_BE_2", "BE", new NetworkElement("BBE2AA1  BBE3AA1  1"));
+        rangeActionToRemove.addRange(new PstRangeImpl(5, 10, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
+        rangeActionToRemove.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+        ((SimpleCrac) crac).addRangeAction(rangeActionToRemove);
+        Network network = iteratingLinearOptimizerInput.getNetwork();
+        crac.desynchronize();
+        crac.synchronize(network);
+
+        Map<RangeAction, Double> initialSetpoints = new HashMap<>();
+        Set<RangeAction> rangeActions = crac.getRangeActions();
+        rangeActions.forEach(rangeAction -> initialSetpoints.put(rangeAction, 0.));
+        assertEquals(2, rangeActions.size());
+        assertEquals(2, initialSetpoints.size());
+        IteratingLinearOptimizer.removeRangeActionsWithWrongInitialSetpoint(rangeActions, initialSetpoints, network);
+
+        assertEquals(1, rangeActions.size());
+        assertTrue(rangeActions.contains(crac.getRangeAction("PRA_PST_BE")));
+        assertFalse(rangeActions.contains(crac.getRangeAction("PRA_PST_BE_2")));
+        assertEquals(1, initialSetpoints.size());
+        assertTrue(initialSetpoints.containsKey(crac.getRangeAction("PRA_PST_BE")));
+        assertFalse(initialSetpoints.containsKey(crac.getRangeAction("PRA_PST_BE_2")));
+     }*/
 }
+

@@ -11,6 +11,8 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -27,8 +29,13 @@ public class InitialSensitivityAnalysisTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.create();
         RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), crac.getStates(), null, null, null, new RaoParameters());
+        LinearOptimizerParameters linearOptimizerParameters = LinearOptimizerParameters.create()
+                .withObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT)
+                .withMaxMinMarginParameters(new MaxMinMarginParameters(0.01))
+                .withPstSensitivityThreshold(0)
+                .build();
 
-        InitialSensitivityAnalysis initialSensitivityAnalysis = new InitialSensitivityAnalysis(raoData);
+        InitialSensitivityAnalysis initialSensitivityAnalysis = new InitialSensitivityAnalysis(raoData, linearOptimizerParameters);
         assertNotNull(initialSensitivityAnalysis);
     }
 }

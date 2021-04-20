@@ -1,13 +1,11 @@
-package com.farao_community.farao.data.crac_io_json.deserializers;
+package com.farao_community.farao.data.crac_impl.json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
-import com.farao_community.farao.data.crac_impl.CracImpl;
-import com.farao_community.farao.data.crac_impl.InjectionSetpointImpl;
-import com.farao_community.farao.data.crac_impl.PstSetpointImpl;
-import com.farao_community.farao.data.crac_impl.TopologicalActionImpl;
+import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.InjectionSetpointImpl;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpointImpl;
+import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -15,14 +13,14 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationNames.*;
+import static com.farao_community.farao.data.crac_impl.json.JsonSerializationNames.*;
 
 final class ElementaryActionsDeserializer {
 
     private ElementaryActionsDeserializer() {
     }
 
-    static Set<ElementaryAction> deserialize(JsonParser jsonParser, CracImpl simpleCrac) throws IOException {
+    static Set<ElementaryAction> deserialize(JsonParser jsonParser, SimpleCrac simpleCrac) throws IOException {
         // cannot be done in a standard deserializer as it requires the simpleCrac to compare
         // the networkElement ids of the NetworkAction with the NetworkElements of the Crac
 
@@ -36,7 +34,7 @@ final class ElementaryActionsDeserializer {
 
             ActionType actionType = null; // useful only if type is "topology"
             Double setpoint = null; // useful only if type is "pst-setpoint" or "injection-set-point"
-            TapConvention rangeDefinition = null;  // useful only if type is "pst-setpoint"
+            RangeDefinition rangeDefinition = null;  // useful only if type is "pst-setpoint"
 
             while (!jsonParser.nextToken().isStructEnd()) {
 
@@ -62,7 +60,7 @@ final class ElementaryActionsDeserializer {
 
                     case RANGE_DEFINITION:
                         jsonParser.nextToken();
-                        rangeDefinition = jsonParser.readValueAs(TapConvention.class);
+                        rangeDefinition = jsonParser.readValueAs(RangeDefinition.class);
                         break;
 
                     default:
