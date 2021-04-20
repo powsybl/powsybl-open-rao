@@ -163,6 +163,25 @@ public class IteratingLinearOptimizerTest {
     }
 
     @Test
+    public void optimizeWorseResult() {
+        Mockito.when(costEvaluator.computeFunctionalCost(Mockito.any())).thenReturn(100., 50., 70.);
+        try {
+            PowerMockito.whenNew(LinearOptimizer.class).withAnyArguments().thenReturn(linearOptimizer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // run an iterating optimization
+        IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(iteratingLinearOptimizerInput, linearOptimizerParameters, 5);
+
+        // check results
+        assertNotNull(iteratingLinearOptimizerOutput);
+        assertEquals(LinearProblem.SolveStatus.OPTIMAL, iteratingLinearOptimizerOutput.getSolveStatus());
+        assertEquals(50, iteratingLinearOptimizerOutput.getCost(), DOUBLE_TOLERANCE);
+        assertEquals(1., iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
+    }
+
+    @Test
     public void optimizeWithInfeasibility() {
         Mockito.when(costEvaluator.computeFunctionalCost(Mockito.any())).thenReturn(100., 50., 20., 0.);
 
