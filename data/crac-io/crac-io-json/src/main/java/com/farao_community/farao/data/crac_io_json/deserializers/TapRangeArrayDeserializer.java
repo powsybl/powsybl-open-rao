@@ -26,7 +26,7 @@ public final class TapRangeArrayDeserializer {
 
     public static void deserialize(JsonParser jsonParser, PstRangeActionAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            TapRangeAdder adder = ownerAdder.newPstRange();
+            TapRangeAdder adder = ownerAdder.newTapRange();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case MIN:

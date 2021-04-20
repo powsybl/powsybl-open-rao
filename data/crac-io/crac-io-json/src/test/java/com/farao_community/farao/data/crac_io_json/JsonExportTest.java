@@ -72,8 +72,8 @@ public class JsonExportTest {
                 .withOperator("BE")
                 .withNetworkElement("pst_network_element")
                 .withGroupId("groupId1")
-                .newPstRange().withMinTap(-10).withMaxTap(10).withTapConvention(TapConvention.CENTERED_ON_ZERO).withRangeType(RangeType.ABSOLUTE).add()
-                .newPstRange().withMaxTap(20).withTapConvention(TapConvention.STARTS_AT_ONE).withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).add()
+                .newTapRange().withMinTap(-10).withMaxTap(10).withTapConvention(TapConvention.CENTERED_ON_ZERO).withRangeType(RangeType.ABSOLUTE).add()
+                .newTapRange().withMaxTap(20).withTapConvention(TapConvention.STARTS_AT_ONE).withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).add()
                 .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .newOnStateUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.FORCED).withContingency("CO_00001").add()
                 .add();
