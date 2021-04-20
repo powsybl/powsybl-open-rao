@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -52,12 +52,20 @@ public class LoopFlowViolationCostEvaluatorTest {
     @Test
     public void testLoopFlowViolationCostEvaluator1() {
         // no loop-flow violation for both cnecs
-        crac.getBranchCnec("cnec1basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(10.);
-        crac.getBranchCnec("cnec2basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(100.);
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(10.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(100.);
 
         RaoData raoData = createRaoDataOnPreventiveStateBasedOnExistingVariant("current");
 
@@ -70,12 +78,21 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator2() {
         // 90 MW loop-flow violation for cnec1
         // no loop-flow violation for cnec2
-        crac.getBranchCnec("cnec1basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(190.);
-        crac.getBranchCnec("cnec2basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(9);
+
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(190.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(9);
 
         RaoData raoData = createRaoDataOnPreventiveStateBasedOnExistingVariant("current");
 
@@ -89,12 +106,20 @@ public class LoopFlowViolationCostEvaluatorTest {
         // no loop-flow violation for cnec1
         // 10 MW of loop-flow violation for cnec2
 
-        crac.getBranchCnec("cnec1basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(99.);
-        crac.getBranchCnec("cnec2basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-110.);
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(99.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-110.);
 
         RaoData raoData = createRaoDataOnPreventiveStateBasedOnExistingVariant("current");
 
@@ -107,12 +132,20 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator4() {
         // 20 MW no loop-flow violation for cnec1, loopflow = initialLoopFlow + acceptableAugmentation (50) + 20
         // 10 MW of loop-flow violation for cnec2, constrained by threshold and not initial loop-flow
-        crac.getBranchCnec("cnec1basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(200.);
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(270.);
-        crac.getBranchCnec("cnec2basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-110.);
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(200.);
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(270.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(0.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-110.);
 
         RaoData raoData = createRaoDataOnPreventiveStateBasedOnExistingVariant("current");
 
@@ -125,12 +158,21 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator5() {
         // 0 MW no loop-flow violation for cnec1, loop flow below initial loopFlow + acceptable augmentation (50)
         // 10 MW of loop-flow violation for cnec2, loopflow = initialLoopFlow + acceptableAugmentation (50) + 10
-        crac.getBranchCnec("cnec1basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(230., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(200.);
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-245.);
-        crac.getBranchCnec("cnec2basecase").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(50., Unit.MEGAWATT));
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(100.);
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-160.);
+
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(200.);
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-245.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(INITIAL).setLoopflowInMW(100.);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(CURRENT).setLoopflowInMW(-160.);
 
         RaoData raoData = createRaoDataOnPreventiveStateBasedOnExistingVariant("current");
 
@@ -148,11 +190,4 @@ public class LoopFlowViolationCostEvaluatorTest {
         assertEquals(0., new LoopFlowViolationCostEvaluator(95., 0.).getCost(raoData), DOUBLE_TOLERANCE);
     }
 
-    private void addLoopFlowExtensions(Crac crac) {
-        LoopFlowThresholdImpl cnecLoopFlowExtension1 = new LoopFlowThresholdImpl(100., Unit.MEGAWATT);
-        LoopFlowThresholdImpl cnecLoopFlowExtension2 = new LoopFlowThresholdImpl(100., Unit.MEGAWATT);
-
-        crac.getBranchCnec("cnec1basecase").addExtension(LoopFlowThresholdImpl.class, cnecLoopFlowExtension1);
-        crac.getBranchCnec("cnec2basecase").addExtension(LoopFlowThresholdImpl.class, cnecLoopFlowExtension2);
-    }
 }

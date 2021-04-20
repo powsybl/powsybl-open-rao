@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -52,7 +53,7 @@ public class LinearOptimizerTest {
     private LinearOptimizer linearOptimizer;
     private LinearProblem linearProblemMock;
     private Network network;
-    private CracImpl crac;
+    private Crac crac;
     private RaoData raoData;
     private CracResultManager cracResultManager;
     private MPVariable rangeActionSetPoint;
@@ -147,14 +148,27 @@ public class LinearOptimizerTest {
     private void setUpForFillCracResults(boolean curativePst) {
         PstRangeAction rangeAction;
         if (curativePst) {
-            rangeAction = new PstRangeActionImpl("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
-            rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3", Instant.CURATIVE)));
+            rangeAction = crac.newPstRangeAction()
+                .withId("idPstRa")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .newOnStateUsageRule()
+                    .withUsageMethod(UsageMethod.AVAILABLE)
+                    .withContingency("Contingency FR1 FR3")
+                    .withInstant(Instant.CURATIVE)
+                    .add()
+                .add();
         } else {
-            rangeAction = new PstRangeActionImpl("idPstRa", new NetworkElement("BBE2AA1  BBE3AA1  1"));
-            rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
+            rangeAction = crac.newPstRangeAction()
+                .withId("idPstRa")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .newFreeToUseUsageRule()
+                    .withUsageMethod(UsageMethod.AVAILABLE)
+                    .withInstant(Instant.PREVENTIVE)
+                    .add()
+                .add();
         }
+
         crac = CommonCracCreation.create();
-        crac.addRangeAction(rangeAction);
         crac.synchronize(network);
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
         cracResultManager = raoData.getCracResultManager();

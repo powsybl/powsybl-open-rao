@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
@@ -38,8 +38,8 @@ public class OperatorsNotToOptimizeFillerTest extends AbstractFillerTest {
     private MaxMinMarginFiller maxMinMarginFiller;
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private OperatorsNotToOptimizeFiller operatorsNotToOptimizeFiller;
-    BranchCnec cnecNl;
-    BranchCnec cnecFr;
+    private FlowCnec cnecNl;
+    private FlowCnec cnecFr;
 
     @Before
     public void setUp() {
@@ -61,16 +61,22 @@ public class OperatorsNotToOptimizeFillerTest extends AbstractFillerTest {
 
     private void setupOperatorsNotToOptimize() {
         // Add a cnec
-        crac.newFlowCnec().setId("Line NL - N - preventive")
-                .newNetworkElement().setId("NNL1AA1  NNL2AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(800.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
-                .optimized()
-                .setInstant(Instant.PREVENTIVE)
-                .setOperator("NL")
-                .add();
+        cnecNl = crac.newFlowCnec()
+            .withId("Line NL - N - preventive")
+            .withNetworkElement("NNL1AA1  NNL2AA1  1")
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMax(800.0)
+                .withMin(-1000.)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .withOptimized()
+            .withInstant(Instant.PREVENTIVE)
+            .withOperator("NL")
+            .add();
+
         // Set initial margins on both preventive CNECs
-        cnecNl = crac.getBranchCnec("Line NL - N - preventive");
-        cnecFr = crac.getBranchCnec("Tieline BE FR - N - preventive");
+        cnecFr = crac.getFlowCnec("Tieline BE FR - N - preventive");
 
         // Create filler with new operatorsNotToOptimize and fill
         operatorsNotToOptimizeFiller = new OperatorsNotToOptimizeFiller(Collections.singleton("NL"));
@@ -115,19 +121,34 @@ public class OperatorsNotToOptimizeFillerTest extends AbstractFillerTest {
     @Test
     public void testGetLargestCnecThreshold2() {
         setupOperatorsNotToOptimize();
-        crac.newFlowCnec().setId("Pure MNEC")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(3000.0).setMin(-3000.).setUnit(Unit.MEGAWATT).add()
-                .monitored()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
-        crac.newFlowCnec().setId("CNEC MNEC")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(2000.0).setMin(-2500.).setUnit(Unit.MEGAWATT).add()
-                .monitored()
-                .optimized()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
+
+        crac.newFlowCnec()
+            .withId("Pure MNEC")
+            .withNetworkElement("DDE2AA1  NNL3AA1  1")
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMax(3000.0)
+                .withMin(-3000.)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .withMonitored()
+            .withInstant(Instant.PREVENTIVE)
+            .add();
+
+        crac.newFlowCnec()
+            .withId("CNEC MNEC")
+            .withNetworkElement("DDE2AA1  NNL3AA1  1")
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMax(2000.0)
+                .withMin(-2500.)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .withMonitored()
+            .withOptimized()
+            .withInstant(Instant.PREVENTIVE)
+            .add();
+
         initRaoData(crac.getPreventiveState());
         assertEquals(2500, operatorsNotToOptimizeFiller.getLargestCnecThreshold(raoData), DOUBLE_TOLERANCE);
     }

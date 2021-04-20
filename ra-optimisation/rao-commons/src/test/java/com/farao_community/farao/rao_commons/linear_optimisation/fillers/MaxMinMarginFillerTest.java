@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -32,9 +33,6 @@ import static org.junit.Assert.*;
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     private MaxMinMarginFiller maxMinMarginFiller;
-    static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
-    BranchCnec cnecNl;
-    BranchCnec cnecFr;
 
     @Before
     public void setUp() {
@@ -160,14 +158,25 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void skipPureMnecsInMinMarginDef() {
-        crac.newFlowCnec().setId("MNEC - N - preventive")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
-                .newThreshold().setRule(BranchThresholdRule.ON_RIGHT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
-                .monitored()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
-        BranchCnec mnec = crac.getBranchCnec("MNEC - N - preventive");
+        FlowCnec mnec = crac.newFlowCnec()
+            .withId("MNEC - N - preventive")
+            .withNetworkElement("DDE2AA1  NNL3AA1  1")
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMax(1000.0)
+                .withMin(-1000.)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_RIGHT_SIDE)
+                .withMax(1000.0)
+                .withMin(-1000.)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .withMonitored()
+            .withInstant(Instant.PREVENTIVE)
+            .add();
+
         initRaoData(crac.getPreventiveState());
         fillProblemWithCoreFiller();
         maxMinMarginFiller.fill(raoData, linearProblem);
@@ -179,15 +188,26 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test
     public void dontSkipCnecsMnecsInMinMarginDef() {
-        crac.newFlowCnec().setId("MNEC - N - preventive")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
-                .newThreshold().setRule(BranchThresholdRule.ON_RIGHT_SIDE).setMax(1000.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
-                .monitored()
-                .optimized()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
-        BranchCnec mnec = crac.getBranchCnec("MNEC - N - preventive");
+        FlowCnec mnec = crac.newFlowCnec()
+            .withId("MNEC - N - preventive")
+            .withNetworkElement("DDE2AA1  NNL3AA1  1")
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMax(1000.0)
+                .withMin(-1000.)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_RIGHT_SIDE)
+                .withMax(1000.0)
+                .withMin(-1000.)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .withMonitored()
+            .withOptimized()
+            .withInstant(Instant.PREVENTIVE)
+            .add();
+
         initRaoData(crac.getPreventiveState());
         fillProblemWithCoreFiller();
         maxMinMarginFiller.fill(raoData, linearProblem);

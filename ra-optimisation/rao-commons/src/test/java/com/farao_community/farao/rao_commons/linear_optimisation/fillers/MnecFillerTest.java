@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
@@ -32,8 +33,8 @@ import static org.junit.Assert.*;
 public class MnecFillerTest extends AbstractFillerTest {
 
     private MnecFiller mnecFiller;
-    private BranchCnec mnec1;
-    private BranchCnec mnec2;
+    private FlowCnec mnec1;
+    private FlowCnec mnec2;
     private double mnec1MaxFlow = 1000 - 3.5;
     private double mnec1MinFlow = -1000 + 3.5;
     private double mnec2MaxFlow = 100 - 3.5;
@@ -44,21 +45,33 @@ public class MnecFillerTest extends AbstractFillerTest {
         init();
         coreProblemFiller = new CoreProblemFiller();
 
-        crac.newFlowCnec().setId("MNEC1 - N - preventive")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setMin(-1000.).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(1000.0).setUnit(Unit.MEGAWATT).add()
-                .optimized().monitored()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
-        mnec1 = crac.getBranchCnec("MNEC1 - N - preventive");
+        mnec1 = crac.newFlowCnec()
+            .withId("MNEC1 - N - preventive")
+            .withNetworkElement("DDE2AA1  NNL3AA1  1")
+            .newThreshold()
+                .withMin(-1000.)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMax(1000.0)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .withOptimized()
+            .withMonitored()
+            .withInstant(Instant.PREVENTIVE)
+            .add();
 
-        crac.newFlowCnec().setId("MNEC2 - N - preventive")
-                .newNetworkElement().setId("NNL2AA1  BBE3AA1  1").add()
-                .newThreshold().setMin(-100.).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(100.0).setUnit(Unit.MEGAWATT).add()
-                .optimized().monitored()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
-        mnec2 = crac.getBranchCnec("MNEC2 - N - preventive");
+        mnec2 = crac.newFlowCnec()
+            .withId("MNEC2 - N - preventive")
+            .withNetworkElement("NNL2AA1  BBE3AA1  1")
+            .newThreshold()
+                .withMin(-100.)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMax(100.0)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .withOptimized()
+            .withMonitored()
+            .withInstant(Instant.PREVENTIVE)
+            .add();
 
         crac.desynchronize();
         CracCleaner cracCleaner = new CracCleaner();

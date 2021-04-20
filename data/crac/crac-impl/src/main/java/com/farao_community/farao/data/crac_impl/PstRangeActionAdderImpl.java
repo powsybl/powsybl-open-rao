@@ -64,7 +64,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     }
 
     @Override
-    public TapRangeAdder newPstRange() {
+    public TapRangeAdder newTapRange() {
         return new TapRangeAdderImpl(this);
     }
 

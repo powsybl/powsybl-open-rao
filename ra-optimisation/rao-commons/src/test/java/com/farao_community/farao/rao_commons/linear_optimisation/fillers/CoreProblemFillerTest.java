@@ -10,9 +10,12 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.CracImpl;
+import com.farao_community.farao.data.crac_impl.NetworkElementImpl;
 import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -49,8 +52,8 @@ import static org.mockito.Mockito.when;
 @PrepareForTest({RaoUtil.class})
 public class CoreProblemFillerTest extends AbstractFillerTest {
 
-    RangeAction rangeAction1;
-    RangeAction rangeAction2;
+    private RangeAction rangeAction1;
+    private RangeAction rangeAction2;
 
     @Before
     public void setUp() {
@@ -67,8 +70,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
-        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
-        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0);
+        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(0);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(0);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
@@ -133,8 +136,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
-        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
-        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0);
+        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(0);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(0);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
@@ -199,8 +202,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         coreProblemFiller.fill(raoData, linearProblem);
 
         // some additional data
-        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
-        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0);
+        final double minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(0);
+        final double maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(0);
         final double currentAlpha = raoData.getNetwork().getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
         // check range action setpoint variable
@@ -368,23 +371,32 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void testFillerWithRangeActionGroup() {
+
+
+
         crac.newPstRangeAction()
-                .setId("pst1-group1")
-                .setGroupId("group1")
-                .newNetworkElement().setId("BBE2AA1  BBE3AA1  1").add()
-                .setUnit(Unit.TAP)
-                .setMinValue(-2.)
-                .setMaxValue(5.)
-                .setOperator("RTE")
+                .withId("pst1-group1")
+                .withGroupId("group1")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .newTapRange()
+                    .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+                    .withRangeType(RangeType.ABSOLUTE)
+                    .withMinTap(-2)
+                    .withMaxTap(5)
+                    .add()
+                .withOperator("RTE")
                 .add();
         crac.newPstRangeAction()
-                .setId("pst2-group1")
-                .setGroupId("group1")
-                .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
-                .setUnit(Unit.TAP)
-                .setMinValue(-5.)
-                .setMaxValue(10.)
-                .setOperator("RTE")
+                .withId("pst2-group1")
+                .withGroupId("group1")
+                .withNetworkElement("BBE1AA1  BBE3AA1  1")
+                .newTapRange()
+                    .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+                    .withRangeType(RangeType.ABSOLUTE)
+                    .withMinTap(-5)
+                    .withMaxTap(10)
+                    .add()
+                .withOperator("RTE")
                 .add();
 
         network = NetworkImportsUtil.import12NodesWith2PstsNetwork();
@@ -426,18 +438,30 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         crac = CommonCracCreation.create();
 
-        rangeAction1 = new PstRangeActionImpl("PST_FR_1", "PST_FR_1", "FR", new NetworkElement("FFR1AA1  FFR2AA1  2"));
-        rangeAction1.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        ((CracImpl) crac).addRangeAction(rangeAction1);
+        rangeAction1 = crac.newPstRangeAction()
+            .withId("PST_FR_1")
+            .withOperator("FR")
+            .withNetworkElement("FFR1AA1  FFR2AA1  2")
+            .newFreeToUseUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .withInstant(Instant.PREVENTIVE)
+                .add()
+            .add();
 
-        rangeAction2 = new PstRangeActionImpl("PST_FR_2", "PST_FR_2", "FR", new NetworkElement("BBE1AA1  BBE3AA1  2"));
-        rangeAction2.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        ((CracImpl) crac).addRangeAction(rangeAction2);
+        rangeAction1 = crac.newPstRangeAction()
+            .withId("PST_FR_2")
+            .withOperator("FR")
+            .withNetworkElement("BBE1AA1  BBE3AA1  2")
+            .newFreeToUseUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .withInstant(Instant.PREVENTIVE)
+                .add()
+            .add();
 
         crac.synchronize(network);
 
-        cnec1 = crac.getBranchCnec("cnec1basecase");
-        cnec2 = crac.getBranchCnec("cnec2basecase");
+        cnec1 = crac.getFlowCnec("cnec1basecase");
+        cnec2 = crac.getFlowCnec("cnec2basecase");
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction1, cnec1)).thenReturn(-30.0);

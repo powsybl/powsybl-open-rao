@@ -21,7 +21,7 @@ public interface PstRangeActionAdder extends RemedialActionAdder<PstRangeActionA
 
     PstRangeActionAdder withGroupId(String groupId);
 
-    TapRangeAdder newPstRange();
+    TapRangeAdder newTapRange();
 
     PstRangeAction add();
 }

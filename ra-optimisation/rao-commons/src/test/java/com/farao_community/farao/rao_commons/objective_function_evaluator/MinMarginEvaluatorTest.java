@@ -12,6 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -69,22 +70,22 @@ public class MinMarginEvaluatorTest {
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
 
-        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("cnec1basecase")))
+        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getFlowCnec("cnec1basecase")))
                 .thenReturn(100.);
-        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("cnec2basecase")))
+        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getFlowCnec("cnec2basecase")))
                 .thenReturn(200.);
 
         Mockito.when(systematicSensitivityResult.getReferenceIntensity(any())).thenReturn(Double.NaN);
-        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec1basecase")))
+        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getFlowCnec("cnec1basecase")))
                 .thenReturn(30.);
-        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec2basecase")))
+        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getFlowCnec("cnec2basecase")))
                 .thenReturn(60.);
 
         raoData.setSystematicSensitivityResult(systematicSensitivityResult);
     }
 
     private void setPtdfSum(String cnecId, double ptdfSum) {
-        crac.getBranchCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(initialVariant).setAbsolutePtdfSum(ptdfSum);
+        crac.getFlowCnec(cnecId).getExtension(CnecResultExtension.class).getVariant(initialVariant).setAbsolutePtdfSum(ptdfSum);
     }
 
     @Test
@@ -100,8 +101,8 @@ public class MinMarginEvaluatorTest {
     public void getCostInMegawattSkipOperatorsNotToOptimize() {
         // cnec1 has a margin of 1400 MW "after optim"
         // cnec2 has a margin of 787 MW "after optim"
-        BranchCnec cnec1 = raoData.getCrac().getBranchCnec("cnec1basecase");
-        BranchCnec cnec2 = raoData.getCrac().getBranchCnec("cnec2basecase");
+        FlowCnec cnec1 = raoData.getCrac().getFlowCnec("cnec1basecase");
+        FlowCnec cnec2 = raoData.getCrac().getFlowCnec("cnec2basecase");
 
         String mockPrePerimeterVariantId = raoData.getCracVariantManager().cloneWorkingVariant();
         raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(initialVariant, mockPrePerimeterVariantId);
@@ -131,7 +132,7 @@ public class MinMarginEvaluatorTest {
         assertEquals(-787 / 0.4, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         // case 4 : margin on cnec2 is decreased but better than on cnec1 => cost is equal to margin on cnec1
         cnec2.getExtension(CnecResultExtension.class).getVariant(mockPrePerimeterVariantId).setFlowInMW(100.0);
-        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("cnec1basecase"))).thenReturn(1000.);
+        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getFlowCnec("cnec1basecase"))).thenReturn(1000.);
         assertEquals(-500, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
         assertEquals(-500 / 0.5, minRelativeMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
     }
@@ -147,13 +148,13 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void getCostInAmpereWithNoMissingValues() {
-        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec1stateCurativeContingency1")))
+        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency1")))
                 .thenReturn(10.);
-        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec1stateCurativeContingency2")))
+        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2")))
                 .thenReturn(10.);
-        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec2stateCurativeContingency1")))
+        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1")))
                 .thenReturn(10.);
-        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("cnec2stateCurativeContingency2")))
+        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency2")))
                 .thenReturn(10.);
         MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.AMPERE, null, false);
         assertEquals(-1440, minMarginEvaluator.getCost(raoData), DOUBLE_TOLERANCE);
@@ -166,8 +167,8 @@ public class MinMarginEvaluatorTest {
     public void getCostInAmpereSkipOperatorsNotToOptimize() {
         // cnec1 has a margin of 2249 A "after optim"
         // cnec2 has a margin of 1440 A "after optim"
-        BranchCnec cnec1 = raoData.getCrac().getBranchCnec("cnec1basecase");
-        BranchCnec cnec2 = raoData.getCrac().getBranchCnec("cnec2basecase");
+        FlowCnec cnec1 = raoData.getCrac().getFlowCnec("cnec1basecase");
+        FlowCnec cnec2 = raoData.getCrac().getFlowCnec("cnec2basecase");
 
         String mockPrePerimeterVariantId = raoData.getCracVariantManager().cloneWorkingVariant();
         raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(initialVariant, mockPrePerimeterVariantId);
@@ -204,19 +205,26 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void testIgnoreMnecs() {
-        crac.newFlowCnec().setId("mnec1basecase")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(300.).setMin(-300.).setUnit(Unit.MEGAWATT).add()
-                .optimized().monitored()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
+        crac.newFlowCnec()
+            .withId("mnec1basecase")
+            .withNetworkElement("DDE2AA1  NNL3AA1  1")
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMax(300.)
+                .withMin(-300.)
+                .withUnit(Unit.MEGAWATT)
+                .add()
+            .withOptimized()
+            .withMonitored()
+            .withInstant(Instant.PREVENTIVE)
+            .add();
 
         crac.desynchronize();
         RaoInputHelper.synchronize(crac, network);
 
-        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("mnec1basecase")))
+        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getFlowCnec("mnec1basecase")))
                 .thenReturn(200.);
-        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getBranchCnec("mnec1basecase")))
+        Mockito.when(systematicSensitivityResult.getReferenceIntensity(crac.getFlowCnec("mnec1basecase")))
                 .thenReturn(60.);
 
         MinMarginEvaluator minMarginEvaluator = new MinMarginEvaluator(Unit.MEGAWATT, null, false);

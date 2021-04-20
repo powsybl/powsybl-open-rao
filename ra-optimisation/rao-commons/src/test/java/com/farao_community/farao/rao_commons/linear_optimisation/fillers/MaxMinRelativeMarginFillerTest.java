@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -30,9 +29,7 @@ import static org.junit.Assert.assertNotNull;
 public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
-    static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
-    BranchCnec cnecNl;
-    BranchCnec cnecFr;
+    private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
 
     @Before
     public void setUp() {
