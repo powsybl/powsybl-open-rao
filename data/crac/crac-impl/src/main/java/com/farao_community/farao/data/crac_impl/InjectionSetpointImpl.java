@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -18,7 +17,6 @@ import org.apache.commons.lang3.NotImplementedException;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("injection-setpoint")
 public final class InjectionSetpointImpl implements InjectionSetpoint {
 
     private NetworkElement networkElement;

@@ -23,6 +23,8 @@ public class ContingencySerializer extends AbstractJsonSerializer<Contingency> {
 
     @Override
     public void serialize(Contingency value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeStartObject();
+
         gen.writeStringField(ID, value.getId());
 
         if (!Objects.isNull(value.getName()) && !value.getName().equals(value.getId())) {
@@ -34,5 +36,7 @@ public class ContingencySerializer extends AbstractJsonSerializer<Contingency> {
             gen.writeString(networkElement.getId());
         }
         gen.writeEndArray();
+
+        gen.writeEndObject();
     }
 }

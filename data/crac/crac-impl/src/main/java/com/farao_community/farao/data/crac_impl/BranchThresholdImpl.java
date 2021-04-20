@@ -34,7 +34,6 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
      */
     protected final BranchThresholdRule rule;
 
-    @JsonCreator
     public BranchThresholdImpl(Unit unit, Double min, Double max, BranchThresholdRule rule) {
         super(unit, min, max);
         this.rule = rule;

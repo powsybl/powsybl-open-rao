@@ -8,12 +8,17 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
+import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
+import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_io_json.deserializers.CracDeserializer;
-import com.farao_community.farao.data.crac_io_json.deserializers.DeserializedNetworkElement;
-import com.farao_community.farao.data.crac_io_json.deserializers.NetworkElementDeserializer;
 import com.farao_community.farao.data.crac_io_json.serializers.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -26,11 +31,18 @@ public class CracJsonModule extends SimpleModule {
         super();
         this.addSerializer(Crac.class, new CracSerializer());
         this.addSerializer(Contingency.class, new ContingencySerializer());
-        this.addSerializer(NetworkElement.class, new NetworkElementSerializer());
         this.addSerializer(FlowCnec.class, new FlowCnecSerializer<>());
         this.addSerializer(BranchThreshold.class, new BranchThresholdSerializer());
+        this.addSerializer(PstRangeAction.class, new PstRangeActionSerializer());
+        this.addSerializer(FreeToUse.class, new FreeToUseSerializer());
+        this.addSerializer(OnState.class, new OnStateSerializer());
+        this.addSerializer(TapRange.class, new TapRangeSerializer());
+
+        this.addSerializer(NetworkAction.class, new NetworkActionSerializer());
+        this.addSerializer(TopologicalAction.class, new TopologicalActionSerializer());
+        this.addSerializer(PstSetpoint.class, new PstSetpointSerializer());
+        this.addSerializer(InjectionSetpoint.class, new InjectionSetpointSerializer());
 
         this.addDeserializer(Crac.class, new CracDeserializer());
-        this.addDeserializer(DeserializedNetworkElement.class, new NetworkElementDeserializer());
     }
 }
