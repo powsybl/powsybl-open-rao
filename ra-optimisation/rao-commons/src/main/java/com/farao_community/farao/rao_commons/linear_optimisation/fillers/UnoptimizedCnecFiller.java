@@ -10,19 +10,14 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoData;
-import com.farao_community.farao.rao_commons.RaoUtil;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.UnoptimizedCnecParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -34,33 +29,50 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OperatorsNotToOptimizeFiller implements ProblemFiller {
+public class UnoptimizedCnecFiller implements ProblemFiller {
+    private final LinearProblem linearProblem;
+    private final Map<BranchCnec, Double> prePerimeterMarginInMWPerOptimizedCnec;
+    private final Set<String> operatorsNotToOptimize;
+    private final double highestThresholdValue;
 
-    private Set<String> operatorsNotToOptimize;
+    public UnoptimizedCnecFiller(LinearProblem linearProblem,
+                                 Map<BranchCnec, Double> prePerimeterMarginInMWPerOptimizedCnec,
+                                 UnoptimizedCnecParameters unoptimizedCnecParameters) {
+        this.linearProblem = linearProblem;
+        this.prePerimeterMarginInMWPerOptimizedCnec = prePerimeterMarginInMWPerOptimizedCnec;
+        this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
+        this.highestThresholdValue = unoptimizedCnecParameters.getHighestThresholdValue();
+    }
 
-    public OperatorsNotToOptimizeFiller(Set<String> operatorsNotToOptimize) {
-        if (!Objects.isNull(operatorsNotToOptimize)) {
-            this.operatorsNotToOptimize = operatorsNotToOptimize;
-        } else {
-            this.operatorsNotToOptimize = new HashSet<>();
-        }
+    final Map<BranchCnec, Double> getPrePerimeterMarginInMWPerOptimizedCnec() {
+        return prePerimeterMarginInMWPerOptimizedCnec;
+    }
+
+    final double getHighestThresholdValue() {
+        return highestThresholdValue;
+    }
+
+    private Set<BranchCnec> getUnoptimizedCnecs() {
+        return prePerimeterMarginInMWPerOptimizedCnec.keySet().stream()
+                .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public void update(RaoData raoData, LinearProblem linearProblem) {
+    public void update(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         // nothing to do
     }
 
     @Override
-    public void fill(RaoData raoData, LinearProblem linearProblem) {
+    public void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
         // build variables
-        buildMarginDecreaseVariables(raoData, linearProblem);
+        buildMarginDecreaseVariables();
 
         // build constraints
-        buildMarginDecreaseConstraints(raoData, linearProblem);
+        buildMarginDecreaseConstraints();
 
         // update minimum margin objective function constraints
-        updateMinimumMarginConstraints(raoData, linearProblem);
+        updateMinimumMarginConstraints();
     }
 
     /**
@@ -68,14 +80,8 @@ public class OperatorsNotToOptimizeFiller implements ProblemFiller {
      * The binary variable should detect the decrease of the margin on the given CNEC compared to the preperimeter margin
      * The variable should be equal to 1 if there is a decrease
      */
-    private void buildMarginDecreaseVariables(RaoData raoData, LinearProblem linearProblem) {
-        getCnecsForOperatorsNotToOptimize(raoData).forEach(linearProblem::addMarginDecreaseBinaryVariable);
-    }
-
-    Stream<BranchCnec> getCnecsForOperatorsNotToOptimize(RaoData raoData) {
-        return raoData.getCnecs().stream()
-                .filter(BranchCnec::isOptimized)
-                .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()));
+    private void buildMarginDecreaseVariables() {
+        getUnoptimizedCnecs().forEach(linearProblem::addMarginDecreaseBinaryVariable);
     }
 
     /**
@@ -86,19 +92,12 @@ public class OperatorsNotToOptimizeFiller implements ProblemFiller {
      * and (2) flow + margin_decrease * bigM >= margin_preperimeter + minFlow
      * bigM is computed to be equal to the maximum margin decrease possible, which is the amount that decreases the cnec's margin to the initial worst margin
      */
-    private void buildMarginDecreaseConstraints(RaoData raoData, LinearProblem linearProblem) {
-        if (operatorsNotToOptimize.isEmpty()) {
-            return;
-        }
-
-        double finalWorstMargin = getMinPossibleMarginOnPerimeter(raoData);
+    private void buildMarginDecreaseConstraints() {
+        double worstMarginDecrease = 20 * highestThresholdValue;
         // No margin should be smaller than the worst margin computed above, otherwise it means the linear optimizer or the search tree rao is degrading the situation
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
-        RaoParameters.ObjectiveFunction objFunction = raoData.getRaoParameters().getObjectiveFunction();
-        String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
-        getCnecsForOperatorsNotToOptimize(raoData).forEach(cnec -> {
-            double initialMargin = RaoUtil.computeCnecMargin(cnec, prePerimeterVariantId, objFunction.getUnit(), false);
-            double worstMarginDecrease = initialMargin - finalWorstMargin; // cant' be negative !
+        getUnoptimizedCnecs().forEach(cnec -> {
+            double prePerimeterMargin = prePerimeterMarginInMWPerOptimizedCnec.get(cnec);
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
             if (flowVariable == null) {
@@ -115,35 +114,17 @@ public class OperatorsNotToOptimizeFiller implements ProblemFiller {
             maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
 
             if (minFlow.isPresent()) {
-                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(initialMargin + minFlow.get(), linearProblem.infinity(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(prePerimeterMargin + minFlow.get(), linearProblem.infinity(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, 1);
                 decreaseMinmumThresholdMargin.setCoefficient(marginDecreaseBinaryVariable, worstMarginDecrease);
             }
 
             if (maxFlow.isPresent()) {
-                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(initialMargin - maxFlow.get(), linearProblem.infinity(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                MPConstraint decreaseMinmumThresholdMargin = linearProblem.addMarginDecreaseConstraint(prePerimeterMargin - maxFlow.get(), linearProblem.infinity(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 decreaseMinmumThresholdMargin.setCoefficient(flowVariable, -1);
                 decreaseMinmumThresholdMargin.setCoefficient(marginDecreaseBinaryVariable, worstMarginDecrease);
             }
         });
-    }
-
-    /**
-     * Get the minimum possible margin on the current perimeter
-     * It's the minimum between the worst margin in the preperimeter variant, and the one in the current leaf before range actions optimization
-     */
-    double getMinPossibleMarginOnPerimeter(RaoData raoData) {
-        RaoParameters.ObjectiveFunction objFunction = raoData.getRaoParameters().getObjectiveFunction();
-
-        String preOptimVariantId = raoData.getCracVariantManager().getPreOptimVariantId();
-        BranchCnec mostLimitingElement = RaoUtil.getMostLimitingElement(raoData.getCnecs(), preOptimVariantId, objFunction.getUnit(), false);
-        double preOptimVariantWorstMargin = RaoUtil.computeCnecMargin(mostLimitingElement, preOptimVariantId, objFunction.getUnit(), false);
-
-        String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
-        mostLimitingElement = RaoUtil.getMostLimitingElement(raoData.getCnecs(), prePerimeterVariantId, objFunction.getUnit(), false);
-        double prePerimeterVariantWorstMargin = RaoUtil.computeCnecMargin(mostLimitingElement, prePerimeterVariantId, objFunction.getUnit(), false);
-
-        return Math.min(preOptimVariantWorstMargin, prePerimeterVariantWorstMargin);
     }
 
     /**
@@ -154,14 +135,14 @@ public class OperatorsNotToOptimizeFiller implements ProblemFiller {
      * Of course this can be restrictive as CNECs can have hypothetically infinite margins if they are monitored in one direction only
      * But we'll suppose for now that the minimum margin can never be greater than 1 * the largest threshold
      */
-    private void updateMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
+    private void updateMinimumMarginConstraints() {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
 
-        double bigM = 2 * getLargestCnecThreshold(raoData);
-        getCnecsForOperatorsNotToOptimize(raoData).forEach(cnec -> {
+        double bigM = 2 * highestThresholdValue;
+        getUnoptimizedCnecs().forEach(cnec -> {
             MPVariable marginDecreaseBinaryVariable = linearProblem.getMarginDecreaseBinaryVariable(cnec);
             if (marginDecreaseBinaryVariable == null) {
                 throw new FaraoException(String.format("Margin decrease binary variable has not yet been created for Cnec %s", cnec.getId()));
@@ -182,22 +163,5 @@ public class OperatorsNotToOptimizeFiller implements ProblemFiller {
             constraint.setCoefficient(marginDecreaseBinaryVariable, bigM);
             constraint.setUb(constraint.ub() + bigM);
         }
-    }
-
-    double getLargestCnecThreshold(RaoData raoData) {
-        double max = 0;
-        for (BranchCnec cnec : raoData.getCnecs()) {
-            if (cnec.isOptimized()) {
-                Optional<Double> minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
-                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
-                    max = Math.abs(minFlow.get());
-                }
-                Optional<Double> maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
-                    max = Math.abs(maxFlow.get());
-                }
-            }
-        }
-        return max;
     }
 }

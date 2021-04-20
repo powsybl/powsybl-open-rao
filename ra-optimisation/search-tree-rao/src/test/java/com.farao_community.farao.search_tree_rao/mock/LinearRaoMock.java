@@ -36,7 +36,7 @@ public class LinearRaoMock implements RaoProvider {
         resultVariantManager.createVariant("preOptimVariant");
         resultVariantManager.createVariant("postOptimVariant");
 
-        RaoResult raoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult raoResult = new RaoResult(RaoResult.Status.DEFAULT);
         raoResult.setPreOptimVariantId("preOptimVariant");
         raoResult.setPreOptimVariantId("postOptimVariant");
         return raoResult;

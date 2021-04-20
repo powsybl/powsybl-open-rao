@@ -98,11 +98,11 @@ public class SearchTreeRaoProviderTest {
 
     @Test
     public void mergeRaoResults() {
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         preventiveRaoResult.setPreOptimVariantId(initialVariantId);
         preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
 
-        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         curativeRaoResult.setPreOptimVariantId(postOptimPrevVariantId);
         curativeRaoResult.setPostOptimVariantId(postOptimCurVariantId);
 
@@ -112,7 +112,7 @@ public class SearchTreeRaoProviderTest {
         RaoResult mergedRaoResult = new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
                 Map.of(curativeState, curativeRaoResult));
 
-        assertEquals(RaoResult.Status.SUCCESS, mergedRaoResult.getStatus());
+        assertEquals(RaoResult.Status.DEFAULT, mergedRaoResult.getStatus());
         assertEquals(postOptimPrevVariantId, mergedRaoResult.getPostOptimVariantId());
         assertEquals(300, crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class)
                 .getVariant(postOptimPrevVariantId).getFlowInMW(), 0.1);
@@ -130,7 +130,7 @@ public class SearchTreeRaoProviderTest {
     @Test
     public void mergeRaoResultsWithFailure() {
 
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         preventiveRaoResult.setPreOptimVariantId(initialVariantId);
         preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
 
@@ -150,11 +150,11 @@ public class SearchTreeRaoProviderTest {
     @Test
     public void mergeRaoResultsWithNoOptimizationInCurative() {
 
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         preventiveRaoResult.setPreOptimVariantId(initialVariantId);
         preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
 
-        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         curativeRaoResult.setPreOptimVariantId(postOptimPrevVariantId);
         curativeRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
 
@@ -169,15 +169,15 @@ public class SearchTreeRaoProviderTest {
 
     @Test
     public void testMergeObjectiveFunctionCostWorstIsCurative() {
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         preventiveRaoResult.setPreOptimVariantId(initialVariantId);
         preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
 
-        RaoResult curativeRaoResult1 = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult curativeRaoResult1 = new RaoResult(RaoResult.Status.DEFAULT);
         curativeRaoResult1.setPreOptimVariantId(postOptimPrevVariantId);
         curativeRaoResult1.setPostOptimVariantId(postOptimCurVariantId);
 
-        RaoResult curativeRaoResult2 = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult curativeRaoResult2 = new RaoResult(RaoResult.Status.DEFAULT);
         curativeRaoResult2.setPreOptimVariantId(postOptimPrevVariantId);
         String postOptimCur2VariantId = crac.getExtension(ResultVariantManager.class).createNewUniqueVariantId("postOptim-cur-2");
         curativeRaoResult2.setPostOptimVariantId(postOptimCur2VariantId);
@@ -206,15 +206,15 @@ public class SearchTreeRaoProviderTest {
 
     @Test
     public void testMergeObjectiveFunctionCostWorstIsPreventive() {
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         preventiveRaoResult.setPreOptimVariantId(initialVariantId);
         preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
 
-        RaoResult curativeRaoResult1 = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult curativeRaoResult1 = new RaoResult(RaoResult.Status.DEFAULT);
         curativeRaoResult1.setPreOptimVariantId(postOptimPrevVariantId);
         curativeRaoResult1.setPostOptimVariantId(postOptimCurVariantId);
 
-        RaoResult curativeRaoResult2 = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult curativeRaoResult2 = new RaoResult(RaoResult.Status.DEFAULT);
         curativeRaoResult2.setPreOptimVariantId(postOptimPrevVariantId);
         String postOptimCur2VariantId = crac.getExtension(ResultVariantManager.class).createNewUniqueVariantId("postOptim-cur-2");
         curativeRaoResult2.setPostOptimVariantId(postOptimCur2VariantId);
@@ -250,11 +250,11 @@ public class SearchTreeRaoProviderTest {
                 .newThreshold().setMax(1000.).setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
                 .monitored().add();
 
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         preventiveRaoResult.setPreOptimVariantId(initialVariantId);
         preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
 
-        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         curativeRaoResult.setPreOptimVariantId(postOptimPrevVariantId);
         curativeRaoResult.setPostOptimVariantId(postOptimCurVariantId);
 

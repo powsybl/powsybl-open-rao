@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkAction;
@@ -15,17 +16,16 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_result_extensions.CracResult;
+import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -220,5 +220,68 @@ public final class RaoData {
 
     public double getSensitivity(Cnec<?> cnec, RangeAction rangeAction) {
         return getSystematicSensitivityResult().getSensitivityOnFlow(rangeAction, cnec);
+    }
+
+    public Map<RangeAction, Double> getPrePerimeterSetPoints() {
+        Map<RangeAction, Double> prePerimeterSetPoints = new HashMap<>();
+        String prePerimeterId = getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
+        for (RangeAction rangeAction : getAvailableRangeActions()) {
+            prePerimeterSetPoints.put(rangeAction, rangeAction.getExtension(RangeActionResultExtension.class).getVariant(prePerimeterId).getSetPoint(getOptimizedState().getId()));
+        }
+        return prePerimeterSetPoints;
+    }
+
+    public CnecResults getInitialCnecResults() {
+        CnecResults cnecResults = new CnecResults();
+        Map<BranchCnec, Double> flowsInMW = new HashMap<>();
+        Map<BranchCnec, Double> flowsInA = new HashMap<>();
+        Map<BranchCnec, Double> loopflowsInMW = new HashMap<>();
+        Map<BranchCnec, Double> loopflowThresholdInMW = new HashMap<>();
+        Map<BranchCnec, Double> commercialFlowsInMW = new HashMap<>();
+        Map<BranchCnec, Double> absolutePtdfSums = new HashMap<>();
+        for (BranchCnec cnec : getCnecs()) {
+            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(getCrac().getExtension(ResultVariantManager.class).getInitialVariantId());
+            flowsInMW.put(cnec, cnecResult.getFlowInMW());
+            flowsInA.put(cnec, cnecResult.getFlowInA());
+            loopflowsInMW.put(cnec, cnecResult.getLoopflowInMW());
+            loopflowThresholdInMW.put(cnec, cnecResult.getLoopflowThresholdInMW());
+            commercialFlowsInMW.put(cnec, cnecResult.getCommercialFlowInMW());
+            absolutePtdfSums.put(cnec, cnecResult.getAbsolutePtdfSum());
+        }
+        cnecResults.setAbsolutePtdfSums(absolutePtdfSums);
+        cnecResults.setFlowsInMW(flowsInMW);
+        cnecResults.setFlowsInA(flowsInA);
+        cnecResults.setLoopflowsInMW(loopflowsInMW);
+        cnecResults.setLoopflowThresholdInMW(loopflowThresholdInMW);
+        cnecResults.setCommercialFlowsInMW(commercialFlowsInMW);
+        return cnecResults;
+    }
+
+    public Map<BranchCnec, Double> getPrePerimeterMarginsInAbsoluteMW() {
+        Map<BranchCnec, Double> prePerimeterCnecMarginsInAbsoluteMW = new HashMap<>();
+        String prePerimeterId = getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
+        for (BranchCnec cnec : getCnecs()) {
+            prePerimeterCnecMarginsInAbsoluteMW.put(cnec, RaoUtil.computeCnecMargin(cnec, prePerimeterId, Unit.MEGAWATT, false));
+        }
+        return  prePerimeterCnecMarginsInAbsoluteMW;
+    }
+
+    public SensitivityAndLoopflowResults getSensitivityAndLoopflowResults() {
+        Map<BranchCnec, Double> commercialFlows = new HashMap<>();
+        for (BranchCnec cnec : getLoopflowCnecs()) {
+            commercialFlows.put(cnec, cnec.getExtension(CnecResultExtension.class).getVariant(getWorkingVariantId()).getCommercialFlowInMW());
+        }
+        return new SensitivityAndLoopflowResults(getSystematicSensitivityResult(), commercialFlows);
+    }
+
+    public LinearOptimizerInput createObjectiveFunctionInput() {
+        return LinearOptimizerInput.create()
+                .withCnecs(getCnecs())
+                .withInitialCnecResults(getInitialCnecResults())
+                .withLoopflowCnecs(getLoopflowCnecs())
+                .withNetwork(getNetwork())
+                .withPreperimeterSetpoints(getPrePerimeterSetPoints())
+                .withRangeActions(getAvailableRangeActions())
+                .build();
     }
 }

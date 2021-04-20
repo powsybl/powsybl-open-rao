@@ -22,7 +22,7 @@ public class RaoProviderMock implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
-        return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.SUCCESS));
+        return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.DEFAULT));
     }
 
     @Override

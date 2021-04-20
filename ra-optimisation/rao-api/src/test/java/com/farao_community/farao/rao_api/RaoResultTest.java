@@ -20,7 +20,7 @@ public class RaoResultTest {
 
     @Before
     public void setUp() {
-        raoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        raoResult = new RaoResult(RaoResult.Status.DEFAULT);
         raoResult.setPreOptimVariantId("preOptimVariant");
         raoResult.setPostOptimVariantId("postOptimVariant");
     }

@@ -4,54 +4,64 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LoopFlowParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
-import com.powsybl.sensitivity.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Map;
+import java.util.Set;
+
 import static org.junit.Assert.*;
+
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
+
 @RunWith(PowerMockRunner.class)
 public class MaxLoopFlowFillerTest extends AbstractFillerTest {
+    private LoopFlowParameters loopFlowParameters;
 
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller();
+        double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        coreProblemFiller = new CoreProblemFiller(linearProblem, network, Set.of(cnec1), Map.of(rangeAction, initialAlpha), 0);
         CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
         cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
-        initRaoData(crac.getPreventiveState());
     }
 
     @Test
     public void testFill1() {
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
-        cnec1.getExtension(CnecResultExtension.class).getVariant(crac.getExtension(ResultVariantManager.class).getInitialVariantId()).setLoopflowInMW(0.);
+        loopFlowParameters = new LoopFlowParameters(
+                RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
+                13,
+                10,
+                5);
 
-        double loopFlowConstraintAdjustmentCoefficient = 5.;
-        double loopFlowAcceptableAugmentation = 13.;
-        double loopFlowViolationCost = 10.;
+        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(
+                linearProblem,
+                Map.of(cnec1, 0.),
+                loopFlowParameters);
 
-        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(loopFlowConstraintAdjustmentCoefficient, loopFlowViolationCost, RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF, loopFlowAcceptableAugmentation);
+        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 49.));
 
         // build problem
-        coreProblemFiller.fill(raoData, linearProblem);
-        maxLoopFlowFiller.fill(raoData, linearProblem);
+        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+        maxLoopFlowFiller.fill(sensitivityAndLoopflowResults);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, LinearProblem.BoundExtension.UPPER_BOUND);
@@ -70,18 +80,22 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testFill2() {
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
-        cnec1.getExtension(CnecResultExtension.class).getVariant(crac.getExtension(ResultVariantManager.class).getInitialVariantId()).setLoopflowInMW(80.);
+        loopFlowParameters = new LoopFlowParameters(
+                RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
+                30,
+                10,
+                5);
 
-        double loopFlowConstraintAdjustmentCoefficient = 5.;
-        double loopFlowAcceptableAugmentation = 30.;
-        double loopFlowViolationCost = 10.;
+        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(
+                linearProblem,
+                Map.of(cnec1, 80.),
+                loopFlowParameters);
 
-        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(loopFlowConstraintAdjustmentCoefficient, loopFlowViolationCost, RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF, loopFlowAcceptableAugmentation);
+        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 49.));
 
         // build problem
-        coreProblemFiller.fill(raoData, linearProblem);
-        maxLoopFlowFiller.fill(raoData, linearProblem);
+        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+        maxLoopFlowFiller.fill(sensitivityAndLoopflowResults);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, LinearProblem.BoundExtension.UPPER_BOUND);
@@ -100,22 +114,26 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testShouldUpdate() {
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
-        cnec1.getExtension(CnecResultExtension.class).getVariant(crac.getExtension(ResultVariantManager.class).getInitialVariantId()).setLoopflowInMW(0.);
+        loopFlowParameters = new LoopFlowParameters(
+                RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST,
+                0,
+                10,
+                5);
 
-        double loopFlowConstraintAdjustmentCoefficient = 5.;
-        double loopFlowViolationCost = 10.;
-        double loopFlowAcceptableAugmentation = 0.;
+        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(
+                linearProblem,
+                Map.of(cnec1, 0.),
+                loopFlowParameters);
 
-        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(loopFlowConstraintAdjustmentCoefficient, loopFlowViolationCost, RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST, loopFlowAcceptableAugmentation);
+        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 49.));
 
         // build problem
-        coreProblemFiller.fill(raoData, linearProblem);
-        maxLoopFlowFiller.fill(raoData, linearProblem);
+        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+        maxLoopFlowFiller.fill(sensitivityAndLoopflowResults);
 
         // update rao data and filler
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(67.0);
-        maxLoopFlowFiller.update(raoData, linearProblem);
+        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 67.));
+        maxLoopFlowFiller.update(sensitivityAndLoopflowResults);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, LinearProblem.BoundExtension.UPPER_BOUND);
@@ -131,22 +149,26 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
 
     @Test
     public void testShouldNotUpdate() {
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(49.0);
-        cnec1.getExtension(CnecResultExtension.class).getVariant(crac.getExtension(ResultVariantManager.class).getInitialVariantId()).setLoopflowInMW(0.);
+        loopFlowParameters = new LoopFlowParameters(
+                RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO,
+                0,
+                10,
+                5);
 
-        double loopFlowConstraintAdjustmentCoefficient = 5.;
-        double loopFlowViolationCost = 10.;
-        double loopFlowAcceptableAugmentation = 0.;
+        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(
+                linearProblem,
+                Map.of(cnec1, 0.),
+                loopFlowParameters);
 
-        MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(loopFlowConstraintAdjustmentCoefficient, loopFlowViolationCost, RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO, loopFlowAcceptableAugmentation);
+        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 49.));
 
         // build problem
-        coreProblemFiller.fill(raoData, linearProblem);
-        maxLoopFlowFiller.fill(raoData, linearProblem);
+        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+        maxLoopFlowFiller.fill(sensitivityAndLoopflowResults);
 
         // update rao data and filler
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setCommercialFlowInMW(67.0);
-        maxLoopFlowFiller.update(raoData, linearProblem);
+        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Map.of(cnec1, 67.));
+        maxLoopFlowFiller.update(sensitivityAndLoopflowResults);
 
         // check flow constraint for cnec1
         MPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, LinearProblem.BoundExtension.UPPER_BOUND);
