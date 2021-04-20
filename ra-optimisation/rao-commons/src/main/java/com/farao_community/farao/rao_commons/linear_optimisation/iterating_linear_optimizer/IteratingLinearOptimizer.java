@@ -126,11 +126,6 @@ public final class IteratingLinearOptimizer {
         Map<RangeAction, Double> newSetPoints = linearOptimizerOutput.getRangeActionSetpoints();
         Map<RangeAction, Double> bestSetPoints = bestIteratingLinearOptimizerOutput.getRangeActionSetpoints();
 
-        // TODO : verify if this is necessary
-        /* if(!bestSetPoints.keySet().equals(newSetPoints.keySet())) {
-            return true;
-        }*/
-
         for (Map.Entry<RangeAction, Double> newSetPointEntry : newSetPoints.entrySet()) {
             if (Math.abs(newSetPointEntry.getValue() - bestSetPoints.get(newSetPointEntry.getKey())) > Math.max(1e-2 * Math.abs(bestSetPoints.get(newSetPointEntry.getKey())), 1e-3)) {
                 return true;

@@ -106,48 +106,37 @@ public class BestTapFinderTest {
         return sensisResults;
     }
 
+    private void assertTaps(double setPoint, int expectedTap) {
+        Map<PstRangeAction, Integer> bestTaps = BestTapFinder.find(network,
+                List.of(crac.getBranchCnec("cnec1basecase"), crac.getBranchCnec("cnec2basecase")),
+                Map.of(pstRangeAction, setPoint),
+                systematicSensitivityResult);
+        assertEquals(1, bestTaps.size());
+        assertEquals(expectedTap, bestTaps.get(pstRangeAction).intValue());
+    }
+
     @Test
     public void testComputeBestTapsInTheMiddleOfTheRange() {
         setUp();
-        Map<PstRangeAction, Integer> bestTaps = BestTapFinder.find(network,
-                List.of(crac.getBranchCnec("cnec1basecase"), crac.getBranchCnec("cnec2basecase")),
-                Map.of(pstRangeAction, 4.),
-                systematicSensitivityResult);
-        assertEquals(1, bestTaps.size());
-        assertEquals(10, bestTaps.get(pstRangeAction).intValue());
+        assertTaps(4., 10);
     }
 
     @Test
     public void testComputeBestTapsHittingHighRange() {
         setUp();
-        Map<PstRangeAction, Integer> bestTaps = BestTapFinder.find(network,
-                List.of(crac.getBranchCnec("cnec1basecase"), crac.getBranchCnec("cnec2basecase")),
-                Map.of(pstRangeAction, 6.2),
-                systematicSensitivityResult);
-        assertEquals(1, bestTaps.size());
-        assertEquals(16, bestTaps.get(pstRangeAction).intValue());
+        assertTaps(6.2, 16);
     }
 
     @Test
     public void testComputeBestTapsHittingLowRange() {
         setUp();
-        Map<PstRangeAction, Integer> bestTaps = BestTapFinder.find(network,
-                List.of(crac.getBranchCnec("cnec1basecase"), crac.getBranchCnec("cnec2basecase")),
-                Map.of(pstRangeAction, -6.2),
-                systematicSensitivityResult);
-        assertEquals(1, bestTaps.size());
-        assertEquals(-16, bestTaps.get(pstRangeAction).intValue());
+        assertTaps(-6.2, -16);
     }
 
     @Test
     public void testComputeBestTapsWithGroup() {
         setUp();
-        Map<PstRangeAction, Integer> bestTaps = BestTapFinder.find(network,
-                List.of(crac.getBranchCnec("cnec1basecase"), crac.getBranchCnec("cnec2basecase")),
-                Map.of(pstRangeAction, 6.),
-                systematicSensitivityResult);
-        assertEquals(1, bestTaps.size());
-        assertEquals(16, bestTaps.get(pstRangeAction).intValue());
+        assertTaps(6., 16);
     }
 
 }
