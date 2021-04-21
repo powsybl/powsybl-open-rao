@@ -10,17 +10,12 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonTypeName("preventive-state")
-@JsonIdentityInfo(scope = PreventiveState.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class PreventiveState implements State {
 
     @Override

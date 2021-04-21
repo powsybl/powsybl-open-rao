@@ -10,7 +10,11 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.TapConvention;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -28,6 +32,7 @@ public final class JsonSerializationConstants {
     public static final String NETWORK_ELEMENTS = "networkElements";
     public static final String NETWORK_ELEMENTS_IDS = "networkElementsIds";
     public static final String NETWORK_ELEMENT_ID = "networkElementId";
+    public static final String NETWORK_ELEMENTS_NAME_PER_ID = "networkElementsNamePerId";
 
     public static final String GROUP_ID = "groupId";
 
@@ -48,16 +53,23 @@ public final class JsonSerializationConstants {
     public static final String MONITORED = "monitored";
 
     public static final String RANGE_ACTIONS = "rangeActions";
+    public static final String PST_RANGE_ACTIONS = "pstRangeActions";
 
     public static final String NETWORK_ACTIONS = "networkActions";
     public static final String ELEMENTARY_ACTIONS = "elementaryActions";
+    public static final String TOPOLOGICAL_ACTIONS = "topologicalActions";
+    public static final String PST_SETPOINTS = "pstSetpoints";
+    public static final String INJECTION_SETPOINTS = "injectionSetpoints";
 
     public static final String USAGE_METHOD = "usageMethod";
-    public static final String USAGE_RULES = "usageRules";
+    public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules";
+    public static final String ON_STATE_USAGE_RULES = "onStateUsageRules";
 
     public static final String TYPE = "type";
     public static final String ID = "id";
     public static final String NAME = "name";
+    public static final String VERSION = "version";
+    public static final String INFO = "info";
     public static final String EXTENSIONS = "extensions";
     public static final String RANGE_DEFINITION = "rangeDefinition";
 
@@ -65,8 +77,8 @@ public final class JsonSerializationConstants {
     public static final String SETPOINT = "setpoint";
     public static final String OPERATOR = "operator";
     public static final String ACTION_TYPE = "actionType";
-
-    public static final String XNODE_IDS = "xnodeIds";
+    public static final String RANGE_TYPE = "rangeType";
+    public static final String TAP_CONVENTION = "tapConvention";
 
     public static final String UNIT = "unit";
     public static final String RULE = "rule";
@@ -95,24 +107,24 @@ public final class JsonSerializationConstants {
     public static final String ON_LEFT_SIDE_RULE = "onLeftSide";
     public static final String ON_RIGHT_SIDE_RULE = "onRightSide";
 
-    // implementation class types
-    public static final String SIMPLE_STATE_TYPE = "simple-state";
+    // usage methods
+    public static final String UNAVAILABLE_USAGE_METHOD = "unavailable";
+    public static final String FORCED_USAGE_METHOD = "forced";
+    public static final String AVAILABLE_USAGE_METHOD = "available";
+    public static final String UNDEFINED_USAGE_METHOD = "undefined";
 
-    public static final String COMPLEX_CONTINGENCY_TYPE = "complex-contingency";
-    public static final String XNODE_CONTINGENCY_TYPE = "xnode-contingency";
+    // range types
+    public static final String ABSOLUTE_RANGE = "absolute";
+    public static final String RELATIVE_TO_PREVIOUS_INSTANT_RANGE = "relativeToPreviousInstant";
+    public static final String RELATIVE_TO_INITIAL_NETWORK_RANGE = "relativeToInitialNetwork";
 
-    public static final String FLOW_CNEC_TYPE = "flow-cnec";
+    // tap conventions
+    public static final String CENTERED_ON_ZERO_CONVENTION = "centeredOnZero";
+    public static final String STARTS_AT_ONE_CONVENTION = "startsAtOne";
 
-    public static final String PST_RANGE_ACTION_IMPL_TYPE = "pst-range-action-impl";
-
-    public static final String NETWORK_ACTION_IMPL_TYPE = "network-action-impl";
-    public static final String TOPOLOGY_TYPE = "topological-action";
-    public static final String PST_SETPOINT_TYPE = "pst-setpoint";
-    public static final String INJECTION_SETPOINT_TYPE = "injection-setpoint";
-    public static final String COMPLEX_NETWORK_ACTION_TYPE = "complex-network-action";
-
-    public static final String FREE_TO_USE_TYPE = "free-to-use";
-    public static final String ON_STATE_TYPE = "on-state";
+    // action types
+    public static final String OPEN_ACTION = "open";
+    public static final String CLOSE_ACTION = "close";
 
     public static String serializeInstant(Instant instant) {
         switch (instant) {
@@ -121,11 +133,26 @@ public final class JsonSerializationConstants {
             case OUTAGE:
                 return OUTAGE_INSTANT;
             case AUTO:
-                return  AUTO_INSTANT;
+                return AUTO_INSTANT;
             case CURATIVE:
                 return CURATIVE_INSTANT;
             default:
                 throw new FaraoException(String.format("Unsupported instant %s", instant));
+        }
+    }
+
+    public static Instant deserializeInstant(String stringValue) {
+        switch (stringValue) {
+            case PREVENTIVE_INSTANT:
+                return Instant.PREVENTIVE;
+            case OUTAGE_INSTANT:
+                return Instant.OUTAGE;
+            case AUTO_INSTANT:
+                return Instant.AUTO;
+            case CURATIVE_INSTANT:
+                return Instant.CURATIVE;
+            default:
+                throw new FaraoException(String.format("Unrecognized instant %s", stringValue));
         }
     }
 
@@ -148,6 +175,25 @@ public final class JsonSerializationConstants {
         }
     }
 
+    public static Unit deserializeUnit(String stringValue) {
+        switch (stringValue) {
+            case AMPERE_UNIT:
+                return Unit.AMPERE;
+            case DEGREE_UNIT:
+                return Unit.DEGREE;
+            case MEGAWATT_UNIT:
+                return Unit.MEGAWATT;
+            case KILOVOLT_UNIT:
+                return Unit.KILOVOLT;
+            case PERCENT_IMAX_UNIT:
+                return Unit.PERCENT_IMAX;
+            case TAP_UNIT:
+                return Unit.TAP;
+            default:
+                throw new FaraoException(String.format("Unrecognized unit %s", stringValue));
+        }
+    }
+
     public static String serializeBranchThresholdRule(BranchThresholdRule rule) {
         switch (rule) {
             case ON_LOW_VOLTAGE_LEVEL:
@@ -164,6 +210,125 @@ public final class JsonSerializationConstants {
                 return ON_RIGHT_SIDE_RULE;
             default:
                 throw new FaraoException(String.format("Unsupported branch threshold rule %s", rule));
+        }
+    }
+
+    public static BranchThresholdRule deserializeBranchThresholdRule(String stringValue) {
+        switch (stringValue) {
+            case ON_LOW_VOLTAGE_LEVEL_RULE:
+                return BranchThresholdRule.ON_LOW_VOLTAGE_LEVEL;
+            case ON_HIGH_VOLTAGE_LEVEL_RULE:
+                return BranchThresholdRule.ON_HIGH_VOLTAGE_LEVEL;
+            case ON_NON_REGULATED_SIDE_RULE:
+                return BranchThresholdRule.ON_NON_REGULATED_SIDE;
+            case ON_REGULATED_SIDE_RULE:
+                return BranchThresholdRule.ON_REGULATED_SIDE;
+            case ON_LEFT_SIDE_RULE:
+                return BranchThresholdRule.ON_LEFT_SIDE;
+            case ON_RIGHT_SIDE_RULE:
+                return BranchThresholdRule.ON_RIGHT_SIDE;
+            default:
+                throw new FaraoException(String.format("Unrecognized branch threshold rule %s", stringValue));
+        }
+    }
+
+    public static String serializeUsageMethod(UsageMethod usageMethod) {
+        switch (usageMethod) {
+            case UNAVAILABLE:
+                return UNAVAILABLE_USAGE_METHOD;
+            case FORCED:
+                return FORCED_USAGE_METHOD;
+            case AVAILABLE:
+                return AVAILABLE_USAGE_METHOD;
+            case UNDEFINED:
+                return UNDEFINED_USAGE_METHOD;
+            default:
+                throw new FaraoException(String.format("Unsupported usage method %s", usageMethod));
+        }
+    }
+
+    public static UsageMethod deserializeUsageMethod(String stringValue) {
+        switch (stringValue) {
+            case UNAVAILABLE_USAGE_METHOD:
+                return UsageMethod.UNAVAILABLE;
+            case FORCED_USAGE_METHOD:
+                return UsageMethod.FORCED;
+            case AVAILABLE_USAGE_METHOD:
+                return UsageMethod.AVAILABLE;
+            case UNDEFINED_USAGE_METHOD:
+                return UsageMethod.UNDEFINED;
+            default:
+                throw new FaraoException(String.format("Unrecognized usage method %s", stringValue));
+        }
+    }
+
+    public static String serializeRangeType(RangeType rangeType) {
+        switch (rangeType) {
+            case ABSOLUTE:
+                return ABSOLUTE_RANGE;
+            case RELATIVE_TO_PREVIOUS_INSTANT:
+                return RELATIVE_TO_PREVIOUS_INSTANT_RANGE;
+            case RELATIVE_TO_INITIAL_NETWORK:
+                return RELATIVE_TO_INITIAL_NETWORK_RANGE;
+            default:
+                throw new FaraoException(String.format("Unsupported range type %s", rangeType));
+        }
+    }
+
+    public static RangeType deserializeRangeType(String stringValue) {
+        switch (stringValue) {
+            case ABSOLUTE_RANGE:
+                return RangeType.ABSOLUTE;
+            case RELATIVE_TO_PREVIOUS_INSTANT_RANGE:
+                return RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
+            case RELATIVE_TO_INITIAL_NETWORK_RANGE:
+                return RangeType.RELATIVE_TO_INITIAL_NETWORK;
+            default:
+                throw new FaraoException(String.format("Unrecognized range type %s", stringValue));
+        }
+    }
+
+    public static String serializeTapConvention(TapConvention tapConvention) {
+        switch (tapConvention) {
+            case CENTERED_ON_ZERO:
+                return CENTERED_ON_ZERO_CONVENTION;
+            case STARTS_AT_ONE:
+                return STARTS_AT_ONE_CONVENTION;
+            default:
+                throw new FaraoException(String.format("Unsupported tap convention %s", tapConvention));
+        }
+    }
+
+    public static TapConvention deserializeTapConvention(String stringValue) {
+        switch (stringValue) {
+            case CENTERED_ON_ZERO_CONVENTION:
+                return TapConvention.CENTERED_ON_ZERO;
+            case STARTS_AT_ONE_CONVENTION:
+                return TapConvention.STARTS_AT_ONE;
+            default:
+                throw new FaraoException(String.format("Unrecognized tap convention %s", stringValue));
+        }
+    }
+
+    public static String serializeActionType(ActionType actionType) {
+        switch (actionType) {
+            case OPEN:
+                return OPEN_ACTION;
+            case CLOSE:
+                return CLOSE_ACTION;
+            default:
+                throw new FaraoException(String.format("Unsupported action type %s", actionType));
+        }
+    }
+
+    public static ActionType deserializeActionType(String stringValue) {
+        switch (stringValue) {
+            case OPEN_ACTION:
+                return ActionType.OPEN;
+            case CLOSE_ACTION:
+                return ActionType.CLOSE;
+            default:
+                throw new FaraoException(String.format("Unrecognized action type %s", stringValue));
         }
     }
 }

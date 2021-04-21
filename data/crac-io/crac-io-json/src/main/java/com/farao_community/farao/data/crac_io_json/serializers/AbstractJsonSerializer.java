@@ -27,8 +27,6 @@ public abstract class AbstractJsonSerializer<T> extends JsonSerializer<T> {
         A more compact format can therefore be provided than if the type were written.
          */
 
-        jsonGenerator.writeStartObject();
         serialize(value, jsonGenerator, serializerProvider);
-        jsonGenerator.writeEndObject();
     }
 }

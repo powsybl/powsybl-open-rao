@@ -363,6 +363,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     private void mergeObjectiveFunctionValues(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
+        // TODO : do the same for initial variant
         // Save the objective function value of the "worst" perimeter (maximum obj function value)
         // Skip perimeters with pure MNECs as their functional cost can be 0 (artificial)
         CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);

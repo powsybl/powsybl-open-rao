@@ -87,6 +87,8 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
                     validRanges.add(range);
                 }
             });
+        } else {
+            validRanges.addAll(ranges);
         }
 
         if (validRanges.isEmpty()) {

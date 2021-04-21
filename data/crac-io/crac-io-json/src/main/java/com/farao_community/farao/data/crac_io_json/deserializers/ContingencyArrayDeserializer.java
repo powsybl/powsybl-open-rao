@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.ContingencyAdder;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.fasterxml.jackson.core.JsonParser;
@@ -30,6 +29,9 @@ final class ContingencyArrayDeserializer {
     private ContingencyArrayDeserializer() { }
 
     static void deserialize(JsonParser jsonParser, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+        if (networkElementsNamesPerId == null) {
+            throw new FaraoException(String.format("Cannot deserialize %s before %s", CONTINGENCIES, NETWORK_ELEMENTS_NAME_PER_ID));
+        }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             ContingencyAdder adder = crac.newContingency();
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -44,8 +46,13 @@ final class ContingencyArrayDeserializer {
                         jsonParser.nextToken();
                         Set<String> networkElementIds = jsonParser.readValueAs(new TypeReference<HashSet<String>>() {
                         });
-                        networkElementIds.forEach(neId ->
-                                adder.withNetworkElement(neId, networkElementsNamesPerId.get(neId))
+                        networkElementIds.forEach(neId -> {
+                                if (networkElementsNamesPerId.containsKey(neId)) {
+                                    adder.withNetworkElement(neId, networkElementsNamesPerId.get(neId));
+                                } else {
+                                    adder.withNetworkElement(neId);
+                                }
+                            }
                         );
                         break;
                     default:

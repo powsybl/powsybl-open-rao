@@ -16,7 +16,10 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
@@ -27,6 +30,7 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
 
     @Override
     public void serialize(I flowCnec, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
+        gen.writeStartObject();
         gen.writeStringField(ID, flowCnec.getId());
         gen.writeStringField(NAME, flowCnec.getName());
         gen.writeStringField(NETWORK_ELEMENT_ID, flowCnec.getNetworkElement().getId());
@@ -34,17 +38,39 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         gen.writeStringField(INSTANT, serializeInstant(flowCnec.getState().getInstant()));
         Optional<Contingency> optContingency = flowCnec.getState().getContingency();
         if (optContingency.isPresent()) {
-            gen.writeStringField(CONTINGENCY, optContingency.get().getId());
+            gen.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
         }
         gen.writeObjectField(OPTIMIZED, flowCnec.isOptimized());
         gen.writeObjectField(MONITORED, flowCnec.isMonitored());
 
-        gen.writeFieldName(THRESHOLDS);
-        gen.writeStartArray();
-        for (BranchThreshold threshold: flowCnec.getThresholds()) {
+        gen.writeArrayFieldStart(THRESHOLDS);
+        List<BranchThreshold> sortedListOfThresholds = flowCnec.getThresholds().stream()
+                .sorted(new ThresholdComparator())
+                .collect(Collectors.toList());
+        for (BranchThreshold threshold: sortedListOfThresholds) {
             gen.writeObject(threshold);
         }
         gen.writeEndArray();
+
+        // todo : serialize LF extension
+        gen.writeEndObject();
+    }
+
+    private static class ThresholdComparator implements Comparator<BranchThreshold> {
+        @Override
+        public int compare(BranchThreshold o1, BranchThreshold o2) {
+            // TODO : once all export is done, check on CORE case that the export is deterministic
+            String unit1 = serializeUnit(o1.getUnit());
+            String unit2 = serializeUnit(o2.getUnit());
+            if (unit1.equals(unit2)) {
+                if (o1.min().isPresent()) {
+                    return -1;
+                }
+                return 1;
+            } else {
+                return unit1.compareTo(unit2);
+            }
+        }
     }
 
     public void addExtensions(I branchCnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {

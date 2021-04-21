@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -27,10 +29,12 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
  */
 public class JsonImport implements CracImporter {
     private static final String JSON_EXTENSION = "json";
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonImport.class);
+
     @Override
     public Crac importCrac(InputStream inputStream, @Nullable OffsetDateTime timeStampFilter) {
         if (timeStampFilter != null) {
-            //LOGGER.warn("Timestamp filtering is not implemented for json importer. The timestamp will be ignored.");
+            LOGGER.warn("Timestamp filtering is not implemented for json importer. The timestamp will be ignored.");
         }
         try {
             ObjectMapper objectMapper = createObjectMapper();
