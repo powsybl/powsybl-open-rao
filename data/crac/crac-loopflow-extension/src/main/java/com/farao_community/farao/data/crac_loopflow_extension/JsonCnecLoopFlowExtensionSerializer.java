@@ -6,18 +6,35 @@
  */
 package com.farao_community.farao.data.crac_loopflow_extension;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.auto.service.AutoService;
+
+import java.io.IOException;
+
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.deserializeUnit;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.serializeUnit;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-/*
+
 @AutoService(ExtensionsHandler.ExtensionSerializer.class)
-public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.ExtensionSerializer<BranchCnec, LoopFlowThresholdImpl> {
+public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.ExtensionSerializer<FlowCnec, LoopFlowThresholdImpl> {
+    private final String THRESHOLD = "inputThreshold";
+    private final String UNIT = "inputThresholdUnit";
 
     @Override
     public void serialize(LoopFlowThresholdImpl cnecLoopFlowExtension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("inputThreshold", cnecLoopFlowExtension.getInputThreshold());
-        jsonGenerator.writeObjectField("inputThresholdUnit", cnecLoopFlowExtension.getInputThresholdUnit().name());
+        jsonGenerator.writeNumberField(THRESHOLD, cnecLoopFlowExtension.getValue());
+        jsonGenerator.writeStringField(UNIT, serializeUnit(cnecLoopFlowExtension.getUnit()));
         jsonGenerator.writeEndObject();
     }
 
@@ -28,11 +45,11 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case "inputThreshold":
+                case THRESHOLD:
                     inputThreshold = jsonParser.getValueAsDouble();
                     break;
-                case "inputThresholdUnit":
-                    unit = Unit.valueOf(jsonParser.nextTextValue());
+                case UNIT:
+                    unit = deserializeUnit(jsonParser.nextTextValue());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -60,5 +77,3 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
         return LoopFlowThresholdImpl.class;
     }
 }
-
- */

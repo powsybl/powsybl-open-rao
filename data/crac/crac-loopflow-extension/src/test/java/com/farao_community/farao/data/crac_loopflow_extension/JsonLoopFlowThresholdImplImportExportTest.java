@@ -7,7 +7,23 @@
 
 package com.farao_community.farao.data.crac_loopflow_extension;
 
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_impl.CracImpl;
+import com.farao_community.farao.data.crac_io_api.CracExporters;
+import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNull;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -16,55 +32,52 @@ public class JsonLoopFlowThresholdImplImportExportTest {
 
     @Test
     public void roundTripTest() {
-        /*
-        // Crac
-        Crac simpleCrac = new CracImpl("cracId");
+        Crac crac = new CracImpl("cracId");
 
-        simpleCrac.newFlowCnec()
-            .setId("cnec1")
-            .newNetworkElement().setId("ne1").add()
-            .setInstant(Instant.PREVENTIVE)
-            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.AMPERE).setMin(-500.).add()
+        crac.newFlowCnec()
+            .withId("cnec1")
+            .withNetworkElement("ne1")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
             .add();
-        simpleCrac.getBranchCnec("cnec1").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100, Unit.AMPERE));
+        crac.getBranchCnec("cnec1").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(100, Unit.AMPERE));
 
-        simpleCrac.newFlowCnec()
-            .setId("cnec2")
-            .newNetworkElement().setId("ne2").add()
-            .setInstant(Instant.PREVENTIVE)
-            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.PERCENT_IMAX).setMin(-0.3).add()
+        crac.newFlowCnec()
+            .withId("cnec2")
+            .withNetworkElement("ne2")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
             .add();
-        simpleCrac.getBranchCnec("cnec2").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(30, Unit.PERCENT_IMAX));
+        crac.getBranchCnec("cnec2").addExtension(LoopFlowThresholdImpl.class, new LoopFlowThresholdImpl(30, Unit.PERCENT_IMAX));
 
-        simpleCrac.newFlowCnec()
-            .setId("cnec3")
-            .newNetworkElement().setId("ne3").add()
-            .setInstant(Instant.PREVENTIVE)
-            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setUnit(Unit.MEGAWATT).setMin(-700.).setMax(700.).add()
+        crac.newFlowCnec()
+            .withId("cnec3")
+            .withNetworkElement("ne3")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
             .add();
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        CracExporters.exportCrac(simpleCrac, "Json", outputStream);
+        CracExporters.exportCrac(crac, "Json", outputStream);
 
         // import Crac
         Crac importedCrac;
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            importedCrac = CracImporters.importCrac("unknown.json", inputStream);
+            importedCrac = CracImporters.importCrac("whatever.json", inputStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
         // test
-        assertNotNull(simpleCrac.getBranchCnec("cnec1").getExtension(LoopFlowThresholdImpl.class));
-        assertEquals(100, simpleCrac.getBranchCnec("cnec1").getExtension(LoopFlowThresholdImpl.class).getInputThreshold(), 0.1);
-        assertEquals(Unit.AMPERE, simpleCrac.getBranchCnec("cnec1").getExtension(LoopFlowThresholdImpl.class).getInputThresholdUnit());
+        assertNotNull(importedCrac.getFlowCnec("cnec1").getExtension(LoopFlowThresholdImpl.class));
+        assertEquals(100, importedCrac.getFlowCnec("cnec1").getExtension(LoopFlowThresholdImpl.class).getValue(), 0.1);
+        assertEquals(Unit.AMPERE, importedCrac.getFlowCnec("cnec1").getExtension(LoopFlowThresholdImpl.class).getUnit());
 
-        assertNotNull(simpleCrac.getBranchCnec("cnec2").getExtension(LoopFlowThresholdImpl.class));
-        assertEquals(30, simpleCrac.getBranchCnec("cnec2").getExtension(LoopFlowThresholdImpl.class).getInputThreshold(), 0.1);
-        assertEquals(Unit.PERCENT_IMAX, simpleCrac.getBranchCnec("cnec2").getExtension(LoopFlowThresholdImpl.class).getInputThresholdUnit());
+        assertNotNull(importedCrac.getFlowCnec("cnec2").getExtension(LoopFlowThresholdImpl.class));
+        assertEquals(30, importedCrac.getFlowCnec("cnec2").getExtension(LoopFlowThresholdImpl.class).getValue(), 0.1);
+        assertEquals(Unit.PERCENT_IMAX, importedCrac.getFlowCnec("cnec2").getExtension(LoopFlowThresholdImpl.class).getUnit());
 
-        assertNull(simpleCrac.getBranchCnec("cnec3").getExtension(LoopFlowThresholdImpl.class));
-         */
+        assertNull(importedCrac.getFlowCnec("cnec3").getExtension(LoopFlowThresholdImpl.class));
     }
 }
