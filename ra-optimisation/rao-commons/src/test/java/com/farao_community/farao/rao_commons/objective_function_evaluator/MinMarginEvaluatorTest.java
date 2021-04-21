@@ -305,12 +305,14 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void testIgnoreMnecs() {
-        crac.newBranchCnec().setId("mnec1basecase")
-                .newNetworkElement().setId("DDE2AA1  NNL3AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(300.).setMin(-300.).setUnit(Unit.MEGAWATT).add()
-                .optimized().monitored()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
+
+        crac.newFlowCnec()
+            .withId("mnec1basecase")
+            .withNetworkElement("DDE2AA1  NNL3AA1  1")
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(300.).withMin(-300.).withUnit(Unit.MEGAWATT).add()
+            .withOptimized().withMonitored()
+            .withInstant(Instant.PREVENTIVE)
+            .add();
 
         crac.desynchronize();
         RaoInputHelper.synchronize(crac, network);

@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -23,7 +22,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

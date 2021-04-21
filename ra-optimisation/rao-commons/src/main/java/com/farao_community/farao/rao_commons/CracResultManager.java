@@ -9,7 +9,9 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
@@ -44,7 +46,7 @@ public class CracResultManager {
             statesAfterOptimizedState.forEach(state -> rangeActionResult.setSetPoint(state.getId(), setPointValueInNetwork));
             if (rangeAction instanceof PstRangeAction) {
                 PstRangeResult pstRangeResult = (PstRangeResult) rangeActionResult;
-                int tapValueInNetwork = ((PstRangeAction) rangeAction).computeTapPosition(setPointValueInNetwork);
+                int tapValueInNetwork = ((PstRangeAction) rangeAction).convertAngleToTap(setPointValueInNetwork);
                 statesAfterOptimizedState.forEach(state -> pstRangeResult.setTap(state.getId(), tapValueInNetwork));
             }
         }
@@ -104,9 +106,9 @@ public class CracResultManager {
     public void fillCnecResultsWithLoopFlows(LoopFlowResult loopFlowResult) {
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+            if (!Objects.isNull(cnec.getExtension(LoopFlowThreshold.class))) {
                 cnecResult.setLoopflowInMW(loopFlowResult.getLoopFlow(cnec));
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
                 cnecResult.setCommercialFlowInMW(loopFlowResult.getCommercialFlow(cnec));
             }
         });
@@ -115,10 +117,10 @@ public class CracResultManager {
     public void fillCnecResultsWithApproximatedLoopFlows() {
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+            if (!Objects.isNull(cnec.getExtension(LoopFlowThreshold.class))) {
                 double loopFLow = raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) - cnecResult.getCommercialFlowInMW();
                 cnecResult.setLoopflowInMW(loopFLow);
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
             }
         });
     }
@@ -154,9 +156,9 @@ public class CracResultManager {
         });
         raoData.getLoopflowCnecs().forEach(cnec -> {
             CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
-            if (!Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class))) {
+            if (!Objects.isNull(cnec.getExtension(LoopFlowThreshold.class))) {
                 cnecResult.setLoopflowInMW(sensitivityAndLoopflowResults.getLoopflow(cnec));
-                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
+                cnecResult.setLoopflowThresholdInMW(cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT));
                 cnecResult.setCommercialFlowInMW(sensitivityAndLoopflowResults.getCommercialFlow(cnec));
             }
         });

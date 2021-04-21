@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
@@ -149,12 +150,12 @@ public final class RaoUtil {
     }
 
     public static double computeCnecMargin(BranchCnec cnec, String variantId, Unit unit, boolean relativePositiveMargins) {
-        CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(variantId);
+        CnecResult cnecResult = ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(variantId);
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);
         double actualValue = unit.equals(Unit.MEGAWATT) ? cnecResult.getFlowInMW() : cnecResult.getFlowInA();
         double absoluteMargin = cnec.computeMargin(actualValue, Side.LEFT, unit);
         if (relativePositiveMargins && (absoluteMargin > 0)) {
-            return absoluteMargin / cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum();
+            return absoluteMargin / ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum();
         } else {
             return absoluteMargin;
         }

@@ -8,9 +8,10 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -107,8 +108,8 @@ public class CoreProblemFiller implements ProblemFiller {
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
     private void buildRangeActionSetPointVariables(Network network, RangeAction rangeAction, double prePerimeterValue) {
-        double minSetPoint = rangeAction.getMinValue(network, prePerimeterValue);
-        double maxSetPoint = rangeAction.getMaxValue(network, prePerimeterValue);
+        double minSetPoint = rangeAction.getMinValue(prePerimeterValue);
+        double maxSetPoint = rangeAction.getMaxValue(prePerimeterValue);
         linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
     }
 

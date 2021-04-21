@@ -99,7 +99,7 @@ public class AbsolutePtdfSumsComputationTest {
 
     @Test
     public void testComputation() {
-        Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), glskProvider, boundaries, systematicSensitivityResult);
+        Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getBranchCnecs(), glskProvider, boundaries, systematicSensitivityResult);
         assertEquals(0.6, ptdfSums.get(crac.getBranchCnec("cnec1basecase")), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.1 - 0.3 + 0.4) = 0.1 + 0.2 + 0.1 + 0.2
         assertEquals(0.9, ptdfSums.get(crac.getBranchCnec("cnec2basecase")), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.9 - 0.2 + 0.1) = 0 + 0.1 + 0.1 + 0.7
         assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec1stateCurativeContingency1")), DOUBLE_TOLERANCE);
@@ -118,7 +118,7 @@ public class AbsolutePtdfSumsComputationTest {
                 new ZoneToZonePtdfDefinition("{FR}-{ES}"), // ES doesn't exist in GLSK map
                 new ZoneToZonePtdfDefinition("{ES}-{DE}"), // ES doesn't exist in GLSK map
                 new ZoneToZonePtdfDefinition("{22Y201903144---0}-{22Y201903144---1}")); // EICodes that don't exist in GLSK map
-        Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), glskProvider, boundaries, systematicSensitivityResult);
+        Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getBranchCnecs(), glskProvider, boundaries, systematicSensitivityResult);
         // Test that these 3 new boundaries are ignored (results should be the same as previous test)
         assertEquals(0.6, ptdfSums.get(crac.getBranchCnec("cnec1basecase")), DOUBLE_TOLERANCE);
         assertEquals(0.9, ptdfSums.get(crac.getBranchCnec("cnec2basecase")), DOUBLE_TOLERANCE);

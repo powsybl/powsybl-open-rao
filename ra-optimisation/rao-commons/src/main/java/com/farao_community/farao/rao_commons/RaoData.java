@@ -9,13 +9,14 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -148,11 +149,11 @@ public final class RaoData {
     private void computeLoopflowCnecs() {
         if (!raoParameters.getLoopflowCountries().isEmpty()) {
             loopflowCnecs = perimeterCnecs.stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
+                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
                 .collect(Collectors.toSet());
         } else {
             loopflowCnecs = perimeterCnecs.stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)))
+                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)))
                 .collect(Collectors.toSet());
         }
     }
@@ -162,11 +163,11 @@ public final class RaoData {
     }
 
     public Set<RangeAction> getAvailableRangeActions() {
-        return crac.getRangeActions(network, optimizedState, UsageMethod.AVAILABLE);
+        return crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE);
     }
 
     public Set<NetworkAction> getAvailableNetworkActions() {
-        return crac.getNetworkActions(network, optimizedState, UsageMethod.AVAILABLE);
+        return crac.getNetworkActions(optimizedState, UsageMethod.AVAILABLE);
     }
 
     public State getOptimizedState() {
@@ -240,7 +241,7 @@ public final class RaoData {
         Map<BranchCnec, Double> commercialFlowsInMW = new HashMap<>();
         Map<BranchCnec, Double> absolutePtdfSums = new HashMap<>();
         for (BranchCnec cnec : getCnecs()) {
-            CnecResult cnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(getCrac().getExtension(ResultVariantManager.class).getInitialVariantId());
+            CnecResult cnecResult = ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(getCrac().getExtension(ResultVariantManager.class).getInitialVariantId());
             flowsInMW.put(cnec, cnecResult.getFlowInMW());
             flowsInA.put(cnec, cnecResult.getFlowInA());
             loopflowsInMW.put(cnec, cnecResult.getLoopflowInMW());
@@ -269,16 +270,16 @@ public final class RaoData {
     public SensitivityAndLoopflowResults getSensitivityAndLoopflowResults() {
         Map<BranchCnec, Double> commercialFlows = new HashMap<>();
         for (BranchCnec cnec : getLoopflowCnecs()) {
-            commercialFlows.put(cnec, cnec.getExtension(CnecResultExtension.class).getVariant(getWorkingVariantId()).getCommercialFlowInMW());
+            commercialFlows.put(cnec, ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(getWorkingVariantId()).getCommercialFlowInMW());
         }
         return new SensitivityAndLoopflowResults(getSystematicSensitivityResult(), commercialFlows);
     }
 
     public LinearOptimizerInput createObjectiveFunctionInput() {
         return LinearOptimizerInput.create()
-                .withCnecs(getCnecs())
+                .withCnecs(getCnecs().stream().map(cnec -> (BranchCnec) cnec).collect(Collectors.toSet()))
                 .withInitialCnecResults(getInitialCnecResults())
-                .withLoopflowCnecs(getLoopflowCnecs())
+                .withLoopflowCnecs(getLoopflowCnecs().stream().map(cnec -> (BranchCnec) cnec).collect(Collectors.toSet()))
                 .withNetwork(getNetwork())
                 .withPreperimeterSetpoints(getPrePerimeterSetPoints())
                 .withRangeActions(getAvailableRangeActions())

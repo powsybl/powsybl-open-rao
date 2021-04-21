@@ -9,10 +9,11 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -319,8 +320,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
             State optimizedState = stateTree.getOptimizedState(cnec.getState());
             if (!optimizedState.equals(crac.getPreventiveState())) {
                 String optimizedVariantId = curativeRaoResults.get(optimizedState).getPostOptimVariantId();
-                CnecResult optimizedCnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(optimizedVariantId);
-                CnecResult targetResult = cnec.getExtension(CnecResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId());
+                CnecResult optimizedCnecResult = ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(optimizedVariantId);
+                CnecResult targetResult = ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId());
                 targetResult.setAbsolutePtdfSum(optimizedCnecResult.getAbsolutePtdfSum());
                 targetResult.setFlowInA(optimizedCnecResult.getFlowInA());
                 targetResult.setFlowInMW(optimizedCnecResult.getFlowInMW());
