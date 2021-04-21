@@ -10,13 +10,17 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
@@ -66,19 +70,19 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case PST_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    PstRangeActionArrayDeserializer.deserialize(jsonParser, crac, deserializedNetworkElementsNamesPerId);
+                    PstRangeActionArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);
                     break;
 
                 case NETWORK_ACTIONS:
                     jsonParser.nextToken();
-                    NetworkActionArrayDeserializer.deserialize(jsonParser, crac, deserializedNetworkElementsNamesPerId);
+                    NetworkActionArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);
                     break;
 
-                /*case EXTENSIONS:
+                case EXTENSIONS:
                     jsonParser.nextToken();
                     List<Extension<Crac>> extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
-                    ExtensionsHandler.getExtensionsSerializers().addExtensions(simpleCrac, extensions);
-                    break;*/
+                    ExtensionsHandler.getExtensionsSerializers().addExtensions(crac, extensions);
+                    break;
 
                 default:
                     throw new FaraoException("Unexpected field in Crac: " + jsonParser.getCurrentName());

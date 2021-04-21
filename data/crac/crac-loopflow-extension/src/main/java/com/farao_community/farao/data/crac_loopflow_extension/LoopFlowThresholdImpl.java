@@ -30,18 +30,9 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
     private double inputThreshold;
     private Unit inputThresholdUnit;
 
-    @Override
-    public String getName() {
-        return "LoopFlowThresholdImpl";
-    }
-
     @Deprecated
     //todo: make private package
     public LoopFlowThresholdImpl(double value, Unit unit) {
-        if (unit.getPhysicalParameter() != PhysicalParameter.FLOW) {
-            throw new FaraoException("Loopflow thresholds can only be defined in AMPERE, MEGAWATT or PERCENT_IMAX");
-        }
-
         this.inputThreshold = value;
         this.inputThresholdUnit = unit;
     }

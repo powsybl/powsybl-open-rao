@@ -39,7 +39,7 @@ public final class FlowCnecArrayDeserializer {
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnecAdder adder = crac.newFlowCnec();
-            List<Extension<FlowCnec>> extensions = new ArrayList<Extension<FlowCnec>>();
+            List<Extension<FlowCnec>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:

@@ -87,7 +87,6 @@ public class JsonResultTest {
                 .add()
             .add();
 
-
         // add a ResultVariantManager to the Crac
         cracIn.addExtension(ResultVariantManager.class, new ResultVariantManager());
 

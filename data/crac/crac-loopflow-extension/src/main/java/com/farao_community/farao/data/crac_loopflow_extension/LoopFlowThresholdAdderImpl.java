@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_loopflow_extension;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
@@ -51,6 +52,9 @@ public class LoopFlowThresholdAdderImpl extends AbstractExtensionAdder<FlowCnec,
         }
         if (thresholdUnit.equals(Unit.PERCENT_IMAX) && (thresholdValue > 1 || thresholdValue < 0)) {
             throw new FaraoException("LoopFlowThresholds in Unit.PERCENT_IMAX must be defined between 0 and 1, where 1 = 100%.");
+        }
+        if (thresholdUnit.getPhysicalParameter() != PhysicalParameter.FLOW) {
+            throw new FaraoException("LoopFlowThresholds can only be defined in AMPERE, MEGAWATT or PERCENT_IMAX");
         }
 
         return new LoopFlowThresholdImpl(thresholdValue, thresholdUnit);

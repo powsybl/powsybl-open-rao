@@ -7,9 +7,11 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.network_action.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -29,6 +31,9 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
         serializeElementaryActions(value, TopologicalAction.class, TOPOLOGICAL_ACTIONS, gen);
         serializeElementaryActions(value, PstSetpoint.class, PST_SETPOINTS, gen);
         serializeElementaryActions(value, InjectionSetpoint.class, INJECTION_SETPOINTS, gen);
+
+        JsonUtil.writeExtensions(value, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
+
         gen.writeEndObject();
     }
 
