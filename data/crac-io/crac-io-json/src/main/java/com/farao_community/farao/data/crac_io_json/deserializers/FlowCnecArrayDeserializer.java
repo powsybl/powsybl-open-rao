@@ -9,11 +9,18 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
@@ -26,12 +33,13 @@ public final class FlowCnecArrayDeserializer {
     private FlowCnecArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new FaraoException(String.format("Cannot deserialize %s before %s", FLOW_CNECS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnecAdder adder = crac.newFlowCnec();
+            List<Extension<FlowCnec>> extensions = new ArrayList<Extension<FlowCnec>>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
@@ -67,13 +75,18 @@ public final class FlowCnecArrayDeserializer {
                         jsonParser.nextToken();
                         BranchThresholdArrayDeserializer.deserialize(jsonParser, adder);
                         break;
+                    case EXTENSIONS:
+                        jsonParser.nextToken();
+                        extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
+                        break;
                     default:
                         throw new FaraoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
                 }
             }
-            adder.add();
+            FlowCnec cnec = adder.add();
+            if (!extensions.isEmpty()) {
+                ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
+            }
         }
-
-        // todo : deserialize LF extension
     }
 }

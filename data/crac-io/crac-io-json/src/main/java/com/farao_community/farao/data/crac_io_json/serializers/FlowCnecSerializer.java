@@ -52,7 +52,8 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         }
         gen.writeEndArray();
 
-        // todo : serialize LF extension
+        JsonUtil.writeExtensions(flowCnec, gen, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
+
         gen.writeEndObject();
     }
 
@@ -71,9 +72,5 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
                 return unit1.compareTo(unit2);
             }
         }
-    }
-
-    public void addExtensions(I branchCnec, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        JsonUtil.writeExtensions(branchCnec, jsonGenerator, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
     }
 }

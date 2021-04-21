@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
+@AutoService(CracImporter.class)
 public class JsonImport implements CracImporter {
     private static final String JSON_EXTENSION = "json";
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonImport.class);

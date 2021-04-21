@@ -47,24 +47,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         serializeFlowCnecs(crac, gen);
         serializePstRangeActions(crac, gen);
         serializeNetworkActions(crac, gen);
-        /*
-        gen.writeArrayFieldStart(CNECS);
-        for (BranchCnec cnec : value.getFlowCnecs()) {
-            gen.writeObject(cnec);
-        }
-        gen.writeEndArray();
-        gen.writeArrayFieldStart(RANGE_ACTIONS);
-        for (RangeAction rangeAction: value.getRangeActions()) {
-            gen.writeObject(rangeAction);
-        }
-        gen.writeEndArray();
-        gen.writeArrayFieldStart(NETWORK_ACTIONS);
-        for (NetworkAction networkAction : value.getNetworkActions()) {
-            gen.writeObject(networkAction);
-        }
-        gen.writeEndArray();
 
-         */
         JsonUtil.writeExtensions(crac, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
 
         gen.writeEndObject();

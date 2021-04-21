@@ -30,6 +30,11 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
     private double inputThreshold;
     private Unit inputThresholdUnit;
 
+    @Override
+    public String getName() {
+        return "LoopFlowThresholdImpl";
+    }
+
     @Deprecated
     //todo: make private package
     public LoopFlowThresholdImpl(double value, Unit unit) {

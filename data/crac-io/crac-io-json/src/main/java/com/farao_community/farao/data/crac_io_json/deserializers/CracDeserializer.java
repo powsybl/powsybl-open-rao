@@ -61,7 +61,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case FLOW_CNECS:
                     jsonParser.nextToken();
-                    FlowCnecArrayDeserializer.deserialize(jsonParser, crac, deserializedNetworkElementsNamesPerId);
+                    FlowCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);
                     break;
 
                 case PST_RANGE_ACTIONS:
