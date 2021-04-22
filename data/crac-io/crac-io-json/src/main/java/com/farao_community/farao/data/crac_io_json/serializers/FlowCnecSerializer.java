@@ -42,6 +42,7 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         }
         gen.writeObjectField(OPTIMIZED, flowCnec.isOptimized());
         gen.writeObjectField(MONITORED, flowCnec.isMonitored());
+        gen.writeNumberField(FRM, flowCnec.getReliabilityMargin());
 
         gen.writeArrayFieldStart(THRESHOLDS);
         List<BranchThreshold> sortedListOfThresholds = flowCnec.getThresholds().stream()

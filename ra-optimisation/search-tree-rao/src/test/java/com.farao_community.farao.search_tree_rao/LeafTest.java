@@ -10,22 +10,21 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.CountryBoundary;
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.ActionType;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.data.crac_result_extensions.*;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
+import com.farao_community.farao.data.crac_result_extensions.CnecResult;
+import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
+import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.*;
@@ -69,7 +68,7 @@ public class LeafTest {
     private NetworkAction na2;
 
     private Network network;
-    private SimpleCrac crac;
+    private Crac crac;
     private RaoData raoData;
     private RaoData raoDataMock;
     private RaoParameters raoParameters;
@@ -90,22 +89,18 @@ public class LeafTest {
 
         // other mocks
         crac = CommonCracCreation.create();
-        na1 = new NetworkActionImpl(
-            "topology1",
-            "topology1",
-            "fr",
-            Collections.singletonList(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState())),
-            Collections.singleton(new TopologicalActionImpl(crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN)));
-
-        na2 = new NetworkActionImpl(
-            "topology2",
-            "topology2",
-            "fr",
-            Collections.singletonList(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState())),
-            Collections.singleton(new TopologicalActionImpl(crac.getNetworkElement("FFR2AA1  DDE3AA1  1"), ActionType.OPEN)));
-
-        crac.addNetworkAction(na1);
-        crac.addNetworkAction(na2);
+        na1 = crac.newNetworkAction().withId("topology1")
+                .withName("topology1")
+                .withOperator("fr")
+                .newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+        na2 = crac.newNetworkAction().withId("topology2")
+                .withName("topology2")
+                .withOperator("fr")
+                .newTopologicalAction().withNetworkElement("FFR2AA1  DDE3AA1  1").withActionType(ActionType.OPEN).add()
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
 
         // rao parameters
         raoParameters = new RaoParameters();
@@ -183,10 +178,10 @@ public class LeafTest {
     }
 
     private RangeAction addPst() {
-        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
-        pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        crac.addRangeAction(pstRangeAction);
+        PstRangeAction pstRangeAction = crac.newPstRangeAction().withId("pst")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
         crac.desynchronize();
         crac.synchronize(network);
         return pstRangeAction;
@@ -215,16 +210,16 @@ public class LeafTest {
 
     @Test
     public void testLeafDefinition() {
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.5);
-        crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.4);
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.5);
+        crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.4);
         Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters, linearOptimizerParameters);
         Leaf leaf = new Leaf(rootLeaf, na1, network, raoParameters, treeParameters, linearOptimizerParameters);
         assertEquals(1, leaf.getNetworkActions().size());
         assertTrue(leaf.getNetworkActions().contains(na1));
         assertFalse(leaf.isRoot());
         assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertEquals(0.5, leaf.getRaoData().getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
-        assertEquals(0.4, leaf.getRaoData().getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
+        assertEquals(0.5, leaf.getRaoData().getCrac().getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
+        assertEquals(0.4, leaf.getRaoData().getCrac().getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -267,8 +262,8 @@ public class LeafTest {
 
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
-        assertEquals(5., crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInMW(), DOUBLE_TOLERANCE);
-        assertEquals(12., crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInA(), DOUBLE_TOLERANCE);
+        assertEquals(5., crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInMW(), DOUBLE_TOLERANCE);
+        assertEquals(12., crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInA(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -308,15 +303,14 @@ public class LeafTest {
         mockSensitivityComputation();
 
         raoParameters.setRaoWithLoopFlowLimitation(true);
-        for (BranchCnec cnec : crac.getBranchCnecs(crac.getPreventiveState())) {
-            CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100, Unit.PERCENT_IMAX);
-            cnec.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        for (FlowCnec cnec : crac.getFlowCnecs(crac.getPreventiveState())) {
+            cnec.newExtension(LoopFlowThresholdAdder.class).withUnit(Unit.PERCENT_IMAX).withValue(1.).add();
         }
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, raoParameters);
 
         mockRaoUtil();
-        CnecResult cnec1result = crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
-        CnecResult cnec2result = crac.getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
+        CnecResult cnec1result = crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
+        CnecResult cnec2result = crac.getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId());
         cnec1result.setCommercialFlowInMW(10.0);
         cnec2result.setCommercialFlowInMW(-25.0);
 
@@ -412,7 +406,7 @@ public class LeafTest {
         mockSensitivityComputation();
         mockRaoUtil();
 
-        crac = CommonCracCreation.createWithPstRange();
+        crac = CommonCracCreation.createWithPreventivePstRange();
         crac.synchronize(network);
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, raoParameters);
 

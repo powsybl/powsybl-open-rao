@@ -78,7 +78,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         RaoUtil.initData(raoInput, parameters);
 
-        stateTree = new StateTree(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getCrac().getPreventiveState());
+        stateTree = new StateTree(raoInput.getCrac(), raoInput.getCrac().getPreventiveState());
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {

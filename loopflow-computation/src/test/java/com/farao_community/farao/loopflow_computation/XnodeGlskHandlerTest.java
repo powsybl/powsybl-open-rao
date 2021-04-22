@@ -59,7 +59,7 @@ public class XnodeGlskHandlerTest {
             .add();
 
         FlowCnec cnec2 = crac.newFlowCnec()
-            .withId("cnec1")
+            .withId("cnec2")
             .withNetworkElement("anyNetworkElement")
             .withInstant(Instant.OUTAGE)
             .withContingency("internalBranch")
@@ -71,7 +71,7 @@ public class XnodeGlskHandlerTest {
             .add();
 
         FlowCnec cnec3 = crac.newFlowCnec()
-            .withId("cnec1")
+            .withId("cnec3")
             .withNetworkElement("anyNetworkElement")
             .withInstant(Instant.OUTAGE)
             .withContingency("danglingLine")

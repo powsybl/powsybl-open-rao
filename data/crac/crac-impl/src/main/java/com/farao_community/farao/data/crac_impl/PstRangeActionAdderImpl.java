@@ -47,12 +47,12 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
 
     @Override
     public PstRangeActionAdder withNetworkElement(String networkElementId) {
-        this.networkElementId = networkElementId;
-        return this;
+        return withNetworkElement(networkElementId, networkElementId);
     }
 
     @Override
     public PstRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
+        this.networkElementId = networkElementId;
         this.networkElementName = networkElementName;
         return this;
     }

@@ -192,22 +192,22 @@ public class CracCleanerTest {
 
         assertEquals(1, crac.getFlowCnecs().size());
         assertEquals(1, crac.getNetworkActions().size());
-        assertEquals(0, crac.getRangeActions().size());
+        assertEquals(1, crac.getRangeActions().size());
         assertEquals(2, crac.getContingencies().size());
-        assertEquals(2, crac.getStates().size());
+        assertEquals(1, crac.getStates().size());
 
-        assertEquals(10, qualityReport.size());
+        assertEquals(8, qualityReport.size());
         int removedCount = 0;
         for (String line : qualityReport) {
             if (line.contains("[REMOVED]")) {
                 removedCount++;
             }
         }
-        assertEquals(10, removedCount);
+        assertEquals(8, removedCount);
     }
 
     private Crac createTestCrac() {
-        CracFactory factory = CracFactory.find("CracImplFactory");
+        CracFactory factory = CracFactory.findDefault();
         Crac crac = factory.create("test-crac");
 
         crac.newFlowCnec()

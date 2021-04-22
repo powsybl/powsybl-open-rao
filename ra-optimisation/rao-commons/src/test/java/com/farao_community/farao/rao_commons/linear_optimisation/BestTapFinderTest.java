@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -33,9 +34,27 @@ public class BestTapFinderTest {
     private PstRangeAction pstRangeAction;
     private SystematicSensitivityResult systematicSensitivityResult;
 
+    @Before
+    public void setUp() {
+        network = NetworkImportsUtil.import12NodesNetwork();
+        crac = CommonCracCreation.createWithPreventivePstRange();
+        crac.synchronize(network);
+
+        pstRangeAction = (PstRangeAction) crac.getRangeAction("pst");
+
+        MPVariable mockVariable = Mockito.mock(MPVariable.class);
+        LinearProblem mockLp = Mockito.mock(LinearProblem.class);
+        Mockito.when(mockLp.getRangeActionSetPointVariable(pstRangeAction)).thenReturn(mockVariable);
+
+        systematicSensitivityResult = getMockSensiResult(crac);
+
+        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("cnec1basecase"))).thenReturn(3000.);
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(pstRangeAction, crac.getBranchCnec("cnec1basecase"))).thenReturn(-250.);
+        Mockito.when(mockVariable.solutionValue()).thenReturn(6.);
+    }
+
     @Test
     public void testComputeBestTapPerPstGroup() {
-
         PstRangeAction pst1 = crac.newPstRangeAction().withId("pst1").withNetworkElement("ne1").add();
         PstRangeAction pst2 = crac.newPstRangeAction().withId("pst2").withNetworkElement("ne2").withGroupId("group1").add();
         PstRangeAction pst3 = crac.newPstRangeAction().withId("pst3").withNetworkElement("ne3").withGroupId("group1").add();
@@ -59,24 +78,6 @@ public class BestTapFinderTest {
         assertEquals(2, bestTapPerPstGroup.size());
         assertEquals(3, bestTapPerPstGroup.get("group1").intValue());
         assertEquals(-10, bestTapPerPstGroup.get("group2").intValue());
-    }
-
-    private void setUp() {
-        network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CommonCracCreation.createWithPreventivePstRange();
-        crac.synchronize(network);
-
-        pstRangeAction = (PstRangeAction) crac.getRangeAction("pst");
-
-        MPVariable mockVariable = Mockito.mock(MPVariable.class);
-        LinearProblem mockLp = Mockito.mock(LinearProblem.class);
-        Mockito.when(mockLp.getRangeActionSetPointVariable(pstRangeAction)).thenReturn(mockVariable);
-
-        systematicSensitivityResult = getMockSensiResult(crac);
-
-        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("cnec1basecase"))).thenReturn(3000.);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(pstRangeAction, crac.getBranchCnec("cnec1basecase"))).thenReturn(-250.);
-        Mockito.when(mockVariable.solutionValue()).thenReturn(6.);
     }
 
     private SystematicSensitivityResult getMockSensiResult(Crac crac) {
@@ -110,25 +111,21 @@ public class BestTapFinderTest {
 
     @Test
     public void testComputeBestTapsInTheMiddleOfTheRange() {
-        setUp();
         assertTaps(4., 10);
     }
 
     @Test
     public void testComputeBestTapsHittingHighRange() {
-        setUp();
         assertTaps(6.2, 16);
     }
 
     @Test
     public void testComputeBestTapsHittingLowRange() {
-        setUp();
         assertTaps(-6.2, -16);
     }
 
     @Test
     public void testComputeBestTapsWithGroup() {
-        setUp();
         assertTaps(6., 16);
     }
 

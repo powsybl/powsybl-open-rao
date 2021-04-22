@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.RangeDefinition;
+import com.farao_community.farao.data.crac_api.TapConvention;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.*;
@@ -60,7 +60,7 @@ public final class IteratingLinearOptimizer {
             rangeActionSetPoints.put(rangeAction, rangeAction.getCurrentValue(network));
             if (rangeAction instanceof PstRangeAction) {
                 PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
-                pstTaps.put(pstRangeAction, pstRangeAction.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO));
+                pstTaps.put(pstRangeAction, pstRangeAction.getCurrentTapPosition(network, TapConvention.CENTERED_ON_ZERO));
             }
         }
 
@@ -96,7 +96,7 @@ public final class IteratingLinearOptimizer {
                     bestIteratingLinearOptimizerOutput.setStatus(linearOptimizerOutput.getSolveStatus());
                 }
                 return bestIteratingLinearOptimizerOutput;
-            } else if (!hasRemedialActionsChanged(bestIteratingLinearOptimizerOutput, linearOptimizerOutput, iteration)) {
+            } else if (!hasRemedialActionsChanged(bestIteratingLinearOptimizerOutput, linearOptimizerOutput)) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
                 LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
                 bestIteratingLinearOptimizerOutput.setStatus(LinearProblem.SolveStatus.OPTIMAL);
@@ -122,7 +122,7 @@ public final class IteratingLinearOptimizer {
         return bestIteratingLinearOptimizerOutput;
     }
 
-    private static boolean hasRemedialActionsChanged(IteratingLinearOptimizerOutput bestIteratingLinearOptimizerOutput, LinearOptimizerOutput linearOptimizerOutput, int iteration) {
+    private static boolean hasRemedialActionsChanged(IteratingLinearOptimizerOutput bestIteratingLinearOptimizerOutput, LinearOptimizerOutput linearOptimizerOutput) {
         Map<RangeAction, Double> newSetPoints = linearOptimizerOutput.getRangeActionSetpoints();
         Map<RangeAction, Double> bestSetPoints = bestIteratingLinearOptimizerOutput.getRangeActionSetpoints();
 

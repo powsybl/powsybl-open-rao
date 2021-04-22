@@ -71,6 +71,10 @@ public final class FlowCnecArrayDeserializer {
                     case MONITORED:
                         adder.withMonitored(jsonParser.nextBooleanValue());
                         break;
+                    case FRM:
+                        jsonParser.nextToken();
+                        adder.withReliabilityMargin(jsonParser.getDoubleValue());
+                        break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
                         BranchThresholdArrayDeserializer.deserialize(jsonParser, adder);

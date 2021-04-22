@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -62,7 +63,7 @@ final class SearchTreeRaoLogger {
                 collect(Collectors.toList());
 
         for (int i = 0; i < Math.min(numberOfLoggedElements, sortedCnecs.size()); i++) {
-            BranchCnec cnec = sortedCnecs.get(i);
+            FlowCnec cnec = (FlowCnec) sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
             double cnecMargin = RaoUtil.computeCnecMargin(cnec, variantId, unit, relativePositiveMargins);

@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.CracFactory;
 import com.google.auto.service.AutoService;
 
 /**
- * Simple Crac Factory implementation.
+ * Crac Factory implementation.
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */

@@ -13,6 +13,7 @@ import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
@@ -34,10 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -216,7 +214,7 @@ public class RaoUtilTest {
         Mockito.when(result.getAbsolutePtdfSum()).thenReturn(0.5);
         CnecResultExtension resultExtension = Mockito.mock(CnecResultExtension.class);
         Mockito.when(resultExtension.getVariant(Mockito.anyString())).thenReturn(result);
-        BranchCnec cnec = Mockito.mock(BranchCnec.class);
+        BranchCnec cnec = (BranchCnec) Mockito.mock(FlowCnec.class);
         Mockito.when(cnec.getExtension(Mockito.eq(CnecResultExtension.class))).thenReturn(resultExtension);
 
         Mockito.when(cnec.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(1000.0);
@@ -234,14 +232,14 @@ public class RaoUtilTest {
         assertEquals(-100, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, true), DOUBLE_TOLERANCE);
     }
 
-    private Set<BranchCnec> setUpMockCnecs(boolean optimized, boolean monitored) {
+    private Set<FlowCnec> setUpMockCnecs(boolean optimized, boolean monitored) {
         // CNEC 1 : margin of 1000 MW / 100 A, sum of PTDFs = 1
         CnecResult result1 = Mockito.mock(CnecResult.class);
         Mockito.when(result1.getAbsolutePtdfSum()).thenReturn(1.0);
         CnecResultExtension resultExtension1 = Mockito.mock(CnecResultExtension.class);
         Mockito.when(resultExtension1.getVariant(Mockito.anyString())).thenReturn(result1);
 
-        BranchCnec cnec1 = Mockito.mock(BranchCnec.class);
+        FlowCnec cnec1 = Mockito.mock(FlowCnec.class);
         Mockito.when(cnec1.getId()).thenReturn("cnec1");
         Mockito.when(cnec1.isOptimized()).thenReturn(optimized);
         Mockito.when(cnec1.isMonitored()).thenReturn(monitored);
@@ -255,7 +253,7 @@ public class RaoUtilTest {
         CnecResultExtension resultExtension2 = Mockito.mock(CnecResultExtension.class);
         Mockito.when(resultExtension2.getVariant(Mockito.anyString())).thenReturn(result2);
 
-        BranchCnec cnec2 = Mockito.mock(BranchCnec.class);
+        FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
         Mockito.when(cnec2.getId()).thenReturn("cnec2");
         Mockito.when(cnec2.isOptimized()).thenReturn(optimized);
         Mockito.when(cnec2.isMonitored()).thenReturn(monitored);
@@ -268,7 +266,7 @@ public class RaoUtilTest {
 
     @Test
     public void testGetMostLimitingElement() {
-        Set<BranchCnec> cnecs = setUpMockCnecs(true, false);
+        Set<BranchCnec> cnecs = new HashSet<>(setUpMockCnecs(true, false));
 
         // In absolute margins, cnec2 is most limiting
         assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, false).getId());
@@ -281,7 +279,7 @@ public class RaoUtilTest {
 
     @Test
     public void testGetMostLimitingElementOnPureMnecs() {
-        Set<BranchCnec> cnecs = setUpMockCnecs(false, true);
+        Set<BranchCnec> cnecs = new HashSet<>(setUpMockCnecs(false, true));
 
         // In absolute margins, cnec2 is most limiting
         assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, false).getId());

@@ -8,14 +8,14 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoResult;
@@ -23,8 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,22 +35,23 @@ public class SearchTreeRaoProviderTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
-    private SimpleCrac crac;
+    private Crac crac;
     private String initialVariantId;
     private String postOptimPrevVariantId;
     private String postOptimCurVariantId;
 
     @Before
     public void setUp() {
-        crac = CommonCracCreation.createWithPstRange();
+        crac = CommonCracCreation.createWithPreventivePstRange();
 
         State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
 
-        TopologicalActionImpl topologicalAction = new TopologicalActionImpl(crac.getNetworkElement("BBE2AA1  FFR3AA1  1"), ActionType.OPEN);
-
-        crac.addNetworkAction(new NetworkActionImpl("open BE2-FR3", "open BE2-FR3", "FR",
-                List.of(new OnStateImpl(UsageMethod.AVAILABLE, curativeState)),
-                Collections.singleton(topologicalAction)));
+        crac.newNetworkAction().withId("open BE2-FR3")
+                .withName("open BE2-FR3")
+                .withOperator("FR")
+                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
+                .newOnStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("Contingency FR1 FR3").withInstant(Instant.CURATIVE).add()
+                .add();
 
         ResultVariantManager resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
@@ -61,12 +60,12 @@ public class SearchTreeRaoProviderTest {
         postOptimCurVariantId = resultVariantManager.createNewUniqueVariantId("postOptim-cur");
         resultVariantManager.setInitialVariantId(initialVariantId);
 
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(600);
-        crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(postOptimPrevVariantId).setFlowInMW(300);
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(600);
+        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(postOptimPrevVariantId).setFlowInMW(300);
 
-        crac.getBranchCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
+        crac.getFlowCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
                 .getVariant(postOptimPrevVariantId).setFlowInMW(400);
-        crac.getBranchCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
+        crac.getFlowCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
                 .getVariant(postOptimCurVariantId).setFlowInMW(200);
 
         ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
@@ -114,9 +113,9 @@ public class SearchTreeRaoProviderTest {
 
         assertEquals(RaoResult.Status.DEFAULT, mergedRaoResult.getStatus());
         assertEquals(postOptimPrevVariantId, mergedRaoResult.getPostOptimVariantId());
-        assertEquals(300, crac.getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class)
+        assertEquals(300, crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class)
                 .getVariant(postOptimPrevVariantId).getFlowInMW(), 0.1);
-        assertEquals(200, crac.getBranchCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
+        assertEquals(200, crac.getFlowCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
                 .getVariant(postOptimPrevVariantId).getFlowInMW(), 0.1);
         assertEquals(Integer.valueOf(5), ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
                 .getVariant(postOptimPrevVariantId)).getTap(crac.getPreventiveState().getId()));
@@ -129,7 +128,6 @@ public class SearchTreeRaoProviderTest {
 
     @Test
     public void mergeRaoResultsWithFailure() {
-
         RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         preventiveRaoResult.setPreOptimVariantId(initialVariantId);
         preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
@@ -243,12 +241,18 @@ public class SearchTreeRaoProviderTest {
 
     @Test
     public void testMergeObjectiveFunctionCostIgnorePerimetersWithPureMnecs() {
-        Contingency contingency = crac.addContingency("pure_mnecs_cont", "BBE2AA1  FFR3AA1  1");
-        BranchCnec mnec = crac.newBranchCnec().setId("pure_mnec")
-                .setContingency(contingency).setInstant(Instant.CURATIVE)
-                .newNetworkElement().setId("BBE2AA1  FFR3AA1  1").add()
-                .newThreshold().setMax(1000.).setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .monitored().add();
+        Contingency contingency = crac.newContingency()
+                .withId("pure_mnecs_cont")
+                .withNetworkElement("BBE2AA1  FFR3AA1  1")
+                .add();
+        FlowCnec mnec = crac.newFlowCnec()
+                .withId("pure_mnec")
+                .withContingency(contingency.getId())
+                .withInstant(Instant.CURATIVE)
+                .withNetworkElement("BBE2AA1  FFR3AA1  1")
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .withMonitored()
+                .add();
 
         RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
         preventiveRaoResult.setPreOptimVariantId(initialVariantId);
