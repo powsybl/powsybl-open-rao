@@ -58,12 +58,9 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
-        if (Double.isNaN(inputThreshold) || unit == null) {
-            throw new FaraoException("The LoopFlowThreshold should include both the 'inputThreshold' and the 'inputThresholdUnit' fields");
-        }
 
         // TODO : when constructor is replaced with adder, remove these checks
-        if (Objects.isNull(inputThreshold)) {
+        if (Double.isNaN(inputThreshold)) {
             throw new FaraoException("Cannot add LoopFlowThreshold without a threshold value. Please use withValue() with a non null value");
         }
         if (Objects.isNull(unit)) {

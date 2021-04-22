@@ -87,7 +87,6 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                 default:
                     throw new FaraoException("Unexpected field in Crac: " + jsonParser.getCurrentName());
             }
-            //jsonParser.nextToken();
         }
         return crac;
     }
