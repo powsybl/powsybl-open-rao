@@ -320,4 +320,10 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
     public int hashCode() {
         return super.hashCode();
     }
+
+    @Deprecated
+    //todo: delete
+    public void addRange(TapRange range) {
+        ranges.add(range);
+    }
 }
