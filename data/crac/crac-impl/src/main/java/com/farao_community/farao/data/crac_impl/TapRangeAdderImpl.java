@@ -26,6 +26,7 @@ public class TapRangeAdderImpl implements TapRangeAdder {
     private Integer maxTap;
     private RangeType rangeType;
     private TapConvention tapConvention;
+    private static final String CLASS_NAME = "TapRange";
 
     private PstRangeActionAdderImpl ownerAdder;
 
@@ -61,9 +62,9 @@ public class TapRangeAdderImpl implements TapRangeAdder {
 
     @Override
     public PstRangeActionAdder add() {
-        AdderUtils.assertAttributeNotNull(minTap, "TapRange", "min value", "withMin()");
-        AdderUtils.assertAttributeNotNull(maxTap, "TapRange", "max value", "withMax()");
-        AdderUtils.assertAttributeNotNull(rangeType, "TapRange", "range type", "withRangeType()");
+        AdderUtils.assertAttributeNotNull(minTap, CLASS_NAME, "min value", "withMin()");
+        AdderUtils.assertAttributeNotNull(maxTap, CLASS_NAME, "max value", "withMax()");
+        AdderUtils.assertAttributeNotNull(rangeType, CLASS_NAME, "range type", "withRangeType()");
 
         if (rangeType.equals(RangeType.ABSOLUTE) && Objects.isNull(tapConvention)) {
             throw new FaraoException("A tapRange with RangeType ABSOLUTE must contain a tap convention");

@@ -23,6 +23,7 @@ public class OnStateAdderImpl<T extends AbstractRemedialActionAdder<T>> implemen
     private Instant instant;
     private String contingencyId;
     private UsageMethod usageMethod;
+    private static final String CLASS_NAME = "OnState";
 
     OnStateAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -48,9 +49,9 @@ public class OnStateAdderImpl<T extends AbstractRemedialActionAdder<T>> implemen
 
     @Override
     public T add() {
-        assertAttributeNotNull(contingencyId, "OnState", "contingency", "withContingency()");
-        assertAttributeNotNull(instant, "OnState", "instant", "withInstant()");
-        assertAttributeNotNull(usageMethod, "OnState", "usage method", "withUsageMethod()");
+        assertAttributeNotNull(contingencyId, CLASS_NAME, "contingency", "withContingency()");
+        assertAttributeNotNull(instant, CLASS_NAME, "instant", "withInstant()");
+        assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
         if (instant.equals(Instant.PREVENTIVE)) {
             throw new FaraoException("OnState usage rules are not allowed for PREVENTIVE instant. Please use newFreeToUseUsageRule() instead.");
         } else if (instant.equals(Instant.OUTAGE)) {

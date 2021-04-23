@@ -21,12 +21,12 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
 
     protected String name;
 
-    public AbstractIdentifiable(String id, String name) {
+    protected AbstractIdentifiable(String id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public AbstractIdentifiable(String id) {
+    protected AbstractIdentifiable(String id) {
         this(id, id);
     }
 
@@ -64,7 +64,7 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractIdentifiable abstractIdentifiable = (AbstractIdentifiable) o;
+        AbstractIdentifiable<?> abstractIdentifiable = (AbstractIdentifiable<?>) o;
         return getId().equals(abstractIdentifiable.getId());
     }
 
