@@ -11,8 +11,9 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.CnecResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
@@ -53,66 +54,56 @@ public class ProblemFillerFactoryTest {
 
     @Before
     public void setUp() {
-        crac = new SimpleCracFactory().create("crac");
+        crac = CracFactory.findDefault().create("crac");
 
-        crac.newBranchCnec()
-            .setId("pure-cnec")
-            .setInstant(Instant.PREVENTIVE)
-            .newNetworkElement().setId("BBE1AA1  BBE2AA1  1").add()
-            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(2000.).setMin(-500.).setUnit(Unit.MEGAWATT).add()
-            .optimized()
-            .setOperator("FR")
+        pureCnec = crac.newFlowCnec()
+            .withId("pure-cnec")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(2000.).withMin(-500.).withUnit(Unit.MEGAWATT).add()
+            .withOptimized(true)
+            .withOperator("FR")
             .add();
-        pureCnec = crac.getBranchCnec("pure-cnec");
 
-        crac.newBranchCnec()
-            .setId("cnec-mnec")
-            .setInstant(Instant.PREVENTIVE)
-            .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
-            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(500.).setMin(-500.).setUnit(Unit.MEGAWATT).add()
-            .optimized()
-            .monitored()
-            .setOperator("FR")
+        cnecMnec = crac.newFlowCnec()
+            .withId("cnec-mnec")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("BBE1AA1  BBE3AA1  1")
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(500.).withMin(-500.).withUnit(Unit.MEGAWATT).add()
+            .withOptimized(true)
+            .withMonitored(true)
+            .withOperator("FR")
             .add();
-        cnecMnec = crac.getBranchCnec("cnec-mnec");
 
-        crac.newBranchCnec()
-            .setId("pure-mnec")
-            .setInstant(Instant.PREVENTIVE)
-            .newNetworkElement().setId("BBE2AA1  BBE3AA1  1").add()
-            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(500.).setMin(-500.).setUnit(Unit.MEGAWATT).add()
-            .monitored()
-            .setOperator("BE")
+        pureMnec = crac.newFlowCnec()
+            .withId("pure-mnec")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("BBE2AA1  BBE3AA1  1")
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(500.).withMin(-500.).withUnit(Unit.MEGAWATT).add()
+            .withMonitored(true)
+            .withOperator("BE")
             .add();
-        pureMnec = crac.getBranchCnec("pure-mnec");
 
-        crac.newBranchCnec()
-            .setId("loop-flow-cnec")
-            .setInstant(Instant.PREVENTIVE)
-            .newNetworkElement().setId("FFR1AA1  FFR2AA1  1").add()
-            .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(500.).setMin(-500.).setUnit(Unit.MEGAWATT).add()
-            .optimized()
-            .setOperator("BE")
+        loopFlowCnec = crac.newFlowCnec()
+            .withId("loop-flow-cnec")
+            .withInstant(Instant.PREVENTIVE)
+            .withNetworkElement("FFR1AA1  FFR2AA1  1")
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(500.).withMin(-500.).withUnit(Unit.MEGAWATT).add()
+            .withOptimized(true)
+            .withOperator("BE")
             .add();
-        loopFlowCnec = crac.getBranchCnec("loop-flow-cnec");
 
-        crac.newPstRangeAction()
-            .setId("pst1")
-            .newNetworkElement().setId("FFR1AA1  FFR2AA1  2").add()
-            .setUnit(Unit.TAP)
-            .setMinValue(-5.)
-            .setMaxValue(5.)
+        PstRangeAction ra1 = crac.newPstRangeAction()
+            .withId("pst1")
+            .withNetworkElement("FFR1AA1  FFR2AA1  2")
+            .newTapRange().withRangeType(RangeType.ABSOLUTE).withTapConvention(TapConvention.CENTERED_ON_ZERO).withMinTap(-5).withMaxTap(5).add()
             .add();
-        RangeAction ra1 = crac.getRangeAction("pst1");
 
-        crac.newPstRangeAction()
-            .setId("pst2")
-            .newNetworkElement().setId("FFR1AA1  FFR2AA1  2").add()
-            .setUnit(Unit.TAP)
-            .setMinValue(-5.)
-            .setMaxValue(5.)
+        PstRangeAction ra2 = crac.newPstRangeAction()
+            .withId("pst2")
+            .withNetworkElement("FFR1AA1  FFR2AA1  2")
+            .newTapRange().withRangeType(RangeType.ABSOLUTE).withTapConvention(TapConvention.CENTERED_ON_ZERO).withMinTap(-5).withMaxTap(5).add()
             .add();
-        RangeAction ra2 = crac.getRangeAction("pst2");
 
         initialFlowPerCnec = Map.of(
             pureCnec, 200.,
@@ -140,7 +131,7 @@ public class ProblemFillerFactoryTest {
         initialCnecResults.setAbsolutePtdfSums(initialAbsolutePtdfSumPerCnec);
 
         prePerimeterCnecMarginsInMW = new HashMap<>();
-        crac.getBranchCnecs().forEach(cnec -> prePerimeterCnecMarginsInMW.put(cnec, 100.));
+        crac.getFlowCnecs().forEach(cnec -> prePerimeterCnecMarginsInMW.put(cnec, 100.));
 
         input = LinearOptimizerInput.create()
             .withCnecs(crac.getBranchCnecs())
@@ -166,7 +157,7 @@ public class ProblemFillerFactoryTest {
         CoreProblemFiller pfImpl = (CoreProblemFiller) pf;
 
         // It has all the CNECs
-        assertEquals(crac.getBranchCnecs().size(), pfImpl.getCnecs().size());
+        assertEquals(crac.getFlowCnecs().size(), pfImpl.getCnecs().size());
         // It has all the range actions with their initial set points
         assertEquals(crac.getRangeActions().size(), pfImpl.getPrePerimeterSetPointPerRangeAction().size());
         // Check pst sensitivity threshold value

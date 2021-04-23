@@ -11,11 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.PstSetpointImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_io_api.CracExporters;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import org.junit.Test;
@@ -24,8 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Collections;
 
 import static junit.framework.TestCase.*;
 
@@ -38,53 +32,75 @@ public class JsonResultTest {
 
     @Test
     public void cracRoundTripTest() {
-        // Crac
-        SimpleCrac simpleCrac = new SimpleCrac("cracId");
 
-        simpleCrac.newBranchCnec()
-            .setId("cnec1prev")
-            .newNetworkElement().setId("ne1").add()
-            .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-500.).add()
-            .setInstant(Instant.PREVENTIVE)
+        Crac cracIn = CracFactory.findDefault().create("cracId", "cracName");
+
+        // add cnecs
+        cracIn.newFlowCnec()
+            .withId("cnec1prev")
+            .withNetworkElement("ne1")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold()
+                .withUnit(Unit.AMPERE)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-500.)
+                .add()
             .add();
-        simpleCrac.newBranchCnec()
-            .setId("cnec2prev")
-            .newNetworkElement().setId("ne2").add()
-            .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).add()
-            .setInstant(Instant.PREVENTIVE)
+
+        cracIn.newFlowCnec()
+            .withId("cnec2prev")
+            .withNetworkElement("ne2")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold()
+                .withUnit(Unit.PERCENT_IMAX)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-0.3)
+                .add()
             .add();
 
-        // RangeActions : PstWithRange
-        NetworkElement networkElement1 = new NetworkElement("pst1networkElement");
-        simpleCrac.addNetworkElement("pst1networkElement");
-        PstRangeActionImpl pstRangeAction1 = new PstRangeActionImpl("pst1", networkElement1);
-        simpleCrac.addRangeAction(pstRangeAction1);
+        // add PstRangeAction
+        cracIn.newPstRangeAction()
+            .withId("pst1")
+            .withNetworkElement("pst1NetworkElement")
+            .add();
 
-        // NetworkActions:
-        // TopologicalActionImpl
-        NetworkElement networkElement2 = new NetworkElement("networkActionNetworkElement");
-        simpleCrac.addNetworkElement(networkElement2);
-        TopologicalActionImpl topology = new TopologicalActionImpl(networkElement2, ActionType.CLOSE);
-        simpleCrac.addNetworkAction(new NetworkActionImpl("topoRaId", "topoRaName", "RTE", new ArrayList<>(), Collections.singleton(topology)));
+        // add topological action
+        cracIn.newNetworkAction()
+            .withId("topoRaId")
+            .withName("topoRaName")
+            .withOperator("operator")
+            .newTopologicalAction()
+                .withActionType(ActionType.CLOSE)
+                .withNetworkElement("topologicalActionNetworkElement")
+                .add()
+            .add();
 
-        // PstSetpointImpl
-        PstSetpointImpl pstSetpoint = new PstSetpointImpl(networkElement2, 12.0, RangeDefinition.CENTERED_ON_ZERO);
-        simpleCrac.addNetworkAction(new NetworkActionImpl("pstSetPointRaId", "pstSetPointRaName", "RTE", new ArrayList<>(), Collections.singleton(pstSetpoint)));
+        // add Pst set point
+        cracIn.newNetworkAction()
+            .withId("pstSetPointRaId")
+            .withName("pstSetPointRaName")
+            .withOperator("operator")
+            .newPstSetPoint()
+                .withNetworkElement("pstSetPointNetworkElement")
+                .withSetpoint(12)
+                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+                .add()
+            .add();
 
         // add a ResultVariantManager to the Crac
-        simpleCrac.addExtension(ResultVariantManager.class, new ResultVariantManager());
+        cracIn.addExtension(ResultVariantManager.class, new ResultVariantManager());
 
         // add variants
-        simpleCrac.getExtension(ResultVariantManager.class).createVariant("variant1");
-        simpleCrac.getExtension(ResultVariantManager.class).createVariant("variant2");
+        cracIn.getExtension(ResultVariantManager.class).createVariant("variant1");
+        cracIn.getExtension(ResultVariantManager.class).createVariant("variant2");
 
         // CracResult
-        CracResultExtension cracResultExtension = simpleCrac.getExtension(CracResultExtension.class);
+        CracResultExtension cracResultExtension = cracIn.getExtension(CracResultExtension.class);
         cracResultExtension.getVariant("variant1").setFunctionalCost(10);
         cracResultExtension.getVariant("variant1").setNetworkSecurityStatus(CracResult.NetworkSecurityStatus.UNSECURED);
 
         // CnecResult
-        CnecResultExtension cnecResultExtension = simpleCrac.getBranchCnec("cnec2prev").getExtension(CnecResultExtension.class);
+        CnecResultExtension cnecResultExtension = cracIn.getFlowCnec("cnec2prev").getExtension(CnecResultExtension.class);
         cnecResultExtension.getVariant("variant1").setFlowInA(75.0);
         cnecResultExtension.getVariant("variant1").setFlowInMW(50.0);
         cnecResultExtension.getVariant("variant1").setMinThresholdInMW(-1000);
@@ -95,10 +111,10 @@ public class JsonResultTest {
         cnecResultExtension.getVariant("variant2").setFlowInA(750.0);
         cnecResultExtension.getVariant("variant2").setFlowInMW(450.0);
 
-        String preventiveStateId = simpleCrac.getPreventiveState().getId();
+        String preventiveStateId = cracIn.getPreventiveState().getId();
 
         // PstRangeResult
-        RangeActionResultExtension rangeActionResultExtension = simpleCrac.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
+        RangeActionResultExtension rangeActionResultExtension = cracIn.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
         double pstRangeSetPointVariant1 = 4.0;
         double pstRangeSetPointVariant2 = 14.0;
         Integer pstRangeTapVariant1 = 2;
@@ -109,49 +125,49 @@ public class JsonResultTest {
         ((PstRangeResult) rangeActionResultExtension.getVariant("variant2")).setTap(preventiveStateId, pstRangeTapVariant2);
 
         // NetworkActionResult for topology
-        NetworkActionResultExtension topologyResultExtension = simpleCrac.getNetworkAction("topoRaId").getExtension(NetworkActionResultExtension.class);
+        NetworkActionResultExtension topologyResultExtension = cracIn.getNetworkAction("topoRaId").getExtension(NetworkActionResultExtension.class);
         topologyResultExtension.getVariant("variant1").activate(preventiveStateId);
         topologyResultExtension.getVariant("variant2").deactivate(preventiveStateId);
 
         // NetworkActionResult for pstSetpoint
-        NetworkActionResultExtension pstSetpointResultExtension = simpleCrac.getNetworkAction("pstSetPointRaId").getExtension(NetworkActionResultExtension.class);
+        NetworkActionResultExtension pstSetpointResultExtension = cracIn.getNetworkAction("pstSetPointRaId").getExtension(NetworkActionResultExtension.class);
         pstSetpointResultExtension.getVariant("variant1").activate(preventiveStateId);
         pstSetpointResultExtension.getVariant("variant2").deactivate(preventiveStateId);
 
         // export Crac
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        CracExporters.exportCrac(simpleCrac, "Json", outputStream);
+        CracExporters.exportCrac(cracIn, "Json", outputStream);
 
         // import Crac
-        Crac crac;
+        Crac cracOut;
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            crac = CracImporters.importCrac("unknown.json", inputStream);
+            cracOut = CracImporters.importCrac("unknown.json", inputStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
         // assert
         // assert that the ResultVariantManager exists and contains the expected results
-        assertNotNull(crac.getExtension(ResultVariantManager.class));
-        assertEquals(2, crac.getExtension(ResultVariantManager.class).getVariants().size());
-        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains("variant1"));
-        assertTrue(crac.getExtension(ResultVariantManager.class).getVariants().contains("variant2"));
+        assertNotNull(cracOut.getExtension(ResultVariantManager.class));
+        assertEquals(2, cracOut.getExtension(ResultVariantManager.class).getVariants().size());
+        assertTrue(cracOut.getExtension(ResultVariantManager.class).getVariants().contains("variant1"));
+        assertTrue(cracOut.getExtension(ResultVariantManager.class).getVariants().contains("variant2"));
 
         // assert that the CracResultExtension exists and contains the expected results
-        assertNotNull(crac.getExtension(CracResultExtension.class));
-        assertEquals(10.0, crac.getExtension(CracResultExtension.class).getVariant("variant1").getCost(), DOUBLE_TOLERANCE);
-        assertEquals(10.0, crac.getExtension(CracResultExtension.class).getVariant("variant1").getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(0.0, crac.getExtension(CracResultExtension.class).getVariant("variant1").getVirtualCost(), DOUBLE_TOLERANCE);
-        assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, crac.getExtension(CracResultExtension.class).getVariant("variant1").getNetworkSecurityStatus());
+        assertNotNull(cracOut.getExtension(CracResultExtension.class));
+        assertEquals(10.0, cracOut.getExtension(CracResultExtension.class).getVariant("variant1").getCost(), DOUBLE_TOLERANCE);
+        assertEquals(10.0, cracOut.getExtension(CracResultExtension.class).getVariant("variant1").getFunctionalCost(), DOUBLE_TOLERANCE);
+        assertEquals(0.0, cracOut.getExtension(CracResultExtension.class).getVariant("variant1").getVirtualCost(), DOUBLE_TOLERANCE);
+        assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, cracOut.getExtension(CracResultExtension.class).getVariant("variant1").getNetworkSecurityStatus());
 
         // assert that cnecs exist in the crac
-        assertEquals(2, crac.getBranchCnecs().size());
-        assertNotNull(crac.getBranchCnec("cnec1prev"));
-        assertNotNull(crac.getBranchCnec("cnec2prev"));
+        assertEquals(2, cracOut.getFlowCnecs().size());
+        assertNotNull(cracOut.getFlowCnec("cnec1prev"));
+        assertNotNull(cracOut.getFlowCnec("cnec2prev"));
 
         // assert that the second one has a CnecResult extension with the expected content
-        assertEquals(1, crac.getBranchCnec("cnec2prev").getExtensions().size());
-        CnecResultExtension extCnec = crac.getBranchCnec("cnec2prev").getExtension(CnecResultExtension.class);
+        assertEquals(1, cracOut.getFlowCnec("cnec2prev").getExtensions().size());
+        CnecResultExtension extCnec = cracOut.getFlowCnec("cnec2prev").getExtension(CnecResultExtension.class);
         assertNotNull(extCnec);
         assertEquals(50.0, extCnec.getVariant("variant1").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(75.0, extCnec.getVariant("variant1").getFlowInA(), DOUBLE_TOLERANCE);
@@ -162,8 +178,8 @@ public class JsonResultTest {
         assertEquals(0.2, extCnec.getVariant("variant1").getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
 
         // assert that the PstWithRange has a RangeActionResultExtension with the expected content
-        assertEquals(1, crac.getRangeAction("pst1").getExtensions().size());
-        RangeActionResultExtension rangeActionResultExtension1 = crac.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
+        assertEquals(1, cracOut.getRangeAction("pst1").getExtensions().size());
+        RangeActionResultExtension rangeActionResultExtension1 = cracOut.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
         assertNotNull(rangeActionResultExtension1);
         assertEquals(pstRangeSetPointVariant1, rangeActionResultExtension1.getVariant("variant1").getSetPoint(preventiveStateId));
         assertEquals(pstRangeTapVariant1, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant1")).getTap(preventiveStateId));
@@ -171,15 +187,15 @@ public class JsonResultTest {
         assertEquals(pstRangeTapVariant2, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant2")).getTap(preventiveStateId));
 
         // assert that the TopologicalActionImpl has a NetworkActionResultExtension with the expected content
-        assertEquals(1, crac.getNetworkAction("topoRaId").getExtensions().size());
-        NetworkActionResultExtension exportedTopologyResultExtension = crac.getNetworkAction("topoRaId").getExtension(NetworkActionResultExtension.class);
+        assertEquals(1, cracOut.getNetworkAction("topoRaId").getExtensions().size());
+        NetworkActionResultExtension exportedTopologyResultExtension = cracOut.getNetworkAction("topoRaId").getExtension(NetworkActionResultExtension.class);
         assertNotNull(exportedTopologyResultExtension);
         assertTrue(exportedTopologyResultExtension.getVariant("variant1").isActivated(preventiveStateId));
         assertFalse(exportedTopologyResultExtension.getVariant("variant2").isActivated(preventiveStateId));
 
         // assert that the PstSetpointImpl has a NetworkActionResultExtension with the expected content
-        assertEquals(1, crac.getNetworkAction("pstSetPointRaId").getExtensions().size());
-        NetworkActionResultExtension exportedPstSetpointResultExtension = crac.getNetworkAction("pstSetPointRaId").getExtension(NetworkActionResultExtension.class);
+        assertEquals(1, cracOut.getNetworkAction("pstSetPointRaId").getExtensions().size());
+        NetworkActionResultExtension exportedPstSetpointResultExtension = cracOut.getNetworkAction("pstSetPointRaId").getExtension(NetworkActionResultExtension.class);
         assertNotNull(exportedPstSetpointResultExtension);
         assertTrue(exportedPstSetpointResultExtension.getVariant("variant1").isActivated(preventiveStateId));
         assertFalse(exportedPstSetpointResultExtension.getVariant("variant2").isActivated(preventiveStateId));
@@ -204,7 +220,7 @@ public class JsonResultTest {
         assertEquals(CracResult.NetworkSecurityStatus.UNSECURED, extCrac.getVariant("variant1").getNetworkSecurityStatus());
 
         // CnecResultExtension
-        CnecResultExtension extCnec = crac.getBranchCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
+        CnecResultExtension extCnec = crac.getFlowCnec("Tieline BE FR - Défaut - N-1 NL1-NL3").getExtension(CnecResultExtension.class);
         assertNotNull(extCnec);
         assertEquals(-450.0, extCnec.getVariant("variant2").getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(750.0, extCnec.getVariant("variant2").getFlowInA(), DOUBLE_TOLERANCE);
@@ -214,7 +230,7 @@ public class JsonResultTest {
     @Test
     public void cracImportWithUnknownFieldInExtension() {
         try {
-            Crac crac = CracImporters.importCrac("small-crac-errored.json", getClass().getResourceAsStream("/small-crac-errored.json"));
+            CracImporters.importCrac("small-crac-errored.json", getClass().getResourceAsStream("/small-crac-errored.json"));
             fail();
         } catch (FaraoException e) {
             // should throw

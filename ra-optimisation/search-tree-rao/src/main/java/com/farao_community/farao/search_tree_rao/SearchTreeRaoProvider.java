@@ -9,10 +9,11 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -77,7 +78,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         RaoUtil.initData(raoInput, parameters);
 
-        stateTree = new StateTree(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getCrac().getPreventiveState());
+        stateTree = new StateTree(raoInput.getCrac(), raoInput.getCrac().getPreventiveState());
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {
@@ -319,8 +320,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
             State optimizedState = stateTree.getOptimizedState(cnec.getState());
             if (!optimizedState.equals(crac.getPreventiveState())) {
                 String optimizedVariantId = curativeRaoResults.get(optimizedState).getPostOptimVariantId();
-                CnecResult optimizedCnecResult = cnec.getExtension(CnecResultExtension.class).getVariant(optimizedVariantId);
-                CnecResult targetResult = cnec.getExtension(CnecResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId());
+                CnecResult optimizedCnecResult = ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(optimizedVariantId);
+                CnecResult targetResult = ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(preventiveRaoResult.getPostOptimVariantId());
                 targetResult.setAbsolutePtdfSum(optimizedCnecResult.getAbsolutePtdfSum());
                 targetResult.setFlowInA(optimizedCnecResult.getFlowInA());
                 targetResult.setFlowInMW(optimizedCnecResult.getFlowInMW());
@@ -362,6 +363,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     private void mergeObjectiveFunctionValues(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
+        // TODO : do the same for initial variant
         // Save the objective function value of the "worst" perimeter (maximum obj function value)
         // Skip perimeters with pure MNECs as their functional cost can be 0 (artificial)
         CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);

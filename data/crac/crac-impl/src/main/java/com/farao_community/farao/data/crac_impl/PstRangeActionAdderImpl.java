@@ -8,115 +8,112 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.range_action.*;
+import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.farao_community.farao.data.crac_impl.range_domain.PstRangeImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
+import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstRangeActionAdderImpl extends AbstractIdentifiableAdder<PstRangeActionAdder> implements PstRangeActionAdder {
-    private SimpleCrac parent;
-    private Unit unit;
-    private Double minValue;
-    private Double maxValue;
-    private NetworkElement networkElement;
-    private String operator;
-    private String groupId = null;
-    private List<UsageRule> usageRules = new ArrayList<>();
+public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRangeActionAdder> implements PstRangeActionAdder {
 
-    public PstRangeActionAdderImpl(SimpleCrac parent) {
-        Objects.requireNonNull(parent);
-        this.parent = parent;
-        this.usageRules.add(new FreeToUseImpl(AVAILABLE, Instant.PREVENTIVE));
+    private static final Logger LOGGER = LoggerFactory.getLogger(PstRangeActionAdderImpl.class);
+
+    private String networkElementId;
+    private String networkElementName;
+    private List<TapRange> ranges;
+    private String groupId = null;
+
+    @Override
+    protected String getTypeDescription() {
+        return "PstRangeAction";
+    }
+
+    PstRangeActionAdderImpl(CracImpl owner) {
+        super(owner);
+        this.ranges = new ArrayList<>();
     }
 
     @Override
-    public PstRangeActionAdder setOperator(String operator) {
-        this.operator = operator;
+    public PstRangeActionAdder withNetworkElement(String networkElementId) {
+        return withNetworkElement(networkElementId, networkElementId);
+    }
+
+    @Override
+    public PstRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
+        this.networkElementId = networkElementId;
+        this.networkElementName = networkElementName;
         return this;
     }
 
     @Override
-    public PstRangeActionAdder setGroupId(String groupId) {
+    public PstRangeActionAdder withGroupId(String groupId) {
         this.groupId = groupId;
         return this;
     }
 
     @Override
-    public PstRangeActionAdder setUnit(Unit unit) {
-        this.unit = unit;
-        return this;
+    public TapRangeAdder newTapRange() {
+        return new TapRangeAdderImpl(this);
     }
 
     @Override
-    public PstRangeActionAdder setMinValue(Double minValue) {
-        this.minValue = minValue;
-        return this;
-    }
-
-    @Override
-    public PstRangeActionAdder setMaxValue(Double maxValue) {
-        this.maxValue = maxValue;
-        return this;
-    }
-
-    @Override
-    public PstRangeActionAdder addNetworkElement(NetworkElement networkElement) {
-        this.networkElement = networkElement;
-        return this;
-    }
-
-    @Override
-    public NetworkElementAdder<PstRangeActionAdder> newNetworkElement() {
-        if (networkElement == null) {
-            return new NetworkElementAdderImpl<>(this);
-        } else {
-            throw new FaraoException("You can only add one network element to a PstRangeAction.");
-        }
-    }
-
-    @Override
-    public Crac add() {
+    public PstRangeAction add() {
         checkId();
-        if (this.unit == null) {
-            throw new FaraoException("Cannot add a PstRangeAction without a unit. Please use setUnit.");
-        }
-        if (this.unit != Unit.TAP) {
-            throw new FaraoException("Only TAP unit is currently supported.");
-        }
-        if (this.minValue == null) {
-            throw new FaraoException("Cannot add a PstRangeAction without a minimum value. Please use setMinValue.");
-        }
-        if (this.maxValue == null) {
-            throw new FaraoException("Cannot add a PstRangeAction without a maximum value. Please use setMaxValue.");
-        }
-        if (this.networkElement == null) {
-            throw new FaraoException("Cannot add a PstRangeAction without a network element. Please use newNetworkElement.");
-        }
-        List<PstRange> ranges = Collections.singletonList(new PstRangeImpl(this.minValue, this.maxValue, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
-        /*
-         * First we add the network element to the crac
-         * If it already exists, it will send us back the reference to the
-         * existing element, thus avoiding making a copy
-         * This is done here because it is too complicated to do in
-         * SimpleCrac.addRangeAction, which handles abstract RangeActions
-         */
-        NetworkElement newNetworkElement = parent.addNetworkElement(networkElement.getId(), networkElement.getName());
+        assertAttributeNotNull(networkElementId, "PstRangeAction", "network element", "withNetworkElement()");
 
-        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, newNetworkElement, groupId);
-        this.parent.addRangeAction(pstWithRange);
+        if (!Objects.isNull(getCrac().getRemedialAction(id))) {
+            throw new FaraoException(String.format("A remedial action with id %s already exists", id));
+        }
 
-        return parent;
+        List<TapRange> validRanges = new ArrayList<>();
+
+        if (usageRules.stream().allMatch(this::isPreventiveUsageRule)) {
+            ranges.forEach(range -> {
+                if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {
+                    LOGGER.warn("RELATIVE_TO_PREVIOUS_INSTANT range has been filtered from PstRangeAction {}, as it is a preventive RA", id);
+                } else {
+                    validRanges.add(range);
+                }
+            });
+        } else {
+            validRanges.addAll(ranges);
+        }
+
+        if (validRanges.isEmpty()) {
+            LOGGER.warn("PstRangeAction {} does not contain any valid range, by default the range of the network will be used", id);
+        }
+
+        if (usageRules.isEmpty()) {
+            LOGGER.warn("PstRangeAction {} does not contain any usage rule, by default it will never be available", id);
+        }
+
+        //todo : check that initial tap is within range (requires initial tap to be in the adder, not in the synchronization)
+
+        NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
+        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId);
+        this.getCrac().addPstRangeAction(pstWithRange);
+        return pstWithRange;
     }
+
+    void addRange(TapRange pstRange) {
+        ranges.add(pstRange);
+    }
+
+    private boolean isPreventiveUsageRule(UsageRule usageRule) {
+        return  (usageRule instanceof FreeToUse && ((FreeToUse) usageRule).getInstant().equals(Instant.PREVENTIVE))
+            || (usageRule instanceof OnState && ((OnState) usageRule).getInstant().equals(Instant.PREVENTIVE));
+    }
+
 }

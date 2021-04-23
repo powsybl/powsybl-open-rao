@@ -9,16 +9,10 @@ package com.farao_community.farao.data.crac_impl.utils;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.NetworkActionImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.network_action.TopologicalActionImpl;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
-
-import java.util.*;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -29,124 +23,199 @@ public final class CommonCracCreation {
 
     }
 
-    public static SimpleCrac create() {
-        SimpleCrac crac = new SimpleCrac("idSimpleCracTestUS", "nameSimpleCracTestUS");
+    public static Crac create() {
+        return create(CracFactory.findDefault());
+    }
 
-        ComplexContingency contingency1 = new ComplexContingency("Contingency FR1 FR3", "Trip of FFR1AA1 FFR3AA1 1",
-            new HashSet<>(Collections.singletonList(new NetworkElement("FFR1AA1  FFR3AA1  1"))));
-        crac.addContingency(contingency1);
-        ComplexContingency contingency2 = new ComplexContingency("Contingency FR1 FR2", "Trip of FFR1AA1 FFR2AA1 1",
-            new HashSet<>(Collections.singletonList(new NetworkElement("FFR1AA1  FFR2AA1  1"))));
-        crac.addContingency(contingency2);
+    public static Crac create(CracFactory cracFactory) {
 
-        //NetworkElement
-        NetworkElement monitoredElement1 = new NetworkElement("BBE2AA1  FFR3AA1  1");
-        NetworkElement monitoredElement2 = new NetworkElement("FFR2AA1  DDE3AA1  1");
+        Crac crac = cracFactory.create("idSimpleCracTestUS", "nameSimpleCracTestUS");
 
-        crac.newBranchCnec()
-            .setId("cnec1basecase")
-            .addNetworkElement(monitoredElement1)
-            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
-            .setInstant(Instant.PREVENTIVE)
-            .optimized()
-            .setOperator("operator1")
+        // Contingencies
+        crac.newContingency()
+            .withId("Contingency FR1 FR3")
+            .withName("Trip of FFR1AA1 FFR3AA1 1")
+            .withNetworkElement("FFR1AA1  FFR3AA1  1")
+            .add();
+        crac.newContingency()
+            .withId("Contingency FR1 FR2")
+            .withName("Trip of FFR1AA1 FFR2AA1 1")
+            .withNetworkElement("FFR1AA1  FFR2AA1  1")
             .add();
 
-        crac.newBranchCnec()
-            .setId("cnec1stateCurativeContingency1")
-            .addNetworkElement(monitoredElement1)
-            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
-            .setInstant(Instant.CURATIVE)
-            .setContingency(contingency1)
-            .optimized()
-            .setOperator("operator1")
+        // Cnecs
+        crac.newFlowCnec()
+            .withId("cnec1basecase")
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .withInstant(Instant.PREVENTIVE)
+            .withOptimized(true)
+            .withOperator("operator1")
+            .newThreshold()
+                .withUnit(Unit.MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-1500.)
+                .withMax(1500.)
+                .add()
             .add();
 
-        crac.newBranchCnec()
-            .setId("cnec1stateCurativeContingency2")
-            .addNetworkElement(monitoredElement1)
-            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
-            .setInstant(Instant.CURATIVE)
-            .setContingency(contingency2)
-            .optimized()
-            .setOperator("operator1")
+        crac.newFlowCnec()
+            .withId("cnec1stateCurativeContingency1")
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .withInstant(Instant.CURATIVE)
+            .withContingency("Contingency FR1 FR3")
+            .withOptimized(true)
+            .withOperator("operator1")
+            .newThreshold()
+                .withUnit(Unit.MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-1500.)
+                .withMax(1500.)
+                .add()
             .add();
 
-        crac.newBranchCnec()
-            .setId("cnec2basecase")
-            .addNetworkElement(monitoredElement2)
-            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
-            .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).setMax(0.3).add()
-            .setInstant(Instant.PREVENTIVE)
-            .optimized()
-            .setOperator("operator2")
+        crac.newFlowCnec()
+            .withId("cnec1stateCurativeContingency2")
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .withInstant(Instant.CURATIVE)
+            .withContingency("Contingency FR1 FR2")
+            .withOptimized(true)
+            .withOperator("operator1")
+            .newThreshold()
+                .withUnit(Unit.MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-1500.)
+                .withMax(1500.)
+                .add()
             .add();
 
-        crac.newBranchCnec()
-            .setId("cnec2stateCurativeContingency1")
-            .addNetworkElement(monitoredElement2)
-            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
-            .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).setMax(0.3).add()
-            .setInstant(Instant.CURATIVE)
-            .setContingency(contingency1)
-            .optimized()
-            .setOperator("operator2")
+        crac.newFlowCnec()
+            .withId("cnec2basecase")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withInstant(Instant.PREVENTIVE)
+            .withOptimized(true)
+            .withOperator("operator2")
+            .newThreshold()
+                .withUnit(Unit.MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-1500.)
+                .withMax(1500.)
+                .add()
+            .newThreshold()
+                .withUnit(Unit.PERCENT_IMAX)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-0.3)
+                .withMax(0.3)
+                .add()
             .add();
 
-        crac.newBranchCnec()
-            .setId("cnec2stateCurativeContingency2")
-            .addNetworkElement(monitoredElement2)
-            .newThreshold().setUnit(Unit.MEGAWATT).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-1500.).setMax(1500.).add()
-            .newThreshold().setUnit(Unit.PERCENT_IMAX).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-0.3).setMax(0.3).add()
-            .setInstant(Instant.CURATIVE)
-            .setContingency(contingency2)
-            .optimized()
+        crac.newFlowCnec()
+            .withId("cnec2stateCurativeContingency1")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withInstant(Instant.CURATIVE)
+            .withContingency("Contingency FR1 FR3")
+            .withOptimized(true)
+            .withOperator("operator2")
+            .newThreshold()
+                .withUnit(Unit.MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-1500.)
+                .withMax(1500.)
+                .add()
+            .newThreshold()
+                .withUnit(Unit.PERCENT_IMAX)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-0.3)
+                .withMax(0.3)
+                .add()
+            .add();
+
+        crac.newFlowCnec()
+            .withId("cnec2stateCurativeContingency2")
+            .withNetworkElement("FFR2AA1  DDE3AA1  1")
+            .withInstant(Instant.CURATIVE)
+            .withContingency("Contingency FR1 FR2")
+            .withOptimized(true)
+            .withOperator("operator2")
+            .withReliabilityMargin(95.)
+            .newThreshold()
+                .withUnit(Unit.MEGAWATT)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-1500.)
+                .withMax(1500.)
+                .add()
+            .newThreshold()
+                .withUnit(Unit.PERCENT_IMAX)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-0.3)
+                .withMax(0.3)
+                .add()
             .add();
 
         return crac;
     }
 
-    public static SimpleCrac createWithPstRange() {
-        SimpleCrac crac = create();
+    public static Crac createWithPreventivePstRange() {
+        Crac crac = create();
 
-        //NetworkElement
-        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-
-        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
-        pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        crac.addRangeAction(pstRangeAction);
-
-        return crac;
-    }
-
-    public static SimpleCrac createWithCurativePstRange() {
-        SimpleCrac crac = create();
-
-        //NetworkElement
-        NetworkElement pstElement = new NetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name");
-
-        PstRangeActionImpl pstRangeAction = new PstRangeActionImpl("pst", pstElement);
-        pstRangeAction.setOperator("operator1");
-        pstRangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("Contingency FR1 FR3", Instant.CURATIVE)));
-        crac.addRangeAction(pstRangeAction);
+        crac.newPstRangeAction()
+            .withId("pst")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
+            .withOperator("operator1")
+            .newFreeToUseUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .newTapRange()
+                .withRangeType(RangeType.ABSOLUTE)
+                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+                .withMinTap(-16)
+                .withMaxTap(16)
+                .add()
+            .add();
 
         return crac;
     }
 
-    public static SimpleCrac createWithSwitch() {
-        SimpleCrac crac = create();
+    public static Crac createWithCurativePstRange() {
+        Crac crac = create();
 
-        NetworkElement switchElement = new NetworkElement("NNL3AA11 NNL3AA12 1", "NNL3AA11 NNL3AA12 1 name");
-        TopologicalActionImpl topologicalAction = new TopologicalActionImpl(switchElement, ActionType.OPEN);
-        NetworkActionImpl topologicalRa = new NetworkActionImpl(
-            "switch_ra",
-            "switch_ra_name",
-            "OPERATOR",
-            List.of(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState())),
-            Set.of(topologicalAction)
-        );
+        crac.newPstRangeAction()
+            .withId("pst")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
+            .withOperator("operator1")
+            .newOnStateUsageRule()
+                .withInstant(Instant.CURATIVE)
+                .withContingency("Contingency FR1 FR3")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .newTapRange()
+                .withRangeType(RangeType.ABSOLUTE)
+                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+                .withMinTap(-16)
+                .withMaxTap(16)
+                .add()
+            .add();
 
-        crac.addNetworkAction(topologicalRa);
+        return crac;
+    }
+
+    public static Crac createWithSwitchTopologicalAction() {
+        Crac crac = create();
+
+        crac.newNetworkAction()
+            .withId("switch_ra")
+            .withName("switch_ra_name")
+            .withOperator("operator1")
+            .newTopologicalAction()
+                .withNetworkElement("NNL3AA11 NNL3AA12 1", "NNL3AA11 NNL3AA12 1 name")
+                .withActionType(ActionType.OPEN)
+                .add()
+            .newFreeToUseUsageRule()
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .withInstant(Instant.PREVENTIVE)
+                .add()
+            .add();
+
         return crac;
     }
 

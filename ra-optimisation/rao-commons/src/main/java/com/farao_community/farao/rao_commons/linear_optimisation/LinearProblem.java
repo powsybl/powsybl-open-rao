@@ -7,13 +7,16 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.util.NativeLibraryLoader;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
@@ -22,6 +25,7 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LinearProblem {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinearProblem.class);
     private static final String VARIABLE_SUFFIX = "variable";
     private static final String CONSTRAINT_SUFFIX = "constraint";
     private static final String SEPARATOR = "_";
@@ -37,6 +41,14 @@ public class LinearProblem {
     private static final String MNEC_VIOLATION = "mnecviolation";
     private static final String MNEC_FLOW = "mnecflow";
     private static final String MARGIN_DECREASE = "margindecrease";
+
+    static {
+        try {
+            NativeLibraryLoader.loadNativeLibrary("jniortools");
+        } catch (Exception e) {
+            LOGGER.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+        }
+    }
 
     public enum SolveStatus {
         OPTIMAL,
@@ -266,7 +278,7 @@ public class LinearProblem {
     }
 
     private String mnecFlowConstraintId(Cnec<?> mnec, MarginExtension belowOrAboveThreshold) {
-        return mnec.getId() + SEPARATOR + MNEC_FLOW + belowOrAboveThreshold.toString().toLowerCase()  + SEPARATOR + CONSTRAINT_SUFFIX;
+        return mnec.getId() + SEPARATOR + MNEC_FLOW + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public MPConstraint addMnecFlowConstraint(double lb, double ub, Cnec<?> mnec, MarginExtension belowOrAboveThreshold) {

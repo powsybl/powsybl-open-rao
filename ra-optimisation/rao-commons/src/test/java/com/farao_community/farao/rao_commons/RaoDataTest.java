@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.powsybl.iidm.network.Country;
@@ -46,8 +46,8 @@ public class RaoDataTest {
         initialNetworkVariantId = network.getVariantManager().getWorkingVariantId();
         crac = CommonCracCreation.createWithPstRange();
         crac.synchronize(network);
-        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
-        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, Mockito.mock(CnecLoopFlowExtension.class));
+        crac.getBranchCnec("cnec1basecase").addExtension(LoopFlowThresholdImpl.class, Mockito.mock(LoopFlowThresholdImpl.class));
+        crac.getBranchCnec("cnec2basecase").addExtension(LoopFlowThresholdImpl.class, Mockito.mock(LoopFlowThresholdImpl.class));
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
         initialVariantId = raoData.getWorkingVariantId();
     }
@@ -55,7 +55,7 @@ public class RaoDataTest {
     @Test
     public void testNoPerimeter() {
         RaoData raoData = new RaoData(network, crac, crac.getPreventiveState(), null, null, null, null, new RaoParameters());
-        assertEquals(crac.getBranchCnecs().size(), raoData.getCnecs().size());
+        assertEquals(crac.getFlowCnecs().size(), raoData.getCnecs().size());
     }
 
     @Test

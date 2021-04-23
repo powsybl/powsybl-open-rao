@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
@@ -102,7 +103,7 @@ public class InitialSensitivityAnalysis {
 
     private void fillAbsolutePtdfSums(SystematicSensitivityResult sensitivityResult) {
         Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getGlskProvider(), raoParameters.getRelativeMarginPtdfBoundaries(), sensitivityResult);
-        ptdfSums.forEach((key, value) -> key.getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setAbsolutePtdfSum(value));
+        ptdfSums.forEach((key, value) -> ((FlowCnec) key).getExtension(CnecResultExtension.class).getVariant(raoData.getWorkingVariantId()).setAbsolutePtdfSum(value));
     }
 
     private SystematicSensitivityInterface getSystematicSensitivityInterface() {

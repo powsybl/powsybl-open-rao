@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -25,12 +25,10 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-
 @RunWith(PowerMockRunner.class)
 public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     private LoopFlowParameters loopFlowParameters;
@@ -40,8 +38,10 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         init();
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
         coreProblemFiller = new CoreProblemFiller(linearProblem, network, Set.of(cnec1), Map.of(rangeAction, initialAlpha), 0);
-        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
-        cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        cnec1.newExtension(LoopFlowThresholdAdder.class)
+            .withUnit(Unit.MEGAWATT)
+            .withValue(100.)
+            .add();
     }
 
     @Test

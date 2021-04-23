@@ -2,52 +2,24 @@
   "type" : "simple-crac",
   "id" : "LS_parade_pst_direct",
   "name" : "LS_parade_pst_direct",
-  "networkDate" : "2020-05-22T10:09:17Z",
-  "networkElements" : [ {
-    "type" : "NetworkElement",
-    "id" : "FFR3AA1  FFR1AA1  1",
-    "name" : "FFR3AA1  FFR1AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "FFR2AA1  DDE3AA1  1",
-    "name" : "FFR2AA1  DDE3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "DDE1AA1  DDE2AA1  1",
-    "name" : "DDE1AA1  DDE2AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "BBE2AA1  BBE3AA1  1",
-    "name" : "BBE2AA1  BBE3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "DDE3AA1  FFR2AA1  HFSK JDV",
-    "name" : "DDE3AA1  FFR2AA1  HFSK JDV"
-  } ],
+  "networkElementsNamePerId": { },
   "contingencies" : [ {
-    "type" : "complex-contingency",
     "id" : "Contingency FR1 FR3",
-    "name" : "Contingency FR1 FR3",
-    "networkElements" : [ "FFR3AA1  FFR1AA1  1" ]
+    "networkElementsIds" : [ "FFR3AA1  FFR1AA1  1" ]
   }, {
-      "type" : "complex-contingency",
       "id" : "Contingency Interco",
-      "name" : "Contingency Interco",
-      "networkElements" : [ "DDE3AA1  FFR2AA1  HFSK JDV" ]
+      "networkElementsIds" : [ "DDE3AA1  FFR2AA1  HFSK JDV" ]
     }],
-  "cnecs" : [ {
-    "type" : "flow-cnec",
+  "flowCnecs" : [ {
     "id" : "FFR2AA1  DDE3AA1  1 - Curatif - Contingency FR1 FR3",
     "name" : "Tie-line FR DE",
-    "networkElement" : "FFR2AA1  DDE3AA1  1",
-    "contingency" : "Contingency FR1 FR3",
+    "networkElementId" : "FFR2AA1  DDE3AA1  1",
+    "contingencyId" : "Contingency FR1 FR3",
     "instant": "curative",
     "frm" : 0.0,
     "thresholds" : [ {
-      "type" : "branch-threshold",
-      "unit" : "A",
-      "rule" : "ON_LEFT_SIDE",
-      "min" : null,
+      "unit" : "ampere",
+      "rule" : "onLeftSide",
       "max" : 1500.0
     } ],
     "extensions" : {
@@ -75,17 +47,15 @@
       }
     }
   }, {
-    "type" : "flow-cnec",
     "id" : "DDE1AA1  DDE2AA1  1 - Défaut - Contingency FR1 FR3",
     "name" : "Line DE1 DE2",
-    "networkElement" : "DDE1AA1  DDE2AA1  1",
-    "contingency" : "Contingency FR1 FR3",
+    "networkElementId" : "DDE1AA1  DDE2AA1  1",
+    "contingencyId" : "Contingency FR1 FR3",
     "instant": "outage",
     "frm" : -1.0,
     "thresholds" : [ {
-      "type" : "branch-threshold",
-      "unit" : "A",
-      "rule" : "ON_LEFT_SIDE",
+      "unit" : "ampere",
+      "rule" : "onLeftSide",
       "min" : -1500.0,
       "max" : 1500.0
     } ],
@@ -114,17 +84,15 @@
       }
     }
   }, {
-    "type" : "flow-cnec",
     "id" : "DDE1AA1  DDE2AA1  1 - Curatif - Contingency FR1 FR3",
     "name" : "Line DE1 DE2",
-    "networkElement" : "DDE1AA1  DDE2AA1  1",
-    "contingency" : "Contingency FR1 FR3",
+    "networkElementId" : "DDE1AA1  DDE2AA1  1",
+    "contingencyId" : "Contingency FR1 FR3",
     "instant": "curative",
     "frm" : 2.0,
     "thresholds" : [ {
-      "type" : "branch-threshold",
-      "unit" : "A",
-      "rule" : "ON_LEFT_SIDE",
+      "unit" : "ampere",
+      "rule" : "onLeftSide",
       "min" : -1500.0,
       "max" : 1500.0
     } ],
@@ -153,16 +121,14 @@
       }
     }
   }, {
-    "type" : "flow-cnec",
     "id" : "DDE1AA1  DDE2AA1  1 - N - preventive",
     "name" : "Line DE1 DE2",
-    "networkElement" : "DDE1AA1  DDE2AA1  1",
+    "networkElementId" : "DDE1AA1  DDE2AA1  1",
     "instant" : "preventive",
     "frm" : 3.0,
     "thresholds" : [ {
-      "type" : "branch-threshold",
-      "unit" : "A",
-      "rule" : "ON_LEFT_SIDE",
+      "unit" : "ampere",
+      "rule" : "onLeftSide",
       "min" : -1500.0,
       "max" : 1500.0
     } ],
@@ -191,18 +157,15 @@
       }
     }
   }, {
-    "type" : "flow-cnec",
     "id" : "FFR2AA1  DDE3AA1  1 - Défaut - Contingency FR1 FR3",
     "name" : "Tie-line FR DE",
-    "networkElement" : "FFR2AA1  DDE3AA1  1",
-    "contingency" : "Contingency FR1 FR3",
+    "networkElementId" : "FFR2AA1  DDE3AA1  1",
+    "contingencyId" : "Contingency FR1 FR3",
     "instant": "outage",
     "frm" : 4.0,
     "thresholds" : [ {
-      "type" : "branch-threshold",
-      "unit" : "A",
-      "rule" : "ON_LEFT_SIDE",
-      "min" : null,
+      "unit" : "ampere",
+      "rule" : "onLeftSide",
       "max" : 1500.0
     } ],
     "extensions" : {
@@ -230,17 +193,14 @@
       }
     }
   }, {
-    "type" : "flow-cnec",
     "id" : "FFR2AA1  DDE3AA1  1 - N - preventive",
     "name" : "Tie-line FR DE",
-    "networkElement" : "FFR2AA1  DDE3AA1  1",
+    "networkElementId" : "FFR2AA1  DDE3AA1  1",
     "instant" : "preventive",
     "frm" : 5.0,
     "thresholds" : [ {
-      "type" : "branch-threshold",
-      "unit" : "A",
-      "rule" : "ON_LEFT_SIDE",
-      "min" : null,
+      "unit" : "ampere",
+      "rule" : "onLeftSide",
       "max" : 1500.0
     } ],
     "extensions" : {
@@ -268,22 +228,20 @@
       }
     }
   } ],
-  "rangeActions" : [ {
-    "type" : "pst-range-action-impl",
+  "pstRangeActions" : [ {
     "id" : "PST1",
     "name" : "PST1",
     "operator" : "FR",
-    "usageRules" : [ {
-      "type" : "free-to-use",
-      "usageMethod" : "AVAILABLE",
+    "freeToUseUsageRules" : [ {
+      "usageMethod" : "available",
       "instant" : "preventive"
     } ],
-    "networkElements" : [ "BBE2AA1  BBE3AA1  1" ],
+    "networkElementId" : "BBE2AA1  BBE3AA1  1",
     "ranges" : [ {
       "min" : 1.0,
       "max" : 33.0,
-      "rangeType" : "ABSOLUTE",
-      "rangeDefinition" : "STARTS_AT_ONE"
+      "rangeType" : "absolute",
+      "tapConvention" : "startsAtOne"
     } ],
     "extensions" : {
       "RangeActionResultExtension" : {

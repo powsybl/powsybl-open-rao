@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
@@ -45,8 +45,8 @@ public class LoopFlowViolationCostEvaluatorTest {
         crac.getExtension(ResultVariantManager.class).setInitialVariantId("initial");
 
         loopflowCnecs = new HashSet<>();
-        loopflowCnecs.add(crac.getBranchCnec("cnec1basecase"));
-        loopflowCnecs.add(crac.getBranchCnec("cnec2basecase"));
+        loopflowCnecs.add(crac.getFlowCnec("cnec1basecase"));
+        loopflowCnecs.add(crac.getFlowCnec("cnec2basecase"));
 
         initialLoopFlows = new HashMap<>();
         sensitivityAndLoopflowResults = Mockito.mock(SensitivityAndLoopflowResults.class);
@@ -55,12 +55,19 @@ public class LoopFlowViolationCostEvaluatorTest {
     @Test
     public void testLoopFlowViolationCostEvaluator1() {
         // no loop-flow violation for both cnecs
-        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.0)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.0)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
         addLoopFlowInitialResult("cnec1basecase", 0.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec1basecase"))).thenReturn(10.);
-        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec1basecase"))).thenReturn(10.);
         addLoopFlowInitialResult("cnec2basecase", 0.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec2basecase"))).thenReturn(100.);
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec2basecase"))).thenReturn(100.);
 
         parameters = new LoopFlowParameters(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF, 10, 50, 10);
         assertEquals(0., new LoopFlowViolationCostEvaluator(loopflowCnecs, initialLoopFlows, parameters).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
@@ -72,12 +79,19 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator2() {
         // 90 MW loop-flow violation for cnec1
         // no loop-flow violation for cnec2
-        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.0)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.0)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
         addLoopFlowInitialResult("cnec1basecase", 0.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec1basecase"))).thenReturn(190.);
-        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec1basecase"))).thenReturn(190.);
         addLoopFlowInitialResult("cnec2basecase", 0.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec2basecase"))).thenReturn(9.);
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec2basecase"))).thenReturn(9.);
 
         parameters = new LoopFlowParameters(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
                 0, 0, 0);
@@ -94,13 +108,19 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator3() {
         // no loop-flow violation for cnec1
         // 10 MW of loop-flow violation for cnec2
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.0)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.0)
+            .withUnit(Unit.MEGAWATT)
+            .add();
 
-        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
         addLoopFlowInitialResult("cnec1basecase", 0.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec1basecase"))).thenReturn(99.);
-        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec1basecase"))).thenReturn(99.);
         addLoopFlowInitialResult("cnec2basecase", 0.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec2basecase"))).thenReturn(-110.);
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec2basecase"))).thenReturn(-110.);
 
         parameters = new LoopFlowParameters(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
                 0, 0, 0);
@@ -117,12 +137,19 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator4() {
         // 20 MW no loop-flow violation for cnec1, loopflow = initialLoopFlow + acceptableAugmentation (50) + 20
         // 10 MW of loop-flow violation for cnec2, constrained by threshold and not initial loop-flow
-        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.0)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(100.0)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
         addLoopFlowInitialResult("cnec1basecase", 200.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec1basecase"))).thenReturn(270.);
-        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(100., Unit.MEGAWATT));
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec1basecase"))).thenReturn(270.);
         addLoopFlowInitialResult("cnec2basecase", 0.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec2basecase"))).thenReturn(-110.);
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec2basecase"))).thenReturn(-110.);
 
         parameters = new LoopFlowParameters(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
                 50, 0, 0);
@@ -139,12 +166,19 @@ public class LoopFlowViolationCostEvaluatorTest {
     public void testLoopFlowViolationCostEvaluator5() {
         // 0 MW no loop-flow violation for cnec1, loop flow below initial loopFlow + acceptable augmentation (50)
         // 10 MW of loop-flow violation for cnec2, loopflow = initialLoopFlow + acceptableAugmentation (50) + 10
-        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(230., Unit.MEGAWATT));
+        crac.getFlowCnec("cnec1basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(230.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+        crac.getFlowCnec("cnec2basecase").newExtension(LoopFlowThresholdAdder.class)
+            .withValue(50.)
+            .withUnit(Unit.MEGAWATT)
+            .add();
+
         addLoopFlowInitialResult("cnec1basecase", 200.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec1basecase"))).thenReturn(-245.);
-        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, new CnecLoopFlowExtension(50., Unit.MEGAWATT));
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec1basecase"))).thenReturn(-245.);
         addLoopFlowInitialResult("cnec2basecase", 100.);
-        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getBranchCnec("cnec2basecase"))).thenReturn(-160.);
+        Mockito.when(sensitivityAndLoopflowResults.getLoopflow(crac.getFlowCnec("cnec2basecase"))).thenReturn(-160.);
 
         parameters = new LoopFlowParameters(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF,
                 50, 0, 0);
@@ -173,6 +207,6 @@ public class LoopFlowViolationCostEvaluatorTest {
     }
 
     private void addLoopFlowInitialResult(String cnecId, double loopFlowInMW) {
-        initialLoopFlows.put(crac.getBranchCnec(cnecId), loopFlowInMW);
+        initialLoopFlows.put(crac.getFlowCnec(cnecId), loopFlowInMW);
     }
 }

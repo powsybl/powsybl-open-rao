@@ -2,75 +2,26 @@
   "type" : "simple-crac",
   "id" : "17XTSO-CS------W-20190108-F301v1",
   "name" : "17XTSO-CS------W-20190108-F301v1",
-  "networkDate" : "2020-09-28T08:29:04Z",
-  "networkElements" : [ {
-    "type" : "NetworkElement",
-    "id" : "FFR1AA1  FFR3AA1  1",
-    "name" : "FFR1AA1  FFR3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "NNL1AA1  NNL3AA1  1",
-    "name" : "NNL1AA1  NNL3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "DDE2AA1  DDE3AA1  1",
-    "name" : "DDE2AA1  DDE3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "FFR2AA1  DDE3AA1  1",
-    "name" : "FFR2AA1  DDE3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "NNL2AA1  NNL3AA1  1",
-    "name" : "NNL2AA1  NNL3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "FFR2AA1  FFR3AA1  1",
-    "name" : "FFR2AA1  FFR3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "DDE1AA1  DDE2AA1  1",
-    "name" : "DDE1AA1  DDE2AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "NNL2AA1  BBE3AA1  1",
-    "name" : "NNL2AA1  BBE3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "NNL1AA1  NNL2AA1  1",
-    "name" : "NNL1AA1  NNL2AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "BBE2AA1  BBE3AA1  1",
-    "name" : "BBE2AA1  BBE3AA1  1"
-  }, {
-    "type" : "NetworkElement",
-    "id" : "FFR1AA1  FFR2AA1  1",
-    "name" : "FFR1AA1  FFR2AA1  1"
-  } ],
+  "networkElementsNamePerId": { },
   "contingencies" : [ {
-    "type" : "complex-contingency",
     "id" : "Contingency FR1 FR3",
-    "name" : "Contingency FR1 FR3",
-    "networkElements" : [ "FFR1AA1  FFR3AA1  1" ]
+    "networkElementsIds" : [ "FFR1AA1  FFR3AA1  1" ]
   } ],
-  "cnecs" : [ ],
-  "rangeActions" : [ {
-    "type" : "pst-range-action-impl",
+  "flowCnecs" : [ ],
+  "pstRangeActions" : [ {
     "id" : "PRA_PST_BE",
     "name" : "PRA_PST_BE",
     "operator" : "BE",
-    "usageRules" : [ {
-      "type" : "on-state",
-      "usageMethod" : "AVAILABLE",
+    "freeToUseUsageRules" : [ {
+      "usageMethod" : "available",
       "instant" : "preventive"
     } ],
-    "networkElements" : [ "BBE2AA1  BBE3AA1  1" ],
+    "networkElementId" : "BBE2AA1  BBE3AA1  1",
     "ranges" : [ {
       "min" : -16.0,
       "max" : 16.0,
-      "rangeType" : "ABSOLUTE",
-      "rangeDefinition" : "CENTERED_ON_ZERO"
+      "rangeType" : "absolute",
+      "tapConvention" : "centeredOnZero"
     } ],
     "extensions" : {
       "RangeActionResultExtension" : {
@@ -100,19 +51,16 @@
     }
   } ],
   "networkActions" : [ {
-    "type" : "network-action-impl",
     "id" : "Open line NL1-NL2",
     "name" : "Open line NL1-NL2",
     "operator" : "NL",
-    "usageRules" : [ {
-      "type" : "on-state",
-      "usageMethod" : "AVAILABLE",
+    "freeToUseUsageRules" : [ {
+      "usageMethod" : "available",
       "instant" : "preventive"
     } ],
-    "elementaryActions" : [ {
-      "type" : "topological-action",
-      "networkElement" : "NNL1AA1  NNL2AA1  1",
-      "actionType" : "OPEN"
+    "topologicalActions" : [ {
+      "networkElementId" : "NNL1AA1  NNL2AA1  1",
+      "actionType" : "open"
     } ],
     "extensions" : {
       "NetworkActionResultExtension" : {
@@ -135,19 +83,16 @@
       }
     }
   }, {
-    "type" : "network-action-impl",
     "id" : "Open line FR1-FR2",
     "name" : "Open line FR1-FR2",
     "operator" : "FR",
-    "usageRules" : [ {
-      "type" : "on-state",
-      "usageMethod" : "AVAILABLE",
+    "freeToUseUsageRules" : [ {
+      "usageMethod" : "available",
       "instant" : "preventive"
     } ],
-    "elementaryActions" : [ {
-      "type" : "topological-action",
-      "networkElement" : "FFR1AA1  FFR2AA1  1",
-      "actionType" : "OPEN"
+    "topologicalActions" : [ {
+      "networkElementId" : "FFR1AA1  FFR2AA1  1",
+      "actionType" : "open"
     } ]
   } ],
   "extensions" : {

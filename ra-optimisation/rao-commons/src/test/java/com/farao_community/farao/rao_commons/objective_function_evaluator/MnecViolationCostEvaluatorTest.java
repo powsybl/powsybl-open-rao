@@ -92,12 +92,14 @@ public class MnecViolationCostEvaluatorTest {
 
         Crac crac = CommonCracCreation.create();
 
-        mnec = crac.newBranchCnec().setId("MNEC1 - initial-instant - preventive")
-                .newNetworkElement().setId("FFR2AA1  FFR3AA1  1").add()
-                .newThreshold().setMin(-MNEC_THRESHOLD).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(MNEC_THRESHOLD).setUnit(unit).add()
-                .optimized().monitored()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
+        mnec = crac.newFlowCnec()
+            .withId("MNEC1 - initial-instant - preventive")
+            .withNetworkElement("FFR2AA1  FFR3AA1  1")
+            .newThreshold().withMin(-MNEC_THRESHOLD).withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(MNEC_THRESHOLD).withUnit(unit).add()
+            .withOptimized(true)
+            .withMonitored(true)
+            .withInstant(Instant.PREVENTIVE)
+            .add();
         ResultVariantManager resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);

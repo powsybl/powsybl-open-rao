@@ -11,13 +11,13 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AbstractRangeAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
+import com.farao_community.farao.data.crac_impl.AbstractRangeAction;
+import com.farao_community.farao.data.crac_impl.PstRangeActionImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -52,11 +52,11 @@ public class CracResultManagerTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.create();
 
-        CnecLoopFlowExtension cnecLoopFlowExtension1 = new CnecLoopFlowExtension(100., Unit.MEGAWATT);
-        CnecLoopFlowExtension cnecLoopFlowExtension2 = new CnecLoopFlowExtension(100., Unit.MEGAWATT);
+        LoopFlowThresholdImpl cnecLoopFlowExtension1 = new LoopFlowThresholdImpl(100., Unit.MEGAWATT);
+        LoopFlowThresholdImpl cnecLoopFlowExtension2 = new LoopFlowThresholdImpl(100., Unit.MEGAWATT);
 
-        crac.getBranchCnec("cnec1basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension1);
-        crac.getBranchCnec("cnec2basecase").addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension2);
+        crac.getBranchCnec("cnec1basecase").addExtension(LoopFlowThresholdImpl.class, cnecLoopFlowExtension1);
+        crac.getBranchCnec("cnec2basecase").addExtension(LoopFlowThresholdImpl.class, cnecLoopFlowExtension2);
         crac.getBranchCnec("cnec2basecase").setReliabilityMargin(20);
 
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters());
@@ -169,13 +169,13 @@ public class CracResultManagerTest {
 
         // Margins on all cnecs
         // cnec2stateCurativeContingency2 is the worst
-        margins = cracResultManager.computeMinMargins(pstRangeAction, new ArrayList<>(crac.getBranchCnecs()), 3, 4);
+        margins = cracResultManager.computeMinMargins(pstRangeAction, new ArrayList<>(crac.getFlowCnecs()), 3, 4);
         assertEquals(207.3, margins.getLeft(), DOUBLE_TOLERANCE);
         assertEquals(147.3, margins.getRight(), DOUBLE_TOLERANCE);
         // cnec2stateCurativeContingency1 is the worst
         // margin1 = -500 - 5 * 50 + 987 = 237
         // margin2 = -500 - 6 * 50 + 987 = 187
-        margins = cracResultManager.computeMinMargins(pstRangeAction, new ArrayList<>(crac.getBranchCnecs()), -5, -6);
+        margins = cracResultManager.computeMinMargins(pstRangeAction, new ArrayList<>(crac.getFlowCnecs()), -5, -6);
         assertEquals(237.3, margins.getLeft(), DOUBLE_TOLERANCE);
         assertEquals(187.3, margins.getRight(), DOUBLE_TOLERANCE);
     }
@@ -258,16 +258,16 @@ public class CracResultManagerTest {
 
         // between taps 11 and 12 for all cnecs, at tap 11, close to limit with tap 12
         // but tap 12 has a worse margin
-        minMarginsForBestTaps = cracResultManager.computeMinMarginsForBestTaps(pstRangeAction, 4.46, new ArrayList<>(crac.getBranchCnecs()));
+        minMarginsForBestTaps = cracResultManager.computeMinMarginsForBestTaps(pstRangeAction, 4.46, new ArrayList<>(crac.getFlowCnecs()));
         assertEquals(1, minMarginsForBestTaps.size());
         assertEquals(Double.MAX_VALUE, minMarginsForBestTaps.get(11), DOUBLE_TOLERANCE);
         // between taps 10 and 11 for all cnecs, at tap 11, close to limit with tap 10
-        minMarginsForBestTaps = cracResultManager.computeMinMarginsForBestTaps(pstRangeAction, 4.147, new ArrayList<>(crac.getBranchCnecs()));
+        minMarginsForBestTaps = cracResultManager.computeMinMarginsForBestTaps(pstRangeAction, 4.147, new ArrayList<>(crac.getFlowCnecs()));
         assertEquals(2, minMarginsForBestTaps.size());
         assertEquals(153.6, minMarginsForBestTaps.get(10), DOUBLE_TOLERANCE);
         assertEquals(130.2, minMarginsForBestTaps.get(11), DOUBLE_TOLERANCE);
         // between taps 10 and 11 for all cnecs, at tap 11, far from limit with tap 10
-        minMarginsForBestTaps = cracResultManager.computeMinMarginsForBestTaps(pstRangeAction, 4.148, new ArrayList<>(crac.getBranchCnecs()));
+        minMarginsForBestTaps = cracResultManager.computeMinMarginsForBestTaps(pstRangeAction, 4.148, new ArrayList<>(crac.getFlowCnecs()));
         assertEquals(1, minMarginsForBestTaps.size());
         assertEquals(Double.MAX_VALUE, minMarginsForBestTaps.get(11), DOUBLE_TOLERANCE);
     }

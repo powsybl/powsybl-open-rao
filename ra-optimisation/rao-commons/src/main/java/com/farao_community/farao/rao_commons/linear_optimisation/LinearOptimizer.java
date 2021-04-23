@@ -8,22 +8,25 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFillerFactory;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
-import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
 import static com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFillerType.*;
 import static java.lang.String.format;
 

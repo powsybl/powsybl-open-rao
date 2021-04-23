@@ -47,9 +47,9 @@ class XnodeGlskHandler {
     private Set<BranchCnec> branchCnecSet;
     private Network network;
 
-    XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<BranchCnec> branchCnecSet, Network network) {
+    XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<BranchCnec> branchCnecs, Network network) {
         this.glskZonalData = glskZonalData;
-        this.branchCnecSet = branchCnecSet;
+        this.branchCnecSet = branchCnecs;
         this.network = network;
         this.invalidGlskPerContingency = buildInvalidGlskPerContingency();
     }

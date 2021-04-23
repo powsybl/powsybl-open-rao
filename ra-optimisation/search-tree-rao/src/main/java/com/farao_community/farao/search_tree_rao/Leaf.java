@@ -8,9 +8,9 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
@@ -287,8 +287,8 @@ class Leaf {
         Set<RangeAction> rangeActionsToRemove = new HashSet<>();
         for (RangeAction rangeAction : rangeActions) {
             double preperimeterSetPoint = prePerimeterSetPoints.get(rangeAction);
-            double minSetPoint = rangeAction.getMinValue(network, preperimeterSetPoint);
-            double maxSetPoint = rangeAction.getMaxValue(network, preperimeterSetPoint);
+            double minSetPoint = rangeAction.getMinValue(preperimeterSetPoint);
+            double maxSetPoint = rangeAction.getMaxValue(preperimeterSetPoint);
             if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
                 LOGGER.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
                     rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);

@@ -5,9 +5,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 package com.farao_community.farao.rao_commons.linear_optimisation;
-import com.farao_community.farao.data.crac_impl.SimpleCrac;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -34,11 +33,9 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LinearProblem.class, LinearOptimizer.class})
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
@@ -46,7 +43,7 @@ public class LinearOptimizerTest {
     private LinearOptimizer linearOptimizer;
     private LinearProblem linearProblemMock;
     private Network network;
-    private SimpleCrac crac;
+    private Crac crac;
     private LinearOptimizerParameters linearOptimizerParameters;
 
     private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;

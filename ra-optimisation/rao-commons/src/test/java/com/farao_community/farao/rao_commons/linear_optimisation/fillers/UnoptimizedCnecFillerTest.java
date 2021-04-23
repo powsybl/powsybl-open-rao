@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
@@ -30,7 +29,6 @@ import java.util.Set;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -41,24 +39,26 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
     private MaxMinMarginFiller maxMinMarginFiller;
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
-    BranchCnec cnecNl;
-    BranchCnec cnecFr;
+    private BranchCnec cnecNl;
+    private BranchCnec cnecFr;
 
     @Before
     public void setUp() {
         init();
 
         // Add a cnec
-        crac.newBranchCnec().setId("Line NL - N - preventive")
-                .newNetworkElement().setId("NNL1AA1  NNL2AA1  1").add()
-                .newThreshold().setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(800.0).setMin(-1000.).setUnit(Unit.MEGAWATT).add()
-                .optimized()
-                .setInstant(Instant.PREVENTIVE)
-                .setOperator("NL")
-                .add();
+        crac.newFlowCnec()
+            .withId("Line NL - N - preventive")
+            .withNetworkElement("NNL1AA1  NNL2AA1  1")
+            .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withMax(800.0).withMin(-1000.).withUnit(Unit.MEGAWATT).add()
+            .withOptimized(true)
+            .withInstant(Instant.PREVENTIVE)
+            .withOperator("NL")
+            .add();
+
         // Set initial margins on both preventive CNECs
-        cnecNl = crac.getBranchCnec("Line NL - N - preventive");
-        cnecFr = crac.getBranchCnec("Tieline BE FR - N - preventive");
+        cnecNl = crac.getFlowCnec("Line NL - N - preventive");
+        cnecFr = crac.getFlowCnec("Tieline BE FR - N - preventive");
 
         coreProblemFiller = new CoreProblemFiller(linearProblem, network, Set.of(cnecNl, cnecFr), Collections.emptyMap(), 0);
 

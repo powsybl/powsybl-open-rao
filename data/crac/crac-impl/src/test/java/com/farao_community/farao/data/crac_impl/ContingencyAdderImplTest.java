@@ -27,28 +27,20 @@ public class ContingencyAdderImplTest {
 
     @Before
     public void setUp() {
-        crac = new SimpleCracFactory().create("test-crac");
+        crac = new CracImplFactory().create("test-crac");
     }
 
     @Test
     public void testAddContingencies() {
         Contingency con1 = crac.newContingency()
-                .setId("conId1")
-                .setName("conName1")
-                .newNetworkElement()
-                .setId("neId1")
-                .setName("neName1")
-                .add()
+                .withId("conId1")
+                .withName("conName1")
+                .withNetworkElement("neId1", "neName1")
                 .add();
         Contingency con2 = crac.newContingency()
-                .newNetworkElement()
-                .setId("neId2-1")
-                .add()
-                .newNetworkElement()
-                .setId("neId2-2")
-                .setName("neName2-2")
-                .add()
-                .setId("conId2")
+                .withNetworkElement("neId2-1")
+                .withNetworkElement("neId2-2", "neName2-2")
+                .withId("conId2")
                 .add();
         assertEquals(2, crac.getContingencies().size());
 
@@ -76,16 +68,19 @@ public class ContingencyAdderImplTest {
         assertEquals("neId2-1", ne1.getName());
         assertEquals("neId2-2", ne2.getId());
         assertEquals("neName2-2", ne2.getName());
+
+        // Verify that network elements were created
+        assertEquals(3, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement("neId1"));
+        assertNotNull(crac.getNetworkElement("neId2-1"));
+        assertNotNull(crac.getNetworkElement("neId2-2"));
     }
 
     @Test(expected = FaraoException.class)
     public void testAddWithNoIdFail() {
         crac.newContingency()
-                .setName("conName1")
-                .newNetworkElement()
-                .setId("neId1")
-                .setName("neName1")
-                .add()
+                .withName("conName1")
+                .withNetworkElement("neId1", "neName1")
                 .add();
     }
 
@@ -95,42 +90,40 @@ public class ContingencyAdderImplTest {
     }
 
     @Test
-    public void testAddXnodeContingency() {
-        crac.newContingency().setId("cont").setName("cont-name").addXnode("xnode1").addXnode("xnode2").add();
+    public void testAddEmptyContingency() {
+        crac.newContingency().withId("cont").add();
         assertEquals(1, crac.getContingencies().size());
         assertNotNull(crac.getContingency("cont"));
-        assertTrue(crac.getContingency("cont") instanceof XnodeContingency);
-        XnodeContingency contingency = (XnodeContingency) crac.getContingency("cont");
-        assertEquals("cont", contingency.getId());
-        assertEquals("cont-name", contingency.getName());
-        assertFalse(contingency.isSynchronized());
-        assertEquals(2, contingency.getXnodeIds().size());
-        assertTrue(contingency.getXnodeIds().contains("xnode1"));
-        assertTrue(contingency.getXnodeIds().contains("xnode2"));
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testAddXnodeToNetworkElementsError() {
-        crac.newContingency().setId("cont")
-                .newNetworkElement().setId("neId1").add()
-                .addXnode("xnode1")
-                .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testAddNetworkElementToXnodesError() {
-        crac.newContingency().setId("cont")
-                .addXnode("xnode1")
-                .newNetworkElement().setId("neId1").add()
-                .add();
+        assertTrue(crac.getContingency("cont") instanceof ContingencyImpl);
+        assertEquals(0, crac.getContingency("cont").getNetworkElements().size());
     }
 
     @Test
-    public void testAddEmptyContingency() {
-        crac.newContingency().setId("cont").add();
-        assertEquals(1, crac.getContingencies().size());
-        assertNotNull(crac.getContingency("cont"));
-        assertTrue(crac.getContingency("cont") instanceof ComplexContingency);
-        assertEquals(0, crac.getContingency("cont").getNetworkElements().size());
+    public void testAddExistingSameContingency() {
+        Contingency contingency1 = crac.newContingency()
+                .withId("conId1")
+                .withName("conName1")
+                .withNetworkElement("neId1", "neName1")
+                .add();
+        Contingency contingency2 = crac.newContingency()
+                .withId("conId1")
+                .withName("conName1")
+                .withNetworkElement("neId1", "neName1")
+                .add();
+        assertSame(contingency1, contingency2);
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testAddExistingDifferentContingency() {
+        crac.newContingency()
+                .withId("conId1")
+                .withName("conName1")
+                .withNetworkElement("neId1", "neName1")
+                .add();
+        crac.newContingency()
+                .withId("conId1")
+                .withName("conName1")
+                .withNetworkElement("neId2", "neName1")
+                .add();
     }
 }

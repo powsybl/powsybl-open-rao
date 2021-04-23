@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_api.cnec;
 
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.data.crac_api.*;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
@@ -17,99 +16,117 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Interface for Critical Network Element &amp; Contingencies
- * It represents a {@link NetworkElement} that can be either monitored, optimized or both in a RAO. It is defined
- * for a specific {@link State} of the optimization.
+ * Interface for Critical Network Element &amp; Contingency
+ *
+ * A Cnec represents a {@link NetworkElement} that is considered critical in the network.
+ * The {@link PhysicalParameter} of the Cnec is therefore monitored and/or optimized in
+ * RAOs relying on the Crac containing this Cnec.
+ *
+ * A Cnec is defined for a specific {@link State}. That is to say, either for the preventive
+ * instant, or after a contingency in a post-outage instant.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public interface Cnec<I extends Cnec<I>> extends Identifiable<I>, Synchronizable {
 
     /**
-     * Getter of the {@link State} on which the {@code Cnec} is defined.
-     *
-     * @return The related {@link State} of the {@code Cnec}
-     */
-    State getState();
-
-    /**
      * Getter of the {@link NetworkElement} on which the {@code Cnec} is defined.
-     *
-     * @return The related {@link NetworkElement} of the {@code Cnec}
      */
     NetworkElement getNetworkElement();
+
+    /**
+     * Getter of the {@link State} on which the {@code Cnec} is defined.
+     */
+    State getState();
 
     /**
      * Getter of the reliability margin. This value enables to take a margin compared to what is defined in
      * the {@code thresholds} of the {@code Cnec}. This margin would be common to all {@code thresholds}.
      * It should be 0 by default to ensure that there is no inconsistencies with {@code thresholds}.
-     *
-     * @return The reliability margin defined on this {@code Cnec}.
      */
     double getReliabilityMargin();
 
     /**
-     * Setter of the reliability margin.
-     *
-     * @param reliabilityMargin : Value of the margin. If negative it would be more permissive than what would be
-     *                          defined in the {@code thresholds}.
-     */
-    void setReliabilityMargin(double reliabilityMargin);
-
-    /**
-     * Enables to do an entire deep copy of a {@code Cnec}.
-     *
-     * @return An object of the specific type {@link I} with copied inner objects.
-     */
-    I copy();
-
-    /**
-     * Enables to do a deep copy of a {@code Cnec} by replacing {@code networkElement} and {@code state} with already
-     * created objects. The main use is to ensure objects consistency within the {@link Crac}.
-     *
-     * @return An object of the specific type {@link I} with copied inner objects.
-     */
-    I copy(NetworkElement networkElement, State state);
-
-    /**
      * Getter of the {@link PhysicalParameter} representing the {@code Cnec}.
      * It defines the physical value that will be monitored/optimized for this {@code Cnec}.
-     *
-     * @return The physical parameter that will be studied for this {@code Cnec}.
      */
     PhysicalParameter getPhysicalParameter();
 
     /**
-     * Returns if the margin of the branch should be "maximized" (optimized), in case it is the most limiting one.
+     * Returns a tag indicating whether or not the {@link PhysicalParameter} of the Cnec is optimized.
      *
-     * @return True if the branch is optimized.
+     * For instance, in the search-tree-rao, the margin of such a Cnec will be "maximized" (optimized), in case
+     * it is the most limiting one.
      */
     boolean isOptimized();
 
-    void setOptimized(boolean optimized);
-
     /**
-     * Returns if the margin of the branch should stay positive (or above its initial value).
+     * Returns a tag indicating whether or not the {@link PhysicalParameter} of the Cnec is monitored.
      *
-     * @return True if the branch is monitored.
+     * For instance, in the search-tree-rao, the margin of such a Cnec should remain positive.
      */
     boolean isMonitored();
 
-    void setMonitored(boolean monitored);
-
     /**
-     * Returns the operator of the CNEC
-     * @return the name of the operator (string)
+     * Getter of the operator of the Cnec
      */
     String getOperator();
 
     /**
      * Returns the location of the cnec, as a set of optional countries
-     * @param network: the network object used to look for the network element of the cnec
-     * @return a set of optional countries containing the cnec
+     *
+     * @param network: the network object used to look for the location of the network element of the Cnec
+     * @return a set of optional countries containing the cnec location(s). Note that a Cnec on a interconnection can
+     * belong to two countries.
      */
     default Set<Optional<Country>> getLocation(Network network) {
         return getNetworkElement().getLocation(network);
     }
+
+    // deprecated methods
+
+    /**
+     * @deprecated
+     * use the method withReliabilityMargin() of the {@link CnecAdder} instead
+     */
+    @Deprecated
+    //todo: delete the method
+    void setReliabilityMargin(double reliabilityMargin);
+
+    /**
+     * @deprecated
+     * use the method withMonitored() of the {@link CnecAdder} instead
+     */
+    @Deprecated
+    //todo: delete the method
+    void setMonitored(boolean monitored);
+
+    /**
+     * @deprecated
+     * use the method withOptimized() of the {@link CnecAdder} instead
+     */
+    @Deprecated
+    //todo: delete the method
+    void setOptimized(boolean optimized);
+
+    /**
+     * Enables to do an entire deep copy of a {@code Cnec}.
+     * @deprecated this method is not maintained anymore
+     *
+     * @return An object of the specific type {@link I} with copied inner objects.
+     */
+    @Deprecated
+    //todo: delete the method
+    I copy();
+
+    /**
+     * Enables to do a deep copy of a {@code Cnec} by replacing {@code networkElement} and {@code state} with already
+     * created objects. The main use is to ensure objects consistency within the {@link Crac}.
+     * @deprecated this method is not maintained anymore
+     *
+     * @return An object of the specific type {@link I} with copied inner objects.
+     */
+    @Deprecated
+    //todo: delete the method
+    I copy(NetworkElement networkElement, State state);
 }

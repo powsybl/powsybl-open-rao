@@ -1,0 +1,57 @@
+/*
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.farao_community.farao.data.crac_api.range_action;
+
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.Synchronizable;
+import com.powsybl.iidm.network.Network;
+
+import java.util.Optional;
+
+/**
+ * Remedial action interface specifying an action of type range.
+ *
+ * When applying a Range Action, a setpoint (double value) must be set. This setpoint
+ * must be included within a range, delimited by minimum and maximum values.
+ *
+ * The apply method therefore involves a {@link Network} and a setpoint (double value).
+ * The presence of this double in the apply() method explains why this interface
+ * has been designed besides the {@link NetworkAction} interface
+ *
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+public interface RangeAction extends RemedialAction<RangeAction>, Synchronizable {
+
+    /**
+     * Apply the action on a given network, with a given setpoint
+     */
+    void apply(Network network, double setpoint);
+
+    /**
+     * Get the lower bound of the range within which the setpoint must remain
+     */
+    double getMinValue(double previousInstantValue);
+
+    /**
+     * Get the upper bound of the range within which the setpoint must remain
+     */
+    double getMaxValue(double previousInstantValue);
+
+    /**
+     * Get the value of the setpoint of the Range Action for a given Network
+     */
+    double getCurrentValue(Network network);
+
+    /**
+     * Get the groupId of the Range Action. All Range Action which share the
+     * same groupId should have the same setpoint.
+     */
+    Optional<String> getGroupId();
+}
