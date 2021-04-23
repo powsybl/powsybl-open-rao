@@ -60,12 +60,12 @@ public class RaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        RaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        RaoResultImpl result = defaultRao.run(raoInput, new RaoParameters());
         assertNotNull(result);
-        assertEquals(RaoResult.Status.DEFAULT, result.getStatus());
-        RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters()).join();
+        assertEquals(RaoResultImpl.Status.DEFAULT, result.getStatus());
+        RaoResultImpl resultAsync = defaultRao.runAsync(raoInput, new RaoParameters()).join();
         assertNotNull(resultAsync);
-        assertEquals(RaoResult.Status.DEFAULT, resultAsync.getStatus());
+        assertEquals(RaoResultImpl.Status.DEFAULT, resultAsync.getStatus());
     }
 
     @Test(expected = FaraoException.class)

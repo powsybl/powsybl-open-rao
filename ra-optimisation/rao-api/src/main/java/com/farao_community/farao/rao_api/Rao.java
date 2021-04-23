@@ -45,25 +45,25 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
+        public CompletableFuture<RaoResultImpl> runAsync(RaoInput raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
             return provider.run(raoInput, parameters);
         }
 
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
+        public CompletableFuture<RaoResultImpl> runAsync(RaoInput raoInput) {
             return runAsync(raoInput, RaoParameters.load());
         }
 
-        public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
+        public RaoResultImpl run(RaoInput raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
             return provider.run(raoInput, parameters).join();
         }
 
-        public RaoResult run(RaoInput raoInput) {
+        public RaoResultImpl run(RaoInput raoInput) {
             return run(raoInput, RaoParameters.load());
         }
 
@@ -144,19 +144,19 @@ public final class Rao {
         return new Runner(provider);
     }
 
-    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
+    public static CompletableFuture<RaoResultImpl> runAsync(RaoInput raoInput, RaoParameters parameters) {
         return find().runAsync(raoInput, parameters);
     }
 
-    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
+    public static CompletableFuture<RaoResultImpl> runAsync(RaoInput raoInput) {
         return find().runAsync(raoInput);
     }
 
-    public static RaoResult run(RaoInput raoInput, RaoParameters parameters) {
+    public static RaoResultImpl run(RaoInput raoInput, RaoParameters parameters) {
         return find().run(raoInput, parameters);
     }
 
-    public static RaoResult run(RaoInput raoInput) {
+    public static RaoResultImpl run(RaoInput raoInput) {
         return find().run(raoInput);
     }
 }

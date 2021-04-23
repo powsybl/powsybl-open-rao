@@ -16,11 +16,11 @@ import static org.junit.Assert.*;
  */
 public class RaoResultTest {
 
-    RaoResult raoResult;
+    RaoResultImpl raoResult;
 
     @Before
     public void setUp() {
-        raoResult = new RaoResult(RaoResult.Status.DEFAULT);
+        raoResult = new RaoResultImpl(RaoResultImpl.Status.DEFAULT);
         raoResult.setPreOptimVariantId("preOptimVariant");
         raoResult.setPostOptimVariantId("postOptimVariant");
     }
