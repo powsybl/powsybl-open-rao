@@ -48,13 +48,10 @@ public class FreeToUseAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
         if (instant.equals(Instant.OUTAGE)) {
             throw new FaraoException("FreeToUse usage rules are not allowed for OUTAGE instant.");
         }
-
-        // TODO: Big flaw here, if we add a contingency after the remedial action, it won't be available after it
-        if (instant == Instant.PREVENTIVE) {
+        if (instant.equals(Instant.PREVENTIVE)) {
             owner.getCrac().addPreventiveState();
-        } else {
-            owner.getCrac().getContingencies().forEach(co -> owner.getCrac().addState(co, instant));
         }
+        // TODO: when Instant.AUTO will be handled by FARAO, consider adding some states in the CRAC here.
 
         FreeToUse freeToUse = new FreeToUseImpl(usageMethod, instant);
         owner.addUsageRule(freeToUse);

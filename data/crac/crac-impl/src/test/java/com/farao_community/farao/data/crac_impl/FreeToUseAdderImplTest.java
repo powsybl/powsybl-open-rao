@@ -67,8 +67,6 @@ public class FreeToUseAdderImplTest {
         assertTrue(remedialAction.getUsageRules().get(0) instanceof FreeToUse);
         assertEquals(Instant.CURATIVE, ((FreeToUse) remedialAction.getUsageRules().get(0)).getInstant());
         assertEquals(UsageMethod.AVAILABLE, ((FreeToUse) remedialAction.getUsageRules().get(0)).getUsageMethod());
-        assertEquals(1, crac.getStates().size());
-        assertNotNull(crac.getState("contingencyId", Instant.CURATIVE));
     }
 
     @Test (expected = FaraoException.class)

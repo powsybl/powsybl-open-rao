@@ -614,12 +614,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Deprecated
     // TODO : delete this
     public void addRangeAction(RangeAction rangeAction) {
+        addStatesForRemedialAction(rangeAction);
         addPstRangeAction((PstRangeAction) rangeAction);
     }
 
+    void addPstRangeAction(PstRangeAction pstRangeAction) {
+        pstRangeActions.put(pstRangeAction.getId(), pstRangeAction);
+    }
+
     @Deprecated
-    // TODO : convert to private package
-    public void addPstRangeAction(PstRangeAction pstRangeAction) {
+    //todo : delete methods
+    public void addPstRangeActionAndStates(PstRangeAction pstRangeAction) {
         addStatesForRemedialAction(pstRangeAction); // TODO : remove this ?
         pstRangeActions.put(pstRangeAction.getId(), pstRangeAction);
     }
@@ -667,9 +672,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         safeRemoveStates(associatedStatesIds);
     }
 
+    void addNetworkAction(NetworkAction networkAction) {
+        networkActions.put(networkAction.getId(), networkAction);
+    }
+
     @Deprecated
-    // TODO : convert to private package
-    public void addNetworkAction(NetworkAction networkAction) {
+    // TODO: delete
+    public void addNetworkActionAndStates(NetworkAction networkAction) {
         addStatesForRemedialAction(networkAction); // TODO : remove this ?
         networkActions.put(networkAction.getId(), networkAction);
     }
