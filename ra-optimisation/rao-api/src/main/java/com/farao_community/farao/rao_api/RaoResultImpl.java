@@ -18,7 +18,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 
-public class RaoResult extends AbstractExtendable<RaoResult> {
+public class RaoResultImpl extends AbstractExtendable<RaoResultImpl> {
 
     public enum Status {
         DEFAULT,
@@ -34,7 +34,7 @@ public class RaoResult extends AbstractExtendable<RaoResult> {
     private String postOptimVariantId;
 
     @JsonCreator
-    public RaoResult(@JsonProperty("status") Status status) {
+    public RaoResultImpl(@JsonProperty("status") Status status) {
         this.status = status;
     }
 

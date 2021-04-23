@@ -17,7 +17,7 @@ import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
-import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.farao_community.farao.rao_commons.InitialSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -74,7 +74,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
+    public CompletableFuture<RaoResultImpl> run(RaoInput raoInput, RaoParameters parameters) {
         RaoUtil.initData(raoInput, parameters);
 
         stateTree = new StateTree(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getCrac().getPreventiveState());
@@ -91,7 +91,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             initialSensitivityResult = initialSensitivityAnalysisOnAllPerimeters(raoInput, parameters);
         } catch (SensitivityAnalysisException e) {
             LOGGER.error("Initial sensitivity analysis failed :", e);
-            return CompletableFuture.completedFuture(new RaoResult(RaoResult.Status.FAILURE));
+            return CompletableFuture.completedFuture(new RaoResultImpl(RaoResultImpl.Status.FAILURE));
         }
 
         // optimize preventive perimeter
@@ -105,7 +105,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             return optimizePreventivePerimeter(raoInput, parameters, initialSensitivityResult);
         }
 
-        RaoResult preventiveRaoResult = optimizePreventivePerimeter(raoInput, parameters, initialSensitivityResult).join();
+        RaoResultImpl preventiveRaoResult = optimizePreventivePerimeter(raoInput, parameters, initialSensitivityResult).join();
         LOGGER.info("Preventive perimeter optimization [end]");
 
         // optimize curative perimeters
@@ -113,11 +113,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
         raoInput.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(preventiveRaoResult.getPostOptimVariantId());
         TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(parameters.getExtension(SearchTreeRaoParameters.class), preventiveOptimalCost);
         CracResultUtil.applyRemedialActionsForState(raoInput.getNetwork(), raoInput.getCrac(), preventiveRaoResult.getPostOptimVariantId(), raoInput.getCrac().getPreventiveState());
-        Map<State, RaoResult> curativeResults = optimizeCurativePerimeters(raoInput, parameters, curativeTreeParameters, network);
+        Map<State, RaoResultImpl> curativeResults = optimizeCurativePerimeters(raoInput, parameters, curativeTreeParameters, network);
 
         // merge variants
         LOGGER.info("Merging preventive and curative RAO results.");
-        RaoResult mergedRaoResults = mergeRaoResults(raoInput.getCrac(), preventiveRaoResult, curativeResults);
+        RaoResultImpl mergedRaoResults = mergeRaoResults(raoInput.getCrac(), preventiveRaoResult, curativeResults);
 
         // log results
         if (mergedRaoResults.isSuccessful()) {
@@ -196,7 +196,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return max;
     }
 
-    private CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, RaoParameters raoParameters) {
+    private CompletableFuture<RaoResultImpl> optimizeOneStateOnly(RaoInput raoInput, RaoParameters raoParameters) {
         RaoData raoData = new  RaoData(
             raoInput.getNetwork(),
                 raoInput.getCrac(),
@@ -211,7 +211,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
         LinearOptimizerParameters linearOptimizerParameters = createLinearOptimizerParameters(raoParameters, stateTree, raoData.getCnecs());
         new InitialSensitivityAnalysis(raoData, linearOptimizerParameters).run();
-        RaoResult raoResult = new SearchTree().run(raoData, treeParameters, linearOptimizerParameters).join();
+        RaoResultImpl raoResult = new SearchTree().run(raoData, treeParameters, linearOptimizerParameters).join();
         SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), raoResult.getPostOptimVariantId(), raoParameters.getObjectiveFunction().getUnit(), raoParameters.getObjectiveFunction().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         return CompletableFuture.completedFuture(raoResult);
     }
@@ -229,7 +229,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return new InitialSensitivityAnalysis(raoData, createLinearOptimizerParameters(parameters)).run();
     }
 
-    private CompletableFuture<RaoResult> optimizePreventivePerimeter(RaoInput raoInput, RaoParameters parameters, SystematicSensitivityResult initialSensitivityResult) {
+    private CompletableFuture<RaoResultImpl> optimizePreventivePerimeter(RaoInput raoInput, RaoParameters parameters, SystematicSensitivityResult initialSensitivityResult) {
         String baseVariantId = raoInput.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
         preventiveRaoData = new RaoData(
             raoInput.getNetwork(),
@@ -246,9 +246,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return new SearchTree().run(preventiveRaoData, preventiveTreeParameters, linearOptimizerParameters);
     }
 
-    private Map<State, RaoResult> optimizeCurativePerimeters(RaoInput raoInput, RaoParameters parameters, TreeParameters curativeTreeParameters, Network network) {
+    private Map<State, RaoResultImpl> optimizeCurativePerimeters(RaoInput raoInput, RaoParameters parameters, TreeParameters curativeTreeParameters, Network network) {
         String initialVariantId = raoInput.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
-        Map<State, RaoResult> curativeResults = new ConcurrentHashMap<>();
+        Map<State, RaoResultImpl> curativeResults = new ConcurrentHashMap<>();
         network.getVariantManager().setWorkingVariant(PREVENTIVE_STATE);
         network.getVariantManager().cloneVariant(PREVENTIVE_STATE, CURATIVE_STATE);
         network.getVariantManager().setWorkingVariant(CURATIVE_STATE);
@@ -280,7 +280,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                                 curativeRaoData.getCracResultManager().copyCommercialFlowsBetweenVariants(initialVariantId, curativeRaoData.getWorkingVariantId());
                             }
                             LinearOptimizerParameters linearOptimizerParameters = createLinearOptimizerParameters(parameters, stateTree, curativeRaoData.getCnecs());
-                            RaoResult curativeResult = new SearchTree().run(curativeRaoData, curativeTreeParameters, linearOptimizerParameters).join();
+                            RaoResultImpl curativeResult = new SearchTree().run(curativeRaoData, curativeTreeParameters, linearOptimizerParameters).join();
                             curativeResults.put(optimizedState, curativeResult);
                             networkPool.releaseUsedNetwork(networkClone);
                             LOGGER.info("Curative state {} has been optimized.", optimizedState.getId());
@@ -299,7 +299,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return curativeResults;
     }
 
-    RaoResult mergeRaoResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
+    RaoResultImpl mergeRaoResults(Crac crac, RaoResultImpl preventiveRaoResult, Map<State, RaoResultImpl> curativeRaoResults) {
         mergeRaoResultStatus(preventiveRaoResult, curativeRaoResults);
         mergeCnecResults(crac, preventiveRaoResult, curativeRaoResults);
         mergeRemedialActionsResults(crac, preventiveRaoResult, curativeRaoResults);
@@ -308,13 +308,13 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return preventiveRaoResult;
     }
 
-    private void mergeRaoResultStatus(RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
-        if (curativeRaoResults.values().stream().anyMatch(curativeRaoResult -> curativeRaoResult.getStatus().equals(RaoResult.Status.FAILURE))) {
-            preventiveRaoResult.setStatus(RaoResult.Status.FAILURE);
+    private void mergeRaoResultStatus(RaoResultImpl preventiveRaoResult, Map<State, RaoResultImpl> curativeRaoResults) {
+        if (curativeRaoResults.values().stream().anyMatch(curativeRaoResult -> curativeRaoResult.getStatus().equals(RaoResultImpl.Status.FAILURE))) {
+            preventiveRaoResult.setStatus(RaoResultImpl.Status.FAILURE);
         }
     }
 
-    private void mergeCnecResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
+    private void mergeCnecResults(Crac crac, RaoResultImpl preventiveRaoResult, Map<State, RaoResultImpl> curativeRaoResults) {
         crac.getBranchCnecs().forEach(cnec -> {
             State optimizedState = stateTree.getOptimizedState(cnec.getState());
             if (!optimizedState.equals(crac.getPreventiveState())) {
@@ -335,7 +335,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         });
     }
 
-    private void mergeRemedialActionsResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
+    private void mergeRemedialActionsResults(Crac crac, RaoResultImpl preventiveRaoResult, Map<State, RaoResultImpl> curativeRaoResults) {
         stateTree.getOptimizedStates().forEach(optimizedState -> {
             if (!optimizedState.equals(crac.getPreventiveState())) {
                 String optimizedVariantId = curativeRaoResults.get(optimizedState).getPostOptimVariantId();
@@ -361,18 +361,18 @@ public class SearchTreeRaoProvider implements RaoProvider {
         });
     }
 
-    private void mergeObjectiveFunctionValues(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
+    private void mergeObjectiveFunctionValues(Crac crac, RaoResultImpl preventiveRaoResult, Map<State, RaoResultImpl> curativeRaoResults) {
         // Save the objective function value of the "worst" perimeter (maximum obj function value)
         // Skip perimeters with pure MNECs as their functional cost can be 0 (artificial)
         CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
-        List<Map.Entry<State, RaoResult>> curativeCosts = curativeRaoResults.entrySet().stream()
+        List<Map.Entry<State, RaoResultImpl>> curativeCosts = curativeRaoResults.entrySet().stream()
                 .filter(entry -> crac.getBranchCnecs(entry.getKey()).stream().anyMatch(Cnec::isOptimized))
                 .sorted(Comparator.comparingDouble(entry -> -crac.getExtension(CracResultExtension.class).getVariant(entry.getValue().getPostOptimVariantId()).getCost()))
                 .collect(Collectors.toList());
         if (curativeCosts.isEmpty()) {
             return;
         }
-        RaoResult worstCurativeRaoResult = curativeCosts.get(0).getValue();
+        RaoResultImpl worstCurativeRaoResult = curativeCosts.get(0).getValue();
         if (cracResultMap.getVariant(worstCurativeRaoResult.getPostOptimVariantId()).getCost() > cracResultMap.getVariant(preventiveRaoResult.getPostOptimVariantId()).getCost()) {
             cracResultMap.getVariant(preventiveRaoResult.getPostOptimVariantId()).setFunctionalCost(cracResultMap.getVariant(worstCurativeRaoResult.getPostOptimVariantId()).getFunctionalCost());
             cracResultMap.getVariant(preventiveRaoResult.getPostOptimVariantId()).setVirtualCost(cracResultMap.getVariant(worstCurativeRaoResult.getPostOptimVariantId()).getVirtualCost());
