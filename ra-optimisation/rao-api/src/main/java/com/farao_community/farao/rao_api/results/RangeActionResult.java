@@ -21,7 +21,7 @@ public interface RangeActionResult {
 
     double getSetPoint(RangeAction rangeAction);
 
-    Map<RangeAction, Integer> getRangeActionTaps();
+    Map<PstRangeAction, Integer> getRangeActionTaps();
 
     Map<RangeAction, Double> getRangeActionSetPoints();
 }

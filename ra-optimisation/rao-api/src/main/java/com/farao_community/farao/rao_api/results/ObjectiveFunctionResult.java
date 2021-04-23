@@ -24,7 +24,7 @@ public interface ObjectiveFunctionResult {
     double getFunctionalCost();
 
     // A voir dans l'implem si on stocke ou non
-    List<BranchCnec> getMostLimitingElements();
+    List<BranchCnec> getMostLimitingElements(int number);
 
     double getVirtualCost();
 
