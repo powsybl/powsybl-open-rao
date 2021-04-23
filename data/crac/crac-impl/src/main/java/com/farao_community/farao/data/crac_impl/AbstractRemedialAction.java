@@ -73,7 +73,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     @Override
-    // TODO : remove network
     public UsageMethod getUsageMethod(State state) {
         List<UsageMethod> usageMethods = usageRules.stream()
             .map(usageRule -> usageRule.getUsageMethod(state))
