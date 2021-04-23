@@ -23,27 +23,17 @@ public final class JsonSerializationConstants {
 
     private JsonSerializationConstants() { }
 
-    public static final String UNEXPECTED_FIELD = "Unexpected field: ";
-
     // field
-    public static final String NETWORK_DATE = "networkDate";
-
-    public static final String NETWORK_ELEMENT = "networkElement";
-    public static final String NETWORK_ELEMENTS = "networkElements";
     public static final String NETWORK_ELEMENTS_IDS = "networkElementsIds";
     public static final String NETWORK_ELEMENT_ID = "networkElementId";
     public static final String NETWORK_ELEMENTS_NAME_PER_ID = "networkElementsNamePerId";
 
     public static final String GROUP_ID = "groupId";
 
-    public static final String CONTINGENCY = "contingency";
     public static final String CONTINGENCIES = "contingencies";
     public static final String CONTINGENCY_ID = "contingencyId";
 
     public static final String INSTANT = "instant";
-
-    public static final String CNEC = "cnec";
-    public static final String CNECS = "cnecs";
 
     public static final String FLOW_CNECS = "flowCnecs";
 
@@ -52,11 +42,9 @@ public final class JsonSerializationConstants {
     public static final String OPTIMIZED = "optimized";
     public static final String MONITORED = "monitored";
 
-    public static final String RANGE_ACTIONS = "rangeActions";
     public static final String PST_RANGE_ACTIONS = "pstRangeActions";
 
     public static final String NETWORK_ACTIONS = "networkActions";
-    public static final String ELEMENTARY_ACTIONS = "elementaryActions";
     public static final String TOPOLOGICAL_ACTIONS = "topologicalActions";
     public static final String PST_SETPOINTS = "pstSetpoints";
     public static final String INJECTION_SETPOINTS = "injectionSetpoints";
@@ -71,7 +59,6 @@ public final class JsonSerializationConstants {
     public static final String VERSION = "version";
     public static final String INFO = "info";
     public static final String EXTENSIONS = "extensions";
-    public static final String RANGE_DEFINITION = "rangeDefinition";
 
     public static final String RANGES = "ranges";
     public static final String SETPOINT = "setpoint";
