@@ -33,7 +33,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     private final double loopFlowAcceptableAugmentation;
 
     LoopFlowViolationCostEvaluator(Set<BranchCnec> loopflowCnecs, Map<BranchCnec, Double> initialLoopflowsInMW, LoopFlowParameters loopFlowParameters) {
-        this.loopflowCnecs = loopflowCnecs.stream().map(cnec -> (FlowCnec) cnec).collect(Collectors.toSet());
+        this.loopflowCnecs = loopflowCnecs.stream().map(FlowCnec.class::cast).collect(Collectors.toSet());
         this.initialLoopflowsInMW = initialLoopflowsInMW;
         this.loopFlowViolationCost = loopFlowParameters.getLoopFlowViolationCost();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getLoopFlowAcceptableAugmentation();

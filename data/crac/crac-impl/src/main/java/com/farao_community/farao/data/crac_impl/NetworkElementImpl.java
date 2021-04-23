@@ -57,7 +57,7 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
         if (Objects.isNull(ne)) {
             throw new FaraoException("Network element " + this.getId() + " was not found in the network.");
         } else if (ne instanceof Branch) {
-            Branch branch = (Branch) ne;
+            Branch<?> branch = (Branch) ne;
             Optional<Country> country1 = branch.getTerminal1().getVoltageLevel().getSubstation().getCountry();
             Optional<Country> country2 = branch.getTerminal2().getVoltageLevel().getSubstation().getCountry();
             if (country1.equals(country2)) {
@@ -68,7 +68,7 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
         } else if (ne instanceof Switch) {
             return Set.of(((Switch) ne).getVoltageLevel().getSubstation().getCountry());
         } else if (ne instanceof Injection) {
-            return Set.of(((Injection) ne).getTerminal().getVoltageLevel().getSubstation().getCountry());
+            return Set.of(((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation().getCountry());
         } else if (ne instanceof  Bus) {
             return Set.of(((Bus) ne).getVoltageLevel().getSubstation().getCountry());
         } else if (ne instanceof VoltageLevel) {

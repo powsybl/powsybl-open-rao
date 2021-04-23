@@ -488,8 +488,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public void addCnec(Cnec<?> cnec) {
         // add cnec
         if (cnec instanceof FlowCnec) {
-            State state = addState(cnec.getState());
-            NetworkElement networkElement = addNetworkElement(cnec.getNetworkElement().getId(), cnec.getNetworkElement().getName());
+            addState(cnec.getState());
+            addNetworkElement(cnec.getNetworkElement().getId(), cnec.getNetworkElement().getName());
             FlowCnec flowCnec = (FlowCnec) cnec;
             flowCnecs.put(cnec.getId(), flowCnec);
 
@@ -550,7 +550,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     private Set<State> getAssociatedStates(RemedialAction<?> remedialAction) {
         return remedialAction.getUsageRules().stream()
-                .filter(ur -> ur instanceof OnState)
+                .filter(OnState.class::isInstance)
                 .map(ur -> ((OnState) ur).getState())
                 .collect(Collectors.toSet());
     }

@@ -24,9 +24,9 @@ public final class FreeToUseArrayDeserializer {
     private FreeToUseArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            FreeToUseAdder adder = ownerAdder.newFreeToUseUsageRule();
+            FreeToUseAdder<?> adder = ownerAdder.newFreeToUseUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:

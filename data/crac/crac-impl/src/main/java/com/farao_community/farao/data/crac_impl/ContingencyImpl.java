@@ -62,7 +62,7 @@ public class ContingencyImpl extends AbstractIdentifiable<Contingency> implement
         // It might be used to implement curative features
         com.powsybl.contingency.Contingency contingency = new com.powsybl.contingency.Contingency(getId(), new ArrayList<>());
         getNetworkElements().forEach(contingencyElement -> {
-            Identifiable element = network.getIdentifiable(contingencyElement.getId());
+            Identifiable<?> element = network.getIdentifiable(contingencyElement.getId());
             if (element instanceof Branch) {
                 contingency.addElement(new BranchContingency(contingencyElement.getId()));
             } else if (element instanceof Generator) {

@@ -41,9 +41,9 @@ public final class TopologicalActionImpl implements TopologicalAction {
 
     @Override
     public void apply(Network network) {
-        Identifiable element = network.getIdentifiable(networkElement.getId());
+        Identifiable<?> element = network.getIdentifiable(networkElement.getId());
         if (element instanceof Branch) {
-            Branch branch = (Branch) element;
+            Branch<?> branch = (Branch<?>) element;
             if (actionType == ActionType.OPEN) {
                 branch.getTerminal1().disconnect();
                 branch.getTerminal2().disconnect();

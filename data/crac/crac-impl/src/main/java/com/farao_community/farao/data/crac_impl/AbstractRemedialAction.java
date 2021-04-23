@@ -26,25 +26,25 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     protected String operator;
     protected List<UsageRule> usageRules;
 
-    public AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules) {
+    protected AbstractRemedialAction(String id, String name, String operator, List<UsageRule> usageRules) {
         super(id, name);
         this.operator = operator;
         this.usageRules = usageRules;
     }
 
-    public AbstractRemedialAction(String id, String name, String operator) {
+    protected AbstractRemedialAction(String id, String name, String operator) {
         super(id, name);
         this.operator = operator;
         this.usageRules = new ArrayList<>();
     }
 
-    public AbstractRemedialAction(String id, String operator) {
+    protected AbstractRemedialAction(String id, String operator) {
         super(id);
         this.operator = operator;
         this.usageRules = new ArrayList<>();
     }
 
-    public AbstractRemedialAction(String id) {
+    protected AbstractRemedialAction(String id) {
         super(id);
         this.operator = "";
         usageRules = new ArrayList<>();
@@ -97,7 +97,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractRemedialAction remedialAction = (AbstractRemedialAction) o;
+        AbstractRemedialAction<?> remedialAction = (AbstractRemedialAction<?>) o;
         return super.equals(remedialAction) && new HashSet<>(usageRules).equals(new HashSet<>(remedialAction.getUsageRules())) && operator.equals(remedialAction.operator);
     }
 

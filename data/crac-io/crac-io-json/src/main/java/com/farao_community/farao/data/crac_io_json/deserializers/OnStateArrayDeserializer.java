@@ -24,9 +24,9 @@ public final class OnStateArrayDeserializer {
     private OnStateArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            OnStateAdder adder = ownerAdder.newOnStateUsageRule();
+            OnStateAdder<?> adder = ownerAdder.newOnStateUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case INSTANT:
