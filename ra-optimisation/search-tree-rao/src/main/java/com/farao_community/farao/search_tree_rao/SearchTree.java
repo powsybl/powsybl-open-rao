@@ -7,8 +7,8 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.farao_community.farao.rao_commons.RaoData;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.util.FaraoNetworkPool;
@@ -54,7 +54,7 @@ public class SearchTree {
         previousDepthOptimalLeaf = rootLeaf;
     }
 
-    public CompletableFuture<RaoResult> run(RaoData raoData, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
+    public CompletableFuture<RaoResultImpl> run(RaoData raoData, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
         this.treeParameters = treeParameters;
         this.linearOptimizerParameters = linearOptimizerParameters;
         initLeaves(raoData);
@@ -64,7 +64,7 @@ public class SearchTree {
         LOGGER.info("{}", rootLeaf);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
-            RaoResult raoResult = new RaoResult(RaoResult.Status.FAILURE);
+            RaoResultImpl raoResult = new RaoResultImpl(RaoResultImpl.Status.FAILURE);
             return CompletableFuture.completedFuture(raoResult);
         } else if (stopCriterionReached(rootLeaf)) {
             SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, linearOptimizerParameters.getUnit(),
@@ -248,18 +248,18 @@ public class SearchTree {
                 && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
 
-    private RaoResult buildOutput() {
-        RaoResult raoResult = new RaoResult(getRaoResultStatus(optimalLeaf));
+    private RaoResultImpl buildOutput() {
+        RaoResultImpl raoResult = new RaoResultImpl(getRaoResultStatus(optimalLeaf));
         raoResult.setPreOptimVariantId(rootLeaf.getPreOptimVariantId());
         raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
         return raoResult;
     }
 
-    private RaoResult.Status getRaoResultStatus(Leaf leaf) {
+    private RaoResultImpl.Status getRaoResultStatus(Leaf leaf) {
         if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
-            return RaoResult.Status.FAILURE;
+            return RaoResultImpl.Status.FAILURE;
         } else {
-            return leaf.isFallback() ? RaoResult.Status.FALLBACK : RaoResult.Status.DEFAULT;
+            return leaf.isFallback() ? RaoResultImpl.Status.FALLBACK : RaoResultImpl.Status.DEFAULT;
         }
     }
 }
