@@ -14,6 +14,7 @@ import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.farao_community.farao.util.NativeLibraryLoader;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,10 @@ public class LinearOptimizer {
     private final List<ProblemFiller> fillers;
 
     private final LinearOptimizerInput linearOptimizerInput;
+
+    static {
+        NativeLibraryLoader.loadNativeLibrary("jniortools");
+    }
 
     public LinearOptimizer(LinearOptimizerInput linearOptimizerInput, LinearOptimizerParameters linearOptimizerParameters) {
         this(new LinearProblem(), linearOptimizerInput, linearOptimizerParameters);

@@ -7,9 +7,8 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.util.NativeLibraryLoader;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
@@ -80,10 +79,6 @@ public class LinearProblem {
     public enum BoundExtension {
         LOWER_BOUND,
         UPPER_BOUND
-    }
-
-    static {
-        NativeLibraryLoader.loadNativeLibrary("jniortools");
     }
 
     private MPSolver solver;
