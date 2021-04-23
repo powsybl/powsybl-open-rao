@@ -45,7 +45,7 @@ public class LinearProblem {
     static {
         try {
             NativeLibraryLoader.loadNativeLibrary("jniortools");
-        } catch (NoClassDefFoundError e) {
+        } catch (Exception e) {
             LOGGER.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
         }
     }
