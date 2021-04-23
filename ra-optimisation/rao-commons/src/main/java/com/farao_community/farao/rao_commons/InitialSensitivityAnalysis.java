@@ -96,8 +96,7 @@ public class InitialSensitivityAnalysis {
 
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             LOGGER.info("Initial systematic analysis [...] - fill zone-to-zone PTDFs");
-            Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(raoData.getCnecs(), raoData.getGlskProvider(), raoParameters.getRelativeMarginPtdfBoundaries(), sensitivityResult);
-            fillAbsolutePtdfSums(sensitivityResult);
+            Map<BranchCnec, Double> ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(cnecs, raoInput.getGlskProvider(), raoParameters.getRelativeMarginPtdfBoundaries(), sensitivityResult);
         }
 
         //CnecResults initialCnecResults = buildInitialCnecResults(sensitivityResult);
@@ -106,6 +105,8 @@ public class InitialSensitivityAnalysis {
         double functionalCost = new MinMarginEvaluator(cnecs, null, initialAbsolutePtdfSums, linearOptimizerParameters).computeCost(sensitivityAndLoopflowResults);
         //fillObjectiveFunction();
         LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -functionalCost);
+
+        //TODO : build PerimeterOutput
 
         return sensitivityResult;
     }
