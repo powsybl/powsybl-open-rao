@@ -16,7 +16,18 @@ import java.util.Set;
  */
 public interface NetworkActionResult {
 
-    boolean getActivationStatus(NetworkAction networkAction);
+    /**
+     * It states if the {@link NetworkAction} is activated.
+     *
+     * @param networkAction: The network action to be studied.
+     * @return True if the network action is chosen by the optimizer.
+     */
+    boolean isActivated(NetworkAction networkAction);
 
+    /**
+     * It gathers the {@link NetworkAction} that are activated.
+     *
+     * @return The set of activated network actions.
+     */
     Set<NetworkAction> getActivatedNetworkActions();
 }
