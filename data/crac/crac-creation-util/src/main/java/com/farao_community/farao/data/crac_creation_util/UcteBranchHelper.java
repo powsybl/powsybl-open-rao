@@ -27,7 +27,7 @@ public class UcteBranchHelper {
 
     private static final int UCTE_NODE_LENGTH = 8;
     private static final int ELEMENT_NAME_LENGTH = 12;
-    private static final int MIN_BRANCH_ID_LENGTH = UCTE_NODE_LENGTH * 2 + 4;
+    private static final int MIN_BRANCH_ID_LENGTH = UCTE_NODE_LENGTH * 2 + 3;
     private static final int MAX_BRANCH_ID_LENGTH = UCTE_NODE_LENGTH * 2 + ELEMENT_NAME_LENGTH + 3;
 
     private String from;
@@ -37,7 +37,6 @@ public class UcteBranchHelper {
     private boolean isBranchValid = true;
     private String invalidBranchReason = "";
     private String branchIdInNetwork;
-    private String lineName;
     private boolean isInvertedInNetwork;
     private boolean isTieLine = false;
     private Branch.Side tieLineSide = null;
@@ -51,9 +50,15 @@ public class UcteBranchHelper {
      * @param network, network on which the branch will be looked for, should contain UCTE aliases
      */
     public UcteBranchHelper(String fromNode, String toNode, String suffix, Network network) {
-        this.from = format("%1$-8s", Objects.requireNonNull(fromNode));
-        this.to = format("%1$-8s", Objects.requireNonNull(toNode));
-        this.suffix = Objects.requireNonNull(suffix);
+
+        if (Objects.isNull(fromNode) || Objects.isNull(toNode) || Objects.isNull(suffix)) {
+            invalidate("fromNode, toNode and suffix must not be null");
+            return;
+        }
+
+        this.from = format("%1$-8s", fromNode);
+        this.to = format("%1$-8s", toNode);
+        this.suffix = suffix;
 
         findEquivalentElementInNetwork(network);
     }
@@ -69,8 +74,14 @@ public class UcteBranchHelper {
      * @param network, network on which the branch will be looked for, should contain UCTE aliases
      */
     public UcteBranchHelper(String fromNode, String toNode, String orderCode, String elementName, Network network) {
-        this.from = format("%1$-8s", Objects.requireNonNull(fromNode));
-        this.to = format("%1$-8s", Objects.requireNonNull(toNode));
+
+        if (Objects.isNull(fromNode) || Objects.isNull(toNode)) {
+            invalidate("fromNode and toNode must not be null");
+            return;
+        }
+
+        this.from = format("%1$-8s", fromNode);
+        this.to = format("%1$-8s", toNode);
 
         if (checkSuffix(orderCode, elementName)) {
             findEquivalentElementInNetwork(network);
@@ -84,7 +95,13 @@ public class UcteBranchHelper {
      * @param network, network on which the branch will be looked for, should contain UCTE aliases
      */
     public UcteBranchHelper(String ucteBranchId, Network network) {
-        if (decomposeUcteBranchId(Objects.requireNonNull(ucteBranchId))) {
+
+        if (Objects.isNull(ucteBranchId)) {
+            invalidate("ucteBranchId must not be null");
+            return;
+        }
+
+        if (decomposeUcteBranchId(ucteBranchId)) {
             findEquivalentElementInNetwork(network);
         }
     }
@@ -149,25 +166,10 @@ public class UcteBranchHelper {
 
     /**
      * If the branch is a valid tie-line, returns a boolean indicating which half of the tie-line is
-     * actually designed by the branch definition
+     * actually defined by the branch definition
      */
     public Branch.Side getTieLineSide() {
         return tieLineSide;
-    }
-
-    /**
-     * If the branch is valid, returns a name of the form "FROMNODE TO__NODE SUFFIX" which can be
-     * recognised by the PowSyBl network. Contrary to getBranchIdInNetwork(), this name will not
-     * necessarily be the id of a network object, it might be an alias.
-     *
-     * For instance, for a tie-line, getBranchIdInNetwork() will returns the id the PowSyBl tie-line:
-     * 'BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1'
-     *
-     * While getUcteFormatBranchName() will return an alias of the tie-line of the form:
-     * 'BBE2AA1  X_BEFR1  ELEMENTNAME'
-     */
-    public String getUcteFormatBranchName() {
-        return lineName;
     }
 
     private boolean checkSuffix(String order, String elementName) {
@@ -218,7 +220,6 @@ public class UcteBranchHelper {
         Identifiable<?> fromToBranch = network.getIdentifiable(getLineName(from, to, suffix));
 
         if (!Objects.isNull(fromToBranch)) {
-            this.lineName = getLineName(from, to, suffix);
             this.branchIdInNetwork = fromToBranch.getId();
             checkInversion(fromToBranch);
             return;
@@ -226,7 +227,6 @@ public class UcteBranchHelper {
 
         Identifiable<?> toFromBranch = network.getIdentifiable(getLineName(to, from, suffix));
         if (!Objects.isNull(toFromBranch)) {
-            this.lineName = getLineName(to, from, suffix);
             this.branchIdInNetwork = toFromBranch.getId();
             checkInversion(toFromBranch);
             return;
