@@ -8,9 +8,12 @@
 package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
 import com.google.auto.service.AutoService;
 import org.mockito.Mockito;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 
@@ -19,6 +22,11 @@ import java.time.OffsetDateTime;
  */
 @AutoService(CracImporter.class)
 public class CracImporterMock implements CracImporter {
+
+    @Override
+    public Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, @Nullable OffsetDateTime timeStampFilter) {
+        return Mockito.mock(Crac.class);
+    }
 
     @Override
     public Crac importCrac(InputStream inputStream, OffsetDateTime timeStampFilter) {

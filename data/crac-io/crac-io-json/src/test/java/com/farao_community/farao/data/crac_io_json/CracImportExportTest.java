@@ -135,7 +135,7 @@ public class CracImportExportTest {
                 .newTapRange().withTapConvention(CENTERED_ON_ZERO).withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
                 .add();
 
-        Crac importedCrac = RoundTripUtil.roundTrip(crac, Crac.class);
+        Crac importedCrac = RoundTripUtil.roundTrip(crac);
 
         assertEquals(8, importedCrac.getNetworkElements().size());
         assertEquals(3, importedCrac.getStates().size());

@@ -8,7 +8,9 @@
 package com.farao_community.farao.data.crac_io_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
@@ -20,6 +22,8 @@ import java.time.OffsetDateTime;
  */
 
 public interface CracImporter {
+
+    Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, @Nullable OffsetDateTime timeStampFilter);
 
     Crac importCrac(InputStream inputStream, @Nullable OffsetDateTime timeStampFilter);
 

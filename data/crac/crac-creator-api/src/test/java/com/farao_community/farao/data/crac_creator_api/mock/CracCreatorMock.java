@@ -26,7 +26,7 @@ public class CracCreatorMock implements CracCreator<NativeCracMock, CracCreation
     }
 
     @Override
-    public CracCreationContextMock createCrac(NativeCracMock nativeCrac, Network network, OffsetDateTime offsetDateTime, CracFactory factory) {
+    public CracCreationContextMock createCrac(NativeCracMock nativeCrac, Network network, OffsetDateTime offsetDateTime, CracFactory cracFactory) {
         return new CracCreationContextMock(nativeCrac.isOk());
     }
 }
