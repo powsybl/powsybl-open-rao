@@ -31,6 +31,15 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
  */
 public class CracDeserializer extends JsonDeserializer<Crac> {
 
+    private CracFactory cracFactory;
+
+    private CracDeserializer() {
+    }
+
+    public CracDeserializer(CracFactory cracFactory) {
+        this.cracFactory = cracFactory;
+    }
+
     @Override
     public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         jsonParser.nextToken();
@@ -47,7 +56,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
         }
         String name = jsonParser.nextTextValue();
 
-        Crac crac = CracFactory.findDefault().create(id, name);
+        Crac crac = cracFactory.create(id, name);
 
         Map<String, String> deserializedNetworkElementsNamesPerId = null;
         // deserialize the following lines of the Crac
