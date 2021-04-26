@@ -195,14 +195,18 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         double tieLineLimit;
         if (side.isPresent()) {
             tieLineLimit = tieLine.getCurrentLimits(side.get().iidmSide()).getPermanentLimit();
+            setIMax(LEFT, tieLineLimit);
+            setIMax(RIGHT, tieLineLimit);
         } else {
             LOGGER.warn(TIE_LINE_WARN, tieLine.getId(), networkElement.getId());
-            tieLineLimit = Math.min(
+            /*tieLineLimit = Math.min(
                     tieLine.getCurrentLimits(LEFT.iidmSide()).getPermanentLimit(),
-                    tieLine.getCurrentLimits(RIGHT.iidmSide()).getPermanentLimit());
+                    tieLine.getCurrentLimits(RIGHT.iidmSide()).getPermanentLimit());*/
+            setIMax(LEFT,  tieLine.getCurrentLimits(LEFT.iidmSide()).getPermanentLimit());
+            setIMax(RIGHT, tieLine.getCurrentLimits(RIGHT.iidmSide()).getPermanentLimit());
         }
-        setIMax(LEFT, tieLineLimit);
-        setIMax(RIGHT, tieLineLimit);
+        //setIMax(LEFT, tieLineLimit);
+        //setIMax(RIGHT, tieLineLimit);
     }
 
     private Optional<Side> getTieLineSide(TieLine tieLine) {
