@@ -1,88 +1,125 @@
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.rao_api.results.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class LeafOutput {
+public class LeafOutput implements PerimeterResult {
 
-    private LinearProblem.SolveStatus solveStatus;
-    private final double functionalCost;
-    private final double virtualCost;
-    private final Map<RangeAction, Double> rangeActionSetpoints;
-    private final Map<PstRangeAction, Integer> pstRangeActionTaps;
-    private final SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
+    private final BranchResult branchResult;
+    private final RangeActionResult rangeActionResult;
+    private final ObjectiveFunctionResult objectiveFunctionResult;
     private final Set<NetworkAction> activatedNetworkActions;
+    private final Set<RangeAction> activatedRangeActions;
+    private final PerimeterStatus perimeterStatus;
 
-    public LeafOutput(IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput, Set<NetworkAction> activatedNetworkActions) {
-        this(iteratingLinearOptimizerOutput.getSolveStatus(),
-                iteratingLinearOptimizerOutput.getFunctionalCost(),
-                iteratingLinearOptimizerOutput.getVirtualCost(),
-                iteratingLinearOptimizerOutput.getRangeActionSetpoints(),
-                iteratingLinearOptimizerOutput.getPstRangeActionTaps(),
-                iteratingLinearOptimizerOutput.getSensitivityAndLoopflowResults(),
-                activatedNetworkActions);
+    public LeafOutput(LinearOptimizationResult linearOptimizationResult, Set<NetworkAction> activatedNetworkActions, Set<RangeAction> activatedRangeActions, PerimeterStatus perimeterStatus) {
+        this(linearOptimizationResult, linearOptimizationResult, linearOptimizationResult, activatedNetworkActions, activatedRangeActions, perimeterStatus);
     }
 
-    public LeafOutput(LinearProblem.SolveStatus solveStatus,
-                      double functionalCost,
-                      double virtualCost,
-                      Map<RangeAction, Double> optimalRangeActionSetpoints,
-                      Map<PstRangeAction, Integer> optimalPstRangeActionTaps,
-                      SensitivityAndLoopflowResults sensitivityAndLoopflowResults,
-                      Set<NetworkAction> activatedNetworkActions) {
-        this.functionalCost = functionalCost;
-        this.virtualCost = virtualCost;
-        this.sensitivityAndLoopflowResults = sensitivityAndLoopflowResults;
-        this.solveStatus = solveStatus;
-        this.rangeActionSetpoints = optimalRangeActionSetpoints;
-        this.pstRangeActionTaps = optimalPstRangeActionTaps;
+    public LeafOutput(BranchResult branchResult, RangeActionResult rangeActionResult, ObjectiveFunctionResult objectiveFunctionResult, Set<NetworkAction> activatedNetworkActions, Set<RangeAction> activatedRangeActions, PerimeterStatus perimeterStatus) {
+        this.branchResult = branchResult;
+        this.rangeActionResult = rangeActionResult;
+        this.objectiveFunctionResult = objectiveFunctionResult;
         this.activatedNetworkActions = activatedNetworkActions;
+        this.activatedRangeActions = activatedRangeActions;
+        this.perimeterStatus = perimeterStatus;
     }
 
-    void setStatus(LinearProblem.SolveStatus solveStatus) {
-        this.solveStatus = solveStatus;
+    @Override
+    public PerimeterStatus getStatus() {
+        return perimeterStatus;
     }
 
-    public LinearProblem.SolveStatus getSolveStatus() {
-        return solveStatus;
+    @Override
+    public double getFlow(BranchCnec branchCnec, Unit unit) {
+        return branchResult.getFlow(branchCnec, unit);
     }
 
+    @Override
+    public double getRelativeMargin(BranchCnec branchCnec, Unit unit) {
+        return branchResult.getRelativeMargin(branchCnec, unit);
+    }
+
+    @Override
+    public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
+        return branchResult.getCommercialFlow(branchCnec, unit);
+    }
+
+    @Override
+    public double getPtdfZonalSum(BranchCnec branchCnec) {
+        return branchResult.getPtdfZonalSum(branchCnec);
+    }
+
+    @Override
+    public boolean isActivated(NetworkAction networkAction) {
+        return activatedNetworkActions.contains(networkAction);
+    }
+
+    @Override
+    public Set<NetworkAction> getActivatedNetworkActions() {
+        return activatedNetworkActions;
+    }
+
+    @Override
     public double getFunctionalCost() {
-        return functionalCost;
+        return objectiveFunctionResult.getFunctionalCost();
     }
 
+    @Override
+    public List<BranchCnec> getMostLimitingElements(int number) {
+        return objectiveFunctionResult.getMostLimitingElements(number);
+    }
+
+    @Override
     public double getVirtualCost() {
-        return virtualCost;
+        return objectiveFunctionResult.getVirtualCost();
     }
 
-    public double getCost() {
-        return functionalCost + virtualCost;
+    @Override
+    public Set<String> getVirtualCostNames() {
+        return objectiveFunctionResult.getVirtualCostNames();
     }
 
-    public Map<RangeAction, Double> getRangeActionSetpoints() {
-        return rangeActionSetpoints;
+    @Override
+    public double getVirtualCost(String virtualCostName) {
+        return objectiveFunctionResult.getVirtualCost(virtualCostName);
     }
 
-    public Double getRangeActionSetpoint(RangeAction rangeAction) {
-        return rangeActionSetpoints.get(rangeAction);
+    @Override
+    public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
+        return objectiveFunctionResult.getCostlyElements(virtualCostName, number);
     }
 
-    public Map<PstRangeAction, Integer> getPstRangeActionTaps() {
-        return pstRangeActionTaps;
+    @Override
+    public int getOptimizedTap(PstRangeAction pstRangeAction) {
+        return rangeActionResult.getOptimizedTap(pstRangeAction);
     }
 
-    public Integer getPstRangeActionTap(PstRangeAction pstRangeAction) {
-        return pstRangeActionTaps.get(pstRangeAction);
+    @Override
+    public double getOptimizedSetPoint(RangeAction rangeAction) {
+        return rangeActionResult.getOptimizedSetPoint(rangeAction);
     }
 
-    public SensitivityAndLoopflowResults getSensitivityAndLoopflowResults() {
-        return sensitivityAndLoopflowResults;
+    @Override
+    public Set<RangeAction> getActivatedRangeActions() {
+        return getActivatedRangeActions();
+    }
+
+    @Override
+    public Map<PstRangeAction, Integer> getOptimizedTaps() {
+        return rangeActionResult.getOptimizedTaps();
+    }
+
+    @Override
+    public Map<RangeAction, Double> getOptimizedSetPoints() {
+        return rangeActionResult.getOptimizedSetPoints();
     }
 }

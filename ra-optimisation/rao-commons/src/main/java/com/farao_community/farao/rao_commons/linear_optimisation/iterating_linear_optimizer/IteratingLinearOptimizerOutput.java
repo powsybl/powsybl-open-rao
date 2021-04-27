@@ -1,14 +1,19 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.rao_api.results.*;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerOutput;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public class IteratingLinearOptimizerOutput {
+public class IteratingLinearOptimizerOutput implements LinearOptimizationResult {
 
     private LinearProblem.SolveStatus solveStatus;
     private final double functionalCost;
@@ -42,8 +47,28 @@ public class IteratingLinearOptimizerOutput {
         return functionalCost;
     }
 
+    @Override
+    public List<BranchCnec> getMostLimitingElements(int number) {
+        return null;
+    }
+
     public double getVirtualCost() {
         return virtualCost;
+    }
+
+    @Override
+    public Set<String> getVirtualCostNames() {
+        return null;
+    }
+
+    @Override
+    public double getVirtualCost(String virtualCostName) {
+        return 0;
+    }
+
+    @Override
+    public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
+        return null;
     }
 
     public double getCost() {
@@ -68,5 +93,55 @@ public class IteratingLinearOptimizerOutput {
 
     public SensitivityAndLoopflowResults getSensitivityAndLoopflowResults() {
         return sensitivityAndLoopflowResults;
+    }
+
+    @Override
+    public double getFlow(BranchCnec branchCnec, Unit unit) {
+        return 0;
+    }
+
+    @Override
+    public double getRelativeMargin(BranchCnec branchCnec, Unit unit) {
+        return 0;
+    }
+
+    @Override
+    public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
+        return 0;
+    }
+
+    @Override
+    public double getPtdfZonalSum(BranchCnec branchCnec) {
+        return 0;
+    }
+
+    @Override
+    public int getOptimizedTap(PstRangeAction pstRangeAction) {
+        return 0;
+    }
+
+    @Override
+    public double getOptimizedSetPoint(RangeAction rangeAction) {
+        return 0;
+    }
+
+    @Override
+    public Set<RangeAction> getActivatedRangeActions() {
+        return null;
+    }
+
+    @Override
+    public Map<PstRangeAction, Integer> getOptimizedTaps() {
+        return null;
+    }
+
+    @Override
+    public Map<RangeAction, Double> getOptimizedSetPoints() {
+        return null;
+    }
+
+    @Override
+    public LinearOptimizationStatus getStatus() {
+        return null;
     }
 }

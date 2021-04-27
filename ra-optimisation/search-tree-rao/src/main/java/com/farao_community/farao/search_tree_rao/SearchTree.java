@@ -8,7 +8,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.util.FaraoNetworkPool;
@@ -198,20 +198,14 @@ public class SearchTree {
                 leaf.optimize();
                 LOGGER.info("{}", leaf);
             }
-            //leaf.clearAllVariantsExceptOptimizedOne();
             updateOptimalLeafAndCleanVariants(leaf);
         }
     }
 
     private synchronized void updateOptimalLeafAndCleanVariants(Leaf leaf) {
         if (improvedEnough(leaf)) {
-            /*if (optimalLeaf != previousDepthOptimalLeaf) {
-                optimalLeaf.clearAllVariants();
-            }*/
             optimalLeaf = leaf;
-        }/* else {
-            leaf.clearAllVariants();
-        }*/
+        }
     }
 
     /**

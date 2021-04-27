@@ -10,7 +10,6 @@ public class CnecResults {
     private Map<BranchCnec, Double> flowsInA;
 
     private Map<BranchCnec, Double> loopflowsInMW; //loopflow value in MW
-    private Map<BranchCnec, Double> loopflowThresholdInMW; //loopflow threshold in MW. Normally = max(Tso input, initial calculated lp)
     private Map<BranchCnec, Double> commercialFlowsInMW;
 
     private Map<BranchCnec, Double> absolutePtdfSums;
@@ -37,14 +36,6 @@ public class CnecResults {
 
     public void setLoopflowsInMW(Map<BranchCnec, Double> loopflowsInMW) {
         this.loopflowsInMW = loopflowsInMW;
-    }
-
-    public Map<BranchCnec, Double> getLoopflowThresholdInMW() {
-        return loopflowThresholdInMW;
-    }
-
-    public void setLoopflowThresholdInMW(Map<BranchCnec, Double> loopflowThresholdInMW) {
-        this.loopflowThresholdInMW = loopflowThresholdInMW;
     }
 
     public Map<BranchCnec, Double> getCommercialFlowsInMW() {

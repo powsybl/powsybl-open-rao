@@ -9,17 +9,13 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.results.PerimeterStatus;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
@@ -34,8 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.rao_api.RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF;
-
 /**
  * A "leaf" is a node of the search tree.
  * Each leaf contains a Network Action, which should be tested in combination with
@@ -46,15 +40,12 @@ import static com.farao_community.farao.rao_api.RaoParameters.LoopFlowApproximat
 class Leaf {
     private static final Logger LOGGER = LoggerFactory.getLogger(Leaf.class);
 
-    //private final RaoData raoData;
-    //private final String preOptimVariantId;
     private final LeafInput leafInput;
-    private String optimizedVariantId;
     private final RaoParameters raoParameters;
     private final TreeParameters treeParameters;
-    ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
+    private final LinearOptimizerParameters linearOptimizerParameters;
 
-    private LinearOptimizerParameters linearOptimizerParameters;
+    ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
 
     private LeafOutput leafOutput;
 
@@ -87,37 +78,6 @@ class Leaf {
      */
     private Status status;
 
-    /**
-     * Root Leaf constructors
-     * It is built directly from a RaoData on which a systematic sensitivity analysis could have already been run or not.
-     */
-    /*Leaf(LeafInput leafInput, RaoParameters raoParameters, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
-        this.leafInput = leafInput;
-        this.networkActions = new HashSet<>(); // Root leaf has no network action
-        this.raoParameters = raoParameters;
-        this.treeParameters = treeParameters;
-        this.linearOptimizerParameters = linearOptimizerParameters;
-        this.updateSensitivitiesForLoopFlows = linearOptimizerParameters.isRaoWithLoopFlowLimitation()
-                && linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange();
-
-        //this.raoData = raoData;
-        //preOptimVariantId = raoData.getPreOptimVariantId();
-        if (leafInput.hasSensitivityValues()) {
-            status = Status.EVALUATED;
-        } else {
-            status = Status.CREATED;
-        }
-        systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, leafInput.getRangeActions(), leafInput.getCnecs(), updateSensitivitiesForLoopFlows, leafInput.getGlskProvider(), leafInput.getLoopflowCnecs());
-    }*/
-
-    /**
-     * Leaf constructor from a parent leaf
-     * @param parentLeaf: the parent leaf
-     * @param networkAction: the leaf's specific network action (to be added to the parent leaf's network actions)
-     * @param network: the Network object
-     * @param raoParameters: the RAO parameters
-     * @param treeParameters: the Tree parameters
-     */
     Leaf(LeafInput leafInput, RaoParameters raoParameters, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
         this.leafInput = leafInput;
         networkActions = leafInput.getAppliedNetworkActions();
@@ -128,25 +88,15 @@ class Leaf {
 
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(leafInput.getNetwork()));
-        // It creates a new CRAC variant
-        //raoData = RaoData.create(leafInput.getNetwork(), parentLeaf.getRaoData());
-        //preOptimVariantId = raoData.getPreOptimVariantId();
-        //activateNetworkActionInCracResult(preOptimVariantId);
-        //raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
-        //if (!raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
-        //    raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
-        //}
+
         if (leafInput.hasSensitivityValues()) {
             status = Status.EVALUATED;
         } else {
             status = Status.CREATED;
         }
-        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(leafInput.getCnecs(), leafInput.getLoopflowCnecs(), leafInput.getPrePerimeterMarginsInAbsoluteMW(), leafInput.getInitialCnecResults(), linearOptimizerParameters, raoParameters.getFallbackOverCost());
+        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(leafInput.getCnecs(), leafInput.getLoopflowCnecs(), leafInput.getPrePerimeterMarginsInAbsoluteMW(),
+                leafInput.getInitialCnecResults(), leafInput.getCountriesNotToOptimize(), raoParameters);
     }
-
-    /*RaoData getRaoData() {
-        return raoData;
-    }*/
 
     LeafInput getLeafInput() {
         return  leafInput;
@@ -156,21 +106,8 @@ class Leaf {
         return status;
     }
 
-    /*String getPreOptimVariantId() {
-        return preOptimVariantId;
-    }*/
-
-    /*String getBestVariantId() {
-        if (status.equals(Status.OPTIMIZED)) {
-            return optimizedVariantId;
-        } else {
-            return preOptimVariantId;
-        }
-    }*/
-
-    double getBestCost() {
+    double getOptimizedCost() {
         return leafOutput.getCost();
-        //return raoData.getCracResult(getBestVariantId()).getCost();
     }
 
     Set<NetworkAction> getNetworkActions() {
@@ -181,12 +118,6 @@ class Leaf {
         return networkActions.isEmpty();
     }
 
-    private Map<BranchCnec, Double> computePrePerimeterMarginsInAbsoluteMW(Set<BranchCnec> cnecs, SystematicSensitivityResult sensitivityResult) {
-        Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW = new HashMap<>();
-        cnecs.forEach(cnec -> prePerimeterMarginsInAbsoluteMW.put(cnec, cnec.computeMargin(sensitivityResult.getReferenceFlow(cnec), Side.LEFT, Unit.MEGAWATT)));
-        return  prePerimeterMarginsInAbsoluteMW;
-    }
-
     /**
      * This method performs a systematic sensitivity computation on the leaf only if it has not been done previously.
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
@@ -194,34 +125,28 @@ class Leaf {
     void evaluate() {
         if (status.equals(Status.EVALUATED)) {
             LOGGER.debug("Leaf has already been evaluated");
-            SensitivityAndLoopflowResults sensitivityAndLoopflowResults = leafInput.getSensitivityAndLoopflowResults();
-
-            //raoData.getCracResultManager().fillCracResultWithCosts(
-            //    objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults));
             return;
         }
 
         try {
             LOGGER.debug("Evaluating leaf...");
 
-             boolean updateSensitivitiesForLoopFlows = linearOptimizerParameters.isRaoWithLoopFlowLimitation()
-                    && linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange();
+            boolean updateSensitivitiesForLoopFlows = raoParameters.isRaoWithLoopFlowLimitation()
+                    && raoParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange();
+
             SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, leafInput.getRangeActions(), leafInput.getCnecs(), updateSensitivitiesForLoopFlows, leafInput.getGlskProvider(), leafInput.getLoopflowCnecs());
             SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(leafInput.getNetwork());
-            if(updateSensitivitiesForLoopFlows) {
+            if (updateSensitivitiesForLoopFlows) {
                 Map<BranchCnec, Double> commercialFlows = LoopFlowUtil.computeCommercialFlows(leafInput.getNetwork(), leafInput.getLoopflowCnecs(), leafInput.getGlskProvider(), leafInput.getReferenceProgram(), sensitivityResult);
-                leafInput.setSensitivityAndLoopflowResults(new SensitivityAndLoopflowResults(sensitivityResult, commercialFlows));
+                leafInput.setSensitivityAndLoopflowResults(new SensitivityAndLoopflowResults(sensitivityResult, systematicSensitivityInterface.isFallback(), commercialFlows));
             } else {
-                leafInput.setSensitivityAndLoopflowResults(new SensitivityAndLoopflowResults(sensitivityResult, leafInput.getCommercialFlows()));
+                leafInput.setSensitivityAndLoopflowResults(new SensitivityAndLoopflowResults(sensitivityResult, systematicSensitivityInterface.isFallback(), leafInput.getCommercialFlows()));
             }
 
-            //TODO: compute this in search tree
-            /*if (isRoot()) {
-                leafInput.setPrePerimeterMarginsInAbsoluteMW(computePrePerimeterMarginsInAbsoluteMW(leafInput.getCnecs(), sensitivityResult));
-            }*/
+            //TODO: compute this in search tree provider
             status = Status.EVALUATED;
         } catch (FaraoException e) {
-            LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
+            LOGGER.error(String.format("Failed to evaluate leaf: %s", e.getMessage()));
             status = Status.ERROR;
         }
     }
@@ -257,7 +182,7 @@ class Leaf {
     }
 
     boolean isRangeActionActivated(RangeAction rangeAction) {
-        double optimizedSetpoint = leafOutput.getRangeActionSetpoint(rangeAction);
+        double optimizedSetpoint = leafOutput.getOptimizedSetPoint(rangeAction);
         double preperimeterSetpoint = leafInput.getPreperimeterSetpoint(rangeAction);
         if (Double.isNaN(optimizedSetpoint)) {
             return false;
@@ -345,7 +270,39 @@ class Leaf {
     }
 
     private LeafOutput createLeafOutput(IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput) {
-        return new LeafOutput(iteratingLinearOptimizerOutput, networkActions);
+        Set<RangeAction> activatedRangeActions = leafInput.getRangeActions().stream().filter(this::isRangeActionActivated).collect(Collectors.toSet());
+        PerimeterStatus perimeterStatus;
+        if (iteratingLinearOptimizerOutput.getSensitivityAndLoopflowResults().isFallback()) {
+            perimeterStatus = PerimeterStatus.FALLBACK;
+        } else {
+            perimeterStatus = PerimeterStatus.DEFAULT;
+        }
+        return new LeafOutput(iteratingLinearOptimizerOutput, iteratingLinearOptimizerOutput, iteratingLinearOptimizerOutput, networkActions, activatedRangeActions, perimeterStatus);
+    }
+
+    private IteratingLinearOptimizerOutput createOutputFromPreOptimSituation() {
+        ObjectiveFunctionEvaluator objectiveFunctionEvaluator = leafInput.getObjectiveFunctionEvaluator();
+        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = leafInput.getPreOptimSensitivityResults();
+        Network network = iteratingLinearOptimizerInput.getNetwork();
+
+        LinearProblem.SolveStatus solveStatus = LinearProblem.SolveStatus.NOT_SOLVED;
+        double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults);
+        double virtualCost = objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults);
+        Map<RangeAction, Double> rangeActionSetPoints = new HashMap<>();
+        Map<PstRangeAction, Integer> pstTaps = new HashMap<>();
+        for (RangeAction rangeAction : iteratingLinearOptimizerInput.getRangeActions()) {
+            rangeActionSetPoints.put(rangeAction, rangeAction.getCurrentValue(network));
+            if (rangeAction instanceof PstRangeAction) {
+                PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+                pstTaps.put(pstRangeAction, pstRangeAction.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO));
+            }
+        }
+
+        return new IteratingLinearOptimizerOutput(solveStatus, functionalCost, virtualCost, rangeActionSetPoints, pstTaps, sensitivityAndLoopflowResults);
+    }
+
+    public LeafOutput getLeafOutput() {
+        return leafOutput;
     }
 
     /**
@@ -368,7 +325,7 @@ class Leaf {
                 leafOutput = createLeafOutput(iteratingLinearOptimizerOutput);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");
-                //optimizedVariantId = preOptimVariantId;
+
             }
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
@@ -460,9 +417,9 @@ class Leaf {
         return false;
     }
 
-    /*boolean isFallback() {
-        return systematicSensitivityInterface.isFallback();
-    }*/
+    boolean isFallback() {
+        return leafOutput.getStatus().equals(PerimeterStatus.FALLBACK);
+    }
 
     /**
      * This method deletes completely the initial variant if the optimized variant has better results. So it can be

@@ -4,10 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.rao_api;
+package com.farao_community.farao.rao_api.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
@@ -110,6 +111,11 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private List<ZoneToZonePtdfDefinition> relativeMarginPtdfBoundaries = new ArrayList<>();
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
     private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
+
+    private LoopFlowParameters loopFlowParameters;
+    private MnecParameters mnecParameters;
+    private MaxMinMarginParameters maxMinMarginParameters;
+    private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
@@ -306,6 +312,44 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.perimetersInParallel = perimetersInParallel;
     }
 
+    public LoopFlowParameters getLoopFlowParameters() {
+        return loopFlowParameters;
+    }
+
+    public MnecParameters getMnecParameters() {
+        return mnecParameters;
+    }
+
+    public MaxMinMarginParameters getMaxMinMarginParameters() {
+        if (this.objectiveFunction.relativePositiveMargins()) {
+            throw new FaraoException("Objective function uses relative margins. Use MaxMinRelativeMarginParameters");
+        }
+        return maxMinMarginParameters;
+    }
+
+    public MaxMinRelativeMarginParameters getMaxMinRelativeMarginParameters() {
+        if (this.objectiveFunction.relativePositiveMargins()) {
+            throw new FaraoException("Objective function does not use relative margins. Use MaxMinMarginParameters");
+        }
+        return maxMinRelativeMarginParameters;
+    }
+
+    public void setLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
+        this.loopFlowParameters = loopFlowParameters;
+    }
+
+    public void setMnecParameters(MnecParameters mnecParameters) {
+        this.mnecParameters = mnecParameters;
+    }
+
+    public void setMaxMinMarginParameters(MaxMinMarginParameters maxMinMarginParameters) {
+        this.maxMinMarginParameters = maxMinMarginParameters;
+    }
+
+    public void setMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
+        this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -339,7 +383,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return parameters;
     }
 
-    protected static void load(RaoParameters parameters, PlatformConfig platformConfig) {
+    public static void load(RaoParameters parameters, PlatformConfig platformConfig) {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);
 
@@ -367,6 +411,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...
         parameters.setDefaultSensitivityAnalysisParameters(SensitivityAnalysisParameters.load(platformConfig));
+
+        /*parameters.setLoopFlowParameters(new LoopFlowParameters(parameters.getLoopFlowApproximationLevel(), parameters.getLoopFlowAcceptableAugmentation(), parameters.getLoopFlowViolationCost(), parameters.getLoopFlowConstraintAdjustmentCoefficient()));
+        parameters.setMnecParameters(new MnecParameters(parameters.getMnecAcceptableMarginDiminution(), parameters.getMnecViolationCost(), parameters.getMnecConstraintAdjustmentCoefficient()));
+        if (parameters.getObjectiveFunction().relativePositiveMargins()) {
+            parameters.setMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(parameters.getPstPenaltyCost(), parameters.getNegativeMarginObjectiveCoefficient(), parameters.getPtdfSumLowerBound()));
+        } else {
+            parameters.setMaxMinMarginParameters(new MaxMinMarginParameters(parameters.getPstPenaltyCost()));
+        }*/
     }
 
     private static Set<Country> convertToCountrySet(List<String> countryStringList) {

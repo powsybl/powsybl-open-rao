@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResult;
 import com.google.auto.service.AutoService;

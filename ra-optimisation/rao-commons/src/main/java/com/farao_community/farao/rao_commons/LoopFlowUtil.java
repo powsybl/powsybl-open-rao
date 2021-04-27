@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtens
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -32,16 +32,6 @@ import java.util.stream.Collectors;
 public final class LoopFlowUtil {
 
     private LoopFlowUtil() {
-    }
-
-    public static void buildLoopFlowsWithLatestSensi(RaoData raoData, boolean isLoopFlowApproximation) {
-        if (isLoopFlowApproximation) {
-            raoData.getCracResultManager().fillCnecResultsWithApproximatedLoopFlows();
-        } else {
-            LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
-            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getNetwork(), raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
-            raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
-        }
     }
 
     public static Map<BranchCnec, Double> computeCommercialFlows(Network network,

@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.Versionable;
 
 import java.util.concurrent.CompletableFuture;

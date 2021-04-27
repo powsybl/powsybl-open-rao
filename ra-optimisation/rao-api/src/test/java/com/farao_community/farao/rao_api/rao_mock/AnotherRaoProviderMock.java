@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_api.rao_mock;
 
 import com.farao_community.farao.rao_api.RaoInput;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.google.auto.service.AutoService;

@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinRelativeMarginParameters;
+import com.farao_community.farao.rao_api.parameters.MaxMinRelativeMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
