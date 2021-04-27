@@ -17,6 +17,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -51,10 +52,30 @@ public class SearchTree {
     private SearchTreeInput searchTreeInput;
 
     void initLeaves() {
-        LeafInput leafInput = new LeafInput();
+        LeafInput leafInput = buildLeafInput();
         rootLeaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
+    }
+
+    private LeafInput buildLeafInput() {
+        LeafInput leafInput = new LeafInput(SearchTreeInput searchTreeInput);
+        leafInput.setNetwork(searchTreeInput.getNetwork());
+        leafInput.setCnecs(searchTreeInput.getCnecs());
+        leafInput.setAppliedNetworkActions(new HashSet<>());
+        leafInput.setNetworkActionToApply(null);
+        leafInput.setAppliedNetworkActions(searchTreeInput.getNetworkActions());
+        leafInput.setRangeActions(searchTreeInput.getRangeActions());
+        leafInput.setLoopflowCnecs(searchTreeInput.getLoopflowCnecs());
+        leafInput.setGlskProvider(searchTreeInput.getGlskProvider());
+        leafInput.setReferenceProgram(searchTreeInput.getReferenceProgram());
+
+        leafInput.setInitialCnecResults(searchTreeInput.getInitialCnecResults());
+        leafInput.setPrePerimeterMarginsInAbsoluteMW(searchTreeInput.getPrePerimeterMarginsInAbsoluteMW());
+        leafInput.setPrePerimeterCommercialFlows(searchTreeInput.getCommercialFlows());
+        leafInput.setPrePerimeterSensitivityAndLoopflowResults(searchTreeInput.getPrePerimeterSensitivityAndLoopflowResults());
+        leafInput.setPrePerimeterSetpoints(searchTreeInput.getPrePerimeterSetpoints());
+        return leafInput;
     }
 
     public CompletableFuture<RaoResultImpl> run(SearchTreeInput searchTreeInput, RaoParameters raoParameters, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
@@ -125,11 +146,6 @@ public class SearchTree {
             updateOptimalLeafWithNextDepthBestLeaf();
             hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
             if (hasImproved) {
-                /*if (previousDepthOptimalLeaf == rootLeaf) {
-                    previousDepthOptimalLeaf.clearAllVariantsExceptInitialOne(); // to keep the results without optim
-                } else {
-                    previousDepthOptimalLeaf.clearAllVariants();
-                }*/
                 LOGGER.info("Research depth: {} - [end]", depth + 1);
                 LOGGER.info("Best leaf so far - {}", optimalLeaf);
                 SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Best leaf so far");
