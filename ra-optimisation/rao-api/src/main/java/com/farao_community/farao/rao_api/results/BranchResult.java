@@ -73,7 +73,9 @@ public interface BranchResult {
      * @param unit: The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch in the given unit.
      */
-    double getLoopFlow(BranchCnec branchCnec, Unit unit);
+    default double getLoopFlow(BranchCnec branchCnec, Unit unit) {
+        return getFlow(branchCnec, unit) - getCommercialFlow(branchCnec, unit);
+    }
 
     /**
      * It gives the sum of the computation areas' zonal PTDFs on a {@link BranchCnec}. If the computation does not
