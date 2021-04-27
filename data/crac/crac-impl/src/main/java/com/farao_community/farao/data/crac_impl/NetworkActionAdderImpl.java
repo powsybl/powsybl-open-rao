@@ -60,6 +60,9 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
         if (usageRules.isEmpty()) {
             LOGGER.warn("NetworkAction {} does not contain any usage rule, by default it will never be available", id);
         }
+        if (elementaryActions.isEmpty()) {
+            throw new FaraoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));
+        }
 
         NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions);
         getCrac().addNetworkAction(networkAction);

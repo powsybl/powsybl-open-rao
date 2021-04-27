@@ -186,4 +186,13 @@ public class NetworkActionAdderImplTest {
             // should throw
         }
     }
+
+    @Test (expected = FaraoException.class)
+    public void testNokWithoutElementaryAction() {
+        crac.newNetworkAction()
+                .withId("networkActionName")
+                .withName("networkActionName")
+                .withOperator("operator")
+                .add();
+    }
 }
