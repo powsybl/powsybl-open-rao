@@ -64,7 +64,7 @@ public class InitialSensitivityAnalysisOutput implements PerimeterResult,  {
     }
 
     @Override
-    public boolean getActivationStatus(NetworkAction networkAction) {
+    public boolean isActivated(NetworkAction networkAction) {
         return false;
     }
 
@@ -122,12 +122,12 @@ public class InitialSensitivityAnalysisOutput implements PerimeterResult,  {
     }
 
     @Override
-    public Map<PstRangeAction, Integer> getRangeActionTaps() {
+    public Map<PstRangeAction, Integer> getOptimizedTapsOnState() {
         return pstTaps;
     }
 
     @Override
-    public Map<RangeAction, Double> getRangeActionSetPoints() {
+    public Map<RangeAction, Double> getOptimizedSetPointsOnState() {
         return rangeActionSetPoints;
     }
 }
