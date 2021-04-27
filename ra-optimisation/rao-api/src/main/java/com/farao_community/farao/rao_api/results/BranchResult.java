@@ -51,7 +51,13 @@ public interface BranchResult {
      * @param unit: The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch in the given unit.
      */
-    double getRelativeMargin(BranchCnec branchCnec, Unit unit);
+    default double getRelativeMargin(BranchCnec branchCnec, Unit unit) {
+        if (Double.isNaN(getPtdfZonalSum(branchCnec)) || getPtdfZonalSum(branchCnec) == 0) {
+            return Double.NaN;
+        }
+        return getMargin(branchCnec, unit) <= 0 ? getMargin(branchCnec, unit)
+                : getMargin(branchCnec, unit) / getPtdfZonalSum(branchCnec);
+    }
 
     /**
      * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link BranchCnec} in a given
