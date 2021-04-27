@@ -104,12 +104,12 @@ public class PrePerimeterSensitivityAnalysis {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
                 objectiveFunctionEvaluator = new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
-                        ptdfSums, cnecFlowsInA, loopflowsInMW, new HashSet<>(), raoParameters, raoParameters.getFallbackOverCost());
+                        ptdfSums, cnecFlowsInA, loopflowsInMW, new HashSet<>(), raoParameters);
                 break;
             case MAX_MIN_MARGIN_IN_MEGAWATT:
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
                 objectiveFunctionEvaluator = new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
-                        ptdfSums, cnecFlowsInMW, loopflowsInMW, new HashSet<>(), raoParameters, raoParameters.getFallbackOverCost());
+                        ptdfSums, cnecFlowsInMW, loopflowsInMW, new HashSet<>(), raoParameters);
                 break;
             default:
                 throw new NotImplementedException("Not implemented objective function");

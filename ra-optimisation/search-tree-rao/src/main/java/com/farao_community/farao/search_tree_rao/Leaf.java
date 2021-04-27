@@ -8,7 +8,6 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -280,7 +279,7 @@ class Leaf {
         return new LeafOutput(iteratingLinearOptimizerOutput, iteratingLinearOptimizerOutput, iteratingLinearOptimizerOutput, networkActions, activatedRangeActions, perimeterStatus);
     }
 
-    private IteratingLinearOptimizerOutput createOutputFromPreOptimSituation() {
+    private LeafOutput createOutputFromPreOptimSituation() {
         ObjectiveFunctionEvaluator objectiveFunctionEvaluator = leafInput.getObjectiveFunctionEvaluator();
         SensitivityAndLoopflowResults sensitivityAndLoopflowResults = leafInput.getPreOptimSensitivityResults();
         Network network = iteratingLinearOptimizerInput.getNetwork();
@@ -325,7 +324,7 @@ class Leaf {
                 leafOutput = createLeafOutput(iteratingLinearOptimizerOutput);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");
-
+                leafOutput = createOutputFromPreOptimSituation();
             }
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
@@ -421,59 +420,11 @@ class Leaf {
         return leafOutput.getStatus().equals(PerimeterStatus.FALLBACK);
     }
 
-    /**
-     * This method deletes completely the initial variant if the optimized variant has better results. So it can be
-     * used only if the leaf is OPTIMIZED. This method should not be used on root leaf in the tree as long as it
-     * is necessary to keep this variant for algorithm results purpose.
-     */
-    /*void clearAllVariantsExceptOptimizedOne() {
-        if (status.equals(Status.OPTIMIZED) && !preOptimVariantId.equals(optimizedVariantId)) {
-            raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
-            raoData.getCracVariantManager().deleteVariant(preOptimVariantId, false);
-        }
-    }*/
-
-    /**
-     * This method deletes all the variants of the leaf rao data, except the initial variant. It is useful as when the
-     * tree's optimal leaf is not the root leaf we don't want to see in the CracResult any other variant than the initial
-     * one (from the root leaf) and the best variant (from the optimal leaf).
-     * Thus this method should be called only on the root leaf.
-     */
-    /*void clearAllVariantsExceptInitialOne() {
-        HashSet<String> variantIds = new HashSet<>();
-        variantIds.addAll(raoData.getCracVariantManager().getVariantIds());
-        variantIds.remove(preOptimVariantId);
-        raoData.getCracVariantManager().setWorkingVariant(preOptimVariantId);
-        variantIds.forEach(variantId -> raoData.getCracVariantManager().deleteVariant(variantId, false));
-    }*/
-
-    /**
-     * This method deletes all the variants of the leaf rao data meaning at least the initial variant and most the
-     * initial variant and the optimized variant. It is a delegate method to avoid calling directly rao data as a leaf
-     * user.
-     */
-    /*void clearAllVariants() {
-        raoData.getCracVariantManager().clear();
-    }*/
-
-    /**
-     * This method activates network actions related to this leaf in the CRAC results. This action has to be done
-     * every time a new variant is created inside this leaf to ensure results consistency.
-     *
-     * @param variantId: The ID of the variant to update.
-     */
-    /*private void activateNetworkActionInCracResult(String variantId) {
-        String stateId = raoData.getOptimizedState().getId();
-        for (NetworkAction networkAction : networkActions) {
-            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(stateId);
-        }
-    }*/
-
     @Override
     public String toString() {
         String info = isRoot() ? "Root leaf" :
                 "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
-        info += String.format(", Cost: %.2f", getBestCost());
+        info += String.format(", Cost: %.2f", getOptimizedCost());
         info += String.format(" (Functional: %.2f", leafOutput.getFunctionalCost());
         info += String.format(", Virtual: %.2f)", leafOutput.getVirtualCost());
         info += ", Status: " + status.getMessage();
@@ -481,7 +432,7 @@ class Leaf {
     }
 
     private Set<Optional<Country>> getOptimizedMostLimitingElementLocation() {
-        BranchCnec cnec = objectiveFunctionEvaluator.getMostLimitingElements(leafOutput.getSensitivityAndLoopflowResults(), 0).get(0);
+        BranchCnec cnec = leafOutput.getMostLimitingElements(1).get(0);
         return cnec.getLocation(leafInput.getNetwork());
     }
 }
