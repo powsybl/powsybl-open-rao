@@ -8,6 +8,8 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.PstRangeAction;
+import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -39,11 +41,9 @@ final class SearchTreeRaoLogger {
             rangeActionMsg.append(prefix).append(" - ");
         }
         rangeActionMsg.append("Range action(s): ");
-        for (RangeAction rangeAction : leaf.getRaoData().getAvailableRangeActions()) {
+        for (RangeAction rangeAction : leaf.getLeafInput().getRangeActions()) {
             String rangeActionName = rangeAction.getName();
-            int rangeActionTap = ((PstRangeResult) rangeAction.getExtension(RangeActionResultExtension.class)
-                    .getVariant(leaf.getRaoData().getWorkingVariantId()))
-                    .getTap(leaf.getRaoData().getOptimizedState().getId());
+            int rangeActionTap = leaf.getLeafOutput().getPstRangeActionTap((PstRangeAction) rangeAction);
             rangeActionMsg
                     .append(format("%s: %d", rangeActionName, rangeActionTap))
                     .append(" , ");
@@ -53,20 +53,29 @@ final class SearchTreeRaoLogger {
     }
 
     static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins, int numberOfLoggedElements) {
-        logMostLimitingElementsResults(leaf.getRaoData().getCnecs(), leaf.getBestVariantId(), unit, relativePositiveMargins, numberOfLoggedElements);
+        logMostLimitingElementsResults(leaf.getLeafInput().getCnecs(), leaf.getLeafOutput(), unit, relativePositiveMargins, numberOfLoggedElements);
     }
 
-    static void logMostLimitingElementsResults(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins, int numberOfLoggedElements) {
-        List<BranchCnec> sortedCnecs = cnecs.stream().
-                filter(Cnec::isOptimized).
-                sorted(Comparator.comparingDouble(cnec -> RaoUtil.computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
-                collect(Collectors.toList());
+    static void logMostLimitingElementsResults(Set<BranchCnec> cnecs, LeafOutput leafOutput, Unit unit, boolean relativePositiveMargins, int numberOfLoggedElements) {
+        List<BranchCnec> sortedCnecs;
+        if (relativePositiveMargins) {
+            sortedCnecs = cnecs.stream()
+                    .filter(BranchCnec::isOptimized)
+                    .sorted(Comparator.comparingDouble(cnec -> leafOutput.getRelativeMargin(cnec, unit)))
+                    .collect(Collectors.toList());
+        } else {
+            sortedCnecs = cnecs.stream()
+                    .filter(BranchCnec::isOptimized)
+                    .sorted(Comparator.comparingDouble(cnec -> leafOutput.getMargin(cnec, unit)))
+                    .collect(Collectors.toList());
+        }
 
         for (int i = 0; i < Math.min(numberOfLoggedElements, sortedCnecs.size()); i++) {
             FlowCnec cnec = (FlowCnec) sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
             double cnecMargin = RaoUtil.computeCnecMargin(cnec, variantId, unit, relativePositiveMargins);
+
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format("(PTDF %f)", cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum()) : "";

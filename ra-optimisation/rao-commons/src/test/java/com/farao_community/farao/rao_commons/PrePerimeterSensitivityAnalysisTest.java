@@ -10,9 +10,9 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ import static junit.framework.TestCase.assertNotNull;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class InitialSensitivityAnalysisTest {
+public class PrePerimeterSensitivityAnalysisTest {
 
     @Test
     public void testConstructor() {
@@ -35,7 +35,7 @@ public class InitialSensitivityAnalysisTest {
                 .withPstSensitivityThreshold(0)
                 .build();
 
-        InitialSensitivityAnalysis initialSensitivityAnalysis = new InitialSensitivityAnalysis(raoData, linearOptimizerParameters);
-        assertNotNull(initialSensitivityAnalysis);
+        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(raoData, linearOptimizerParameters);
+        assertNotNull(prePerimeterSensitivityAnalysis);
     }
 }

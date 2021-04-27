@@ -11,9 +11,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +41,16 @@ public class MinMarginEvaluator implements CostEvaluator {
     private double ptdfSumLowerBound;
     private Set<String> operatorsNotToOptimize = Collections.emptySet();
 
-    public MinMarginEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW, Map<BranchCnec, Double> initialAbsolutePtdfSums, LinearOptimizerParameters linearOptimizerParameters) {
+    public MinMarginEvaluator(Set<BranchCnec> cnecs, Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW, Map<BranchCnec, Double> initialAbsolutePtdfSums, Set<String> operatorsNotToOptimize, RaoParameters raoParameters) {
         this.cnecs = cnecs;
         this.prePerimeterMarginsInAbsoluteMW = prePerimeterMarginsInAbsoluteMW;
         this.initialAbsolutePtdfSums = initialAbsolutePtdfSums;
-        this.unit = linearOptimizerParameters.getUnit();
-        this.relativePositiveMargins = linearOptimizerParameters.hasRelativeMargins();
+        this.unit = raoParameters.getObjectiveFunction().getUnit();
+        this.relativePositiveMargins = raoParameters.getObjectiveFunction().relativePositiveMargins();
         if (relativePositiveMargins) {
-            this.ptdfSumLowerBound = linearOptimizerParameters.getMaxMinRelativeMarginParameters().getPtdfSumLowerBound();
+            this.ptdfSumLowerBound = raoParameters.getPtdfSumLowerBound();
         }
-        if (linearOptimizerParameters.hasOperatorsNotToOptimize()) {
-            this.operatorsNotToOptimize = linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize();
-        }
+        this.operatorsNotToOptimize = operatorsNotToOptimize;
         if (relativePositiveMargins && ptdfSumLowerBound <= 0) {
             throw new FaraoException("Please provide a (strictly positive) PTDF sum lower bound for relative margins.");
         }

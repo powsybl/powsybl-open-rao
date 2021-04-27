@@ -19,21 +19,25 @@ import java.util.Set;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class SensitivityAndLoopflowResults {
-    private SystematicSensitivityResult systematicSensitivityResult;
-    private Map<BranchCnec, Double> commercialFlows;
+    SystematicSensitivityResult systematicSensitivityResult;
+    Map<BranchCnec, Double> commercialFlows;
+    boolean isFallback;
 
-    public SensitivityAndLoopflowResults(SystematicSensitivityResult systematicSensitivityResult) {
+    public SensitivityAndLoopflowResults(SystematicSensitivityResult systematicSensitivityResult, boolean isFallback) {
         this.systematicSensitivityResult = systematicSensitivityResult;
+        this.isFallback = isFallback;
         this.commercialFlows = null;
     }
 
-    public SensitivityAndLoopflowResults(SystematicSensitivityResult systematicSensitivityResult, Map<BranchCnec, Double> commercialFlows) {
+    public SensitivityAndLoopflowResults(SystematicSensitivityResult systematicSensitivityResult, boolean isFallback, Map<BranchCnec, Double> commercialFlows) {
         this.systematicSensitivityResult = systematicSensitivityResult;
+        this.isFallback = isFallback;
         this.commercialFlows = commercialFlows;
     }
 
-    public SensitivityAndLoopflowResults(SystematicSensitivityResult systematicSensitivityResult, LoopFlowResult loopFlowResult, Set<BranchCnec> loopflowCnecs) {
+    public SensitivityAndLoopflowResults(SystematicSensitivityResult systematicSensitivityResult, boolean isFallback, LoopFlowResult loopFlowResult, Set<BranchCnec> loopflowCnecs) {
         this.systematicSensitivityResult = systematicSensitivityResult;
+        this.isFallback = isFallback;
         this.commercialFlows = new HashMap<>();
         loopflowCnecs.forEach(cnec -> commercialFlows.put(cnec, loopFlowResult.getCommercialFlow(cnec)));
     }
@@ -52,5 +56,9 @@ public class SensitivityAndLoopflowResults {
 
     public double getLoopflow(BranchCnec cnec) {
         return systematicSensitivityResult.getReferenceFlow(cnec) - this.commercialFlows.get(cnec);
+    }
+
+    public boolean isFallback() {
+        return isFallback;
     }
 }

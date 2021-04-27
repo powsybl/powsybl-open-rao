@@ -150,9 +150,9 @@ public final class IteratingLinearOptimizer {
 
             if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()
                 && linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
-                return new SensitivityAndLoopflowResults(updatedSensiResult, LoopFlowUtil.computeCommercialFlows(network, iteratingLinearOptimizerInput.getLoopflowCnecs(), iteratingLinearOptimizerInput.getGlskProvider(), iteratingLinearOptimizerInput.getReferenceProgram(), updatedSensiResult));
+                return new SensitivityAndLoopflowResults(updatedSensiResult, iteratingLinearOptimizerInput.getSystematicSensitivityInterface().isFallback(), LoopFlowUtil.computeCommercialFlows(network, iteratingLinearOptimizerInput.getLoopflowCnecs(), iteratingLinearOptimizerInput.getGlskProvider(), iteratingLinearOptimizerInput.getReferenceProgram(), updatedSensiResult));
             } else {
-                return new SensitivityAndLoopflowResults(updatedSensiResult, sensitivityAndLoopflowResults.getCommercialFlows());
+                return new SensitivityAndLoopflowResults(updatedSensiResult, iteratingLinearOptimizerInput.getSystematicSensitivityInterface().isFallback(), sensitivityAndLoopflowResults.getCommercialFlows());
             }
         } catch (SensitivityAnalysisException e) {
             LOGGER.error("Sensitivity computation failed at iteration {} on {} mode: {}", iteration, systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage());

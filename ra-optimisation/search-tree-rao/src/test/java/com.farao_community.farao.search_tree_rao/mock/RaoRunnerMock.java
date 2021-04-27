@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.mock;
 import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.rao_api.*;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

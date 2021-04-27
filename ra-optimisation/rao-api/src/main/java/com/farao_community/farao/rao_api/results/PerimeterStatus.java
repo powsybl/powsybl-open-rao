@@ -11,4 +11,7 @@ package com.farao_community.farao.rao_api.results;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public enum PerimeterStatus {
+    DEFAULT,
+    FALLBACK,
+    FAILURE
 }

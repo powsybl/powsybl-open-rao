@@ -22,8 +22,7 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -37,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.*;
 import static java.lang.String.format;
 
 /**
@@ -119,16 +119,18 @@ public final class RaoUtil {
     public static ObjectiveFunctionEvaluator createObjectiveFunction(Set<BranchCnec> cnecs,
                                                                      Set<BranchCnec> loopflowCnecs,
                                                                      Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW,
-                                                                     CnecResults initialCnecResults, LinearOptimizerParameters linearOptimizerParameters, double fallbackOverCost) {
-        switch (linearOptimizerParameters.getObjectiveFunction()) {
+                                                                     CnecResults initialCnecResults,
+                                                                     Set<String> countriesNotToOptimize,
+                                                                     RaoParameters raoParameters) {
+        switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
                 return new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
-                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInA(), initialCnecResults.getLoopflowsInMW(), linearOptimizerParameters, fallbackOverCost);
+                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInA(), initialCnecResults.getLoopflowsInMW(), countriesNotToOptimize, raoParameters);
             case MAX_MIN_MARGIN_IN_MEGAWATT:
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
                 return new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
-                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInMW(), initialCnecResults.getLoopflowsInMW(), linearOptimizerParameters, fallbackOverCost);
+                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInMW(), initialCnecResults.getLoopflowsInMW(), countriesNotToOptimize, raoParameters);
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }

@@ -29,6 +29,7 @@ public class LeafInput {
     private Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW;
     private Map<RangeAction, Double> preperimeterSetpoints; // can be removed if we don't change taps in the network after each depth
     private CnecResults initialCnecResults;
+    private Set<String> countriesNotToOptimize;
 
     public boolean hasSensitivityValues() {
         return !Objects.isNull(sensitivityAndLoopflowResults);
@@ -96,5 +97,9 @@ public class LeafInput {
 
     public CnecResults getInitialCnecResults() {
         return initialCnecResults;
+    }
+
+    public Set<String> getCountriesNotToOptimize() {
+        return countriesNotToOptimize;
     }
 }

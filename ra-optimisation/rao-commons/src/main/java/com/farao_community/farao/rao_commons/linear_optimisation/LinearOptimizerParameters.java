@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.parameters.*;
 
 /**
