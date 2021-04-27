@@ -7,19 +7,15 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import static java.lang.String.format;
 
 /**
  * Critical network element and contingency.
@@ -79,11 +75,14 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
 
     @Override
     @Deprecated
+    //todo : delete
     public void addThreshold(BranchThreshold branchThreshold) {
         bounds.resetBounds();
         thresholds.add(branchThreshold);
     }
 
+    @Deprecated
+    //todo : delete
     public void setThresholds(Set<BranchThreshold> thresholds) {
         bounds.resetBounds();
         this.thresholds = new HashSet<>(thresholds);
@@ -91,48 +90,6 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
 
     @Override
     public void synchronize(Network network) {
-        /*
-        Branch<?> branch = checkAndGetValidBranch(network, networkElement.getId());
-        setVoltageLevel(Side.LEFT, branch.getTerminal1().getVoltageLevel().getNominalV());
-        setVoltageLevel(Side.RIGHT, branch.getTerminal2().getVoltageLevel().getNominalV());
-        thresholds.forEach(threshold -> {
-            switch (threshold.getRule()) {
-                case ON_LEFT_SIDE:
-                case ON_REGULATED_SIDE:
-                case ON_RIGHT_SIDE:
-                case ON_NON_REGULATED_SIDE:
-                    break; // These cases have already been handled at object creation or when adding thresholds
-                case ON_LOW_VOLTAGE_LEVEL:
-                    if (getNominalVoltage(Side.LEFT) <= getNominalVoltage(Side.RIGHT)) {
-                        ((BranchThresholdImpl) threshold).setSide(Side.LEFT);
-                    } else {
-                        ((BranchThresholdImpl) threshold).setSide(Side.RIGHT);
-                    }
-                    break;
-                case ON_HIGH_VOLTAGE_LEVEL:
-                    if (getNominalVoltage(Side.LEFT) < getNominalVoltage(Side.RIGHT)) {
-                        ((BranchThresholdImpl) threshold).setSide(Side.RIGHT);
-                    } else {
-                        ((BranchThresholdImpl) threshold).setSide(Side.LEFT);
-                    }
-                    break;
-                default:
-                    throw new FaraoException(format("Impossible to synchronize cnec %s, rule %s has not been implemented yet.", getId(), threshold.getRule()));
-            }
-        });
-        isSynchronized = true;*/
-    }
-
-    protected Branch checkAndGetValidBranch(Network network, String networkElementId) {
-        Branch<?> branch = network.getBranch(networkElementId);
-        if (branch == null) {
-            throw new FaraoException(format("Branch %s does not exist in the current network", networkElementId));
-        }
-        return branch;
-    }
-
-    protected void checkThreshold(BranchThreshold threshold) {
-        threshold.getUnit().checkPhysicalParameter(getPhysicalParameter());
     }
 
     @Override
