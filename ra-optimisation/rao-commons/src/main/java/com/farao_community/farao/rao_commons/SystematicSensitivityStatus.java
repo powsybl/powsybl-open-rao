@@ -5,12 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api.results;
+package com.farao_community.farao.rao_commons;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface LinearOptimizationResult extends BranchResult, RangeActionResult, ObjectiveFunctionResult {
-
-    LinearProblemStatus getStatus();
+public enum SystematicSensitivityStatus {
+    DEFAULT,
+    FALLBACK,
+    FAILURE
 }
