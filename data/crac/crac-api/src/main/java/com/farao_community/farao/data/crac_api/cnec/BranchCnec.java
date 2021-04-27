@@ -32,11 +32,10 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
     Set<BranchThreshold> getThresholds();
 
     /**
-     * Getter of the nominal voltage on each {@link Side} of the {@code BranchCnec}. These values are related to
-     * network information so it might be unavailable before synchronization.
+     * Getter of the nominal voltage on each {@link Side} of the {@code BranchCnec}.
      *
      * @param side: The {@link Side} on which the nominal voltage is queried.
-     * @return The value of nominal voltage. It could be {@code null} if the {@code BranchCnec} has not been synchronized.
+     * @return The value of nominal voltage.
      */
     Double getNominalVoltage(Side side);
 

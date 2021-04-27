@@ -25,16 +25,27 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     protected boolean monitored;
     protected boolean isSynchronized = false;
     protected String operator = null;
+    protected double frm = 0;
 
-    protected AbstractCnec(String id, String name, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored) {
+    protected AbstractCnec(String id,
+                           String name,
+                           NetworkElement networkElement,
+                           String operator,
+                           State state,
+                           boolean optimized,
+                           boolean monitored,
+                           double frm) {
         super(id, name);
         this.networkElement = networkElement;
         this.operator = operator;
         this.state = state;
         this.optimized = optimized;
         this.monitored = monitored;
+        this.frm = frm;
     }
 
+    @Deprecated
+    //todo : delete method
     protected AbstractCnec(String id, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored) {
         super(id);
         this.networkElement = networkElement;
@@ -81,6 +92,11 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public String getOperator() {
         return this.operator;
+    }
+
+    @Override
+    public double getReliabilityMargin() {
+        return frm;
     }
 
     @Override

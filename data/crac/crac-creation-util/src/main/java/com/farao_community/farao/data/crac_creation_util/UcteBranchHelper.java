@@ -40,6 +40,10 @@ public class UcteBranchHelper {
     private boolean isInvertedInNetwork;
     private boolean isTieLine = false;
     private Branch.Side tieLineSide = null;
+    private Double nominalVoltageLeft = null;
+    private Double nominalVoltageRight = null;
+    private Double currentLimitLeft = null;
+    private Double currentLimitRight = null;
 
     /**
      * Constructor, based on a separate fields.
@@ -60,7 +64,7 @@ public class UcteBranchHelper {
         this.to = format("%1$-8s", toNode);
         this.suffix = suffix;
 
-        findEquivalentElementInNetwork(network);
+        interpretWithNetwork(network);
     }
 
     /**
@@ -84,7 +88,7 @@ public class UcteBranchHelper {
         this.to = format("%1$-8s", toNode);
 
         if (checkSuffix(orderCode, elementName)) {
-            findEquivalentElementInNetwork(network);
+            interpretWithNetwork(network);
         }
     }
 
@@ -102,7 +106,7 @@ public class UcteBranchHelper {
         }
 
         if (decomposeUcteBranchId(ucteBranchId)) {
-            findEquivalentElementInNetwork(network);
+            interpretWithNetwork(network);
         }
     }
 
@@ -158,6 +162,32 @@ public class UcteBranchHelper {
     }
 
     /**
+     * If the branch is valid, returns the nominal voltage on a given side of the Branch
+     * The side corresponds to the side of the branch in the network, which might be inverted
+     * compared from the from/to nodes of the UcteBranch (see isInvertedInNetwork()).
+     */
+    public double getNominalVoltage(Branch.Side side) {
+        if (side.equals(Branch.Side.ONE)) {
+            return nominalVoltageLeft;
+        } else {
+            return nominalVoltageRight;
+        }
+    }
+
+    /**
+     * If the branch is valid, returns the current limit on a given side of the Branch.
+     * The side corresponds to the side of the branch in the network, which might be inverted
+     * compared from the from/to nodes of the UcteBranch (see isInvertedInNetwork()).
+     */
+    public double getCurrentLimit(Branch.Side side) {
+        if (side.equals(Branch.Side.ONE)) {
+            return currentLimitLeft;
+        } else {
+            return currentLimitRight;
+        }
+    }
+
+    /**
      * If the branch is valid, returns a boolean indicating whether or not the branch is a tie-line
      */
     public boolean isTieLine() {
@@ -205,7 +235,32 @@ public class UcteBranchHelper {
         }
     }
 
-    private void findEquivalentElementInNetwork(Network network) {
+    private void interpretWithNetwork(Network network) {
+        Identifiable<?> networkElement = findEquivalentElementInNetwork(network);
+
+        if (Objects.isNull(networkElement)) {
+            return;
+        }
+
+        if (networkElement instanceof TieLine) {
+            this.isTieLine = true;
+            checkTieLineInversion((TieLine) networkElement);
+            checkBranchNominalVoltage((TieLine) networkElement);
+            checkTieLineCurrentLimits((TieLine) networkElement);
+
+        } else if (networkElement instanceof Branch) {
+            checkBranchInversion((Branch) networkElement);
+            checkBranchNominalVoltage((Branch) networkElement);
+            checkBranchCurrentLimits((Branch) networkElement);
+
+        } else if (networkElement instanceof DanglingLine) {
+            checkDanglingLineInversion((DanglingLine) networkElement);
+            checkDanglingLineNominalVoltage((DanglingLine) networkElement);
+            checkDanglingLineCurrentLimits((DanglingLine) networkElement);
+        }
+    }
+
+    private Identifiable findEquivalentElementInNetwork(Network network) {
 
          /* It is assumed that the Branches, DanglingLines and TieLines of the network have ids/aliases like below:
         - "UCTNODE1 UCTENODE2 orderCode"
@@ -221,31 +276,17 @@ public class UcteBranchHelper {
 
         if (!Objects.isNull(fromToBranch)) {
             this.branchIdInNetwork = fromToBranch.getId();
-            checkInversion(fromToBranch);
-            return;
+            return fromToBranch;
         }
 
         Identifiable<?> toFromBranch = network.getIdentifiable(getLineName(to, from, suffix));
         if (!Objects.isNull(toFromBranch)) {
             this.branchIdInNetwork = toFromBranch.getId();
-            checkInversion(toFromBranch);
-            return;
+            return toFromBranch;
         }
 
         invalidate(format("branch was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));
-    }
-
-    private void checkInversion(Identifiable<?> identifiable) {
-
-        if (identifiable instanceof TieLine) {
-            this.isTieLine = true;
-            checkTieLineInversion((TieLine) identifiable);
-        } else if (identifiable instanceof Branch) {
-            checkBranchInversion((Branch) identifiable);
-        } else if (identifiable instanceof DanglingLine) {
-            checkDanglingLineInversion((DanglingLine) identifiable);
-        }
-        // inversion is not checked for other types of Branch
+        return null;
     }
 
     private void checkBranchInversion(Branch branch) {
@@ -317,6 +358,51 @@ public class UcteBranchHelper {
         }
 
         invalidate(format("dangling line direction couldn't be properly identified in the network (from: %s, to: %s, suffix: %s, networkDanglingLineId: %s)", from, to, suffix, danglingLine.getId()));
+    }
+
+    private void checkBranchNominalVoltage(Branch branch) {
+        this.nominalVoltageLeft = branch.getTerminal1().getVoltageLevel().getNominalV();
+        this.nominalVoltageRight = branch.getTerminal2().getVoltageLevel().getNominalV();
+    }
+
+    private void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
+        this.nominalVoltageLeft = danglingLine.getTerminal().getVoltageLevel().getNominalV();
+        this.nominalVoltageRight = nominalVoltageLeft;
+    }
+
+    private void checkTieLineCurrentLimits(TieLine tieLine) {
+        if (Objects.isNull(tieLine.getCurrentLimits(this.tieLineSide))) {
+            invalidate(String.format("couldn't identify current limits of tie-line (from: %s, to: %s, suffix: %s, networkTieLineId: %s)", from, to, suffix, tieLine.getId()));
+        }
+        this.currentLimitLeft = tieLine.getCurrentLimits(this.tieLineSide).getPermanentLimit();
+        this.currentLimitRight = currentLimitLeft;
+    }
+
+    private void checkBranchCurrentLimits(Branch branch) {
+        if (!Objects.isNull(branch.getCurrentLimits1())) {
+            this.currentLimitLeft = branch.getCurrentLimits1().getPermanentLimit();
+        }
+        if (!Objects.isNull(branch.getCurrentLimits2())) {
+            this.currentLimitRight = branch.getCurrentLimits2().getPermanentLimit();
+        }
+        if (Objects.isNull(branch.getCurrentLimits1()) && !Objects.isNull(branch.getCurrentLimits2())) {
+            this.currentLimitLeft = currentLimitRight * nominalVoltageLeft / nominalVoltageRight;
+        }
+        if (!Objects.isNull(branch.getCurrentLimits1()) && Objects.isNull(branch.getCurrentLimits2())) {
+            this.currentLimitRight = currentLimitLeft * nominalVoltageRight / nominalVoltageLeft;
+        }
+        if (Objects.isNull(branch.getCurrentLimits1()) && Objects.isNull(branch.getCurrentLimits2())) {
+            invalidate(String.format("couldn't identify current limits of branch (from: %s, to: %s, suffix: %s, networkBranchId: %s)", from, to, suffix, branch.getId()));
+        }
+    }
+
+    private void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
+        if (!Objects.isNull(danglingLine.getCurrentLimits())) {
+            this.currentLimitLeft = danglingLine.getCurrentLimits().getPermanentLimit();
+            this.currentLimitRight = currentLimitLeft;
+        } else {
+            invalidate(String.format("couldn't identify current limits of dangling line (from: %s, to: %s, suffix: %s, networkDanglingLineId: %s)", from, to, suffix, danglingLine.getId()));
+        }
     }
 
     private String getLineName(String nodeId1, String nodeId2, String suffix) {

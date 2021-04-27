@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
  */
 public class UcteBranchHelperTest {
 
+    private static final double DOUBLE_TOLERANCE = 1e-3;
     private Network network;
 
     @Before
@@ -40,25 +41,26 @@ public class UcteBranchHelperTest {
         assertEquals("BBE1AA1  BBE2AA1  1", branchHelper.getBranchIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("FFR1AA1 ", "FFR3AA1 ", "2", null, network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("FFR1AA1  FFR3AA1  2", branchHelper.getBranchIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
-        assertFalse(branchHelper.isTieLine());
 
         // internal branch with element name, from/to same as network
         branchHelper = new UcteBranchHelper("BBE1AA1 ", "BBE3AA1 ", null, "BR BE1BE3", network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("BBE1AA1  BBE3AA1  1", branchHelper.getBranchIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
-        assertFalse(branchHelper.isTieLine());
 
         branchHelper = new UcteBranchHelper("FFR1AA1 ", "FFR3AA1 ", null, "BR FR1FR3", network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("FFR1AA1  FFR3AA1  2", branchHelper.getBranchIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
-        assertFalse(branchHelper.isTieLine());
 
         // internal branch with order code, from/to different from network
         branchHelper = new UcteBranchHelper("BBE2AA2 ", "BBE1AA2 ", "1", null, network);
@@ -66,25 +68,26 @@ public class UcteBranchHelperTest {
         assertEquals("BBE1AA2  BBE2AA2  1", branchHelper.getBranchIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("FFR3AA1 ", "FFR1AA1 ", "2", null, network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("FFR1AA1  FFR3AA1  2", branchHelper.getBranchIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
-        assertFalse(branchHelper.isTieLine());
 
         // internal branch with element name, from/to different from network
         branchHelper = new UcteBranchHelper("BBE3AA1 ", "BBE1AA1 ", null, "BR BE1BE3", network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("BBE1AA1  BBE3AA1  1", branchHelper.getBranchIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
-        assertFalse(branchHelper.isTieLine());
 
         branchHelper = new UcteBranchHelper("FFR3AA1 ", "FFR1AA1 ", null, "BR FR1FR3", network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("FFR1AA1  FFR3AA1  2", branchHelper.getBranchIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
-        assertFalse(branchHelper.isTieLine());
     }
 
     @Test
@@ -121,12 +124,20 @@ public class UcteBranchHelperTest {
         assertEquals("BBE2AA1  BBE3AA1  1", branchHelper.getBranchIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("FFR1AA2 ", "FFR1AA1 ", "5", null, network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("FFR1AA2  FFR1AA1  5", branchHelper.getBranchIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1500. * 380 / 220, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         // transformer with element name, from/to same as network
         branchHelper = new UcteBranchHelper("BBE2AA1 ", "BBE3AA1 ", null, "PST BE", network);
@@ -134,12 +145,20 @@ public class UcteBranchHelperTest {
         assertEquals("BBE2AA1  BBE3AA1  1", branchHelper.getBranchIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("BBE1AA1 ", "BBE1AA2 ", null, "TR BE1", network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("BBE1AA1  BBE1AA2  1", branchHelper.getBranchIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1000. * 220 / 380, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         // transformer with order code, from/to same different from network
         branchHelper = new UcteBranchHelper("BBE3AA1 ", "BBE2AA1 ", "1", null, network);
@@ -147,12 +166,20 @@ public class UcteBranchHelperTest {
         assertEquals("BBE2AA1  BBE3AA1  1", branchHelper.getBranchIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("BBE2AA1 ", "BBE2AA2 ", "2", null, network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("BBE2AA2  BBE2AA1  2", branchHelper.getBranchIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1200. * 380 / 220, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1200., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         // transformer with element name, from/to same different from network
         branchHelper = new UcteBranchHelper("BBE3AA1 ", "BBE2AA1 ", null, "PST BE", network);
@@ -160,12 +187,20 @@ public class UcteBranchHelperTest {
         assertEquals("BBE2AA1  BBE3AA1  1", branchHelper.getBranchIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("FFR1AA1 ", "FFR1AA2 ", null, "TR FR1", network);
         assertTrue(branchHelper.isBranchValid());
         assertEquals("FFR1AA2  FFR1AA1  5", branchHelper.getBranchIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1500. * 380 / 220, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1500., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -188,6 +223,10 @@ public class UcteBranchHelperTest {
         assertTrue(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isTieLine());
         assertEquals(Branch.Side.ONE, branchHelper.getTieLineSide());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4800., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4800., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("DDE3AA1 ", "XFRDE11 ", "1", null, network);
         assertTrue(branchHelper.isBranchValid());
@@ -202,6 +241,10 @@ public class UcteBranchHelperTest {
         assertFalse(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isTieLine());
         assertEquals(Branch.Side.TWO, branchHelper.getTieLineSide());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4400., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4400., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("FFR2AA1 ", "XFRDE11 ", "1", null, network);
         assertTrue(branchHelper.isBranchValid());
@@ -217,6 +260,10 @@ public class UcteBranchHelperTest {
         assertFalse(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isTieLine());
         assertEquals(Branch.Side.ONE, branchHelper.getTieLineSide());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(3200., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(3200., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("XNLBE11 ", "NNL2AA1 ", null, "TL NL2X", network);
         assertTrue(branchHelper.isBranchValid());
@@ -231,6 +278,10 @@ public class UcteBranchHelperTest {
         assertFalse(branchHelper.isInvertedInNetwork());
         assertTrue(branchHelper.isTieLine());
         assertEquals(Branch.Side.TWO, branchHelper.getTieLineSide());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(2800., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(2800., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("BBE3AA1 ", "XNLBE11 ", null, "TL BE3X", network);
         assertTrue(branchHelper.isBranchValid());
@@ -259,6 +310,10 @@ public class UcteBranchHelperTest {
         assertEquals("BBE2AA1  XBE2AL1  1", branchHelper.getBranchIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1250, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1250, branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("XBE2AL1 ", "BBE2AA1 ", "1", null, network);
         assertTrue(branchHelper.isBranchValid());
@@ -272,6 +327,10 @@ public class UcteBranchHelperTest {
         assertEquals("XDE2AL1  DDE2AA1  1", branchHelper.getBranchIdInNetwork());
         assertFalse(branchHelper.isInvertedInNetwork());
         assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1245, branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1245, branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("DDE2AA1 ", "XDE2AL1 ", null, "DL AL", network);
         assertTrue(branchHelper.isBranchValid());

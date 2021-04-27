@@ -8,14 +8,18 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -24,11 +28,47 @@ import static java.lang.String.format;
  */
 public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> implements FlowCnecAdder {
 
-    protected Set<BranchThreshold> thresholds = new HashSet<>();
+    private Set<BranchThresholdImpl> thresholds = new HashSet<>();
+    private Double iMaxLeft = null;
+    private Double iMaxRight = null;
+    private Double nominalVLeft = null;
+    private Double nominalVRight = null;
 
-    public FlowCnecAdderImpl(CracImpl owner) {
+    FlowCnecAdderImpl(CracImpl owner) {
         super(owner);
     }
+
+    @Override
+    public FlowCnecAdder withIMax(double iMaxInAmpere) {
+        this.iMaxLeft = iMaxInAmpere;
+        this.iMaxRight = iMaxInAmpere;
+        return this;
+    }
+
+    @Override
+    public FlowCnecAdder withIMax(double iMaxInAmpere, Side side) {
+        if (side.equals(Side.LEFT)) {
+            this.iMaxLeft = iMaxInAmpere;
+        } else if (side.equals(Side.RIGHT)) {
+            this.iMaxRight = iMaxInAmpere;
+        }
+        return this;
+    }
+
+    @Override
+    public FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt) {
+        this.nominalVLeft = nominalVoltageInKiloVolt;
+        this.nominalVRight = nominalVoltageInKiloVolt;
+        return this;    }
+
+    @Override
+    public FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt, Side side) {
+        if (side.equals(Side.LEFT)) {
+            this.nominalVLeft = nominalVoltageInKiloVolt;
+        } else if (side.equals(Side.RIGHT)) {
+            this.nominalVRight = nominalVoltageInKiloVolt;
+        }
+        return this;    }
 
     @Override
     public BranchThresholdAdder newThreshold() {
@@ -47,20 +87,84 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     @Override
     public FlowCnec add() {
         checkCnec();
-        if (owner.getBranchCnec(id) != null) {
+        if (owner.getFlowCnec(id) != null) {
             throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
         }
-        if (this.thresholds.isEmpty()) {
-            throw new FaraoException("Cannot add a cnec without a threshold. Please use newThreshold.");
-        }
+        checkAndInitThresholds();
+
         State state;
         if (instant != Instant.PREVENTIVE) {
             state = owner.addState(owner.getContingency(contingencyId), instant);
         } else {
             state = owner.addPreventiveState();
         }
-        FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementId), operator, state, optimized, monitored, thresholds, reliabilityMargin);
+
+        FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementId), operator, state, optimized, monitored,
+            thresholds.stream().map(th -> (BranchThreshold) th).collect(Collectors.toSet()),
+            reliabilityMargin, nominalVLeft, nominalVRight, iMaxLeft, iMaxRight);
+
         owner.addFlowCnec(cnec);
         return cnec;
+    }
+
+    /**
+     * This method aims to define the side of thresholds when it does not require network so that margins and min/max
+     * values can be computed without synchronization.
+     * We check first if the threshold is compatible with the cnec physical parameter and then we set the side
+     * if it is possible.
+     */
+    private void checkAndInitThresholds() {
+
+        /*
+         This should be done here, and not in BranchThreshold Adder, as some information of the FlowCnec are required
+         to perform those checks
+         */
+
+        if (this.thresholds.isEmpty()) {
+            throw new FaraoException("Cannot add a cnec without a threshold. Please use newThreshold");
+        }
+
+        if (this.thresholds.stream().anyMatch(th -> !th.getUnit().getPhysicalParameter().equals(PhysicalParameter.FLOW))) {
+            throw new FaraoException("FlowCnec threshold must be in a flow unit (Unit.AMPERE, Unit.MEGAWATT or Unit.PERCENT_IMAX)");
+        }
+
+        for (BranchThresholdImpl branchThreshold : thresholds) {
+            switch (branchThreshold.getRule()) {
+                case ON_LEFT_SIDE:
+                case ON_REGULATED_SIDE:
+                    // TODO: This is verified only when the network is in UCTE format.
+                    //  Make it cleaner when we will have to work with other network format and the ON_REGULATED_SIDE rule
+                    branchThreshold.setSide(Side.LEFT);
+                    break;
+                case ON_RIGHT_SIDE:
+                case ON_NON_REGULATED_SIDE:
+                    // TODO: This is verified only when the network is in UCTE format.
+                    //  Make it cleaner when we will have to work with other network format and the ON_NON_REGULATED_SIDE rule
+                    branchThreshold.setSide(Side.RIGHT);
+                    break;
+                case ON_LOW_VOLTAGE_LEVEL:
+                    if (Objects.isNull(nominalVLeft) && Objects.isNull(nominalVRight)) {
+                        throw new FaraoException("ON_LOW_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
+                    }
+                    if (nominalVLeft <= nominalVRight) {
+                        branchThreshold.setSide(Side.LEFT);
+                    } else {
+                        branchThreshold.setSide(Side.RIGHT);
+                    }
+                    break;
+                case ON_HIGH_VOLTAGE_LEVEL:
+                    if (Objects.isNull(nominalVLeft) && Objects.isNull(nominalVRight)) {
+                        throw new FaraoException("ON_HIGH_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
+                    }
+                    if (nominalVLeft < nominalVRight) {
+                        branchThreshold.setSide(Side.RIGHT);
+                    } else {
+                        branchThreshold.setSide(Side.LEFT);
+                    }
+                    break;
+                default:
+                    throw new FaraoException(String.format("Rule %s is not yet handled for thresholds on FlowCnec", branchThreshold.getRule()));
+            }
+        }
     }
 }

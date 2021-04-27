@@ -15,10 +15,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +25,6 @@ import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_api.cnec.Side.LEFT;
 import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
-import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -41,23 +37,42 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     private static final int NB_MAX_CHARACTER_ELEMENT_NAME = 12;
 
     private final Double[] iMax = new Double[2];
-    private double frm;
+
+    FlowCnecImpl(String id,
+                 String name,
+                 NetworkElement networkElement,
+                 String operator,
+                 State state,
+                 boolean optimized,
+                 boolean monitored,
+                 Set<BranchThreshold> thresholds,
+                 double frm,
+                 Double nominalVLeft,
+                 Double nominalVRight,
+                 Double iMaxLeft,
+                 Double iMaxRight) {
+        super(id, name, networkElement, operator, state, optimized, monitored, thresholds, frm, nominalVLeft, nominalVRight);
+        this.iMax[0] = iMaxLeft;
+        this.iMax[1] = iMaxRight;
+    }
 
     @Deprecated
-    // TODO : make private package
+    // TODO : delete
     public FlowCnecImpl(String id, String name, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored, Set<BranchThreshold> thresholds, double frm) {
         super(id, name, networkElement, operator, state, optimized, monitored, thresholds);
         this.frm = frm;
     }
 
     @Deprecated
+    // TODO : delete
     public FlowCnecImpl(String id, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored, Set<BranchThreshold> thresholds, double frm) {
         super(id, networkElement, operator, state, optimized, monitored, thresholds);
         this.frm = frm;
     }
 
-    private Double getIMax(Side side) {
-        checkSynchronized(format("access iMax values of flow cnec %s", getId()));
+    @Override
+    public Double getIMax(Side side) {
+        //checkSynchronized(format("access iMax values of flow cnec %s", getId()));
         if (side.equals(LEFT)) {
             return iMax[0];
         } else {
@@ -65,21 +80,15 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
     }
 
-    private void setIMax(Side side, Double value) {
-        if (side.equals(LEFT)) {
-            iMax[0] = value;
-        } else {
-            iMax[1] = value;
-        }
-    }
-
     @Override
     public Optional<Double> getLowerBound(Side side, Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
+
         if (!bounds.isLowerBoundComputed(side, requestedUnit)) {
             Set<BranchThreshold> limitingThresholds = thresholds.stream()
                     .filter(Threshold::limitsByMin)
                     .collect(Collectors.toSet());
+
             if (!limitingThresholds.isEmpty()) {
                 double lowerBound = Double.NEGATIVE_INFINITY;
                 for (BranchThreshold threshold : limitingThresholds) {
@@ -160,6 +169,8 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
     @Override
     public void synchronize(Network network) {
+
+        /*
         super.synchronize(network);
         Branch<?> branch = super.checkAndGetValidBranch(network, networkElement.getId());
         if (branch instanceof TieLine) {
@@ -187,9 +198,10 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                     setIMax(RIGHT, changeValueSide(currentLimits1.getPermanentLimit(), LEFT, RIGHT));
                 }
             }
-        }
-    }
+        } */
 
+    }
+    /*
     private void setIMaxForTieLine(TieLine tieLine) {
         Optional<Side> side = getTieLineSide(tieLine);
         double tieLineLimit;
@@ -199,9 +211,9 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
             setIMax(RIGHT, tieLineLimit);
         } else {
             LOGGER.warn(TIE_LINE_WARN, tieLine.getId(), networkElement.getId());
-            /*tieLineLimit = Math.min(
-                    tieLine.getCurrentLimits(LEFT.iidmSide()).getPermanentLimit(),
-                    tieLine.getCurrentLimits(RIGHT.iidmSide()).getPermanentLimit());*/
+            //tieLineLimit = Math.min(
+            //        tieLine.getCurrentLimits(LEFT.iidmSide()).getPermanentLimit(),
+            //        tieLine.getCurrentLimits(RIGHT.iidmSide()).getPermanentLimit());
             setIMax(LEFT,  tieLine.getCurrentLimits(LEFT.iidmSide()).getPermanentLimit());
             setIMax(RIGHT, tieLine.getCurrentLimits(RIGHT.iidmSide()).getPermanentLimit());
         }
@@ -235,12 +247,7 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
         // no match
         return Optional.empty();
-    }
-
-    @Override
-    public double getReliabilityMargin() {
-        return frm;
-    }
+    }*/
 
     @Override
     @Deprecated

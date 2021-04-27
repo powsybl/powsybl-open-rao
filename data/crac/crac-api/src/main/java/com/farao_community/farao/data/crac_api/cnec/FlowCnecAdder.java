@@ -14,6 +14,14 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
  */
 public interface FlowCnecAdder extends CnecAdder<FlowCnecAdder> {
 
+    FlowCnecAdder withIMax(double iMaxInAmpere);
+
+    FlowCnecAdder withIMax(double iMaxInAmpere, Side side);
+
+    FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt);
+
+    FlowCnecAdder withNominalVoltage(double nominalVoltageInKiloVolt, Side side);
+
     BranchThresholdAdder newThreshold();
 
     FlowCnec add();
