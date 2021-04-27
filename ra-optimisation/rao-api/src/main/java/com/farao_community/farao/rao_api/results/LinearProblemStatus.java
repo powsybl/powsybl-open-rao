@@ -10,7 +10,11 @@ package com.farao_community.farao.rao_api.results;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface LinearOptimizationResult extends BranchResult, RangeActionResult, ObjectiveFunctionResult {
-
-    LinearProblemStatus getStatus();
+public enum LinearProblemStatus {
+    OPTIMAL,
+    FEASIBLE,
+    INFEASIBLE,
+    UNBOUNDED,
+    ABNORMAL,
+    NOT_SOLVED
 }
