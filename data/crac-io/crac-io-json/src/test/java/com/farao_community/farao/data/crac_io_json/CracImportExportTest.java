@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -37,18 +38,20 @@ public class CracImportExportTest {
         crac.newContingency().withId(contingency1Id).withNetworkElement("ne1Id").add();
 
         String contingency2Id = "contingency2Id";
-        crac.newContingency().withId(contingency2Id).withNetworkElement("ne2Id").withNetworkElement("ne3Id").add();
+        crac.newContingency().withId(contingency2Id).withNetworkElement("ne2Id", "ne2Name").withNetworkElement("ne3Id").add();
 
         crac.newFlowCnec().withId("cnec1prev")
                 .withNetworkElement("ne4Id")
                 .withInstant(Instant.PREVENTIVE)
                 .withOperator("operator1")
                 .withOptimized()
-                .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
-                .add();
+                .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .withIMax(1000., Side.RIGHT)
+                .withNominalVoltage(220.)
+            .add();
 
         crac.newFlowCnec().withId("cnec2prev")
-                .withNetworkElement("ne5Id")
+                .withNetworkElement("ne5Id", "ne5Name")
                 .withInstant(Instant.PREVENTIVE)
                 .withOperator("operator2")
                 .withOptimized()
@@ -56,7 +59,10 @@ public class CracImportExportTest {
                 .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMin(-800.).add()
                 .newThreshold().withRule(BranchThresholdRule.ON_HIGH_VOLTAGE_LEVEL).withUnit(Unit.AMPERE).withMin(-800.).add()
                 .newThreshold().withRule(BranchThresholdRule.ON_LOW_VOLTAGE_LEVEL).withUnit(Unit.AMPERE).withMax(1200.).add()
-                .add();
+                .withNominalVoltage(220., Side.RIGHT)
+                .withNominalVoltage(380., Side.LEFT)
+                .withIMax(2000.)
+            .add();
 
         crac.newFlowCnec().withId("cnec1cur")
                 .withNetworkElement("ne4Id")
@@ -65,11 +71,12 @@ public class CracImportExportTest {
                 .withOperator("operator1")
                 .withOptimized()
                 .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMin(-800.).add()
+                .withNominalVoltage(220.)
                 .add();
 
         crac.newFlowCnec().withId("cnec3prevId")
                 .withName("cnec3prevName")
-                .withNetworkElement("ne2Id")
+                .withNetworkElement("ne2Id", "ne2Name")
                 .withInstant(Instant.PREVENTIVE)
                 .withOperator("operator3")
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()

@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_io_json.serializers;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -44,18 +45,48 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         gen.writeObjectField(MONITORED, flowCnec.isMonitored());
         gen.writeNumberField(FRM, flowCnec.getReliabilityMargin());
 
-        gen.writeArrayFieldStart(THRESHOLDS);
-        List<BranchThreshold> sortedListOfThresholds = flowCnec.getThresholds().stream()
-                .sorted(new ThresholdComparator())
-                .collect(Collectors.toList());
-        for (BranchThreshold threshold: sortedListOfThresholds) {
-            gen.writeObject(threshold);
-        }
-        gen.writeEndArray();
+        serializeIMax(flowCnec, gen);
+        serializeNominalVoltage(flowCnec, gen);
+        serializeThresholds(flowCnec, gen);
 
         JsonUtil.writeExtensions(flowCnec, gen, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
 
         gen.writeEndObject();
+    }
+
+    private void serializeIMax(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
+        serializeDoubleValuesOnBothSide(gen, flowCnec.getIMax(Side.LEFT), flowCnec.getIMax(Side.RIGHT), I_MAX);
+    }
+
+    private void serializeNominalVoltage(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
+        serializeDoubleValuesOnBothSide(gen, flowCnec.getNominalVoltage(Side.LEFT), flowCnec.getNominalVoltage(Side.RIGHT), NOMINAL_VOLTAGE);
+    }
+
+    private void serializeDoubleValuesOnBothSide(JsonGenerator gen, Double valueSideLeft, Double valueSideRight, String fieldName) throws IOException {
+
+        if (valueSideLeft == null && valueSideRight == null) {
+            return;
+        }
+
+        gen.writeArrayFieldStart(fieldName);
+        if (valueSideLeft != null && valueSideLeft.equals(valueSideRight)) {
+            gen.writeNumber(valueSideLeft);
+        } else {
+            gen.writeNumber(valueSideLeft != null ? valueSideLeft : Double.NaN);
+            gen.writeNumber(valueSideRight != null ? valueSideRight : Double.NaN);
+        }
+        gen.writeEndArray();
+    }
+
+    private void serializeThresholds(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(THRESHOLDS);
+        List<BranchThreshold> sortedListOfThresholds = flowCnec.getThresholds().stream()
+            .sorted(new ThresholdComparator())
+            .collect(Collectors.toList());
+        for (BranchThreshold threshold: sortedListOfThresholds) {
+            gen.writeObject(threshold);
+        }
+        gen.writeEndArray();
     }
 
     private static class ThresholdComparator implements Comparator<BranchThreshold> {
