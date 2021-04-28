@@ -36,6 +36,7 @@ public class PerimetersTest {
             .withId("cnec1-preventive")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.OUTAGE)
@@ -43,6 +44,7 @@ public class PerimetersTest {
             .withId("cnec1-outage1")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(400.).withMin(-400.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.CURATIVE)
@@ -50,6 +52,7 @@ public class PerimetersTest {
             .withId("cnec1-curative1")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.OUTAGE)
@@ -57,6 +60,7 @@ public class PerimetersTest {
             .withId("cnec1-outage2")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(500.).withMin(-500.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.CURATIVE)
@@ -64,6 +68,7 @@ public class PerimetersTest {
             .withId("cnec1-curative2")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.OUTAGE)
@@ -71,6 +76,7 @@ public class PerimetersTest {
             .withId("cnec1-outage3")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.CURATIVE)
@@ -78,6 +84,7 @@ public class PerimetersTest {
             .withId("cnec1-curative3")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
     }
 

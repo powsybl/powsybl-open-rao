@@ -68,6 +68,8 @@ public class CracCleanerTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-500.0)
                 .add()
+            .withIMax(5000.)
+            .withNominalVoltage(380.)
             .add();
 
         crac.newFlowCnec()
@@ -81,6 +83,8 @@ public class CracCleanerTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-0.3)
                 .add()
+            .withIMax(5000.)
+            .withNominalVoltage(380.)
             .add();
 
         crac.newFlowCnec()
@@ -95,6 +99,8 @@ public class CracCleanerTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-800.)
                 .add()
+            .withIMax(5000.)
+            .withNominalVoltage(380.)
             .add();
 
         crac.newFlowCnec()
@@ -109,6 +115,8 @@ public class CracCleanerTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-500.)
                 .add()
+            .withIMax(5000.)
+            .withNominalVoltage(380.)
             .add();
 
         // remedial actions

@@ -56,6 +56,8 @@ public final class CommonCracCreation {
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -71,6 +73,8 @@ public final class CommonCracCreation {
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -86,6 +90,8 @@ public final class CommonCracCreation {
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -106,6 +112,8 @@ public final class CommonCracCreation {
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -127,6 +135,8 @@ public final class CommonCracCreation {
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -149,6 +159,8 @@ public final class CommonCracCreation {
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         return crac;

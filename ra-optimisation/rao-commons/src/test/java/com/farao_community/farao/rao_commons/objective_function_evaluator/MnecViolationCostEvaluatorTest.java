@@ -15,9 +15,7 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.crac_util.CracCleaner;
-import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -45,7 +43,6 @@ public class MnecViolationCostEvaluatorTest {
     private MnecViolationCostEvaluator evaluator1;
     private MnecViolationCostEvaluator evaluator2;
     private static final String TEST_VARIANT = "test-variant";
-    private LinearOptimizerInput linearOptimizerInput;
     private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
     private Map<BranchCnec, Double> initialFlows;
     private Set<BranchCnec> cnecs;
@@ -99,6 +96,8 @@ public class MnecViolationCostEvaluatorTest {
             .withOptimized(true)
             .withMonitored(true)
             .withInstant(Instant.PREVENTIVE)
+            .withNominalVoltage(400.)
+            .withIMax(5000.)
             .add();
         ResultVariantManager resultVariantManager = new ResultVariantManager();
         crac.addExtension(ResultVariantManager.class, resultVariantManager);
@@ -107,7 +106,6 @@ public class MnecViolationCostEvaluatorTest {
 
         CracCleaner cracCleaner = new CracCleaner();
         cracCleaner.cleanCrac(crac, network);
-        RaoInputHelper.synchronize(crac, network);
 
         cnecs = crac.getBranchCnecs();
         initialFlows = new HashMap<>();

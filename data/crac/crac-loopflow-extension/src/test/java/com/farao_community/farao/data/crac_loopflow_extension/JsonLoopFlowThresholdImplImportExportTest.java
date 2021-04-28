@@ -37,6 +37,7 @@ public class JsonLoopFlowThresholdImplImportExportTest {
                 .withNetworkElement("ne1")
                 .withInstant(Instant.PREVENTIVE)
                 .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .withNominalVoltage(380.)
                 .add()
                 .newExtension(LoopFlowThresholdAdder.class).withValue(100).withUnit(Unit.AMPERE).add();
 
@@ -45,6 +46,8 @@ public class JsonLoopFlowThresholdImplImportExportTest {
                 .withNetworkElement("ne2")
                 .withInstant(Instant.PREVENTIVE)
                 .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
+                .withNominalVoltage(380.)
+                .withIMax(5000.)
                 .add()
                 .newExtension(LoopFlowThresholdAdder.class).withValue(.3).withUnit(Unit.PERCENT_IMAX).add();
 
