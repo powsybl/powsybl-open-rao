@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -36,7 +37,8 @@ public class FreeToUseAdderImplTest {
         remedialActionAdder = crac.newNetworkAction()
             .withId("networkActionId")
             .withName("networkActionName")
-            .withOperator("operator");
+            .withOperator("operator")
+            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add();
     }
 
     @Test
