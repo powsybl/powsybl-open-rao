@@ -88,7 +88,7 @@ class Leaf {
         // apply Network Actions on initial network
         networkActions.forEach(na -> na.apply(leafInput.getNetwork()));
 
-        if (leafInput.hasSensitivityValues()) {
+        if (leafInput.hasSensitivityAndLoopflowResults()) {
             status = Status.EVALUATED;
         } else {
             status = Status.CREATED;
@@ -138,6 +138,7 @@ class Leaf {
             if (updateSensitivitiesForLoopFlows) {
                 Map<BranchCnec, Double> commercialFlows = LoopFlowUtil.computeCommercialFlows(leafInput.getNetwork(), leafInput.getLoopflowCnecs(), leafInput.getGlskProvider(), leafInput.getReferenceProgram(), sensitivityResult);
                 leafInput.setSensitivityAndLoopflowResults(new SensitivityAndLoopflowResults(sensitivityResult, systematicSensitivityInterface.isFallback(), commercialFlows));
+                leafInput.setCommercialFlows(commercialFlows);
             } else {
                 leafInput.setSensitivityAndLoopflowResults(new SensitivityAndLoopflowResults(sensitivityResult, systematicSensitivityInterface.isFallback(), leafInput.getCommercialFlows()));
             }
@@ -182,7 +183,7 @@ class Leaf {
 
     boolean isRangeActionActivated(RangeAction rangeAction) {
         double optimizedSetpoint = leafOutput.getOptimizedSetPoint(rangeAction);
-        double preperimeterSetpoint = leafInput.getPreperimeterSetpoint(rangeAction);
+        double preperimeterSetpoint = leafInput.getPrePerimeterSetpoints().get(rangeAction);
         if (Double.isNaN(optimizedSetpoint)) {
             return false;
         } else if (Double.isNaN(preperimeterSetpoint)) {
@@ -196,7 +197,7 @@ class Leaf {
         SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, leafInput.getRangeActions(), leafInput.getCnecs(),
                 raoParameters.isRaoWithLoopFlowLimitation() && raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange(), leafInput.getGlskProvider(), leafInput.getLoopflowCnecs());
         Set<RangeAction> optimizableRangeActions = new HashSet<>(leafInput.getRangeActions());
-        Map<RangeAction, Double> optimizableRangeActionSetPoints = new HashMap<>(leafInput.getPreperimeterSetpoints());
+        Map<RangeAction, Double> optimizableRangeActionSetPoints = new HashMap<>(leafInput.getPrePerimeterSetpoints());
         removeRangeActionsWithWrongInitialSetpoint(optimizableRangeActions, optimizableRangeActionSetPoints, leafInput.getNetwork());
         removeRangeActionsIfMaxNumberReached(optimizableRangeActions, optimizableRangeActionSetPoints, getMaxPstPerTso(),
             objectiveFunctionEvaluator.getMostLimitingElements(leafInput.getSensitivityAndLoopflowResults(), 1).get(0),
@@ -341,7 +342,7 @@ class Leaf {
      * @return A set of available network actions after this leaf.
      */
     Set<NetworkAction> bloom() {
-        Set<NetworkAction> availableNetworkActions = new HashSet<>(leafInput.getAvailableNetworkActions()).stream()
+        Set<NetworkAction> availableNetworkActions = new HashSet<>(leafInput.getAllNetworkActions()).stream()
                 .filter(na -> !networkActions.contains(na))
                 .collect(Collectors.toSet());
         availableNetworkActions = removeNetworkActionsFarFromMostLimitingElement(availableNetworkActions);

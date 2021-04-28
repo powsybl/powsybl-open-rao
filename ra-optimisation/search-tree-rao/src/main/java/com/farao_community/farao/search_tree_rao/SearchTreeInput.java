@@ -42,7 +42,7 @@ public class SearchTreeInput {
         this.prePerimeterSensitivityAndLoopflowResults = prePerimeterSensitivityAndLoopflowResults;
     }
 
-    public Map<BranchCnec, Double> getCommercialFlows() {
+    public Map<BranchCnec, Double> getPrePerimeterCommercialFlows() {
         return prePerimeterCommercialFlows;
     }
 

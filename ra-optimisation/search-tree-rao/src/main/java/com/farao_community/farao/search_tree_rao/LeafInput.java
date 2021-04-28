@@ -19,7 +19,7 @@ public class LeafInput {
     private Set<BranchCnec> cnecs;
     private Set<NetworkAction> appliedNetworkActions;
     private NetworkAction networkActionToApply;
-    private Set<NetworkAction> availableNetworkActions;
+    private Set<NetworkAction> allNetworkActions;
     private Set<RangeAction> rangeActions;
     private Set<String> countriesNotToOptimize;
     private Set<BranchCnec> loopflowCnecs;
@@ -27,132 +27,102 @@ public class LeafInput {
     private ReferenceProgram referenceProgram;
 
     private CnecResults initialCnecResults;
-    private SensitivityAndLoopflowResults prePerimeterSensitivityAndLoopflowResults;
-    private Map<BranchCnec, Double> prePerimeterCommercialFlows;
     private Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW;
     private Map<RangeAction, Double> prePerimeterSetpoints; // can be removed if we don't change taps in the network after each depth
+    private Map<BranchCnec, Double> commercialFlows;
+    private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
-    public LeafInput(SearchTreeInput searchTreeInput) {
+    public LeafInput(SearchTreeInput searchTreeInput, Set<NetworkAction> appliedNetworkActions, NetworkAction networkActionToApply) {
+        this.network = searchTreeInput.getNetwork();
+        this.cnecs = searchTreeInput.getCnecs();
+        this.appliedNetworkActions = appliedNetworkActions;
+        this.networkActionToApply = networkActionToApply;
+        this.allNetworkActions = searchTreeInput.getNetworkActions();
+        this.rangeActions = searchTreeInput.getRangeActions();
+        this.loopflowCnecs = searchTreeInput.getLoopflowCnecs();
+        this.glskProvider = searchTreeInput.getGlskProvider();
+        this.referenceProgram = searchTreeInput.getReferenceProgram();
 
+        this.initialCnecResults = searchTreeInput.getInitialCnecResults();
+        this.prePerimeterMarginsInAbsoluteMW = searchTreeInput.getPrePerimeterMarginsInAbsoluteMW();
+        this.prePerimeterSetpoints = searchTreeInput.getPrePerimeterSetpoints();
+        this.commercialFlows = searchTreeInput.getPrePerimeterCommercialFlows();
+        if(appliedNetworkActions.isEmpty() && Objects.isNull(networkActionToApply)) {
+            this.sensitivityAndLoopflowResults = searchTreeInput.getPrePerimeterSensitivityAndLoopflowResults();
+        } else {
+            this.sensitivityAndLoopflowResults = null;
+        }
     }
 
     public Network getNetwork() {
         return network;
     }
 
-    public void setNetwork(Network network) {
-        this.network = network;
-    }
-
     public Set<BranchCnec> getCnecs() {
         return cnecs;
-    }
-
-    public void setCnecs(Set<BranchCnec> cnecs) {
-        this.cnecs = cnecs;
     }
 
     public Set<NetworkAction> getAppliedNetworkActions() {
         return appliedNetworkActions;
     }
 
-    public void setAppliedNetworkActions(Set<NetworkAction> appliedNetworkActions) {
-        this.appliedNetworkActions = appliedNetworkActions;
-    }
-
     public NetworkAction getNetworkActionToApply() {
         return networkActionToApply;
     }
 
-    public void setNetworkActionToApply(NetworkAction networkActionToApply) {
-        this.networkActionToApply = networkActionToApply;
-    }
-
-    public Set<NetworkAction> getAvailableNetworkActions() {
-        return availableNetworkActions;
-    }
-
-    public void setAvailableNetworkActions(Set<NetworkAction> availableNetworkActions) {
-        this.availableNetworkActions = availableNetworkActions;
+    public Set<NetworkAction> getAllNetworkActions() {
+        return allNetworkActions;
     }
 
     public Set<RangeAction> getRangeActions() {
         return rangeActions;
     }
 
-    public void setRangeActions(Set<RangeAction> rangeActions) {
-        this.rangeActions = rangeActions;
-    }
-
     public Set<String> getCountriesNotToOptimize() {
         return countriesNotToOptimize;
-    }
-
-    public void setCountriesNotToOptimize(Set<String> countriesNotToOptimize) {
-        this.countriesNotToOptimize = countriesNotToOptimize;
     }
 
     public Set<BranchCnec> getLoopflowCnecs() {
         return loopflowCnecs;
     }
 
-    public void setLoopflowCnecs(Set<BranchCnec> loopflowCnecs) {
-        this.loopflowCnecs = loopflowCnecs;
-    }
-
     public ZonalData<LinearGlsk> getGlskProvider() {
         return glskProvider;
-    }
-
-    public void setGlskProvider(ZonalData<LinearGlsk> glskProvider) {
-        this.glskProvider = glskProvider;
     }
 
     public ReferenceProgram getReferenceProgram() {
         return referenceProgram;
     }
 
-    public void setReferenceProgram(ReferenceProgram referenceProgram) {
-        this.referenceProgram = referenceProgram;
-    }
-
     public CnecResults getInitialCnecResults() {
         return initialCnecResults;
     }
 
-    public void setInitialCnecResults(CnecResults initialCnecResults) {
-        this.initialCnecResults = initialCnecResults;
+    public boolean hasSensitivityAndLoopflowResults() {
+        return !Objects.isNull(sensitivityAndLoopflowResults);
     }
 
-    public SensitivityAndLoopflowResults getPrePerimeterSensitivityAndLoopflowResults() {
-        return prePerimeterSensitivityAndLoopflowResults;
+    public SensitivityAndLoopflowResults getSensitivityAndLoopflowResults() {
+        return sensitivityAndLoopflowResults;
     }
 
-    public void setPrePerimeterSensitivityAndLoopflowResults(SensitivityAndLoopflowResults prePerimeterSensitivityAndLoopflowResults) {
-        this.prePerimeterSensitivityAndLoopflowResults = prePerimeterSensitivityAndLoopflowResults;
-    }
-
-    public Map<BranchCnec, Double> getPrePerimeterCommercialFlows() {
-        return prePerimeterCommercialFlows;
-    }
-
-    public void setPrePerimeterCommercialFlows(Map<BranchCnec, Double> prePerimeterCommercialFlows) {
-        this.prePerimeterCommercialFlows = prePerimeterCommercialFlows;
+    public Map<BranchCnec, Double> getCommercialFlows() {
+        return commercialFlows;
     }
 
     public Map<BranchCnec, Double> getPrePerimeterMarginsInAbsoluteMW() {
         return prePerimeterMarginsInAbsoluteMW;
     }
 
-    public void setPrePerimeterMarginsInAbsoluteMW(Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW) {
-        this.prePerimeterMarginsInAbsoluteMW = prePerimeterMarginsInAbsoluteMW;
-    }
-
     public Map<RangeAction, Double> getPrePerimeterSetpoints() {
         return prePerimeterSetpoints;
     }
 
-    public void setPrePerimeterSetpoints(Map<RangeAction, Double> prePerimeterSetpoints) {
-        this.prePerimeterSetpoints = prePerimeterSetpoints;
+    public void setCommercialFlows(Map<BranchCnec, Double> commercialFlows) {
+        this.commercialFlows = commercialFlows;
+    }
+
+    public void setSensitivityAndLoopflowResults(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+        this.sensitivityAndLoopflowResults = sensitivityAndLoopflowResults;
     }
 }
