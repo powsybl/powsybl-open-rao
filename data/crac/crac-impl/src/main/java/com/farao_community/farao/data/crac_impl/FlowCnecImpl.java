@@ -16,8 +16,6 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.Set;
@@ -30,11 +28,6 @@ import static com.farao_community.farao.data.crac_api.cnec.Side.RIGHT;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCnec {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowCnecImpl.class);
-    private static final String TIE_LINE_WARN = "For tie-line {}, the network element ID {} is not half1 nor half2 IDs. Most limiting threshold will be taken.";
-    private static final String IMAX_CONVERSION_WARN = "Imax on side {} for the network element {} will be converted.";
-    private static final int NB_CHARACTER_UCTE_LINE_WITHOUT_ORDER_CODE = 19;
-    private static final int NB_MAX_CHARACTER_ELEMENT_NAME = 12;
 
     private final Double[] iMax = new Double[2];
 
@@ -82,8 +75,10 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
     @Override
     public Optional<Double> getLowerBound(Side side, Unit requestedUnit) {
-        requestedUnit.checkPhysicalParameter(getPhysicalParameter());
 
+        if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
+            throw new FaraoException("FlowCnec lowerBound can only be requested in AMPERE or MEGAWATT");
+        }
         if (!bounds.isLowerBoundComputed(side, requestedUnit)) {
             Set<BranchThreshold> limitingThresholds = thresholds.stream()
                     .filter(Threshold::limitsByMin)
@@ -110,6 +105,11 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
     @Override
     public Optional<Double> getUpperBound(Side side, Unit requestedUnit) {
+
+        if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
+            throw new FaraoException("FlowCnec upperBound can only be requested in AMPERE or MEGAWATT");
+        }
+
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
         if (!bounds.isUpperBoundComputed(side, requestedUnit)) {
             Set<BranchThreshold> limitingThresholds = thresholds.stream()

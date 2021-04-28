@@ -12,10 +12,8 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -527,7 +525,7 @@ public class FlowCnecImplTest {
     @Test
     public void testEqualsAndHashCode() {
         FlowCnec cnec1 = initPreventiveCnecAdder().newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
-        FlowCnec cnec2 = initPreventiveCnecAdder().withId("anotherId").newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add().add();
+        FlowCnec cnec2 = initPreventiveCnecAdder().withId("anotherId").newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add().withNominalVoltage(220.).add();
 
         assertEquals(cnec1, cnec1);
         assertNotEquals(cnec1, cnec2);
@@ -537,5 +535,4 @@ public class FlowCnecImplTest {
         assertEquals(cnec1.hashCode(), cnec1.hashCode());
         assertNotEquals(cnec1.hashCode(), cnec2.hashCode());
     }
-
 }

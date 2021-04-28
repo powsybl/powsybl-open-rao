@@ -35,8 +35,9 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
 
     protected void checkCnec() {
         checkId();
-        AdderUtils.assertAttributeNotNull(networkElementId, "FlowCnec", "network element", "withNetworkElement()");
-        AdderUtils.assertAttributeNotNull(instant, "FlowCnec", "instant", "withInstant()");
+        AdderUtils.assertAttributeNotNull(networkElementId, "Cnec", "network element", "withNetworkElement()");
+        AdderUtils.assertAttributeNotNull(instant, "Cnec", "instant", "withInstant()");
+
         if (instant.equals(Instant.PREVENTIVE)) {
             if (contingencyId != null) {
                 throw new FaraoException("You cannot define a contingency for a preventive cnec.");
