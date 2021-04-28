@@ -45,6 +45,8 @@ public class JsonResultTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-500.)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         cracIn.newFlowCnec()
@@ -56,6 +58,8 @@ public class JsonResultTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-0.3)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         // add PstRangeAction

@@ -14,8 +14,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,30 +47,28 @@ public class BranchThresholdAdderImplTest {
 
     @Test
     public void testAddThresholdInA() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
         BranchCnec<?>  cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .withNominalVoltage(220.)
             .add();
-        cnec.synchronize(network);
         assertEquals(1000.0, cnec.getUpperBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-1000.0, cnec.getLowerBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test
     public void testAddThresholdInPercent() {
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        String lineId = "BBE1AA1  BBE2AA1  1";
-        double lineLimit = network.getLine(lineId).getCurrentLimits1().getPermanentLimit();
         BranchCnec<?>  cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.CURATIVE).withContingency(contingency.getId())
-            .withNetworkElement(lineId)
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.8).withMax(0.5).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+            .withNominalVoltage(220.)
+            .withIMax(5000.)
             .add();
-        cnec.synchronize(network);
-        assertEquals(0.5 * lineLimit, cnec.getUpperBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-0.8 * lineLimit, cnec.getLowerBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+
+        assertEquals(0.5 * 5000., cnec.getUpperBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-0.8 * 5000., cnec.getLowerBound(LEFT, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test(expected = NullPointerException.class)

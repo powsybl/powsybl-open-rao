@@ -25,7 +25,8 @@
       } ],
       "contingencyId": "N-1 NL1-NL3",
       "instant" : "outage",
-      "optimized": true
+      "optimized": true,
+      "nominalV" : [ 380.0 ]
     },
     {
       "id": "Tieline BE FR - N - preventive",
@@ -39,7 +40,8 @@
         "rule" : "onLeftSide"
       } ],
       "instant": "preventive",
-      "optimized": true
+      "optimized": true,
+      "nominalV" : [ 380.0 ]
     }
   ],
   "pstRangeActions": [

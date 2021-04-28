@@ -41,6 +41,8 @@ public final class JsonSerializationConstants {
     public static final String FRM = "frm";
     public static final String OPTIMIZED = "optimized";
     public static final String MONITORED = "monitored";
+    public static final String I_MAX = "iMax";
+    public static final String NOMINAL_VOLTAGE = "nominalV";
 
     public static final String PST_RANGE_ACTIONS = "pstRangeActions";
 

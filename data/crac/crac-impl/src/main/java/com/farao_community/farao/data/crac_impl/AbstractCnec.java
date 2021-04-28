@@ -12,8 +12,6 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.powsybl.iidm.network.Network;
 
-import static java.lang.String.format;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -112,12 +110,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public boolean isSynchronized() {
         return isSynchronized;
-    }
-
-    protected void checkSynchronized(String action) {
-        if (!isSynchronized()) {
-            throw new NotSynchronizedException(format("Cnec must be synchronized to perform this action: %s",  action));
-        }
     }
 
     @Override

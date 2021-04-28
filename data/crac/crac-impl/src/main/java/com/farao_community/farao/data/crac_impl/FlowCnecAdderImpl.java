@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
@@ -21,6 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule.*;
 import static java.lang.String.format;
 
 /**
@@ -87,9 +89,11 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     @Override
     public FlowCnec add() {
         checkCnec();
+
         if (owner.getFlowCnec(id) != null) {
             throw new FaraoException(format("Cannot add a cnec with an already existing ID - %s.", id));
         }
+
         checkAndInitThresholds();
 
         State state;
@@ -128,43 +132,77 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
             throw new FaraoException("FlowCnec threshold must be in a flow unit (Unit.AMPERE, Unit.MEGAWATT or Unit.PERCENT_IMAX)");
         }
 
-        for (BranchThresholdImpl branchThreshold : thresholds) {
-            switch (branchThreshold.getRule()) {
-                case ON_LEFT_SIDE:
-                case ON_REGULATED_SIDE:
-                    // TODO: This is verified only when the network is in UCTE format.
-                    //  Make it cleaner when we will have to work with other network format and the ON_REGULATED_SIDE rule
-                    branchThreshold.setSide(Side.LEFT);
-                    break;
-                case ON_RIGHT_SIDE:
-                case ON_NON_REGULATED_SIDE:
-                    // TODO: This is verified only when the network is in UCTE format.
-                    //  Make it cleaner when we will have to work with other network format and the ON_NON_REGULATED_SIDE rule
-                    branchThreshold.setSide(Side.RIGHT);
-                    break;
-                case ON_LOW_VOLTAGE_LEVEL:
-                    if (Objects.isNull(nominalVLeft) && Objects.isNull(nominalVRight)) {
-                        throw new FaraoException("ON_LOW_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
-                    }
-                    if (nominalVLeft <= nominalVRight) {
-                        branchThreshold.setSide(Side.LEFT);
-                    } else {
-                        branchThreshold.setSide(Side.RIGHT);
-                    }
-                    break;
-                case ON_HIGH_VOLTAGE_LEVEL:
-                    if (Objects.isNull(nominalVLeft) && Objects.isNull(nominalVRight)) {
-                        throw new FaraoException("ON_HIGH_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
-                    }
-                    if (nominalVLeft < nominalVRight) {
-                        branchThreshold.setSide(Side.RIGHT);
-                    } else {
-                        branchThreshold.setSide(Side.LEFT);
-                    }
-                    break;
-                default:
-                    throw new FaraoException(String.format("Rule %s is not yet handled for thresholds on FlowCnec", branchThreshold.getRule()));
+        if (this.thresholds.stream().anyMatch(th -> th.getUnit().equals(Unit.AMPERE) || th.getUnit().equals(Unit.PERCENT_IMAX))) {
+            /*
+            In the SearchTreeRao, nominal voltages are required in order to handle AMPERE threshold, as:
+                - in the sensi in DC, conversion must be made as AMPERE are not returned by the sensi engine
+                - in the LP, all values are given in MW, and conversion should somehow be made
+
+            I do not think that nominalVoltage are absolutely required with thresholds in MEGAWATT, but I'm not 100% sure.
+             */
+
+            if (Objects.isNull(nominalVRight) || Objects.isNull(nominalVLeft)) {
+                throw new FaraoException(String.format("nominal voltages on both side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", id));
             }
+        }
+
+        for (BranchThresholdImpl branchThreshold : thresholds) {
+            checkThresholdRule(branchThreshold);
+            checkImax(branchThreshold);
+        }
+    }
+
+    private void checkThresholdRule(BranchThresholdImpl branchThreshold) {
+        switch (branchThreshold.getRule()) {
+            case ON_LEFT_SIDE:
+            case ON_REGULATED_SIDE:
+                // TODO: This is verified only when the network is in UCTE format.
+                //  Make it cleaner when we will have to work with other network format and the ON_REGULATED_SIDE rule
+                branchThreshold.setSide(Side.LEFT);
+                break;
+            case ON_RIGHT_SIDE:
+            case ON_NON_REGULATED_SIDE:
+                // TODO: This is verified only when the network is in UCTE format.
+                //  Make it cleaner when we will have to work with other network format and the ON_NON_REGULATED_SIDE rule
+                branchThreshold.setSide(Side.RIGHT);
+                break;
+            case ON_LOW_VOLTAGE_LEVEL:
+                if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight)) {
+                    throw new FaraoException("ON_LOW_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
+                }
+                if (nominalVLeft <= nominalVRight) {
+                    branchThreshold.setSide(Side.LEFT);
+                } else {
+                    branchThreshold.setSide(Side.RIGHT);
+                }
+                break;
+            case ON_HIGH_VOLTAGE_LEVEL:
+                if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight)) {
+                    throw new FaraoException("ON_HIGH_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
+                }
+                if (nominalVLeft < nominalVRight) {
+                    branchThreshold.setSide(Side.RIGHT);
+                } else {
+                    branchThreshold.setSide(Side.LEFT);
+                }
+                break;
+            default:
+                throw new FaraoException(String.format("Rule %s is not yet handled for thresholds on FlowCnec", branchThreshold.getRule()));
+        }
+    }
+
+    private void checkImax(BranchThresholdImpl branchThreshold) {
+
+        if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
+            && branchThreshold.getSide().equals(Side.LEFT)
+            && iMaxLeft == null) {
+            throw new FaraoException(String.format("iMax on left side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()", id));
+        }
+
+        if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
+            && branchThreshold.getSide().equals(Side.RIGHT)
+            && iMaxRight == null) {
+            throw new FaraoException(String.format("iMax on right side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the right side. Please use withIMax()", id));
         }
     }
 }

@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -19,9 +20,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
@@ -74,6 +73,30 @@ public final class FlowCnecArrayDeserializer {
                     case FRM:
                         jsonParser.nextToken();
                         adder.withReliabilityMargin(jsonParser.getDoubleValue());
+                        break;
+                    case I_MAX:
+                        jsonParser.nextToken();
+                        Double[] iMax = jsonParser.readValueAs(Double[].class);
+                        if (iMax.length == 1) {
+                            adder.withIMax(iMax[0]);
+                        } else if (iMax.length == 2) {
+                            adder.withIMax(iMax[0], Side.LEFT);
+                            adder.withIMax(iMax[1], Side.RIGHT);
+                        } else if (iMax.length > 2) {
+                            throw new FaraoException("iMax array of a flowCnec cannot contain more than 2 values");
+                        }
+                        break;
+                    case NOMINAL_VOLTAGE:
+                        jsonParser.nextToken();
+                        Double[] nominalV = jsonParser.readValueAs(Double[].class);
+                        if (nominalV.length == 1) {
+                            adder.withNominalVoltage(nominalV[0]);
+                        } else if (nominalV.length == 2) {
+                            adder.withNominalVoltage(nominalV[0], Side.LEFT);
+                            adder.withNominalVoltage(nominalV[1], Side.RIGHT);
+                        } else if (nominalV.length > 2) {
+                            throw new FaraoException("nominalVoltage array of a flowCnec cannot contain more than 2 values");
+                        }
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();

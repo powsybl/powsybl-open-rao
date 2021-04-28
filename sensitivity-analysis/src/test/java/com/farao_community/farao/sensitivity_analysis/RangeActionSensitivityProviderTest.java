@@ -69,6 +69,7 @@ public class RangeActionSensitivityProviderTest {
                 .withMin(-10.)
                 .withMax(10.)
                 .add()
+            .withNominalVoltage(380.)
             .withInstant(Instant.CURATIVE)
             .withContingency("contingency-generator")
             .add();
@@ -82,6 +83,7 @@ public class RangeActionSensitivityProviderTest {
                 .withMin(-10.)
                 .withMax(10.)
                 .add()
+            .withNominalVoltage(380.)
             .withInstant(Instant.CURATIVE)
             .withContingency("contingency-hvdc")
             .add();
@@ -95,6 +97,7 @@ public class RangeActionSensitivityProviderTest {
                 .withMin(-10.)
                 .withMax(10.)
                 .add()
+            .withNominalVoltage(380.)
             .withInstant(Instant.CURATIVE)
             .withContingency("contingency-busbar-section")
             .add();
