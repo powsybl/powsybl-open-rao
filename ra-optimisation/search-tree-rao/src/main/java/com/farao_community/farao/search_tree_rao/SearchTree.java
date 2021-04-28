@@ -52,30 +52,10 @@ public class SearchTree {
     private SearchTreeInput searchTreeInput;
 
     void initLeaves() {
-        LeafInput leafInput = buildLeafInput();
+        LeafInput leafInput = new LeafInput(searchTreeInput, new HashSet<>(), null);
         rootLeaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
-    }
-
-    private LeafInput buildLeafInput() {
-        LeafInput leafInput = new LeafInput(SearchTreeInput searchTreeInput);
-        leafInput.setNetwork(searchTreeInput.getNetwork());
-        leafInput.setCnecs(searchTreeInput.getCnecs());
-        leafInput.setAppliedNetworkActions(new HashSet<>());
-        leafInput.setNetworkActionToApply(null);
-        leafInput.setAppliedNetworkActions(searchTreeInput.getNetworkActions());
-        leafInput.setRangeActions(searchTreeInput.getRangeActions());
-        leafInput.setLoopflowCnecs(searchTreeInput.getLoopflowCnecs());
-        leafInput.setGlskProvider(searchTreeInput.getGlskProvider());
-        leafInput.setReferenceProgram(searchTreeInput.getReferenceProgram());
-
-        leafInput.setInitialCnecResults(searchTreeInput.getInitialCnecResults());
-        leafInput.setPrePerimeterMarginsInAbsoluteMW(searchTreeInput.getPrePerimeterMarginsInAbsoluteMW());
-        leafInput.setPrePerimeterCommercialFlows(searchTreeInput.getCommercialFlows());
-        leafInput.setPrePerimeterSensitivityAndLoopflowResults(searchTreeInput.getPrePerimeterSensitivityAndLoopflowResults());
-        leafInput.setPrePerimeterSetpoints(searchTreeInput.getPrePerimeterSetpoints());
-        return leafInput;
     }
 
     public CompletableFuture<RaoResultImpl> run(SearchTreeInput searchTreeInput, RaoParameters raoParameters, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
@@ -200,7 +180,7 @@ public class SearchTree {
 
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
-        LeafInput leafInput = new LeafInput();
+        LeafInput leafInput = new LeafInput(searchTreeInput, optimalLeaf.getNetworkActions(), networkAction);
         try {
             leaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         } catch (NotImplementedException e) {
@@ -234,7 +214,7 @@ public class SearchTree {
         if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
         } else if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return leaf.getBestCost() < treeParameters.getTargetObjectiveValue();
+            return leaf.getOptimizedCost() < treeParameters.getTargetObjectiveValue();
         } else {
             throw new FaraoException("Unexpected stop criterion: " + treeParameters.getStopCriterion());
         }
@@ -251,9 +231,9 @@ public class SearchTree {
         double relativeImpact = Math.max(treeParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
         double absoluteImpact = Math.max(treeParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
 
-        double currentBestCost = optimalLeaf.getBestCost();
-        double previousDepthBestCost = previousDepthOptimalLeaf.getBestCost();
-        double newCost = leaf.getBestCost();
+        double currentBestCost = optimalLeaf.getOptimizedCost();
+        double previousDepthBestCost = previousDepthOptimalLeaf.getOptimizedCost();
+        double newCost = leaf.getOptimizedCost();
 
         return newCost < currentBestCost
                 && previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
@@ -262,8 +242,6 @@ public class SearchTree {
 
     private RaoResultImpl buildOutput() {
         RaoResultImpl raoResult = new RaoResultImpl(getRaoResultStatus(optimalLeaf));
-        //raoResult.setPreOptimVariantId(rootLeaf.getPreOptimVariantId());
-        //raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
         return raoResult;
     }
 

@@ -42,7 +42,7 @@ final class SearchTreeRaoLogger {
         rangeActionMsg.append("Range action(s): ");
         for (RangeAction rangeAction : leaf.getLeafInput().getRangeActions()) {
             String rangeActionName = rangeAction.getName();
-            int rangeActionTap = leaf.getLeafOutput().getPstRangeActionTap((PstRangeAction) rangeAction);
+            int rangeActionTap = leaf.getLeafOutput().getOptimizedTap((PstRangeAction) rangeAction);
             rangeActionMsg
                     .append(format("%s: %d", rangeActionName, rangeActionTap))
                     .append(" , ");
@@ -73,11 +73,11 @@ final class SearchTreeRaoLogger {
             BranchCnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
-            double cnecMargin = RaoUtil.computeCnecMargin(cnec, variantId, unit, relativePositiveMargins);
+            double cnecMargin = relativePositiveMargins? leafOutput.getRelativeMargin(cnec, unit) : leafOutput.getMargin(cnec, unit);
 
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
-            String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format("(PTDF %f)", cnec.getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum()) : "";
+            String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format("(PTDF %f)", leafOutput.getPtdfZonalSum(cnec)) : "";
             SearchTree.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {} {}",
                     i + 1,
                     cnecNetworkElementName,
