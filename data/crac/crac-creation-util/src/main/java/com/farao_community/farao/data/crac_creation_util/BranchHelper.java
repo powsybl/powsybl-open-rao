@@ -132,10 +132,10 @@ public class BranchHelper {
             this.currentLimitRight = branch.getCurrentLimits2().getPermanentLimit();
         }
         if (Objects.isNull(branch.getCurrentLimits1()) && !Objects.isNull(branch.getCurrentLimits2())) {
-            this.currentLimitLeft = currentLimitRight * nominalVoltageLeft / nominalVoltageRight;
+            this.currentLimitLeft = currentLimitRight * nominalVoltageRight / nominalVoltageLeft;
         }
         if (!Objects.isNull(branch.getCurrentLimits1()) && Objects.isNull(branch.getCurrentLimits2())) {
-            this.currentLimitRight = currentLimitLeft * nominalVoltageRight / nominalVoltageLeft;
+            this.currentLimitRight = currentLimitLeft * nominalVoltageLeft / nominalVoltageRight;
         }
         if (Objects.isNull(branch.getCurrentLimits1()) && Objects.isNull(branch.getCurrentLimits2())) {
             invalidate(String.format("couldn't identify current limits of branch (%s, networkBranchId: %s)", branchId, branch.getId()));
