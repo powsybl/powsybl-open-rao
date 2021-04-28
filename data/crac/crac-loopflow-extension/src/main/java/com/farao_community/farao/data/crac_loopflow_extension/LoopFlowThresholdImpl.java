@@ -22,7 +22,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implements LoopFlowThreshold {
 
     /*
-     - if the unit is PERCENT_IMAX, the input flow threshold should be between 0 and 100
+     - if the unit is PERCENT_IMAX, the input flow threshold should be between 0 and 1
      - in the loop-flow threshold, PERCENT_IMAX is considered as a percentage of the Cnec
        threshold (retrieved from the Crac, without considering the frm), and NOT as a percentage
         of the branch current limit (retrieved from the Network)
