@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.BranchResult;
-import com.farao_community.farao.rao_commons.SystematicSensitivityStatus;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +23,6 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
     private final double fallBackOvercost;
 
     public SensitivityFallbackOvercostEvaluator(double overcost) {
-        this.status = status;
         this.fallBackOvercost = overcost;
     }
 
@@ -33,8 +32,8 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double computeCost(BranchResult branchResult) {
-        switch (status) {
+    public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
+        switch (sensitivityStatus) {
             case DEFAULT:
                 return 0.;
             case FALLBACK:

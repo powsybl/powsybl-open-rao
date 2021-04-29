@@ -14,6 +14,10 @@ import com.farao_community.farao.commons.FaraoException;
  */
 public class LinearOptimisationException extends FaraoException {
 
+    public LinearOptimisationException() {
+        super();
+    }
+
     public LinearOptimisationException(final String msg) {
         super(msg);
     }

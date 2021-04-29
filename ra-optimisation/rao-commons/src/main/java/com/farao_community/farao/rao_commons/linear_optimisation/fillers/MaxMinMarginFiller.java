@@ -10,11 +10,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.adapter.SystematicSensitivityResultAdapter;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -30,14 +29,12 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
-    protected final LinearProblem linearProblem;
     protected final Set<BranchCnec> optimizedCnecs;
     private final Set<RangeAction> rangeActions;
     private final Unit unit;
     protected double pstPenaltyCost;
 
-    public MaxMinMarginFiller(LinearProblem linearProblem, Set<BranchCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
-        this.linearProblem = linearProblem;
+    public MaxMinMarginFiller(Set<BranchCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.optimizedCnecs = optimizedCnecs;
         this.rangeActions = rangeActions;
         this.unit = unit;
@@ -61,20 +58,20 @@ public class MaxMinMarginFiller implements ProblemFiller {
     }
 
     @Override
-    public void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public void fill(LinearProblem linearProblem, BranchResult branchResult, SensitivityResult sensitivityResult) {
         // build variables
-        buildMinimumMarginVariable();
+        buildMinimumMarginVariable(linearProblem);
 
         // build constraints
-        buildMinimumMarginConstraints();
+        buildMinimumMarginConstraints(linearProblem);
 
         // complete objective
-        fillObjectiveWithMinMargin();
-        fillObjectiveWithRangeActionPenaltyCost();
+        fillObjectiveWithMinMargin(linearProblem);
+        fillObjectiveWithRangeActionPenaltyCost(linearProblem);
     }
 
     @Override
-    public void update(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public void update(LinearProblem linearProblem, BranchResult branchResult, SensitivityResult sensitivityResult) {
         // Objective does not change, nothing to do
     }
 
@@ -83,8 +80,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * This variable represents the smallest margin of all Cnecs.
      * It is given in MEGAWATT.
      */
-    private void buildMinimumMarginVariable() {
-
+    private void buildMinimumMarginVariable(LinearProblem linearProblem) {
         if (!optimizedCnecs.isEmpty()) {
             linearProblem.addMinimumMarginVariable(-linearProblem.infinity(), linearProblem.infinity());
         } else {
@@ -110,7 +106,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
-    private void buildMinimumMarginConstraints() {
+    private void buildMinimumMarginConstraints(LinearProblem linearProblem) {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
@@ -148,7 +144,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * <p>
      * min(-MM)
      */
-    private void fillObjectiveWithMinMargin() {
+    private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
 
         if (minimumMarginVariable == null) {
@@ -165,7 +161,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * <p>
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
-    private void fillObjectiveWithRangeActionPenaltyCost() {
+    private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
         rangeActions.forEach(rangeAction -> {
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 

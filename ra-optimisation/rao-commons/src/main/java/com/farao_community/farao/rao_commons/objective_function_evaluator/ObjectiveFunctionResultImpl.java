@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.ObjectiveFunctionResult;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
 import java.util.List;
 import java.util.Set;
@@ -20,17 +21,20 @@ import java.util.Set;
 public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
     private final BranchResult branchResult;
+    private final SensitivityStatus sensitivityStatus;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
-                                       BranchResult branchResult) {
+                                       BranchResult branchResult,
+                                       SensitivityStatus sensitivityStatus) {
         this.objectiveFunction = objectiveFunction;
         this.branchResult = branchResult;
+        this.sensitivityStatus = sensitivityStatus;
     }
 
 
     @Override
     public double getFunctionalCost() {
-        return objectiveFunction.getFunctionalCost(branchResult);
+        return objectiveFunction.getFunctionalCost(branchResult, sensitivityStatus);
     }
 
     @Override
@@ -40,7 +44,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost() {
-        return objectiveFunction.getVirtualCost(branchResult);
+        return objectiveFunction.getVirtualCost(branchResult, sensitivityStatus);
     }
 
     @Override
@@ -50,11 +54,11 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return objectiveFunction.getVirtualCost(branchResult, virtualCostName);
+        return objectiveFunction.getVirtualCost(branchResult, sensitivityStatus, virtualCostName);
     }
 
     @Override
     public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
-        return objectiveFunction.getCostlyElements(branchResult, virtualCostName, number);
+        return objectiveFunction.getCostlyElements(branchResult, sensitivityStatus, virtualCostName, number);
     }
 }

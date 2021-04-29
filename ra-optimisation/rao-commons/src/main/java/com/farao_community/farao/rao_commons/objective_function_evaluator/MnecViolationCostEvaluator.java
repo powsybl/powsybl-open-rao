@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import com.farao_community.farao.rao_commons.adapter.SystematicSensitivityResultAdapter;
 import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
 
@@ -49,7 +50,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double computeCost(BranchResult branchResult) {
+    public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
         if (Math.abs(mnecViolationCostInMWPerMW) < 1e-10) {
             return 0;
         }
