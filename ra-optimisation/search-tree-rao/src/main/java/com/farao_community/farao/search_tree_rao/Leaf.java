@@ -14,7 +14,6 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.PerimeterStatus;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
@@ -93,8 +92,6 @@ class Leaf {
         } else {
             status = Status.CREATED;
         }
-        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(leafInput.getCnecs(), leafInput.getLoopflowCnecs(), leafInput.getPrePerimeterMarginsInAbsoluteMW(),
-                leafInput.getInitialCnecResults(), leafInput.getCountriesNotToOptimize(), raoParameters);
     }
 
     LeafInput getLeafInput() {
@@ -282,15 +279,14 @@ class Leaf {
 
     private LeafOutput createOutputFromPreOptimSituation() {
         ObjectiveFunctionEvaluator objectiveFunctionEvaluator = leafInput.getObjectiveFunctionEvaluator();
-        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = leafInput.getPreOptimSensitivityResults();
-        Network network = iteratingLinearOptimizerInput.getNetwork();
+        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = leafInput.getSensitivityAndLoopflowResults();
+        Network network = leafInput.getNetwork();
 
-        LinearProblem.SolveStatus solveStatus = LinearProblem.SolveStatus.NOT_SOLVED;
         double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults);
         double virtualCost = objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults);
         Map<RangeAction, Double> rangeActionSetPoints = new HashMap<>();
         Map<PstRangeAction, Integer> pstTaps = new HashMap<>();
-        for (RangeAction rangeAction : iteratingLinearOptimizerInput.getRangeActions()) {
+        for (RangeAction rangeAction : leafInput.getRangeActions()) {
             rangeActionSetPoints.put(rangeAction, rangeAction.getCurrentValue(network));
             if (rangeAction instanceof PstRangeAction) {
                 PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
@@ -298,7 +294,7 @@ class Leaf {
             }
         }
 
-        return new IteratingLinearOptimizerOutput(solveStatus, functionalCost, virtualCost, rangeActionSetPoints, pstTaps, sensitivityAndLoopflowResults);
+        return new LeafOutput(functionalCost, virtualCost, networkActions, rangeActionSetPoints, pstTaps, sensitivityAndLoopflowResults);
     }
 
     public LeafOutput getLeafOutput() {

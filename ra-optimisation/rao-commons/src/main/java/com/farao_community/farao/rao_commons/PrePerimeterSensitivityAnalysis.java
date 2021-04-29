@@ -43,13 +43,14 @@ public class PrePerimeterSensitivityAnalysis {
     private Set<RangeAction> rangeActions;
     private Set<BranchCnec> loopflowCnecs;
 
-    public PrePerimeterSensitivityAnalysis(RaoInput raoInput, State optimizedState, Set<State> perimeter, RaoParameters raoParameters) {
+    public PrePerimeterSensitivityAnalysis(RaoInput raoInput, Set<State> optimizedStates, Set<State> perimeter, RaoParameters raoParameters) {
         // it is actually quite strange to ask for a RaoData here, but it is required in
         // order to use the fillResultsWithXXX() methods of the CracResultManager.
         this.raoInput = raoInput;
         this.raoParameters = raoParameters;
         this.cnecs = RaoUtil.computePerimeterCnecs(raoInput.getCrac(), perimeter);
-        this.rangeActions = raoInput.getCrac().getRangeActions(raoInput.getNetwork(), optimizedState, UsageMethod.AVAILABLE);
+        rangeActions = new HashSet<>();
+        optimizedStates.forEach(optimizedState -> rangeActions.addAll(raoInput.getCrac().getRangeActions(raoInput.getNetwork(), optimizedState, UsageMethod.AVAILABLE)));
         this.network = raoInput.getNetwork();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             LoopFlowUtil.computeLoopflowCnecs(cnecs, raoInput.getNetwork(), raoParameters);

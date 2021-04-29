@@ -7,6 +7,7 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_commons.CnecResults;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -21,10 +22,11 @@ public class LeafInput {
     private NetworkAction networkActionToApply;
     private Set<NetworkAction> allNetworkActions;
     private Set<RangeAction> rangeActions;
-    private Set<String> countriesNotToOptimize;
     private Set<BranchCnec> loopflowCnecs;
     private ZonalData<LinearGlsk> glskProvider;
     private ReferenceProgram referenceProgram;
+
+    private ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
 
     private CnecResults initialCnecResults;
     private Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW;
@@ -32,7 +34,7 @@ public class LeafInput {
     private Map<BranchCnec, Double> commercialFlows;
     private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
-    public LeafInput(SearchTreeInput searchTreeInput, Set<NetworkAction> appliedNetworkActions, NetworkAction networkActionToApply) {
+    public LeafInput(SearchTreeInput searchTreeInput, Set<NetworkAction> appliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunctionEvaluator objectiveFunctionEvaluator) {
         this.network = searchTreeInput.getNetwork();
         this.cnecs = searchTreeInput.getCnecs();
         this.appliedNetworkActions = appliedNetworkActions;
@@ -42,6 +44,8 @@ public class LeafInput {
         this.loopflowCnecs = searchTreeInput.getLoopflowCnecs();
         this.glskProvider = searchTreeInput.getGlskProvider();
         this.referenceProgram = searchTreeInput.getReferenceProgram();
+
+        this.objectiveFunctionEvaluator = objectiveFunctionEvaluator;
 
         this.initialCnecResults = searchTreeInput.getInitialCnecResults();
         this.prePerimeterMarginsInAbsoluteMW = searchTreeInput.getPrePerimeterMarginsInAbsoluteMW();
@@ -78,10 +82,6 @@ public class LeafInput {
         return rangeActions;
     }
 
-    public Set<String> getCountriesNotToOptimize() {
-        return countriesNotToOptimize;
-    }
-
     public Set<BranchCnec> getLoopflowCnecs() {
         return loopflowCnecs;
     }
@@ -92,6 +92,10 @@ public class LeafInput {
 
     public ReferenceProgram getReferenceProgram() {
         return referenceProgram;
+    }
+
+    public ObjectiveFunctionEvaluator getObjectiveFunctionEvaluator() {
+        return objectiveFunctionEvaluator;
     }
 
     public CnecResults getInitialCnecResults() {
