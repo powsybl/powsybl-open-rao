@@ -10,9 +10,10 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import org.apache.commons.lang3.NotImplementedException;
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_commons.SystematicSensitivityStatus;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,13 +23,19 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
     private final double fallBackOvercost;
 
     public SensitivityFallbackOvercostEvaluator(double overcost) {
+        this.status = status;
         this.fallBackOvercost = overcost;
     }
 
-    public double computeCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    @Override
+    public String getName() {
+        return "sensitivity-fallback-cost";
+    }
 
-        switch (sensitivityAndLoopflowResults.getSystematicSensitivityResult().getStatus()) {
-            case SUCCESS:
+    @Override
+    public double computeCost(BranchResult branchResult) {
+        switch (status) {
+            case DEFAULT:
                 return 0.;
             case FALLBACK:
                 return fallBackOvercost;
@@ -38,12 +45,13 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
         }
     }
 
+    @Override
     public Unit getUnit() {
-        return null;
+        return Unit.MEGAWATT;
     }
 
     @Override
-    public List<BranchCnec> getMostLimitingElements(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, int numberOfElements) {
-        throw new NotImplementedException("getMostLimitingElements() not implemented yet for fallback cost evaluators");
+    public List<BranchCnec> getCostlyElements(BranchResult branchResult, int number) {
+        return Collections.emptyList();
     }
 }
