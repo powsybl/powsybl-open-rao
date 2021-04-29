@@ -5,16 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
+package com.farao_community.farao.rao_commons.adapter;
+
+import com.farao_community.farao.rao_api.results.SensitivityResult;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public enum ProblemFillerType {
-    CORE,
-    MAX_MIN_MARGIN,
-    MAX_MIN_RELATIVE_MARGIN,
-    MAX_LOOP_FLOW,
-    MNEC,
-    UNOPTIMIZED_CNEC
+public interface SensitivityResultAdapter {
+
+    SensitivityResult getResult(SystematicSensitivityResult systematicSensitivityResult);
 }

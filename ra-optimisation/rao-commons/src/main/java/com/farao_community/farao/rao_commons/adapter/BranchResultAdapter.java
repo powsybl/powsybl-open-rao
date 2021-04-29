@@ -5,13 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons;
+package com.farao_community.farao.rao_commons.adapter;
+
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public enum SystematicSensitivityStatus {
-    DEFAULT,
-    FALLBACK,
-    FAILURE
+public interface BranchResultAdapter {
+
+    BranchResult getResult(SystematicSensitivityResult systematicSensitivityResult);
 }
