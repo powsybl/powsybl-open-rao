@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.TapConvention;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * A range action interface specifying an action on a PST
@@ -33,22 +34,34 @@ public interface PstRangeAction extends RangeAction {
     NetworkElement getNetworkElement();
 
     /**
-     * Get the list of Tap Range delimiting the bounds of the PST range action
+     * Get the list of operational TapRange delimiting the bounds of the PST range action
      */
     List<TapRange> getRanges();
 
     /**
+     * Get the initial tap of the PST
+     */
+    int getInitialTap();
+
+    /**
+     * Get the conversion map between the tap and the angle (setpoint) of the PST
+     */
+    Map<Integer, Double> getTapToAngleConversionMap();
+
+    /**
      * Get the value of the tap of the PST Range Action for a given Network
      */
-    int getCurrentTapPosition(Network network, TapConvention rangeDefinition);
+    int getCurrentTapPosition(Network network, TapConvention tapConvention);
 
     /**
      * Convert the tap of the PST designated by the Remedial Action in angle
      */
+    //todo: network required here
     double convertTapToAngle(int tap);
 
     /**
      * Convert the angle of the PST designated by the Remedial Action in tap
      */
+    //todo: network required here
     int convertAngleToTap(double angle);
 }
