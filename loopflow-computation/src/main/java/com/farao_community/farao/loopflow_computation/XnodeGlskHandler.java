@@ -44,12 +44,12 @@ class XnodeGlskHandler {
 
     private Map<Contingency, List<String>> invalidGlskPerContingency;
     private ZonalData<LinearGlsk> glskZonalData;
-    private Set<BranchCnec> branchCnecSet;
+    private Set<Contingency> contingencies;
     private Network network;
 
-    XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<BranchCnec> branchCnecSet, Network network) {
+    XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<Contingency> contingencies, Network network) {
         this.glskZonalData = glskZonalData;
-        this.branchCnecSet = branchCnecSet;
+        this.contingencies = contingencies;
         this.network = network;
         this.invalidGlskPerContingency = buildInvalidGlskPerContingency();
     }
@@ -67,11 +67,7 @@ class XnodeGlskHandler {
 
         Map<Contingency, List<String>> outputMap = new HashMap<>();
 
-        branchCnecSet.stream().map(BranchCnec::getState).
-            filter(s -> s.getContingency().isPresent()).
-            map(s -> s.getContingency().get()).
-            distinct().
-            forEach(contingency -> outputMap.put(contingency, getInvalidGlsksForContingency(contingency)));
+        contingencies.forEach(contingency -> outputMap.put(contingency, getInvalidGlsksForContingency(contingency)));
 
         return outputMap;
     }
