@@ -19,6 +19,7 @@ public class SearchTreeInput {
     private Set<BranchCnec> cnecs;
     private Set<NetworkAction> networkActions;
     private Set<RangeAction> rangeActions;
+    private Set<String> countriesNotToOptimize;
 
     private Set<BranchCnec> loopflowCnecs;
     private ZonalData<LinearGlsk> glskProvider;
@@ -29,10 +30,6 @@ public class SearchTreeInput {
     private Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW;
     private Map<RangeAction, Double> prePerimeterSetpoints;
     private Map<BranchCnec, Double> prePerimeterCommercialFlows;
-
-    public boolean hasPrePerimeterSensitivityValues() {
-        return !Objects.isNull(prePerimeterSensitivityAndLoopflowResults);
-    }
 
     public SensitivityAndLoopflowResults getPrePerimeterSensitivityAndLoopflowResults() {
         return prePerimeterSensitivityAndLoopflowResults;
@@ -60,6 +57,10 @@ public class SearchTreeInput {
 
     public Set<BranchCnec> getCnecs() {
         return cnecs;
+    }
+
+    public Set<String> getCountriesNotToOptimize() {
+        return countriesNotToOptimize;
     }
 
     public Set<BranchCnec> getLoopflowCnecs() {
@@ -132,5 +133,9 @@ public class SearchTreeInput {
 
     public void setInitialCnecResults(CnecResults initialCnecResults) {
         this.initialCnecResults = initialCnecResults;
+    }
+
+    public void setCountriesNotToOptimize(Set<String> countriesNotToOptimize) {
+        this.countriesNotToOptimize = countriesNotToOptimize;
     }
 }
