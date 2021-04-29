@@ -23,7 +23,7 @@ import static java.lang.String.format;
  *
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UcteBranchHelper {
+public class UcteBranchHelper extends BranchHelper {
 
     private static final int UCTE_NODE_LENGTH = 8;
     private static final int ELEMENT_NAME_LENGTH = 12;
@@ -34,16 +34,9 @@ public class UcteBranchHelper {
     private String to;
     private String suffix;
 
-    private boolean isBranchValid = true;
-    private String invalidBranchReason = "";
-    private String branchIdInNetwork;
     private boolean isInvertedInNetwork;
     private boolean isTieLine = false;
     private Branch.Side tieLineSide = null;
-    private Double nominalVoltageLeft = null;
-    private Double nominalVoltageRight = null;
-    private Double currentLimitLeft = null;
-    private Double currentLimitRight = null;
 
     /**
      * Constructor, based on a separate fields.
@@ -54,7 +47,7 @@ public class UcteBranchHelper {
      * @param network, network on which the branch will be looked for, should contain UCTE aliases
      */
     public UcteBranchHelper(String fromNode, String toNode, String suffix, Network network) {
-
+        super(format("%1$-8s %2$-8s %3$-1s", fromNode, toNode, suffix));
         if (Objects.isNull(fromNode) || Objects.isNull(toNode) || Objects.isNull(suffix)) {
             invalidate("fromNode, toNode and suffix must not be null");
             return;
@@ -78,7 +71,7 @@ public class UcteBranchHelper {
      * @param network, network on which the branch will be looked for, should contain UCTE aliases
      */
     public UcteBranchHelper(String fromNode, String toNode, String orderCode, String elementName, Network network) {
-
+        super(format("%1$-8s %2$-8s %3$-1s", fromNode, toNode, orderCode != null ? orderCode : elementName));
         if (Objects.isNull(fromNode) || Objects.isNull(toNode)) {
             invalidate("fromNode and toNode must not be null");
             return;
@@ -99,7 +92,7 @@ public class UcteBranchHelper {
      * @param network, network on which the branch will be looked for, should contain UCTE aliases
      */
     public UcteBranchHelper(String ucteBranchId, Network network) {
-
+        super(ucteBranchId);
         if (Objects.isNull(ucteBranchId)) {
             invalidate("ucteBranchId must not be null");
             return;
@@ -132,59 +125,12 @@ public class UcteBranchHelper {
     }
 
     /**
-     * Returns a boolean indicating whether or not the branch is considered valid in the network
-     */
-    public boolean isBranchValid() {
-        return isBranchValid;
-    }
-
-    /**
-     * If the branch is not valid, returns the reason why it is considered invalid
-     */
-    public String getInvalidBranchReason() {
-        return invalidBranchReason;
-    }
-
-    /**
-     * If the branch is valid, returns its corresponding id in the PowSyBl Network
-     */
-    public String getBranchIdInNetwork() {
-        return branchIdInNetwork;
-    }
-
-    /**
      * If the branch is valid, returns a boolean indicating whether or not the from/to are
      * inverted in the network, compared to the values originally used in the constructor
      * of the UcteBranchHelper
      */
     public boolean isInvertedInNetwork() {
         return isInvertedInNetwork;
-    }
-
-    /**
-     * If the branch is valid, returns the nominal voltage on a given side of the Branch
-     * The side corresponds to the side of the branch in the network, which might be inverted
-     * compared from the from/to nodes of the UcteBranch (see isInvertedInNetwork()).
-     */
-    public double getNominalVoltage(Branch.Side side) {
-        if (side.equals(Branch.Side.ONE)) {
-            return nominalVoltageLeft;
-        } else {
-            return nominalVoltageRight;
-        }
-    }
-
-    /**
-     * If the branch is valid, returns the current limit on a given side of the Branch.
-     * The side corresponds to the side of the branch in the network, which might be inverted
-     * compared from the from/to nodes of the UcteBranch (see isInvertedInNetwork()).
-     */
-    public double getCurrentLimit(Branch.Side side) {
-        if (side.equals(Branch.Side.ONE)) {
-            return currentLimitLeft;
-        } else {
-            return currentLimitRight;
-        }
     }
 
     /**
@@ -235,7 +181,8 @@ public class UcteBranchHelper {
         }
     }
 
-    private void interpretWithNetwork(Network network) {
+    @Override
+    protected void interpretWithNetwork(Network network) {
         Identifiable<?> networkElement = findEquivalentElementInNetwork(network);
 
         if (Objects.isNull(networkElement)) {
@@ -260,7 +207,8 @@ public class UcteBranchHelper {
         }
     }
 
-    private Identifiable findEquivalentElementInNetwork(Network network) {
+    @Override
+    protected Identifiable findEquivalentElementInNetwork(Network network) {
 
          /* It is assumed that the Branches, DanglingLines and TieLines of the network have ids/aliases like below:
         - "UCTNODE1 UCTENODE2 orderCode"
@@ -360,16 +308,6 @@ public class UcteBranchHelper {
         invalidate(format("dangling line direction couldn't be properly identified in the network (from: %s, to: %s, suffix: %s, networkDanglingLineId: %s)", from, to, suffix, danglingLine.getId()));
     }
 
-    private void checkBranchNominalVoltage(Branch branch) {
-        this.nominalVoltageLeft = branch.getTerminal1().getVoltageLevel().getNominalV();
-        this.nominalVoltageRight = branch.getTerminal2().getVoltageLevel().getNominalV();
-    }
-
-    private void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
-        this.nominalVoltageLeft = danglingLine.getTerminal().getVoltageLevel().getNominalV();
-        this.nominalVoltageRight = nominalVoltageLeft;
-    }
-
     private void checkTieLineCurrentLimits(TieLine tieLine) {
         if (Objects.isNull(tieLine.getCurrentLimits(this.tieLineSide))) {
             invalidate(String.format("couldn't identify current limits of tie-line (from: %s, to: %s, suffix: %s, networkTieLineId: %s)", from, to, suffix, tieLine.getId()));
@@ -378,39 +316,7 @@ public class UcteBranchHelper {
         this.currentLimitRight = currentLimitLeft;
     }
 
-    private void checkBranchCurrentLimits(Branch branch) {
-        if (!Objects.isNull(branch.getCurrentLimits1())) {
-            this.currentLimitLeft = branch.getCurrentLimits1().getPermanentLimit();
-        }
-        if (!Objects.isNull(branch.getCurrentLimits2())) {
-            this.currentLimitRight = branch.getCurrentLimits2().getPermanentLimit();
-        }
-        if (Objects.isNull(branch.getCurrentLimits1()) && !Objects.isNull(branch.getCurrentLimits2())) {
-            this.currentLimitLeft = currentLimitRight * nominalVoltageRight / nominalVoltageLeft;
-        }
-        if (!Objects.isNull(branch.getCurrentLimits1()) && Objects.isNull(branch.getCurrentLimits2())) {
-            this.currentLimitRight = currentLimitLeft * nominalVoltageLeft / nominalVoltageRight;
-        }
-        if (Objects.isNull(branch.getCurrentLimits1()) && Objects.isNull(branch.getCurrentLimits2())) {
-            invalidate(String.format("couldn't identify current limits of branch (from: %s, to: %s, suffix: %s, networkBranchId: %s)", from, to, suffix, branch.getId()));
-        }
-    }
-
-    private void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
-        if (!Objects.isNull(danglingLine.getCurrentLimits())) {
-            this.currentLimitLeft = danglingLine.getCurrentLimits().getPermanentLimit();
-            this.currentLimitRight = currentLimitLeft;
-        } else {
-            invalidate(String.format("couldn't identify current limits of dangling line (from: %s, to: %s, suffix: %s, networkDanglingLineId: %s)", from, to, suffix, danglingLine.getId()));
-        }
-    }
-
     private String getLineName(String nodeId1, String nodeId2, String suffix) {
         return format("%1$-8s %2$-8s %3$s", nodeId1, nodeId2, suffix);
-    }
-
-    private void invalidate(String invalidReason) {
-        this.isBranchValid = false;
-        this.invalidBranchReason = invalidReason;
     }
 }
