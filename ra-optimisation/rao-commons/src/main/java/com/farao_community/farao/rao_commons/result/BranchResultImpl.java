@@ -5,29 +5,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons;
+package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.BranchResult;
-import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+
+import java.util.Map;
+import java.util.Optional;
+
+import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SystematicSensitivityAdapter implements BranchResult, SensitivityResult {
-    private final SystematicSensitivityResult systematicSensitivityResult;
-    private SystematicSensitivityStatus status;
+public class BranchResultImpl implements BranchResult {
+    protected final SystematicSensitivityResult systematicSensitivityResult;
+    private final Map<BranchCnec, Double> commercialFlows;
+    private final Map<BranchCnec, Double> ptdfZonalSums;
 
-    public SystematicSensitivityAdapter(SystematicSensitivityResult systematicSensitivityResult) {
+    public BranchResultImpl(SystematicSensitivityResult systematicSensitivityResult,
+                            Map<BranchCnec, Double> commercialFlows,
+                            Map<BranchCnec, Double> ptdfZonalSums) {
         this.systematicSensitivityResult = systematicSensitivityResult;
-    }
-
-    public SystematicSensitivityStatus getStatus() {
-        return status;
+        this.commercialFlows = commercialFlows;
+        this.ptdfZonalSums = ptdfZonalSums;
     }
 
     @Override
@@ -43,22 +47,17 @@ public class SystematicSensitivityAdapter implements BranchResult, SensitivityRe
 
     @Override
     public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
-        return Double.NaN;
+        if (unit == Unit.MEGAWATT) {
+            return Optional.of(commercialFlows.get(branchCnec))
+                    .orElseThrow(() -> new FaraoException(format("No commercial flow on the CNEC %s", branchCnec.getName())));
+        } else {
+            throw new FaraoException("Commercial flows only in MW.");
+        }
     }
 
     @Override
     public double getPtdfZonalSum(BranchCnec branchCnec) {
-        return Double.NaN;
-    }
-
-    @Override
-    public double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit) {
-        if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getSensitivityOnFlow(rangeAction, branchCnec);
-        } else if (unit == Unit.AMPERE) {
-            return systematicSensitivityResult.getSensitivityOnIntensity(rangeAction, branchCnec);
-        } else {
-            throw new FaraoException("Unknown unit for flow.");
-        }
+        return Optional.of(ptdfZonalSums.get(branchCnec))
+                .orElseThrow(() -> new FaraoException(format("No PTDF computed on the CNEC %s", branchCnec.getName())));
     }
 }
