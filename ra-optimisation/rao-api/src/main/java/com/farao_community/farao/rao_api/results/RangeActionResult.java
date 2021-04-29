@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -42,6 +43,13 @@ public interface RangeActionResult {
      * @return The set of activated range actions.
      */
     Set<RangeAction> getActivatedRangeActions();
+
+    default Set<PstRangeAction> getActivatedPstRangeActions() {
+        return getActivatedRangeActions().stream()
+                .filter(rangeAction -> rangeAction instanceof PstRangeAction)
+                .map(rangeAction -> (PstRangeAction) rangeAction)
+                .collect(Collectors.toSet());
+    }
 
     /**
      * It gives a summary of all the optimized taps of the {@link PstRangeAction} present in the {@link Crac}.
