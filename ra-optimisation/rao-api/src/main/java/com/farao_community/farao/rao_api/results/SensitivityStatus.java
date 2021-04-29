@@ -10,7 +10,8 @@ package com.farao_community.farao.rao_api.results;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public enum LinearOptimizationStatus {
-    OPTIMAL,
-    FAILED
+public enum SensitivityStatus {
+    DEFAULT,
+    FALLBACK,
+    FAILURE
 }

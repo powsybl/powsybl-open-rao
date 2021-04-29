@@ -10,11 +10,16 @@ package com.farao_community.farao.rao_api.results;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface SensitivityResult {
 
+    SensitivityStatus getStatus();
+
     double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit);
+
+    double getSensitivityValue(BranchCnec branchCnec, LinearGlsk linearGlsk, Unit unit);
 }
