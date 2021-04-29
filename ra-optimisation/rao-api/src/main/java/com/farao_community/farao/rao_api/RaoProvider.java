@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.results.RaoResult;
 import com.powsybl.commons.Versionable;
 
 import java.util.concurrent.CompletableFuture;
@@ -20,5 +22,5 @@ public interface RaoProvider extends Versionable {
      * @param parameters: RAO parameters.
      * @return A completable future of a RaoComputationResult it gathers all the optimization results.
      */
-    CompletableFuture<RaoResultImpl> run(RaoInput raoInput, RaoParameters parameters);
+    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters);
 }

@@ -9,16 +9,22 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -26,16 +32,6 @@ import java.util.Set;
 public final class LoopFlowUtil {
 
     private LoopFlowUtil() {
-    }
-
-    public static void buildLoopFlowsWithLatestSensi(RaoData raoData, boolean isLoopFlowApproximation) {
-        if (isLoopFlowApproximation) {
-            raoData.getCracResultManager().fillCnecResultsWithApproximatedLoopFlows();
-        } else {
-            LoopFlowComputation loopFlowComputation = new LoopFlowComputation(raoData.getGlskProvider(), raoData.getReferenceProgram());
-            LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(raoData.getNetwork(), raoData.getSystematicSensitivityResult(), raoData.getLoopflowCnecs());
-            raoData.getCracResultManager().fillCnecResultsWithLoopFlows(lfResults);
-        }
     }
 
     public static Map<BranchCnec, Double> computeCommercialFlows(Network network,
@@ -50,5 +46,21 @@ public final class LoopFlowUtil {
             commercialFlows.put(cnec, lfResults.getCommercialFlow(cnec));
         }
         return  commercialFlows;
+    }
+
+    public static Set<BranchCnec> computeLoopflowCnecs(Set<BranchCnec> allCnecs, Network network, RaoParameters raoParameters) {
+        if (!raoParameters.getLoopflowCountries().isEmpty()) {
+            return allCnecs.stream()
+                    .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
+                    .collect(Collectors.toSet());
+        } else {
+            return allCnecs.stream()
+                    .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)))
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    private static boolean cnecIsInCountryList(Cnec<?> cnec, Network network, Set<Country> loopflowCountries) {
+        return cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && loopflowCountries.contains(country.get()));
     }
 }

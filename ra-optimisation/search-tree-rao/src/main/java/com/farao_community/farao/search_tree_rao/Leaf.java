@@ -8,14 +8,10 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.NetworkAction;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.NetworkActionResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.results.PerimeterStatus;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
@@ -42,16 +38,14 @@ import java.util.stream.Collectors;
 class Leaf {
     private static final Logger LOGGER = LoggerFactory.getLogger(Leaf.class);
 
-    private final RaoData raoData;
-    private final String preOptimVariantId;
-    private String optimizedVariantId;
+    private final LeafInput leafInput;
     private final RaoParameters raoParameters;
     private final TreeParameters treeParameters;
-    private SystematicSensitivityInterface systematicSensitivityInterface;
+    private final LinearOptimizerParameters linearOptimizerParameters;
+
     ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
 
-    private LinearOptimizerParameters linearOptimizerParameters;
-    private boolean updateSensitivitiesForLoopFlows;
+    private LeafOutput leafOutput;
 
     /**
      * Network Actions which will be tested (including the
@@ -82,83 +76,34 @@ class Leaf {
      */
     private Status status;
 
-    /**
-     * Root Leaf constructors
-     * It is built directly from a RaoData on which a systematic sensitivity analysis could have already been run or not.
-     */
-    Leaf(RaoData raoData, RaoParameters raoParameters, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
-        this.networkActions = new HashSet<>(); // Root leaf has no network action
+    Leaf(LeafInput leafInput, RaoParameters raoParameters, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
+        this.leafInput = leafInput;
+        networkActions = leafInput.getAppliedNetworkActions();
+        networkActions.add(leafInput.getNetworkActionToApply());
         this.raoParameters = raoParameters;
         this.treeParameters = treeParameters;
         this.linearOptimizerParameters = linearOptimizerParameters;
-        this.updateSensitivitiesForLoopFlows = linearOptimizerParameters.isRaoWithLoopFlowLimitation()
-                && linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange();
 
-        this.raoData = raoData;
-        preOptimVariantId = raoData.getPreOptimVariantId();
-        systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoData, updateSensitivitiesForLoopFlows);
+        // apply Network Actions on initial network
+        networkActions.forEach(na -> na.apply(leafInput.getNetwork()));
 
-        if (raoData.hasSensitivityValues()) {
+        if (leafInput.hasSensitivityAndLoopflowResults()) {
             status = Status.EVALUATED;
         } else {
             status = Status.CREATED;
         }
     }
 
-    /**
-     * Leaf constructor from a parent leaf
-     * @param parentLeaf: the parent leaf
-     * @param networkAction: the leaf's specific network action (to be added to the parent leaf's network actions)
-     * @param network: the Network object
-     * @param raoParameters: the RAO parameters
-     * @param treeParameters: the Tree parameters
-     */
-    Leaf(Leaf parentLeaf, NetworkAction networkAction, Network network, RaoParameters raoParameters, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
-        networkActions = new HashSet<>(parentLeaf.networkActions);
-        networkActions.add(networkAction);
-        this.raoParameters = raoParameters;
-        this.treeParameters = treeParameters;
-        this.linearOptimizerParameters = linearOptimizerParameters;
-        this.updateSensitivitiesForLoopFlows = linearOptimizerParameters.isRaoWithLoopFlowLimitation()
-                && linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange();
-
-        // apply Network Actions on initial network
-        networkActions.forEach(na -> na.apply(network));
-        // It creates a new CRAC variant
-        raoData = RaoData.create(network, parentLeaf.getRaoData());
-        preOptimVariantId = raoData.getPreOptimVariantId();
-        activateNetworkActionInCracResult(preOptimVariantId);
-        systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoData, updateSensitivitiesForLoopFlows);
-        raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
-        if (!raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
-            raoData.getCracResultManager().copyCommercialFlowsBetweenVariants(parentLeaf.getRaoData().getPreOptimVariantId(), preOptimVariantId);
-        }
-        status = Status.CREATED;
-        objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, linearOptimizerParameters, raoParameters.getFallbackOverCost());
-    }
-
-    RaoData getRaoData() {
-        return raoData;
+    LeafInput getLeafInput() {
+        return  leafInput;
     }
 
     Status getStatus() {
         return status;
     }
 
-    String getPreOptimVariantId() {
-        return preOptimVariantId;
-    }
-
-    String getBestVariantId() {
-        if (status.equals(Status.OPTIMIZED)) {
-            return optimizedVariantId;
-        } else {
-            return preOptimVariantId;
-        }
-    }
-
-    double getBestCost() {
-        return raoData.getCracResult(getBestVariantId()).getCost();
+    double getOptimizedCost() {
+        return leafOutput.getCost();
     }
 
     Set<NetworkAction> getNetworkActions() {
@@ -176,37 +121,29 @@ class Leaf {
     void evaluate() {
         if (status.equals(Status.EVALUATED)) {
             LOGGER.debug("Leaf has already been evaluated");
-            SensitivityAndLoopflowResults sensitivityAndLoopflowResults = raoData.getSensitivityAndLoopflowResults();
-
-            objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, linearOptimizerParameters, raoParameters.getFallbackOverCost());
-            raoData.getCracResultManager().fillCracResultWithCosts(
-                objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults));
             return;
         }
 
         try {
             LOGGER.debug("Evaluating leaf...");
-            raoData.setSystematicSensitivityResult(systematicSensitivityInterface.run(raoData.getNetwork()));
-            raoData.getCracResultManager().fillCnecResultWithFlows();
-            if (isRoot()) {
-                raoData.getCracResultManager().fillPreperimeterCnecResultWithFlows();
+
+            boolean updateSensitivitiesForLoopFlows = raoParameters.isRaoWithLoopFlowLimitation()
+                    && raoParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange();
+
+            SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, leafInput.getRangeActions(), leafInput.getCnecs(), updateSensitivitiesForLoopFlows, leafInput.getGlskProvider(), leafInput.getLoopflowCnecs());
+            SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(leafInput.getNetwork());
+            if (updateSensitivitiesForLoopFlows) {
+                Map<BranchCnec, Double> commercialFlows = LoopFlowUtil.computeCommercialFlows(leafInput.getNetwork(), leafInput.getLoopflowCnecs(), leafInput.getGlskProvider(), leafInput.getReferenceProgram(), sensitivityResult);
+                leafInput.setSensitivityAndLoopflowResults(new SensitivityAndLoopflowResults(sensitivityResult, systematicSensitivityInterface.isFallback(), commercialFlows));
+                leafInput.setCommercialFlows(commercialFlows);
+            } else {
+                leafInput.setSensitivityAndLoopflowResults(new SensitivityAndLoopflowResults(sensitivityResult, systematicSensitivityInterface.isFallback(), leafInput.getCommercialFlows()));
             }
 
-            if (raoParameters.isRaoWithLoopFlowLimitation()) {
-                LoopFlowUtil.buildLoopFlowsWithLatestSensi(raoData,
-                    !raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange());
-            }
-
-            // we have to do this here because we need pre-perimeter flows
-            // to put in the evaluator input
-            objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(raoData, linearOptimizerParameters, raoParameters.getFallbackOverCost());
-
-            SensitivityAndLoopflowResults sensitivityAndLoopflowResults = raoData.getSensitivityAndLoopflowResults();
-            raoData.getCracResultManager().fillCracResultWithCosts(
-                objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults), objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults));
+            //TODO: compute this in search tree provider
             status = Status.EVALUATED;
         } catch (FaraoException e) {
-            LOGGER.error(String.format("Fail to evaluate leaf: %s", e.getMessage()));
+            LOGGER.error(String.format("Failed to evaluate leaf: %s", e.getMessage()));
             status = Status.ERROR;
         }
     }
@@ -232,7 +169,7 @@ class Leaf {
     Map<String, Integer> getMaxTopoPerTso() {
         Map<String, Integer> maxTopoPerTso = new HashMap<>(treeParameters.getMaxTopoPerTso());
         treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
-            int activatedPstsForTso = (int) raoData.getAvailableRangeActions().stream()
+            int activatedPstsForTso = (int) leafInput.getRangeActions().stream()
                     .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && isRangeActionActivated(rangeAction))
                     .count();
             int topoLimit =  raLimit - activatedPstsForTso;
@@ -242,40 +179,39 @@ class Leaf {
     }
 
     boolean isRangeActionActivated(RangeAction rangeAction) {
-        double setpoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(raoData.getWorkingVariantId()).getSetPoint(raoData.getOptimizedState().getId());
-        String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
-        double initialSetpoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(prePerimeterVariantId).getSetPoint(raoData.getOptimizedState().getId());
-        if (Double.isNaN(setpoint)) {
+        double optimizedSetpoint = leafOutput.getOptimizedSetPoint(rangeAction);
+        double preperimeterSetpoint = leafInput.getPrePerimeterSetpoints().get(rangeAction);
+        if (Double.isNaN(optimizedSetpoint)) {
             return false;
-        } else if (Double.isNaN(initialSetpoint)) {
+        } else if (Double.isNaN(preperimeterSetpoint)) {
             return true;
         } else {
-            return Math.abs(initialSetpoint - setpoint) > 1e-6;
+            return Math.abs(optimizedSetpoint - preperimeterSetpoint) > 1e-6;
         }
     }
 
     private IteratingLinearOptimizerInput createIteratingLinearOptimizerInput() {
-        SystematicSensitivityInterface linearOptimizerSystematicSensitivityInterface =
-                RaoUtil.createSystematicSensitivityInterface(raoData, updateSensitivitiesForLoopFlows);
-        Set<RangeAction> optimizableRangeActions = new HashSet<>(raoData.getAvailableRangeActions());
-        Map<RangeAction, Double> optimizableRangeActionSetPoints = new HashMap<>(raoData.getPrePerimeterSetPoints());
-        removeRangeActionsWithWrongInitialSetpoint(optimizableRangeActions, optimizableRangeActionSetPoints, raoData.getNetwork());
+        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, leafInput.getRangeActions(), leafInput.getCnecs(),
+                raoParameters.isRaoWithLoopFlowLimitation() && raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange(), leafInput.getGlskProvider(), leafInput.getLoopflowCnecs());
+        Set<RangeAction> optimizableRangeActions = new HashSet<>(leafInput.getRangeActions());
+        Map<RangeAction, Double> optimizableRangeActionSetPoints = new HashMap<>(leafInput.getPrePerimeterSetpoints());
+        removeRangeActionsWithWrongInitialSetpoint(optimizableRangeActions, optimizableRangeActionSetPoints, leafInput.getNetwork());
         removeRangeActionsIfMaxNumberReached(optimizableRangeActions, optimizableRangeActionSetPoints, getMaxPstPerTso(),
-            objectiveFunctionEvaluator.getMostLimitingElements(raoData.getSensitivityAndLoopflowResults(), 1).get(0),
-            raoData.getSensitivityAndLoopflowResults().getSystematicSensitivityResult());
+            objectiveFunctionEvaluator.getMostLimitingElements(leafInput.getSensitivityAndLoopflowResults(), 1).get(0),
+            leafInput.getSensitivityAndLoopflowResults().getSystematicSensitivityResult());
         return IteratingLinearOptimizerInput.create()
-                .withLoopflowCnecs(raoData.getLoopflowCnecs())
-                .withCnecs(raoData.getCnecs())
+                .withLoopflowCnecs(leafInput.getLoopflowCnecs())
+                .withCnecs(leafInput.getCnecs())
                 .withRangeActions(optimizableRangeActions)
-                .withNetwork(raoData.getNetwork())
+                .withNetwork(leafInput.getNetwork())
                 .withPreperimeterSetpoints(optimizableRangeActionSetPoints)
-                .withPrePerimeterCnecMarginsInMW(raoData.getPrePerimeterMarginsInAbsoluteMW())
-                .withInitialCnecResults(raoData.getInitialCnecResults())
-                .withPreOptimSensitivityResults(raoData.getSensitivityAndLoopflowResults())
-                .withSystematicSensitivityInterface(linearOptimizerSystematicSensitivityInterface)
+                .withPrePerimeterCnecMarginsInMW(leafInput.getPrePerimeterMarginsInAbsoluteMW())
+                .withInitialCnecResults(leafInput.getInitialCnecResults())
+                .withPreOptimSensitivityResults(leafInput.getSensitivityAndLoopflowResults())
+                .withSystematicSensitivityInterface(systematicSensitivityInterface)
                 .withObjectiveFunctionEvaluator(objectiveFunctionEvaluator)
-                .withGlskProvider(raoData.getGlskProvider())
-                .withReferenceProgram(raoData.getReferenceProgram())
+                .withGlskProvider(leafInput.getGlskProvider())
+                .withReferenceProgram(leafInput.getReferenceProgram())
                 .build();
     }
 
@@ -330,6 +266,41 @@ class Leaf {
         return sensi1.compareTo(sensi2);
     }
 
+    private LeafOutput createLeafOutput(IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput) {
+        Set<RangeAction> activatedRangeActions = leafInput.getRangeActions().stream().filter(this::isRangeActionActivated).collect(Collectors.toSet());
+        PerimeterStatus perimeterStatus;
+        if (iteratingLinearOptimizerOutput.getSensitivityAndLoopflowResults().isFallback()) {
+            perimeterStatus = PerimeterStatus.FALLBACK;
+        } else {
+            perimeterStatus = PerimeterStatus.DEFAULT;
+        }
+        return new LeafOutput(iteratingLinearOptimizerOutput, iteratingLinearOptimizerOutput, iteratingLinearOptimizerOutput, networkActions, activatedRangeActions, perimeterStatus);
+    }
+
+    private LeafOutput createOutputFromPreOptimSituation() {
+        ObjectiveFunctionEvaluator objectiveFunctionEvaluator = leafInput.getObjectiveFunctionEvaluator();
+        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = leafInput.getSensitivityAndLoopflowResults();
+        Network network = leafInput.getNetwork();
+
+        double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults);
+        double virtualCost = objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults);
+        Map<RangeAction, Double> rangeActionSetPoints = new HashMap<>();
+        Map<PstRangeAction, Integer> pstTaps = new HashMap<>();
+        for (RangeAction rangeAction : leafInput.getRangeActions()) {
+            rangeActionSetPoints.put(rangeAction, rangeAction.getCurrentValue(network));
+            if (rangeAction instanceof PstRangeAction) {
+                PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+                pstTaps.put(pstRangeAction, pstRangeAction.getCurrentTapPosition(network, RangeDefinition.CENTERED_ON_ZERO));
+            }
+        }
+
+        return new LeafOutput(functionalCost, virtualCost, networkActions, rangeActionSetPoints, pstTaps, sensitivityAndLoopflowResults);
+    }
+
+    public LeafOutput getLeafOutput() {
+        return leafOutput;
+    }
+
     /**
      * This method tries to optimize range actions on an already evaluated leaf since range action optimization
      * requires computed sensitivity values. Therefore, the leaf is not optimized if leaf status is either ERROR
@@ -342,19 +313,15 @@ class Leaf {
      */
     void optimize() {
         if (status.equals(Status.EVALUATED)) {
-            if (!raoData.getAvailableRangeActions().isEmpty()) {
+            if (!leafInput.getRangeActions().isEmpty()) {
                 LOGGER.debug("Optimizing leaf...");
                 IteratingLinearOptimizerInput iteratingLinearOptimizerInput = createIteratingLinearOptimizerInput();
                 IteratingLinearOptimizerOutput iteratingLinearOptimizerOutput = IteratingLinearOptimizer.optimize(
                         iteratingLinearOptimizerInput, linearOptimizerParameters, raoParameters.getMaxIterations());
-                optimizedVariantId = raoData.getCracVariantManager().cloneWorkingVariant();
-                raoData.getCracVariantManager().setWorkingVariant(optimizedVariantId);
-                raoData.getCracResultManager().fillResultsFromIteratingLinearOptimizerOutput(iteratingLinearOptimizerOutput, optimizedVariantId);
-                raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
-                activateNetworkActionInCracResult(optimizedVariantId);
+                leafOutput = createLeafOutput(iteratingLinearOptimizerOutput);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");
-                optimizedVariantId = preOptimVariantId;
+                leafOutput = createOutputFromPreOptimSituation();
             }
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
@@ -371,7 +338,7 @@ class Leaf {
      * @return A set of available network actions after this leaf.
      */
     Set<NetworkAction> bloom() {
-        Set<NetworkAction> availableNetworkActions = raoData.getAvailableNetworkActions().stream()
+        Set<NetworkAction> availableNetworkActions = new HashSet<>(leafInput.getAllNetworkActions()).stream()
                 .filter(na -> !networkActions.contains(na))
                 .collect(Collectors.toSet());
         availableNetworkActions = removeNetworkActionsFarFromMostLimitingElement(availableNetworkActions);
@@ -387,10 +354,10 @@ class Leaf {
      * @return the reduced set of network actions
      */
     private Set<NetworkAction> removeNetworkActionsFarFromMostLimitingElement(Set<NetworkAction> networkActionsToFilter) {
-        CountryGraph countryGraph = new CountryGraph(raoData.getNetwork());
+        CountryGraph countryGraph = new CountryGraph(leafInput.getNetwork());
         SearchTreeRaoParameters searchTreeRaoParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement()) {
-            Set<Optional<Country>> worstCnecLocation = getMostLimitingElementLocation();
+            Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementLocation();
             Set<NetworkAction> filteredNetworkActions = networkActionsToFilter.stream()
                     .filter(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph))
                     .collect(Collectors.toSet());
@@ -430,7 +397,7 @@ class Leaf {
         if (locations.stream().anyMatch(Optional::isEmpty)) {
             return true;
         }
-        Set<Optional<Country>> networkActionCountries = networkAction.getLocation(raoData.getNetwork());
+        Set<Optional<Country>> networkActionCountries = networkAction.getLocation(leafInput.getNetwork());
         if (networkActionCountries.stream().anyMatch(Optional::isEmpty)) {
             return true;
         }
@@ -447,71 +414,22 @@ class Leaf {
     }
 
     boolean isFallback() {
-        return systematicSensitivityInterface.isFallback();
-    }
-
-    /**
-     * This method deletes completely the initial variant if the optimized variant has better results. So it can be
-     * used only if the leaf is OPTIMIZED. This method should not be used on root leaf in the tree as long as it
-     * is necessary to keep this variant for algorithm results purpose.
-     */
-    void clearAllVariantsExceptOptimizedOne() {
-        if (status.equals(Status.OPTIMIZED) && !preOptimVariantId.equals(optimizedVariantId)) {
-            raoData.getCracResultManager().copyAbsolutePtdfSumsBetweenVariants(preOptimVariantId, optimizedVariantId);
-            raoData.getCracVariantManager().deleteVariant(preOptimVariantId, false);
-        }
-    }
-
-    /**
-     * This method deletes all the variants of the leaf rao data, except the initial variant. It is useful as when the
-     * tree's optimal leaf is not the root leaf we don't want to see in the CracResult any other variant than the initial
-     * one (from the root leaf) and the best variant (from the optimal leaf).
-     * Thus this method should be called only on the root leaf.
-     */
-    void clearAllVariantsExceptInitialOne() {
-        HashSet<String> variantIds = new HashSet<>();
-        variantIds.addAll(raoData.getCracVariantManager().getVariantIds());
-        variantIds.remove(preOptimVariantId);
-        raoData.getCracVariantManager().setWorkingVariant(preOptimVariantId);
-        variantIds.forEach(variantId -> raoData.getCracVariantManager().deleteVariant(variantId, false));
-    }
-
-    /**
-     * This method deletes all the variants of the leaf rao data meaning at least the initial variant and most the
-     * initial variant and the optimized variant. It is a delegate method to avoid calling directly rao data as a leaf
-     * user.
-     */
-    void clearAllVariants() {
-        raoData.getCracVariantManager().clear();
-    }
-
-    /**
-     * This method activates network actions related to this leaf in the CRAC results. This action has to be done
-     * every time a new variant is created inside this leaf to ensure results consistency.
-     *
-     * @param variantId: The ID of the variant to update.
-     */
-    private void activateNetworkActionInCracResult(String variantId) {
-        String stateId = raoData.getOptimizedState().getId();
-        for (NetworkAction networkAction : networkActions) {
-            networkAction.getExtension(NetworkActionResultExtension.class).getVariant(variantId).activate(stateId);
-        }
+        return leafOutput.getStatus().equals(PerimeterStatus.FALLBACK);
     }
 
     @Override
     public String toString() {
         String info = isRoot() ? "Root leaf" :
                 "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
-        info += String.format(", Cost: %.2f", getBestCost());
-        info += String.format(" (Functional: %.2f", raoData.getCracResult().getFunctionalCost());
-        info += String.format(", Virtual: %.2f)", raoData.getCracResult().getVirtualCost());
+        info += String.format(", Cost: %.2f", getOptimizedCost());
+        info += String.format(" (Functional: %.2f", leafOutput.getFunctionalCost());
+        info += String.format(", Virtual: %.2f)", leafOutput.getVirtualCost());
         info += ", Status: " + status.getMessage();
         return info;
     }
 
-    private Set<Optional<Country>> getMostLimitingElementLocation() {
-        BranchCnec cnec = RaoUtil.getMostLimitingElement(raoData.getCnecs(), getBestVariantId(),
-                raoParameters.getObjectiveFunction().getUnit(), raoParameters.getObjectiveFunction().relativePositiveMargins());
-        return cnec.getLocation(raoData.getNetwork());
+    private Set<Optional<Country>> getOptimizedMostLimitingElementLocation() {
+        BranchCnec cnec = leafOutput.getMostLimitingElements(1).get(0);
+        return cnec.getLocation(leafInput.getNetwork());
     }
 }

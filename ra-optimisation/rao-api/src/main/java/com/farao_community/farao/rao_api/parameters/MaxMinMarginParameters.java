@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.linear_optimisation.parameters;
+package com.farao_community.farao.rao_api.parameters;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

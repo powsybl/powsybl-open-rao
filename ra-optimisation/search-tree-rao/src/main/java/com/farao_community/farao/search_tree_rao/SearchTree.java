@@ -8,15 +8,20 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResultImpl;
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_api.results.PerimeterResult;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -45,36 +50,46 @@ public class SearchTree {
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
+    private RaoParameters raoParameters;
     private TreeParameters treeParameters;
     private LinearOptimizerParameters linearOptimizerParameters;
+    private SearchTreeInput searchTreeInput;
 
-    void initLeaves(RaoData raoData) {
-        rootLeaf = new Leaf(raoData, raoData.getRaoParameters(), treeParameters, linearOptimizerParameters);
+    private ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
+
+    void initLeaves() {
+        LeafInput leafInput = new LeafInput(searchTreeInput, new HashSet<>(), null, objectiveFunctionEvaluator);
+        rootLeaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
 
-    public CompletableFuture<RaoResultImpl> run(RaoData raoData, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
+    public CompletableFuture<PerimeterResult> run(SearchTreeInput searchTreeInput, RaoParameters raoParameters, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
+        this.searchTreeInput = searchTreeInput;
+        this.raoParameters = raoParameters;
         this.treeParameters = treeParameters;
         this.linearOptimizerParameters = linearOptimizerParameters;
-        initLeaves(raoData);
+
+        this.objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(searchTreeInput.getCnecs(), searchTreeInput.getLoopflowCnecs(), searchTreeInput.getPrePerimeterMarginsInAbsoluteMW(),
+                searchTreeInput.getInitialCnecResults(), searchTreeInput.getCountriesNotToOptimize(), raoParameters);
+
+        initLeaves();
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate();
         LOGGER.info("{}", rootLeaf);
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
-            RaoResultImpl raoResult = new RaoResultImpl(RaoResultImpl.Status.FAILURE);
-            return CompletableFuture.completedFuture(raoResult);
+            return CompletableFuture.completedFuture(rootLeaf.getLeafOutput());
         } else if (stopCriterionReached(rootLeaf)) {
             SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, linearOptimizerParameters.getUnit(),
                     linearOptimizerParameters.hasRelativeMargins(), NUMBER_LOGGED_ELEMENTS_END_TREE);
-            return CompletableFuture.completedFuture(buildOutput());
-        } else if (linearOptimizerParameters.hasOperatorsNotToOptimize() && noCnecToOptimize(rootLeaf, linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize())) {
+            return CompletableFuture.completedFuture(rootLeaf.getLeafOutput());
+        } else if (linearOptimizerParameters.hasOperatorsNotToOptimize() && noCnecToOptimize(linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize())) {
             LOGGER.info("All CNECs belong to operators that are not being optimized. The search tree will stop.");
             SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, linearOptimizerParameters.getUnit(),
                     linearOptimizerParameters.hasRelativeMargins(), NUMBER_LOGGED_ELEMENTS_END_TREE);
-            return CompletableFuture.completedFuture(buildOutput());
+            return CompletableFuture.completedFuture(rootLeaf.getLeafOutput());
         } else {
             SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, linearOptimizerParameters.getUnit(),
                     linearOptimizerParameters.hasRelativeMargins(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
@@ -88,7 +103,7 @@ public class SearchTree {
                 linearOptimizerParameters.hasRelativeMargins(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         if (stopCriterionReached(rootLeaf)) {
-            return CompletableFuture.completedFuture(buildOutput());
+            return CompletableFuture.completedFuture(rootLeaf.getLeafOutput());
         }
 
         iterateOnTree();
@@ -98,17 +113,17 @@ public class SearchTree {
         SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Best leaf");
         SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, linearOptimizerParameters.getUnit(),
                 linearOptimizerParameters.hasRelativeMargins(), NUMBER_LOGGED_ELEMENTS_END_TREE);
-        return CompletableFuture.completedFuture(buildOutput());
+        return CompletableFuture.completedFuture(optimalLeaf.getLeafOutput());
     }
 
     /**
      * If all CNECs belong to operators not being optimized, then we can stop optimization after root leaf evaluation
      */
-    boolean noCnecToOptimize(Leaf leaf, Set<String> operatorsNotToOptimize) {
+    boolean noCnecToOptimize(Set<String> operatorsNotToOptimize) {
         if (Objects.isNull(operatorsNotToOptimize)) {
             return false;
         } else {
-            return leaf.getRaoData().getCnecs().stream().noneMatch(cnec -> !operatorsNotToOptimize.contains(cnec.getOperator()));
+            return searchTreeInput.getCnecs().stream().noneMatch(cnec -> !operatorsNotToOptimize.contains(cnec.getOperator()));
         }
     }
 
@@ -121,11 +136,6 @@ public class SearchTree {
             updateOptimalLeafWithNextDepthBestLeaf();
             hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
             if (hasImproved) {
-                if (previousDepthOptimalLeaf == rootLeaf) {
-                    previousDepthOptimalLeaf.clearAllVariantsExceptInitialOne(); // to keep the results without optim
-                } else {
-                    previousDepthOptimalLeaf.clearAllVariants();
-                }
                 LOGGER.info("Research depth: {} - [end]", depth + 1);
                 LOGGER.info("Best leaf so far - {}", optimalLeaf);
                 SearchTreeRaoLogger.logRangeActions(optimalLeaf, "Best leaf so far");
@@ -154,7 +164,7 @@ public class SearchTree {
             LOGGER.info("Leaves to evaluate: {}", networkActions.size());
         }
         AtomicInteger remainingLeaves = new AtomicInteger(networkActions.size());
-        Network network = rootLeaf.getRaoData().getNetwork(); // NetworkPool starts from root leaf network to keep initial optimization of range actions
+        Network network = searchTreeInput.getNetwork(); // NetworkPool starts from root leaf network to keep initial optimization of range actions
         int leavesInParallel = Math.min(networkActions.size(), treeParameters.getLeavesInParallel());
         LOGGER.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel)) {
@@ -180,35 +190,27 @@ public class SearchTree {
 
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
+        LeafInput leafInput = new LeafInput(searchTreeInput, optimalLeaf.getNetworkActions(), networkAction, objectiveFunctionEvaluator);
         try {
-            leaf = new Leaf(previousDepthOptimalLeaf, networkAction, network,
-                    previousDepthOptimalLeaf.getRaoData().getRaoParameters(), treeParameters, linearOptimizerParameters);
+            leaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         } catch (NotImplementedException e) {
             networkPool.releaseUsedNetwork(network);
             throw e;
         }
         leaf.evaluate();
         LOGGER.debug("{}", leaf);
-        if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
-            leaf.clearAllVariants();
-        } else {
+        if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
             if (!stopCriterionReached(leaf)) {
                 leaf.optimize();
                 LOGGER.info("{}", leaf);
             }
-            leaf.clearAllVariantsExceptOptimizedOne();
             updateOptimalLeafAndCleanVariants(leaf);
         }
     }
 
     private synchronized void updateOptimalLeafAndCleanVariants(Leaf leaf) {
         if (improvedEnough(leaf)) {
-            if (optimalLeaf != previousDepthOptimalLeaf) {
-                optimalLeaf.clearAllVariants();
-            }
             optimalLeaf = leaf;
-        } else {
-            leaf.clearAllVariants();
         }
     }
 
@@ -222,7 +224,7 @@ public class SearchTree {
         if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
         } else if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return leaf.getBestCost() < treeParameters.getTargetObjectiveValue();
+            return leaf.getOptimizedCost() < treeParameters.getTargetObjectiveValue();
         } else {
             throw new FaraoException("Unexpected stop criterion: " + treeParameters.getStopCriterion());
         }
@@ -239,9 +241,9 @@ public class SearchTree {
         double relativeImpact = Math.max(treeParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
         double absoluteImpact = Math.max(treeParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
 
-        double currentBestCost = optimalLeaf.getBestCost();
-        double previousDepthBestCost = previousDepthOptimalLeaf.getBestCost();
-        double newCost = leaf.getBestCost();
+        double currentBestCost = optimalLeaf.getOptimizedCost();
+        double previousDepthBestCost = previousDepthOptimalLeaf.getOptimizedCost();
+        double newCost = leaf.getOptimizedCost();
 
         return newCost < currentBestCost
                 && previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
@@ -250,8 +252,6 @@ public class SearchTree {
 
     private RaoResultImpl buildOutput() {
         RaoResultImpl raoResult = new RaoResultImpl(getRaoResultStatus(optimalLeaf));
-        raoResult.setPreOptimVariantId(rootLeaf.getPreOptimVariantId());
-        raoResult.setPostOptimVariantId(optimalLeaf.getBestVariantId());
         return raoResult;
     }
 

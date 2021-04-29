@@ -7,6 +7,7 @@
 package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.EICode;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;

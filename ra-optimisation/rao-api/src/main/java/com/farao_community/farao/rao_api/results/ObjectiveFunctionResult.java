@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_api.results;
 
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 import java.util.List;
 import java.util.Set;

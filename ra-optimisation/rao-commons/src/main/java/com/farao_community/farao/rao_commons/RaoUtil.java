@@ -10,20 +10,23 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
@@ -32,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.*;
 import static java.lang.String.format;
 
 /**
@@ -93,38 +97,47 @@ public final class RaoUtil {
         }
     }
 
-    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoData raoData, boolean withPtdfSensitivitiesForLoopFlows) {
+    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters,
+                                                                                      Set<RangeAction> rangeActions,
+                                                                                      Set<BranchCnec> cnecs,
+                                                                                      boolean withPtdfSensitivitiesForLoopFlows,
+                                                                                      ZonalData<LinearGlsk> glskProvider,
+                                                                                      Set<BranchCnec> loopflowCnecs) {
 
         Set<Unit> flowUnits = new HashSet<>();
         flowUnits.add(Unit.MEGAWATT);
-        if (!raoData.getRaoParameters().getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+        if (raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
             flowUnits.add(Unit.AMPERE);
         }
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
             .builder()
-            .withDefaultParameters(raoData.getRaoParameters().getDefaultSensitivityAnalysisParameters())
-            .withFallbackParameters(raoData.getRaoParameters().getFallbackSensitivityAnalysisParameters())
-            .withRangeActionSensitivities(raoData.getAvailableRangeActions(), raoData.getCnecs(), flowUnits);
+            .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
+            .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
+            .withRangeActionSensitivities(rangeActions, cnecs, flowUnits);
 
         if (withPtdfSensitivitiesForLoopFlows) {
-            builder.withPtdfSensitivities(raoData.getGlskProvider(), raoData.getLoopflowCnecs(), flowUnits);
+            builder.withPtdfSensitivities(glskProvider, loopflowCnecs, flowUnits);
         }
 
         return builder.build();
     }
 
-    public static ObjectiveFunctionEvaluator createObjectiveFunction(RaoData raoData, LinearOptimizerParameters linearOptimizerParameters, double fallbackOverCost) {
-        CnecResults initialCnecResults = raoData.getInitialCnecResults();
-        switch (linearOptimizerParameters.getObjectiveFunction()) {
+    public static ObjectiveFunctionEvaluator createObjectiveFunction(Set<BranchCnec> cnecs,
+                                                                     Set<BranchCnec> loopflowCnecs,
+                                                                     Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW,
+                                                                     CnecResults initialCnecResults,
+                                                                     Set<String> countriesNotToOptimize,
+                                                                     RaoParameters raoParameters) {
+        switch (raoParameters.getObjectiveFunction()) {
             case MAX_MIN_MARGIN_IN_AMPERE:
             case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
-                return new MinMarginObjectiveFunction(raoData.getCnecs(), raoData.getLoopflowCnecs(), raoData.getPrePerimeterMarginsInAbsoluteMW(),
-                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInA(), initialCnecResults.getLoopflowsInMW(), linearOptimizerParameters, fallbackOverCost);
+                return new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
+                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInA(), initialCnecResults.getLoopflowsInMW(), countriesNotToOptimize, raoParameters);
             case MAX_MIN_MARGIN_IN_MEGAWATT:
             case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
-                return new MinMarginObjectiveFunction(raoData.getCnecs(), raoData.getLoopflowCnecs(), raoData.getPrePerimeterMarginsInAbsoluteMW(),
-                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInMW(), initialCnecResults.getLoopflowsInMW(), linearOptimizerParameters, fallbackOverCost);
+                return new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
+                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInMW(), initialCnecResults.getLoopflowsInMW(), countriesNotToOptimize, raoParameters);
             default:
                 throw new NotImplementedException("Not implemented objective function");
         }
@@ -171,6 +184,16 @@ public final class RaoUtil {
             return nominalVoltage * Math.sqrt(3) / 1000;
         } else {
             throw new FaraoException("Only conversions between MW and A are supported.");
+        }
+    }
+
+    public static Set<BranchCnec> computePerimeterCnecs(Crac crac, Set<State> perimeter) {
+        if (perimeter != null) {
+            Set<BranchCnec> cnecs = new HashSet<>();
+            perimeter.forEach(state -> cnecs.addAll(crac.getBranchCnecs(state)));
+            return cnecs;
+        } else {
+            return  crac.getBranchCnecs();
         }
     }
 }

@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.rao_mock.AnotherRaoProviderMock;
 import com.farao_community.farao.rao_api.rao_mock.RaoProviderMock;
 import com.google.common.collect.ImmutableList;
