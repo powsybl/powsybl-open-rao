@@ -125,7 +125,7 @@ public class RaoTool implements Tool {
         //Output
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         OutputStream outputStream = new FileOutputStream(String.valueOf(outputFile));
-        //TODO: Json Exporter for new RaoResult
-        //JsonRaoResult.write(raoResult, outputStream);
+        //todo: uncomment
+        // JsonRaoResult.write(raoResult, outputStream);
     }
 }
