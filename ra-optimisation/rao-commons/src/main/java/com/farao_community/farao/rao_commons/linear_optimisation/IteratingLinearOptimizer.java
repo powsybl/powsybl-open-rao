@@ -52,6 +52,7 @@ public class IteratingLinearOptimizer {
                                              LinearProblem linearProblem,
                                              BranchResult initialBranchResult,
                                              SensitivityResult initialSensitivityResult) {
+        // TODO: Add initialRangeActionResult to ease the initialization and loop
         solveLinearProblem(linearProblem, 0);
         if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
             LOGGER.error(LINEAR_OPTIMIZATION_FAILED, 0);
@@ -94,7 +95,7 @@ public class IteratingLinearOptimizer {
             }
 
             try {
-                 sensi = applyRangeActionsAndRunSensitivityAnalysis(currentRangeActionResult, network, iteration);
+                sensi = applyRangeActionsAndRunSensitivityAnalysis(currentRangeActionResult, network, iteration);
             } catch (SensitivityAnalysisException e) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class ObjectiveFunction {
+public final class ObjectiveFunction {
     private final CostEvaluator functionalCostEvaluator;
     private final List<CostEvaluator> virtualCostEvaluators;
 

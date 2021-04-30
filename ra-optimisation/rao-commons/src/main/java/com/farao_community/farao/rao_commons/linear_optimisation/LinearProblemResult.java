@@ -17,50 +17,64 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearProblemResult implements RangeActionResult {
-    private final Map<RangeAction, Double> results = new HashMap<>();
+    private final Map<RangeAction, Double> setPointVariationPerRangeAction = new HashMap<>();
+    private final Map<RangeAction, Double> setPointPerRangeAction = new HashMap<>();
 
     public LinearProblemResult(LinearProblem linearProblem) {
         if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
             throw new FaraoException("Impossible to define results on non-optimal Linear problem.");
         }
-        linearProblem.getRangeActions().forEach(rangeAction ->
-                results.put(rangeAction, linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue()));
+
+        linearProblem.getRangeActions().forEach(rangeAction -> {
+            setPointPerRangeAction.put(rangeAction, linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue());
+            setPointVariationPerRangeAction.put(rangeAction, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue());
+        });
     }
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
-        return pstRangeAction.computeTapPosition(results.get(pstRangeAction));
+        return pstRangeAction.computeTapPosition(getOptimizedSetPoint(pstRangeAction));
     }
 
     @Override
     public double getOptimizedSetPoint(RangeAction rangeAction) {
-        return results.get(rangeAction);
+        Double setPoint = setPointPerRangeAction.get(rangeAction);
+        if (setPoint != null && !Double.isNaN(setPoint)) {
+            return setPoint;
+        }
+        throw new FaraoException(format("The range action %s is not available in linear problem result", rangeAction.getName()));
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActions() {
-        //TODO : checker par rapport à la variable de variation
-        return results.keySet();
+    public final Set<RangeAction> getActivatedRangeActions() {
+        return setPointVariationPerRangeAction.entrySet().stream()
+                .filter(entry -> entry.getValue() != 0)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
     public final Map<PstRangeAction, Integer> getOptimizedTaps() {
-        return results.keySet().stream()
+        return setPointPerRangeAction.keySet().stream()
                 .filter(rangeAction -> rangeAction instanceof PstRangeAction)
-                .collect(Collectors.toMap(
-                        rangeAction -> (PstRangeAction) rangeAction,
-                        rangeAction -> getOptimizedTap((PstRangeAction) rangeAction)
+                .map(rangeAction -> (PstRangeAction) rangeAction)
+                .collect(Collectors.toUnmodifiableMap(
+                        Function.identity(),
+                        this::getOptimizedTap
                 ));
     }
 
     @Override
     public final Map<RangeAction, Double> getOptimizedSetPoints() {
-        return Collections.unmodifiableMap(results);
+        return Collections.unmodifiableMap(setPointPerRangeAction);
     }
 }
