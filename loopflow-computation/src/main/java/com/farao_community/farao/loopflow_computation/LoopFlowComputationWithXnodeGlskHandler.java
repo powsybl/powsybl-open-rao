@@ -30,6 +30,11 @@ public class LoopFlowComputationWithXnodeGlskHandler extends LoopFlowComputation
         xnodeGlskHandler = new XnodeGlskHandler(glsk, contingencies, network);
     }
 
+    LoopFlowComputationWithXnodeGlskHandler(ZonalData<LinearGlsk> glsk, ReferenceProgram referenceProgram, XnodeGlskHandler xnodeGlskHandler) {
+        super(glsk, referenceProgram);
+        this.xnodeGlskHandler = xnodeGlskHandler;
+    }
+
     @Override
     protected Stream<Map.Entry<EICode, LinearGlsk>> getGlskStream(BranchCnec cnec) {
         return super.getGlskStream(cnec)

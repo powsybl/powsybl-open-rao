@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -57,6 +58,11 @@ public class XnodeGlskHandlerTest {
                 .withMax(1000.0)
                 .add()
             .add();
+        State baseCase = new PreventiveState();
+        Contingency classicContingency = new ComplexContingency("internalBranch", internalBranch);
+        State contingencyClassic = new PostContingencyState(classicContingency, Instant.OUTAGE);
+        Contingency dlContingency = new ComplexContingency("danglingLine", danglingLine);
+        State contingencyDl = new PostContingencyState(dlContingency, Instant.OUTAGE);
 
         FlowCnec cnec2 = crac.newFlowCnec()
             .withId("cnec2")
@@ -83,6 +89,7 @@ public class XnodeGlskHandlerTest {
             .add();
 
         XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glskZonalData, crac.getBranchCnecs(), network);
+        XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glskZonalData, Set.of(classicContingency, dlContingency), network);
 
         assertTrue(xnodeGlskHandler.isLinearGlskValidForCnec(cnec1, glskZonalData.getData("10YNL----------L")));
         assertTrue(xnodeGlskHandler.isLinearGlskValidForCnec(cnec2, glskZonalData.getData("10YNL----------L")));

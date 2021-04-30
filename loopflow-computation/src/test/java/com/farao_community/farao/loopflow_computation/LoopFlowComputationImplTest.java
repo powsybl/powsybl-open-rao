@@ -11,7 +11,6 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +22,7 @@ import static junit.framework.TestCase.assertEquals;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LoopFlowComputationTest {
+public class LoopFlowComputationImplTest {
 
     private static final double DOUBLE_TOLERANCE = 0.1;
     private Crac crac;
@@ -42,13 +41,12 @@ public class LoopFlowComputationTest {
 
     @Test
     public void calculateLoopFlowTest() {
-        Network network = ExampleGenerator.network();
         ZonalData<LinearGlsk> glsk = ExampleGenerator.glskProvider();
         ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(crac, glsk);
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(glsk, referenceProgram);
-        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(network, ptdfsAndFlows, crac.getBranchCnecs());
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
+        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getBranchCnecs());
 
         assertEquals(-50., loopFlowResult.getLoopFlow(crac.getBranchCnec("FR-BE1")), DOUBLE_TOLERANCE);
         assertEquals(200., loopFlowResult.getLoopFlow(crac.getBranchCnec("BE1-BE2")), DOUBLE_TOLERANCE);
