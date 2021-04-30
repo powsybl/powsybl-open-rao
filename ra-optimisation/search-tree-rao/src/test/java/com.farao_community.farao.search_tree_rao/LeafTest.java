@@ -25,7 +25,7 @@ import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerOutput;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;

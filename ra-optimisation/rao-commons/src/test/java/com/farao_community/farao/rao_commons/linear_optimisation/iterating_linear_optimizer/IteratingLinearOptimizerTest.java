@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;

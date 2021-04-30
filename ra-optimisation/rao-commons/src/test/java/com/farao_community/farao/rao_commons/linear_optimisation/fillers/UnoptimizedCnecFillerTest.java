@@ -15,8 +15,7 @@ import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.farao_community.farao.rao_api.parameters.MaxMinRelativeMarginParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.UnoptimizedCnecParameters;
-import com.farao_community.farao.rao_commons.result.BranchResultImpl;
+import com.farao_community.farao.rao_api.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -28,7 +27,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;

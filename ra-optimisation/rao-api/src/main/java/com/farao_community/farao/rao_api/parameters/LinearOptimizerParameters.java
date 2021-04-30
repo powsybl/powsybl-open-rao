@@ -5,12 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_commons.linear_optimisation;
+package com.farao_community.farao.rao_api.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_api.parameters.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

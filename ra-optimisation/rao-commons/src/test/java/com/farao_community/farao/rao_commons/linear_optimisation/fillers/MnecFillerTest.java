@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_api.results.BranchResult;
-import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.MnecParameters;
@@ -29,7 +28,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;

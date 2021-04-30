@@ -6,7 +6,9 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.OptimizationState;
 import com.farao_community.farao.rao_api.results.PerimeterResult;
 import com.farao_community.farao.rao_api.results.RaoResult;
+import com.powsybl.commons.extensions.Extension;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -201,5 +203,30 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
         } else {
             return postCurativeResults.get(state).getOptimizedSetPoints();
         }
+    }
+
+    @Override
+    public void addExtension(Class aClass, Extension extension) {
+
+    }
+
+    @Override
+    public Extension getExtension(Class aClass) {
+        return null;
+    }
+
+    @Override
+    public Extension getExtensionByName(String s) {
+        return null;
+    }
+
+    @Override
+    public boolean removeExtension(Class aClass) {
+        return false;
+    }
+
+    @Override
+    public Collection getExtensions() {
+        return null;
     }
 }
