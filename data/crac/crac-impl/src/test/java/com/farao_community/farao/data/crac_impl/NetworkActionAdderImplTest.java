@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
@@ -46,7 +45,6 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .newFreeToUseUsageRule()
@@ -71,12 +69,10 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .newPstSetPoint()
                 .withNetworkElement("anotherPstNetworkElementId")
-                .withTapConvention(TapConvention.STARTS_AT_ONE)
                 .withSetpoint(4)
                 .add()
             .add();
@@ -97,7 +93,6 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .newFreeToUseUsageRule()
@@ -126,7 +121,6 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .add();
@@ -145,7 +139,6 @@ public class NetworkActionAdderImplTest {
             .withName("networkActionName")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .add();
@@ -163,7 +156,6 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .add();

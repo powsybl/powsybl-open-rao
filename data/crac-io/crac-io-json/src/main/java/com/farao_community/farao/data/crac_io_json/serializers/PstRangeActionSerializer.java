@@ -36,6 +36,8 @@ public class PstRangeActionSerializer extends AbstractJsonSerializer<PstRangeAct
         if (groupId.isPresent()) {
             gen.writeStringField(GROUP_ID, groupId.get());
         }
+        gen.writeNumberField(INITIAL_TAP, value.getInitialTap());
+        gen.writeObjectField(TAP_TO_ANGLE_CONVERSION_MAP, value.getTapToAngleConversionMap());
         serializeRanges(value, gen);
 
         JsonUtil.writeExtensions(value, gen, serializers, ExtensionsHandler.getExtensionsSerializers());

@@ -8,13 +8,10 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.TapRangeAdder;
-
-import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -25,7 +22,6 @@ public class TapRangeAdderImpl implements TapRangeAdder {
     private Integer minTap;
     private Integer maxTap;
     private RangeType rangeType;
-    private TapConvention tapConvention;
     private static final String CLASS_NAME = "TapRange";
 
     private PstRangeActionAdderImpl ownerAdder;
@@ -55,34 +51,16 @@ public class TapRangeAdderImpl implements TapRangeAdder {
     }
 
     @Override
-    public TapRangeAdder withTapConvention(TapConvention rangeDefinition) {
-        this.tapConvention = rangeDefinition;
-        return this;
-    }
-
-    @Override
     public PstRangeActionAdder add() {
         AdderUtils.assertAttributeNotNull(minTap, CLASS_NAME, "min value", "withMin()");
         AdderUtils.assertAttributeNotNull(maxTap, CLASS_NAME, "max value", "withMax()");
         AdderUtils.assertAttributeNotNull(rangeType, CLASS_NAME, "range type", "withRangeType()");
 
-        if (rangeType.equals(RangeType.ABSOLUTE) && Objects.isNull(tapConvention)) {
-            throw new FaraoException("A tapRange with RangeType ABSOLUTE must contain a tap convention");
-        }
-
         if (maxTap < minTap) {
             throw new FaraoException("Max tap of TapRange must be equal or greater than min tap.");
         }
 
-        if (minTap != Integer.MIN_VALUE && rangeType.equals(RangeType.ABSOLUTE) && tapConvention.equals(TapConvention.STARTS_AT_ONE) && minTap < 1) {
-            throw new FaraoException("TapRange with STARTS_AT_ONE must have a min tap higher than 1");
-        }
-
-        if (rangeType.equals(RangeType.ABSOLUTE) && tapConvention.equals(TapConvention.STARTS_AT_ONE) &&  maxTap < 1) {
-            throw new FaraoException("TapRange with STARTS_AT_ONE must have a max tap higher than 1");
-        }
-
-        TapRange pstRange = new TapRangeImpl(minTap, maxTap, rangeType, tapConvention);
+        TapRange pstRange = new TapRangeImpl(minTap, maxTap, rangeType);
 
         ownerAdder.addRange(pstRange);
         return ownerAdder;

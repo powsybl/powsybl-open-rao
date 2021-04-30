@@ -108,8 +108,8 @@ public class CoreProblemFiller implements ProblemFiller {
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
     private void buildRangeActionSetPointVariables(Network network, RangeAction rangeAction, double prePerimeterValue) {
-        double minSetPoint = rangeAction.getMinValue(prePerimeterValue);
-        double maxSetPoint = rangeAction.getMaxValue(prePerimeterValue);
+        double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterValue);
+        double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterValue);
         linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
     }
 
@@ -198,7 +198,7 @@ public class CoreProblemFiller implements ProblemFiller {
         double sensitivity = sensitivityResult.getSensitivityOnFlow(rangeAction, cnec);
 
         if (Math.abs(sensitivity) >= pstSensitivityThreshold) {
-            double currentSetPoint = rangeAction.getCurrentValue(network);
+            double currentSetPoint = rangeAction.getCurrentSetpoint(network);
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
             flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentSetPoint);

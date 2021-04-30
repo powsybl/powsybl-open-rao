@@ -43,6 +43,16 @@
       "id": "PRA_PST_BE",
       "name": "PRA_PST_BE",
       "operator": "BE",
+      "initialTap": 0,
+      "tapToAngleConversionMap" : {
+        "-3" : 0.0,
+        "-2" : 0.5,
+        "-1" : 1.0,
+        "0" : 1.5,
+        "1" : 2.0,
+        "2" : 2.5,
+        "3" : 3.0
+      },
       "freeToUseUsageRules": [
         {
           "usageMethod": "available",
@@ -51,10 +61,9 @@
       ],
       "ranges": [
         {
-          "min": 1,
-          "max": 33,
-          "rangeType": "absolute",
-          "tapConvention": "startsAtOne"
+          "min": -16,
+          "max": 16,
+          "rangeType": "absolute"
         }
       ],
       "networkElementId": "BBE2AA1  BBE3AA1  1"

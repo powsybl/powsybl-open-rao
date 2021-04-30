@@ -55,13 +55,27 @@ public class BestTapFinderTest {
 
     @Test
     public void testComputeBestTapPerPstGroup() {
-        PstRangeAction pst1 = crac.newPstRangeAction().withId("pst1").withNetworkElement("ne1").add();
-        PstRangeAction pst2 = crac.newPstRangeAction().withId("pst2").withNetworkElement("ne2").withGroupId("group1").add();
-        PstRangeAction pst3 = crac.newPstRangeAction().withId("pst3").withNetworkElement("ne3").withGroupId("group1").add();
-        PstRangeAction pst4 = crac.newPstRangeAction().withId("pst4").withNetworkElement("ne4").withGroupId("group2").add();
-        PstRangeAction pst5 = crac.newPstRangeAction().withId("pst5").withNetworkElement("ne5").withGroupId("group2").add();
-        PstRangeAction pst6 = crac.newPstRangeAction().withId("pst6").withNetworkElement("ne6").withGroupId("group2").add();
-        PstRangeAction pst7 = crac.newPstRangeAction().withId("pst7").withNetworkElement("ne7").withGroupId("group2").add();
+        PstRangeAction pst1 = crac.newPstRangeAction().withId("pst1").withNetworkElement("ne1")
+                .withInitialTap(1).withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
+                .add();
+        PstRangeAction pst2 = crac.newPstRangeAction().withId("pst2").withNetworkElement("ne2").withGroupId("group1")
+                .withInitialTap(1).withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
+                .add();
+        PstRangeAction pst3 = crac.newPstRangeAction().withId("pst3").withNetworkElement("ne3").withGroupId("group1")
+                .withInitialTap(1).withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
+                .add();
+        PstRangeAction pst4 = crac.newPstRangeAction().withId("pst4").withNetworkElement("ne4").withGroupId("group2")
+                .withInitialTap(1).withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
+                .add();
+        PstRangeAction pst5 = crac.newPstRangeAction().withId("pst5").withNetworkElement("ne5").withGroupId("group2")
+                .withInitialTap(1).withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
+                .add();
+        PstRangeAction pst6 = crac.newPstRangeAction().withId("pst6").withNetworkElement("ne6").withGroupId("group2")
+                .withInitialTap(1).withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
+                .add();
+        PstRangeAction pst7 = crac.newPstRangeAction().withId("pst7").withNetworkElement("ne7").withGroupId("group2")
+                .withInitialTap(1).withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
+                .add();
 
         Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
         minMarginPerTap.put(pst1, Map.of(3, 100., 4, 500.));

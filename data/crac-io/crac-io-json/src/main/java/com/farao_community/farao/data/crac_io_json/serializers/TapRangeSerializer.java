@@ -29,7 +29,6 @@ public class TapRangeSerializer extends AbstractJsonSerializer<TapRange> {
             gen.writeNumberField(MAX, value.getMaxTap());
         }
         gen.writeStringField(RANGE_TYPE, serializeRangeType(value.getRangeType()));
-        gen.writeStringField(TAP_CONVENTION, serializeTapConvention(value.getTapConvention()));
         gen.writeEndObject();
     }
 }

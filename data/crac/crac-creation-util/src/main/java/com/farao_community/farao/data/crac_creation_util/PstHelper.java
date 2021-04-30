@@ -20,6 +20,10 @@ import java.util.Objects;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PstHelper {
+    public enum TapConvention {
+        CENTERED_ON_ZERO, // Taps from -x to x
+        STARTS_AT_ONE // Taps from 1 to y
+    }
 
     private String pstId;
 
@@ -88,5 +92,13 @@ public class PstHelper {
     private void invalidate(String reason) {
         this.isPstValid = false;
         this.invalidPstReason = reason;
+    }
+
+    public int normalizeTap(int originalTap, TapConvention originalTapConvention) {
+        if (originalTapConvention.equals(TapConvention.CENTERED_ON_ZERO)) {
+            return originalTap; // TODO : add (min + max) / 2 like before ?
+        } else {
+            return lowTapPosition + originalTap - 1;
+        }
     }
 }

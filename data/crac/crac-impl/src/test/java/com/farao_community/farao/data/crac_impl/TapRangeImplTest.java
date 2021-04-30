@@ -9,7 +9,6 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +31,8 @@ public class TapRangeImplTest {
 
     @Before
     public void setUp() {
-        relativeFixedRange = new TapRangeImpl(relMin, relMax, RangeType.RELATIVE_TO_INITIAL_NETWORK, TapConvention.CENTERED_ON_ZERO);
-        absoluteFixedRange = new TapRangeImpl(absMin, absMax, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
+        relativeFixedRange = new TapRangeImpl(relMin, relMax, RangeType.RELATIVE_TO_INITIAL_NETWORK);
+        absoluteFixedRange = new TapRangeImpl(absMin, absMax, RangeType.ABSOLUTE);
     }
 
     @Test
@@ -55,37 +54,26 @@ public class TapRangeImplTest {
     }
 
     @Test
-    public void getTapConventionTest() {
-        assertEquals(TapConvention.CENTERED_ON_ZERO, relativeFixedRange.getTapConvention());
-        assertEquals(TapConvention.STARTS_AT_ONE, absoluteFixedRange.getTapConvention());
-    }
-
-    @Test
     public void testEquals() {
-        TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
-        TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
-        TapRangeImpl range3 = new TapRangeImpl(0, 11, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
-        TapRangeImpl range4 = new TapRangeImpl(0, 10, RangeType.RELATIVE_TO_INITIAL_NETWORK, TapConvention.STARTS_AT_ONE);
-        TapRangeImpl range5 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.CENTERED_ON_ZERO);
+        TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
+        TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
+        TapRangeImpl range3 = new TapRangeImpl(0, 11, RangeType.ABSOLUTE);
+        TapRangeImpl range4 = new TapRangeImpl(0, 10, RangeType.RELATIVE_TO_INITIAL_NETWORK);
 
         assertEquals(range1, range2);
         assertNotEquals(range1, range3);
         assertNotEquals(range1, range4);
-        assertNotEquals(range1, range5);
-
     }
 
     @Test
     public void testHashCode() {
-        TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
-        TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
-        TapRangeImpl range3 = new TapRangeImpl(0, 11, RangeType.ABSOLUTE, TapConvention.STARTS_AT_ONE);
-        TapRangeImpl range4 = new TapRangeImpl(0, 10, RangeType.RELATIVE_TO_INITIAL_NETWORK, TapConvention.STARTS_AT_ONE);
-        TapRangeImpl range5 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE, TapConvention.CENTERED_ON_ZERO);
+        TapRangeImpl range1 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
+        TapRangeImpl range2 = new TapRangeImpl(0, 10, RangeType.ABSOLUTE);
+        TapRangeImpl range3 = new TapRangeImpl(0, 11, RangeType.ABSOLUTE);
+        TapRangeImpl range4 = new TapRangeImpl(0, 10, RangeType.RELATIVE_TO_INITIAL_NETWORK);
 
         assertEquals(range1.hashCode(), range2.hashCode());
         assertNotEquals(range1.hashCode(), range3.hashCode());
         assertNotEquals(range1.hashCode(), range4.hashCode());
-        assertNotEquals(range1.hashCode(), range5.hashCode());
     }
 }

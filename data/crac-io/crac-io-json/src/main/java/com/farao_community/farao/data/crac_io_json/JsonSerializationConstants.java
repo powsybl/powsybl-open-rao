@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -67,7 +66,8 @@ public final class JsonSerializationConstants {
     public static final String OPERATOR = "operator";
     public static final String ACTION_TYPE = "actionType";
     public static final String RANGE_TYPE = "rangeType";
-    public static final String TAP_CONVENTION = "tapConvention";
+    public static final String INITIAL_TAP = "initialTap";
+    public static final String TAP_TO_ANGLE_CONVERSION_MAP = "tapToAngleConversionMap";
 
     public static final String UNIT = "unit";
     public static final String RULE = "rule";
@@ -106,10 +106,6 @@ public final class JsonSerializationConstants {
     public static final String ABSOLUTE_RANGE = "absolute";
     public static final String RELATIVE_TO_PREVIOUS_INSTANT_RANGE = "relativeToPreviousInstant";
     public static final String RELATIVE_TO_INITIAL_NETWORK_RANGE = "relativeToInitialNetwork";
-
-    // tap conventions
-    public static final String CENTERED_ON_ZERO_CONVENTION = "centeredOnZero";
-    public static final String STARTS_AT_ONE_CONVENTION = "startsAtOne";
 
     // action types
     public static final String OPEN_ACTION = "open";
@@ -274,28 +270,6 @@ public final class JsonSerializationConstants {
                 return RangeType.RELATIVE_TO_INITIAL_NETWORK;
             default:
                 throw new FaraoException(String.format("Unrecognized range type %s", stringValue));
-        }
-    }
-
-    public static String serializeTapConvention(TapConvention tapConvention) {
-        switch (tapConvention) {
-            case CENTERED_ON_ZERO:
-                return CENTERED_ON_ZERO_CONVENTION;
-            case STARTS_AT_ONE:
-                return STARTS_AT_ONE_CONVENTION;
-            default:
-                throw new FaraoException(String.format("Unsupported tap convention %s", tapConvention));
-        }
-    }
-
-    public static TapConvention deserializeTapConvention(String stringValue) {
-        switch (stringValue) {
-            case CENTERED_ON_ZERO_CONVENTION:
-                return TapConvention.CENTERED_ON_ZERO;
-            case STARTS_AT_ONE_CONVENTION:
-                return TapConvention.STARTS_AT_ONE;
-            default:
-                throw new FaraoException(String.format("Unrecognized tap convention %s", stringValue));
         }
     }
 

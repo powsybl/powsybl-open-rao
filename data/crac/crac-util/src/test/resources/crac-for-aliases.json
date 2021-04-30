@@ -238,6 +238,16 @@
     "id" : "PST1",
     "name" : "PST1",
     "operator" : "FR",
+    "initialTap": 0,
+    "tapToAngleConversionMap" : {
+      "-3" : 0.0,
+      "-2" : 0.5,
+      "-1" : 1.0,
+      "0" : 1.5,
+      "1" : 2.0,
+      "2" : 2.5,
+      "3" : 3.0
+    },
     "freeToUseUsageRules" : [ {
       "usageMethod" : "available",
       "instant" : "preventive"
@@ -246,8 +256,7 @@
     "ranges" : [ {
       "min" : 1.0,
       "max" : 33.0,
-      "rangeType" : "absolute",
-      "tapConvention" : "startsAtOne"
+      "rangeType" : "absolute"
     } ],
     "extensions" : {
       "RangeActionResultExtension" : {

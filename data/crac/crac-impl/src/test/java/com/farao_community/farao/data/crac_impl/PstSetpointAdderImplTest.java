@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
@@ -41,14 +40,12 @@ public class PstSetpointAdderImplTest {
         NetworkAction networkAction = networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId")
             .withSetpoint(0)
-            .withTapConvention(TapConvention.STARTS_AT_ONE)
             .add()
             .add();
 
         PstSetpoint pstSetpoint = (PstSetpoint) networkAction.getElementaryActions().iterator().next();
         assertEquals("pstNetworkElementId", pstSetpoint.getNetworkElement().getId());
         assertEquals(0, pstSetpoint.getSetpoint(), 1e-3);
-        assertEquals(TapConvention.STARTS_AT_ONE, pstSetpoint.getTapConvention());
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement("pstNetworkElementId"));
     }
@@ -57,7 +54,6 @@ public class PstSetpointAdderImplTest {
     public void testNoNetworkElement() {
         networkActionAdder.newPstSetPoint()
             .withSetpoint(0)
-            .withTapConvention(TapConvention.STARTS_AT_ONE)
             .add()
             .add();
     }
@@ -66,16 +62,6 @@ public class PstSetpointAdderImplTest {
     public void testNoSetpoint() {
         networkActionAdder.newPstSetPoint()
             .withNetworkElement("pstNetworkElementId")
-            .withTapConvention(TapConvention.STARTS_AT_ONE)
-            .add()
-            .add();
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testNoRangeDefinition() {
-        networkActionAdder.newPstSetPoint()
-            .withNetworkElement("pstNetworkElementId")
-            .withSetpoint(0)
             .add()
             .add();
     }

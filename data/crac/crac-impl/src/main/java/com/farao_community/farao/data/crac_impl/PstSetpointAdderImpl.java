@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpointAdder;
 
@@ -22,7 +21,6 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
     private String networkElementId;
     private String networkElementName;
     private Integer setpoint;
-    private TapConvention rangeDefinition;
     private static final String CLASS_NAME = "PstSetPoint";
 
     PstSetpointAdderImpl(NetworkActionAdderImpl ownerAdder) {
@@ -49,19 +47,12 @@ public class PstSetpointAdderImpl implements PstSetpointAdder {
     }
 
     @Override
-    public PstSetpointAdder withTapConvention(TapConvention rangeDefinition) {
-        this.rangeDefinition = rangeDefinition;
-        return this;
-    }
-
-    @Override
     public NetworkActionAdder add() {
         assertAttributeNotNull(networkElementId, CLASS_NAME, "network element", "withNetworkElement()");
         assertAttributeNotNull(setpoint, CLASS_NAME, "setpoint", "withSetPoint()");
-        assertAttributeNotNull(rangeDefinition, CLASS_NAME, "range definition", "withTapConvention()");
 
         NetworkElement networkElement = this.ownerAdder.getCrac().addNetworkElement(networkElementId, networkElementName);
-        PstSetpointImpl pstSetpoint = new PstSetpointImpl(networkElement, setpoint, rangeDefinition);
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(networkElement, setpoint);
         ownerAdder.addElementaryAction(pstSetpoint);
         return ownerAdder;
     }

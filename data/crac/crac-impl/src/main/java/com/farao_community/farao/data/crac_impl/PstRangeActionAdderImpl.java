@@ -139,10 +139,10 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     private void checkTapToAngleConversionMap() {
 
         if (tapToAngleConversionMap.size() < 2) {
-            throw new FaraoException("TapToAngleConversionMap of PST %s should at least contain 2 entries.");
+            throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should at least contain 2 entries.", id));
         }
         if (tapToAngleConversionMap.keySet().stream().anyMatch(Objects::isNull) || tapToAngleConversionMap.values().stream().anyMatch(Objects::isNull)) {
-            throw new FaraoException("TapToAngleConversionMap of PST %s cannot contain null values");
+            throw new FaraoException(String.format("TapToAngleConversionMap of PST %s cannot contain null values", id));
         }
 
         int minTap = Collections.min(tapToAngleConversionMap.keySet());

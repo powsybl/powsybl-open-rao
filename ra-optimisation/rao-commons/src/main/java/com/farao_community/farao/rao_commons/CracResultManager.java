@@ -41,7 +41,7 @@ public class CracResultManager {
     public void fillRangeActionResultsWithNetworkValues() {
         Set<State> statesAfterOptimizedState = getStatesAfter(raoData.getOptimizedState());
         for (RangeAction rangeAction : raoData.getCrac().getRangeActions()) {
-            double setPointValueInNetwork = rangeAction.getCurrentValue(raoData.getNetwork());
+            double setPointValueInNetwork = rangeAction.getCurrentSetpoint(raoData.getNetwork());
             RangeActionResultExtension rangeActionResultMap = rangeAction.getExtension(RangeActionResultExtension.class);
             RangeActionResult rangeActionResult = rangeActionResultMap.getVariant(raoData.getWorkingVariantId());
             statesAfterOptimizedState.forEach(state -> rangeActionResult.setSetPoint(state.getId(), setPointValueInNetwork));

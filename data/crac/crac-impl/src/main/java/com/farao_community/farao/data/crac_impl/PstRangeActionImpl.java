@@ -184,23 +184,19 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
     }
 
     private int getRangeMinTapAsAbsoluteCenteredOnZero(TapRange range, int previousInstantTap) {
-        return convertTapToAbsoluteCenteredOnZero(range.getMinTap(), range.getRangeType(), range.getTapConvention(), previousInstantTap);
+        return convertTapToAbsoluteCenteredOnZero(range.getMinTap(), range.getRangeType(), previousInstantTap);
 
     }
 
     private int getRangeMaxTapAsAbsoluteCenteredOnZero(TapRange range, int previousInstantTap) {
-        return convertTapToAbsoluteCenteredOnZero(range.getMaxTap(), range.getRangeType(), range.getTapConvention(), previousInstantTap);
+        return convertTapToAbsoluteCenteredOnZero(range.getMaxTap(), range.getRangeType(), previousInstantTap);
     }
 
-    private int convertTapToAbsoluteCenteredOnZero(int tap, RangeType initialRangeType, TapConvention initialTapConvention, int prePerimeterTapPosition) {
+    private int convertTapToAbsoluteCenteredOnZero(int tap, RangeType initialRangeType, int prePerimeterTapPosition) {
 
         switch (initialRangeType) {
             case ABSOLUTE:
-                if (initialTapConvention.equals(TapConvention.STARTS_AT_ONE)) {
-                    return lowTapPosition + tap - 1;
-                } else {
-                    return tap;
-                }
+                return tap;
             case RELATIVE_TO_INITIAL_NETWORK:
                 return initialTapPosition + tap;
             case RELATIVE_TO_PREVIOUS_INSTANT:

@@ -38,9 +38,6 @@ public final class TapRangeArrayDeserializer {
                     case RANGE_TYPE:
                         adder.withRangeType(deserializeRangeType(jsonParser.nextTextValue()));
                         break;
-                    case TAP_CONVENTION:
-                        adder.withTapConvention(deserializeTapConvention(jsonParser.nextTextValue()));
-                        break;
                     default:
                         throw new FaraoException("Unexpected field in TapRange: " + jsonParser.getCurrentName());
                 }

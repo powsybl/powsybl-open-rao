@@ -2,11 +2,13 @@
   "type": "simple-crac",
   "id": "LS_unsecure",
   "name": "LS_unsecure",
-  "networkElementsNamePerId": { },
+  "networkElementsNamePerId": {},
   "contingencies": [
     {
       "id": "N-1 NL1-NL3",
-      "networkElementsIds": [ "NNL1AA1  NNL2AA1  1" ]
+      "networkElementsIds": [
+        "NNL1AA1  NNL2AA1  1"
+      ]
     }
   ],
   "flowCnecs": [
@@ -14,27 +16,29 @@
       "id": "Tieline BE FR - Défaut - N-1 NL1-NL3",
       "name": "Tieline BE FR",
       "networkElementId": "BBE2AA1  FFR3AA1  1",
-      "thresholds": [ {
-        "unit": "megawatt",
-        "min": -750,
-        "max": 750,
-        "rule" : "onLeftSide"
-      }],
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -750,
+          "max": 750,
+          "rule": "onLeftSide"
+        }
+      ],
       "contingencyId": "N-1 NL1-NL3",
       "instant": "outage",
-      "extensions" : {
-        "CnecResultExtension" : {
-          "resultsPerVariant" : {
-            "variant2" : {
-              "type" : "cnec-result",
-              "flowInA" : 750.0,
-              "flowInMW" : -450.0,
-              "absolutePtdfSum" : 0.85
+      "extensions": {
+        "CnecResultExtension": {
+          "resultsPerVariant": {
+            "variant2": {
+              "type": "cnec-result",
+              "flowInA": 750.0,
+              "flowInMW": -450.0,
+              "absolutePtdfSum": 0.85
             },
-            "variant1" : {
-              "type" : "cnec-result",
-              "flowInA" : NaN,
-              "flowInMW" : NaN
+            "variant1": {
+              "type": "cnec-result",
+              "flowInA": NaN,
+              "flowInMW": NaN
             }
           }
         }
@@ -44,19 +48,32 @@
       "id": "Tieline BE FR - N - preventive",
       "name": "Tieline BE FR",
       "networkElementId": "BBE2AA1  FFR3AA1  1",
-      "thresholds": [{
-        "unit": "megawatt",
-        "min": -750,
-        "max": 750,
-        "rule" : "onLeftSide"
-      }],
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -750,
+          "max": 750,
+          "rule": "onLeftSide"
+        }
+      ],
       "instant": "preventive"
     }
   ],
-  "pstRangeActions": [ {
+  "pstRangeActions": [
+    {
       "id": "PRA_PST_BE",
       "name": "PRA_PST_BE",
       "operator": "BE",
+      "initialTap": 0,
+      "tapToAngleConversionMap": {
+        "-3": 0.0,
+        "-2": 0.5,
+        "-1": 1.0,
+        "0": 1.5,
+        "1": 2.0,
+        "2": 2.5,
+        "3": 3.0
+      },
       "freeToUseUsageRules": [
         {
           "usageMethod": "available",
@@ -65,26 +82,29 @@
       ],
       "ranges": [
         {
-          "min": 1,
-          "max": 33,
-          "rangeType": "absolute",
-          "tapConvention": "startsAtOne"
+          "min": -16,
+          "max": 16,
+          "rangeType": "absolute"
         }
       ],
       "networkElementId": "BBE2AA1  BBE3AA1  1"
-    } ],
+    }
+  ],
   "networkActions": [],
   "extensions": {
-    "ResultVariantManager" : {
-      "variantIds" : [ "variant2", "variant1" ]
+    "ResultVariantManager": {
+      "variantIds": [
+        "variant2",
+        "variant1"
+      ]
     },
     "CracResultExtension": {
-      "resultsPerVariant" : {
-        "variant1" : {
-          "type" : "crac-result",
-          "networkSecurityStatus" : "UNSECURED",
-          "functionalCost" : 10.0,
-          "virtualCost" : 5.0
+      "resultsPerVariant": {
+        "variant1": {
+          "type": "crac-result",
+          "networkSecurityStatus": "UNSECURED",
+          "functionalCost": 10.0,
+          "virtualCost": 5.0
         }
       }
     }

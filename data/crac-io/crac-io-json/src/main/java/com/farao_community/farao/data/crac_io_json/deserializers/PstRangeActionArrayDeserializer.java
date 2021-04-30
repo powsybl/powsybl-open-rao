@@ -14,12 +14,14 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +71,14 @@ public final class PstRangeActionArrayDeserializer {
                     case GROUP_ID:
                         adder.withGroupId(jsonParser.nextTextValue());
                         break;
+                    case INITIAL_TAP:
+                        jsonParser.nextToken();
+                        adder.withInitialTap(jsonParser.getIntValue());
+                        break;
+                    case TAP_TO_ANGLE_CONVERSION_MAP:
+                        jsonParser.nextToken();
+                        adder.withTapToAngleConversionMap(readIntToDoubleMap(jsonParser));
+                        break;
                     case RANGES:
                         jsonParser.nextToken();
                         TapRangeArrayDeserializer.deserialize(jsonParser, adder);
@@ -86,5 +96,17 @@ public final class PstRangeActionArrayDeserializer {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(pstRangeAction, extensions);
             }
         }
+    }
+
+    private static Map<Integer, Double> readIntToDoubleMap(JsonParser jsonParser) throws IOException {
+        HashMap<Integer, Double> map = jsonParser.readValueAs(new TypeReference<Map<Integer, Double>>() {
+        });
+        // Check types
+        map.forEach((Object o, Object o2) -> {
+            if (!(o instanceof Integer) || !(o2 instanceof Double)) {
+                throw new FaraoException("Unexpected key or value type in a Map<Integer, Double> parameter!");
+            }
+        });
+        return map;
     }
 }

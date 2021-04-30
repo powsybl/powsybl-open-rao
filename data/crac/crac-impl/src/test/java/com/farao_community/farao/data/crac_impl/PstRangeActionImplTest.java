@@ -98,22 +98,9 @@ public class PstRangeActionImplTest {
     }
 
     @Test
-    public void pstWithAbsoluteStartOneRange() {
-
-        PstRangeAction pstRa = pstRangeActionAdder
-            .newTapRange().withMinTap(3).withMaxTap(13).withRangeType(RangeType.ABSOLUTE).withTapConvention(TapConvention.STARTS_AT_ONE).add()
-            .add();
-
-        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 2).getAlpha(), pstRa.getMinAdmissibleSetpoint(0), 0);
-        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 12).getAlpha(), pstRa.getMaxAdmissibleSetpoint(0), 0);
-        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 2).getAlpha(), pstRa.getMinAdmissibleSetpoint(5), 0);
-        assertEquals(phaseTapChanger.getStep(phaseTapChanger.getLowTapPosition() + 12).getAlpha(), pstRa.getMaxAdmissibleSetpoint(5), 0);
-    }
-
-    @Test
     public void pstWithAbsoluteCenteredZeroRange() {
         PstRangeAction pstRa = pstRangeActionAdder
-            .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.ABSOLUTE).withTapConvention(TapConvention.CENTERED_ON_ZERO).add()
+            .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.ABSOLUTE).add()
             .add();
 
         int neutralTap = (phaseTapChanger.getHighTapPosition() + phaseTapChanger.getLowTapPosition()) / 2;
@@ -129,7 +116,7 @@ public class PstRangeActionImplTest {
 
         PstRangeAction pstRa = pstRangeActionAdder
             .newFreeToUseUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).withTapConvention(TapConvention.CENTERED_ON_ZERO).add()
+            .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
             .add();
 
         int initialTapPosition = phaseTapChanger.getTapPosition();
@@ -150,7 +137,7 @@ public class PstRangeActionImplTest {
     public void pstWithRelativeToInitialNetworkRange() {
 
         PstRangeAction pstRa = pstRangeActionAdder
-            .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withTapConvention(TapConvention.CENTERED_ON_ZERO).add()
+            .newTapRange().withMinTap(-3).withMaxTap(3).withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).add()
             .add();
 
         int initialTapPosition = phaseTapChanger.getTapPosition();
@@ -187,7 +174,7 @@ public class PstRangeActionImplTest {
     public void handleDecreasingAnglesMinMax() {
         // First test case where deltaU is negative
         PstRangeAction pstRa1 = pstRangeActionAdder
-            .newTapRange().withMinTap(-10).withMaxTap(10).withRangeType(RangeType.ABSOLUTE).withTapConvention(TapConvention.CENTERED_ON_ZERO).add()
+            .newTapRange().withMinTap(-10).withMaxTap(10).withRangeType(RangeType.ABSOLUTE).add()
             .add();
 
         assertTrue(pstRa1.getMinAdmissibleSetpoint(0) <= pstRa1.getMaxAdmissibleSetpoint(0));
@@ -203,7 +190,7 @@ public class PstRangeActionImplTest {
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator")
             .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newTapRange().withMinTap(-10).withMaxTap(10).withRangeType(RangeType.ABSOLUTE).withTapConvention(TapConvention.CENTERED_ON_ZERO).add()
+            .newTapRange().withMinTap(-10).withMaxTap(10).withRangeType(RangeType.ABSOLUTE).add()
             .withTapToAngleConversionMap(tapToAngleConversionMap2)
             .withInitialTap(0)
             .add();

@@ -197,7 +197,7 @@ public class IteratingLinearOptimizerTest {
         assertNotNull(iteratingLinearOptimizerOutput);
         assertEquals(LinearProblem.SolveStatus.INFEASIBLE, iteratingLinearOptimizerOutput.getSolveStatus());
         assertEquals(100., iteratingLinearOptimizerOutput.getCost(), DOUBLE_TOLERANCE);
-        assertEquals(0., iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
+        assertEquals(1.5, iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
     }
 
     /*@Test

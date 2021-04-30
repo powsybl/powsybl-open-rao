@@ -15,6 +15,8 @@ import com.farao_community.farao.data.crac_impl.CracImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -100,6 +102,8 @@ public class PerimetersTest {
         crac.newPstRangeAction()
                 .withId("pst-ra")
                 .withNetworkElement("pst1")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         stateTree = new StateTree(crac, crac.getPreventiveState());
@@ -113,11 +117,15 @@ public class PerimetersTest {
         crac.newPstRangeAction()
                 .withId("pst-ra-1")
                 .withNetworkElement("pst1")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         crac.newPstRangeAction()
                 .withId("pst-ra-2")
                 .withNetworkElement("pst2")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         stateTree = new StateTree(crac, crac.getPreventiveState());
@@ -130,11 +138,15 @@ public class PerimetersTest {
         crac.newPstRangeAction()
                 .withId("pst-ra-1")
                 .withNetworkElement("pst1")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         crac.newPstRangeAction()
                 .withId("pst-ra-2")
                 .withNetworkElement("pst2")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         stateTree = new StateTree(crac, crac.getPreventiveState());
