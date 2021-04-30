@@ -20,7 +20,6 @@ import com.farao_community.farao.rao_commons.adapter.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.*;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionResultImpl;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.farao_community.farao.rao_commons.result.SensitivityResultImpl;
