@@ -18,13 +18,20 @@ import java.util.Set;
  */
 public class RelativeMinMarginEvaluator extends AbstractMinMarginEvaluator {
 
-    public RelativeMinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit) {
-        super(cnecs, unit);
+    public RelativeMinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit, Set<String> countriesNotToOptimize, BranchResult prePerimeterBranchResult) {
+        super(cnecs, unit, countriesNotToOptimize, prePerimeterBranchResult);
     }
 
     @Override
     double getMargin(BranchResult branchResult, BranchCnec branchCnec, Unit unit) {
-        return branchResult.getRelativeMargin(branchCnec, unit);
+        double newMargin = branchResult.getRelativeMargin(branchCnec, unit);
+        if (countriesNotToOptimize.contains(branchCnec.getOperator())) {
+            double prePerimeterMargin = prePerimeterBranchResult.getRelativeMargin(branchCnec, unit);
+            if (newMargin > prePerimeterMargin - .0001 * Math.abs(prePerimeterMargin)) {
+                return Double.MAX_VALUE;
+            }
+        }
+        return newMargin;
     }
 
     @Override

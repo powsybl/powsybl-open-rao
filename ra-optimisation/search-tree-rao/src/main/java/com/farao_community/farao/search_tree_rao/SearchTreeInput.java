@@ -5,13 +5,12 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.rao_commons.CnecResults;
+import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 public class SearchTreeInput {
@@ -25,11 +24,10 @@ public class SearchTreeInput {
     private ZonalData<LinearGlsk> glskProvider;
     private ReferenceProgram referenceProgram;
 
-    private CnecResults initialCnecResults;
+    private BranchResult initialBranchResult;
+    private BranchResult prePerimeterBranchResult;
     private SensitivityAndLoopflowResults prePerimeterSensitivityAndLoopflowResults;
-    private Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW;
     private Map<RangeAction, Double> prePerimeterSetpoints;
-    private Map<BranchCnec, Double> prePerimeterCommercialFlows;
 
     public SensitivityAndLoopflowResults getPrePerimeterSensitivityAndLoopflowResults() {
         return prePerimeterSensitivityAndLoopflowResults;
@@ -37,10 +35,6 @@ public class SearchTreeInput {
 
     public void setPrePerimeterSensitivityAndLoopflowResults(SensitivityAndLoopflowResults prePerimeterSensitivityAndLoopflowResults) {
         this.prePerimeterSensitivityAndLoopflowResults = prePerimeterSensitivityAndLoopflowResults;
-    }
-
-    public Map<BranchCnec, Double> getPrePerimeterCommercialFlows() {
-        return prePerimeterCommercialFlows;
     }
 
     public Set<NetworkAction> getNetworkActions() {
@@ -75,24 +69,16 @@ public class SearchTreeInput {
         return referenceProgram;
     }
 
-    public Map<BranchCnec, Double> getPrePerimeterMarginsInAbsoluteMW() {
-        return prePerimeterMarginsInAbsoluteMW;
-    }
-
     public Map<RangeAction, Double> getPrePerimeterSetpoints() {
         return prePerimeterSetpoints;
     }
 
-    public Double getPrePerimeterSetpoint(RangeAction rangeAction) {
-        return prePerimeterSetpoints.get(rangeAction);
+    public BranchResult getInitialBranchResult() {
+        return initialBranchResult;
     }
 
-    public CnecResults getInitialCnecResults() {
-        return initialCnecResults;
-    }
-
-    public void setPrePerimeterCommercialFlows(Map<BranchCnec, Double> prePerimeterCommercialFlows) {
-        this.prePerimeterCommercialFlows = prePerimeterCommercialFlows;
+    public BranchResult getPrePerimeterBranchResult() {
+        return prePerimeterBranchResult;
     }
 
     public void setNetworkActions(Set<NetworkAction> networkActions) {
@@ -123,16 +109,16 @@ public class SearchTreeInput {
         this.referenceProgram = referenceProgram;
     }
 
-    public void setPrePerimeterMarginsInAbsoluteMW(Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW) {
-        this.prePerimeterMarginsInAbsoluteMW = prePerimeterMarginsInAbsoluteMW;
-    }
-
     public void setPrePerimeterSetpoints(Map<RangeAction, Double> prePerimeterSetpoints) {
         this.prePerimeterSetpoints = prePerimeterSetpoints;
     }
 
-    public void setInitialCnecResults(CnecResults initialCnecResults) {
-        this.initialCnecResults = initialCnecResults;
+    public void setInitialBranchResult(BranchResult initialBranchResult) {
+        this.initialBranchResult = initialBranchResult;
+    }
+
+    public void setPrePerimeterBranchResult(BranchResult prePerimeterBranchResult) {
+        this.prePerimeterBranchResult = prePerimeterBranchResult;
     }
 
     public void setCountriesNotToOptimize(Set<String> countriesNotToOptimize) {

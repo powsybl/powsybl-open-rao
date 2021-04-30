@@ -22,10 +22,14 @@ public abstract class AbstractMinMarginEvaluator implements CostEvaluator {
     Set<BranchCnec> cnecs;
     private final Unit unit;
     private List<BranchCnec> sortedElements = new ArrayList<>();
+    protected Set<String> countriesNotToOptimize;
+    protected BranchResult prePerimeterBranchResult;
 
-    public AbstractMinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit) {
+    public AbstractMinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit, Set<String> countriesNotToOptimize, BranchResult prePerimeterBranchResult) {
         this.cnecs = cnecs;
         this.unit = unit;
+        this.countriesNotToOptimize = countriesNotToOptimize;
+        this.prePerimeterBranchResult = prePerimeterBranchResult;
     }
 
     abstract double getMargin(BranchResult branchResult, BranchCnec branchCnec, Unit unit);

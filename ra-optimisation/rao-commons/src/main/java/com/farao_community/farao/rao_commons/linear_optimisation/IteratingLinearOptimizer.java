@@ -31,18 +31,15 @@ public class IteratingLinearOptimizer {
     private static final String LINEAR_OPTIMIZATION_FAILED = "Linear optimization failed at iteration {}";
 
     private final ObjectiveFunction objectiveFunction;
-    private final BranchResultAdapter branchResultAdapter;
     private final SensitivityResultAdapter sensitivityResultAdapter;
     private final SystematicSensitivityInterface systematicSensitivityInterface;
     private final int maxIterations;
 
     public IteratingLinearOptimizer(ObjectiveFunction objectiveFunction,
                                     SystematicSensitivityInterface systematicSensitivityInterface,
-                                    BranchResultAdapter branchResultAdapter,
                                     SensitivityResultAdapter sensitivityResultAdapter,
                                     int maxIterations) {
         this.objectiveFunction = objectiveFunction;
-        this.branchResultAdapter = branchResultAdapter;
         this.sensitivityResultAdapter = sensitivityResultAdapter;
         this.systematicSensitivityInterface = systematicSensitivityInterface;
         this.maxIterations = maxIterations;
@@ -51,6 +48,7 @@ public class IteratingLinearOptimizer {
     public LinearOptimizationResult optimize(Network network,
                                              LinearProblem linearProblem,
                                              BranchResult initialBranchResult,
+                                             BranchResultAdapter branchResultAdapter,
                                              SensitivityResult initialSensitivityResult) {
         // TODO: Add initialRangeActionResult to ease the initialization and loop
         solveLinearProblem(linearProblem, 0);
@@ -74,7 +72,7 @@ public class IteratingLinearOptimizer {
             return new FailedLinearOptimizationResult();
         }
 
-        IteratingLinearOptimizerResult bestResult = createResult(bestRangeActionResult, sensi);
+        IteratingLinearOptimizerResult bestResult = createResult(bestRangeActionResult, branchResultAdapter, sensi);
 
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
             linearProblem.update(bestResult.getBranchResult(), bestResult.getSensitivityResult());
@@ -101,7 +99,7 @@ public class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            IteratingLinearOptimizerResult currentResult = createResult(currentRangeActionResult, sensi);
+            IteratingLinearOptimizerResult currentResult = createResult(currentRangeActionResult, branchResultAdapter, sensi);
             if (currentResult.getCost() < bestResult.getCost()) {
                 logBetterResult(iteration, currentResult);
                 bestResult = currentResult;
@@ -168,6 +166,7 @@ public class IteratingLinearOptimizer {
     }
 
     private IteratingLinearOptimizerResult createResult(RangeActionResult rangeActionResult,
+                                                        BranchResultAdapter branchResultAdapter,
                                                         SystematicSensitivityResult systematicSensitivityResult) {
         BranchResult branchResult = branchResultAdapter.getResult(systematicSensitivityResult);
         SensitivityResult sensitivityResult = sensitivityResultAdapter.getResult(systematicSensitivityResult);

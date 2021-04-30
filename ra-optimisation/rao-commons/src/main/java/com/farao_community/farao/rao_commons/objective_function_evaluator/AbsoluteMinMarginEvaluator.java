@@ -21,50 +21,24 @@ import java.util.*;
  */
 public class AbsoluteMinMarginEvaluator extends AbstractMinMarginEvaluator {
 
-    public AbsoluteMinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit) {
-        super(cnecs, unit);
+    public AbsoluteMinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit, Set<String> countriesNotToOptimize, BranchResult prePerimeterBranchResult) {
+        super(cnecs, unit, countriesNotToOptimize, prePerimeterBranchResult);
     }
 
     @Override
     double getMargin(BranchResult branchResult, BranchCnec branchCnec, Unit unit) {
-        return branchResult.getMargin(branchCnec, unit);
+        double newMargin = branchResult.getMargin(branchCnec, unit);
+        if (countriesNotToOptimize.contains(branchCnec.getOperator())) {
+            double prePerimeterMargin = prePerimeterBranchResult.getMargin(branchCnec, unit);
+            if (newMargin > prePerimeterMargin - .0001 * Math.abs(prePerimeterMargin)) {
+                return Double.MAX_VALUE;
+            }
+        }
+        return newMargin;
     }
 
     @Override
     public String getName() {
         return "absolute-min-margin-cost";
     }
-
-
-    /*protected List<BranchCnec> getMostLimitingElements(FlowResult flowResult, int numberOfElements) {
-        if (sortedElements.isEmpty()) {
-            sortedElements = cnecs.stream()
-                    .sorted(Comparator.comparing(branchCnec -> getCnecMarginWithoutCnecNotToOptimize(flowResult, branchCnec, unit)))
-                    .collect(Collectors.toList());
-        }
-
-        return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
-    }
-
-    private BranchCnec getMostLimitingElement(FlowResult flowResult) {
-        return getMostLimitingElements(flowResult, 1).get(0);
-    }
-
-    public double computeCost(FlowResult flowResult) {
-        return flowResult.getMargin(getMostLimitingElement(flowResult), unit);
-    }
-
-    private double getCnecMarginWithoutCnecNotToOptimize(FlowResult flowResult, BranchCnec cnec, Unit unit) {
-        if (operatorsNotToOptimize.contains(cnec.getOperator())) {
-            // do not consider this kind of cnecs if they have a better margin than before optimization
-            double prePerimeterMarginInAbsoluteMW = prePerimeterMarginsInAbsoluteMW.get(cnec);
-            double newMarginInAbsoluteMW = flowResult.getMargin(cnec, MEGAWATT);
-            if (newMarginInAbsoluteMW > prePerimeterMarginInAbsoluteMW - .0001 * Math.abs(prePerimeterMarginInAbsoluteMW)) {
-                return Double.MAX_VALUE;
-            }
-        }
-        return relativePositiveMargins
-                ? flowResult.getRelativeMargin(cnec, unit)
-                : flowResult.getMargin(cnec, unit);
-    }*/
 }

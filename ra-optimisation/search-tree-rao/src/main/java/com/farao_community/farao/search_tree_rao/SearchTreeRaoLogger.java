@@ -9,12 +9,8 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.rao_commons.RaoUtil;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -73,7 +69,7 @@ final class SearchTreeRaoLogger {
             BranchCnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
-            double cnecMargin = relativePositiveMargins? leafOutput.getRelativeMargin(cnec, unit) : leafOutput.getMargin(cnec, unit);
+            double cnecMargin = relativePositiveMargins ? leafOutput.getRelativeMargin(cnec, unit) : leafOutput.getMargin(cnec, unit);
 
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
