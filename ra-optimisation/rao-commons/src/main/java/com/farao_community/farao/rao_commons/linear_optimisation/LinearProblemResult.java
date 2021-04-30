@@ -54,8 +54,8 @@ public class LinearProblemResult implements RangeActionResult {
         return results.keySet().stream()
                 .filter(rangeAction -> rangeAction instanceof PstRangeAction)
                 .collect(Collectors.toMap(
-                        rangeAction -> (PstRangeAction) rangeAction,
-                        rangeAction -> getOptimizedTap((PstRangeAction) rangeAction)
+                    rangeAction -> (PstRangeAction) rangeAction,
+                    rangeAction -> getOptimizedTap((PstRangeAction) rangeAction)
                 ));
     }
 

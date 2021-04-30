@@ -12,13 +12,15 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.rao_commons.adapter.BranchResultAdapter;
+import com.farao_community.farao.rao_commons.adapter.BranchResultAdapterWithFixedPtdfsAndCommercialFlows;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +44,16 @@ public class PrePerimeterSensitivityAnalysis {
     private Set<BranchCnec> cnecs;
     private Set<RangeAction> rangeActions;
     private Set<BranchCnec> loopflowCnecs;
+    private Set<String> countriesNotToOptimize;
+    private BranchResult initialBranchResult;
 
-    public PrePerimeterSensitivityAnalysis(RaoInput raoInput, Set<State> optimizedStates, Set<State> perimeter, RaoParameters raoParameters) {
+    public PrePerimeterSensitivityAnalysis(RaoInput raoInput, Set<State> optimizedStates, Set<State> perimeter, RaoParameters raoParameters, Set<String> countriesNotToOptimize, BranchResult initialBranchResult) {
         // it is actually quite strange to ask for a RaoData here, but it is required in
         // order to use the fillResultsWithXXX() methods of the CracResultManager.
         this.raoInput = raoInput;
         this.raoParameters = raoParameters;
+        this.countriesNotToOptimize = countriesNotToOptimize;
+        this.initialBranchResult = initialBranchResult;
         this.cnecs = RaoUtil.computePerimeterCnecs(raoInput.getCrac(), perimeter);
         rangeActions = new HashSet<>();
         optimizedStates.forEach(optimizedState -> rangeActions.addAll(raoInput.getCrac().getRangeActions(raoInput.getNetwork(), optimizedState, UsageMethod.AVAILABLE)));
@@ -69,7 +75,8 @@ public class PrePerimeterSensitivityAnalysis {
             LOGGER.info("Initial systematic analysis [...] - compute reference loop-flow values");
             commercialFlows = LoopFlowUtil.computeCommercialFlows(network, loopflowCnecs, raoInput.getGlskProvider(), raoInput.getReferenceProgram(), sensitivityResult);
         }
-        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(sensitivityResult, systematicSensitivityInterface.isFallback(), commercialFlows);
+        SensitivityStatus sensitivityStatus = systematicSensitivityInterface.isFallback() ? SensitivityStatus.FALLBACK : SensitivityStatus.DEFAULT;
+        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(sensitivityResult, sensitivityStatus, commercialFlows);
 
         Map<BranchCnec, Double> ptdfSums = new HashMap<>();
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
@@ -100,34 +107,22 @@ public class PrePerimeterSensitivityAnalysis {
         Map<BranchCnec, Double> finalCommercialFlows = commercialFlows;
         loopflowCnecs.forEach(cnec -> loopflowsInMW.put(cnec, cnecFlowsInMW.get(cnec) -  finalCommercialFlows.get(cnec)));
 
-        ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
-        switch (raoParameters.getObjectiveFunction()) {
-            case MAX_MIN_MARGIN_IN_AMPERE:
-            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
-                objectiveFunctionEvaluator = new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
-                        ptdfSums, cnecFlowsInA, loopflowsInMW, new HashSet<>(), raoParameters);
-                break;
-            case MAX_MIN_MARGIN_IN_MEGAWATT:
-            case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
-                objectiveFunctionEvaluator = new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
-                        ptdfSums, cnecFlowsInMW, loopflowsInMW, new HashSet<>(), raoParameters);
-                break;
-            default:
-                throw new NotImplementedException("Not implemented objective function");
+        BranchResultAdapter branchResultAdapter = new BranchResultAdapterWithFixedPtdfsAndCommercialFlows(ptdfSums, commercialFlows);
+        BranchResult branchResult = branchResultAdapter.getResult(sensitivityResult);
+        if (Objects.isNull(initialBranchResult)) {
+            initialBranchResult = branchResult;
         }
+        ObjectiveFunction objectiveFunction = RaoUtil.createObjectiveFunction(raoParameters, cnecs, loopflowCnecs, countriesNotToOptimize, initialBranchResult, branchResult);
 
-        double functionalCost = objectiveFunctionEvaluator.computeFunctionalCost(sensitivityAndLoopflowResults);
+        double functionalCost = objectiveFunction.getFunctionalCost(branchResult, sensitivityAndLoopflowResults.getSensitivityStatus());
         LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -functionalCost);
 
         PrePerimeterSensitivityAnalysisOutput prePerimeterSensitivityAnalysisOutput = new PrePerimeterSensitivityAnalysisOutput();
-        prePerimeterSensitivityAnalysisOutput.setCnecFlowsInMW(cnecFlowsInMW);
-        prePerimeterSensitivityAnalysisOutput.setCnecFlowsInA(cnecFlowsInA);
-        prePerimeterSensitivityAnalysisOutput.setCommercialFlowsInMW(sensitivityAndLoopflowResults.getCommercialFlows());
+        prePerimeterSensitivityAnalysisOutput.setBranchResult(branchResult);
         prePerimeterSensitivityAnalysisOutput.setFunctionalCost(functionalCost);
-        prePerimeterSensitivityAnalysisOutput.setVirtualCost(objectiveFunctionEvaluator.computeVirtualCost(sensitivityAndLoopflowResults));
+        prePerimeterSensitivityAnalysisOutput.setVirtualCost(objectiveFunction.getVirtualCost(branchResult, sensitivityAndLoopflowResults.getSensitivityStatus()));
         prePerimeterSensitivityAnalysisOutput.setRangeActionSetPoints(rangeActionSetPoints);
         prePerimeterSensitivityAnalysisOutput.setPstTaps(pstTaps);
-        prePerimeterSensitivityAnalysisOutput.setPtdfZonalSums(ptdfSums);
         prePerimeterSensitivityAnalysisOutput.setSensitivityAndLoopflowResults(sensitivityAndLoopflowResults);
 
         return prePerimeterSensitivityAnalysisOutput;

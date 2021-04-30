@@ -1,24 +1,19 @@
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.PerimeterResult;
 import com.farao_community.farao.rao_api.results.PerimeterStatus;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PrePerimeterSensitivityAnalysisOutput implements PerimeterResult  {
     private PerimeterStatus perimeterStatus;
-    private Map<BranchCnec, Double> cnecFlowsInMW;
-    private Map<BranchCnec, Double> cnecFlowsInA;
-    private Map<BranchCnec, Double> commercialFlowsInMW;
-    private Map<BranchCnec, Double> ptdfZonalSums;
+    private BranchResult branchResult;
     private double functionalCost;
     private double virtualCost;
     private Map<RangeAction, Double> rangeActionSetPoints;
@@ -36,53 +31,32 @@ public class PrePerimeterSensitivityAnalysisOutput implements PerimeterResult  {
 
     @Override
     public double getFlow(BranchCnec branchCnec, Unit unit) {
-        switch (unit) {
-            case MEGAWATT:
-                return cnecFlowsInMW.get(branchCnec);
-            case AMPERE:
-                return cnecFlowsInA.get(branchCnec);
-            default:
-                throw new FaraoException("Flows should only be in MW or A.");
-        }
+        return branchResult.getFlow(branchCnec, unit);
     }
 
     @Override
     public double getRelativeMargin(BranchCnec branchCnec, Unit unit) {
-        return 0;
+        return branchResult.getRelativeMargin(branchCnec, unit);
     }
 
     @Override
     public double getLoopFlow(BranchCnec branchCnec, Unit unit) {
-        return getFlow(branchCnec, unit) - getCommercialFlow(branchCnec, unit);
+        return branchResult.getLoopFlow(branchCnec, unit);
     }
 
     @Override
     public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
-        switch (unit) {
-            case MEGAWATT:
-            case AMPERE:
-                return commercialFlowsInMW.get(branchCnec) * RaoUtil.getBranchFlowUnitMultiplier(branchCnec, Side.LEFT, Unit.MEGAWATT, unit);
-            default:
-                throw new FaraoException("Flows should only be in MW or A.");
-        }
-    }
-
-    public Map<BranchCnec, Double> getCommercialFlows(Unit unit) {
-        switch (unit) {
-            case MEGAWATT:
-                return commercialFlowsInMW;
-            case AMPERE:
-                Map<BranchCnec, Double> commercialFlowsInA = new HashMap<>();
-                commercialFlowsInMW.keySet().forEach(cnec -> commercialFlowsInA.put(cnec, commercialFlowsInMW.get(cnec) * RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.AMPERE)));
-                return commercialFlowsInA;
-            default:
-                throw new FaraoException("Flows should only be in MW or A.");
-        }
+        return branchResult.getCommercialFlow(branchCnec, unit);
     }
 
     @Override
     public double getPtdfZonalSum(BranchCnec branchCnec) {
-        return ptdfZonalSums.get(branchCnec);
+        return branchResult.getPtdfZonalSum(branchCnec);
+    }
+
+    @Override
+    public Map<BranchCnec, Double> getPtdfZonalSums() {
+        return branchResult.getPtdfZonalSums();
     }
 
     @Override
@@ -102,7 +76,8 @@ public class PrePerimeterSensitivityAnalysisOutput implements PerimeterResult  {
 
     @Override
     public List<BranchCnec> getMostLimitingElements(int number) {
-        Map<BranchCnec, Double> cnecMarginsInMW = new HashMap<>();
+        //TODO : keep map of cnec -> cost according to objective function
+        /*Map<BranchCnec, Double> cnecMarginsInMW = new HashMap<>();
         cnecFlowsInMW.keySet().forEach(cnec -> cnecMarginsInMW.put(cnec, getMargin(cnec, Unit.MEGAWATT)));
 
         List<BranchCnec> mostLimitingElements = cnecMarginsInMW
@@ -110,7 +85,8 @@ public class PrePerimeterSensitivityAnalysisOutput implements PerimeterResult  {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        return mostLimitingElements.subList(0, Math.min(number, mostLimitingElements.size()));
+        return mostLimitingElements.subList(0, Math.min(number, mostLimitingElements.size()));*/
+        return null;
     }
 
     @Override
@@ -162,20 +138,8 @@ public class PrePerimeterSensitivityAnalysisOutput implements PerimeterResult  {
         this.perimeterStatus = perimeterStatus;
     }
 
-    public void setCnecFlowsInMW(Map<BranchCnec, Double> cnecFlowsInMW) {
-        this.cnecFlowsInMW = cnecFlowsInMW;
-    }
-
-    public void setCnecFlowsInA(Map<BranchCnec, Double> cnecFlowsInA) {
-        this.cnecFlowsInA = cnecFlowsInA;
-    }
-
-    public void setCommercialFlowsInMW(Map<BranchCnec, Double> commercialFlowsInMW) {
-        this.commercialFlowsInMW = commercialFlowsInMW;
-    }
-
-    public void setPtdfZonalSums(Map<BranchCnec, Double> ptdfZonalSums) {
-        this.ptdfZonalSums = ptdfZonalSums;
+    public void setBranchResult(BranchResult branchResult) {
+        this.branchResult = branchResult;
     }
 
     public void setFunctionalCost(double functionalCost) {
@@ -198,19 +162,11 @@ public class PrePerimeterSensitivityAnalysisOutput implements PerimeterResult  {
         this.sensitivityAndLoopflowResults = sensitivityAndLoopflowResults;
     }
 
-    public CnecResults getCnecResults() {
-        CnecResults cnecResults = new CnecResults();
-        cnecResults.setAbsolutePtdfSums(ptdfZonalSums);
-        cnecResults.setFlowsInA(cnecFlowsInA);
-        cnecResults.setFlowsInMW(cnecFlowsInMW);
-        cnecResults.setCommercialFlowsInMW(commercialFlowsInMW);
-        Map<BranchCnec, Double> loopflowsInMW = new HashMap<>();
-        commercialFlowsInMW.keySet().forEach(cnec -> loopflowsInMW.put(cnec, cnecFlowsInMW.get(cnec) - commercialFlowsInMW.get(cnec)));
-        cnecResults.setLoopflowsInMW(loopflowsInMW);
-        return cnecResults;
-    }
-
     public SensitivityAndLoopflowResults getSensitivityAndLoopflowResults() {
         return sensitivityAndLoopflowResults;
+    }
+
+    public BranchResult getBranchResult() {
+        return branchResult;
     }
 }

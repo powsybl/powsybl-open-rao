@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.results.RaoResult;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;
@@ -46,25 +47,25 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<RaoResultImpl> runAsync(RaoInput raoInput, RaoParameters parameters) {
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
             return provider.run(raoInput, parameters);
         }
 
-        public CompletableFuture<RaoResultImpl> runAsync(RaoInput raoInput) {
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
             return runAsync(raoInput, RaoParameters.load());
         }
 
-        public RaoResultImpl run(RaoInput raoInput, RaoParameters parameters) {
+        public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
             return provider.run(raoInput, parameters).join();
         }
 
-        public RaoResultImpl run(RaoInput raoInput) {
+        public RaoResult run(RaoInput raoInput) {
             return run(raoInput, RaoParameters.load());
         }
 
@@ -145,19 +146,19 @@ public final class Rao {
         return new Runner(provider);
     }
 
-    public static CompletableFuture<RaoResultImpl> runAsync(RaoInput raoInput, RaoParameters parameters) {
+    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
         return find().runAsync(raoInput, parameters);
     }
 
-    public static CompletableFuture<RaoResultImpl> runAsync(RaoInput raoInput) {
+    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
         return find().runAsync(raoInput);
     }
 
-    public static RaoResultImpl run(RaoInput raoInput, RaoParameters parameters) {
+    public static RaoResult run(RaoInput raoInput, RaoParameters parameters) {
         return find().run(raoInput, parameters);
     }
 
-    public static RaoResultImpl run(RaoInput raoInput) {
+    public static RaoResult run(RaoInput raoInput) {
         return find().run(raoInput);
     }
 }

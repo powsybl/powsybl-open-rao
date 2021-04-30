@@ -31,7 +31,6 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
         this.sensitivityStatus = sensitivityStatus;
     }
 
-
     @Override
     public double getFunctionalCost() {
         return objectiveFunction.getFunctionalCost(branchResult, sensitivityStatus);
@@ -59,6 +58,6 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
-        return objectiveFunction.getCostlyElements(branchResult, sensitivityStatus, virtualCostName, number);
+        return objectiveFunction.getCostlyElements(branchResult, virtualCostName, number);
     }
 }

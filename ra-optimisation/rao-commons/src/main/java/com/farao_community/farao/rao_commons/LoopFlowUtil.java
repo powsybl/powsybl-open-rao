@@ -8,11 +8,13 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
+import com.farao_community.farao.loopflow_computation.LoopFlowComputationWithXnodeGlskHandler;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -20,10 +22,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,8 +38,10 @@ public final class LoopFlowUtil {
                                                                  ZonalData<LinearGlsk> glskProvider,
                                                                  ReferenceProgram referenceProgram,
                                                                  SystematicSensitivityResult sensitivityAndFlowResult) {
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputation(glskProvider, referenceProgram);
-        LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(network, sensitivityAndFlowResult, cnecs);
+        Set<Contingency> contingencies = new HashSet<>();
+        cnecs.stream().filter(cnec -> cnec.getState().getContingency().isPresent()).forEach(cnec -> contingencies.add(cnec.getState().getContingency().get()));
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationWithXnodeGlskHandler(glskProvider, referenceProgram, contingencies, network);
+        LoopFlowResult lfResults = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(sensitivityAndFlowResult, cnecs);
         Map<BranchCnec, Double> commercialFlows = new HashMap<>();
         for (BranchCnec cnec : cnecs) {
             commercialFlows.put(cnec, lfResults.getCommercialFlow(cnec));

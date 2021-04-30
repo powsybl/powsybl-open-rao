@@ -5,15 +5,19 @@ import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.rao_commons.CnecResults;
+import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 public class LeafInput {
     private Network network;
@@ -26,15 +30,16 @@ public class LeafInput {
     private ZonalData<LinearGlsk> glskProvider;
     private ReferenceProgram referenceProgram;
 
-    private ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
+    private ObjectiveFunction objectiveFunction;
+    private IteratingLinearOptimizer iteratingLinearOptimizer;
 
-    private CnecResults initialCnecResults;
-    private Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW;
+    private BranchResult initialBranchResult;
+    private BranchResult prePerimeterBranchResult;
     private Map<RangeAction, Double> prePerimeterSetpoints; // can be removed if we don't change taps in the network after each depth
     private Map<BranchCnec, Double> commercialFlows;
     private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
-    public LeafInput(SearchTreeInput searchTreeInput, Set<NetworkAction> appliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunctionEvaluator objectiveFunctionEvaluator) {
+    public LeafInput(SearchTreeInput searchTreeInput, Set<NetworkAction> appliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunction objectiveFunction, IteratingLinearOptimizer iteratingLinearOptimizer) {
         this.network = searchTreeInput.getNetwork();
         this.cnecs = searchTreeInput.getCnecs();
         this.appliedNetworkActions = appliedNetworkActions;
@@ -45,13 +50,18 @@ public class LeafInput {
         this.glskProvider = searchTreeInput.getGlskProvider();
         this.referenceProgram = searchTreeInput.getReferenceProgram();
 
-        this.objectiveFunctionEvaluator = objectiveFunctionEvaluator;
+        this.objectiveFunction = objectiveFunction;
+        this.iteratingLinearOptimizer = iteratingLinearOptimizer;
 
-        this.initialCnecResults = searchTreeInput.getInitialCnecResults();
-        this.prePerimeterMarginsInAbsoluteMW = searchTreeInput.getPrePerimeterMarginsInAbsoluteMW();
+        this.initialBranchResult = searchTreeInput.getInitialBranchResult();
+        this.prePerimeterBranchResult = searchTreeInput.getPrePerimeterBranchResult();
+
+        Map<BranchCnec, Double> prePerimeterCommercialFlows = new HashMap<>();
+        loopflowCnecs.forEach(cnec -> prePerimeterCommercialFlows.put(cnec, searchTreeInput.getPrePerimeterBranchResult().getCommercialFlow(cnec, MEGAWATT)));
+        this.commercialFlows = prePerimeterCommercialFlows;
+
         this.prePerimeterSetpoints = searchTreeInput.getPrePerimeterSetpoints();
-        this.commercialFlows = searchTreeInput.getPrePerimeterCommercialFlows();
-        if(appliedNetworkActions.isEmpty() && Objects.isNull(networkActionToApply)) {
+        if (appliedNetworkActions.isEmpty() && Objects.isNull(networkActionToApply)) {
             this.sensitivityAndLoopflowResults = searchTreeInput.getPrePerimeterSensitivityAndLoopflowResults();
         } else {
             this.sensitivityAndLoopflowResults = null;
@@ -94,12 +104,20 @@ public class LeafInput {
         return referenceProgram;
     }
 
-    public ObjectiveFunctionEvaluator getObjectiveFunctionEvaluator() {
-        return objectiveFunctionEvaluator;
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunction;
     }
 
-    public CnecResults getInitialCnecResults() {
-        return initialCnecResults;
+    public IteratingLinearOptimizer getIteratingLinearOptimizer() {
+        return iteratingLinearOptimizer;
+    }
+
+    public BranchResult getInitialBranchResult() {
+        return initialBranchResult;
+    }
+
+    public BranchResult getPrePerimeterBranchResult() {
+        return prePerimeterBranchResult;
     }
 
     public boolean hasSensitivityAndLoopflowResults() {
@@ -112,10 +130,6 @@ public class LeafInput {
 
     public Map<BranchCnec, Double> getCommercialFlows() {
         return commercialFlows;
-    }
-
-    public Map<BranchCnec, Double> getPrePerimeterMarginsInAbsoluteMW() {
-        return prePerimeterMarginsInAbsoluteMW;
     }
 
     public Map<RangeAction, Double> getPrePerimeterSetpoints() {

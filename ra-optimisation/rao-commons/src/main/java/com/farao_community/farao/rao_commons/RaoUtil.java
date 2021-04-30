@@ -16,19 +16,19 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.*;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import com.powsybl.ucte.util.UcteAliasesCreation;
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,24 +123,43 @@ public final class RaoUtil {
         return builder.build();
     }
 
-    public static ObjectiveFunctionEvaluator createObjectiveFunction(Set<BranchCnec> cnecs,
-                                                                     Set<BranchCnec> loopflowCnecs,
-                                                                     Map<BranchCnec, Double> prePerimeterMarginsInAbsoluteMW,
-                                                                     CnecResults initialCnecResults,
-                                                                     Set<String> countriesNotToOptimize,
-                                                                     RaoParameters raoParameters) {
-        switch (raoParameters.getObjectiveFunction()) {
-            case MAX_MIN_MARGIN_IN_AMPERE:
-            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE:
-                return new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
-                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInA(), initialCnecResults.getLoopflowsInMW(), countriesNotToOptimize, raoParameters);
-            case MAX_MIN_MARGIN_IN_MEGAWATT:
-            case MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT:
-                return new MinMarginObjectiveFunction(cnecs, loopflowCnecs, prePerimeterMarginsInAbsoluteMW,
-                        initialCnecResults.getAbsolutePtdfSums(), initialCnecResults.getFlowsInMW(), initialCnecResults.getLoopflowsInMW(), countriesNotToOptimize, raoParameters);
-            default:
-                throw new NotImplementedException("Not implemented objective function");
+    public static ObjectiveFunction createObjectiveFunction(RaoParameters raoParameters,
+                                                            Set<BranchCnec> cnecs,
+                                                            Set<BranchCnec> loopFlowCnecs,
+                                                            Set<String> countriesNotToOptimize,
+                                                            BranchResult initialBranchResult,
+                                                            BranchResult prePerimeterBranchResult) {
+        ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder =  ObjectiveFunction.create();
+        if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
+            objectiveFunctionBuilder.withFunctionalCostEvaluator(new RelativeMinMarginEvaluator(
+                    cnecs,
+                    raoParameters.getObjectiveFunction().getUnit(),
+                    countriesNotToOptimize,
+                    prePerimeterBranchResult
+            ));
+        } else {
+            objectiveFunctionBuilder.withFunctionalCostEvaluator(new AbsoluteMinMarginEvaluator(
+                    cnecs,
+                    raoParameters.getObjectiveFunction().getUnit(),
+                    countriesNotToOptimize,
+                    prePerimeterBranchResult
+            ));
         }
+        if (raoParameters.getMnecParameters() != null) {
+            objectiveFunctionBuilder.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
+                    cnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
+                    initialBranchResult,
+                    raoParameters.getMnecParameters()
+            ));
+        }
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            objectiveFunctionBuilder.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
+                    loopFlowCnecs,
+                    initialBranchResult,
+                    raoParameters.getLoopFlowParameters()
+            ));
+        }
+        return objectiveFunctionBuilder.build();
     }
 
     public static List<BranchCnec> getMostLimitingElements(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins, int numberOfElements) {

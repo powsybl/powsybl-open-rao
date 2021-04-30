@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
+import java.util.Map;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -92,4 +94,13 @@ public interface BranchResult {
      * @return The sum of the computation areas' zonal PTDFs on the branch.
      */
     double getPtdfZonalSum(BranchCnec branchCnec);
+
+    /**
+     * It gives a map of the sums of the computation areas' zonal PTDFs for each {@link BranchCnec}. If the computation
+     * does not consider PTDF values or if the {@link RaoParameters} does not define any list of considered areas, this
+     * method could return a map containing {@code Double.NaN} values.
+     *
+     * @return A map of the sums of the computation areas' zonal PTDFs on each branch.
+     */
+    Map<BranchCnec, Double> getPtdfZonalSums();
 }

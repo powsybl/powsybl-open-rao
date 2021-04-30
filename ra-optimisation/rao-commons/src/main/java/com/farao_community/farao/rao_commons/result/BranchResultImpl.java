@@ -60,4 +60,9 @@ public class BranchResultImpl implements BranchResult {
         return Optional.of(ptdfZonalSums.get(branchCnec))
                 .orElseThrow(() -> new FaraoException(format("No PTDF computed on the CNEC %s", branchCnec.getName())));
     }
+
+    @Override
+    public Map<BranchCnec, Double> getPtdfZonalSums() {
+        return ptdfZonalSums;
+    }
 }

@@ -108,6 +108,11 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
+    public Map<BranchCnec, Double> getPtdfZonalSums() {
+        return branchResult.getPtdfZonalSums();
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
         return rangeActionResult.getOptimizedTap(pstRangeAction);
     }

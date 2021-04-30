@@ -59,6 +59,11 @@ public class LeafOutput implements PerimeterResult {
     }
 
     @Override
+    public Map<BranchCnec, Double> getPtdfZonalSums() {
+        return branchResult.getPtdfZonalSums();
+    }
+
+    @Override
     public boolean isActivated(NetworkAction networkAction) {
         return activatedNetworkActions.contains(networkAction);
     }
