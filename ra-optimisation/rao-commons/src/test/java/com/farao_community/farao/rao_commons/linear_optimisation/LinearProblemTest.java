@@ -20,7 +20,6 @@ import java.util.Collections;
 
 import static org.junit.Assert.*;
 
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
