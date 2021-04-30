@@ -116,7 +116,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
             MPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
                     0,
-                    linearProblem.infinity(),
+                    LinearProblem.infinity(),
                     cnec
             );
 
@@ -126,7 +126,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
             MPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -loopFlowUpperBound + branchResult.getCommercialFlow(cnec, Unit.MEGAWATT),
-                    linearProblem.infinity(),
+                    LinearProblem.infinity(),
                     cnec,
                     LinearProblem.BoundExtension.LOWER_BOUND
             );
@@ -134,7 +134,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1);
 
             MPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
-                    -linearProblem.infinity(),
+                    -LinearProblem.infinity(),
                     loopFlowUpperBound + branchResult.getCommercialFlow(cnec, Unit.MEGAWATT),
                     cnec,
                     LinearProblem.BoundExtension.UPPER_BOUND

@@ -24,34 +24,60 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.farao_community.farao.rao_commons.linear_optimisation.LinearProbelmIdGenerator.*;
 import static java.lang.String.format;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class LinearProblem {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearProblem.class);
-    private static final String VARIABLE_SUFFIX = "variable";
-    private static final String CONSTRAINT_SUFFIX = "constraint";
-    private static final String SEPARATOR = "_";
+public final class LinearProblem {
+    public enum AbsExtension {
+        POSITIVE,
+        NEGATIVE
+    }
 
-    private static final String FLOW = "flow";
-    private static final String SET_POINT = "setpoint";
-    private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
-    private static final String ABSOLUTE_VARIATION = "absolutevariation";
-    private static final String MIN_MARGIN = "minmargin";
-    private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
-    private static final String MAX_LOOPFLOW = "maxloopflow";
-    private static final String LOOPFLOWVIOLATION = "loopflowviolation";
-    private static final String MNEC_VIOLATION = "mnecviolation";
-    private static final String MNEC_FLOW = "mnecflow";
-    private static final String MARGIN_DECREASE = "margindecrease";
+    public enum MarginExtension {
+        BELOW_THRESHOLD,
+        ABOVE_THRESHOLD
+    }
+
+    public enum BoundExtension {
+        LOWER_BOUND,
+        UPPER_BOUND
+    }
 
     private final List<ProblemFiller> fillers;
-    private LinearProblemStatus status;
     private final Set<BranchCnec> cnecs = new HashSet<>();
     private final Set<RangeAction> rangeActions = new HashSet<>();
+    private final MPSolver solver;
+    private LinearProblemStatus status;
+
+    public LinearProblem(List<ProblemFiller> fillers, MPSolver mpSolver) {
+        solver = mpSolver;
+        solver.objective().setMinimization();
+        this.fillers = fillers;
+    }
+
+    private LinearProblem(List<ProblemFiller> fillers) {
+        this(fillers, new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
+    }
+
+    final List<ProblemFiller> getFillers() {
+        return Collections.unmodifiableList(fillers);
+    }
+
+    public final Set<BranchCnec> getCnecs() {
+        return Collections.unmodifiableSet(cnecs);
+    }
+
+    public final Set<RangeAction> getRangeActions() {
+        return Collections.unmodifiableSet(rangeActions);
+    }
+
+    public LinearProblemStatus getStatus() {
+        return status;
+    }
 
     private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
         switch (status) {
@@ -72,51 +98,16 @@ public class LinearProblem {
         }
     }
 
-    public enum AbsExtension {
-        POSITIVE,
-        NEGATIVE
-    }
-
-    public enum MarginExtension {
-        BELOW_THRESHOLD,
-        ABOVE_THRESHOLD
-    }
-
-    public enum BoundExtension {
-        LOWER_BOUND,
-        UPPER_BOUND
-    }
-
-    private MPSolver solver;
-
-    public LinearProblem(List<ProblemFiller> fillers, MPSolver mpSolver) {
-        solver = mpSolver;
-        solver.objective().setMinimization();
-        this.fillers = fillers;
-    }
-
-    public LinearProblem(List<ProblemFiller> fillers) {
-        this(fillers, new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
-    }
-
-    public LinearProblemStatus getStatus() {
-        return status;
-    }
-
-    public final Set<BranchCnec> getCnecs() {
-        return Collections.unmodifiableSet(cnecs);
-    }
-
-    public final Set<RangeAction> getRangeActions() {
-        return Collections.unmodifiableSet(rangeActions);
-    }
-
     public MPObjective getObjective() {
         return solver.objective();
     }
 
-    private String flowVariableId(BranchCnec cnec) {
-        return cnec.getId() + SEPARATOR + FLOW + SEPARATOR + VARIABLE_SUFFIX;
+    public int numVariables() {
+        return solver.numVariables();
+    }
+
+    public int numConstraints() {
+        return solver.numConstraints();
     }
 
     public MPVariable addFlowVariable(double lb, double ub, BranchCnec cnec) {
@@ -128,20 +119,12 @@ public class LinearProblem {
         return solver.lookupVariableOrNull(flowVariableId(cnec));
     }
 
-    private String flowConstraintId(BranchCnec cnec) {
-        return cnec.getId() + SEPARATOR + FLOW + SEPARATOR + CONSTRAINT_SUFFIX;
-    }
-
     public MPConstraint addFlowConstraint(double lb, double ub, BranchCnec cnec) {
         return solver.makeConstraint(lb, ub, flowConstraintId(cnec));
     }
 
     public MPConstraint getFlowConstraint(BranchCnec cnec) {
         return solver.lookupConstraintOrNull(flowConstraintId(cnec));
-    }
-
-    private String rangeActionSetPointVariableId(RangeAction rangeAction) {
-        return rangeAction.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
     public MPVariable addRangeActionSetPointVariable(double lb, double ub, RangeAction rangeAction) {
@@ -153,20 +136,12 @@ public class LinearProblem {
         return solver.lookupVariableOrNull(rangeActionSetPointVariableId(rangeAction));
     }
 
-    private String rangeActionGroupSetPointVariableId(String rangeActionGroupId) {
-        return rangeActionGroupId + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
-    }
-
     public MPVariable addRangeActionGroupSetPointVariable(double lb, double ub, String rangeActionGroupId) {
         return solver.makeNumVar(lb, ub, rangeActionGroupSetPointVariableId(rangeActionGroupId));
     }
 
     public MPVariable getRangeActionGroupSetPointVariable(String rangeActionGroupId) {
         return solver.lookupVariableOrNull(rangeActionGroupSetPointVariableId(rangeActionGroupId));
-    }
-
-    public String rangeActionGroupSetPointConstraintId(RangeAction rangeAction) {
-        return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public MPConstraint addRangeActionGroupSetPointConstraint(double lb, double ub, RangeAction rangeAction) {
@@ -177,10 +152,6 @@ public class LinearProblem {
         return solver.lookupConstraintOrNull(rangeActionGroupSetPointConstraintId(rangeAction));
     }
 
-    public String absoluteRangeActionVariationVariableId(RangeAction rangeAction) {
-        return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
-    }
-
     public MPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction rangeAction) {
         return solver.makeNumVar(lb, ub, absoluteRangeActionVariationVariableId(rangeAction));
     }
@@ -189,24 +160,12 @@ public class LinearProblem {
         return solver.lookupVariableOrNull(absoluteRangeActionVariationVariableId(rangeAction));
     }
 
-    private String absoluteRangeActionVariationConstraintId(RangeAction rangeAction, AbsExtension positiveOrNegative) {
-        return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
-    }
-
     public MPConstraint addAbsoluteRangeActionVariationConstraint(double lb, double ub, RangeAction rangeAction, AbsExtension positiveOrNegative) {
         return solver.makeConstraint(lb, ub, absoluteRangeActionVariationConstraintId(rangeAction, positiveOrNegative));
     }
 
     public MPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction rangeAction, AbsExtension positiveOrNegative) {
         return solver.lookupConstraintOrNull(absoluteRangeActionVariationConstraintId(rangeAction, positiveOrNegative));
-    }
-
-    private String minimumMarginConstraintId(BranchCnec cnec, MarginExtension belowOrAboveThreshold) {
-        return cnec.getId() + SEPARATOR + MIN_MARGIN + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
-    }
-
-    private String minimumRelativeMarginConstraintId(BranchCnec cnec, MarginExtension belowOrAboveThreshold) {
-        return cnec.getId() + SEPARATOR + MIN_RELATIVE_MARGIN + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public MPConstraint addMinimumMarginConstraint(double lb, double ub, BranchCnec cnec, MarginExtension belowOrAboveThreshold) {
@@ -223,14 +182,6 @@ public class LinearProblem {
 
     public MPConstraint getMinimumRelativeMarginConstraint(BranchCnec cnec, MarginExtension belowOrAboveThreshold) {
         return solver.lookupConstraintOrNull(minimumRelativeMarginConstraintId(cnec, belowOrAboveThreshold));
-    }
-
-    private String minimumMarginVariableId() {
-        return MIN_MARGIN + SEPARATOR + VARIABLE_SUFFIX;
-    }
-
-    private String minimumRelativeMarginVariableId() {
-        return MIN_RELATIVE_MARGIN + SEPARATOR + VARIABLE_SUFFIX;
     }
 
     public MPVariable addMinimumMarginVariable(double lb, double ub) {
@@ -254,10 +205,6 @@ public class LinearProblem {
         return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec, lbOrUb));
     }
 
-    private String maxLoopFlowConstraintId(BranchCnec cnec, BoundExtension lbOrUb) {
-        return cnec.getId() + SEPARATOR + MAX_LOOPFLOW + lbOrUb.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
-    }
-
     public MPConstraint getMaxLoopFlowConstraint(BranchCnec cnec, BoundExtension lbOrUb) {
         return solver.lookupConstraintOrNull(maxLoopFlowConstraintId(cnec, lbOrUb));
     }
@@ -270,24 +217,12 @@ public class LinearProblem {
         return solver.lookupVariableOrNull(loopflowViolationVariableId(cnec));
     }
 
-    private String loopflowViolationVariableId(BranchCnec cnec) {
-        return cnec.getId() + SEPARATOR + LOOPFLOWVIOLATION + SEPARATOR + VARIABLE_SUFFIX;
-    }
-
-    private String mnecViolationVariableId(BranchCnec mnec) {
-        return mnec.getId() + SEPARATOR + MNEC_VIOLATION + SEPARATOR + VARIABLE_SUFFIX;
-    }
-
     public MPVariable addMnecViolationVariable(double lb, double ub, BranchCnec mnec) {
         return solver.makeNumVar(lb, ub, mnecViolationVariableId(mnec));
     }
 
     public MPVariable getMnecViolationVariable(BranchCnec mnec) {
         return solver.lookupVariableOrNull(mnecViolationVariableId(mnec));
-    }
-
-    private String mnecFlowConstraintId(BranchCnec mnec, MarginExtension belowOrAboveThreshold) {
-        return mnec.getId() + SEPARATOR + MNEC_FLOW + belowOrAboveThreshold.toString().toLowerCase()  + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public MPConstraint addMnecFlowConstraint(double lb, double ub, BranchCnec mnec, MarginExtension belowOrAboveThreshold) {
@@ -298,20 +233,12 @@ public class LinearProblem {
         return solver.lookupConstraintOrNull(mnecFlowConstraintId(mnec, belowOrAboveThreshold));
     }
 
-    private String marginDecreaseVariableId(BranchCnec cnec) {
-        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + SEPARATOR + VARIABLE_SUFFIX;
-    }
-
     public MPVariable addMarginDecreaseBinaryVariable(BranchCnec cnec) {
         return solver.makeIntVar(0, 1, marginDecreaseVariableId(cnec));
     }
 
     public MPVariable getMarginDecreaseBinaryVariable(BranchCnec cnec) {
         return solver.lookupVariableOrNull(marginDecreaseVariableId(cnec));
-    }
-
-    private String marginDecreaseConstraintId(BranchCnec cnec, MarginExtension belowOrAboveThreshold) {
-        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public MPConstraint addMarginDecreaseConstraint(double lb, double ub, BranchCnec cnec, MarginExtension belowOrAboveThreshold) {
@@ -322,7 +249,7 @@ public class LinearProblem {
         return solver.lookupConstraintOrNull(marginDecreaseConstraintId(cnec, belowOrAboveThreshold));
     }
 
-    public double infinity() {
+    public static double infinity() {
         return MPSolver.infinity();
     }
 
@@ -335,16 +262,16 @@ public class LinearProblem {
         return new LinearProblemResult(this);
     }
 
-    public MPSolver getSolver() {
-        return solver;
-    }
-
-    public static LinearProblemBuilder create() {
-        return new LinearProblemBuilder();
+    public void fill(BranchResult branchResult, SensitivityResult sensitivityResult) {
+        fillers.forEach(problemFiller -> problemFiller.fill(this, branchResult, sensitivityResult));
     }
 
     public void update(BranchResult branchResult, SensitivityResult sensitivityResult) {
         fillers.forEach(problemFiller -> problemFiller.update(this, branchResult, sensitivityResult));
+    }
+
+    public static LinearProblemBuilder create() {
+        return new LinearProblemBuilder();
     }
 
     public static class LinearProblemBuilder {
@@ -370,7 +297,7 @@ public class LinearProblem {
         public LinearProblem build() {
             LinearProblem linearProblem = new LinearProblem(problemFillers);
             // TODO: add checks on fillers consistency
-            problemFillers.forEach(problemFiller -> problemFiller.fill(linearProblem, branchResult, sensitivityResult));
+            linearProblem.fill(branchResult, sensitivityResult);
             return linearProblem;
         }
     }

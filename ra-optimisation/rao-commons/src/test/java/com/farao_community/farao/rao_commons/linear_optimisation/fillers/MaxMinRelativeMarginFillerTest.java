@@ -8,15 +8,20 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.MaxMinRelativeMarginParameters;
+import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +30,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -32,6 +38,10 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(PowerMockRunner.class)
 public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
+
+    private LinearProblem linearProblem;
+    private CoreProblemFiller coreProblemFiller;
+    private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private MaxMinRelativeMarginParameters parameters;
 
     @Before
@@ -39,29 +49,38 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         init();
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, initialAlpha));
         coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
                 network,
                 Set.of(cnec1),
-                Map.of(rangeAction, initialAlpha),
-                0);
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+                Set.of(rangeAction),
+                initialRangeActionResult,
+                0.
+        );
         parameters = new MaxMinRelativeMarginParameters(0.01, 1000, 0.01);
     }
 
-    private void createProblem(Unit unit, double cnecInitialAbsolutePtdfSum) {
-        MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
-                linearProblem,
-                Map.of(cnec1, cnecInitialAbsolutePtdfSum),
+    private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {
+        BranchResult initialBranchResult = Mockito.mock(BranchResult.class);
+        when(initialBranchResult.getPtdfZonalSum(cnec1)).thenReturn(cnecInitialAbsolutePtdfSum);
+        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
+                Set.of(cnec1),
+                initialBranchResult,
                 Set.of(rangeAction),
                 unit,
-                parameters);
-        maxMinRelativeMarginFiller.fill(sensitivityAndLoopflowResults);
+                parameters
+        );
+    }
+
+    private void buildLinearProblem() {
+        linearProblem = new LinearProblem(List.of(coreProblemFiller, maxMinRelativeMarginFiller), mpSolver);
+        linearProblem.fill(branchResult, sensitivityResult);
     }
 
     @Test
     public void fillWithMaxMinRelativeMarginInMegawatt() {
-        createProblem(MEGAWATT, 0.9);
+        createMaxMinRelativeMarginFiller(MEGAWATT, 0.9);
+        buildLinearProblem();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -98,13 +117,14 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        assertEquals(5, linearProblem.getSolver().numVariables());
-        assertEquals(7, linearProblem.getSolver().numConstraints());
+        assertEquals(5, linearProblem.numVariables());
+        assertEquals(7, linearProblem.numConstraints());
     }
 
     @Test
     public void fillWithMaxMinRelativeMarginInAmpere() {
-        createProblem(AMPERE, 0.005);
+        createMaxMinRelativeMarginFiller(AMPERE, 0.005);
+        buildLinearProblem();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -144,7 +164,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        assertEquals(5, linearProblem.getSolver().numVariables());
-        assertEquals(7, linearProblem.getSolver().numConstraints());
+        assertEquals(5, linearProblem.numVariables());
+        assertEquals(7, linearProblem.numConstraints());
     }
 }

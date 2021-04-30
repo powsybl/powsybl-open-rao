@@ -50,6 +50,7 @@ public class IteratingLinearOptimizer {
                                              BranchResult initialBranchResult,
                                              BranchResultAdapter branchResultAdapter,
                                              SensitivityResult initialSensitivityResult) {
+        // TODO: Add initialRangeActionResult to ease the initialization and loop
         solveLinearProblem(linearProblem, 0);
         if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
             LOGGER.error(LINEAR_OPTIMIZATION_FAILED, 0);
