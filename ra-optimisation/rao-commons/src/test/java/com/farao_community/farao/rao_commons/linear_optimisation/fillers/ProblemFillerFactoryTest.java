@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.SimpleCracFactory;
 import com.farao_community.farao.rao_api.parameters.*;
-import com.farao_community.farao.rao_commons.CnecResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;

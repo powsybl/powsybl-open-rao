@@ -45,6 +45,11 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
+    public Map<BranchCnec, Double> getPtdfZonalSums() {
+        throw new FaraoException("Should not be used");
+    }
+
+    @Override
     public double getFunctionalCost() {
         throw new FaraoException("Should not be used");
     }

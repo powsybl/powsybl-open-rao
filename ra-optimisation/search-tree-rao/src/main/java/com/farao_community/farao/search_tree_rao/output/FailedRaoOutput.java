@@ -1,6 +1,5 @@
 package com.farao_community.farao.search_tree_rao.output;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.OptimizationState;

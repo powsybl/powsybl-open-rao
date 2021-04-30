@@ -31,7 +31,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     private final double loopFlowAcceptableAugmentation;
     private List<BranchCnec> sortedElements = new ArrayList<>();
 
-    LoopFlowViolationCostEvaluator(Set<BranchCnec> loopflowCnecs,
+    public LoopFlowViolationCostEvaluator(Set<BranchCnec> loopflowCnecs,
                                    BranchResult initialLoopFlowResult,
                                    LoopFlowParameters loopFlowParameters) {
         this.loopflowCnecs = loopflowCnecs;

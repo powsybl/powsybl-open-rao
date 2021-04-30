@@ -12,9 +12,11 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.farao_community.farao.rao_api.results.PerimeterResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
+import com.farao_community.farao.rao_commons.adapter.*;
+import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -55,10 +57,11 @@ public class SearchTree {
     private LinearOptimizerParameters linearOptimizerParameters;
     private SearchTreeInput searchTreeInput;
 
-    private ObjectiveFunctionEvaluator objectiveFunctionEvaluator;
+    private ObjectiveFunction objectiveFunction;
+    private IteratingLinearOptimizer iteratingLinearOptimizer;
 
     void initLeaves() {
-        LeafInput leafInput = new LeafInput(searchTreeInput, new HashSet<>(), null, objectiveFunctionEvaluator);
+        LeafInput leafInput = new LeafInput(searchTreeInput, new HashSet<>(), null, objectiveFunction, iteratingLinearOptimizer);
         rootLeaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
@@ -70,8 +73,12 @@ public class SearchTree {
         this.treeParameters = treeParameters;
         this.linearOptimizerParameters = linearOptimizerParameters;
 
-        this.objectiveFunctionEvaluator = RaoUtil.createObjectiveFunction(searchTreeInput.getCnecs(), searchTreeInput.getLoopflowCnecs(), searchTreeInput.getPrePerimeterMarginsInAbsoluteMW(),
-                searchTreeInput.getInitialCnecResults(), searchTreeInput.getCountriesNotToOptimize(), raoParameters);
+        this.objectiveFunction = RaoUtil.createObjectiveFunction(raoParameters, searchTreeInput.getCnecs(), searchTreeInput.getLoopflowCnecs(), searchTreeInput.getCountriesNotToOptimize(),
+                searchTreeInput.getInitialBranchResult(), searchTreeInput.getPrePerimeterBranchResult());
+        SystematicSensitivityInterface iteratingSystematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, searchTreeInput.getRangeActions(),
+                searchTreeInput.getCnecs(), raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange(), searchTreeInput.getGlskProvider(), searchTreeInput.getLoopflowCnecs());
+        SensitivityResultAdapter sensitivityResultAdapter = new SystematicSensitivityResultAdapter();
+        this.iteratingLinearOptimizer = new IteratingLinearOptimizer(objectiveFunction, iteratingSystematicSensitivityInterface, sensitivityResultAdapter, raoParameters.getMaxIterations());
 
         initLeaves();
 
@@ -190,7 +197,7 @@ public class SearchTree {
 
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
-        LeafInput leafInput = new LeafInput(searchTreeInput, optimalLeaf.getNetworkActions(), networkAction, objectiveFunctionEvaluator);
+        LeafInput leafInput = new LeafInput(searchTreeInput, optimalLeaf.getNetworkActions(), networkAction, objectiveFunction, iteratingLinearOptimizer);
         try {
             leaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         } catch (NotImplementedException e) {

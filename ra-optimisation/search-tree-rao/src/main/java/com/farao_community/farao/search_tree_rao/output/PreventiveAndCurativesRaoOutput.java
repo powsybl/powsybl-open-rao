@@ -106,7 +106,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return false;
         } else {
             return postPreventiveResult.getActivatedNetworkActions().contains(networkAction);
@@ -115,7 +115,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedNetworkActions().contains(networkAction);
         } else {
             return postCurativeResults.get(state).getActivatedNetworkActions().contains(networkAction);
@@ -124,7 +124,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedNetworkActions();
         } else {
             return postCurativeResults.get(state).getActivatedNetworkActions();
@@ -133,7 +133,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedRangeActions().contains(rangeAction);
         } else {
             return postCurativeResults.get(state).getActivatedRangeActions().contains(rangeAction);
@@ -142,7 +142,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getOptimizedTap(pstRangeAction);
         } else {
             return postPreventiveResult.getOptimizedTap(pstRangeAction);
@@ -151,7 +151,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getOptimizedTap(pstRangeAction);
         } else {
             return postCurativeResults.get(state).getOptimizedTap(pstRangeAction);
@@ -160,7 +160,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getOptimizedSetPoint(rangeAction);
         } else {
             return postPreventiveResult.getOptimizedSetPoint(rangeAction);
@@ -169,7 +169,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getOptimizedSetPoint(rangeAction);
         } else {
             return postCurativeResults.get(state).getOptimizedSetPoint(rangeAction);
@@ -178,7 +178,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedRangeActions();
         } else {
             return postCurativeResults.get(state).getActivatedRangeActions();
@@ -187,7 +187,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getOptimizedTaps();
         } else {
             return postCurativeResults.get(state).getOptimizedTaps();
@@ -196,7 +196,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
-        if(state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getOptimizedSetPoints();
         } else {
             return postCurativeResults.get(state).getOptimizedSetPoints();
