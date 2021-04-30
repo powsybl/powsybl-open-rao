@@ -10,6 +10,7 @@ import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.RaoResultImpl;
+import com.farao_community.farao.rao_api.results.RaoResult;
 import com.google.auto.service.AutoService;
 
 import java.util.concurrent.CompletableFuture;
@@ -21,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 public class RaoProviderMock implements RaoProvider {
 
     @Override
-    public CompletableFuture<RaoResultImpl> run(RaoInput raoInput, RaoParameters parameters) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         return CompletableFuture.completedFuture(new RaoResultImpl(RaoResultImpl.Status.DEFAULT));
     }
 
