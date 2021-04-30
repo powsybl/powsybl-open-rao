@@ -10,10 +10,11 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.Range;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,26 +27,24 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class PstRangeActionImpl extends AbstractRangeAction implements PstRangeAction {
 
-    private List<TapRange> ranges;
-    private NetworkElement networkElement;
-
-    private int lowTapPosition; // min value of PST in the Network (with implicit TapConvention)
-    private int highTapPosition; // max value of PST in the Network (with implicit TapConvention)
-    private int initialTapPosition;
-
-    private PhaseTapChanger phaseTapChangerInCache;
-    private boolean isSynchronized;
-
     private static final double EPSILON = 1e-3;
 
+    private NetworkElement networkElement;
+    private List<TapRange> ranges;
+    private int initialTapPosition;
+    private Map<Integer, Double> tapToAngleConversionMap;
+    private int lowTapPosition;
+    private int highTapPosition;
+
     PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<TapRange> ranges,
-                              NetworkElement networkElement, String groupId, int lowestFeasibleTap, int highestFeasibleTap, int initialTap) {
+                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap) {
         super(id, name, operator, usageRules, groupId);
         this.networkElement = networkElement;
         this.ranges = ranges;
-        this.lowTapPosition = lowestFeasibleTap;
-        this.highTapPosition = highestFeasibleTap;
         this.initialTapPosition = initialTap;
+        this.tapToAngleConversionMap = tapToAngleConversionMap;
+        this.lowTapPosition = Collections.min(tapToAngleConversionMap.keySet());
+        this.highTapPosition = Collections.max(tapToAngleConversionMap.keySet());
     }
 
     @Deprecated
@@ -76,23 +75,13 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
     }
 
     @Override
-    public int getLowestFeasibleTap() {
-        return lowTapPosition;
-    }
-
-    @Override
-    public int getHighestFeasibleTap() {
-        return highTapPosition;
-    }
-
-    @Override
     public int getInitialTap() {
         return initialTapPosition;
     }
 
     @Override
     public Map<Integer, Double> getTapToAngleConversionMap() {
-        return null;
+        return tapToAngleConversionMap;
     }
 
     @Override
@@ -102,199 +91,126 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
 
     @Override
     public void synchronize(Network network) {
-        if (isSynchronized()) {
-            throw new AlreadySynchronizedException(String.format("PST %s has already been synchronized", getId()));
-        }
-        /*
-        phaseTapChanger = checkValidPstAndGetPhaseTapChanger(network);
-        initialTapPosition = phaseTapChanger.getTapPosition();
-        lowTapPosition = phaseTapChanger.getLowTapPosition();
-        highTapPosition = phaseTapChanger.getHighTapPosition();
-        isSynchronized = true;
-        */
     }
 
     @Override
     public void desynchronize() {
-        isSynchronized = false;
     }
 
     @Override
     public boolean isSynchronized() {
-        return isSynchronized;
+        return false;
     }
 
     /**
      * Min angle value allowed by all ranges and the physical limitations of the PST itself
      */
     @Override
-    public double getMinValue(double previousInstantValue, Network network) {
-
-        double minValue = Math.min(convertTapToAngle(lowTapPosition, network), convertTapToAngle(highTapPosition, network));
-        for (TapRange range: ranges) {
-            minValue = Math.max(getMinValueWithRange(range, previousInstantValue, network), minValue);
-        }
-        return minValue;
+    public double getMinAdmissibleSetpoint(double previousInstantSetPoint) {
+        Pair<Integer, Integer> minAndMaxTaps = getMinAndMaxTaps(previousInstantSetPoint);
+        return Math.min(convertTapToAngle(minAndMaxTaps.getLeft()), convertTapToAngle(minAndMaxTaps.getRight()));
     }
 
     /**
      * Max angle value allowed by all ranges and the physical limitations of the PST itself
      */
     @Override
-    public double getMaxValue(double previousInstantValue, Network network) {
-
-        double maxValue = Math.max(convertTapToAngle(lowTapPosition, network), convertTapToAngle(highTapPosition, network));
-        for (TapRange range: ranges) {
-            maxValue = Math.min(getMaxValueWithRange(range, previousInstantValue, network), maxValue);
-        }
-        return maxValue;
+    public double getMaxAdmissibleSetpoint(double previousInstantSetPoint) {
+        Pair<Integer, Integer> minAndMaxTaps = getMinAndMaxTaps(previousInstantSetPoint);
+        return Math.max(convertTapToAngle(minAndMaxTaps.getLeft()), convertTapToAngle(minAndMaxTaps.getRight()));
     }
 
     @Override
     public void apply(Network network, double targetAngle) {
         PhaseTapChanger phaseTapChanger = getPhaseTapChanger(network);
-        int setpoint = convertAngleToTap(targetAngle, phaseTapChanger);
-        phaseTapChanger.setTapPosition(setpoint);
+        int tap = convertAngleToTap(targetAngle);
+        phaseTapChanger.setTapPosition(tap);
     }
 
     @Override
-    public double getMinValue(double previousInstantValue) {
-        return 0;
+    public double getCurrentSetpoint(Network network) {
+        return convertTapToAngle(getPhaseTapChanger(network).getTapPosition());
     }
 
     @Override
-    public double getMaxValue(double previousInstantValue) {
-        return 0;
-    }
-
-    @Override
-    public double getCurrentValue(Network network) {
-        /*
-        the phaseTapChanger is re-initiated to ensure that the current position is taken on the
-        network given in argument of this method
-         */
-        this.phaseTapChangerInCache = null;
-        return convertTapToAngle(getCurrentTapPosition(network), network);
-    }
-
-    @Override
-    public int getCurrentTapPosition(Network network, TapConvention requestedRangeDefinition) {
-        /*
-        the phaseTapChanger is re-initiated to ensure that the current position is taken on the
-        network given in argument of this method
-         */
-        this.phaseTapChangerInCache = null;
-        switch (requestedRangeDefinition) {
-            case STARTS_AT_ONE:
-                return convertToStartsAtOne(getPhaseTapChanger(network).getTapPosition());
-            case CENTERED_ON_ZERO:
-                return convertToCenteredOnZero(getPhaseTapChanger(network).getTapPosition());
-            default:
-                throw new FaraoException("Unknown range definition");
-        }
+    public int getCurrentTapPosition(Network network) {
+        return getPhaseTapChanger(network).getTapPosition();
     }
 
     @Override
     public double convertTapToAngle(int tap) {
-        return 0;
+        if (tapToAngleConversionMap.containsKey(tap)) {
+            return tapToAngleConversionMap.get(tap);
+        } else {
+            throw new FaraoException(String.format("Pst of Range Action %s does not have a tap %d", getId(), tap));
+        }
     }
 
     @Override
     public int convertAngleToTap(double angle) {
-        return 0;
-    }
 
-    @Override
-    public double convertTapToAngle(int tap, Network network) {
-        return getPhaseTapChanger(network).getStep(tap).getAlpha();
-    }
+        double minAngle = Collections.min(tapToAngleConversionMap.values());
+        double maxAngle = Collections.max(tapToAngleConversionMap.values());
 
-    @Override
-    public int convertAngleToTap(double angle, Network network) {
-        return convertAngleToTap(angle, getPhaseTapChanger(network));
-    }
-
-    // Min value allowed by a range (from Crac)
-    private double getMinValueWithRange(TapRange range, double prePerimeterValue, Network network) {
-        int prePerimeterTapPosition = convertAngleToTap(prePerimeterValue, network);
-        return Math.min(lowTapPositionRangeIntersection(prePerimeterTapPosition, range, network), highTapPositionRangeIntersection(prePerimeterTapPosition, range, network));
-    }
-
-    // Max value allowed by a range (from Crac)
-    private double getMaxValueWithRange(TapRange range, double prePerimeterValue, Network network) {
-        int prePerimeterTapPosition = convertAngleToTap(prePerimeterValue, network);
-        return Math.max(lowTapPositionRangeIntersection(prePerimeterTapPosition, range, network), highTapPositionRangeIntersection(prePerimeterTapPosition, range, network));
-    }
-
-    /**
-    Maximum value between lowTapPosition and lower range bound
-     */
-    private double lowTapPositionRangeIntersection(int prePerimeterTapPosition, TapRange range, Network network) {
-        int minTap = Math.max(lowTapPosition, (int) getExtremumValueWithRange(range, prePerimeterTapPosition, range.getMinTap()));
-        return convertTapToAngle(minTap, network);
-    }
-
-    /**
-     Minimum value between highTapPosition and upper range bound
-     */
-    private double highTapPositionRangeIntersection(int prePerimeterTapPosition, TapRange range,  Network network) {
-        int maxTap = Math.min(highTapPosition, (int) getExtremumValueWithRange(range, prePerimeterTapPosition, range.getMaxTap()));
-        return convertTapToAngle(maxTap, network);
-    }
-
-    private int getCurrentTapPosition(Network network) {
-        this.phaseTapChangerInCache = null;
-        return getPhaseTapChanger(network).getTapPosition();
-    }
-
-    /**
-     * Conversion from any (implicit) to STARTS_AT_ONE
-     */
-    private int convertToStartsAtOne(int tap) {
-        if (highTapPosition == -lowTapPosition) { // the tap is CENTERED_ON_ZERO in the network
-            return tap + highTapPosition + 1;
-        } else if (lowTapPosition == 1) { // the tap STARTS_AT_ONE in the network
-            return tap;
-        } else {
-            throw new FaraoException(String.format("Unhandled range definition, between %s and %s.", lowTapPosition, highTapPosition));
+        // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
+        if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
+            throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
         }
+
+        AtomicReference<Double> smallestAngleDifference = new AtomicReference<>(Double.MAX_VALUE);
+        AtomicInteger approximatedTapPosition = new AtomicInteger(0);
+
+        tapToAngleConversionMap.forEach((tap, alpha) -> {
+            double diff = Math.abs(alpha - angle);
+            if (diff < smallestAngleDifference.get()) {
+                smallestAngleDifference.set(diff);
+                approximatedTapPosition.set(tap);
+            }
+        });
+        return approximatedTapPosition.get();
     }
 
-    /**
-     * Conversion from any (implicit) to CENTERED_ON_ZERO
-     */
-    private int convertToCenteredOnZero(int tap) {
-        if (lowTapPosition == -highTapPosition) { // the tap is CENTERED_ON_ZERO in the network
-            return tap;
-        } else if (lowTapPosition == 1) { // the tap STARTS_AT_ONE in the network
-            return tap - (int) Math.ceil(((double) highTapPosition + 1) / 2);
-        } else {
-            throw new FaraoException(String.format("Unhandled range definition, between %s and %s.", lowTapPosition, highTapPosition));
+    private Pair<Integer, Integer> getMinAndMaxTaps(double previousInstantSetPoint) {
+        int minTap = lowTapPosition;
+        int maxTap = highTapPosition;
+        int previousInstantTap = convertAngleToTap(previousInstantSetPoint);
+
+        for (TapRange range: ranges) {
+            minTap = Math.max(minTap, getRangeMinTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
+            maxTap = Math.min(maxTap, getRangeMaxTapAsAbsoluteCenteredOnZero(range, previousInstantTap));
         }
+
+        return Pair.of(minTap, maxTap);
     }
 
-    private double getExtremumValueWithRange(Range range, double prePerimeterTapPosition, double extremumValue) {
-        TapRange pstRange = (TapRange) range;
-        switch (pstRange.getRangeType()) {
+    private int getRangeMinTapAsAbsoluteCenteredOnZero(TapRange range, int previousInstantTap) {
+        return convertTapToAbsoluteCenteredOnZero(range.getMinTap(), range.getRangeType(), range.getTapConvention(), previousInstantTap);
+
+    }
+
+    private int getRangeMaxTapAsAbsoluteCenteredOnZero(TapRange range, int previousInstantTap) {
+        return convertTapToAbsoluteCenteredOnZero(range.getMaxTap(), range.getRangeType(), range.getTapConvention(), previousInstantTap);
+    }
+
+    private int convertTapToAbsoluteCenteredOnZero(int tap, RangeType initialRangeType, TapConvention initialTapConvention, int prePerimeterTapPosition) {
+
+        switch (initialRangeType) {
             case ABSOLUTE:
-                switch (pstRange.getTapConvention()) {
-                    case STARTS_AT_ONE:
-                        return lowTapPosition + extremumValue - 1;
-                    case CENTERED_ON_ZERO:
-                        return ((double) lowTapPosition + highTapPosition) / 2 + extremumValue;
-                    default:
-                        throw new FaraoException("Unknown range definition");
+                if (initialTapConvention.equals(TapConvention.STARTS_AT_ONE)) {
+                    return lowTapPosition + tap - 1;
+                } else {
+                    return tap;
                 }
             case RELATIVE_TO_INITIAL_NETWORK:
-                return initialTapPosition + extremumValue;
+                return initialTapPosition + tap;
             case RELATIVE_TO_PREVIOUS_INSTANT:
-                return prePerimeterTapPosition + extremumValue;
+                return prePerimeterTapPosition + tap;
             default:
-                throw new FaraoException("Unknown range type");
+                throw new FaraoException(String.format("Unknown Range Type %s", initialRangeType));
         }
     }
 
-    private PhaseTapChanger checkValidPstAndGetPhaseTapChanger(Network network) {
+    private PhaseTapChanger getPhaseTapChanger(Network network) {
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElement.getId());
         if (transformer == null) {
             throw new FaraoException(String.format("PST %s does not exist in the current network", networkElement.getId()));
@@ -304,33 +220,6 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
             throw new FaraoException(String.format("Transformer %s is not a PST but is defined as a TapRange", networkElement.getId()));
         }
         return phaseTapChangerFromNetwork;
-    }
-
-    private int convertAngleToTap(double angle, PhaseTapChanger phaseTapChanger) {
-        Map<Integer, PhaseTapChangerStep> steps = new TreeMap<>();
-        for (int tapPosition = phaseTapChanger.getLowTapPosition(); tapPosition <= phaseTapChanger.getHighTapPosition(); tapPosition++) {
-            steps.put(tapPosition, phaseTapChanger.getStep(tapPosition));
-        }
-        double minAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).min().orElse(Double.NaN);
-        double maxAngle = steps.values().stream().mapToDouble(PhaseTapChangerStep::getAlpha).max().orElse(Double.NaN);
-        if (Double.isNaN(minAngle) || Double.isNaN(maxAngle)) {
-            throw new FaraoException(String.format("Phase tap changer %s steps may be invalid", networkElement.getId()));
-        }
-
-        // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
-        if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
-            throw new FaraoException(String.format("Angle value %.4f not is the range of minimum and maximum angle values [%.4f,%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
-        }
-        AtomicReference<Double> angleDifference = new AtomicReference<>(Double.MAX_VALUE);
-        AtomicInteger approximatedTapPosition = new AtomicInteger(phaseTapChanger.getTapPosition());
-        steps.forEach((tapPosition, step) -> {
-            double diff = Math.abs(step.getAlpha() - angle);
-            if (diff < angleDifference.get()) {
-                angleDifference.set(diff);
-                approximatedTapPosition.set(tapPosition);
-            }
-        });
-        return approximatedTapPosition.get();
     }
 
     @Deprecated
@@ -347,25 +236,30 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return super.equals(o);
-        //todo add parameters specific to PST here
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        return this.networkElement.equals(((PstRangeAction) o).getNetworkElement())
+            && this.ranges.equals(((PstRangeAction) o).getRanges())
+            && this.tapToAngleConversionMap.equals(((PstRangeAction) o).getTapToAngleConversionMap())
+            && this.initialTapPosition == ((PstRangeAction) o).getInitialTap();
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        int hashCode = super.hashCode();
+        for (TapRange range : ranges) {
+            hashCode += 31 * range.hashCode();
+        }
+        hashCode += 31 * initialTapPosition;
+        hashCode += 31 * networkElement.hashCode();
+        return hashCode;
     }
 
     @Deprecated
     //todo: delete
     public void addRange(TapRange range) {
         ranges.add(range);
-    }
-
-    private PhaseTapChanger getPhaseTapChanger(Network network) {
-        if (Objects.isNull(phaseTapChangerInCache)) {
-            this.phaseTapChangerInCache = checkValidPstAndGetPhaseTapChanger(network);
-        }
-        return phaseTapChangerInCache;
     }
 }

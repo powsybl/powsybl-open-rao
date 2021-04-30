@@ -16,9 +16,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
@@ -34,9 +32,8 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     private String networkElementName;
     private List<TapRange> ranges;
     private String groupId = null;
-    private Integer lowestTap = null;
-    private Integer highestTap = null;
     private Integer initialTap = null;
+    private Map<Integer, Double> tapToAngleConversionMap;
 
     @Override
     protected String getTypeDescription() {
@@ -73,6 +70,12 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     }
 
     @Override
+    public PstRangeActionAdder withTapToAngleConversionMap(Map<Integer, Double> tapToAngleConversionMap) {
+        this.tapToAngleConversionMap = tapToAngleConversionMap;
+        return this;
+    }
+
+    @Override
     public TapRangeAdder newTapRange() {
         return new TapRangeAdderImpl(this);
     }
@@ -81,22 +84,22 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
     public PstRangeAction add() {
         checkId();
         assertAttributeNotNull(networkElementId, "PstRangeAction", "network element", "withNetworkElement()");
-        assertAttributeNotNull(lowestTap, "PstRangeAction", "lowest feasible tap", "withLowestFeasibleTap()");
-        assertAttributeNotNull(highestTap, "PstRangeAction", "highest feasible tap", "withHighestFeasibleTap()");
         assertAttributeNotNull(initialTap, "PstRangeAction", "initial tap", "withInitialTap()");
+        assertAttributeNotNull(tapToAngleConversionMap, "PstRangeAction", "tap to angle conversion map", "withTapToAngleConversionMap()");
 
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new FaraoException(String.format("A remedial action with id %s already exists", id));
         }
 
         List<TapRange> validRanges = checkRanges();
+        checkTapToAngleConversionMap();
 
         if (usageRules.isEmpty()) {
             LOGGER.warn("PstRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId, lowestTap, highestTap, initialTap);
+        PstRangeActionImpl pstWithRange = new PstRangeActionImpl(this.id, this.name, this.operator, this.usageRules, validRanges, networkElement, groupId, initialTap, tapToAngleConversionMap);
         this.getCrac().addPstRangeAction(pstWithRange);
         return pstWithRange;
     }
@@ -130,9 +133,37 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         if (validRanges.isEmpty()) {
             LOGGER.warn("PstRangeAction {} does not contain any valid range, by default the range of the network will be used", id);
         }
-
         return validRanges;
-
     }
 
+    private void checkTapToAngleConversionMap() {
+
+        if (tapToAngleConversionMap.size() < 2) {
+            throw new FaraoException("TapToAngleConversionMap of PST %s should at least contain 2 entries.");
+        }
+        if (tapToAngleConversionMap.keySet().stream().anyMatch(Objects::isNull) || tapToAngleConversionMap.values().stream().anyMatch(Objects::isNull)) {
+            throw new FaraoException("TapToAngleConversionMap of PST %s cannot contain null values");
+        }
+
+        int minTap = Collections.min(tapToAngleConversionMap.keySet());
+        int maxTap = Collections.max(tapToAngleConversionMap.keySet());
+
+        boolean isInverted = tapToAngleConversionMap.get(minTap) > tapToAngleConversionMap.get(maxTap);
+        double previousTapAngle = tapToAngleConversionMap.get(minTap);
+
+        for (int tap = minTap + 1; tap < maxTap; tap++) {
+            if (!tapToAngleConversionMap.containsKey(tap)) {
+                throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should contain all the consecutive taps between %d and %d", id, minTap, maxTap));
+            }
+            if ((!isInverted && tapToAngleConversionMap.get(tap) < previousTapAngle)
+                || (isInverted && tapToAngleConversionMap.get(tap) > previousTapAngle)) {
+                throw new FaraoException(String.format("TapToAngleConversionMap of PST %s should be increasing or decreasing", id));
+            }
+            previousTapAngle = tapToAngleConversionMap.get(tap);
+        }
+
+        if (initialTap > maxTap || initialTap < minTap) {
+            throw new FaraoException(String.format("initialTap of PST %s must be included into its tapToAngleConversionMap", id));
+        }
+    }
 }

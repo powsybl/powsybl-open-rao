@@ -30,7 +30,7 @@ public class PstHelper {
     private int initialTapPosition;
     private Map<Integer, Double> tapToAngleConversionMap;
 
-    PstHelper(String pstId, Network network) {
+    public PstHelper(String pstId, Network network) {
         this.pstId = pstId;
         interpretWithNetwork(network);
     }
@@ -51,7 +51,7 @@ public class PstHelper {
         return highTapPosition;
     }
 
-    public int getInitialTapPosition() {
+    public int getInitialTap() {
         return initialTapPosition;
     }
 

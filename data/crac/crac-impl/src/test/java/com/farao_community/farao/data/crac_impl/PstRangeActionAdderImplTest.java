@@ -16,6 +16,9 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.*;
@@ -27,11 +30,13 @@ import static org.junit.Assert.*;
 public class PstRangeActionAdderImplTest {
     private CracImpl crac;
     private String networkElementId;
+    private Map<Integer, Double> validTapToAngleConversionMap;
 
     @Before
     public void setUp() {
         crac = new CracImpl("test-crac");
         networkElementId = "BBE2AA1  BBE3AA1  1";
+        validTapToAngleConversionMap = Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.);
     }
 
     @Test
@@ -51,6 +56,8 @@ public class PstRangeActionAdderImplTest {
                 .withInstant(Instant.PREVENTIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
@@ -65,20 +72,22 @@ public class PstRangeActionAdderImplTest {
     @Test
     public void testAddWithoutGroupId() {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
-                .withId("id1")
-                .withOperator("BE")
-                .withNetworkElement(networkElementId)
-                .newTapRange()
-                    .withMinTap(-10)
-                    .withMaxTap(10)
-                    .withTapConvention(TapConvention.CENTERED_ON_ZERO)
-                    .withRangeType(RangeType.ABSOLUTE)
-                    .add()
-                .newFreeToUseUsageRule()
-                    .withInstant(Instant.PREVENTIVE)
-                    .withUsageMethod(UsageMethod.AVAILABLE)
-                    .add()
-                .add();
+            .withId("id1")
+            .withOperator("BE")
+            .withNetworkElement(networkElementId)
+            .newTapRange()
+                .withMinTap(-10)
+                .withMaxTap(10)
+                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
+                .withRangeType(RangeType.ABSOLUTE)
+                .add()
+            .newFreeToUseUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
 
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
@@ -100,6 +109,8 @@ public class PstRangeActionAdderImplTest {
             .withId("id1")
             .withOperator("BE")
             .withNetworkElement(networkElementId)
+            .withInitialTap(2)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
@@ -124,6 +135,8 @@ public class PstRangeActionAdderImplTest {
                 .withInstant(Instant.PREVENTIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
+            .withInitialTap(-2)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
             .add();
 
         assertEquals(1, crac.getRangeActions().size());
@@ -137,16 +150,20 @@ public class PstRangeActionAdderImplTest {
     public void testNoIdFail() {
         crac.newPstRangeAction()
             .withOperator("BE")
-                .withNetworkElement(networkElementId)
-                .add();
+            .withNetworkElement(networkElementId)
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
     }
 
     @Test(expected = FaraoException.class)
     public void testNoNetworkElementFail() {
         crac.newPstRangeAction()
-                .withId("id1")
-                .withOperator("BE")
-                .add();
+            .withId("id1")
+            .withOperator("BE")
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
     }
 
     @Test
@@ -162,6 +179,8 @@ public class PstRangeActionAdderImplTest {
                 .withId("sameId")
                 .withOperator("BE")
                 .withNetworkElement("networkElementId")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(validTapToAngleConversionMap)
                 .add();
             fail();
         } catch (FaraoException e) {
@@ -169,4 +188,67 @@ public class PstRangeActionAdderImplTest {
         }
     }
 
+    @Test(expected = FaraoException.class)
+    public void testNoInitialTap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testNoTapToAngleConversionMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(0)
+            .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testEmptyTapToAngleConversionMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(new HashMap<>())
+            .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testIncompleteTapToAngleConversionMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-2, -20., 2, 20.))
+            .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testNotMonotonousTapToAngleConversionMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-2, -20., -1, -15., 0, 0., 1, -10., 2, 20.))
+            .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testInitialTapNotInMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(10)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
+    }
 }

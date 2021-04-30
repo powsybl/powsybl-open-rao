@@ -16,6 +16,8 @@ import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.junit.Assert.*;
 
 /**
@@ -32,7 +34,9 @@ public class TapRangeAdderImplTest {
             .withId("pstRangeActionId")
             .withName("pstRangeActionName")
             .withOperator("operator")
-            .withNetworkElement("networkElementId");
+            .withNetworkElement("networkElementId")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.));
     }
 
     @Test

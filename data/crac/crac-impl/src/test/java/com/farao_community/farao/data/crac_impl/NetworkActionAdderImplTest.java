@@ -15,6 +15,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.fail;
@@ -173,6 +175,8 @@ public class NetworkActionAdderImplTest {
             .withId("sameId")
             .withOperator("BE")
             .withNetworkElement("networkElementId")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.))
             .add();
 
         try {

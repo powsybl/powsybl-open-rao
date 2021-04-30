@@ -66,7 +66,7 @@ public final class PstSetpointImpl implements PstSetpoint {
         if (rangeDefinition == CENTERED_ON_ZERO) {
             normalizedSetPoint = ((phaseTapChanger.getLowTapPosition() + phaseTapChanger.getHighTapPosition()) / 2) + (int) setpoint;
         } else if (rangeDefinition == STARTS_AT_ONE) {
-            normalizedSetPoint = phaseTapChanger.getLowTapPosition() + (int) setpoint - 1;
+            normalizedSetPoint = phaseTapChanger.getLowTapPosition() + setpoint - 1;
         }
 
         if (normalizedSetPoint >= phaseTapChanger.getLowTapPosition() && normalizedSetPoint <= phaseTapChanger.getHighTapPosition()) {
