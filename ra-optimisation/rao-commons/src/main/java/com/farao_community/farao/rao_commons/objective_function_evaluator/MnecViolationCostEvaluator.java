@@ -16,6 +16,7 @@ import com.farao_community.farao.rao_commons.adapter.SystematicSensitivityResult
 import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -75,8 +76,14 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         if (sortedElements.isEmpty()) {
             sortedElements = cnecs.stream()
                     .filter(Cnec::isMonitored)
-                    .filter(mnec -> computeCost(branchResult, mnec) != 0)
-                    .sorted(Comparator.comparing(mnec -> computeCost(branchResult, mnec)))
+                    .collect(Collectors.toMap(
+                            Function.identity(),
+                            cnec -> computeCost(branchResult, cnec)
+                    ))
+                    .entrySet().stream()
+                    .filter(entry -> entry.getValue() != 0)
+                    .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+                    .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
         }
         Collections.reverse(sortedElements);
