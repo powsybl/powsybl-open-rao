@@ -91,7 +91,7 @@ public class PstHelper {
      */
     public int normalizeTap(int originalTap, TapConvention originalTapConvention) {
         if (originalTapConvention.equals(TapConvention.CENTERED_ON_ZERO)) {
-            return originalTap; // TODO : add (min + max) / 2 like before ?
+            return originalTap;
         } else {
             return lowTapPosition + originalTap - 1;
         }
