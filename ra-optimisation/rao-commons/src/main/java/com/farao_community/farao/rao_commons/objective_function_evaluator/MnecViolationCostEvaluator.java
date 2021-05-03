@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_api.parameters.MnecParameters;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
@@ -24,14 +25,14 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecViolationCostEvaluator implements CostEvaluator {
-    private final Set<BranchCnec> mnecs;
+    private final Set<BranchCnec> cnecs;
     private final BranchResult initialFlowResult;
     private final double mnecAcceptableMarginDiminutionInMW;
     private final double mnecViolationCostInMWPerMW;
     private List<BranchCnec> sortedElements = new ArrayList<>();
 
-    public MnecViolationCostEvaluator(Set<BranchCnec> mnecs, BranchResult initialFlowResult, MnecParameters mnecParameters) {
-        this.mnecs = mnecs;
+    public MnecViolationCostEvaluator(Set<BranchCnec> cnecs, BranchResult initialFlowResult, MnecParameters mnecParameters) {
+        this.cnecs = cnecs;
         this.initialFlowResult = initialFlowResult;
         mnecAcceptableMarginDiminutionInMW = mnecParameters.getMnecAcceptableMarginDiminution();
         mnecViolationCostInMWPerMW = mnecParameters.getMnecViolationCost();
@@ -54,7 +55,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             return 0;
         }
         double totalMnecMarginViolation = 0;
-        for (BranchCnec mnec : mnecs) {
+        for (BranchCnec mnec : cnecs) {
             if (mnec.isMonitored()) {
                 totalMnecMarginViolation += computeCost(branchResult, mnec);
             }
@@ -70,7 +71,9 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     @Override
     public List<BranchCnec> getCostlyElements(BranchResult branchResult, int numberOfElements) {
         if (sortedElements.isEmpty()) {
-            sortedElements = mnecs.stream()
+            sortedElements = cnecs.stream()
+                    .filter(Cnec::isMonitored)
+                    .filter(mnec -> computeCost(branchResult, mnec) != 0)
                     .sorted(Comparator.comparing(mnec -> computeCost(branchResult, mnec)))
                     .collect(Collectors.toList());
         }

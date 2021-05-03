@@ -19,26 +19,28 @@ import java.util.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class AbsoluteMinMarginEvaluator extends AbstractMinMarginEvaluator {
+public class MarginEvaluatorWithUnoptimizedCnecs implements MarginEvaluator {
+    private final MarginEvaluator marginEvaluator;
+    private final Set<String> countriesNotToOptimize;
+    private final BranchResult prePerimeterBranchResult;
 
-    public AbsoluteMinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit, Set<String> countriesNotToOptimize, BranchResult prePerimeterBranchResult) {
-        super(cnecs, unit, countriesNotToOptimize, prePerimeterBranchResult);
+    public MarginEvaluatorWithUnoptimizedCnecs(MarginEvaluator marginEvaluator,
+                                               Set<String> countriesNotToOptimize,
+                                               BranchResult prePerimeterBranchResult) {
+        this.marginEvaluator = marginEvaluator;
+        this.countriesNotToOptimize = countriesNotToOptimize;
+        this.prePerimeterBranchResult = prePerimeterBranchResult;
     }
 
     @Override
-    double getMargin(BranchResult branchResult, BranchCnec branchCnec, Unit unit) {
-        double newMargin = branchResult.getMargin(branchCnec, unit);
+    public double getMargin(BranchResult branchResult, BranchCnec branchCnec, Unit unit) {
+        double newMargin = marginEvaluator.getMargin(branchResult, branchCnec, unit);
         if (countriesNotToOptimize.contains(branchCnec.getOperator())) {
-            double prePerimeterMargin = prePerimeterBranchResult.getMargin(branchCnec, unit);
+            double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterBranchResult, branchCnec, unit);
             if (newMargin > prePerimeterMargin - .0001 * Math.abs(prePerimeterMargin)) {
                 return Double.MAX_VALUE;
             }
         }
         return newMargin;
-    }
-
-    @Override
-    public String getName() {
-        return "absolute-min-margin-cost";
     }
 }
