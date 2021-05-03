@@ -38,6 +38,13 @@ public class PstHelperTest {
     }
 
     @Test
+    public void testInvalidPst2() {
+        PstHelper pstHelper = new PstHelper("FFR3AA1  FFR3AA2  1", network);
+        assertFalse(pstHelper.isPstValid());
+        assertTrue(pstHelper.getInvalidPstReason().contains("does not have a phase tap changer"));
+    }
+
+    @Test
     public void testValidPst() {
         PstHelper pstHelper = new PstHelper("BBE2AA1  BBE3AA1  1", network);
 
