@@ -7,9 +7,8 @@
 
 package com.farao_community.farao.data.crac_api.range_action;
 
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.RemedialAction;
-import com.farao_community.farao.data.crac_api.Synchronizable;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
@@ -27,7 +26,7 @@ import java.util.Optional;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface RangeAction extends RemedialAction<RangeAction>, Synchronizable {
+public interface RangeAction extends RemedialAction<RangeAction> {
 
     /**
      * Apply the action on a given network, with a given setpoint

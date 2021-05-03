@@ -12,8 +12,6 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_util.CracCleaner;
-import com.farao_community.farao.rao_commons.RaoInputHelper;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -70,11 +68,6 @@ public class MnecFillerTest extends AbstractFillerTest {
             .withMonitored(true)
             .withInstant(Instant.PREVENTIVE)
             .add();
-
-        crac.desynchronize();
-        CracCleaner cracCleaner = new CracCleaner();
-        cracCleaner.cleanCrac(crac, network);
-        RaoInputHelper.synchronize(crac, network);
 
         // fill the problem : the core filler is required
         coreProblemFiller = new CoreProblemFiller(

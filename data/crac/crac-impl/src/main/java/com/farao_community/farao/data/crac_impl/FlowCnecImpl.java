@@ -10,12 +10,12 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.Threshold;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
 import java.util.Set;
@@ -65,7 +65,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
     @Override
     public Double getIMax(Side side) {
-        //checkSynchronized(format("access iMax values of flow cnec %s", getId()));
         if (side.equals(LEFT)) {
             return iMax[0];
         } else {
@@ -165,10 +164,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
     private double changeValueSide(double value, Side oldSide, Side newSide) {
         return value * getNominalVoltage(oldSide) / getNominalVoltage(newSide);
-    }
-
-    @Override
-    public void synchronize(Network network) {
     }
 
     @Override

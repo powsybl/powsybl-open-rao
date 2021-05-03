@@ -69,7 +69,6 @@ public class IteratingLinearOptimizerTest {
 
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        crac.synchronize(network);
 
         costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
         Mockito.when(costEvaluator.computeFunctionalCost(any())).thenReturn(0.);

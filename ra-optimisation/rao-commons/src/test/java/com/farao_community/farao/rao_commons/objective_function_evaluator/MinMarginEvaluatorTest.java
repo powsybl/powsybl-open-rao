@@ -55,7 +55,6 @@ public class MinMarginEvaluatorTest {
     public void setUp() {
         crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac.synchronize(network);
 
         initialPtdfSums = new HashMap<>();
         setPtdfSum("cnec1basecase", 0.5);
@@ -313,9 +312,6 @@ public class MinMarginEvaluatorTest {
             .withOptimized().withMonitored()
             .withInstant(Instant.PREVENTIVE)
             .add();
-
-        crac.desynchronize();
-        RaoInputHelper.synchronize(crac, network);
 
         Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("mnec1basecase")))
                 .thenReturn(200.);

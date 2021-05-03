@@ -8,11 +8,11 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.powsybl.iidm.network.Network;
+import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -89,23 +89,9 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
     }
 
     @Override
-    public void synchronize(Network network) {
-    }
-
-    @Override
     public Double getNominalVoltage(Side side) {
         //checkSynchronized(format("access voltage levels of branch cnec %s", getId()));
         return nominalVoltages[side.equals(Side.LEFT) ? 0 : 1];
-    }
-
-    @Override
-    public void desynchronize() {
-        isSynchronized = false;
-    }
-
-    @Override
-    public boolean isSynchronized() {
-        return isSynchronized;
     }
 
     @Override

@@ -104,19 +104,4 @@ public class ContingencyImpl extends AbstractIdentifiable<Contingency> implement
     public int hashCode() {
         return super.hashCode();
     }
-
-    @Override
-    public void synchronize(Network network) {
-        // nothing to do
-    }
-
-    @Override
-    public void desynchronize() {
-        // nothing to do
-    }
-
-    @Override
-    public boolean isSynchronized() {
-        return true;
-    }
 }

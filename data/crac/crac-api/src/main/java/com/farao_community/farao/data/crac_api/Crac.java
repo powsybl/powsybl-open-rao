@@ -40,7 +40,7 @@ import static java.lang.String.format;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Crac extends Identifiable<Crac>, Synchronizable {
+public interface Crac extends Identifiable<Crac> {
 
     // Contingencies management
 

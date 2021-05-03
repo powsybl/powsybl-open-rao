@@ -89,19 +89,6 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
         return Collections.singleton(networkElement);
     }
 
-    @Override
-    public void synchronize(Network network) {
-    }
-
-    @Override
-    public void desynchronize() {
-    }
-
-    @Override
-    public boolean isSynchronized() {
-        return false;
-    }
-
     /**
      * Min angle value allowed by all ranges and the physical limitations of the PST itself
      */

@@ -38,7 +38,6 @@ public class BestTapFinderTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithPreventivePstRange();
-        crac.synchronize(network);
 
         pstRangeAction = (PstRangeAction) crac.getRangeAction("pst");
 

@@ -104,9 +104,6 @@ public class MnecViolationCostEvaluatorTest {
         crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
         crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
 
-        CracCleaner cracCleaner = new CracCleaner();
-        cracCleaner.cleanCrac(crac, network);
-
         cnecs = crac.getBranchCnecs();
         initialFlows = new HashMap<>();
         sensiResult = Mockito.mock(SystematicSensitivityResult.class);

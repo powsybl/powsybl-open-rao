@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.powsybl.iidm.network.Network;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -21,7 +20,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     protected final State state;
     protected boolean optimized;
     protected boolean monitored;
-    protected boolean isSynchronized = false;
     protected String operator = null;
     protected double frm = 0;
 
@@ -95,21 +93,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public double getReliabilityMargin() {
         return frm;
-    }
-
-    @Override
-    public void synchronize(Network network) {
-        isSynchronized = true;
-    }
-
-    @Override
-    public void desynchronize() {
-        isSynchronized = false;
-    }
-
-    @Override
-    public boolean isSynchronized() {
-        return isSynchronized;
     }
 
     @Override

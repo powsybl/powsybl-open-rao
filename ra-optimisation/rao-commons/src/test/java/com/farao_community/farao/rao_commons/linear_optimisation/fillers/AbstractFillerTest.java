@@ -79,7 +79,6 @@ abstract class AbstractFillerTest {
         // crac and network
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac.synchronize(network);
 
         // get cnec and rangeAction
         cnec1 = crac.getFlowCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);

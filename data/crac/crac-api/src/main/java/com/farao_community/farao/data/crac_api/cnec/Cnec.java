@@ -27,7 +27,7 @@ import java.util.Set;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Cnec<I extends Cnec<I>> extends Identifiable<I>, Synchronizable {
+public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
 
     /**
      * Getter of the {@link NetworkElement} on which the {@code Cnec} is defined.

@@ -394,8 +394,6 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 .add();
 
         network = NetworkImportsUtil.import12NodesWith2PstsNetwork();
-        crac.desynchronize();
-        crac.synchronize(network);
 
         RangeAction ra1 = crac.getRangeAction("pst1-group1");
         RangeAction ra2 = crac.getRangeAction("pst2-group1");

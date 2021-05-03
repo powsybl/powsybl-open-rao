@@ -21,7 +21,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -203,29 +202,6 @@ public class CracImplTest {
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(1, crac.getRemedialActions().size());
         assertNotNull(crac.getRemedialAction("rangeAction"));
-    }
-
-    @Test
-    public void testSynchronizeFlag() {
-        assertFalse(crac.isSynchronized());
-        Network network = Mockito.mock(Network.class);
-        crac.synchronize(network);
-        assertTrue(crac.isSynchronized());
-    }
-
-    @Test(expected = FaraoException.class)
-    public void synchronizeFailSecondTime() {
-        Network network = Mockito.mock(Network.class);
-        crac.synchronize(network);
-        crac.synchronize(network);
-    }
-
-    @Test(expected = Test.None.class)
-    public void synchronizeThenDesynchronizeThenSynchronizeAgain() {
-        Network network = Mockito.mock(Network.class);
-        crac.synchronize(network);
-        crac.desynchronize();
-        crac.synchronize(network);
     }
 
     @Test

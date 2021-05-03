@@ -8,9 +8,9 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -26,21 +26,6 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
 
     AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules) {
         super(id, name, operator, usageRules);
-    }
-
-    @Override
-    public void synchronize(Network network) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void desynchronize() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isSynchronized() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
