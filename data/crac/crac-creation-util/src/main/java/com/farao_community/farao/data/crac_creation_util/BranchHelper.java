@@ -23,12 +23,12 @@ import static java.lang.String.format;
 public class BranchHelper {
     private String branchId;
     private boolean isBranchValid = true;
-    private String invalidBranchReason = null;
+    private String invalidBranchReason;
     protected String branchIdInNetwork;
-    private Double nominalVoltageLeft = null;
-    private Double nominalVoltageRight = null;
-    protected Double currentLimitLeft = null;
-    protected Double currentLimitRight = null;
+    private Double nominalVoltageLeft;
+    private Double nominalVoltageRight;
+    protected Double currentLimitLeft;
+    protected Double currentLimitRight;
 
     protected BranchHelper(String branchId) {
         this.branchId = branchId;

@@ -15,7 +15,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * todo: javadoc
+ * Utility class to be used in Crac creators.
+ * It exposes useful functions to import PST range actions.
  *
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -28,7 +29,7 @@ public class PstHelper {
     private String pstId;
 
     private boolean isPstValid = true;
-    private String invalidPstReason = "";
+    private String invalidPstReason;
     private int lowTapPosition;
     private int highTapPosition;
     private int initialTapPosition;
@@ -39,32 +40,64 @@ public class PstHelper {
         interpretWithNetwork(network);
     }
 
+    /**
+     * Returns a boolean indicating whether or not the PST is considered valid in the network
+     */
     public boolean isPstValid() {
         return isPstValid;
     }
 
+    /**
+     * If the PST is not valid, returns the reason why it is considered invalid
+     */
     public String getInvalidPstReason() {
         return invalidPstReason;
     }
 
+    /**
+     * Returns the lowest tap position of the PST, as defined in the network. Convention is centered on zero.
+     */
     public int getLowTapPosition() {
         return lowTapPosition;
     }
 
+    /**
+     * Returns the highest tap position of the PST, as defined in the network. Convention is centered on zero.
+     */
     public int getHighTapPosition() {
         return highTapPosition;
     }
 
+    /**
+     * Returns the initial tap position of the PST, as defined in the network. Convention is centered on zero.
+     */
     public int getInitialTap() {
         return initialTapPosition;
     }
 
+    /**
+     * Returns the tap to angle conversion map of the PST, as defined in the network. Convention for taps is centered on zero.
+     */
     public Map<Integer, Double> getTapToAngleConversionMap() {
         return tapToAngleConversionMap;
     }
 
-    private void interpretWithNetwork(Network network) {
+    /**
+     * Converts a tap position of the PST to the used convention (centered on zero).
+     * Has no effect if the original convetion is already centered on zero.
+     * @param originalTap the original tap position
+     * @param originalTapConvention the convention used for the original tap position
+     * @return the normalized (centered on zero) tap position
+     */
+    public int normalizeTap(int originalTap, TapConvention originalTapConvention) {
+        if (originalTapConvention.equals(TapConvention.CENTERED_ON_ZERO)) {
+            return originalTap; // TODO : add (min + max) / 2 like before ?
+        } else {
+            return lowTapPosition + originalTap - 1;
+        }
+    }
 
+    private void interpretWithNetwork(Network network) {
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(pstId);
         if (Objects.isNull(transformer)) {
             invalidate(String.format("transformer with id %s was not found in network", pstId));
@@ -92,13 +125,5 @@ public class PstHelper {
     private void invalidate(String reason) {
         this.isPstValid = false;
         this.invalidPstReason = reason;
-    }
-
-    public int normalizeTap(int originalTap, TapConvention originalTapConvention) {
-        if (originalTapConvention.equals(TapConvention.CENTERED_ON_ZERO)) {
-            return originalTap; // TODO : add (min + max) / 2 like before ?
-        } else {
-            return lowTapPosition + originalTap - 1;
-        }
     }
 }
