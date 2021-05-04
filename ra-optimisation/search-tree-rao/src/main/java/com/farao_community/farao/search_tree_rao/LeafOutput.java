@@ -115,7 +115,7 @@ public class LeafOutput implements PerimeterResult {
 
     @Override
     public Set<RangeAction> getActivatedRangeActions() {
-        return getActivatedRangeActions();
+        return rangeActionResult.getActivatedRangeActions();
     }
 
     @Override

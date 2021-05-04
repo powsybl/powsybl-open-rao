@@ -69,8 +69,8 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         if (sortedElements.isEmpty()) {
             sortedElements = loopflowCnecs.stream()
                     .collect(Collectors.toMap(
-                            Function.identity(),
-                            cnec -> getLoopFlowExcess(branchResult, cnec)
+                        Function.identity(),
+                        cnec -> getLoopFlowExcess(branchResult, cnec)
                     ))
                     .entrySet().stream()
                     .filter(entry -> entry.getValue() != 0)

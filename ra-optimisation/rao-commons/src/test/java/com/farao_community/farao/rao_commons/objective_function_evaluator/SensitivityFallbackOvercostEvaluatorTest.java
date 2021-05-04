@@ -10,8 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

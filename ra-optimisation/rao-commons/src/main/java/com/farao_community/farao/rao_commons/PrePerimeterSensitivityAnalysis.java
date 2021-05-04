@@ -103,9 +103,11 @@ public class PrePerimeterSensitivityAnalysis {
             prePerimeterMarginsInAbsoluteMW.put(cnec, cnec.computeMargin(sensitivityAndLoopflowResults.getSystematicSensitivityResult().getReferenceFlow(cnec), Side.LEFT, Unit.MEGAWATT));
         });
 
-        Map<BranchCnec, Double> loopflowsInMW = new HashMap<>();
-        Map<BranchCnec, Double> finalCommercialFlows = commercialFlows;
-        loopflowCnecs.forEach(cnec -> loopflowsInMW.put(cnec, cnecFlowsInMW.get(cnec) -  finalCommercialFlows.get(cnec)));
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            Map<BranchCnec, Double> loopflowsInMW = new HashMap<>();
+            Map<BranchCnec, Double> finalCommercialFlows = commercialFlows;
+            loopflowCnecs.forEach(cnec -> loopflowsInMW.put(cnec, cnecFlowsInMW.get(cnec) - finalCommercialFlows.get(cnec)));
+        }
 
         BranchResultAdapter branchResultAdapter = new BranchResultAdapterWithFixedPtdfsAndCommercialFlows(ptdfSums, commercialFlows);
         BranchResult branchResult = branchResultAdapter.getResult(sensitivityResult);

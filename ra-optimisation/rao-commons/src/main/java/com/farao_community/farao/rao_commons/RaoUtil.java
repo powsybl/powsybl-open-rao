@@ -106,7 +106,7 @@ public final class RaoUtil {
 
         Set<Unit> flowUnits = new HashSet<>();
         flowUnits.add(Unit.MEGAWATT);
-        if (raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
             flowUnits.add(Unit.AMPERE);
         }
 
@@ -131,18 +131,16 @@ public final class RaoUtil {
                                                             BranchResult prePerimeterBranchResult) {
         ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder =  ObjectiveFunction.create();
         if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
-            objectiveFunctionBuilder.withFunctionalCostEvaluator(new RelativeMinMarginEvaluator(
+            objectiveFunctionBuilder.withFunctionalCostEvaluator(new MinMarginEvaluator(
                     cnecs,
                     raoParameters.getObjectiveFunction().getUnit(),
-                    countriesNotToOptimize,
-                    prePerimeterBranchResult
+                    new MarginEvaluatorWithUnoptimizedCnecs(BranchResult::getRelativeMargin, countriesNotToOptimize, prePerimeterBranchResult)
             ));
         } else {
-            objectiveFunctionBuilder.withFunctionalCostEvaluator(new AbsoluteMinMarginEvaluator(
+            objectiveFunctionBuilder.withFunctionalCostEvaluator(new MinMarginEvaluator(
                     cnecs,
                     raoParameters.getObjectiveFunction().getUnit(),
-                    countriesNotToOptimize,
-                    prePerimeterBranchResult
+                    new MarginEvaluatorWithUnoptimizedCnecs(BranchResult::getMargin, countriesNotToOptimize, prePerimeterBranchResult)
             ));
         }
         if (raoParameters.getMnecParameters() != null) {

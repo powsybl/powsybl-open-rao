@@ -83,8 +83,10 @@ class Leaf {
 
     Leaf(LeafInput leafInput, RaoParameters raoParameters, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
         this.leafInput = leafInput;
-        networkActions = leafInput.getAppliedNetworkActions();
-        networkActions.add(leafInput.getNetworkActionToApply());
+        networkActions = new HashSet<>(leafInput.getPreAppliedNetworkActions());
+        if (!Objects.isNull(leafInput.getNetworkActionToApply())) {
+            networkActions.add(leafInput.getNetworkActionToApply());
+        }
         this.raoParameters = raoParameters;
         this.treeParameters = treeParameters;
         this.linearOptimizerParameters = linearOptimizerParameters;
@@ -126,7 +128,7 @@ class Leaf {
     void evaluate() {
         if (status.equals(Status.EVALUATED)) {
             LOGGER.debug("Leaf has already been evaluated");
-            createOutputFromPreOptimSituation();
+            leafOutput = createOutputFromPreOptimSituation();
             return;
         }
 
@@ -147,7 +149,7 @@ class Leaf {
                 leafInput.setSensitivityAndLoopflowResults(new SensitivityAndLoopflowResults(sensitivityResult, sensitivityStatus, leafInput.getCommercialFlows()));
             }
 
-            createOutputFromPreOptimSituation();
+            leafOutput = createOutputFromPreOptimSituation();
             status = Status.EVALUATED;
         } catch (FaraoException e) {
             LOGGER.error(String.format("Failed to evaluate leaf: %s", e.getMessage()));

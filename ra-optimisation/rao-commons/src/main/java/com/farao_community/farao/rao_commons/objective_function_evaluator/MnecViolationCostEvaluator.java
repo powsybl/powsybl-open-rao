@@ -75,8 +75,8 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             sortedElements = cnecs.stream()
                     .filter(Cnec::isMonitored)
                     .collect(Collectors.toMap(
-                            Function.identity(),
-                            cnec -> computeCost(branchResult, cnec)
+                        Function.identity(),
+                        cnec -> computeCost(branchResult, cnec)
                     ))
                     .entrySet().stream()
                     .filter(entry -> entry.getValue() != 0)

@@ -39,6 +39,11 @@ public class RaoResultImpl extends AbstractExtendable<RaoResultImpl> implements 
     }
 
     @Override
+    public PerimeterResult getPreventivePerimeterResult(OptimizationState optimizationState) {
+        return null;
+    }
+
+    @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
         return 0;
     }

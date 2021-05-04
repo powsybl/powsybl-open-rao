@@ -22,7 +22,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
 public class LeafInput {
     private Network network;
     private Set<BranchCnec> cnecs;
-    private Set<NetworkAction> appliedNetworkActions;
+    private Set<NetworkAction> preAppliedNetworkActions;
     private NetworkAction networkActionToApply;
     private Set<NetworkAction> allNetworkActions;
     private Set<RangeAction> rangeActions;
@@ -39,10 +39,10 @@ public class LeafInput {
     private Map<BranchCnec, Double> commercialFlows;
     private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
-    public LeafInput(SearchTreeInput searchTreeInput, Set<NetworkAction> appliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunction objectiveFunction, IteratingLinearOptimizer iteratingLinearOptimizer) {
-        this.network = searchTreeInput.getNetwork();
+    public LeafInput(SearchTreeInput searchTreeInput, Network network, Set<NetworkAction> preAppliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunction objectiveFunction, IteratingLinearOptimizer iteratingLinearOptimizer) {
+        this.network = network;
         this.cnecs = searchTreeInput.getCnecs();
-        this.appliedNetworkActions = appliedNetworkActions;
+        this.preAppliedNetworkActions = preAppliedNetworkActions;
         this.networkActionToApply = networkActionToApply;
         this.allNetworkActions = searchTreeInput.getNetworkActions();
         this.rangeActions = searchTreeInput.getRangeActions();
@@ -61,7 +61,7 @@ public class LeafInput {
         this.commercialFlows = prePerimeterCommercialFlows;
 
         this.prePerimeterSetpoints = searchTreeInput.getPrePerimeterSetpoints();
-        if (appliedNetworkActions.isEmpty() && Objects.isNull(networkActionToApply)) {
+        if (preAppliedNetworkActions.isEmpty() && Objects.isNull(networkActionToApply)) {
             this.sensitivityAndLoopflowResults = searchTreeInput.getPrePerimeterSensitivityAndLoopflowResults();
         } else {
             this.sensitivityAndLoopflowResults = null;
@@ -76,8 +76,8 @@ public class LeafInput {
         return cnecs;
     }
 
-    public Set<NetworkAction> getAppliedNetworkActions() {
-        return appliedNetworkActions;
+    public Set<NetworkAction> getPreAppliedNetworkActions() {
+        return preAppliedNetworkActions;
     }
 
     public NetworkAction getNetworkActionToApply() {

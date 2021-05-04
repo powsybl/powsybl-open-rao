@@ -9,7 +9,6 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.farao_community.farao.rao_api.results.PerimeterResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.adapter.*;
@@ -61,7 +60,7 @@ public class SearchTree {
     private IteratingLinearOptimizer iteratingLinearOptimizer;
 
     void initLeaves() {
-        LeafInput leafInput = new LeafInput(searchTreeInput, new HashSet<>(), null, objectiveFunction, iteratingLinearOptimizer);
+        LeafInput leafInput = new LeafInput(searchTreeInput, searchTreeInput.getNetwork(), new HashSet<>(), null, objectiveFunction, iteratingLinearOptimizer);
         rootLeaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
@@ -197,7 +196,7 @@ public class SearchTree {
 
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
-        LeafInput leafInput = new LeafInput(searchTreeInput, optimalLeaf.getNetworkActions(), networkAction, objectiveFunction, iteratingLinearOptimizer);
+        LeafInput leafInput = new LeafInput(searchTreeInput, network, optimalLeaf.getLeafInput().getPreAppliedNetworkActions(), networkAction, objectiveFunction, iteratingLinearOptimizer);
         try {
             leaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         } catch (NotImplementedException e) {
@@ -255,18 +254,5 @@ public class SearchTree {
         return newCost < currentBestCost
                 && previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
                 && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
-    }
-
-    private RaoResultImpl buildOutput() {
-        RaoResultImpl raoResult = new RaoResultImpl(getRaoResultStatus(optimalLeaf));
-        return raoResult;
-    }
-
-    private RaoResultImpl.Status getRaoResultStatus(Leaf leaf) {
-        if (leaf.getStatus().equals(Leaf.Status.ERROR)) {
-            return RaoResultImpl.Status.FAILURE;
-        } else {
-            return leaf.isFallback() ? RaoResultImpl.Status.FALLBACK : RaoResultImpl.Status.DEFAULT;
-        }
     }
 }
