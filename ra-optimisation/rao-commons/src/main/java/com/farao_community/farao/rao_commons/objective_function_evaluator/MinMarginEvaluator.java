@@ -23,7 +23,6 @@ public class MinMarginEvaluator implements CostEvaluator {
     private final Set<BranchCnec> cnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
-    private List<BranchCnec> sortedElements = new ArrayList<>();
 
     public MinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.cnecs = cnecs;
@@ -43,12 +42,10 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public List<BranchCnec> getCostlyElements(BranchResult branchResult, int numberOfElements) {
-        if (sortedElements.isEmpty()) {
-            sortedElements = cnecs.stream()
-                    .filter(Cnec::isOptimized)
-                    .sorted(Comparator.comparing(branchCnec -> marginEvaluator.getMargin(branchResult, branchCnec, unit)))
-                    .collect(Collectors.toList());
-        }
+        List<BranchCnec> sortedElements = cnecs.stream()
+                .filter(Cnec::isOptimized)
+                .sorted(Comparator.comparing(branchCnec -> marginEvaluator.getMargin(branchResult, branchCnec, unit)))
+                .collect(Collectors.toList());
 
         return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }

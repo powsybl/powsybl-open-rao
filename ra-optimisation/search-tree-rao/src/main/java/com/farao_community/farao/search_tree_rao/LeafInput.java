@@ -39,8 +39,8 @@ public class LeafInput {
     private Map<BranchCnec, Double> commercialFlows;
     private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
-    public LeafInput(SearchTreeInput searchTreeInput, Set<NetworkAction> preAppliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunction objectiveFunction, IteratingLinearOptimizer iteratingLinearOptimizer) {
-        this.network = searchTreeInput.getNetwork();
+    public LeafInput(SearchTreeInput searchTreeInput, Network network, Set<NetworkAction> preAppliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunction objectiveFunction, IteratingLinearOptimizer iteratingLinearOptimizer) {
+        this.network = network;
         this.cnecs = searchTreeInput.getCnecs();
         this.preAppliedNetworkActions = preAppliedNetworkActions;
         this.networkActionToApply = networkActionToApply;
