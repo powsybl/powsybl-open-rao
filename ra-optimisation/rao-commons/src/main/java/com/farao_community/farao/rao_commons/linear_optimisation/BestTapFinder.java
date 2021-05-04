@@ -226,16 +226,8 @@ public final class BestTapFinder {
             double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;
             double flow2 = sensitivity * (angle2 - currentSetPoint) + referenceFlow;
 
-            Optional<Double> minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
-            if (minFlow.isPresent()) {
-                minMargin1 = Math.min(minMargin1, flow1 - minFlow.get());
-                minMargin2 = Math.min(minMargin2, flow2 - minFlow.get());
-            }
-            Optional<Double> maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            if (maxFlow.isPresent()) {
-                minMargin1 = Math.min(minMargin1, maxFlow.get() - flow1);
-                minMargin2 = Math.min(minMargin2, maxFlow.get() - flow2);
-            }
+            minMargin1 = Math.min(minMargin1, cnec.computeMargin(flow1, Side.LEFT, MEGAWATT));
+            minMargin2 = Math.min(minMargin2, cnec.computeMargin(flow2, Side.LEFT, MEGAWATT));
         }
         return Pair.of(minMargin1, minMargin2);
     }
