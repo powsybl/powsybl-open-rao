@@ -335,11 +335,13 @@ class Leaf {
                     linearOptimizerParameters.getLoopFlowParameters()
             ));
         }
-        linearProblemBuilder.withProblemFiller(new UnoptimizedCnecFiller(
-                leafInput.getCnecs(),
-                leafInput.getPrePerimeterBranchResult(),
-                linearOptimizerParameters.getUnoptimizedCnecParameters()
-        ));
+        if (!Objects.isNull(linearOptimizerParameters.getUnoptimizedCnecParameters())) {
+            linearProblemBuilder.withProblemFiller(new UnoptimizedCnecFiller(
+                    leafInput.getCnecs(),
+                    leafInput.getPrePerimeterBranchResult(),
+                    linearOptimizerParameters.getUnoptimizedCnecParameters()
+            ));
+        }
         linearProblemBuilder.withBranchResult(preOptimBranchResult);
         return linearProblemBuilder.build();
     }
@@ -479,10 +481,6 @@ class Leaf {
             }
         }
         return false;
-    }
-
-    boolean isFallback() {
-        return leafOutput.getStatus().equals(PerimeterStatus.FALLBACK);
     }
 
     @Override
