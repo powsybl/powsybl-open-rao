@@ -7,6 +7,7 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
@@ -43,8 +44,10 @@ public class XnodeGlskHandlerTest {
         Set<NetworkElement> danglingLine = Collections.singleton(new NetworkElement("FFR1AA1  XLI_OB1B 1"));
 
         State baseCase = new PreventiveState();
-        State contingencyClassic = new PostContingencyState(new ComplexContingency("internalBranch", internalBranch), Instant.OUTAGE);
-        State contingencyDl = new PostContingencyState(new ComplexContingency("danglingLine", danglingLine), Instant.OUTAGE);
+        Contingency classicContingency = new ComplexContingency("internalBranch", internalBranch);
+        State contingencyClassic = new PostContingencyState(classicContingency, Instant.OUTAGE);
+        Contingency dlContingency = new ComplexContingency("danglingLine", danglingLine);
+        State contingencyDl = new PostContingencyState(dlContingency, Instant.OUTAGE);
 
         BranchCnec cnec1 = new FlowCnecImpl("cnec1", new NetworkElement("ne"), "operator", baseCase, true, true, new HashSet<>(), 0.0);
         BranchCnec cnec2 = new FlowCnecImpl("cnec2", new NetworkElement("ne"), "operator", contingencyClassic, true, true, new HashSet<>(), 0.0);
@@ -52,7 +55,7 @@ public class XnodeGlskHandlerTest {
 
         Set<BranchCnec> cnecs = new HashSet<>(Arrays.asList(cnec1, cnec2, cnec3));
 
-        XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glskZonalData, cnecs, network);
+        XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glskZonalData, Set.of(classicContingency, dlContingency), network);
 
         assertTrue(xnodeGlskHandler.isLinearGlskValidForCnec(cnec1, glskZonalData.getData("10YNL----------L")));
         assertTrue(xnodeGlskHandler.isLinearGlskValidForCnec(cnec2, glskZonalData.getData("10YNL----------L")));

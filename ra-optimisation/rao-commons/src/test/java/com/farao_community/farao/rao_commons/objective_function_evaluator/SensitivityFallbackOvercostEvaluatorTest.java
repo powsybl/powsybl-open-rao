@@ -7,8 +7,9 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -19,36 +20,51 @@ import static org.junit.Assert.assertEquals;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SensitivityFallbackOvercostEvaluatorTest {
-
     private static final double DOUBLE_TOLERANCE = 0.01;
-    private SystematicSensitivityResult systematicSensitivityResult;
-    private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
+
+    private BranchResult branchResult;
+    private SensitivityFallbackOvercostEvaluator evaluator;
 
     @Before
     public void setUp() {
-        systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult);
+        branchResult = Mockito.mock(BranchResult.class);
     }
 
     @Test
-    public void testSuccess() {
-        Mockito.when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
-        assertEquals(0., new SensitivityFallbackOvercostEvaluator(0.).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
-        assertEquals(0., new SensitivityFallbackOvercostEvaluator(10.).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
-        assertEquals(0., new SensitivityFallbackOvercostEvaluator(100.).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+    public void testGetName() {
+        evaluator = new SensitivityFallbackOvercostEvaluator(10);
+        assertEquals("sensitivity-fallback-cost", evaluator.getName());
     }
 
     @Test
-    public void testFallBack() {
-        Mockito.when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK);
-        assertEquals(0., new SensitivityFallbackOvercostEvaluator(0.).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
-        assertEquals(10., new SensitivityFallbackOvercostEvaluator(10.).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
-        assertEquals(100., new SensitivityFallbackOvercostEvaluator(100.).computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
+    public void testGetUnit() {
+        evaluator = new SensitivityFallbackOvercostEvaluator(10);
+        assertEquals(Unit.MEGAWATT, evaluator.getUnit());
+    }
+
+    @Test
+    public void testWithNullCost() {
+        evaluator = new SensitivityFallbackOvercostEvaluator(0);
+        assertEquals(0, evaluator.computeCost(branchResult, SensitivityStatus.DEFAULT), DOUBLE_TOLERANCE);
+        assertEquals(0, evaluator.computeCost(branchResult, SensitivityStatus.FALLBACK), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testWithCost() {
+        evaluator = new SensitivityFallbackOvercostEvaluator(10);
+        assertEquals(0, evaluator.computeCost(branchResult, SensitivityStatus.DEFAULT), DOUBLE_TOLERANCE);
+        assertEquals(10, evaluator.computeCost(branchResult, SensitivityStatus.FALLBACK), DOUBLE_TOLERANCE);
     }
 
     @Test (expected = FaraoException.class)
     public void testFailure() {
-        Mockito.when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
-        new SensitivityFallbackOvercostEvaluator(100.).computeCost(sensitivityAndLoopflowResults);
+        evaluator = new SensitivityFallbackOvercostEvaluator(10);
+        evaluator.computeCost(branchResult, SensitivityStatus.FAILURE);
+    }
+
+    @Test
+    public void testGetCostlyElements() {
+        evaluator = new SensitivityFallbackOvercostEvaluator(10);
+        assertEquals(0, evaluator.getCostlyElements(branchResult, 5).size());
     }
 }

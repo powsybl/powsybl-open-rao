@@ -7,52 +7,134 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.crac_util.CracCleaner;
-import com.farao_community.farao.rao_commons.RaoInputHelper;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerInput;
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import com.farao_community.farao.rao_api.parameters.MnecParameters;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.NotImplementedException;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecViolationCostEvaluatorTest {
-
-    private final static double MNEC_THRESHOLD = 1000.;
     private static final double DOUBLE_TOLERANCE = 0.1;
 
-    private BranchCnec mnec;
-    private Unit unit;
-    private SystematicSensitivityResult sensiResult;
+    private BranchCnec mnec1;
+    private BranchCnec mnec2;
+    private BranchCnec pureCnec;
+    private BranchResult initialBranchResult;
+    private BranchResult currentBranchResult;
     private MnecViolationCostEvaluator evaluator1;
     private MnecViolationCostEvaluator evaluator2;
-    private static final String TEST_VARIANT = "test-variant";
-    private LinearOptimizerInput linearOptimizerInput;
-    private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
-    private Map<BranchCnec, Double> initialFlows;
-    private Set<BranchCnec> cnecs;
+
+    @Before
+    public void setUp() {
+        mnec1 = Mockito.mock(BranchCnec.class);
+        when(mnec1.isOptimized()).thenReturn(true);
+        when(mnec1.isMonitored()).thenReturn(true);
+        mnec2 = Mockito.mock(BranchCnec.class);
+        when(mnec2.isOptimized()).thenReturn(false);
+        when(mnec2.isMonitored()).thenReturn(true);
+        pureCnec = Mockito.mock(BranchCnec.class);
+        when(pureCnec.isOptimized()).thenReturn(true);
+        when(pureCnec.isMonitored()).thenReturn(false);
+
+        initialBranchResult = Mockito.mock(BranchResult.class);
+        currentBranchResult = Mockito.mock(BranchResult.class);
+
+        evaluator1 = new MnecViolationCostEvaluator(
+                Set.of(mnec1, pureCnec),
+                initialBranchResult,
+                new MnecParameters(50, 10, 1)
+        );
+        evaluator2 = new MnecViolationCostEvaluator(
+                Set.of(mnec1, pureCnec),
+                initialBranchResult,
+                new MnecParameters(20, 2, 1)
+        );
+    }
+
+    private MnecViolationCostEvaluator createEvaluatorWithCosts(double violationCost) {
+        when(initialBranchResult.getMargin(mnec1, Unit.MEGAWATT)).thenReturn(-200.);
+        when(currentBranchResult.getMargin(mnec1, Unit.MEGAWATT)).thenReturn(-270.);
+        when(initialBranchResult.getMargin(mnec2, Unit.MEGAWATT)).thenReturn(-200.);
+        when(currentBranchResult.getMargin(mnec2, Unit.MEGAWATT)).thenReturn(-400.);
+
+        return new MnecViolationCostEvaluator(
+                Set.of(mnec1, mnec2, pureCnec),
+                initialBranchResult,
+                new MnecParameters(50, violationCost, 1)
+        );
+    }
+
+    private MnecViolationCostEvaluator createEvaluatorWithNoCosts() {
+        when(initialBranchResult.getMargin(mnec1, Unit.MEGAWATT)).thenReturn(200.);
+        when(currentBranchResult.getMargin(mnec1, Unit.MEGAWATT)).thenReturn(300.);
+        when(initialBranchResult.getMargin(mnec2, Unit.MEGAWATT)).thenReturn(200.);
+        when(currentBranchResult.getMargin(mnec2, Unit.MEGAWATT)).thenReturn(150.);
+
+        return new MnecViolationCostEvaluator(
+                Set.of(mnec1, mnec2, pureCnec),
+                initialBranchResult,
+                new MnecParameters(50, 10, 1)
+        );
+    }
+
+    @Test
+    public void getUnit() {
+        assertEquals(Unit.MEGAWATT, evaluator1.getUnit());
+    }
+
+    @Test
+    public void getName() {
+        assertEquals("mnec-cost", evaluator1.getName());
+    }
+
+    @Test
+    public void getCostlyElements() {
+        MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10);
+
+        List<BranchCnec> costlyElements = evaluator.getCostlyElements(currentBranchResult, 5);
+        assertEquals(2, costlyElements.size());
+        assertSame(mnec2, costlyElements.get(0));
+        assertSame(mnec1, costlyElements.get(1));
+    }
+
+    @Test
+    public void getCostlyElementsWithLimitedElements() {
+        MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10);
+
+        List<BranchCnec> costlyElements = evaluator.getCostlyElements(currentBranchResult, 1);
+        assertEquals(1, costlyElements.size());
+        assertSame(mnec2, costlyElements.get(0));
+    }
+
+    @Test
+    public void getCostlyElementsWithNoCostlyElements() {
+        MnecViolationCostEvaluator evaluator = createEvaluatorWithNoCosts();
+
+        List<BranchCnec> costlyElements = evaluator.getCostlyElements(currentBranchResult, 5);
+        assertEquals(0, costlyElements.size());
+    }
+
+    @Test
+    public void computeCostWithTooLowCost() {
+        MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10);
+
+        assertEquals(0, evaluator.computeCost(currentBranchResult, Mockito.mock(SensitivityStatus.class)), 1e-12);
+    }
 
     @Test
     public void testVirtualCostComputationInMW() {
-        setUp(Unit.MEGAWATT);
         testCost(-100, 0, 0, 0);
         testCost(-100, -50, 0, 0);
         testCost(-100, -150, 0, 60);
@@ -67,81 +149,20 @@ public class MnecViolationCostEvaluatorTest {
         testCost(200, -10, 100, 20);
     }
 
-    @Test
-    public void testVirtualCostComputationInA() {
-        setUp(Unit.AMPERE);
-        testCost(-100, 0, 0, 0);
-        testCost(-100, -50, 0, 0);
-        testCost(-100, -150, 0, 42.3);
-        testCost(-100, -200, 278.3, 142.3);
-        testCost(-100, -250, 778.3, 242.3);
-        testCost(30, 0, 0, 0);
-        testCost(30, -20, 0, 40);
-        testCost(30, -50, 78.3, 100);
-        testCost(200, 200, 0, 0);
-        testCost(200, 100, 0, 0);
-        testCost(200, 0, 0, 0);
-        testCost(200, -10, 100, 20);
-    }
-
-    private void setUp(Unit unit) {
-        this.unit = unit;
-
-        Network network = NetworkImportsUtil.import12NodesNetwork();
-        network.getVoltageLevels().forEach(v -> v.setNominalV(400.));
-
-        Crac crac = CommonCracCreation.create();
-
-        mnec = crac.newBranchCnec().setId("MNEC1 - initial-instant - preventive")
-                .newNetworkElement().setId("FFR2AA1  FFR3AA1  1").add()
-                .newThreshold().setMin(-MNEC_THRESHOLD).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMax(MNEC_THRESHOLD).setUnit(unit).add()
-                .optimized().monitored()
-                .setInstant(Instant.PREVENTIVE)
-                .add();
-        ResultVariantManager resultVariantManager = new ResultVariantManager();
-        crac.addExtension(ResultVariantManager.class, resultVariantManager);
-        crac.getExtension(ResultVariantManager.class).createVariant(TEST_VARIANT);
-        crac.getExtension(ResultVariantManager.class).setInitialVariantId(TEST_VARIANT);
-
-        CracCleaner cracCleaner = new CracCleaner();
-        cracCleaner.cleanCrac(crac, network);
-        RaoInputHelper.synchronize(crac, network);
-
-        cnecs = crac.getBranchCnecs();
-        initialFlows = new HashMap<>();
-        sensiResult = Mockito.mock(SystematicSensitivityResult.class);
-        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(sensiResult);
-
-        evaluator1 = new MnecViolationCostEvaluator(cnecs, initialFlows, unit, new MnecParameters(
-                50, 10, 1));
-        evaluator2 = new MnecViolationCostEvaluator(cnecs, initialFlows, unit, new MnecParameters(
-                20, 2, 1));
-    }
-
-    private void testCost(double initFlow, double newFlow, MnecViolationCostEvaluator evaluator, double expectedCost) {
-        initialFlows.put(mnec, initFlow);
-        if (unit == Unit.MEGAWATT) {
-            Mockito.when(sensiResult.getReferenceFlow(mnec)).thenReturn(newFlow);
-        } else {
-            Mockito.when(sensiResult.getReferenceIntensity(mnec)).thenReturn(newFlow);
-        }
-        assertEquals(expectedCost, evaluator.computeCost(sensitivityAndLoopflowResults), DOUBLE_TOLERANCE);
-    }
-
     private void testCost(double initMargin, double newMargin, double expectedCostWithEval1, double expectedCostWithEval2) {
-        double initFlow = MNEC_THRESHOLD - initMargin;
-        double newFlow = MNEC_THRESHOLD - newMargin;
+        when(initialBranchResult.getMargin(mnec1, Unit.MEGAWATT)).thenReturn(initMargin);
+        when(currentBranchResult.getMargin(mnec1, Unit.MEGAWATT)).thenReturn(newMargin);
 
-        testCost(initFlow, newFlow, evaluator1, expectedCostWithEval1);
-        testCost(-initFlow, -newFlow, evaluator1, expectedCostWithEval1);
+        assertEquals(
+                expectedCostWithEval1,
+                evaluator1.computeCost(currentBranchResult, Mockito.mock(SensitivityStatus.class)),
+                DOUBLE_TOLERANCE
+        );
 
-        testCost(initFlow, newFlow, evaluator2, expectedCostWithEval2);
-        testCost(-initFlow, -newFlow, evaluator2, expectedCostWithEval2);
-    }
-
-    @Test(expected = NotImplementedException.class)
-    public void testCrash() {
-        new MnecViolationCostEvaluator(cnecs, initialFlows, Unit.KILOVOLT, new MnecParameters(
-                50, 10, 0));
+        assertEquals(
+                expectedCostWithEval2,
+                evaluator2.computeCost(currentBranchResult, Mockito.mock(SensitivityStatus.class)),
+                DOUBLE_TOLERANCE
+        );
     }
 }

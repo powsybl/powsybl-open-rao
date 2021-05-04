@@ -21,7 +21,7 @@ import com.farao_community.farao.data.crac_result_extensions.ResultVariantManage
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.farao_community.farao.rao_api.parameters.MaxMinRelativeMarginParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;

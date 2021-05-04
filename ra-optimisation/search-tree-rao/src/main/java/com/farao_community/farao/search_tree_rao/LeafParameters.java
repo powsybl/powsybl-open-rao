@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

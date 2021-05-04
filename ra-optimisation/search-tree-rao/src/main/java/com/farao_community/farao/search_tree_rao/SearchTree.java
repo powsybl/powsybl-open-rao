@@ -14,7 +14,7 @@ import com.farao_community.farao.rao_api.results.PerimeterResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.adapter.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.util.FaraoNetworkPool;

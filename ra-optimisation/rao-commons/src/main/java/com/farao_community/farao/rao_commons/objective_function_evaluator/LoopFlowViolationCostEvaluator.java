@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -31,8 +32,8 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     private List<BranchCnec> sortedElements = new ArrayList<>();
 
     public LoopFlowViolationCostEvaluator(Set<BranchCnec> loopflowCnecs,
-                                   BranchResult initialLoopFlowResult,
-                                   LoopFlowParameters loopFlowParameters) {
+                                          BranchResult initialLoopFlowResult,
+                                          LoopFlowParameters loopFlowParameters) {
         this.loopflowCnecs = loopflowCnecs;
         this.initialLoopFLowResult = initialLoopFlowResult;
         this.loopFlowViolationCost = loopFlowParameters.getLoopFlowViolationCost();
@@ -67,7 +68,14 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     public List<BranchCnec> getCostlyElements(BranchResult branchResult, int numberOfElements) {
         if (sortedElements.isEmpty()) {
             sortedElements = loopflowCnecs.stream()
-                    .sorted(Comparator.comparing(cnec -> getLoopFlowExcess(branchResult, cnec)))
+                    .collect(Collectors.toMap(
+                        Function.identity(),
+                        cnec -> getLoopFlowExcess(branchResult, cnec)
+                    ))
+                    .entrySet().stream()
+                    .filter(entry -> entry.getValue() != 0)
+                    .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+                    .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
         }
         Collections.reverse(sortedElements);
@@ -75,7 +83,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }
 
-    private double getLoopFlowExcess(BranchResult branchResult, BranchCnec cnec) {
+    double getLoopFlowExcess(BranchResult branchResult, BranchCnec cnec) {
         return Math.max(0, Math.abs(branchResult.getLoopFlow(cnec, Unit.MEGAWATT)) - getLoopFlowUpperBound(cnec));
     }
 

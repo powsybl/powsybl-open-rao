@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
@@ -18,27 +19,34 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public abstract class AbstractMinMarginEvaluator implements CostEvaluator {
-    Set<BranchCnec> cnecs;
+public class MinMarginEvaluator implements CostEvaluator {
+    private final Set<BranchCnec> cnecs;
     private final Unit unit;
+    private final MarginEvaluator marginEvaluator;
     private List<BranchCnec> sortedElements = new ArrayList<>();
-    protected Set<String> countriesNotToOptimize;
-    protected BranchResult prePerimeterBranchResult;
 
-    public AbstractMinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit, Set<String> countriesNotToOptimize, BranchResult prePerimeterBranchResult) {
+    public MinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.cnecs = cnecs;
         this.unit = unit;
-        this.countriesNotToOptimize = countriesNotToOptimize;
-        this.prePerimeterBranchResult = prePerimeterBranchResult;
+        this.marginEvaluator = marginEvaluator;
     }
 
-    abstract double getMargin(BranchResult branchResult, BranchCnec branchCnec, Unit unit);
+    @Override
+    public String getName() {
+        return "min-margin-evaluator";
+    }
+
+    @Override
+    public Unit getUnit() {
+        return unit;
+    }
 
     @Override
     public List<BranchCnec> getCostlyElements(BranchResult branchResult, int numberOfElements) {
         if (sortedElements.isEmpty()) {
             sortedElements = cnecs.stream()
-                    .sorted(Comparator.comparing(branchCnec -> getMargin(branchResult, branchCnec, unit)))
+                    .filter(Cnec::isOptimized)
+                    .sorted(Comparator.comparing(branchCnec -> marginEvaluator.getMargin(branchResult, branchCnec, unit)))
                     .collect(Collectors.toList());
         }
 
@@ -51,11 +59,6 @@ public abstract class AbstractMinMarginEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
-        return -getMargin(branchResult, getMostLimitingElement(branchResult), unit);
-    }
-
-    @Override
-    public Unit getUnit() {
-        return unit;
+        return -marginEvaluator.getMargin(branchResult, getMostLimitingElement(branchResult), unit);
     }
 }

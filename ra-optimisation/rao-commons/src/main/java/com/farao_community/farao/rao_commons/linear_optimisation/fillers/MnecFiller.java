@@ -81,7 +81,7 @@ public class MnecFiller implements ProblemFiller {
 
     private void buildMarginViolationVariable(LinearProblem linearProblem) {
         getMnecs().forEach(mnec ->
-            linearProblem.addMnecViolationVariable(0, linearProblem.infinity(), mnec)
+            linearProblem.addMnecViolationVariable(0, LinearProblem.infinity(), mnec)
         );
     }
 
@@ -104,7 +104,7 @@ public class MnecFiller implements ProblemFiller {
                 Optional<Double> maxFlow = mnec.getUpperBound(Side.LEFT, MEGAWATT);
                 if (maxFlow.isPresent()) {
                     double ub = Math.max(maxFlow.get(),  mnecInitialFlowInMW + mnecAcceptableMarginDiminution) - mnecConstraintAdjustmentCoefficient;
-                    MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                    MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-LinearProblem.infinity(), ub, mnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
                 }
@@ -112,7 +112,7 @@ public class MnecFiller implements ProblemFiller {
                 Optional<Double> minFlow = mnec.getLowerBound(Side.LEFT, MEGAWATT);
                 if (minFlow.isPresent()) {
                     double lb = Math.min(minFlow.get(), mnecInitialFlowInMW - mnecAcceptableMarginDiminution) + mnecConstraintAdjustmentCoefficient;
-                    MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                    MPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, LinearProblem.infinity(), mnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);
                 }

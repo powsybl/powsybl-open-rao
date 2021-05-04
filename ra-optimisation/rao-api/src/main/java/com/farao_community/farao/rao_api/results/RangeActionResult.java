@@ -54,14 +54,14 @@ public interface RangeActionResult {
     /**
      * It gives a summary of all the optimized taps of the {@link PstRangeAction} present in the {@link Crac}.
      *
-     * @return The map of the PST range actions associated to their optimized tap of the specified state.
+     * @return The map of the PST range actions associated to their optimized tap.
      */
     Map<PstRangeAction, Integer> getOptimizedTaps();
 
     /**
      * It gives a summary of all the optimized set points of the {@link RangeAction} present in the {@link Crac}.
      *
-     * @return The map of the range actions associated to their optimized set points of the specified state.
+     * @return The map of the range actions associated to their optimized set points.
      */
     Map<RangeAction, Double> getOptimizedSetPoints();
 }

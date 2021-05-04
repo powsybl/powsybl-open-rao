@@ -7,16 +7,16 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.*;
 import org.mockito.Mockito;
@@ -24,8 +24,6 @@ import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-
-import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 
@@ -61,16 +59,14 @@ abstract class AbstractFillerTest {
     static final String RANGE_ACTION_ID = "PRA_PST_BE";
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
 
+    MPSolver mpSolver;
     BranchCnec cnec1;
     BranchCnec cnec2;
     RangeAction rangeAction;
-
-    CoreProblemFiller coreProblemFiller;
-    LinearProblem linearProblem;
-    SystematicSensitivityResult systematicSensitivityResult;
+    BranchResult branchResult;
+    SensitivityResult sensitivityResult;
     Crac crac;
     Network network;
-    SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
     void init() {
         // arrange some data for all fillers test
@@ -87,17 +83,16 @@ abstract class AbstractFillerTest {
         rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("N-1 NL1-NL3", Instant.OUTAGE)));
 
         // MPSolver and linearRaoProblem
-        MPSolverMock solver = new MPSolverMock();
+        mpSolver = new MPSolverMock();
         PowerMockito.mockStatic(MPSolver.class);
         when(MPSolver.infinity()).thenAnswer((Answer<Double>) invocation -> Double.POSITIVE_INFINITY);
-        linearProblem = new LinearProblem(solver);
 
-        systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        when(systematicSensitivityResult.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(systematicSensitivityResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
+        branchResult = Mockito.mock(BranchResult.class);
+        when(branchResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
+        when(branchResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
 
-        sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, Collections.emptyMap());
+        sensitivityResult = Mockito.mock(SensitivityResult.class);
+        when(sensitivityResult.getSensitivityValue(cnec1, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
+        when(sensitivityResult.getSensitivityValue(cnec2, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
     }
 }

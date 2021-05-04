@@ -90,7 +90,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void buildFlowVariables(LinearProblem linearProblem) {
         cnecs.forEach(cnec ->
-                linearProblem.addFlowVariable(-linearProblem.infinity(), linearProblem.infinity(), cnec)
+                linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec)
         );
     }
 
@@ -122,7 +122,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * </ul>
      */
     private void buildRangeActionAbsoluteVariationVariables(LinearProblem linearProblem, RangeAction rangeAction) {
-        linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction);
+        linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction);
     }
 
     /**
@@ -219,8 +219,18 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
         getRangeActions().forEach(rangeAction -> {
             double prePerimeterSetPoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
-            MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-prePerimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
-            MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(prePerimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.POSITIVE);
+            MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
+                    -prePerimeterSetPoint,
+                    LinearProblem.infinity(),
+                    rangeAction,
+                    LinearProblem.AbsExtension.NEGATIVE
+            );
+            MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
+                    prePerimeterSetPoint,
+                    LinearProblem.infinity(),
+                    rangeAction,
+                    LinearProblem.AbsExtension.POSITIVE
+            );
 
             MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -239,7 +249,7 @@ public class CoreProblemFiller implements ProblemFiller {
             String groupId = optGroupId.get();
             // For the first time the group ID is encountered a common variable for set point has to be created
             if (linearProblem.getRangeActionGroupSetPointVariable(groupId) == null) {
-                linearProblem.addRangeActionGroupSetPointVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId);
+                linearProblem.addRangeActionGroupSetPointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId);
             }
             addRangeActionGroupConstraint(linearProblem, rangeAction, groupId);
         }

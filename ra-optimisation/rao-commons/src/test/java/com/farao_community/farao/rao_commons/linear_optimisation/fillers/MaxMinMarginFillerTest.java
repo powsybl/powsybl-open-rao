@@ -8,8 +8,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -17,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +32,8 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
+    private LinearProblem linearProblem;
+    private CoreProblemFiller coreProblemFiller;
     private MaxMinMarginFiller maxMinMarginFiller;
     private MaxMinMarginParameters maxMinMarginParameters;
 
@@ -37,25 +42,35 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         init();
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, initialAlpha));
         coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
                 network,
                 Set.of(cnec1),
-                Map.of(rangeAction, initialAlpha),
-                0);
+                Set.of(rangeAction),
+                initialRangeActionResult,
+                0.
+        );
         maxMinMarginParameters = new MaxMinMarginParameters(0.01);
+    }
+
+    private void createMaxMinMarginFiller(Unit unit) {
+        maxMinMarginFiller = new MaxMinMarginFiller(
+                Set.of(cnec1),
+                Set.of(rangeAction),
+                unit,
+                maxMinMarginParameters
+        );
+    }
+
+    private void buildLinearProblem() {
+        linearProblem = new LinearProblem(List.of(coreProblemFiller, maxMinMarginFiller), mpSolver);
+        linearProblem.fill(branchResult, sensitivityResult);
     }
 
     @Test
     public void fillWithMaxMinMarginInMegawatt() {
-        maxMinMarginFiller = new MaxMinMarginFiller(
-                linearProblem,
-                Set.of(cnec1),
-                Set.of(rangeAction),
-                Unit.MEGAWATT,
-                maxMinMarginParameters);
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
-        maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
+        createMaxMinMarginFiller(Unit.MEGAWATT);
+        buildLinearProblem();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -90,20 +105,14 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         // total number of constraints 5 :
         //      - 3 due to CoreFiller
         //      - 2 per CNEC (min margin constraints)
-        assertEquals(4, linearProblem.getSolver().numVariables());
-        assertEquals(5, linearProblem.getSolver().numConstraints());
+        assertEquals(4, linearProblem.numVariables());
+        assertEquals(5, linearProblem.numConstraints());
     }
 
     @Test
     public void fillWithMaxMinMarginInAmpere() {
-        maxMinMarginFiller = new MaxMinMarginFiller(
-                linearProblem,
-                Set.of(cnec1),
-                Set.of(rangeAction),
-                Unit.AMPERE,
-                maxMinMarginParameters);
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
-        maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
+        createMaxMinMarginFiller(Unit.AMPERE);
+        buildLinearProblem();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -133,17 +142,19 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        assertEquals(4, linearProblem.getSolver().numVariables());
-        assertEquals(5, linearProblem.getSolver().numConstraints());
+        assertEquals(4, linearProblem.numVariables());
+        assertEquals(5, linearProblem.numConstraints());
     }
 
     @Test
     public void fillWithMissingFlowVariables() {
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), Unit.MEGAWATT, maxMinMarginParameters);
+        createMaxMinMarginFiller(Unit.MEGAWATT);
+        linearProblem = new LinearProblem(List.of(maxMinMarginFiller), mpSolver);
+
         // AbsoluteRangeActionVariables present, but no the FlowVariables
         linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
         try {
-            maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
+            linearProblem.fill(branchResult, sensitivityResult);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Flow variable"));
@@ -152,13 +163,15 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     @Test(expected = Test.None.class) // no exception expected
     public void fillWithMissingRangeActionVariables() {
-        maxMinMarginFiller = new MaxMinMarginFiller(linearProblem, Set.of(cnec1), Set.of(rangeAction), Unit.MEGAWATT, maxMinMarginParameters);
+        createMaxMinMarginFiller(Unit.MEGAWATT);
+        linearProblem = new LinearProblem(List.of(maxMinMarginFiller), mpSolver);
+
         // FlowVariables present , but not the absoluteRangeActionVariables present,
         // This should work since range actions can be filtered out by the CoreProblemFiller if their number
         // exceeds the max-pst-per-tso parameter
         linearProblem.addFlowVariable(0.0, 0.0, cnec1);
         linearProblem.addFlowVariable(0.0, 0.0, cnec2);
-        maxMinMarginFiller.fill(sensitivityAndLoopflowResults);
+        linearProblem.fill(branchResult, sensitivityResult);
     }
 }
 
