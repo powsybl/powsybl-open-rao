@@ -22,6 +22,11 @@ public class FailedRaoOutput implements RaoResult {
     }
 
     @Override
+    public PerimeterResult getPreventivePerimeterResult(OptimizationState optimizationState) {
+        return null;
+    }
+
+    @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
         return 0;
     }

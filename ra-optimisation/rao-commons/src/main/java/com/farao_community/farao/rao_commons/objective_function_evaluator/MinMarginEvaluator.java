@@ -59,6 +59,11 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
-        return -marginEvaluator.getMargin(branchResult, getMostLimitingElement(branchResult), unit);
+        return -getMargin(branchResult, getMostLimitingElement(branchResult), unit);
+    }
+
+    @Override
+    public Unit getUnit() {
+        return unit;
     }
 }
