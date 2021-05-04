@@ -11,7 +11,6 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -25,7 +24,6 @@ import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.farao_community.farao.rao_api.parameters.MaxMinRelativeMarginParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -36,7 +34,6 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
@@ -51,8 +48,6 @@ import static org.junit.Assert.*;
 public class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private RaoParameters raoParameters;
-    private RaoData raoData;
-    private RaoData raoDataSpy;
     private RaoInput raoInput;
     private Network network;
     private Crac crac;
@@ -70,10 +65,6 @@ public class RaoUtilTest {
                 .build();
         raoParameters = new RaoParameters();
         fallbackOverCost = raoParameters.getFallbackOverCost();
-        raoData = new RaoData(network, crac, crac.getPreventiveState(), crac.getStates(Instant.PREVENTIVE), null, null, null, raoParameters);
-        raoDataSpy = Mockito.spy(raoData);
-        Mockito.doReturn(new CnecResults()).when(raoDataSpy).getInitialCnecResults();
-        Mockito.doReturn(new HashMap<>()).when(raoDataSpy).getPrePerimeterMarginsInAbsoluteMW();
     }
 
     private void addGlskProvider() {
