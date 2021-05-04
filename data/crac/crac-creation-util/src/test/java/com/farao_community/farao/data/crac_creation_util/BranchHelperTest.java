@@ -278,4 +278,12 @@ public class BranchHelperTest {
         assertFalse(branchHelper.isBranchValid());
         assertTrue(branchHelper.getInvalidBranchReason().contains("was not found in the Network"));
     }
+
+    @Test
+    public void testTieLine() {
+        BranchHelper branchHelper = new BranchHelper("XFRDE11  DDE3AA1  1", network);
+        assertFalse(branchHelper.isBranchValid());
+        assertTrue(branchHelper.isTieLine());
+        assertEquals("Tielines are not handled by BranchHelper", branchHelper.getInvalidBranchReason());
+    }
 }

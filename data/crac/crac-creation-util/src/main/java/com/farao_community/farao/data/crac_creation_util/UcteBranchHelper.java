@@ -35,7 +35,6 @@ public class UcteBranchHelper extends BranchHelper {
     private String suffix;
 
     private boolean isInvertedInNetwork;
-    private boolean isTieLine = false;
     private Branch.Side tieLineSide = null;
 
     /**
@@ -131,13 +130,6 @@ public class UcteBranchHelper extends BranchHelper {
      */
     public boolean isInvertedInNetwork() {
         return isInvertedInNetwork;
-    }
-
-    /**
-     * If the branch is valid, returns a boolean indicating whether or not the branch is a tie-line
-     */
-    public boolean isTieLine() {
-        return isTieLine;
     }
 
     /**

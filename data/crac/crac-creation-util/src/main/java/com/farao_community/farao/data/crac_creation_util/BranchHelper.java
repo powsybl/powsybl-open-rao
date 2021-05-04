@@ -29,6 +29,7 @@ public class BranchHelper {
     private Double nominalVoltageRight;
     protected Double currentLimitLeft;
     protected Double currentLimitRight;
+    protected boolean isTieLine = false;
 
     protected BranchHelper(String branchId) {
         this.branchId = branchId;
@@ -95,7 +96,10 @@ public class BranchHelper {
         if (Objects.isNull(networkElement)) {
             return;
         }
-        if (networkElement instanceof Branch) {
+        if (networkElement instanceof TieLine) {
+            this.isTieLine = true;
+            this.invalidate("Tielines are not handled by BranchHelper");
+        } else if (networkElement instanceof Branch) {
             checkBranchNominalVoltage((Branch) networkElement);
             checkBranchCurrentLimits((Branch) networkElement);
         } else if (networkElement instanceof DanglingLine) {
@@ -155,5 +159,12 @@ public class BranchHelper {
     protected void invalidate(String invalidReason) {
         this.isBranchValid = false;
         this.invalidBranchReason = invalidReason;
+    }
+
+    /**
+     * If the branch is valid, returns a boolean indicating whether or not the branch is a tie-line
+     */
+    public boolean isTieLine() {
+        return isTieLine;
     }
 }
