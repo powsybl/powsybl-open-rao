@@ -14,6 +14,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -37,6 +38,16 @@ public interface RaoResult {
     PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state);
 
     /**
+     * It enables to access to the preventive {@link PerimeterResult} which is a sub-representation of the {@link RaoResult}.
+     * Be careful because some combinations of {@code optimizationState} and {@code state} can be quite tricky to
+     * analyze.
+     *
+     * @param optimizationState: The state of optimization to be studied.
+     * @return The full preventive perimeter result to be studied with comprehensive data.
+     */
+    PerimeterResult getPreventivePerimeterResult(OptimizationState optimizationState);
+
+    /**
      * It gives the flow on a {@link BranchCnec} at a given {@link OptimizationState} and in a
      * given {@link Unit}.
      *
@@ -46,7 +57,13 @@ public interface RaoResult {
      * @return The flow on the branch at the optimization state in the given unit.
      */
     default double getFlow(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        return getPerimeterResult(optimizationState, branchCnec.getState()).getFlow(branchCnec, unit);
+        if (optimizationState.equals(OptimizationState.INITIAL)
+                || optimizationState.equals(OptimizationState.AFTER_PRA)
+                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
+            return getPreventivePerimeterResult(optimizationState).getFlow(branchCnec, unit);
+        } else {
+            return getPerimeterResult(optimizationState, branchCnec.getState()).getFlow(branchCnec, unit);
+        }
     }
 
     /**
@@ -60,7 +77,13 @@ public interface RaoResult {
      * @return The margin on the branch at the optimization state in the given unit.
      */
     default double getMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        return getPerimeterResult(optimizationState, branchCnec.getState()).getMargin(branchCnec, unit);
+        if (optimizationState.equals(OptimizationState.INITIAL)
+                || optimizationState.equals(OptimizationState.AFTER_PRA)
+                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
+            return getPreventivePerimeterResult(optimizationState).getMargin(branchCnec, unit);
+        } else {
+            return getPerimeterResult(optimizationState, branchCnec.getState()).getMargin(branchCnec, unit);
+        }
     }
 
     /**
@@ -77,7 +100,13 @@ public interface RaoResult {
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
     default double getRelativeMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        return getPerimeterResult(optimizationState, branchCnec.getState()).getRelativeMargin(branchCnec, unit);
+        if (optimizationState.equals(OptimizationState.INITIAL)
+                || optimizationState.equals(OptimizationState.AFTER_PRA)
+                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
+            return getPreventivePerimeterResult(optimizationState).getRelativeMargin(branchCnec, unit);
+        } else {
+            return getPerimeterResult(optimizationState, branchCnec.getState()).getRelativeMargin(branchCnec, unit);
+        }
     }
 
     /**
@@ -91,7 +120,13 @@ public interface RaoResult {
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
     default double getCommercialFlow(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        return getPerimeterResult(optimizationState, branchCnec.getState()).getCommercialFlow(branchCnec, unit);
+        if (optimizationState.equals(OptimizationState.INITIAL)
+                || optimizationState.equals(OptimizationState.AFTER_PRA)
+                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
+            return getPreventivePerimeterResult(optimizationState).getCommercialFlow(branchCnec, unit);
+        } else {
+            return getPerimeterResult(optimizationState, branchCnec.getState()).getCommercialFlow(branchCnec, unit);
+        }
     }
 
     /**
@@ -105,7 +140,13 @@ public interface RaoResult {
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
     default double getLoopFlow(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        return getPerimeterResult(optimizationState, branchCnec.getState()).getLoopFlow(branchCnec, unit);
+        if (optimizationState.equals(OptimizationState.INITIAL)
+                || optimizationState.equals(OptimizationState.AFTER_PRA)
+                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
+            return getPreventivePerimeterResult(optimizationState).getLoopFlow(branchCnec, unit);
+        } else {
+            return getPerimeterResult(optimizationState, branchCnec.getState()).getLoopFlow(branchCnec, unit);
+        }
     }
 
     /**
@@ -118,7 +159,13 @@ public interface RaoResult {
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
     default double getPtdfZonalSum(OptimizationState optimizationState, BranchCnec branchCnec) {
-        return getPerimeterResult(optimizationState, branchCnec.getState()).getPtdfZonalSum(branchCnec);
+        if (optimizationState.equals(OptimizationState.INITIAL)
+                || optimizationState.equals(OptimizationState.AFTER_PRA)
+                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
+            return getPreventivePerimeterResult(optimizationState).getPtdfZonalSum(branchCnec);
+        } else {
+            return getPerimeterResult(optimizationState, branchCnec.getState()).getPtdfZonalSum(branchCnec);
+        }
     }
 
     /**

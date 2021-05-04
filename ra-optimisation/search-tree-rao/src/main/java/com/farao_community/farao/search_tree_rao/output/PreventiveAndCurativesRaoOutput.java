@@ -45,6 +45,15 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     }
 
     @Override
+    public PerimeterResult getPreventivePerimeterResult(OptimizationState optimizationState) {
+        if (optimizationState == OptimizationState.INITIAL) {
+            return  initialResult;
+        } else {
+            return postPreventiveResult;
+        }
+    }
+
+    @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();

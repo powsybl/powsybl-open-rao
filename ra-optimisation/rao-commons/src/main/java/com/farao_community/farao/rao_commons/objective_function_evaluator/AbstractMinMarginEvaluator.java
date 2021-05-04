@@ -51,7 +51,7 @@ public abstract class AbstractMinMarginEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
-        return getMargin(branchResult, getMostLimitingElement(branchResult), unit);
+        return -getMargin(branchResult, getMostLimitingElement(branchResult), unit);
     }
 
     @Override

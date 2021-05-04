@@ -106,7 +106,7 @@ public final class RaoUtil {
 
         Set<Unit> flowUnits = new HashSet<>();
         flowUnits.add(Unit.MEGAWATT);
-        if (raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
             flowUnits.add(Unit.AMPERE);
         }
 
