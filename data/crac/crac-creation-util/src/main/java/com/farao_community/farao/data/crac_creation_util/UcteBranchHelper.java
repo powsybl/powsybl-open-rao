@@ -36,6 +36,7 @@ public class UcteBranchHelper extends BranchHelper {
 
     private boolean isInvertedInNetwork;
     private Branch.Side tieLineSide = null;
+    private boolean isTieLine = false;
 
     /**
      * Constructor, based on a separate fields.
@@ -301,14 +302,25 @@ public class UcteBranchHelper extends BranchHelper {
     }
 
     private void checkTieLineCurrentLimits(TieLine tieLine) {
-        if (Objects.isNull(tieLine.getCurrentLimits(this.tieLineSide))) {
+        if (!Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE))) {
+            this.currentLimitLeft = tieLine.getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+        }
+        if (!Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
+            this.currentLimitRight =  tieLine.getCurrentLimits(Branch.Side.TWO).getPermanentLimit();
+        }
+        if (Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE)) && Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
             invalidate(String.format("couldn't identify current limits of tie-line (from: %s, to: %s, suffix: %s, networkTieLineId: %s)", from, to, suffix, tieLine.getId()));
         }
-        this.currentLimitLeft = tieLine.getCurrentLimits(this.tieLineSide).getPermanentLimit();
-        this.currentLimitRight = currentLimitLeft;
     }
 
     private String getLineName(String nodeId1, String nodeId2, String suffix) {
         return format("%1$-8s %2$-8s %3$s", nodeId1, nodeId2, suffix);
+    }
+
+    /**
+     * If the branch is valid, returns a boolean indicating whether or not the branch is a tie-line
+     */
+    public boolean isTieLine() {
+        return isTieLine;
     }
 }

@@ -226,7 +226,7 @@ public class UcteBranchHelperTest {
         assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
         assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
         assertEquals(4800., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(4800., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(4400., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("DDE3AA1 ", "XFRDE11 ", "1", null, network);
         assertTrue(branchHelper.isBranchValid());
@@ -243,7 +243,7 @@ public class UcteBranchHelperTest {
         assertEquals(Branch.Side.TWO, branchHelper.getTieLineSide());
         assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
         assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(4400., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(4800., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
         assertEquals(4400., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("FFR2AA1 ", "XFRDE11 ", "1", null, network);
@@ -263,7 +263,7 @@ public class UcteBranchHelperTest {
         assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
         assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
         assertEquals(3200., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
-        assertEquals(3200., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(2800., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("XNLBE11 ", "NNL2AA1 ", null, "TL NL2X", network);
         assertTrue(branchHelper.isBranchValid());
@@ -280,7 +280,7 @@ public class UcteBranchHelperTest {
         assertEquals(Branch.Side.TWO, branchHelper.getTieLineSide());
         assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
         assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
-        assertEquals(2800., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(3200., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
         assertEquals(2800., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
         branchHelper = new UcteBranchHelper("BBE3AA1 ", "XNLBE11 ", null, "TL BE3X", network);
