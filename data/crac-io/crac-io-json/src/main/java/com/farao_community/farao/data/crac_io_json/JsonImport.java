@@ -8,19 +8,18 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_io_api.CracImporter;
+import com.farao_community.farao.data.crac_io_json.deserializers.CracDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.time.OffsetDateTime;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
@@ -31,21 +30,23 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 @AutoService(CracImporter.class)
 public class JsonImport implements CracImporter {
     private static final String JSON_EXTENSION = "json";
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonImport.class);
 
     @Override
-    public Crac importCrac(InputStream inputStream, @Nullable OffsetDateTime timeStampFilter) {
-        if (timeStampFilter != null) {
-            LOGGER.warn("Timestamp filtering is not implemented for json importer. The timestamp will be ignored.");
-        }
+    public Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new CracJsonModule();
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(Crac.class, new CracDeserializer(cracFactory));
             objectMapper.registerModule(module);
             return objectMapper.readValue(inputStream, Crac.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public Crac importCrac(InputStream inputStream) {
+        return importCrac(inputStream, CracFactory.findDefault());
     }
 
     @Override

@@ -10,9 +10,6 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.powsybl.iidm.network.Network;
-
-import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -23,18 +20,28 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     protected final State state;
     protected boolean optimized;
     protected boolean monitored;
-    protected boolean isSynchronized = false;
     protected String operator = null;
+    protected double frm = 0;
 
-    protected AbstractCnec(String id, String name, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored) {
+    protected AbstractCnec(String id,
+                           String name,
+                           NetworkElement networkElement,
+                           String operator,
+                           State state,
+                           boolean optimized,
+                           boolean monitored,
+                           double frm) {
         super(id, name);
         this.networkElement = networkElement;
         this.operator = operator;
         this.state = state;
         this.optimized = optimized;
         this.monitored = monitored;
+        this.frm = frm;
     }
 
+    @Deprecated
+    //todo : delete method
     protected AbstractCnec(String id, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored) {
         super(id);
         this.networkElement = networkElement;
@@ -84,24 +91,8 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     }
 
     @Override
-    public void synchronize(Network network) {
-        isSynchronized = true;
-    }
-
-    @Override
-    public void desynchronize() {
-        isSynchronized = false;
-    }
-
-    @Override
-    public boolean isSynchronized() {
-        return isSynchronized;
-    }
-
-    protected void checkSynchronized(String action) {
-        if (!isSynchronized()) {
-            throw new NotSynchronizedException(format("Cnec must be synchronized to perform this action: %s",  action));
-        }
+    public double getReliabilityMargin() {
+        return frm;
     }
 
     @Override

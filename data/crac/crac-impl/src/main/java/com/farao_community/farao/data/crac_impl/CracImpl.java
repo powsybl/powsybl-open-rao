@@ -22,7 +22,6 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
 import java.util.*;
@@ -45,7 +44,6 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
     private final Map<String, PstRangeAction> pstRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
-    private boolean isSynchronized = false;
     private DateTime networkDate = null;
 
     public CracImpl(String id, String name) {
@@ -684,30 +682,4 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     // endregion
-
-    @Override
-    public void synchronize(Network network) {
-        if (isSynchronized) {
-            throw new AlreadySynchronizedException(format("Crac %s has already been synchronized", getId()));
-        }
-        flowCnecs.values().forEach(cnec -> cnec.synchronize(network));
-        pstRangeActions.values().forEach(rangeAction -> rangeAction.synchronize(network));
-        contingencies.values().forEach(contingency -> contingency.synchronize(network));
-        networkDate = network.getCaseDate();
-        isSynchronized = true;
-    }
-
-    @Override
-    public void desynchronize() {
-        flowCnecs.values().forEach(Synchronizable::desynchronize);
-        pstRangeActions.values().forEach(Synchronizable::desynchronize);
-        contingencies.values().forEach(Synchronizable::desynchronize);
-        networkDate = null;
-        isSynchronized = false;
-    }
-
-    @Override
-    public boolean isSynchronized() {
-        return isSynchronized;
-    }
 }

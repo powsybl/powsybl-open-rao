@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Map;
 
 import static junit.framework.TestCase.*;
 
@@ -45,6 +46,8 @@ public class JsonResultTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-500.)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         cracIn.newFlowCnec()
@@ -56,12 +59,16 @@ public class JsonResultTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-0.3)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         // add PstRangeAction
         cracIn.newPstRangeAction()
             .withId("pst1")
             .withNetworkElement("pst1NetworkElement")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(0, 0., 1, 1.))
             .add();
 
         // add topological action
@@ -83,7 +90,6 @@ public class JsonResultTest {
             .newPstSetPoint()
                 .withNetworkElement("pstSetPointNetworkElement")
                 .withSetpoint(12)
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .add()
             .add();
 

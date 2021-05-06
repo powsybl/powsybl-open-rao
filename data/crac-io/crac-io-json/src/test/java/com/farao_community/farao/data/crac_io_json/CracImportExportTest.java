@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_json;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -18,8 +19,8 @@ import com.farao_community.farao.data.crac_impl.InjectionSetpointImpl;
 import com.farao_community.farao.data.crac_impl.PstSetpointImpl;
 import org.junit.Test;
 
-import static com.farao_community.farao.data.crac_api.TapConvention.CENTERED_ON_ZERO;
-import static com.farao_community.farao.data.crac_api.TapConvention.STARTS_AT_ONE;
+import java.util.Map;
+
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -37,18 +38,20 @@ public class CracImportExportTest {
         crac.newContingency().withId(contingency1Id).withNetworkElement("ne1Id").add();
 
         String contingency2Id = "contingency2Id";
-        crac.newContingency().withId(contingency2Id).withNetworkElement("ne2Id").withNetworkElement("ne3Id").add();
+        crac.newContingency().withId(contingency2Id).withNetworkElement("ne2Id", "ne2Name").withNetworkElement("ne3Id").add();
 
         crac.newFlowCnec().withId("cnec1prev")
                 .withNetworkElement("ne4Id")
                 .withInstant(Instant.PREVENTIVE)
                 .withOperator("operator1")
                 .withOptimized()
-                .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
-                .add();
+                .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withUnit(Unit.AMPERE).withMin(-500.).add()
+                .withIMax(1000., Side.RIGHT)
+                .withNominalVoltage(220.)
+            .add();
 
         crac.newFlowCnec().withId("cnec2prev")
-                .withNetworkElement("ne5Id")
+                .withNetworkElement("ne5Id", "ne5Name")
                 .withInstant(Instant.PREVENTIVE)
                 .withOperator("operator2")
                 .withOptimized()
@@ -56,7 +59,10 @@ public class CracImportExportTest {
                 .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMin(-800.).add()
                 .newThreshold().withRule(BranchThresholdRule.ON_HIGH_VOLTAGE_LEVEL).withUnit(Unit.AMPERE).withMin(-800.).add()
                 .newThreshold().withRule(BranchThresholdRule.ON_LOW_VOLTAGE_LEVEL).withUnit(Unit.AMPERE).withMax(1200.).add()
-                .add();
+                .withNominalVoltage(220., Side.RIGHT)
+                .withNominalVoltage(380., Side.LEFT)
+                .withIMax(2000.)
+            .add();
 
         crac.newFlowCnec().withId("cnec1cur")
                 .withNetworkElement("ne4Id")
@@ -65,11 +71,12 @@ public class CracImportExportTest {
                 .withOperator("operator1")
                 .withOptimized()
                 .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMin(-800.).add()
+                .withNominalVoltage(220.)
                 .add();
 
         crac.newFlowCnec().withId("cnec3prevId")
                 .withName("cnec3prevName")
-                .withNetworkElement("ne2Id")
+                .withNetworkElement("ne2Id", "ne2Name")
                 .withInstant(Instant.PREVENTIVE)
                 .withOperator("operator3")
                 .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -92,7 +99,7 @@ public class CracImportExportTest {
         crac.newNetworkAction().withId("pstSetpointRaId")
                 .withName("pstSetpointRaName")
                 .withOperator("RTE")
-                .newPstSetPoint().withSetpoint(15).withTapConvention(CENTERED_ON_ZERO).withNetworkElement("pst").add()
+                .newPstSetPoint().withSetpoint(15).withNetworkElement("pst").add()
                 .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
                 .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
                 .add();
@@ -101,7 +108,7 @@ public class CracImportExportTest {
         crac.newNetworkAction().withId("complexNetworkActionId")
                 .withName("complexNetworkActionName")
                 .withOperator("RTE")
-                .newPstSetPoint().withSetpoint(5).withTapConvention(CENTERED_ON_ZERO).withNetworkElement("pst").add()
+                .newPstSetPoint().withSetpoint(5).withNetworkElement("pst").add()
                 .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("ne1Id").add()
                 .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
                 .add();
@@ -121,8 +128,10 @@ public class CracImportExportTest {
                 .withOperator("RTE")
                 .withNetworkElement("pst")
                 .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .newTapRange().withTapConvention(STARTS_AT_ONE).withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(16).add()
-                .newTapRange().withTapConvention(CENTERED_ON_ZERO).withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+                .withInitialTap(2)
+                .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
                 .add();
 
         crac.newPstRangeAction().withId("pstRangeId2")
@@ -130,12 +139,14 @@ public class CracImportExportTest {
                 .withOperator("RTE")
                 .withNetworkElement("pst2")
                 .withGroupId("group-1")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
                 .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .newTapRange().withTapConvention(STARTS_AT_ONE).withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(16).add()
-                .newTapRange().withTapConvention(CENTERED_ON_ZERO).withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
+                .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
+                .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
                 .add();
 
-        Crac importedCrac = RoundTripUtil.roundTrip(crac, Crac.class);
+        Crac importedCrac = RoundTripUtil.roundTrip(crac);
 
         assertEquals(8, importedCrac.getNetworkElements().size());
         assertEquals(3, importedCrac.getStates().size());
@@ -159,5 +170,11 @@ public class CracImportExportTest {
         assertEquals("operator2", importedCrac.getFlowCnec("cnec2prev").getOperator());
         assertEquals("operator3", importedCrac.getFlowCnec("cnec3prevId").getOperator());
         assertEquals("operator4", importedCrac.getFlowCnec("cnec4prevId").getOperator());
+
+        assertEquals(2, importedCrac.getPstRangeAction("pstRangeId").getInitialTap());
+        assertEquals(0.5, importedCrac.getPstRangeAction("pstRangeId").convertTapToAngle(-2));
+        assertEquals(2.5, importedCrac.getPstRangeAction("pstRangeId").convertTapToAngle(2));
+        assertEquals(2, importedCrac.getPstRangeAction("pstRangeId").convertAngleToTap(2.5));
+
     }
 }

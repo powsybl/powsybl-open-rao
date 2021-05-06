@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.range_action.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 
@@ -18,21 +17,15 @@ import com.farao_community.farao.data.crac_api.range_action.RangeType;
  */
 public class TapRangeImpl extends AbstractRange implements TapRange {
 
-    private TapConvention rangeDefinition;
     private int minTap;
     private int maxTap;
 
     @Deprecated
     //todo: make private package
-    public TapRangeImpl(int minTap, int maxTap, RangeType rangeType, TapConvention rangeDefinition) {
+    public TapRangeImpl(int minTap, int maxTap, RangeType rangeType) {
         super(rangeType, Unit.TAP);
         this.minTap = minTap;
         this.maxTap = maxTap;
-        this.rangeDefinition = rangeDefinition;
-    }
-
-    public TapConvention getTapConvention() {
-        return rangeDefinition;
     }
 
     @Override
@@ -54,8 +47,7 @@ public class TapRangeImpl extends AbstractRange implements TapRange {
             return false;
         }
         TapRangeImpl otherRange = (TapRangeImpl) o;
-        return rangeDefinition.equals(otherRange.getTapConvention())
-            && super.equals(otherRange)
+        return super.equals(otherRange)
             && maxTap == otherRange.getMaxTap()
             && minTap == otherRange.getMinTap();
     }
@@ -63,7 +55,6 @@ public class TapRangeImpl extends AbstractRange implements TapRange {
     @Override
     public int hashCode() {
         int result = 0;
-        result = 23 * result + rangeDefinition.hashCode();
         result = 31 * result + super.hashCode();
         result = 31 * result + minTap;
         result = 31 * result + maxTap;

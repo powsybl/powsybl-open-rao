@@ -126,15 +126,4 @@ public class ContingencyImplTest {
         contingencyImpl.apply(network, computationManager);
         assertFalse(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
     }
-
-    @Test
-    public void testSynchronize() {
-        ContingencyImpl contingencyImpl = new ContingencyImpl("contingency", "contingency", Collections.emptySet());
-        assertTrue(contingencyImpl.isSynchronized());
-        contingencyImpl.desynchronize();
-        assertTrue(contingencyImpl.isSynchronized());
-        contingencyImpl.synchronize(network);
-        assertTrue(contingencyImpl.isSynchronized());
-    }
-
 }

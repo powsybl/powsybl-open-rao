@@ -25,7 +25,6 @@ import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.RangeActionResultExtension;
 import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.rao_api.RaoParameters;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearOptimizerParameters;
@@ -116,9 +115,6 @@ public class LeafTest {
         initialCnecResults.setFlowsInA(new HashMap<>());
         initialCnecResults.setAbsolutePtdfSums(new HashMap<>());
 
-        CracCleaner cracCleaner = new CracCleaner();
-        cracCleaner.cleanCrac(crac, network);
-        RaoInputHelper.synchronize(crac, network);
         raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(),
                 Collections.singleton(crac.getPreventiveState()), null, null, null, raoParameters));
         CracResultManager spiedCracResultManager = Mockito.spy(raoData.getCracResultManager());
@@ -182,8 +178,6 @@ public class LeafTest {
                 .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
                 .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
-        crac.desynchronize();
-        crac.synchronize(network);
         return pstRangeAction;
     }
 
@@ -407,7 +401,6 @@ public class LeafTest {
         mockRaoUtil();
 
         crac = CommonCracCreation.createWithPreventivePstRange();
-        crac.synchronize(network);
         raoData = new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, raoParameters);
 
         String mockPostPreventiveVariantId = raoData.getCracVariantManager().cloneWorkingVariant();

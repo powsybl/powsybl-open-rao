@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer;
 
-import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.LoopFlowUtil;
@@ -57,10 +56,10 @@ public final class IteratingLinearOptimizer {
         Map<RangeAction, Double> rangeActionSetPoints = new HashMap<>();
         Map<PstRangeAction, Integer> pstTaps = new HashMap<>();
         for (RangeAction rangeAction : iteratingLinearOptimizerInput.getRangeActions()) {
-            rangeActionSetPoints.put(rangeAction, rangeAction.getCurrentValue(network));
+            rangeActionSetPoints.put(rangeAction, rangeAction.getCurrentSetpoint(network));
             if (rangeAction instanceof PstRangeAction) {
                 PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
-                pstTaps.put(pstRangeAction, pstRangeAction.getCurrentTapPosition(network, TapConvention.CENTERED_ON_ZERO));
+                pstTaps.put(pstRangeAction, pstRangeAction.getCurrentTapPosition(network));
             }
         }
 

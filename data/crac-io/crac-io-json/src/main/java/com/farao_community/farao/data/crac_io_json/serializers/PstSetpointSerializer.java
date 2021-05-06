@@ -24,7 +24,6 @@ public class PstSetpointSerializer extends AbstractJsonSerializer<PstSetpoint> {
         gen.writeStartObject();
         gen.writeStringField(NETWORK_ELEMENT_ID, value.getNetworkElement().getId());
         gen.writeNumberField(SETPOINT, value.getSetpoint());
-        gen.writeStringField(TAP_CONVENTION, serializeTapConvention(value.getTapConvention()));
         gen.writeEndObject();
     }
 }

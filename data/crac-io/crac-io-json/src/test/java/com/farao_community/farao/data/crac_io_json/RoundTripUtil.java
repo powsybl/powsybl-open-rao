@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_io_json.deserializers.CracDeserializer;
+import com.farao_community.farao.data.crac_io_json.serializers.CracJsonSerializerModule;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -34,16 +34,14 @@ public final class RoundTripUtil {
      * process works fine.
      *
      * @param object: object to export/import
-     * @param objectClass: class of the object
-     * @param <T>: type of the object
      * @return the object exported and re-imported
      */
-    static <T> T roundTrip(T object, Class<T> objectClass) {
+    static Crac roundTrip(Crac object) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = createObjectMapper();
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            SimpleModule module = new CracJsonModule();
+            SimpleModule module = new CracJsonSerializerModule();
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, object);
@@ -52,11 +50,7 @@ public final class RoundTripUtil {
         }
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(Crac.class, new CracDeserializer());
-            objectMapper.registerModule(module);
-            return objectMapper.readValue(inputStream, objectClass);
+            return (new JsonImport()).importCrac(inputStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

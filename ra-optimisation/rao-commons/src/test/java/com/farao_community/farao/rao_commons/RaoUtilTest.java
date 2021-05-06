@@ -133,12 +133,6 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void testThatRaoDataCreationSynchronizesCrac() {
-        RaoUtil.initCrac(crac, network);
-        assertTrue(crac.isSynchronized());
-    }
-
-    @Test
     public void testCreationOfSystematicSensitivityInterface() {
         raoParameters.setRaoWithLoopFlowLimitation(true);
         raoData = new RaoData(

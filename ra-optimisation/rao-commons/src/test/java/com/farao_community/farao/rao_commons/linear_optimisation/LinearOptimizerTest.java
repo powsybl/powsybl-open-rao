@@ -52,7 +52,6 @@ public class LinearOptimizerTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
-        crac.synchronize(network);
 
         LinearOptimizerInput linearOptimizerInput = LinearOptimizerInput.create()
             .withCnecs(crac.getBranchCnecs())

@@ -16,6 +16,8 @@ import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.junit.Assert.*;
 
 /**
@@ -32,14 +34,15 @@ public class TapRangeAdderImplTest {
             .withId("pstRangeActionId")
             .withName("pstRangeActionName")
             .withOperator("operator")
-            .withNetworkElement("networkElementId");
+            .withNetworkElement("networkElementId")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.));
     }
 
     @Test
     public void testOk() {
         PstRangeAction pstRangeAction = pstRangeActionAdder.newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
-            .withTapConvention(TapConvention.CENTERED_ON_ZERO)
             .withMinTap(-5)
             .withMaxTap(10)
             .add()
@@ -50,14 +53,12 @@ public class TapRangeAdderImplTest {
         assertEquals(10, pstRangeAction.getRanges().get(0).getMaxTap());
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
         assertEquals(Unit.TAP, pstRangeAction.getRanges().get(0).getUnit());
-        assertEquals(TapConvention.CENTERED_ON_ZERO, (pstRangeAction.getRanges().get(0)).getTapConvention());
     }
 
     @Test
     public void testNoMin() {
         PstRangeAction pstRangeAction = pstRangeActionAdder.newTapRange()
             .withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK)
-            .withTapConvention(TapConvention.STARTS_AT_ONE)
             .withMaxTap(16)
             .add()
             .add();
@@ -67,22 +68,11 @@ public class TapRangeAdderImplTest {
         assertEquals(16, pstRangeAction.getRanges().get(0).getMaxTap());
         assertEquals(RangeType.RELATIVE_TO_INITIAL_NETWORK, pstRangeAction.getRanges().get(0).getRangeType());
         assertEquals(Unit.TAP, pstRangeAction.getRanges().get(0).getUnit());
-        assertEquals(TapConvention.STARTS_AT_ONE, (pstRangeAction.getRanges().get(0)).getTapConvention());
     }
 
     @Test (expected = FaraoException.class)
     public void testNoRangeType() {
         pstRangeActionAdder.newTapRange()
-            .withTapConvention(TapConvention.CENTERED_ON_ZERO)
-            .withMinTap(-5)
-            .withMaxTap(10)
-            .add();
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testNoTapConventionInAbsolute() {
-        pstRangeActionAdder.newTapRange()
-            .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(-5)
             .withMaxTap(10)
             .add();
@@ -104,19 +94,8 @@ public class TapRangeAdderImplTest {
     public void testMinGreaterThanMax() {
         pstRangeActionAdder.newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
-            .withTapConvention(TapConvention.CENTERED_ON_ZERO)
             .withMinTap(5)
             .withMaxTap(-10)
-            .add();
-    }
-
-    @Test (expected = FaraoException.class)
-    public void testStartsAtOneWithNegativeTaps() {
-        pstRangeActionAdder.newTapRange()
-            .withRangeType(RangeType.ABSOLUTE)
-            .withTapConvention(TapConvention.STARTS_AT_ONE)
-            .withMinTap(-5)
-            .withMaxTap(-3)
             .add();
     }
 }

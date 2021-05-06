@@ -51,7 +51,6 @@ public class SystematicSensitivityInterfaceTest {
 
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
-        crac.synchronize(network);
         systematicAnalysisResultOk = buildSystematicAnalysisResultOk();
         systematicAnalysisResultFailed = buildSystematicAnalysisResultFailed();
 

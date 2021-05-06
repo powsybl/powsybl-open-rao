@@ -69,7 +69,6 @@ public class IteratingLinearOptimizerTest {
 
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        crac.synchronize(network);
 
         costEvaluator = Mockito.mock(ObjectiveFunctionEvaluator.class);
         Mockito.when(costEvaluator.computeFunctionalCost(any())).thenReturn(0.);
@@ -197,7 +196,7 @@ public class IteratingLinearOptimizerTest {
         assertNotNull(iteratingLinearOptimizerOutput);
         assertEquals(LinearProblem.SolveStatus.INFEASIBLE, iteratingLinearOptimizerOutput.getSolveStatus());
         assertEquals(100., iteratingLinearOptimizerOutput.getCost(), DOUBLE_TOLERANCE);
-        assertEquals(0., iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
+        assertEquals(1.5, iteratingLinearOptimizerOutput.getRangeActionSetpoint(crac.getRangeAction("PRA_PST_BE")), DOUBLE_TOLERANCE);
     }
 
     /*@Test

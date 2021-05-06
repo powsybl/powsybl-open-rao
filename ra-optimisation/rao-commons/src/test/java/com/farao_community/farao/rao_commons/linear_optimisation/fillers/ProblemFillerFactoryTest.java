@@ -96,13 +96,17 @@ public class ProblemFillerFactoryTest {
         PstRangeAction ra1 = crac.newPstRangeAction()
             .withId("pst1")
             .withNetworkElement("FFR1AA1  FFR2AA1  2")
-            .newTapRange().withRangeType(RangeType.ABSOLUTE).withTapConvention(TapConvention.CENTERED_ON_ZERO).withMinTap(-5).withMaxTap(5).add()
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-1, -20., 0, 0., 1, 20.))
+            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-5).withMaxTap(5).add()
             .add();
 
         PstRangeAction ra2 = crac.newPstRangeAction()
             .withId("pst2")
             .withNetworkElement("FFR1AA1  FFR2AA1  2")
-            .newTapRange().withRangeType(RangeType.ABSOLUTE).withTapConvention(TapConvention.CENTERED_ON_ZERO).withMinTap(-5).withMaxTap(5).add()
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-1, -20., 0, 0., 1, 20.))
+            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-5).withMaxTap(5).add()
             .add();
 
         initialFlowPerCnec = Map.of(

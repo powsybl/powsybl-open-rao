@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.TapConvention;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -44,9 +44,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         init();
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(0);
-        maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(0);
-        initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinAdmissibleSetpoint(0);
+        maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxAdmissibleSetpoint(0);
+        initialAlpha = ((PstRangeAction) rangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
@@ -274,7 +274,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         updateProblemWithCoreFiller();
 
         // some additional data
-        final double currentAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double currentAlpha = ((PstRangeAction) rangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
 
@@ -327,7 +327,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         updateProblemWithCoreFiller();
 
         // some additional data
-        final double currentAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double currentAlpha = ((PstRangeAction) rangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
 
@@ -370,8 +370,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 .withId("pst1-group1")
                 .withGroupId("group1")
                 .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(Map.of(-1, -20., 0, 0., 1, 20.))
                 .newTapRange()
-                    .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                     .withRangeType(RangeType.ABSOLUTE)
                     .withMinTap(-2)
                     .withMaxTap(5)
@@ -382,8 +383,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 .withId("pst2-group1")
                 .withGroupId("group1")
                 .withNetworkElement("BBE1AA1  BBE3AA1  1")
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(Map.of(-1, -20., 0, 0., 1, 20.))
                 .newTapRange()
-                    .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                     .withRangeType(RangeType.ABSOLUTE)
                     .withMinTap(-5)
                     .withMaxTap(10)
@@ -392,8 +394,6 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 .add();
 
         network = NetworkImportsUtil.import12NodesWith2PstsNetwork();
-        crac.desynchronize();
-        crac.synchronize(network);
 
         RangeAction ra1 = crac.getRangeAction("pst1-group1");
         RangeAction ra2 = crac.getRangeAction("pst2-group1");

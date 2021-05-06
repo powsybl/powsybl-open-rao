@@ -6,8 +6,6 @@
  */
 package com.farao_community.farao.data.crac_api.network_action;
 
-import com.farao_community.farao.data.crac_api.TapConvention;
-
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -18,8 +16,6 @@ public interface PstSetpointAdder {
     PstSetpointAdder withNetworkElement(String networkElementId);
 
     PstSetpointAdder withSetpoint(int setPoint);
-
-    PstSetpointAdder withTapConvention(TapConvention rangeDefinition);
 
     NetworkActionAdder add();
 }

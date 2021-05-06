@@ -9,11 +9,12 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.TapConvention;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
@@ -44,7 +45,6 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .newFreeToUseUsageRule()
@@ -69,12 +69,10 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .newPstSetPoint()
                 .withNetworkElement("anotherPstNetworkElementId")
-                .withTapConvention(TapConvention.STARTS_AT_ONE)
                 .withSetpoint(4)
                 .add()
             .add();
@@ -95,7 +93,6 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .newFreeToUseUsageRule()
@@ -124,7 +121,6 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .add();
@@ -143,7 +139,6 @@ public class NetworkActionAdderImplTest {
             .withName("networkActionName")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .add();
@@ -161,7 +156,6 @@ public class NetworkActionAdderImplTest {
             .withOperator("operator")
             .newPstSetPoint()
                 .withNetworkElement("pstNetworkElementId")
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withSetpoint(6)
                 .add()
             .add();
@@ -173,6 +167,8 @@ public class NetworkActionAdderImplTest {
             .withId("sameId")
             .withOperator("BE")
             .withNetworkElement("networkElementId")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.))
             .add();
 
         try {
@@ -185,5 +181,14 @@ public class NetworkActionAdderImplTest {
         } catch (FaraoException e) {
             // should throw
         }
+    }
+
+    @Test (expected = FaraoException.class)
+    public void testNokWithoutElementaryAction() {
+        crac.newNetworkAction()
+                .withId("networkActionName")
+                .withName("networkActionName")
+                .withOperator("operator")
+                .add();
     }
 }

@@ -7,12 +7,12 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -47,7 +47,7 @@ public final class BestTapFinder {
         Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 
         optimalSetPointPerPst.forEach((pstRangeAction, setPoint) ->
-            minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, setPoint, mostLimitingCnecs, sensitivityResult)));
+                minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, setPoint, mostLimitingCnecs, sensitivityResult)));
 
         Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
@@ -75,8 +75,8 @@ public final class BestTapFinder {
         Set<String> pstGroups = pstRangeActions.stream().map(PstRangeAction::getGroupId).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
         for (String pstGroup : pstGroups) {
             Set<PstRangeAction> pstsOfGroup = pstRangeActions.stream()
-                .filter(pstRangeAction -> pstRangeAction.getGroupId().isPresent() && pstRangeAction.getGroupId().get().equals(pstGroup))
-                .collect(Collectors.toSet());
+                    .filter(pstRangeAction -> pstRangeAction.getGroupId().isPresent() && pstRangeAction.getGroupId().get().equals(pstGroup))
+                    .collect(Collectors.toSet());
             Map<Integer, Double> groupMinMarginPerTap = new HashMap<>();
             for (PstRangeAction pstRangeAction : pstsOfGroup) {
                 Map<Integer, Double> pstMinMarginPerTap = minMarginPerTap.get(pstRangeAction);
@@ -130,13 +130,13 @@ public final class BestTapFinder {
         boolean testTapPlus1 = true;
         try {
             pstRangeAction.convertTapToAngle(closestTap + 1);
-        } catch (ValidationException e) {
+        } catch (FaraoException e) {
             testTapPlus1 = false;
         }
         boolean testTapMinus1 = true;
         try {
             pstRangeAction.convertTapToAngle(closestTap - 1);
-        } catch (ValidationException e) {
+        } catch (FaraoException e) {
             testTapMinus1 = false;
         }
 
@@ -201,7 +201,7 @@ public final class BestTapFinder {
         double minMargin2 = Double.MAX_VALUE;
         for (BranchCnec cnec : cnecs) {
             double sensitivity = sensitivityResult.getSensitivityOnFlow(pstRangeAction, cnec);
-            double currentSetPoint = pstRangeAction.getCurrentValue(network);
+            double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
             double referenceFlow = sensitivityResult.getReferenceFlow(cnec);
 
             double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;

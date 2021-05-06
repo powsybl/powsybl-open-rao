@@ -17,6 +17,7 @@
     "contingencyId" : "Contingency FR1 FR3",
     "instant": "curative",
     "frm" : 0.0,
+    "nominalV" : [ 380.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
       "rule" : "onLeftSide",
@@ -53,6 +54,7 @@
     "contingencyId" : "Contingency FR1 FR3",
     "instant": "outage",
     "frm" : -1.0,
+    "nominalV" : [ 380.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
       "rule" : "onLeftSide",
@@ -90,6 +92,7 @@
     "contingencyId" : "Contingency FR1 FR3",
     "instant": "curative",
     "frm" : 2.0,
+    "nominalV" : [ 380.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
       "rule" : "onLeftSide",
@@ -126,6 +129,7 @@
     "networkElementId" : "DDE1AA1  DDE2AA1  1",
     "instant" : "preventive",
     "frm" : 3.0,
+    "nominalV" : [ 380.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
       "rule" : "onLeftSide",
@@ -163,6 +167,7 @@
     "contingencyId" : "Contingency FR1 FR3",
     "instant": "outage",
     "frm" : 4.0,
+    "nominalV" : [ 380.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
       "rule" : "onLeftSide",
@@ -198,6 +203,7 @@
     "networkElementId" : "FFR2AA1  DDE3AA1  1",
     "instant" : "preventive",
     "frm" : 5.0,
+    "nominalV" : [ 380.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
       "rule" : "onLeftSide",
@@ -232,6 +238,16 @@
     "id" : "PST1",
     "name" : "PST1",
     "operator" : "FR",
+    "initialTap": 0,
+    "tapToAngleConversionMap" : {
+      "-3" : 0.0,
+      "-2" : 0.5,
+      "-1" : 1.0,
+      "0" : 1.5,
+      "1" : 2.0,
+      "2" : 2.5,
+      "3" : 3.0
+    },
     "freeToUseUsageRules" : [ {
       "usageMethod" : "available",
       "instant" : "preventive"
@@ -240,8 +256,7 @@
     "ranges" : [ {
       "min" : 1.0,
       "max" : 33.0,
-      "rangeType" : "absolute",
-      "tapConvention" : "startsAtOne"
+      "rangeType" : "absolute"
     } ],
     "extensions" : {
       "RangeActionResultExtension" : {

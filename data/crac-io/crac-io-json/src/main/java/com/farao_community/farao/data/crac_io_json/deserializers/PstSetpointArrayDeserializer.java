@@ -45,9 +45,6 @@ public final class PstSetpointArrayDeserializer {
                         jsonParser.nextToken();
                         adder.withSetpoint(jsonParser.getIntValue());
                         break;
-                    case TAP_CONVENTION:
-                        adder.withTapConvention(deserializeTapConvention(jsonParser.nextTextValue()));
-                        break;
                     default:
                         throw new FaraoException("Unexpected field in PstSetpoint: " + jsonParser.getCurrentName());
                 }

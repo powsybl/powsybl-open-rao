@@ -37,7 +37,6 @@ public class LoopFlowThresholdImplTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
-        crac.synchronize(network);
         cnec = crac.getFlowCnec("cnec2basecase");
 
         iMax = 1500.0;

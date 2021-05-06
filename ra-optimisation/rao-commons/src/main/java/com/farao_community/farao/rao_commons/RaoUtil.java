@@ -10,13 +10,11 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoParameters;
@@ -25,7 +23,6 @@ import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMar
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionEvaluator;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,18 +45,10 @@ public final class RaoUtil {
     public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
         checkParameters(raoParameters, raoInput);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
-        initCrac(raoInput.getCrac(), raoInput.getNetwork());
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
         network.getVariantManager().setWorkingVariant(networkVariantId);
-        UcteAliasesCreation.createAliases(network);
-    }
-
-    public static void initCrac(Crac crac, Network network) {
-        CracCleaner cracCleaner = new CracCleaner();
-        cracCleaner.cleanCrac(crac, network);
-        RaoInputHelper.synchronize(crac, network);
     }
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {

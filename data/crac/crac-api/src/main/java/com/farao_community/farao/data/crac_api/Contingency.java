@@ -21,7 +21,7 @@ import java.util.Set;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Contingency extends Identifiable<Contingency>, Synchronizable {
+public interface Contingency extends Identifiable<Contingency> {
 
     /**
      * Gather all the network elements present in the contingency. It returns a set because network

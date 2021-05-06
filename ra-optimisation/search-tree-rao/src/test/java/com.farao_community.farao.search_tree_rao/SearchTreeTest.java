@@ -73,7 +73,6 @@ public class SearchTreeTest {
         String variantId = network.getVariantManager().getWorkingVariantId();
         RaoUtil.initNetwork(network, variantId);
         Crac crac = CracImporters.importCrac("small-crac-with-network-actions.json", getClass().getResourceAsStream("/small-crac-with-network-actions.json"));
-        RaoUtil.initCrac(crac, network);
 
         raoData = Mockito.spy(new RaoData(network, crac, crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), null, null, null, new RaoParameters()));
         raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParameters.json"));

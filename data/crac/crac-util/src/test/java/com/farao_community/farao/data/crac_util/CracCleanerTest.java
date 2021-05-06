@@ -68,6 +68,8 @@ public class CracCleanerTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-500.0)
                 .add()
+            .withIMax(5000.)
+            .withNominalVoltage(380.)
             .add();
 
         crac.newFlowCnec()
@@ -81,6 +83,8 @@ public class CracCleanerTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-0.3)
                 .add()
+            .withIMax(5000.)
+            .withNominalVoltage(380.)
             .add();
 
         crac.newFlowCnec()
@@ -95,6 +99,8 @@ public class CracCleanerTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-800.)
                 .add()
+            .withIMax(5000.)
+            .withNominalVoltage(380.)
             .add();
 
         crac.newFlowCnec()
@@ -109,6 +115,8 @@ public class CracCleanerTest {
                 .withRule(BranchThresholdRule.ON_LEFT_SIDE)
                 .withMin(-500.)
                 .add()
+            .withIMax(5000.)
+            .withNominalVoltage(380.)
             .add();
 
         // remedial actions
@@ -151,11 +159,12 @@ public class CracCleanerTest {
             .withName("pstRange1Name")
             .withOperator("operator")
             .withNetworkElement("element that does not exist")
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(Map.of(1, -20., 2, 20.))
             .newTapRange()
                 .withMinTap(1)
                 .withMaxTap(16)
                 .withRangeType(RangeType.ABSOLUTE)
-                .withTapConvention(TapConvention.STARTS_AT_ONE)
                 .add()
             .newFreeToUseUsageRule()
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -168,11 +177,12 @@ public class CracCleanerTest {
             .withName("pstRange2Name")
             .withOperator("operator")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(Map.of(1, -20., 2, 20.))
             .newTapRange()
                 .withMinTap(1)
                 .withMaxTap(16)
                 .withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)
-                .withTapConvention(TapConvention.STARTS_AT_ONE)
                 .add()
             .newFreeToUseUsageRule()
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -329,6 +339,8 @@ public class CracCleanerTest {
             .withName("pstRangeName")
             .withOperator("operator")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(Map.of(1, -20., 2, 20.))
             .newOnStateUsageRule()
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .withInstant(Instant.CURATIVE)

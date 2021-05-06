@@ -10,12 +10,8 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
-import com.farao_community.farao.data.crac_api.TapConvention;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-
-import static com.farao_community.farao.data.crac_api.TapConvention.CENTERED_ON_ZERO;
-import static com.farao_community.farao.data.crac_api.TapConvention.STARTS_AT_ONE;
 
 /**
  * PST setpoint remedial action: set a PST's tap at a given value.
@@ -27,19 +23,12 @@ public final class PstSetpointImpl implements PstSetpoint {
 
     private NetworkElement networkElement;
     private int setpoint;
-    private TapConvention rangeDefinition;
 
     @Deprecated
     // TODO : convert to private package
-    public PstSetpointImpl(NetworkElement networkElement, int setpoint, TapConvention rangeDefinition) {
+    public PstSetpointImpl(NetworkElement networkElement, int setpoint) {
         this.networkElement = networkElement;
         this.setpoint = setpoint;
-        this.rangeDefinition = rangeDefinition;
-    }
-
-    @Override
-    public TapConvention getTapConvention() {
-        return this.rangeDefinition;
     }
 
     @Override
@@ -61,13 +50,7 @@ public final class PstSetpointImpl implements PstSetpoint {
     public void apply(Network network) {
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(networkElement.getId()).getPhaseTapChanger();
 
-        int normalizedSetPoint = 0;
-
-        if (rangeDefinition == CENTERED_ON_ZERO) {
-            normalizedSetPoint = ((phaseTapChanger.getLowTapPosition() + phaseTapChanger.getHighTapPosition()) / 2) + (int) setpoint;
-        } else if (rangeDefinition == STARTS_AT_ONE) {
-            normalizedSetPoint = phaseTapChanger.getLowTapPosition() + (int) setpoint - 1;
-        }
+        int normalizedSetPoint = ((phaseTapChanger.getLowTapPosition() + phaseTapChanger.getHighTapPosition()) / 2) + (int) setpoint;
 
         if (normalizedSetPoint >= phaseTapChanger.getLowTapPosition() && normalizedSetPoint <= phaseTapChanger.getHighTapPosition()) {
             phaseTapChanger.setTapPosition(normalizedSetPoint);
@@ -91,12 +74,11 @@ public final class PstSetpointImpl implements PstSetpoint {
         }
         PstSetpointImpl oPstSetPoint =  (PstSetpointImpl) o;
         return oPstSetPoint.getNetworkElement().equals(this.networkElement)
-            && oPstSetPoint.getSetpoint() == this.setpoint
-            && oPstSetPoint.getTapConvention().equals(this.rangeDefinition);
+            && oPstSetPoint.getSetpoint() == this.setpoint;
     }
 
     @Override
     public int hashCode() {
-        return networkElement.hashCode() + 7 * Double.valueOf(setpoint).hashCode() + 31 * rangeDefinition.hashCode();
+        return networkElement.hashCode() + 7 * Double.valueOf(setpoint).hashCode();
     }
 }

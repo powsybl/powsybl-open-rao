@@ -15,6 +15,8 @@ import com.farao_community.farao.data.crac_impl.CracImpl;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -36,6 +38,7 @@ public class PerimetersTest {
             .withId("cnec1-preventive")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.OUTAGE)
@@ -43,6 +46,7 @@ public class PerimetersTest {
             .withId("cnec1-outage1")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(400.).withMin(-400.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.CURATIVE)
@@ -50,6 +54,7 @@ public class PerimetersTest {
             .withId("cnec1-curative1")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.OUTAGE)
@@ -57,6 +62,7 @@ public class PerimetersTest {
             .withId("cnec1-outage2")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(500.).withMin(-500.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.CURATIVE)
@@ -64,6 +70,7 @@ public class PerimetersTest {
             .withId("cnec1-curative2")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.OUTAGE)
@@ -71,6 +78,7 @@ public class PerimetersTest {
             .withId("cnec1-outage3")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
         crac.newFlowCnec()
             .withInstant(Instant.CURATIVE)
@@ -78,6 +86,7 @@ public class PerimetersTest {
             .withId("cnec1-curative3")
             .withNetworkElement("ne1")
             .newThreshold().withRule(BranchThresholdRule.ON_LEFT_SIDE).withUnit(Unit.AMPERE).withMax(200.).withMin(-200.).add()
+            .withNominalVoltage(400.)
             .add();
     }
 
@@ -93,6 +102,8 @@ public class PerimetersTest {
         crac.newPstRangeAction()
                 .withId("pst-ra")
                 .withNetworkElement("pst1")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         stateTree = new StateTree(crac, crac.getPreventiveState());
@@ -106,11 +117,15 @@ public class PerimetersTest {
         crac.newPstRangeAction()
                 .withId("pst-ra-1")
                 .withNetworkElement("pst1")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         crac.newPstRangeAction()
                 .withId("pst-ra-2")
                 .withNetworkElement("pst2")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         stateTree = new StateTree(crac, crac.getPreventiveState());
@@ -123,11 +138,15 @@ public class PerimetersTest {
         crac.newPstRangeAction()
                 .withId("pst-ra-1")
                 .withNetworkElement("pst1")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         crac.newPstRangeAction()
                 .withId("pst-ra-2")
                 .withNetworkElement("pst2")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
         stateTree = new StateTree(crac, crac.getPreventiveState());

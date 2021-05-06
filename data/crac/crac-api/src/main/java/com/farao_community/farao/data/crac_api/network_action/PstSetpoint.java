@@ -6,8 +6,6 @@
  */
 package com.farao_community.farao.data.crac_api.network_action;
 
-import com.farao_community.farao.data.crac_api.TapConvention;
-
 /***
  * A PST setpoint is an Elementary Action which consists in changing
  * the tap of a given PST.
@@ -20,9 +18,4 @@ public interface PstSetpoint extends ElementaryAction {
      * Get the new setpoint (tap) that will be applied on the network element of the action
      */
     int getSetpoint();
-
-    /**
-     * Get the {@link TapConvention} with which the setpoint should be interpreted
-     */
-    TapConvention getTapConvention();
 }

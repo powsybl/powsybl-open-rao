@@ -13,6 +13,10 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_creation_util.PstHelper;
+import com.powsybl.iidm.network.Network;
+
+import static com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil.import12NodesNetwork;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -56,6 +60,8 @@ public final class CommonCracCreation {
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -71,6 +77,8 @@ public final class CommonCracCreation {
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -86,6 +94,8 @@ public final class CommonCracCreation {
                 .withMin(-1500.)
                 .withMax(1500.)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -106,6 +116,8 @@ public final class CommonCracCreation {
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -127,6 +139,8 @@ public final class CommonCracCreation {
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         crac.newFlowCnec()
@@ -149,6 +163,8 @@ public final class CommonCracCreation {
                 .withMin(-0.3)
                 .withMax(0.3)
                 .add()
+            .withNominalVoltage(380.)
+            .withIMax(5000.)
             .add();
 
         return crac;
@@ -156,6 +172,8 @@ public final class CommonCracCreation {
 
     public static Crac createWithPreventivePstRange() {
         Crac crac = create();
+        Network network = import12NodesNetwork();
+        PstHelper pstHelper = new PstHelper("BBE2AA1  BBE3AA1  1", network);
 
         crac.newPstRangeAction()
             .withId("pst")
@@ -167,10 +185,11 @@ public final class CommonCracCreation {
                 .add()
             .newTapRange()
                 .withRangeType(RangeType.ABSOLUTE)
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withMinTap(-16)
                 .withMaxTap(16)
                 .add()
+            .withInitialTap(pstHelper.getInitialTap())
+            .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap())
             .add();
 
         return crac;
@@ -178,6 +197,8 @@ public final class CommonCracCreation {
 
     public static Crac createWithCurativePstRange() {
         Crac crac = create();
+        Network network = import12NodesNetwork();
+        PstHelper pstHelper = new PstHelper("BBE2AA1  BBE3AA1  1", network);
 
         crac.newPstRangeAction()
             .withId("pst")
@@ -190,10 +211,11 @@ public final class CommonCracCreation {
                 .add()
             .newTapRange()
                 .withRangeType(RangeType.ABSOLUTE)
-                .withTapConvention(TapConvention.CENTERED_ON_ZERO)
                 .withMinTap(-16)
                 .withMaxTap(16)
                 .add()
+            .withInitialTap(pstHelper.getInitialTap())
+            .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap())
             .add();
 
         return crac;
