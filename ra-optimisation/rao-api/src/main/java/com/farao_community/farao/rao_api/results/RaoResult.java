@@ -39,14 +39,19 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
     PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state);
 
     /**
-     * It enables to access to the preventive {@link PerimeterResult} which is a sub-representation of the {@link RaoResult}.
-     * Be careful because some combinations of {@code optimizationState} and {@code state} can be quite tricky to
-     * analyze.
+     * It enables to access to the preventive {@link PerimeterResult} after PRA which is a sub-representation of the
+     * {@link RaoResult}.
      *
-     * @param optimizationState: The state of optimization to be studied.
      * @return The full preventive perimeter result to be studied with comprehensive data.
      */
-    PerimeterResult getPreventivePerimeterResult(OptimizationState optimizationState);
+    PerimeterResult getPostPreventivePerimeterResult();
+
+    /**
+     * It enables to access to the initial {@link PerimeterResult} which is a sub-representation of the {@link RaoResult}.
+     *
+     * @return The full initial perimeter result to be studied with comprehensive data.
+     */
+    PerimeterResult getInitialResult();
 
     /**
      * It gives the flow on a {@link BranchCnec} at a given {@link OptimizationState} and in a
@@ -58,10 +63,11 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      * @return The flow on the branch at the optimization state in the given unit.
      */
     default double getFlow(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)
-                || optimizationState.equals(OptimizationState.AFTER_PRA)
+        if (optimizationState.equals(OptimizationState.INITIAL)) {
+            return getInitialResult().getFlow(branchCnec, unit);
+        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
                 || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPreventivePerimeterResult(optimizationState).getFlow(branchCnec, unit);
+            return getPostPreventivePerimeterResult().getFlow(branchCnec, unit);
         } else {
             return getPerimeterResult(optimizationState, branchCnec.getState()).getFlow(branchCnec, unit);
         }
@@ -78,10 +84,11 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      * @return The margin on the branch at the optimization state in the given unit.
      */
     default double getMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)
-                || optimizationState.equals(OptimizationState.AFTER_PRA)
+        if (optimizationState.equals(OptimizationState.INITIAL)) {
+            return getInitialResult().getMargin(branchCnec, unit);
+        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
                 || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPreventivePerimeterResult(optimizationState).getMargin(branchCnec, unit);
+            return getPostPreventivePerimeterResult().getMargin(branchCnec, unit);
         } else {
             return getPerimeterResult(optimizationState, branchCnec.getState()).getMargin(branchCnec, unit);
         }
@@ -101,10 +108,11 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
     default double getRelativeMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)
-                || optimizationState.equals(OptimizationState.AFTER_PRA)
+        if (optimizationState.equals(OptimizationState.INITIAL)) {
+            return getInitialResult().getRelativeMargin(branchCnec, unit);
+        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
                 || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPreventivePerimeterResult(optimizationState).getRelativeMargin(branchCnec, unit);
+            return getPostPreventivePerimeterResult().getRelativeMargin(branchCnec, unit);
         } else {
             return getPerimeterResult(optimizationState, branchCnec.getState()).getRelativeMargin(branchCnec, unit);
         }
@@ -121,10 +129,11 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
     default double getCommercialFlow(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)
-                || optimizationState.equals(OptimizationState.AFTER_PRA)
+        if (optimizationState.equals(OptimizationState.INITIAL)) {
+            return getInitialResult().getCommercialFlow(branchCnec, unit);
+        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
                 || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPreventivePerimeterResult(optimizationState).getCommercialFlow(branchCnec, unit);
+            return getPostPreventivePerimeterResult().getCommercialFlow(branchCnec, unit);
         } else {
             return getPerimeterResult(optimizationState, branchCnec.getState()).getCommercialFlow(branchCnec, unit);
         }
@@ -141,10 +150,11 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
     default double getLoopFlow(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        if (optimizationState.equals(OptimizationState.INITIAL)
-                || optimizationState.equals(OptimizationState.AFTER_PRA)
+        if (optimizationState.equals(OptimizationState.INITIAL)) {
+            return getInitialResult().getLoopFlow(branchCnec, unit);
+        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
                 || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPreventivePerimeterResult(optimizationState).getLoopFlow(branchCnec, unit);
+            return getPostPreventivePerimeterResult().getLoopFlow(branchCnec, unit);
         } else {
             return getPerimeterResult(optimizationState, branchCnec.getState()).getLoopFlow(branchCnec, unit);
         }
@@ -160,10 +170,11 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
     default double getPtdfZonalSum(OptimizationState optimizationState, BranchCnec branchCnec) {
-        if (optimizationState.equals(OptimizationState.INITIAL)
-                || optimizationState.equals(OptimizationState.AFTER_PRA)
+        if (optimizationState.equals(OptimizationState.INITIAL)) {
+            return getInitialResult().getPtdfZonalSum(branchCnec);
+        } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
                 || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPreventivePerimeterResult(optimizationState).getPtdfZonalSum(branchCnec);
+            return getPostPreventivePerimeterResult().getPtdfZonalSum(branchCnec);
         } else {
             return getPerimeterResult(optimizationState, branchCnec.getState()).getPtdfZonalSum(branchCnec);
         }
