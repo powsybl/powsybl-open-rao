@@ -328,6 +328,12 @@ class Leaf {
                     linearOptimizerParameters.getMaxMinMarginParameters()
             ));
         }
+        linearProblemBuilder.withProblemFiller(new MnecFiller(
+                leafInput.getInitialBranchResult(),
+                leafInput.getCnecs().stream().filter(cnec -> cnec.isMonitored()).collect(Collectors.toSet()),
+                linearOptimizerParameters.getUnit(),
+                linearOptimizerParameters.getMnecParameters()
+        ));
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             linearProblemBuilder.withProblemFiller(new MaxLoopFlowFiller(
                     leafInput.getLoopflowCnecs(),

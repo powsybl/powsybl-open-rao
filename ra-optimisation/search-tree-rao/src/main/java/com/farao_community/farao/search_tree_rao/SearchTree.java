@@ -60,7 +60,7 @@ public class SearchTree {
     private IteratingLinearOptimizer iteratingLinearOptimizer;
 
     void initLeaves() {
-        LeafInput leafInput = new LeafInput(searchTreeInput, searchTreeInput.getNetwork(), new HashSet<>(), null, objectiveFunction, iteratingLinearOptimizer);
+        LeafInput leafInput = new LeafInput(searchTreeInput, searchTreeInput.getNetwork(), new HashSet<>(), null, objectiveFunction, iteratingLinearOptimizer, raoParameters.isRaoWithLoopFlowLimitation());
         rootLeaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
@@ -196,7 +196,7 @@ public class SearchTree {
 
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
-        LeafInput leafInput = new LeafInput(searchTreeInput, network, previousDepthOptimalLeaf.getNetworkActions(), networkAction, objectiveFunction, iteratingLinearOptimizer);
+        LeafInput leafInput = new LeafInput(searchTreeInput, network, previousDepthOptimalLeaf.getNetworkActions(), networkAction, objectiveFunction, iteratingLinearOptimizer, raoParameters.isRaoWithLoopFlowLimitation());
         try {
             leaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         } catch (NotImplementedException e) {

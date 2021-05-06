@@ -116,7 +116,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         // merge variants
         LOGGER.info("Merging preventive and curative RAO results.");
-        RaoResult mergedRaoResults = mergeRaoResults(initialSensitivityAnalysisOutput, preventiveResult, curativeResults);
+        RaoResult mergedRaoResults = mergeRaoResults(initialSensitivityAnalysisOutput, preCurativeSensitivityAnalysisOutput, curativeResults);
 
         // log results
         /*if (mergedRaoResults.isSuccessful()) {
@@ -213,15 +213,18 @@ public class SearchTreeRaoProvider implements RaoProvider {
             countriesNotToOptimize = new HashSet<>();
         }
 
-        PrePerimeterSensitivityAnalysisOutput prePerimeterSensitivityAnalysisOutput = new PrePerimeterSensitivityAnalysis(raoInput, Collections.singleton(raoInput.getOptimizedState()), raoInput.getPerimeter(), raoParameters, new HashSet<>(), null).run();
+        PrePerimeterSensitivityAnalysisOutput prePerimeterSensitivityAnalysisOutput = prePerimeterSensitivityAnalysisOnAllPerimeters(raoInput, raoParameters, null);
         SearchTreeInput searchTreeInput = buildSearchTreeInput(raoInput, raoInput.getOptimizedState(), raoInput.getPerimeter(), prePerimeterSensitivityAnalysisOutput, prePerimeterSensitivityAnalysisOutput, raoParameters, countriesNotToOptimize);
 
         PerimeterResult perimeterResult = new SearchTree().run(searchTreeInput, raoParameters, treeParameters, linearOptimizerParameters).join();
-        //SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), raoParameters.getObjectiveFunction().getUnit(), raoParameters.getObjectiveFunction().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+
+        perimeterResult.getActivatedRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), perimeterResult.getOptimizedSetPoint(rangeAction)));
+        perimeterResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
+
         return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getOptimizedState(), prePerimeterSensitivityAnalysisOutput, perimeterResult));
     }
 
-    private PrePerimeterSensitivityAnalysisOutput   prePerimeterSensitivityAnalysisOnAllPerimeters(RaoInput raoInput, RaoParameters parameters, BranchResult initialBranchResult) {
+    private PrePerimeterSensitivityAnalysisOutput prePerimeterSensitivityAnalysisOnAllPerimeters(RaoInput raoInput, RaoParameters parameters, BranchResult initialBranchResult) {
         return new PrePerimeterSensitivityAnalysis(raoInput, raoInput.getCrac().getStates(), raoInput.getCrac().getStates(), parameters, new HashSet<>(), initialBranchResult).run();
     }
 
@@ -231,6 +234,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
         SearchTreeInput searchTreeInput = buildSearchTreeInput(raoInput, raoInput.getCrac().getPreventiveState(), stateTree.getPerimeter(raoInput.getCrac().getPreventiveState()), prePerimeterSensitivityAnalysisOutput, prePerimeterSensitivityAnalysisOutput, raoParameters, new HashSet<>());
 
         PerimeterResult perimeterResult = new SearchTree().run(searchTreeInput, raoParameters, preventiveTreeParameters, linearOptimizerParameters).join();
+
+        perimeterResult.getActivatedRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), perimeterResult.getOptimizedSetPoint(rangeAction)));
+        perimeterResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
         return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterSensitivityAnalysisOutput, perimeterResult));
     }

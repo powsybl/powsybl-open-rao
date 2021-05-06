@@ -22,7 +22,12 @@ public class FailedRaoOutput implements RaoResult {
     }
 
     @Override
-    public PerimeterResult getPreventivePerimeterResult(OptimizationState optimizationState) {
+    public PerimeterResult getPostPreventivePerimeterResult() {
+        return null;
+    }
+
+    @Override
+    public PerimeterResult getInitialResult() {
         return null;
     }
 

@@ -39,7 +39,7 @@ public class LeafInput {
     private Map<BranchCnec, Double> commercialFlows;
     private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
 
-    public LeafInput(SearchTreeInput searchTreeInput, Network network, Set<NetworkAction> preAppliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunction objectiveFunction, IteratingLinearOptimizer iteratingLinearOptimizer) {
+    public LeafInput(SearchTreeInput searchTreeInput, Network network, Set<NetworkAction> preAppliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunction objectiveFunction, IteratingLinearOptimizer iteratingLinearOptimizer, boolean isRaoWithLoopflowLimitation) {
         this.network = network;
         this.cnecs = searchTreeInput.getCnecs();
         this.preAppliedNetworkActions = preAppliedNetworkActions;
@@ -56,9 +56,11 @@ public class LeafInput {
         this.initialBranchResult = searchTreeInput.getInitialBranchResult();
         this.prePerimeterBranchResult = searchTreeInput.getPrePerimeterBranchResult();
 
-        Map<BranchCnec, Double> prePerimeterCommercialFlows = new HashMap<>();
-        loopflowCnecs.forEach(cnec -> prePerimeterCommercialFlows.put(cnec, searchTreeInput.getPrePerimeterBranchResult().getCommercialFlow(cnec, MEGAWATT)));
-        this.commercialFlows = prePerimeterCommercialFlows;
+        if (isRaoWithLoopflowLimitation) {
+            Map<BranchCnec, Double> prePerimeterCommercialFlows = new HashMap<>();
+            loopflowCnecs.forEach(cnec -> prePerimeterCommercialFlows.put(cnec, searchTreeInput.getPrePerimeterBranchResult().getCommercialFlow(cnec, MEGAWATT)));
+            this.commercialFlows = prePerimeterCommercialFlows;
+        }
 
         this.prePerimeterSetpoints = searchTreeInput.getPrePerimeterSetpoints();
         if (preAppliedNetworkActions.isEmpty() && Objects.isNull(networkActionToApply)) {
