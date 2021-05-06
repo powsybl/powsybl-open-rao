@@ -11,9 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.InputStream;
-import java.time.OffsetDateTime;
 
 /**
  * Interface for CRAC object import
@@ -23,9 +21,9 @@ import java.time.OffsetDateTime;
 
 public interface CracImporter {
 
-    Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory, @Nullable OffsetDateTime timeStampFilter);
+    Crac importCrac(InputStream inputStream, @Nonnull CracFactory cracFactory);
 
-    Crac importCrac(InputStream inputStream, @Nullable OffsetDateTime timeStampFilter);
+    Crac importCrac(InputStream inputStream);
 
     boolean exists(String fileName, InputStream inputStream);
 }
