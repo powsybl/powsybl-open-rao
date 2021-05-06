@@ -50,9 +50,11 @@ public class OneStateOnlyRaoOutput implements RaoResult {
 
     @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
-        double highestFunctionalCost = initialResult.getFunctionalCost();
-        highestFunctionalCost = Math.max(highestFunctionalCost, postOptimizationResult.getFunctionalCost());
-        return highestFunctionalCost;
+        if (optimizationState == OptimizationState.INITIAL) {
+            return initialResult.getFunctionalCost();
+        } else {
+            return postOptimizationResult.getFunctionalCost();
+        }
     }
 
     @Override

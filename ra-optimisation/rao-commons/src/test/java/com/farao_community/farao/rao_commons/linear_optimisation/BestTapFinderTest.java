@@ -10,13 +10,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.AbstractRangeAction;
-import com.farao_community.farao.data.crac_impl.remedial_action.range_action.PstRangeActionImpl;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import org.junit.Before;
@@ -131,7 +128,6 @@ public class BestTapFinderTest {
         setSensitivityValues(pst);
         return pst;
     }
-
 
     @Test
     public void testMarginWhenTheSetPointIsTooFarFromTheMiddle() {
@@ -345,7 +341,6 @@ public class BestTapFinderTest {
         setClosestTapPosition(pstGroup2, groupStartingSetPoint, -1);
         setMarginsForTap(pstGroup2, -1, 120, 150);
         setMarginsForTap(pstGroup2, 0, 150, 140); // Tap 0 should be selected because min margin is 140
-
 
         rangeActionResult = new RangeActionResultImpl(
                 Map.of(

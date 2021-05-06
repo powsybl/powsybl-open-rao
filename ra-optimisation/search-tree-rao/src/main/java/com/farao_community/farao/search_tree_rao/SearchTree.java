@@ -196,7 +196,7 @@ public class SearchTree {
 
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
-        LeafInput leafInput = new LeafInput(searchTreeInput, network, optimalLeaf.getLeafInput().getPreAppliedNetworkActions(), networkAction, objectiveFunction, iteratingLinearOptimizer);
+        LeafInput leafInput = new LeafInput(searchTreeInput, network, previousDepthOptimalLeaf.getNetworkActions(), networkAction, objectiveFunction, iteratingLinearOptimizer);
         try {
             leaf = new Leaf(leafInput, raoParameters, treeParameters, linearOptimizerParameters);
         } catch (NotImplementedException e) {

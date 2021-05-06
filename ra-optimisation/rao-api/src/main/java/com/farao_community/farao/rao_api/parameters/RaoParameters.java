@@ -313,25 +313,11 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     }
 
     public LoopFlowParameters getLoopFlowParameters() {
-        return loopFlowParameters;
+        return new LoopFlowParameters(loopFlowApproximationLevel, loopFlowAcceptableAugmentation, loopFlowViolationCost, loopFlowConstraintAdjustmentCoefficient);
     }
 
     public MnecParameters getMnecParameters() {
-        return mnecParameters;
-    }
-
-    public MaxMinMarginParameters getMaxMinMarginParameters() {
-        if (this.objectiveFunction.relativePositiveMargins()) {
-            throw new FaraoException("Objective function uses relative margins. Use MaxMinRelativeMarginParameters");
-        }
-        return maxMinMarginParameters;
-    }
-
-    public MaxMinRelativeMarginParameters getMaxMinRelativeMarginParameters() {
-        if (this.objectiveFunction.relativePositiveMargins()) {
-            throw new FaraoException("Objective function does not use relative margins. Use MaxMinMarginParameters");
-        }
-        return maxMinRelativeMarginParameters;
+        return new MnecParameters(mnecAcceptableMarginDiminution, mnecViolationCost, mnecConstraintAdjustmentCoefficient);
     }
 
     public void setLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
@@ -411,14 +397,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...
         parameters.setDefaultSensitivityAnalysisParameters(SensitivityAnalysisParameters.load(platformConfig));
-
-        /*parameters.setLoopFlowParameters(new LoopFlowParameters(parameters.getLoopFlowApproximationLevel(), parameters.getLoopFlowAcceptableAugmentation(), parameters.getLoopFlowViolationCost(), parameters.getLoopFlowConstraintAdjustmentCoefficient()));
-        parameters.setMnecParameters(new MnecParameters(parameters.getMnecAcceptableMarginDiminution(), parameters.getMnecViolationCost(), parameters.getMnecConstraintAdjustmentCoefficient()));
-        if (parameters.getObjectiveFunction().relativePositiveMargins()) {
-            parameters.setMaxMinRelativeMarginParameters(new MaxMinRelativeMarginParameters(parameters.getPstPenaltyCost(), parameters.getNegativeMarginObjectiveCoefficient(), parameters.getPtdfSumLowerBound()));
-        } else {
-            parameters.setMaxMinMarginParameters(new MaxMinMarginParameters(parameters.getPstPenaltyCost()));
-        }*/
     }
 
     private static Set<Country> convertToCountrySet(List<String> countryStringList) {
