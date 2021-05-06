@@ -150,6 +150,9 @@ public final class RaoUtil {
                     raoParameters.getLoopFlowParameters()
             ));
         }
+        objectiveFunctionBuilder.withVirtualCostEvaluator(new SensitivityFallbackOvercostEvaluator(
+                raoParameters.getFallbackOverCost()
+        ));
         return objectiveFunctionBuilder.build();
     }
 

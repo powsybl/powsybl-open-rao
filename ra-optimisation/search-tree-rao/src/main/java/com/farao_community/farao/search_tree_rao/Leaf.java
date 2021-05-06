@@ -343,6 +343,7 @@ class Leaf {
             ));
         }
         linearProblemBuilder.withBranchResult(preOptimBranchResult);
+        linearProblemBuilder.withSensitivityResult(new SensitivityResultImpl(leafInput.getSensitivityAndLoopflowResults().getSystematicSensitivityResult()));
         return linearProblemBuilder.build();
     }
 
@@ -387,7 +388,7 @@ class Leaf {
                 LinearProblem linearProblem = createLinearProblem();
                 BranchResultAdapter branchResultAdapter = createBranchResultAdapterForIteratingLinearOptimization();
                 LinearOptimizationResult linearOptimizationResult = leafInput.getIteratingLinearOptimizer().optimize(
-                        leafInput.getNetwork(), linearProblem, preOptimBranchResult, branchResultAdapter, preOptimSensitivityResult);
+                        leafInput.getNetwork(), linearProblem, leafOutput, leafOutput, leafOutput, branchResultAdapter, preOptimSensitivityResult);
                 leafOutput = createLeafOutput(linearOptimizationResult);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");
