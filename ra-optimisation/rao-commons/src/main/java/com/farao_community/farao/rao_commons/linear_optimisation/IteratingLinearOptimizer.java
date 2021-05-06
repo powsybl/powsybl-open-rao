@@ -45,67 +45,34 @@ public class IteratingLinearOptimizer {
         this.maxIterations = maxIterations;
     }
 
-    public LinearOptimizationResult optimize(Network network,
-                                             LinearProblem linearProblem,
+    public LinearOptimizationResult optimize(LinearProblem linearProblem,
+                                             Network network,
                                              BranchResult initialBranchResult,
+                                             SensitivityResult initialSensitivityResult,
                                              RangeActionResult initialRangeActionResult,
-                                             ObjectiveFunctionResult initialObjectiveFunctionResult,
-                                             BranchResultAdapter branchResultAdapter,
-                                             SensitivityResult initialSensitivityResult) {
-        // TODO: Add initialRangeActionResult to ease the initialization and loop
-        solveLinearProblem(linearProblem, 0);
-        if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
-            LOGGER.error(LINEAR_OPTIMIZATION_FAILED, 0);
-            return new FailedLinearOptimizationResult();
-        }
+                                             BranchResultAdapter branchResultAdapter) {
+        IteratingLinearOptimizerResult bestResult = createResult(initialBranchResult, initialSensitivityResult, initialRangeActionResult, 0);
 
-        // Rajouter un check pour voir si on a pas empiré la situation/ceffectivement changé des prises
-        RangeActionResult bestRangeActionResult = BestTapFinder.find(
-                linearProblem.getResults(),
-                network,
-                objectiveFunction.evaluate(initialBranchResult, initialSensitivityResult.getStatus()).getMostLimitingElements(10),
-                initialBranchResult,
-                initialSensitivityResult);
-
-        if (!hasRemedialActionsChanged(bestRangeActionResult, initialRangeActionResult)) {
-            // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
-            LOGGER.info("Iteration 0 - same results as initial situation, optimal solution found");
-            return createResult(initialRangeActionResult, initialBranchResult, initialSensitivityResult);
-        }
-
-        SystematicSensitivityResult sensi;
-        try {
-            sensi = applyRangeActionsAndRunSensitivityAnalysis(bestRangeActionResult, network, 0);
-        } catch (SensitivityAnalysisException e) {
-            return new FailedLinearOptimizationResult();
-        }
-
-        IteratingLinearOptimizerResult bestResult = createResult(bestRangeActionResult, branchResultAdapter, sensi);
-        if (bestResult.getCost() < initialObjectiveFunctionResult.getCost()) {
-            logBetterResult(0, bestResult);
-        } else {
-            logWorseResult(0, initialObjectiveFunctionResult, bestResult);
-            return createResult(initialRangeActionResult, initialBranchResult, initialSensitivityResult);
-        }
-
-        for (int iteration = 1; iteration <= maxIterations; iteration++) {
-            linearProblem.update(bestResult.getBranchResult(), bestResult.getSensitivityResult());
-
+        for (int iteration = 0; iteration <= maxIterations; iteration++) {
             solveLinearProblem(linearProblem, iteration);
             if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
                 LOGGER.error(LINEAR_OPTIMIZATION_FAILED, iteration);
+                if (iteration == 0) {
+                    return new FailedLinearOptimizationResult();
+                }
                 bestResult.setStatus(LinearProblemStatus.FEASIBLE);
                 return bestResult;
             }
 
             RangeActionResult currentRangeActionResult = roundResult(linearProblem.getResults(), network, bestResult);
 
-            if (!hasRemedialActionsChanged(currentRangeActionResult, bestResult.getRangeActionResult())) {
+            if (!hasRemedialActionsChanged(currentRangeActionResult, bestResult)) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
                 LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
                 return bestResult;
             }
 
+            SystematicSensitivityResult sensi;
             try {
                 sensi = applyRangeActionsAndRunSensitivityAnalysis(currentRangeActionResult, network, iteration);
             } catch (SensitivityAnalysisException e) {
@@ -113,14 +80,15 @@ public class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            IteratingLinearOptimizerResult currentResult = createResult(currentRangeActionResult, branchResultAdapter, sensi);
-            if (currentResult.getCost() < bestResult.getCost()) {
-                logBetterResult(iteration, currentResult);
-                bestResult = currentResult;
-            } else {
+            IteratingLinearOptimizerResult currentResult = createResult(branchResultAdapter, sensi, currentRangeActionResult, iteration);
+            if (currentResult.getCost() >= bestResult.getCost()) {
                 logWorseResult(iteration, bestResult, currentResult);
                 return bestResult;
             }
+
+            logBetterResult(iteration, currentResult);
+            bestResult = currentResult;
+            linearProblem.update(bestResult.getBranchResult(), bestResult.getSensitivityResult());
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
         return bestResult;
@@ -132,16 +100,8 @@ public class IteratingLinearOptimizer {
         LOGGER.debug("Iteration {} - linear optimization [end]", iteration);
     }
 
-    private static boolean hasRemedialActionsChanged(RangeActionResult newRangeActionResult, RangeActionResult oldRangeActionResult) {
-        Map<RangeAction, Double> newSetPoints = newRangeActionResult.getOptimizedSetPoints();
-        Map<RangeAction, Double> bestSetPoints = oldRangeActionResult.getOptimizedSetPoints();
-
-        for (Map.Entry<RangeAction, Double> newSetPointEntry : newSetPoints.entrySet()) {
-            if (Math.abs(newSetPointEntry.getValue() - bestSetPoints.get(newSetPointEntry.getKey())) > Math.max(1e-2 * Math.abs(bestSetPoints.get(newSetPointEntry.getKey())), 1e-3)) {
-                return true;
-            }
-        }
-        return false;
+    static boolean hasRemedialActionsChanged(RangeActionResult newRangeActionResult, RangeActionResult oldRangeActionResult) {
+        return !newRangeActionResult.getOptimizedSetPoints().equals(oldRangeActionResult.getOptimizedSetPoints());
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {
@@ -179,18 +139,20 @@ public class IteratingLinearOptimizer {
         }
     }
 
-    private IteratingLinearOptimizerResult createResult(RangeActionResult rangeActionResult,
-                                                        BranchResultAdapter branchResultAdapter,
-                                                        SystematicSensitivityResult systematicSensitivityResult) {
+    private IteratingLinearOptimizerResult createResult(BranchResultAdapter branchResultAdapter,
+                                                        SystematicSensitivityResult systematicSensitivityResult,
+                                                        RangeActionResult rangeActionResult,
+                                                        int nbOfIterations) {
         BranchResult branchResult = branchResultAdapter.getResult(systematicSensitivityResult);
         SensitivityResult sensitivityResult = sensitivityResultAdapter.getResult(systematicSensitivityResult);
-        return createResult(rangeActionResult, branchResult, sensitivityResult);
+        return createResult(branchResult, sensitivityResult, rangeActionResult, nbOfIterations);
     }
 
-    private IteratingLinearOptimizerResult createResult(RangeActionResult rangeActionResult,
-                                                        BranchResult branchResult,
-                                                        SensitivityResult sensitivityResult) {
-        return new IteratingLinearOptimizerResult(LinearProblemStatus.OPTIMAL, rangeActionResult, branchResult,
+    private IteratingLinearOptimizerResult createResult(BranchResult branchResult,
+                                                        SensitivityResult sensitivityResult,
+                                                        RangeActionResult rangeActionResult,
+                                                        int nbOfIterations) {
+        return new IteratingLinearOptimizerResult(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionResult, branchResult,
                 objectiveFunction.evaluate(branchResult, sensitivityResult.getStatus()), sensitivityResult);
     }
 
