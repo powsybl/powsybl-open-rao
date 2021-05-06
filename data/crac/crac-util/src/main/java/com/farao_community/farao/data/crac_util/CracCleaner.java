@@ -25,8 +25,10 @@ import static com.farao_community.farao.data.crac_util.CracCleaningFeature.REMOV
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ *
+ * @deprecated Please use the crac creator API to create a "clean" crac from the beginning
  */
-
+@Deprecated
 public class CracCleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CracCleaner.class);
