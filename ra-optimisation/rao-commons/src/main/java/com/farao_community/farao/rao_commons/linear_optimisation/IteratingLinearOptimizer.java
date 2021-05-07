@@ -122,7 +122,7 @@ public class IteratingLinearOptimizer {
     private SystematicSensitivityResult applyRangeActionsAndRunSensitivityAnalysis(RangeActionResult rangeActionResult,
                                                                                    Network network,
                                                                                    int iteration) {
-        rangeActionResult.getActivatedRangeActions().forEach(rangeAction ->
+        rangeActionResult.getOptimizedSetPoints().keySet().forEach(rangeAction ->
                 rangeAction.apply(network, rangeActionResult.getOptimizedSetPoint(rangeAction)));
 
         LOGGER.debug("Iteration {} - systematic analysis [start]", iteration);

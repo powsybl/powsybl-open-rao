@@ -25,6 +25,8 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.PerimeterStatus;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.*;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
@@ -168,6 +170,18 @@ public final class RaoUtil {
                     collect(Collectors.toList());
         }
         return sortedCnecs.subList(0, Math.min(numberOfElements, sortedCnecs.size()));
+    }
+
+    public static PerimeterStatus createPerimeterStatus(SensitivityStatus sensitivityStatus) {
+        switch (sensitivityStatus) {
+            case DEFAULT:
+                return PerimeterStatus.DEFAULT;
+            case FALLBACK:
+                return PerimeterStatus.FALLBACK;
+            case FAILURE:
+                return PerimeterStatus.FAILURE;
+        }
+        throw new FaraoException(String.format("Sensitivity status %s not recognized", sensitivityStatus.toString()));
     }
 
     public static BranchCnec getMostLimitingElement(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {

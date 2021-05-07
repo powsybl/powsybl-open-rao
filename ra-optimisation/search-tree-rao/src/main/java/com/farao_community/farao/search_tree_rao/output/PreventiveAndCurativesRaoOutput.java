@@ -6,8 +6,6 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.OptimizationState;
 import com.farao_community.farao.rao_api.results.PerimeterResult;
 import com.farao_community.farao.rao_api.results.RaoResult;
-import com.farao_community.farao.rao_commons.PrePerimeterSensitivityOutput;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.powsybl.commons.extensions.Extension;
 
 import java.util.Collection;

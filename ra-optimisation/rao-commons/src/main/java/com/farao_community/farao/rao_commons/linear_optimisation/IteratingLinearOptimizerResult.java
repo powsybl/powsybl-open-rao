@@ -134,11 +134,6 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActions() {
-        return rangeActionResult.getActivatedRangeActions();
-    }
-
-    @Override
     public Map<PstRangeAction, Integer> getOptimizedTaps() {
         return rangeActionResult.getOptimizedTaps();
     }
