@@ -20,10 +20,6 @@ public class LeafOutput implements PerimeterResult {
     private final Set<RangeAction> activatedRangeActions;
     private final PerimeterStatus perimeterStatus;
 
-    public LeafOutput(LinearOptimizationResult linearOptimizationResult, Set<NetworkAction> activatedNetworkActions, Set<RangeAction> activatedRangeActions, PerimeterStatus perimeterStatus) {
-        this(linearOptimizationResult, linearOptimizationResult, linearOptimizationResult, activatedNetworkActions, activatedRangeActions, perimeterStatus);
-    }
-
     public LeafOutput(BranchResult branchResult, RangeActionResult rangeActionResult, ObjectiveFunctionResult objectiveFunctionResult, Set<NetworkAction> activatedNetworkActions, Set<RangeAction> activatedRangeActions, PerimeterStatus perimeterStatus) {
         this.branchResult = branchResult;
         this.rangeActionResult = rangeActionResult;
