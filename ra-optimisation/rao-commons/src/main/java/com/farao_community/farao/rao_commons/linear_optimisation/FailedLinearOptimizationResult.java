@@ -90,11 +90,6 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActions() {
-        throw new FaraoException("Should not be used");
-    }
-
-    @Override
     public Map<PstRangeAction, Integer> getOptimizedTaps() {
         throw new FaraoException("Should not be used");
     }

@@ -13,10 +13,14 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.RangeActionResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import com.farao_community.farao.rao_commons.adapter.BranchResultAdapter;
 import com.farao_community.farao.rao_commons.adapter.BranchResultAdapterWithFixedPtdfsAndCommercialFlows;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
+import com.farao_community.farao.rao_commons.result.SensitivityResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -64,24 +68,24 @@ public class PrePerimeterSensitivityAnalysis {
         this.systematicSensitivityInterface = createSystematicSensitivityInterface();
     }
 
-    public PrePerimeterSensitivityAnalysisOutput run() {
+    public PrePerimeterSensitivityOutput run() {
         LOGGER.info("Initial systematic analysis [start]");
 
         // run sensitivity analysis
-        SystematicSensitivityResult sensitivityResult = systematicSensitivityInterface.run(network);
+        SystematicSensitivityResult systematicSensitivityResult = systematicSensitivityInterface.run(network);
 
         Map<BranchCnec, Double> commercialFlows = null;
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             LOGGER.info("Initial systematic analysis [...] - compute reference loop-flow values");
-            commercialFlows = LoopFlowUtil.computeCommercialFlows(network, loopflowCnecs, raoInput.getGlskProvider(), raoInput.getReferenceProgram(), sensitivityResult);
+            commercialFlows = LoopFlowUtil.computeCommercialFlows(network, loopflowCnecs, raoInput.getGlskProvider(), raoInput.getReferenceProgram(), systematicSensitivityResult);
         }
         SensitivityStatus sensitivityStatus = systematicSensitivityInterface.isFallback() ? SensitivityStatus.FALLBACK : SensitivityStatus.DEFAULT;
-        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(sensitivityResult, sensitivityStatus, commercialFlows);
+        SensitivityAndLoopflowResults sensitivityAndLoopflowResults = new SensitivityAndLoopflowResults(systematicSensitivityResult, sensitivityStatus, commercialFlows);
 
         Map<BranchCnec, Double> ptdfSums = new HashMap<>();
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             LOGGER.info("Initial systematic analysis [...] - fill zone-to-zone PTDFs");
-            ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(cnecs, raoInput.getGlskProvider(), raoParameters.getRelativeMarginPtdfBoundaries(), sensitivityResult);
+            ptdfSums = AbsolutePtdfSumsComputation.computeAbsolutePtdfSums(cnecs, raoInput.getGlskProvider(), raoParameters.getRelativeMarginPtdfBoundaries(), systematicSensitivityResult);
         }
 
         Map<RangeAction, Double> rangeActionSetPoints = new HashMap<>();
@@ -110,24 +114,20 @@ public class PrePerimeterSensitivityAnalysis {
         }
 
         BranchResultAdapter branchResultAdapter = new BranchResultAdapterWithFixedPtdfsAndCommercialFlows(ptdfSums, commercialFlows);
-        BranchResult branchResult = branchResultAdapter.getResult(sensitivityResult);
+        BranchResult branchResult = branchResultAdapter.getResult(systematicSensitivityResult);
         if (Objects.isNull(initialBranchResult)) {
             initialBranchResult = branchResult;
         }
+
+        SensitivityResult sensitivityResult = new SensitivityResultImpl(systematicSensitivityResult);
+        RangeActionResult rangeActionResult = new RangeActionResultImpl(rangeActionSetPoints);
+
         ObjectiveFunction objectiveFunction = RaoUtil.createObjectiveFunction(raoParameters, cnecs, loopflowCnecs, countriesNotToOptimize, initialBranchResult, branchResult);
 
         double functionalCost = objectiveFunction.getFunctionalCost(branchResult, sensitivityAndLoopflowResults.getSensitivityStatus());
         LOGGER.info("Initial systematic analysis [end] - with initial min margin of {} MW", -functionalCost);
 
-        PrePerimeterSensitivityAnalysisOutput prePerimeterSensitivityAnalysisOutput = new PrePerimeterSensitivityAnalysisOutput();
-        prePerimeterSensitivityAnalysisOutput.setBranchResult(branchResult);
-        prePerimeterSensitivityAnalysisOutput.setFunctionalCost(functionalCost);
-        prePerimeterSensitivityAnalysisOutput.setVirtualCost(objectiveFunction.getVirtualCost(branchResult, sensitivityAndLoopflowResults.getSensitivityStatus()));
-        prePerimeterSensitivityAnalysisOutput.setRangeActionSetPoints(rangeActionSetPoints);
-        prePerimeterSensitivityAnalysisOutput.setPstTaps(pstTaps);
-        prePerimeterSensitivityAnalysisOutput.setSensitivityAndLoopflowResults(sensitivityAndLoopflowResults);
-
-        return prePerimeterSensitivityAnalysisOutput;
+        return new PrePerimeterSensitivityOutput(branchResult, sensitivityResult, rangeActionResult);
     }
 
     private SystematicSensitivityInterface createSystematicSensitivityInterface() {

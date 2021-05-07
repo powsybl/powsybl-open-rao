@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PreventiveAndCurativesRaoOutput implements RaoResult {
     private PerimeterResult initialResult;
@@ -47,12 +48,13 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     }
 
     @Override
-    public PerimeterResult getPreventivePerimeterResult(OptimizationState optimizationState) {
-        if (optimizationState == OptimizationState.INITIAL) {
-            return  initialResult;
-        } else {
-            return postPreventiveResult;
-        }
+    public PerimeterResult getPostPreventivePerimeterResult() {
+        return postPreventiveResult;
+    }
+
+    @Override
+    public PerimeterResult getInitialResult() {
+        return initialResult;
     }
 
     @Override
@@ -145,9 +147,9 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     @Override
     public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return postPreventiveResult.getActivatedRangeActions().contains(rangeAction);
+            return postPreventiveResult.getOptimizedSetPoint(rangeAction) != initialResult.getOptimizedSetPoint(rangeAction);
         } else {
-            return postCurativeResults.get(state).getActivatedRangeActions().contains(rangeAction);
+            return postCurativeResults.get(state).getOptimizedSetPoint(rangeAction) != postPreventiveResult.getOptimizedSetPoint(rangeAction);
         }
     }
 
@@ -190,9 +192,9 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     @Override
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return postPreventiveResult.getActivatedRangeActions();
+            return postPreventiveResult.getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
         } else {
-            return postCurativeResults.get(state).getActivatedRangeActions();
+            return postCurativeResults.get(state).getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
         }
     }
 
