@@ -51,7 +51,9 @@ public final class BestTapFinder {
         Map<PstRangeAction, Integer> bestTaps = new HashMap<>();
         Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 
-        rangeActionResult.getActivatedPstRangeActions().forEach(pstRangeAction ->
+        Set<PstRangeAction> pstRangeActions = rangeActionResult.getOptimizedTaps().keySet();
+
+        pstRangeActions.forEach(pstRangeAction ->
                 minMarginPerTap.put(
                         pstRangeAction,
                         computeMinMarginsForBestTaps(
@@ -64,7 +66,7 @@ public final class BestTapFinder {
 
         Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
-        for (PstRangeAction pstRangeAction : rangeActionResult.getActivatedPstRangeActions()) {
+        for (PstRangeAction pstRangeAction : pstRangeActions) {
             Optional<String> optGroupId = pstRangeAction.getGroupId();
             if (optGroupId.isPresent()) {
                 bestTaps.put(pstRangeAction, bestTapPerPstGroup.get(optGroupId.get()));

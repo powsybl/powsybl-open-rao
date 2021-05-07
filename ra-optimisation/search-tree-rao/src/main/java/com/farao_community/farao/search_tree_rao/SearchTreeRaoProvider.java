@@ -303,9 +303,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
         searchTreeInput.setGlskProvider(raoInput.getGlskProvider());
         searchTreeInput.setReferenceProgram(raoInput.getReferenceProgram());
 
-        searchTreeInput.setInitialBranchResult(initialSensitivityOutput.getBranchResult());
-        searchTreeInput.setPrePerimeterBranchResult(prePerimeterSensitivityOutput.getBranchResult());
-        searchTreeInput.setPrePerimeterSensitivityResult(prePerimeterSensitivityOutput.getSensitivityResult());
+        searchTreeInput.setInitialBranchResult(initialSensitivityOutput);
+        searchTreeInput.setPrePerimeterBranchResult(prePerimeterSensitivityOutput);
+        searchTreeInput.setPrePerimeterSensitivityResult(prePerimeterSensitivityOutput);
         searchTreeInput.setPrePerimeterSetpoints(prePerimeterSensitivityOutput.getOptimizedSetPoints());
 
         return searchTreeInput;

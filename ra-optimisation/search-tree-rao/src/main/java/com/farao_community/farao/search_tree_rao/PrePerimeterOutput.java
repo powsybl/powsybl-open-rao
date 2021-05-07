@@ -7,6 +7,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.*;
 import com.farao_community.farao.rao_commons.PrePerimeterSensitivityOutput;
+import com.farao_community.farao.rao_commons.RaoUtil;
 
 import java.util.*;
 
@@ -23,7 +24,7 @@ public class PrePerimeterOutput implements PerimeterResult {
     @Override
     public PerimeterStatus getStatus() {
         if (Objects.isNull(perimeterResult)) {
-            return prePerimeterSensitivityOutput.getStatus();
+            return RaoUtil.createPerimeterStatus(prePerimeterSensitivityOutput.getSensitivityResult().getStatus());
         }
         return perimeterResult.getStatus();
     }

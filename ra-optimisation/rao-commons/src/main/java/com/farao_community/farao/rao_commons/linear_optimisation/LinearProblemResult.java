@@ -16,7 +16,6 @@ import com.farao_community.farao.rao_api.results.RangeActionResult;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,14 +51,6 @@ public class LinearProblemResult implements RangeActionResult {
             return setPoint;
         }
         throw new FaraoException(format("The range action %s is not available in linear problem result", rangeAction.getName()));
-    }
-
-    @Override
-    public final Set<RangeAction> getActivatedRangeActions() {
-        return setPointVariationPerRangeAction.entrySet().stream()
-                .filter(entry -> entry.getValue() != 0)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override

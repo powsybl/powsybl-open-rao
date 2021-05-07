@@ -6,7 +6,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_api.results.BranchResult;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.powsybl.iidm.network.Network;
@@ -37,7 +37,7 @@ public class LeafInput {
     private BranchResult prePerimeterBranchResult;
     private Map<RangeAction, Double> prePerimeterSetpoints; // can be removed if we don't change taps in the network after each depth
     private Map<BranchCnec, Double> commercialFlows;
-    private SensitivityAndLoopflowResults sensitivityAndLoopflowResults;
+    private SensitivityResult sensitivityResult;
 
     public LeafInput(SearchTreeInput searchTreeInput, Network network, Set<NetworkAction> preAppliedNetworkActions, NetworkAction networkActionToApply, ObjectiveFunction objectiveFunction, IteratingLinearOptimizer iteratingLinearOptimizer, boolean isRaoWithLoopflowLimitation) {
         this.network = network;
@@ -64,9 +64,9 @@ public class LeafInput {
 
         this.prePerimeterSetpoints = searchTreeInput.getPrePerimeterSetpoints();
         if (preAppliedNetworkActions.isEmpty() && Objects.isNull(networkActionToApply)) {
-            this.sensitivityAndLoopflowResults = searchTreeInput.getPrePerimeterSensitivityResult();
+            this.sensitivityResult = searchTreeInput.getPrePerimeterSensitivityResult();
         } else {
-            this.sensitivityAndLoopflowResults = null;
+            this.sensitivityResult = null;
         }
     }
 
@@ -123,11 +123,11 @@ public class LeafInput {
     }
 
     public boolean hasSensitivityAndLoopflowResults() {
-        return !Objects.isNull(sensitivityAndLoopflowResults);
+        return !Objects.isNull(sensitivityResult);
     }
 
-    public SensitivityAndLoopflowResults getSensitivityAndLoopflowResults() {
-        return sensitivityAndLoopflowResults;
+    public SensitivityResult getSensitivityResult() {
+        return sensitivityResult;
     }
 
     public Map<BranchCnec, Double> getCommercialFlows() {
@@ -136,13 +136,5 @@ public class LeafInput {
 
     public Map<RangeAction, Double> getPrePerimeterSetpoints() {
         return prePerimeterSetpoints;
-    }
-
-    public void setCommercialFlows(Map<BranchCnec, Double> commercialFlows) {
-        this.commercialFlows = commercialFlows;
-    }
-
-    public void setSensitivityAndLoopflowResults(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
-        this.sensitivityAndLoopflowResults = sensitivityAndLoopflowResults;
     }
 }
