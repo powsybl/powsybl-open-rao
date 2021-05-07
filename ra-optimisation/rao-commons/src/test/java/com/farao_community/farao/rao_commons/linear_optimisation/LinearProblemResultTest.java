@@ -136,21 +136,6 @@ public class LinearProblemResultTest {
     }
 
     @Test
-    public void testGetActivatedRangeActions() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        assertEquals(2, linearProblemResult.getActivatedRangeActions().size());
-        assertTrue(linearProblemResult.getActivatedRangeActions().contains(activatedPstRangeAction));
-        assertTrue(linearProblemResult.getActivatedRangeActions().contains(activatedRangeAction));
-    }
-
-    @Test
-    public void testGetActivatedPstRangeActions() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        assertEquals(1, linearProblemResult.getActivatedPstRangeActions().size());
-        assertTrue(linearProblemResult.getActivatedRangeActions().contains(activatedPstRangeAction));
-    }
-
-    @Test
     public void testGetOptimizedTaps() {
         linearProblemResult = new LinearProblemResult(linearProblem);
         Map<PstRangeAction, Integer> map = linearProblemResult.getOptimizedTaps();

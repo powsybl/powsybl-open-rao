@@ -57,7 +57,7 @@ public class BestTapFinderTest {
 
         rangeActionResult = Mockito.mock(RangeActionResult.class);
         pstRangeAction = createPst();
-        when(rangeActionResult.getActivatedPstRangeActions()).thenReturn(Set.of(pstRangeAction));
+        when(rangeActionResult.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 0.));
     }
 
     private void setSensitivityValues(PstRangeAction pstRangeAction) {
