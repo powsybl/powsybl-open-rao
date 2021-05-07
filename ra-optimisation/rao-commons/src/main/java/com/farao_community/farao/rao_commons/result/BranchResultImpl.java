@@ -55,7 +55,7 @@ public class BranchResultImpl implements BranchResult {
     @Override
     public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return Optional.of(commercialFlows.get(branchCnec))
+            return Optional.ofNullable(commercialFlows.get(branchCnec))
                     .orElseThrow(() -> new FaraoException(format("No commercial flow on the CNEC %s", branchCnec.getName())));
         } else {
             throw new FaraoException("Commercial flows only in MW.");
@@ -64,7 +64,7 @@ public class BranchResultImpl implements BranchResult {
 
     @Override
     public double getPtdfZonalSum(BranchCnec branchCnec) {
-        return Optional.of(ptdfZonalSums.get(branchCnec))
+        return Optional.ofNullable(ptdfZonalSums.get(branchCnec))
                 .orElseThrow(() -> new FaraoException(format("No PTDF computed on the CNEC %s", branchCnec.getName())));
     }
 

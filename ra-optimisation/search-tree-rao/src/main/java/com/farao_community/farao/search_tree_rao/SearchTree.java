@@ -15,6 +15,7 @@ import com.farao_community.farao.rao_commons.adapter.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.rao_commons.result.SensitivityResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
@@ -76,7 +77,7 @@ public class SearchTree {
                 searchTreeInput.getInitialBranchResult(), searchTreeInput.getPrePerimeterBranchResult());
         SystematicSensitivityInterface iteratingSystematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, searchTreeInput.getRangeActions(),
                 searchTreeInput.getCnecs(), raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange(), searchTreeInput.getGlskProvider(), searchTreeInput.getLoopflowCnecs());
-        SensitivityResultAdapter sensitivityResultAdapter = new SystematicSensitivityResultAdapter();
+        SensitivityResultAdapter sensitivityResultAdapter = SensitivityResultImpl::new;
         this.iteratingLinearOptimizer = new IteratingLinearOptimizer(objectiveFunction, iteratingSystematicSensitivityInterface, sensitivityResultAdapter, raoParameters.getMaxIterations());
 
         initLeaves();
