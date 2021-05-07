@@ -38,7 +38,9 @@ public class RangeActionResultImpl implements RangeActionResult {
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTaps() {
         Map<PstRangeAction, Integer> optimizedTaps = new HashMap<>();
-        setPoints.keySet().stream().filter(ra -> ra instanceof PstRangeAction).forEach(ra -> optimizedTaps.put((PstRangeAction) ra, getOptimizedTap((PstRangeAction) ra)));
+        setPoints.keySet().stream()
+                .filter(ra -> ra instanceof PstRangeAction)
+                .forEach(ra -> optimizedTaps.put((PstRangeAction) ra, getOptimizedTap((PstRangeAction) ra)));
         return optimizedTaps;
     }
 
