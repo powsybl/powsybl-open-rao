@@ -256,7 +256,12 @@ class Leaf {
     }
 
     private LeafOutput createLeafOutput(LinearOptimizationResult linearOptimizationResult) {
-        Set<RangeAction> activatedRangeActions = leafInput.getRangeActions().stream().filter(this::isRangeActionActivated).collect(Collectors.toSet());
+        Set<RangeAction> activatedRangeActions = new HashSet<>();
+        for (RangeAction rangeAction : leafInput.getRangeActions()) {
+            if (Math.abs(linearOptimizationResult.getOptimizedSetPoint(rangeAction) - leafInput.getPrePerimeterSetpoints().get(rangeAction)) > 0.0001) {
+                activatedRangeActions.add(rangeAction);
+            }
+        }
         //TODO: somehow get the sensitivityStatus to check if fallback or not to set the perimeter status accordingly
         PerimeterStatus perimeterStatus = PerimeterStatus.DEFAULT;
         return new LeafOutput(linearOptimizationResult, linearOptimizationResult, linearOptimizationResult, networkActions, activatedRangeActions, perimeterStatus);
@@ -264,8 +269,12 @@ class Leaf {
 
     private LeafOutput createOutputFromPreOptimSituation() {
         Map<RangeAction, Double> rangeActionSetPoints = new HashMap<>();
+        Set<RangeAction> activatedRangeActions = new HashSet<>();
         for (RangeAction rangeAction : leafInput.getRangeActions()) {
             rangeActionSetPoints.put(rangeAction, rangeAction.getCurrentValue(leafInput.getNetwork()));
+            if (Math.abs(rangeActionSetPoints.get(rangeAction) - leafInput.getPrePerimeterSetpoints().get(rangeAction)) > 0.0001) {
+                activatedRangeActions.add(rangeAction);
+            }
         }
         RangeActionResult rangeActionResult = new RangeActionResultImpl(rangeActionSetPoints);
 
@@ -274,7 +283,7 @@ class Leaf {
 
         PerimeterStatus perimeterStatus = RaoUtil.createPerimeterStatus(sensitivityStatus);
 
-        return new LeafOutput(preOptimBranchResult, rangeActionResult, objectiveFunctionResult, networkActions, new HashSet<>(), perimeterStatus);
+        return new LeafOutput(preOptimBranchResult, rangeActionResult, objectiveFunctionResult, networkActions, activatedRangeActions, perimeterStatus);
     }
 
     public LeafOutput getLeafOutput() {
