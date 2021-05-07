@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -39,17 +40,10 @@ public class RangeActionResultImpl implements RangeActionResult {
     }
 
     @Override
-    public final Set<RangeAction> getActivatedRangeActions() {
-        return Collections.unmodifiableSet(setPoints.keySet());
-    }
-
-    @Override
     public Map<PstRangeAction, Integer> getOptimizedTaps() {
-        return getActivatedPstRangeActions().stream()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        this::getOptimizedTap
-                ));
+        Map<PstRangeAction, Integer> optimizedTaps = new HashMap<>();
+        setPoints.keySet().stream().filter(ra -> ra instanceof PstRangeAction).forEach(ra -> optimizedTaps.put((PstRangeAction) ra, getOptimizedTap((PstRangeAction) ra)));
+        return optimizedTaps;
     }
 
     @Override

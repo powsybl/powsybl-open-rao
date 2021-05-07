@@ -38,20 +38,6 @@ public interface RangeActionResult {
     double getOptimizedSetPoint(RangeAction rangeAction);
 
     /**
-     * It gathers the {@link RangeAction} that are activated.
-     *
-     * @return The set of activated range actions.
-     */
-    Set<RangeAction> getActivatedRangeActions();
-
-    default Set<PstRangeAction> getActivatedPstRangeActions() {
-        return getActivatedRangeActions().stream()
-                .filter(rangeAction -> rangeAction instanceof PstRangeAction)
-                .map(rangeAction -> (PstRangeAction) rangeAction)
-                .collect(Collectors.toSet());
-    }
-
-    /**
      * It gives a summary of all the optimized taps of the {@link PstRangeAction} present in the {@link Crac}.
      *
      * @return The map of the PST range actions associated to their optimized tap.
