@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.rao_api.results.*;
 import com.farao_community.farao.rao_commons.adapter.BranchResultAdapter;
 import com.farao_community.farao.rao_commons.adapter.SensitivityResultAdapter;
@@ -18,8 +17,6 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResul
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

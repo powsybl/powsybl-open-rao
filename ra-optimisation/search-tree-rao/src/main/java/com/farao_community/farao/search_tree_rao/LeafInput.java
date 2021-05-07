@@ -64,7 +64,7 @@ public class LeafInput {
 
         this.prePerimeterSetpoints = searchTreeInput.getPrePerimeterSetpoints();
         if (preAppliedNetworkActions.isEmpty() && Objects.isNull(networkActionToApply)) {
-            this.sensitivityAndLoopflowResults = searchTreeInput.getPrePerimeterSensitivityAndLoopflowResults();
+            this.sensitivityAndLoopflowResults = searchTreeInput.getPrePerimeterSensitivityResult();
         } else {
             this.sensitivityAndLoopflowResults = null;
         }

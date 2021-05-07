@@ -6,7 +6,7 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.rao_api.results.BranchResult;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -26,15 +26,15 @@ public class SearchTreeInput {
 
     private BranchResult initialBranchResult;
     private BranchResult prePerimeterBranchResult;
-    private SensitivityAndLoopflowResults prePerimeterSensitivityAndLoopflowResults;
+    private SensitivityResult prePerimeterSensitivityResult;
     private Map<RangeAction, Double> prePerimeterSetpoints;
 
-    public SensitivityAndLoopflowResults getPrePerimeterSensitivityAndLoopflowResults() {
-        return prePerimeterSensitivityAndLoopflowResults;
+    public SensitivityResult getPrePerimeterSensitivityResult() {
+        return prePerimeterSensitivityResult;
     }
 
-    public void setPrePerimeterSensitivityAndLoopflowResults(SensitivityAndLoopflowResults prePerimeterSensitivityAndLoopflowResults) {
-        this.prePerimeterSensitivityAndLoopflowResults = prePerimeterSensitivityAndLoopflowResults;
+    public void setPrePerimeterSensitivityResult(SensitivityResult prePerimeterSensitivityResult) {
+        this.prePerimeterSensitivityResult = prePerimeterSensitivityResult;
     }
 
     public Set<NetworkAction> getNetworkActions() {

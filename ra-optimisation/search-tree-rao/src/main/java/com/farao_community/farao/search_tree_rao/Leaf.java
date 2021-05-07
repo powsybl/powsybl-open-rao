@@ -394,7 +394,7 @@ class Leaf {
                 LinearProblem linearProblem = createLinearProblem();
                 BranchResultAdapter branchResultAdapter = createBranchResultAdapterForIteratingLinearOptimization();
                 LinearOptimizationResult linearOptimizationResult = leafInput.getIteratingLinearOptimizer().optimize(
-                        leafInput.getNetwork(), linearProblem, leafOutput, leafOutput, leafOutput, branchResultAdapter, preOptimSensitivityResult);
+                        linearProblem, leafInput.getNetwork(), leafOutput, preOptimSensitivityResult, leafOutput, branchResultAdapter);
                 leafOutput = createLeafOutput(linearOptimizationResult);
             } else {
                 LOGGER.info("No linear optimization to be performed because no range actions are available");

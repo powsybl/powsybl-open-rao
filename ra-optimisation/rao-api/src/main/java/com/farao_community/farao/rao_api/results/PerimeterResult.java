@@ -7,6 +7,12 @@
 
 package com.farao_community.farao.rao_api.results;
 
+import com.farao_community.farao.data.crac_api.PstRangeAction;
+import com.farao_community.farao.data.crac_api.RangeAction;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * This interface gives a perimeter result. It represents a unique state optimization with full network and range actions.
  *
@@ -15,4 +21,18 @@ package com.farao_community.farao.rao_api.results;
 public interface PerimeterResult extends BranchResult, RangeActionResult, ObjectiveFunctionResult, NetworkActionResult {
 
     PerimeterStatus getStatus();
+
+    /**
+     * It gathers the {@link RangeAction} that are activated.
+     *
+     * @return The set of activated range actions.
+     */
+    Set<RangeAction> getActivatedRangeActions();
+
+    default Set<PstRangeAction> getActivatedPstRangeActions() {
+        return getActivatedRangeActions().stream()
+                .filter(rangeAction -> rangeAction instanceof PstRangeAction)
+                .map(rangeAction -> (PstRangeAction) rangeAction)
+                .collect(Collectors.toSet());
+    }
 }
