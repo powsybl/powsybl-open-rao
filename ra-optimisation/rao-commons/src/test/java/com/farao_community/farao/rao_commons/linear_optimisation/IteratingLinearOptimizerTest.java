@@ -30,7 +30,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -88,7 +87,7 @@ public class IteratingLinearOptimizerTest {
             when(objectiveFunction.evaluate(any(), any())).thenReturn(initialObjectiveFunctionResult);
         } else {
             ObjectiveFunctionResult[] objectiveFunctionResults = new ObjectiveFunctionResult[iterationFunctionalCosts.length];
-            for(int i = 0; i < iterationFunctionalCosts.length; i++ ) {
+            for (int i = 0; i < iterationFunctionalCosts.length; i++) {
                 ObjectiveFunctionResult objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
                 when(objectiveFunctionResult.getFunctionalCost()).thenReturn(iterationFunctionalCosts[i]);
                 objectiveFunctionResults[i] = objectiveFunctionResult;
@@ -276,4 +275,3 @@ public class IteratingLinearOptimizerTest {
         assertFalse(initialSetpoints.containsKey(crac.getRangeAction("PRA_PST_BE_2")));
      }*/
 }
-

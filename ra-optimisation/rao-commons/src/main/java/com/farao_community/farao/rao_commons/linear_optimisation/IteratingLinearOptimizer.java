@@ -50,11 +50,11 @@ public class IteratingLinearOptimizer {
                                              BranchResultAdapter branchResultAdapter) {
         IteratingLinearOptimizerResult bestResult = createResult(initialBranchResult, initialSensitivityResult, initialRangeActionResult, 0);
 
-        for (int iteration = 0; iteration <= maxIterations; iteration++) {
+        for (int iteration = 1; iteration <= maxIterations; iteration++) {
             solveLinearProblem(linearProblem, iteration);
             if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
                 LOGGER.error(LINEAR_OPTIMIZATION_FAILED, iteration);
-                if (iteration == 0) {
+                if (iteration == 1) {
                     return new FailedLinearOptimizationResult();
                 }
                 bestResult.setStatus(LinearProblemStatus.FEASIBLE);
