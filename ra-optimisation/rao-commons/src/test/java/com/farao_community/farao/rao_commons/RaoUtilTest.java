@@ -8,7 +8,7 @@
 
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.FaraoException;
+/*import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
@@ -38,7 +38,7 @@ import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.*;
+import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.*;*/
 import static org.junit.Assert.*;
 
 /**
@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
  */
 
 public class RaoUtilTest {
-    private static final double DOUBLE_TOLERANCE = 0.1;
+    /*private static final double DOUBLE_TOLERANCE = 0.1;
     private RaoParameters raoParameters;
     private RaoInput raoInput;
     private Network network;
@@ -282,5 +282,5 @@ public class RaoUtilTest {
         assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, true).getId());
         assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, true).getId());
 
-    }
+    }*/
 }

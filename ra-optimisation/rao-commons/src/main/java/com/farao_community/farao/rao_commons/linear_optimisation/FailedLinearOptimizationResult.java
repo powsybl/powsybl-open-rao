@@ -14,6 +14,8 @@ import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.LinearOptimizationResult;
 import com.farao_community.farao.rao_api.results.LinearProblemStatus;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.List;
 import java.util.Map;
@@ -80,6 +82,11 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
+    public Set<RangeAction> getRangeActions() {
+        throw new FaraoException("Should not be used");
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
         throw new FaraoException("Should not be used");
     }
@@ -96,6 +103,21 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
 
     @Override
     public Map<RangeAction, Double> getOptimizedSetPoints() {
+        throw new FaraoException("Should not be used");
+    }
+
+    @Override
+    public SensitivityStatus getSensitivityStatus() {
+        throw new FaraoException("Should not be used");
+    }
+
+    @Override
+    public double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit) {
+        throw new FaraoException("Should not be used");
+    }
+
+    @Override
+    public double getSensitivityValue(BranchCnec branchCnec, LinearGlsk linearGlsk, Unit unit) {
         throw new FaraoException("Should not be used");
     }
 }

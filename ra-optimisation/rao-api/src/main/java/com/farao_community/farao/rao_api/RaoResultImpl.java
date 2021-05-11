@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.OptimizationState;
 import com.farao_community.farao.rao_api.results.PerimeterResult;
+import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_api.results.RaoResult;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -44,7 +45,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResultImpl> implements 
     }
 
     @Override
-    public PerimeterResult getInitialResult() {
+    public PrePerimeterResult getInitialResult() {
         return null;
     }
 

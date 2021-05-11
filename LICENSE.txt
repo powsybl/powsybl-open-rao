@@ -288,7 +288,7 @@ prior to termination shall survive termination.
 *  permitted above, be liable to You for any direct, indirect,         *
 *  special, incidental, or consequential damages of any character      *
 *  including, without limitation, damages for lost profits, loss of    *
-*  goodwill, work stoppage, computer failure or malfunction, or any    *
+*  goodwill, work stoppage, sensitivityComputer failure or malfunction, or any    *
 *  and all other commercial damages or losses, even if such party      *
 *  shall have been informed of the possibility of such damages. This   *
 *  limitation of liability shall not apply to liability for death or   *

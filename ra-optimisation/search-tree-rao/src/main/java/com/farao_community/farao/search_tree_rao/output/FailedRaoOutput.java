@@ -4,6 +4,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.OptimizationState;
 import com.farao_community.farao.rao_api.results.PerimeterResult;
+import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_api.results.RaoResult;
 import com.powsybl.commons.extensions.Extension;
 
@@ -27,7 +28,7 @@ public class FailedRaoOutput implements RaoResult {
     }
 
     @Override
-    public PerimeterResult getInitialResult() {
+    public PrePerimeterResult getInitialResult() {
         return null;
     }
 

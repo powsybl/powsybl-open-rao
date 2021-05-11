@@ -1,16 +1,13 @@
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.rao_api.results.BranchResult;
-import com.farao_community.farao.rao_api.results.SensitivityResult;
+import com.farao_community.farao.rao_api.results.PrePerimeterResult;
+import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import java.util.Map;
 import java.util.Set;
 
 public class SearchTreeInput {
@@ -18,23 +15,29 @@ public class SearchTreeInput {
     private Set<BranchCnec> cnecs;
     private Set<NetworkAction> networkActions;
     private Set<RangeAction> rangeActions;
-    private Set<String> countriesNotToOptimize;
 
-    private Set<BranchCnec> loopflowCnecs;
-    private ZonalData<LinearGlsk> glskProvider;
-    private ReferenceProgram referenceProgram;
+    private ObjectiveFunction objectiveFunction;
+    private IteratingLinearOptimizer iteratingLinearOptimizer;
+    private SearchTreeBloomer searchTreeBloomer;
+    private SearchTreeProblem searchTreeProblem;
+    private SearchTreeComputer searchTreeComputer;
 
-    private BranchResult initialBranchResult;
-    private BranchResult prePerimeterBranchResult;
-    private SensitivityResult prePerimeterSensitivityResult;
-    private Map<RangeAction, Double> prePerimeterSetpoints;
+    private PrePerimeterResult prePerimeterOutput;
 
-    public SensitivityResult getPrePerimeterSensitivityResult() {
-        return prePerimeterSensitivityResult;
+    public SearchTreeBloomer getSearchTreeBloomer() {
+        return searchTreeBloomer;
     }
 
-    public void setPrePerimeterSensitivityResult(SensitivityResult prePerimeterSensitivityResult) {
-        this.prePerimeterSensitivityResult = prePerimeterSensitivityResult;
+    public void setSearchTreeBloomer(SearchTreeBloomer searchTreeBloomer) {
+        this.searchTreeBloomer = searchTreeBloomer;
+    }
+
+    public SearchTreeComputer getSearchTreeComputer() {
+        return searchTreeComputer;
+    }
+
+    public void setSearchTreeComputer(SearchTreeComputer searchTreeComputer) {
+        this.searchTreeComputer = searchTreeComputer;
     }
 
     public Set<NetworkAction> getNetworkActions() {
@@ -53,34 +56,6 @@ public class SearchTreeInput {
         return cnecs;
     }
 
-    public Set<String> getCountriesNotToOptimize() {
-        return countriesNotToOptimize;
-    }
-
-    public Set<BranchCnec> getLoopflowCnecs() {
-        return loopflowCnecs;
-    }
-
-    public ZonalData<LinearGlsk> getGlskProvider() {
-        return glskProvider;
-    }
-
-    public ReferenceProgram getReferenceProgram() {
-        return referenceProgram;
-    }
-
-    public Map<RangeAction, Double> getPrePerimeterSetpoints() {
-        return prePerimeterSetpoints;
-    }
-
-    public BranchResult getInitialBranchResult() {
-        return initialBranchResult;
-    }
-
-    public BranchResult getPrePerimeterBranchResult() {
-        return prePerimeterBranchResult;
-    }
-
     public void setNetworkActions(Set<NetworkAction> networkActions) {
         this.networkActions = networkActions;
     }
@@ -97,31 +72,35 @@ public class SearchTreeInput {
         this.cnecs = cnecs;
     }
 
-    public void setLoopflowCnecs(Set<BranchCnec> loopflowCnecs) {
-        this.loopflowCnecs = loopflowCnecs;
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunction;
     }
 
-    public void setGlskProvider(ZonalData<LinearGlsk> glskProvider) {
-        this.glskProvider = glskProvider;
+    public void setObjectiveFunction(ObjectiveFunction objectiveFunction) {
+        this.objectiveFunction = objectiveFunction;
     }
 
-    public void setReferenceProgram(ReferenceProgram referenceProgram) {
-        this.referenceProgram = referenceProgram;
+    public IteratingLinearOptimizer getIteratingLinearOptimizer() {
+        return iteratingLinearOptimizer;
     }
 
-    public void setPrePerimeterSetpoints(Map<RangeAction, Double> prePerimeterSetpoints) {
-        this.prePerimeterSetpoints = prePerimeterSetpoints;
+    public void setIteratingLinearOptimizer(IteratingLinearOptimizer iteratingLinearOptimizer) {
+        this.iteratingLinearOptimizer = iteratingLinearOptimizer;
     }
 
-    public void setInitialBranchResult(BranchResult initialBranchResult) {
-        this.initialBranchResult = initialBranchResult;
+    public SearchTreeProblem getSearchTreeProblem() {
+        return searchTreeProblem;
     }
 
-    public void setPrePerimeterBranchResult(BranchResult prePerimeterBranchResult) {
-        this.prePerimeterBranchResult = prePerimeterBranchResult;
+    public void setSearchTreeProblem(SearchTreeProblem searchTreeProblem) {
+        this.searchTreeProblem = searchTreeProblem;
     }
 
-    public void setCountriesNotToOptimize(Set<String> countriesNotToOptimize) {
-        this.countriesNotToOptimize = countriesNotToOptimize;
+    public PrePerimeterResult getPrePerimeterOutput() {
+        return prePerimeterOutput;
+    }
+
+    public void setPrePerimeterOutput(PrePerimeterResult prePerimeterOutput) {
+        this.prePerimeterOutput = prePerimeterOutput;
     }
 }

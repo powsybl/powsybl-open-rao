@@ -10,9 +10,13 @@ package com.farao_community.farao.rao_commons.result;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
+import com.powsybl.iidm.network.Network;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -23,6 +27,16 @@ public class RangeActionResultImpl implements RangeActionResult {
 
     public RangeActionResultImpl(Map<RangeAction, Double> setPoints) {
         this.setPoints = setPoints;
+    }
+
+    public RangeActionResultImpl(Network network, Set<RangeAction> rangeActions) {
+        this(rangeActions.stream()
+                .collect(Collectors.toMap(Function.identity(), rangeAction -> rangeAction.getCurrentValue(network))));
+    }
+
+    @Override
+    public Set<RangeAction> getRangeActions() {
+        return setPoints.keySet();
     }
 
     @Override

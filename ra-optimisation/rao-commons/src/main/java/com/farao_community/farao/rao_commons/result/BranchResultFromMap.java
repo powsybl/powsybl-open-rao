@@ -16,21 +16,24 @@ import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 import java.util.Map;
+import java.util.Optional;
+
+import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class BranchResultImpl implements BranchResult {
+public class BranchResultFromMap implements BranchResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
-    private final BranchResult fixedCommercialFlows;
-    private final BranchResult fixedPtdfs;
+    private final Map<BranchCnec, Double> commercialFlows;
+    private final Map<BranchCnec, Double> ptdfZonalSums;
 
-    public BranchResultImpl(SystematicSensitivityResult systematicSensitivityResult,
-                               BranchResult fixedCommercialFlows,
-                               BranchResult fixedPtdfs) {
+    public BranchResultFromMap(SystematicSensitivityResult systematicSensitivityResult,
+                               Map<BranchCnec, Double> commercialFlows,
+                               Map<BranchCnec, Double> ptdfZonalSums) {
         this.systematicSensitivityResult = systematicSensitivityResult;
-        this.fixedCommercialFlows = fixedCommercialFlows;
-        this.fixedPtdfs = fixedPtdfs;
+        this.commercialFlows = commercialFlows;
+        this.ptdfZonalSums = ptdfZonalSums;
     }
 
     @Override
@@ -52,7 +55,8 @@ public class BranchResultImpl implements BranchResult {
     @Override
     public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return fixedCommercialFlows.getCommercialFlow(branchCnec, unit);
+            return Optional.ofNullable(commercialFlows.get(branchCnec))
+                    .orElseThrow(() -> new FaraoException(format("No commercial flow on the CNEC %s", branchCnec.getName())));
         } else {
             throw new FaraoException("Commercial flows only in MW.");
         }
@@ -60,11 +64,12 @@ public class BranchResultImpl implements BranchResult {
 
     @Override
     public double getPtdfZonalSum(BranchCnec branchCnec) {
-        return fixedPtdfs.getPtdfZonalSum(branchCnec);
+        return Optional.ofNullable(ptdfZonalSums.get(branchCnec))
+                .orElseThrow(() -> new FaraoException(format("No PTDF computed on the CNEC %s", branchCnec.getName())));
     }
 
     @Override
     public Map<BranchCnec, Double> getPtdfZonalSums() {
-        return fixedPtdfs.getPtdfZonalSums();
+        return ptdfZonalSums;
     }
 }

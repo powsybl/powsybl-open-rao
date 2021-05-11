@@ -16,6 +16,7 @@ import com.farao_community.farao.rao_api.results.RangeActionResult;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,11 @@ public class LinearProblemResult implements RangeActionResult {
             setPointPerRangeAction.put(rangeAction, linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue());
             setPointVariationPerRangeAction.put(rangeAction, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue());
         });
+    }
+
+    @Override
+    public Set<RangeAction> getRangeActions() {
+        return setPointPerRangeAction.keySet();
     }
 
     @Override

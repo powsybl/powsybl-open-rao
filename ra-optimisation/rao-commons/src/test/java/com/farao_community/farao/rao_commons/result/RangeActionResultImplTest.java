@@ -8,9 +8,7 @@
 package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.rao_api.results.RangeActionResult;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -45,5 +43,4 @@ public class RangeActionResultImplTest {
         assertTrue(rangeActionResultImpl.getOptimizedTaps().containsKey(pstRangeAction));
         assertEquals(2, rangeActionResultImpl.getOptimizedSetPoints().size());
     }
-
 }

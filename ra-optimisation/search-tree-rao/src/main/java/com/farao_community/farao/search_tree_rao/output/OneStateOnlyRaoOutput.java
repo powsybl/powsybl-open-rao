@@ -3,9 +3,8 @@ package com.farao_community.farao.search_tree_rao.output;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.OptimizationState;
-import com.farao_community.farao.rao_api.results.PerimeterResult;
-import com.farao_community.farao.rao_api.results.RaoResult;
+import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.search_tree_rao.PerimeterOutput;
 import com.powsybl.commons.extensions.Extension;
 
 import java.util.Collection;
@@ -16,10 +15,10 @@ import java.util.stream.Collectors;
 
 public class OneStateOnlyRaoOutput implements RaoResult {
     private State optimizedState;
-    private PerimeterResult initialResult;
-    private PerimeterResult postOptimizationResult;
+    private PrePerimeterResult initialResult;
+    private OptimizationResult postOptimizationResult;
 
-    public OneStateOnlyRaoOutput(State optimizedState, PerimeterResult initialResult, PerimeterResult postOptimizationResult) {
+    public OneStateOnlyRaoOutput(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult) {
         this.optimizedState = optimizedState;
         this.initialResult = initialResult;
         this.postOptimizationResult = postOptimizationResult;
@@ -30,11 +29,7 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         if (!state.equals(optimizedState)) {
             return null;
         }
-        if (optimizationState == OptimizationState.INITIAL) {
-            return initialResult;
-        } else {
-            return postOptimizationResult;
-        }
+        return new PerimeterOutput(initialResult, postOptimizationResult);
     }
 
     @Override
@@ -42,11 +37,11 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         if (!optimizedState.getInstant().equals(Instant.PREVENTIVE)) {
             return null;
         }
-        return postOptimizationResult;
+        return new PerimeterOutput(initialResult, postOptimizationResult);
     }
 
     @Override
-    public PerimeterResult getInitialResult() {
+    public PrePerimeterResult getInitialResult() {
         return initialResult;
     }
 
@@ -105,7 +100,7 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         if (!state.equals(optimizedState)) {
             throw new FaraoException("Trying to access perimeter result for the wrong state.");
         }
-        return initialResult.isActivated(networkAction);
+        return false;
     }
 
     @Override
@@ -169,7 +164,7 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         if (!state.equals(optimizedState)) {
             throw new FaraoException("Trying to access perimeter result for the wrong state.");
         }
-        return postOptimizationResult.getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
+        return postOptimizationResult.getRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
     }
 
     @Override

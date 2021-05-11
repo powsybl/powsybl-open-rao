@@ -17,7 +17,7 @@ import com.powsybl.sensitivity.factors.variables.LinearGlsk;
  */
 public interface SensitivityResult {
 
-    SensitivityStatus getStatus();
+    SensitivityStatus getSensitivityStatus();
 
     double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit);
 

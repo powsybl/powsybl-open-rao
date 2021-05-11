@@ -9,7 +9,7 @@ import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.*;
 
-public class PrePerimeterSensitivityOutput implements BranchResult, SensitivityResult, RangeActionResult {
+public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
 
     private BranchResult branchResult;
     private SensitivityResult sensitivityResult;
@@ -22,8 +22,8 @@ public class PrePerimeterSensitivityOutput implements BranchResult, SensitivityR
     }
 
     @Override
-    public SensitivityStatus getStatus() {
-        return sensitivityResult.getStatus();
+    public SensitivityStatus getSensitivityStatus() {
+        return sensitivityResult.getSensitivityStatus();
     }
 
     @Override
@@ -67,6 +67,11 @@ public class PrePerimeterSensitivityOutput implements BranchResult, SensitivityR
     }
 
     @Override
+    public Set<RangeAction> getRangeActions() {
+        return rangeActionResult.getRangeActions();
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
         return rangeActionResult.getOptimizedTap(pstRangeAction);
     }
@@ -92,5 +97,35 @@ public class PrePerimeterSensitivityOutput implements BranchResult, SensitivityR
 
     public SensitivityResult getSensitivityResult() {
         return sensitivityResult;
+    }
+
+    @Override
+    public double getFunctionalCost() {
+        return 0;
+    }
+
+    @Override
+    public List<BranchCnec> getMostLimitingElements(int number) {
+        return null;
+    }
+
+    @Override
+    public double getVirtualCost() {
+        return 0;
+    }
+
+    @Override
+    public Set<String> getVirtualCostNames() {
+        return null;
+    }
+
+    @Override
+    public double getVirtualCost(String virtualCostName) {
+        return 0;
+    }
+
+    @Override
+    public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
+        return null;
     }
 }
