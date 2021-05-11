@@ -71,10 +71,6 @@ public class SearchTree {
         previousDepthOptimalLeaf = rootLeaf;
     }
 
-    public Set<RangeAction> getAvailableRangeActions() {
-        return availableRangeActions;
-    }
-
     /**
      * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
      * the least impact on the most limiting element
@@ -100,8 +96,10 @@ public class SearchTree {
                             .collect(Collectors.toList()).subList(pstsForTso.size() - maxPst, pstsForTso.size()));
                 }
             });
+            return rangeActionsToOptimize;
+        } else {
+            return availableRangeActions;
         }
-        return rangeActionsToOptimize;
     }
 
     private static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, SensitivityResult sensitivityResult) {
@@ -262,7 +260,7 @@ public class SearchTree {
             if (!stopCriterionReached(leaf)) {
                 Set<RangeAction> rangeActions = getRangeActionsToOptimize(leaf);
                 if (!rangeActions.isEmpty()) {
-                    rootLeaf.optimize(
+                    leaf.optimize(
                             iteratingLinearOptimizer,
                             getSensitivityComputerForOptimizationBasedOn(previousDepthOptimalLeaf, rangeActions),
                             searchTreeProblem.getLeafProblem(rangeActions)
@@ -277,20 +275,26 @@ public class SearchTree {
     }
 
     private SensitivityComputer getSensitivityComputerForEvaluationBasedOn(BranchResult branchResult, Set<RangeAction> rangeActions) {
-        if (linearOptimizerParameters.isRaoWithLoopFlowLimitation() &&
-                linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
-            return searchTreeComputer.getSensitivityComputer(rangeActions);
+        if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
+            if (linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
+                return searchTreeComputer.getSensitivityComputerWithComputedCommercialFlows(rangeActions);
+            } else {
+                return searchTreeComputer.getSensitivityComputerWithFixedCommercialFlows(branchResult, rangeActions);
+            }
         } else {
-            return searchTreeComputer.getSensitivityComputerWithFixedCommercialFlows(branchResult, rangeActions);
+            return searchTreeComputer.getSensitivityComputer(rangeActions);
         }
     }
 
     private SensitivityComputer getSensitivityComputerForOptimizationBasedOn(BranchResult branchResult, Set<RangeAction> rangeActions) {
-        if (linearOptimizerParameters.isRaoWithLoopFlowLimitation() &&
-                linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
-            return searchTreeComputer.getSensitivityComputer(rangeActions);
+        if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
+            if (linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
+                return searchTreeComputer.getSensitivityComputerWithComputedCommercialFlows(rangeActions);
+            } else {
+                return searchTreeComputer.getSensitivityComputerWithFixedCommercialFlows(branchResult, rangeActions);
+            }
         } else {
-            return searchTreeComputer.getSensitivityComputerWithFixedCommercialFlows(branchResult, rangeActions);
+            return searchTreeComputer.getSensitivityComputer(rangeActions);
         }
     }
 
