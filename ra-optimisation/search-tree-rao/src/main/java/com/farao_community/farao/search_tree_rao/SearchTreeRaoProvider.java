@@ -378,11 +378,13 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 linearOptimizerParameters
         ));
 
-        searchTreeInput.setSearchTreeComputer(SearchTreeComputer.create()
+        SearchTreeComputer.SearchTreeComputerBuilder searchTreeComputerBuilder = SearchTreeComputer.create()
                 .withToolProvider(toolProvider)
-                .withCnecs(cnecs)
-                .withFixedPtdfs(prePerimeterOutput)
-                .build());
+                .withCnecs(cnecs);
+        if (linearOptimizerParameters.hasRelativeMargins()) {
+            searchTreeComputerBuilder.withPtdfsResults(initialOutput);
+        }
+        searchTreeInput.setSearchTreeComputer(searchTreeComputerBuilder.build());
 
         searchTreeInput.setSearchTreeBloomer(new SearchTreeBloomer(
                 network,

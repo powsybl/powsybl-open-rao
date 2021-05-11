@@ -18,9 +18,9 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     private PerimeterResult postPreventiveResult;
     private Map<State, PerimeterResult> postCurativeResults;
 
-    public PreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult, OptimizationResult postPreventiveResult, PrePerimeterResult preCurativeResult, Map<State, OptimizationResult> postCurativeResults) {
+    public PreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult, PerimeterResult postPreventiveResult, PrePerimeterResult preCurativeResult, Map<State, OptimizationResult> postCurativeResults) {
         this.initialResult = initialResult;
-        this.postPreventiveResult = new PerimeterOutput(initialResult, postPreventiveResult);
+        this.postPreventiveResult = postPreventiveResult;
         this.postCurativeResults = postCurativeResults.entrySet().stream().collect(
                 Collectors.toMap(Map.Entry::getKey, entry -> new PerimeterOutput(preCurativeResult, entry.getValue())));
     }
