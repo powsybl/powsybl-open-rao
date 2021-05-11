@@ -7,16 +7,16 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.rao_api.results.*;
-import com.farao_community.farao.rao_commons.adapter.BranchResultAdapter;
-import com.farao_community.farao.rao_commons.adapter.SensitivityResultAdapter;
+import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -28,27 +28,20 @@ public class IteratingLinearOptimizer {
     private static final String LINEAR_OPTIMIZATION_FAILED = "Linear optimization failed at iteration {}";
 
     private final ObjectiveFunction objectiveFunction;
-    private final SensitivityResultAdapter sensitivityResultAdapter;
-    private final SystematicSensitivityInterface systematicSensitivityInterface;
     private final int maxIterations;
 
-    public IteratingLinearOptimizer(ObjectiveFunction objectiveFunction,
-                                    SystematicSensitivityInterface systematicSensitivityInterface,
-                                    SensitivityResultAdapter sensitivityResultAdapter,
-                                    int maxIterations) {
+    public IteratingLinearOptimizer(ObjectiveFunction objectiveFunction, int maxIterations) {
         this.objectiveFunction = objectiveFunction;
-        this.sensitivityResultAdapter = sensitivityResultAdapter;
-        this.systematicSensitivityInterface = systematicSensitivityInterface;
         this.maxIterations = maxIterations;
     }
 
     public LinearOptimizationResult optimize(LinearProblem linearProblem,
                                              Network network,
-                                             BranchResult initialBranchResult,
-                                             SensitivityResult initialSensitivityResult,
-                                             RangeActionResult initialRangeActionResult,
-                                             BranchResultAdapter branchResultAdapter) {
-        IteratingLinearOptimizerResult bestResult = createResult(initialBranchResult, initialSensitivityResult, initialRangeActionResult, 0);
+                                             BranchResult preOptimBranchResult,
+                                             SensitivityResult preOptimSensitivityResult,
+                                             RangeActionResult preOptimRangeActionResult,
+                                             SensitivityComputer sensitivityComputer) {
+        IteratingLinearOptimizerResult bestResult = createResult(preOptimBranchResult, preOptimSensitivityResult, preOptimRangeActionResult, 0);
 
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
             solveLinearProblem(linearProblem, iteration);
@@ -69,15 +62,20 @@ public class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            SystematicSensitivityResult sensi;
             try {
-                sensi = applyRangeActionsAndRunSensitivityAnalysis(currentRangeActionResult, network, iteration);
+                applyRangeActionsAndRunSensitivityAnalysis(sensitivityComputer, linearProblem.getRangeActions(), currentRangeActionResult, network, iteration);
             } catch (SensitivityAnalysisException e) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;
             }
 
-            IteratingLinearOptimizerResult currentResult = createResult(branchResultAdapter, sensi, currentRangeActionResult, iteration);
+            IteratingLinearOptimizerResult currentResult = createResult(
+                    sensitivityComputer.getBranchResult(),
+                    sensitivityComputer.getSensitivityResult(),
+                    currentRangeActionResult,
+                    iteration
+            );
+
             if (currentResult.getCost() >= bestResult.getCost()) {
                 logWorseResult(iteration, bestResult, currentResult);
                 return bestResult;
@@ -119,30 +117,19 @@ public class IteratingLinearOptimizer {
                 currentResult.getCost());
     }
 
-    private SystematicSensitivityResult applyRangeActionsAndRunSensitivityAnalysis(RangeActionResult rangeActionResult,
-                                                                                   Network network,
-                                                                                   int iteration) {
-        rangeActionResult.getOptimizedSetPoints().keySet().forEach(rangeAction ->
-                rangeAction.apply(network, rangeActionResult.getOptimizedSetPoint(rangeAction)));
+    private void applyRangeActionsAndRunSensitivityAnalysis(SensitivityComputer sensitivityComputer,
+                                                            Set<RangeAction> rangeActions,
+                                                            RangeActionResult rangeActionResult,
+                                                            Network network,
+                                                            int iteration) {
+        rangeActions.forEach(rangeAction ->  rangeAction.apply(network, rangeActionResult.getOptimizedSetPoint(rangeAction)));
 
-        LOGGER.debug("Iteration {} - systematic analysis [start]", iteration);
         try {
-            SystematicSensitivityResult updatedSensiResult = systematicSensitivityInterface.run(network);
-            LOGGER.debug("Iteration {} - systematic analysis [end]", iteration);
-            return updatedSensiResult;
+            sensitivityComputer.compute(network);
         } catch (SensitivityAnalysisException e) {
-            LOGGER.error("Sensitivity computation failed at iteration {} on {} mode: {}", iteration, systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage());
+            LOGGER.error("Systematic sensitivity computation failed at iteration {}", iteration);
             throw e;
         }
-    }
-
-    private IteratingLinearOptimizerResult createResult(BranchResultAdapter branchResultAdapter,
-                                                        SystematicSensitivityResult systematicSensitivityResult,
-                                                        RangeActionResult rangeActionResult,
-                                                        int nbOfIterations) {
-        BranchResult branchResult = branchResultAdapter.getResult(systematicSensitivityResult);
-        SensitivityResult sensitivityResult = sensitivityResultAdapter.getResult(systematicSensitivityResult);
-        return createResult(branchResult, sensitivityResult, rangeActionResult, nbOfIterations);
     }
 
     private IteratingLinearOptimizerResult createResult(BranchResult branchResult,
@@ -150,7 +137,7 @@ public class IteratingLinearOptimizer {
                                                         RangeActionResult rangeActionResult,
                                                         int nbOfIterations) {
         return new IteratingLinearOptimizerResult(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionResult, branchResult,
-                objectiveFunction.evaluate(branchResult, sensitivityResult.getStatus()), sensitivityResult);
+                objectiveFunction.evaluate(branchResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
     }
 
     private RangeActionResult roundResult(RangeActionResult rangeActionResult, Network network, IteratingLinearOptimizerResult previousResult) {

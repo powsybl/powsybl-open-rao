@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface PerimeterResult extends BranchResult, RangeActionResult, ObjectiveFunctionResult, NetworkActionResult {
+public interface PerimeterResult extends OptimizationResult {
 
-    PerimeterStatus getStatus();
+    PerimeterStatus getPerimeterStatus();
 
     /**
      * It gathers the {@link RangeAction} that are activated.

@@ -9,10 +9,8 @@ package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Range;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -56,8 +54,7 @@ public class SensitivityResultImplTest {
         when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec)).thenReturn(8.);
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertThrows(FaraoException.class,
-                () -> sensitivityResultImpl.getSensitivityValue(cnec, linearGlsk, Unit.AMPERE));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, linearGlsk, Unit.AMPERE));
     }
 
     @Test
@@ -68,10 +65,10 @@ public class SensitivityResultImplTest {
         );
 
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
-        assertEquals(SensitivityStatus.DEFAULT, sensitivityResultImpl.getStatus());
+        assertEquals(SensitivityStatus.DEFAULT, sensitivityResultImpl.getSensitivityStatus());
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK);
-        assertEquals(SensitivityStatus.FALLBACK, sensitivityResultImpl.getStatus());
+        assertEquals(SensitivityStatus.FALLBACK, sensitivityResultImpl.getSensitivityStatus());
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
-        assertEquals(SensitivityStatus.FAILURE, sensitivityResultImpl.getStatus());
+        assertEquals(SensitivityStatus.FAILURE, sensitivityResultImpl.getSensitivityStatus());
     }
 }

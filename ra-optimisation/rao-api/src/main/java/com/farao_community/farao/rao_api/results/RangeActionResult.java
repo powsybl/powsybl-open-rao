@@ -12,11 +12,14 @@ import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface RangeActionResult {
+
+    Set<RangeAction> getRangeActions();
 
     /**
      * It gives the tap position of the PST on which the {@link PstRangeAction} is pointing at after it is optimized.

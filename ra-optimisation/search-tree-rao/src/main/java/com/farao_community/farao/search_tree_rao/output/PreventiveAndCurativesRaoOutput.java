@@ -3,9 +3,8 @@ package com.farao_community.farao.search_tree_rao.output;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.OptimizationState;
-import com.farao_community.farao.rao_api.results.PerimeterResult;
-import com.farao_community.farao.rao_api.results.RaoResult;
+import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.search_tree_rao.PerimeterOutput;
 import com.powsybl.commons.extensions.Extension;
 
 import java.util.Collection;
@@ -15,21 +14,22 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PreventiveAndCurativesRaoOutput implements RaoResult {
-    private PerimeterResult initialResult;
+    private PrePerimeterResult initialResult;
     private PerimeterResult postPreventiveResult;
     private Map<State, PerimeterResult> postCurativeResults;
 
-    public PreventiveAndCurativesRaoOutput(PerimeterResult initialResult, PerimeterResult postPreventiveResult, Map<State, PerimeterResult> postCurativeResults) {
+    public PreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult, OptimizationResult postPreventiveResult, PrePerimeterResult preCurativeResult, Map<State, OptimizationResult> postCurativeResults) {
         this.initialResult = initialResult;
-        this.postPreventiveResult = postPreventiveResult;
-        this.postCurativeResults = postCurativeResults;
+        this.postPreventiveResult = new PerimeterOutput(initialResult, postPreventiveResult);
+        this.postCurativeResults = postCurativeResults.entrySet().stream().collect(
+                Collectors.toMap(Map.Entry::getKey, entry -> new PerimeterOutput(preCurativeResult, entry.getValue())));
     }
 
     @Override
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
         if (optimizationState == OptimizationState.INITIAL) {
             if (state.getInstant() == Instant.PREVENTIVE) {
-                return initialResult;
+                return null;
             } else {
                 return postPreventiveResult;
             }
@@ -53,7 +53,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     }
 
     @Override
-    public PerimeterResult getInitialResult() {
+    public PrePerimeterResult getInitialResult() {
         return initialResult;
     }
 

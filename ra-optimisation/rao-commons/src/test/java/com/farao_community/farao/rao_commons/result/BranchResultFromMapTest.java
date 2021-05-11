@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class BranchResultImplTest {
+public class BranchResultFromMapTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
@@ -30,7 +30,7 @@ public class BranchResultImplTest {
         SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         BranchCnec loopFlowCnec = Mockito.mock(BranchCnec.class);
         BranchCnec optimizedCnec = Mockito.mock(BranchCnec.class);
-        BranchResultImpl branchResultImpl = new BranchResultImpl(
+        BranchResultFromMap branchResultFromMap = new BranchResultFromMap(
                 systematicSensitivityResult,
                 Map.of(loopFlowCnec, 200.),
                 Map.of(optimizedCnec, 30.)
@@ -41,17 +41,16 @@ public class BranchResultImplTest {
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec)).thenReturn(500.);
         when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec)).thenReturn(235.);
 
-        assertEquals(200, branchResultImpl.getFlow(loopFlowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(58, branchResultImpl.getFlow(loopFlowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(500, branchResultImpl.getFlow(optimizedCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(235, branchResultImpl.getFlow(optimizedCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(200, branchResultFromMap.getFlow(loopFlowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(58, branchResultFromMap.getFlow(loopFlowCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(500, branchResultFromMap.getFlow(optimizedCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(235, branchResultFromMap.getFlow(optimizedCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        assertThrows(FaraoException.class, () -> branchResultImpl.getPtdfZonalSum(loopFlowCnec));
-        assertEquals(30., branchResultImpl.getPtdfZonalSum(optimizedCnec), DOUBLE_TOLERANCE);
+        assertThrows(FaraoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec));
+        assertEquals(30., branchResultFromMap.getPtdfZonalSum(optimizedCnec), DOUBLE_TOLERANCE);
 
-        assertEquals(200, branchResultImpl.getCommercialFlow(loopFlowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertThrows(FaraoException.class, () -> branchResultImpl.getCommercialFlow(loopFlowCnec, Unit.AMPERE));
-        assertThrows(FaraoException.class, () -> branchResultImpl.getCommercialFlow(optimizedCnec, Unit.MEGAWATT));
+        assertEquals(200, branchResultFromMap.getCommercialFlow(loopFlowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(loopFlowCnec, Unit.AMPERE));
+        assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(optimizedCnec, Unit.MEGAWATT));
     }
-
 }

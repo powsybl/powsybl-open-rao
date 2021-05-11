@@ -190,14 +190,14 @@ public class LeafTest {
     @Test
     public void testRootLeafDefinitionWithSensitivityValues() {
         Leaf rootLeaf = new Leaf(raoDataMock, raoParameters, treeParameters, linearOptimizerParameters);
-        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getSensitivityStatus());
     }
 
     @Test
     public void testRootLeafDefinitionWithoutSensitivityValues() {
         Mockito.when(raoDataMock.hasSensitivityValues()).thenReturn(false);
         Leaf rootLeaf = new Leaf(raoDataMock, raoParameters, treeParameters, linearOptimizerParameters);
-        assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.CREATED, rootLeaf.getSensitivityStatus());
     }
 
     @Test
@@ -209,9 +209,9 @@ public class LeafTest {
         assertEquals(1, leaf.getNetworkActions().size());
         assertTrue(leaf.getNetworkActions().contains(na1));
         assertFalse(leaf.isRoot());
-        assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertEquals(0.5, leaf.getRaoData().getCrac().getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
-        assertEquals(0.4, leaf.getRaoData().getCrac().getFlowCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
+        assertEquals(Leaf.Status.CREATED, leaf.getSensitivityStatus());
+        assertEquals(0.5, leaf.getRaoData().getCrac().getBranchCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
+        assertEquals(0.4, leaf.getRaoData().getCrac().getBranchCnec("cnec2basecase").getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).getAbsolutePtdfSum(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -252,7 +252,7 @@ public class LeafTest {
         Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters, linearOptimizerParameters);
         rootLeaf.evaluate();
 
-        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getSensitivityStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
         assertEquals(5., crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInMW(), DOUBLE_TOLERANCE);
         assertEquals(12., crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(PREPERIMETER_VARIANT_ID).getFlowInA(), DOUBLE_TOLERANCE);
@@ -268,13 +268,13 @@ public class LeafTest {
         double bestCost = rootLeaf.getBestCost();
 
         rootLeaf.evaluate();
-        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getSensitivityStatus());
         assertEquals(bestCost, rootLeaf.getBestCost(), DOUBLE_TOLERANCE);
 
         Mockito.when(costEvaluatorMock.computeFunctionalCost(any())).thenAnswer(invocationOnMock -> 10.);
         Mockito.when(costEvaluatorMock.computeVirtualCost(any())).thenAnswer(invocationOnMock -> 2.);
         rootLeaf.evaluate();
-        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getSensitivityStatus());
         assertEquals(12, rootLeaf.getBestCost(), DOUBLE_TOLERANCE);
     }
 
@@ -286,7 +286,7 @@ public class LeafTest {
         Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters, linearOptimizerParameters);
         rootLeaf.evaluate();
 
-        assertEquals(Leaf.Status.ERROR, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.ERROR, rootLeaf.getSensitivityStatus());
         assertFalse(rootLeaf.getRaoData().hasSensitivityValues());
     }
 
@@ -309,7 +309,7 @@ public class LeafTest {
         Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters, linearOptimizerParameters);
         rootLeaf.evaluate();
 
-        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getSensitivityStatus());
         assertTrue(rootLeaf.getRaoData().hasSensitivityValues());
         assertEquals(-5, cnec1result.getLoopflowInMW(), DOUBLE_TOLERANCE);
         assertEquals(30, cnec2result.getLoopflowInMW(), DOUBLE_TOLERANCE);
@@ -319,7 +319,7 @@ public class LeafTest {
     public void testOptimizeWithoutEvaluation() {
         Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters, linearOptimizerParameters);
         rootLeaf.optimize();
-        assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.CREATED, rootLeaf.getSensitivityStatus());
     }
 
     @Test
@@ -330,7 +330,7 @@ public class LeafTest {
         rootLeaf.evaluate();
         rootLeaf.optimize();
         assertEquals(rootLeaf.getPreOptimVariantId(), rootLeaf.getBestVariantId());
-        assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getSensitivityStatus());
     }
 
     @Test
@@ -350,7 +350,7 @@ public class LeafTest {
         rootLeaf.evaluate();
         rootLeaf.optimize();
         assertEquals(newVariant, rootLeaf.getBestVariantId());
-        assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
+        assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getSensitivityStatus());
     }
 
     @Test

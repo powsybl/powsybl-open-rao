@@ -75,7 +75,7 @@ public class IteratingLinearOptimizerTest {
         BranchResult branchResult = Mockito.mock(BranchResult.class);
         when(branchResultAdapter.getResult(sensi)).thenReturn(branchResult);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
-        when(sensitivityResult.getStatus()).thenReturn(SensitivityStatus.DEFAULT);
+        when(sensitivityResult.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
         when(sensitivityResultAdapter.getResult(sensi)).thenReturn(sensitivityResult);
 
     }

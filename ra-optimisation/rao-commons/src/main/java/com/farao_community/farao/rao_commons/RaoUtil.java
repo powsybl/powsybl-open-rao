@@ -10,27 +10,17 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.Side;
-import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.CnecResult;
 import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.PerimeterStatus;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.*;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.*;
 import static java.lang.String.format;
 
 /**
@@ -63,7 +52,7 @@ public final class RaoUtil {
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
 
         if (raoParameters.getObjectiveFunction().getUnit().equals(Unit.AMPERE)
-            && raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+                && raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
             throw new FaraoException(format("Objective function %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunction().toString()));
         }
 
@@ -77,85 +66,19 @@ public final class RaoUtil {
         }
 
         if ((raoParameters.isRaoWithLoopFlowLimitation()
-            || raoParameters.getObjectiveFunction().doesRequirePtdf())
-            && (raoInput.getReferenceProgram() == null)) {
+                || raoParameters.getObjectiveFunction().doesRequirePtdf())
+                && (raoInput.getReferenceProgram() == null)) {
             LOGGER.info("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters()));
         }
 
         if (raoParameters.isRaoWithLoopFlowLimitation() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
             String msg = format(
-                "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                raoInput.getCrac().getId());
+                    "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
+                    raoInput.getCrac().getId());
             LOGGER.error(msg);
             throw new FaraoException(msg);
         }
-    }
-
-    public static SystematicSensitivityInterface createSystematicSensitivityInterface(RaoParameters raoParameters,
-                                                                                      Set<RangeAction> rangeActions,
-                                                                                      Set<BranchCnec> cnecs,
-                                                                                      boolean withPtdfSensitivitiesForLoopFlows,
-                                                                                      ZonalData<LinearGlsk> glskProvider,
-                                                                                      Set<BranchCnec> loopflowCnecs) {
-
-        Set<Unit> flowUnits = new HashSet<>();
-        flowUnits.add(Unit.MEGAWATT);
-        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
-            flowUnits.add(Unit.AMPERE);
-        }
-
-        SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface
-            .builder()
-            .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
-            .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
-            .withRangeActionSensitivities(rangeActions, cnecs, flowUnits);
-
-        if (withPtdfSensitivitiesForLoopFlows) {
-            builder.withPtdfSensitivities(glskProvider, loopflowCnecs, flowUnits);
-        }
-
-        return builder.build();
-    }
-
-    public static ObjectiveFunction createObjectiveFunction(RaoParameters raoParameters,
-                                                            Set<BranchCnec> cnecs,
-                                                            Set<BranchCnec> loopFlowCnecs,
-                                                            Set<String> countriesNotToOptimize,
-                                                            BranchResult initialBranchResult,
-                                                            BranchResult prePerimeterBranchResult) {
-        ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder =  ObjectiveFunction.create();
-        if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
-            objectiveFunctionBuilder.withFunctionalCostEvaluator(new MinMarginEvaluator(
-                    cnecs,
-                    raoParameters.getObjectiveFunction().getUnit(),
-                    new MarginEvaluatorWithUnoptimizedCnecs(BranchResult::getRelativeMargin, countriesNotToOptimize, prePerimeterBranchResult)
-            ));
-        } else {
-            objectiveFunctionBuilder.withFunctionalCostEvaluator(new MinMarginEvaluator(
-                    cnecs,
-                    raoParameters.getObjectiveFunction().getUnit(),
-                    new MarginEvaluatorWithUnoptimizedCnecs(BranchResult::getMargin, countriesNotToOptimize, prePerimeterBranchResult)
-            ));
-        }
-        if (raoParameters.getMnecParameters() != null) {
-            objectiveFunctionBuilder.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
-                    cnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                    initialBranchResult,
-                    raoParameters.getMnecParameters()
-            ));
-        }
-        if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            objectiveFunctionBuilder.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
-                    loopFlowCnecs,
-                    initialBranchResult,
-                    raoParameters.getLoopFlowParameters()
-            ));
-        }
-        objectiveFunctionBuilder.withVirtualCostEvaluator(new SensitivityFallbackOvercostEvaluator(
-                raoParameters.getFallbackOverCost()
-        ));
-        return objectiveFunctionBuilder.build();
     }
 
     public static List<BranchCnec> getMostLimitingElements(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins, int numberOfElements) {
@@ -211,16 +134,6 @@ public final class RaoUtil {
             return nominalVoltage * Math.sqrt(3) / 1000;
         } else {
             throw new FaraoException("Only conversions between MW and A are supported.");
-        }
-    }
-
-    public static Set<BranchCnec> computePerimeterCnecs(Crac crac, Set<State> perimeter) {
-        if (perimeter != null) {
-            Set<BranchCnec> cnecs = new HashSet<>();
-            perimeter.forEach(state -> cnecs.addAll(crac.getBranchCnecs(state)));
-            return cnecs;
-        } else {
-            return  crac.getBranchCnecs();
         }
     }
 }

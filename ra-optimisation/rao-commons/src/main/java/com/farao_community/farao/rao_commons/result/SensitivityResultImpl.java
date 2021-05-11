@@ -29,7 +29,7 @@ public class SensitivityResultImpl implements SensitivityResult {
     }
 
     @Override
-    public SensitivityStatus getStatus() {
+    public SensitivityStatus getSensitivityStatus() {
         switch (systematicSensitivityResult.getStatus()) {
             case SUCCESS:
                 return SensitivityStatus.DEFAULT;

@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.*;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.List;
 import java.util.Map;
@@ -124,6 +125,11 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
+    public Set<RangeAction> getRangeActions() {
+        return rangeActionResult.getRangeActions();
+    }
+
+    @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
         return rangeActionResult.getOptimizedTap(pstRangeAction);
     }
@@ -141,5 +147,20 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     @Override
     public Map<RangeAction, Double> getOptimizedSetPoints() {
         return rangeActionResult.getOptimizedSetPoints();
+    }
+
+    @Override
+    public SensitivityStatus getSensitivityStatus() {
+        return sensitivityResult.getSensitivityStatus();
+    }
+
+    @Override
+    public double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit) {
+        return sensitivityResult.getSensitivityValue(branchCnec, rangeAction, unit);
+    }
+
+    @Override
+    public double getSensitivityValue(BranchCnec branchCnec, LinearGlsk linearGlsk, Unit unit) {
+        return sensitivityResult.getSensitivityValue(branchCnec, linearGlsk, unit);
     }
 }

@@ -51,7 +51,7 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      *
      * @return The full initial perimeter result to be studied with comprehensive data.
      */
-    PerimeterResult getInitialResult();
+    PrePerimeterResult getInitialResult();
 
     /**
      * It gives the flow on a {@link BranchCnec} at a given {@link OptimizationState} and in a
