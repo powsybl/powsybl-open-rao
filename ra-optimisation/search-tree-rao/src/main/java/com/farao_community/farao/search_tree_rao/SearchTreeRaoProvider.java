@@ -8,8 +8,11 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_result_extensions.*;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -31,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -113,7 +117,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         // merge variants
         LOGGER.info("Merging preventive and curative RAO results.");
-        RaoResult mergedRaoResults = mergeRaoResults(raoInput.getCrac(), preventiveRaoResult, curativeResults);
+        // Compute what would have been the objective function value if no PRA and no CRA were applied
+        // This is different from the preventive perimeter's preoptim cost, since the preventive perimeter does not consider curative CNECs
+        double preOptimCost = computePreOptimCost(initialSensitivityResult, raoInput.getCrac().getBranchCnecs(), parameters, preventiveRaoResult.getPreOptimVariantId());
+        RaoResult mergedRaoResults = mergeRaoResults(raoInput.getCrac(), preventiveRaoResult, curativeResults, preOptimCost);
 
         // log results
         if (mergedRaoResults.isSuccessful()) {
@@ -121,6 +128,29 @@ public class SearchTreeRaoProvider implements RaoProvider {
         }
         return CompletableFuture.completedFuture(mergedRaoResults);
 
+    }
+
+    private double computePreOptimCost(SystematicSensitivityResult systematicSensitivityResult, Set<BranchCnec> cnecs, RaoParameters raoParameters, String initialVariantId) {
+        // compute only functional cost (min margin)
+        // do not consider virtual costs since they're supposed to be null
+        // TODO : what to do for cnecs 'not to optimize' in curative ?
+        boolean relative = raoParameters.getObjectiveFunction().relativePositiveMargins();
+        return -cnecs.stream()
+                .filter(BranchCnec::isOptimized)
+                .map(cnec -> {
+                    double margin = 0;
+                    if (raoParameters.getObjectiveFunction().getUnit().equals(Unit.MEGAWATT)) {
+                        margin = cnec.computeMargin(systematicSensitivityResult.getReferenceFlow(cnec), Side.LEFT, Unit.MEGAWATT);
+                    } else if (raoParameters.getObjectiveFunction().getUnit().equals(Unit.AMPERE)) {
+                        margin = cnec.computeMargin(systematicSensitivityResult.getReferenceIntensity(cnec), Side.LEFT, Unit.AMPERE);
+                    } else {
+                        throw new FaraoException(String.format("Unhandled objective function unit %s", raoParameters.getObjectiveFunction().getUnit()));
+                    }
+                    if (relative && margin > 0) {
+                        margin = margin / cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getAbsolutePtdfSum();
+                    }
+                    return margin;
+                }).min(Double::compareTo).orElseThrow();
     }
 
     private CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, RaoParameters raoParameters) {
@@ -223,13 +253,26 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return curativeResults;
     }
 
-    RaoResult mergeRaoResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
+    RaoResult mergeRaoResults(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults, double preOptimCost) {
         mergeRaoResultStatus(preventiveRaoResult, curativeRaoResults);
-        mergeCnecResults(crac, preventiveRaoResult, curativeRaoResults);
-        mergeRemedialActionsResults(crac, preventiveRaoResult, curativeRaoResults);
-        mergeObjectiveFunctionValues(crac, preventiveRaoResult, curativeRaoResults);
-        deleteCurativeVariants(crac, preventiveRaoResult.getPostOptimVariantId());
+        if (hasCostImproved(crac, preventiveRaoResult, curativeRaoResults, preOptimCost)) {
+            mergeCnecResults(crac, preventiveRaoResult, curativeRaoResults);
+            mergeRemedialActionsResults(crac, preventiveRaoResult, curativeRaoResults);
+            mergeObjectiveFunctionValues(crac, preventiveRaoResult, curativeRaoResults);
+            deleteCurativeVariants(crac, preventiveRaoResult.getPostOptimVariantId());
+        } else {
+            LOGGER.warn("The RAO degraded the minimum margin. The initial variant will be kept as the optimal one.");
+            String postOptimVariantId = preventiveRaoResult.getPreOptimVariantId();
+            preventiveRaoResult.setPostOptimVariantId(postOptimVariantId);
+            deleteCurativeVariants(crac, postOptimVariantId);
+        }
         return preventiveRaoResult;
+    }
+
+    private boolean hasCostImproved(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults, double preOptimCost) {
+        CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
+        return cracResultMap.getVariant(preventiveRaoResult.getPostOptimVariantId()).getCost() <= preOptimCost
+                && getWorstCurativePostOptimCost(crac, curativeRaoResults) <= preOptimCost;
     }
 
     private void mergeRaoResultStatus(RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
@@ -283,6 +326,19 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 });
             }
         });
+    }
+
+    private double getWorstCurativePostOptimCost(Crac crac, Map<State, RaoResult> curativeRaoResults) {
+        List<Map.Entry<State, RaoResult>> curativeCosts = curativeRaoResults.entrySet().stream()
+                .filter(entry -> crac.getBranchCnecs(entry.getKey()).stream().anyMatch(Cnec::isOptimized))
+                .sorted(Comparator.comparingDouble(entry -> -crac.getExtension(CracResultExtension.class).getVariant(entry.getValue().getPostOptimVariantId()).getCost()))
+                .collect(Collectors.toList());
+        if (curativeCosts.isEmpty()) {
+            return -Double.MAX_VALUE;
+        }
+        RaoResult worstCurativeRaoResult = curativeCosts.get(0).getValue();
+        CracResultExtension cracResultMap = crac.getExtension(CracResultExtension.class);
+        return cracResultMap.getVariant(worstCurativeRaoResult.getPostOptimVariantId()).getCost();
     }
 
     private void mergeObjectiveFunctionValues(Crac crac, RaoResult preventiveRaoResult, Map<State, RaoResult> curativeRaoResults) {
