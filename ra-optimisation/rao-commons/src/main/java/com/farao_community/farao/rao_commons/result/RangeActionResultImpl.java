@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons.result;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
@@ -17,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -41,6 +44,9 @@ public class RangeActionResultImpl implements RangeActionResult {
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
+        if (!setPoints.containsKey(pstRangeAction)) {
+            throw new FaraoException(format("PST range action %s is not present in the result", pstRangeAction.getName()));
+        }
         return pstRangeAction.computeTapPosition(getOptimizedSetPoint(pstRangeAction));
     }
 

@@ -51,11 +51,19 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     public BranchCnec getMostLimitingElement(BranchResult branchResult) {
+        List<BranchCnec> costlyElements = getCostlyElements(branchResult, 1);
+        if (costlyElements.isEmpty()) {
+            return null;
+        }
         return getCostlyElements(branchResult, 1).get(0);
     }
 
     @Override
     public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
+        BranchCnec limitingElement = getMostLimitingElement(branchResult);
+        if (limitingElement == null) {
+            return Double.NaN;
+        }
         return -marginEvaluator.getMargin(branchResult, getMostLimitingElement(branchResult), unit);
     }
 }

@@ -249,11 +249,13 @@ public class SearchTree {
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
         try {
+            // We get initial range action results from the previous optimal leaf
             leaf = new Leaf(network, previousDepthOptimalLeaf.getNetworkActions(), networkAction, previousDepthOptimalLeaf);
         } catch (NotImplementedException e) {
             networkPool.releaseUsedNetwork(network);
             throw e;
         }
+        // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
         leaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(previousDepthOptimalLeaf, availableRangeActions));
         LOGGER.debug("{}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -262,7 +264,7 @@ public class SearchTree {
                 if (!rangeActions.isEmpty()) {
                     leaf.optimize(
                             iteratingLinearOptimizer,
-                            getSensitivityComputerForOptimizationBasedOn(previousDepthOptimalLeaf, rangeActions),
+                            getSensitivityComputerForOptimizationBasedOn(leaf.getPreOptimBranchResult(), rangeActions), // We base the results on the results of the evaluation of the leaf in case something has been updated
                             searchTreeProblem.getLeafProblem(rangeActions)
                     );
                 } else {

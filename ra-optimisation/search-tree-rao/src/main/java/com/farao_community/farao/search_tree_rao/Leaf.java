@@ -92,6 +92,10 @@ class Leaf implements OptimizationResult {
         preOptimSensitivityResult = prePerimeterOutput;
     }
 
+    public BranchResult getPreOptimBranchResult() {
+        return preOptimBranchResult;
+    }
+
     public Status getStatus() {
         return status;
     }

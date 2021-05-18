@@ -36,8 +36,8 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         // Should not be used
     }
 
-    public static BranchResultAdpaterWithNoComputationBuilder create() {
-        return new BranchResultAdpaterWithNoComputationBuilder();
+    public static BranchResultAdpaterBuilder create() {
+        return new BranchResultAdpaterBuilder();
     }
 
     @Override
@@ -112,7 +112,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         return new BranchResultImpl(systematicSensitivityResult, commercialFlows, ptdfs);
     }
 
-    public static final class BranchResultAdpaterWithNoComputationBuilder {
+    public static final class BranchResultAdpaterBuilder {
         private BranchResult fixedPtdfs = new EmptyBranchResult();
         private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
         private Set<BranchCnec> cnecs;
@@ -120,23 +120,23 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         private LoopFlowComputation loopFlowComputation;
         private Set<BranchCnec> loopFlowCnecs;
 
-        public BranchResultAdpaterWithNoComputationBuilder withPtdfsResults(BranchResult fixedPtdfs) {
+        public BranchResultAdpaterBuilder withPtdfsResults(BranchResult fixedPtdfs) {
             this.fixedPtdfs = fixedPtdfs;
             return this;
         }
 
-        public BranchResultAdpaterWithNoComputationBuilder withPtdfsResults(AbsolutePtdfSumsComputation absolutePtdfSumsComputation, Set<BranchCnec> cnecs) {
+        public BranchResultAdpaterBuilder withPtdfsResults(AbsolutePtdfSumsComputation absolutePtdfSumsComputation, Set<BranchCnec> cnecs) {
             this.absolutePtdfSumsComputation = absolutePtdfSumsComputation;
             this.cnecs = cnecs;
             return this;
         }
 
-        public BranchResultAdpaterWithNoComputationBuilder withCommercialFlowsResults(BranchResult fixedCommercialFlows) {
+        public BranchResultAdpaterBuilder withCommercialFlowsResults(BranchResult fixedCommercialFlows) {
             this.fixedCommercialFlows = fixedCommercialFlows;
             return this;
         }
 
-        public BranchResultAdpaterWithNoComputationBuilder withCommercialFlowsResults(LoopFlowComputation loopFlowComputation, Set<BranchCnec> loopFlowCnecs) {
+        public BranchResultAdpaterBuilder withCommercialFlowsResults(LoopFlowComputation loopFlowComputation, Set<BranchCnec> loopFlowCnecs) {
             this.loopFlowComputation = loopFlowComputation;
             this.loopFlowCnecs = loopFlowCnecs;
             return this;
