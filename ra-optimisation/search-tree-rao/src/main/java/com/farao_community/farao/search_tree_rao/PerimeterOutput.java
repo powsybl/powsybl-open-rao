@@ -1,5 +1,6 @@
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkAction;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
@@ -100,12 +101,17 @@ public class PerimeterOutput implements PerimeterResult {
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
-        return optimizationResult.getOptimizedTap(pstRangeAction);
+        // TODO: better handling in case of accessing of a tap that is not present in the results
+        try {
+            return optimizationResult.getOptimizedTap(pstRangeAction);
+        } catch (FaraoException e) {
+            return prePerimeterResult.getOptimizedTap(pstRangeAction);
+        }
     }
 
     @Override
     public double getOptimizedSetPoint(RangeAction rangeAction) {
-        return optimizationResult.getOptimizedSetPoint(rangeAction);
+        return Optional.of(optimizationResult.getOptimizedSetPoint(rangeAction)).orElse(prePerimeterResult.getOptimizedSetPoint(rangeAction));
     }
 
     @Override

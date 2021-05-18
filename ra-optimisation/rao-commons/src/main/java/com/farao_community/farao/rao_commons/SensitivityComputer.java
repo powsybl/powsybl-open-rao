@@ -113,15 +113,15 @@ public final class SensitivityComputer {
             Objects.requireNonNull(cnecs);
             Objects.requireNonNull(rangeActions);
             SensitivityComputer sensitivityComputer = new SensitivityComputer();
-            boolean computePtdfs = absolutePtdfSumsComputation != null || fixedPtdfs != null;
-            boolean computeLoopFlows = loopFlowComputation != null || fixedCommercialFlows != null;
+            boolean computePtdfs = absolutePtdfSumsComputation != null;
+            boolean computeLoopFlows = loopFlowComputation != null;
             sensitivityComputer.systematicSensitivityInterface = toolProvider.getSystematicSensitivityInterface(
                     cnecs,
                     rangeActions,
                     computePtdfs,
                     computeLoopFlows
             );
-            BranchResultAdapterImpl.BranchResultAdpaterWithNoComputationBuilder builder = BranchResultAdapterImpl.create();
+            BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {
                 builder.withCommercialFlowsResults(loopFlowComputation, loopFlowCnecs);
             } else if (fixedCommercialFlows != null) {
