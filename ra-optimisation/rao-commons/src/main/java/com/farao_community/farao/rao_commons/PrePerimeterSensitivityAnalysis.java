@@ -60,7 +60,11 @@ public class PrePerimeterSensitivityAnalysis {
     public PrePerimeterResult runBasedOn(Network network, OptimizationResult optimizationResult) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            sensitivityComputerBuilder.withCommercialFlowsResults(optimizationResult);
+            if (raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
+                sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(cnecs));
+            } else {
+                sensitivityComputerBuilder.withCommercialFlowsResults(optimizationResult);
+            }
         }
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             sensitivityComputerBuilder.withPtdfsResults(optimizationResult);
