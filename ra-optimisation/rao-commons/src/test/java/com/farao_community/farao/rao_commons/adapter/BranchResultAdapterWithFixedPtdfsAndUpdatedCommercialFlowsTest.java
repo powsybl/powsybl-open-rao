@@ -12,14 +12,16 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_commons.result.BranchResultFromMap;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
@@ -33,13 +35,18 @@ public class BranchResultAdapterWithFixedPtdfsAndUpdatedCommercialFlowsTest {
         BranchCnec cnec1 = Mockito.mock(BranchCnec.class);
         BranchCnec cnec2 = Mockito.mock(BranchCnec.class);
         LoopFlowComputation loopFlowComputation = Mockito.mock(LoopFlowComputation.class);
-        BranchResultAdapter branchResultAdapter = new BranchResultAdapterWithFixedPtdfsAndUpdatedCommercialFlows(
+        SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        BranchResultAdapterImpl.BranchResultAdpaterBuilder branchResultAdpaterBuilder = new BranchResultAdapterImpl.BranchResultAdpaterBuilder();
+        BranchResult ptdfBranchResult = new BranchResultFromMap(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, 20.));
+        BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder.withPtdfsResults(ptdfBranchResult)
+            .withCommercialFlowsResults(loopFlowComputation, Set.of(cnec2))
+            .build();
+        /*BranchResultAdapter branchResultAdapter = new BranchResultAdapterWithFixedPtdfsAndUpdatedCommercialFlows(
                 Map.of(cnec1, 20.),
                 loopFlowComputation,
                 Set.of(cnec2)
-        );
+        );*/
 
-        SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         when(systematicSensitivityResult.getReferenceFlow(cnec1)).thenReturn(200.);
         when(systematicSensitivityResult.getReferenceIntensity(cnec1)).thenReturn(58.);
         when(systematicSensitivityResult.getReferenceFlow(cnec2)).thenReturn(500.);
