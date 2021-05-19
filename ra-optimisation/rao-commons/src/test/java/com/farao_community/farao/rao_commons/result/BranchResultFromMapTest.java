@@ -11,12 +11,14 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -25,17 +27,25 @@ import static org.mockito.Mockito.when;
 public class BranchResultFromMapTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
-    @Test
-    public void testBasicReturns() {
-        SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        BranchCnec loopFlowCnec = Mockito.mock(BranchCnec.class);
-        BranchCnec optimizedCnec = Mockito.mock(BranchCnec.class);
-        BranchResultFromMap branchResultFromMap = new BranchResultFromMap(
+    SystematicSensitivityResult systematicSensitivityResult;
+    BranchCnec loopFlowCnec;
+    BranchCnec optimizedCnec;
+    BranchResultFromMap branchResultFromMap;
+
+    @Before
+    public void setUp() {
+        systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        loopFlowCnec = Mockito.mock(BranchCnec.class);
+        optimizedCnec = Mockito.mock(BranchCnec.class);
+        branchResultFromMap = new BranchResultFromMap(
                 systematicSensitivityResult,
                 Map.of(loopFlowCnec, 200.),
                 Map.of(optimizedCnec, 30.)
         );
+    }
 
+    @Test
+    public void testBasicReturns() {
         when(systematicSensitivityResult.getReferenceFlow(loopFlowCnec)).thenReturn(200.);
         when(systematicSensitivityResult.getReferenceIntensity(loopFlowCnec)).thenReturn(58.);
         when(systematicSensitivityResult.getReferenceFlow(optimizedCnec)).thenReturn(500.);
@@ -48,9 +58,27 @@ public class BranchResultFromMapTest {
 
         assertThrows(FaraoException.class, () -> branchResultFromMap.getPtdfZonalSum(loopFlowCnec));
         assertEquals(30., branchResultFromMap.getPtdfZonalSum(optimizedCnec), DOUBLE_TOLERANCE);
+        assertEquals(Map.of(optimizedCnec, 30.), branchResultFromMap.getPtdfZonalSums());
 
         assertEquals(200, branchResultFromMap.getCommercialFlow(loopFlowCnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(loopFlowCnec, Unit.AMPERE));
         assertThrows(FaraoException.class, () -> branchResultFromMap.getCommercialFlow(optimizedCnec, Unit.MEGAWATT));
+    }
+
+    @Test
+    public void testNanFlow() {
+        when(systematicSensitivityResult.getReferenceIntensity(optimizedCnec)).thenReturn(Double.NaN);
+        when(systematicSensitivityResult.getReferenceFlow(optimizedCnec)).thenReturn(500.);
+        when(optimizedCnec.getNominalVoltage(any())).thenReturn(400.);
+
+        assertEquals(721.69, branchResultFromMap.getFlow(optimizedCnec, Unit.AMPERE), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testWrongFlowUnit() {
+        assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, Unit.KILOVOLT));
+        assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, Unit.DEGREE));
+        assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, Unit.PERCENT_IMAX));
+        assertThrows(FaraoException.class, () -> branchResultFromMap.getFlow(optimizedCnec, Unit.TAP));
     }
 }

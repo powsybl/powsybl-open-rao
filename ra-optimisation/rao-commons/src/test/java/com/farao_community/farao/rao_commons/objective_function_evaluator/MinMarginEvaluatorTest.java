@@ -17,8 +17,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -93,5 +92,25 @@ public class MinMarginEvaluatorTest {
     @Test
     public void computeCost() {
         assertEquals(250., minMarginEvaluator.computeCost(branchResult, Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testWithPureMnecs() {
+        BranchCnec mnec1 = Mockito.mock(BranchCnec.class);
+        when(mnec1.isMonitored()).thenReturn(true);
+        when(mnec1.isOptimized()).thenReturn(false);
+        BranchCnec mnec2 = Mockito.mock(BranchCnec.class);
+        when(mnec2.isMonitored()).thenReturn(true);
+        when(mnec2.isOptimized()).thenReturn(false);
+
+        MarginEvaluator marginEvaluator = Mockito.mock(MarginEvaluator.class);
+        branchResult = Mockito.mock(BranchResult.class);
+        when(marginEvaluator.getMargin(branchResult, mnec1, MEGAWATT)).thenReturn(-150.);
+        when(marginEvaluator.getMargin(branchResult, mnec2, MEGAWATT)).thenReturn(200.);
+
+        minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
+        assertTrue(minMarginEvaluator.getCostlyElements(branchResult, 10).isEmpty());
+        assertNull(minMarginEvaluator.getMostLimitingElement(branchResult));
+        assertEquals(0, minMarginEvaluator.computeCost(branchResult, Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
     }
 }

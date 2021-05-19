@@ -7,12 +7,16 @@
 
 package com.farao_community.farao.rao_commons.result;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.powsybl.iidm.network.Network;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -23,24 +27,45 @@ import static org.mockito.Mockito.when;
 public class RangeActionResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
+    RangeAction rangeAction = Mockito.mock(RangeAction.class);
+    PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
+
+    @Before
+    public void setUp() {
+        rangeAction = Mockito.mock(RangeAction.class);
+        pstRangeAction = Mockito.mock(PstRangeAction.class);
+        when(pstRangeAction.computeTapPosition(2.75)).thenReturn(4);
+    }
+
     @Test
-    public void testBasicReturns() {
-        RangeAction rangeAction = Mockito.mock(RangeAction.class);
-        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
+    public void testInitWithMap() {
         RangeActionResultImpl rangeActionResultImpl = new RangeActionResultImpl(
                 Map.of(
                         rangeAction, 200.,
                         pstRangeAction, 2.75
                 )
         );
+        checkContents(rangeActionResultImpl);
+    }
 
-        when(pstRangeAction.computeTapPosition(2.75)).thenReturn(4);
+    @Test
+    public void testInitWithNetwork() {
+        Network network = Mockito.mock(Network.class);
+        when(rangeAction.getCurrentValue(network)).thenReturn(200.);
+        when(pstRangeAction.getCurrentValue(network)).thenReturn(2.75);
 
+        RangeActionResultImpl rangeActionResultImpl = new RangeActionResultImpl(network, Set.of(rangeAction, pstRangeAction));
+        checkContents(rangeActionResultImpl);
+    }
+
+    private void checkContents(RangeActionResultImpl rangeActionResultImpl) {
         assertEquals(200, rangeActionResultImpl.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
         assertEquals(2.75, rangeActionResultImpl.getOptimizedSetPoint(pstRangeAction), DOUBLE_TOLERANCE);
         assertEquals(4, rangeActionResultImpl.getOptimizedTap(pstRangeAction));
         assertEquals(1, rangeActionResultImpl.getOptimizedTaps().size());
         assertTrue(rangeActionResultImpl.getOptimizedTaps().containsKey(pstRangeAction));
         assertEquals(2, rangeActionResultImpl.getOptimizedSetPoints().size());
+        assertEquals(Set.of(rangeAction, pstRangeAction), rangeActionResultImpl.getRangeActions());
+        assertThrows(FaraoException.class, () -> rangeActionResultImpl.getOptimizedTap(Mockito.mock(PstRangeAction.class)));
     }
 }

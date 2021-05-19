@@ -46,18 +46,6 @@ public class CoreProblemFiller implements ProblemFiller {
         this.pstSensitivityThreshold = pstSensitivityThreshold;
     }
 
-    final Set<BranchCnec> getCnecs() {
-        return cnecs;
-    }
-
-    final RangeActionResult getPrePerimeterRangeActionResult() {
-        return prePerimeterRangeActionResult;
-    }
-
-    final double getPstSensitivityThreshold() {
-        return pstSensitivityThreshold;
-    }
-
     private Set<RangeAction> getRangeActions() {
         return rangeActions;
     }

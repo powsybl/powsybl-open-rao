@@ -114,7 +114,7 @@ public final class ToolProvider {
         }
     }
 
-    private boolean cnecIsInCountryList(Cnec<?> cnec, Network network, Set<Country> loopflowCountries) {
+    static boolean cnecIsInCountryList(Cnec<?> cnec, Network network, Set<Country> loopflowCountries) {
         return cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && loopflowCountries.contains(country.get()));
     }
 
@@ -147,20 +147,20 @@ public final class ToolProvider {
         return builder.build();
     }
 
-    private Set<String> getEicForObjectiveFunction() {
+    Set<String> getEicForObjectiveFunction() {
         return raoParameters.getRelativeMarginPtdfBoundaries().stream().
                 flatMap(boundary -> boundary.getEiCodes().stream()).
                 map(EICode::getAreaCode).
                 collect(Collectors.toSet());
     }
 
-    private Set<String> getEicForLoopFlows() {
+    Set<String> getEicForLoopFlows() {
         return referenceProgram.getListOfAreas().stream().
                 map(EICode::getAreaCode).
                 collect(Collectors.toSet());
     }
 
-    private ZonalData<LinearGlsk> getGlskForEic(Set<String> listEicCode) {
+    ZonalData<LinearGlsk> getGlskForEic(Set<String> listEicCode) {
         Map<String, LinearGlsk> glskBoundaries = new HashMap<>();
 
         for (String eiCode : listEicCode) {

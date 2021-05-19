@@ -41,26 +41,6 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowParameters.getLoopFlowConstraintAdjustmentCoefficient();
     }
 
-    final BranchResult getInitialBranchResult() {
-        return initialBranchResult;
-    }
-
-    final RaoParameters.LoopFlowApproximationLevel getLoopFlowApproximationLevel() {
-        return loopFlowApproximationLevel;
-    }
-
-    final double getLoopFlowAcceptableAugmentation() {
-        return loopFlowAcceptableAugmentation;
-    }
-
-    final double getLoopFlowViolationCost() {
-        return loopFlowViolationCost;
-    }
-
-    final double getLoopFlowConstraintAdjustmentCoefficient() {
-        return loopFlowConstraintAdjustmentCoefficient;
-    }
-
     private Set<BranchCnec> getLoopFlowCnecs() {
         return loopFlowCnecs;
     }
@@ -179,7 +159,6 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
     private double getLoopFlowUpperBound(BranchCnec cnec) {
         double loopFlowThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        //TODO : move loopflow threshold
         double initialLoopFlow = initialBranchResult.getLoopFlow(cnec, Unit.MEGAWATT);
         return Math.max(0.0,
             Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient);

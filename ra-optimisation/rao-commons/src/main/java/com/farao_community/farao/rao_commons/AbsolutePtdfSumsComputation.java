@@ -32,10 +32,6 @@ public class AbsolutePtdfSumsComputation {
         this.zTozPtdfs = zTozPtdfs;
     }
 
-    public ZonalData<LinearGlsk> getGlskProvider() {
-        return glskProvider;
-    }
-
     public Map<BranchCnec, Double> computeAbsolutePtdfSums(Set<BranchCnec> cnecs, SystematicSensitivityResult sensitivityResult) {
         Map<BranchCnec, Double> ptdfSums = new HashMap<>();
         List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).collect(Collectors.toList());

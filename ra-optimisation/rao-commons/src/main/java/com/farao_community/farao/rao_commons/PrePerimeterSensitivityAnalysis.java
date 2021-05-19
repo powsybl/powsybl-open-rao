@@ -6,17 +6,18 @@
  */
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.rao_api.results.OptimizationResult;
+import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class aims at performing the initial sensitivity analysis of a RAO, the one
@@ -26,8 +27,6 @@ import java.util.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PrePerimeterSensitivityAnalysis {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrePerimeterSensitivityAnalysis.class);
-
     private final Set<BranchCnec> cnecs;
     private final Set<RangeAction> rangeActions;
     private final ToolProvider toolProvider;
