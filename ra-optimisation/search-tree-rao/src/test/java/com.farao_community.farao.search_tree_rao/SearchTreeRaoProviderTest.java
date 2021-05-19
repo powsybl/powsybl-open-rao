@@ -18,7 +18,7 @@ import com.farao_community.farao.data.crac_impl.remedial_action.network_action.T
 import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_api.results.RaoResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
