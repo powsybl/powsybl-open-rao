@@ -172,10 +172,13 @@ class Leaf implements OptimizationResult {
     @Override
     public String toString() {
         String info = isRoot() ? "Root leaf" :
-                "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
-        info += String.format(", Cost: %.2f", getCost());
-        info += String.format(" (Functional: %.2f", getFunctionalCost());
-        info += String.format(", Virtual: %.2f)", getVirtualCost());
+            "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+        try {
+            info += String.format(", Cost: %.2f", getCost());
+            info += String.format(" (Functional: %.2f", getFunctionalCost());
+            info += String.format(", Virtual: %.2f)", getVirtualCost());
+        } catch (FaraoException ignored) {
+        }
         info += ", Status: " + status.getMessage();
         return info;
     }
