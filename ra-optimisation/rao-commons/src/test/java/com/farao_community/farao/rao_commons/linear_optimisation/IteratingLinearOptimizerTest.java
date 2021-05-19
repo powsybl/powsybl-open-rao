@@ -7,8 +7,9 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.RangeAction;
 import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.adapter.BranchResultAdapter;
 import com.farao_community.farao.rao_commons.adapter.SensitivityResultAdapter;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
@@ -23,9 +24,12 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
@@ -47,6 +51,7 @@ public class IteratingLinearOptimizerTest {
     private SensitivityResult sensitivityResult;
     private RangeActionResult rangeActionResult;
     private BranchResultAdapter branchResultAdapter;
+    private SensitivityComputer sensitivityComputer;
     private IteratingLinearOptimizer optimizer;
 
     @Before
@@ -57,10 +62,8 @@ public class IteratingLinearOptimizerTest {
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         SensitivityResultAdapter sensitivityResultAdapter = Mockito.mock(SensitivityResultAdapter.class);
         optimizer = new IteratingLinearOptimizer(
-                objectiveFunction,
-                systematicSensitivityInterface,
-                sensitivityResultAdapter,
-                5
+            objectiveFunction,
+            5
         );
 
         linearProblem = Mockito.mock(LinearProblem.class);
@@ -69,11 +72,14 @@ public class IteratingLinearOptimizerTest {
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         rangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, 0.));
         branchResultAdapter = Mockito.mock(BranchResultAdapter.class);
+        sensitivityComputer = Mockito.mock(SensitivityComputer.class);
 
         SystematicSensitivityResult sensi = Mockito.mock(SystematicSensitivityResult.class, "only sensi computation");
         when(systematicSensitivityInterface.run(network)).thenReturn(sensi);
         BranchResult branchResult = Mockito.mock(BranchResult.class);
         when(branchResultAdapter.getResult(sensi)).thenReturn(branchResult);
+        when(sensitivityComputer.getBranchResult()).thenReturn(branchResult);
+        when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
         when(sensitivityResultAdapter.getResult(sensi)).thenReturn(sensitivityResult);
@@ -120,7 +126,7 @@ public class IteratingLinearOptimizerTest {
                 branchResult,
                 sensitivityResult,
                 rangeActionResult,
-                branchResultAdapter
+                sensitivityComputer
         );
     }
 
@@ -202,7 +208,10 @@ public class IteratingLinearOptimizerTest {
 
     @Test
     public void optimizeWithSensitivityComputationFailure() {
-        when(systematicSensitivityInterface.run(network)).thenThrow(SensitivityAnalysisException.class);
+        Mockito.doAnswer(invocationOnMock -> {
+            network = invocationOnMock.getArgument(0);
+            throw new SensitivityAnalysisException("Sensi computation failed");
+        }).when(sensitivityComputer).compute(network);
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
         mockFunctionalCost(100.);
 
