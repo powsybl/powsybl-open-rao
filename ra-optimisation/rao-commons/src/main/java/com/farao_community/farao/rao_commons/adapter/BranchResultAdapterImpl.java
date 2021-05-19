@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons.adapter;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
@@ -58,7 +59,11 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
 
                 @Override
                 public double getPtdfZonalSum(BranchCnec branchCnec) {
-                    return ptdfsMap.get(branchCnec);
+                    if (ptdfsMap.containsKey(branchCnec)) {
+                        return ptdfsMap.get(branchCnec);
+                    } else {
+                        throw new FaraoException(String.format("No PTDF zonal sum for cnec %s", branchCnec.getId()));
+                    }
                 }
 
                 @Override
@@ -66,10 +71,8 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                     return ptdfsMap;
                 }
             };
-        } else if (fixedPtdfs != null) {
-            ptdfs = fixedPtdfs;
         } else {
-            ptdfs = new EmptyBranchResult();
+            ptdfs = fixedPtdfs;
         }
 
         BranchResult commercialFlows;
@@ -104,10 +107,8 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                     throw new NotImplementedException();
                 }
             };
-        } else if (fixedCommercialFlows != null) {
-            commercialFlows = fixedCommercialFlows;
         } else {
-            commercialFlows = new EmptyBranchResult();
+            commercialFlows = fixedCommercialFlows;
         }
         return new BranchResultImpl(systematicSensitivityResult, commercialFlows, ptdfs);
     }

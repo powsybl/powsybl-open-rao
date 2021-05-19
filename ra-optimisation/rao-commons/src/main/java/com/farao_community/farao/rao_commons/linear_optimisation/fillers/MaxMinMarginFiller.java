@@ -40,22 +40,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
         this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
     }
 
-    final Set<BranchCnec> getOptimizedCnecs() {
-        return optimizedCnecs;
-    }
-
-    final Set<RangeAction> getRangeActions() {
-        return rangeActions;
-    }
-
-    final Unit getUnit() {
-        return unit;
-    }
-
-    final double getPstPenaltyCost() {
-        return pstPenaltyCost;
-    }
-
     @Override
     public void fill(LinearProblem linearProblem, BranchResult branchResult, SensitivityResult sensitivityResult) {
         // build variables

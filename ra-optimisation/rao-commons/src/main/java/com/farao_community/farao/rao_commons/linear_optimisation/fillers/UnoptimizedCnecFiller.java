@@ -45,14 +45,6 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         this.highestThresholdValue = unoptimizedCnecParameters.getHighestThresholdValue();
     }
 
-    final BranchResult getPrePerimeterBranchResult() {
-        return prePerimeterBranchResult;
-    }
-
-    final double getHighestThresholdValue() {
-        return highestThresholdValue;
-    }
-
     private Set<BranchCnec> getCnecs() {
         return cnecs.stream()
                 .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))

@@ -8,25 +8,20 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.results.PerimeterStatus;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -78,48 +73,6 @@ public final class RaoUtil {
                     raoInput.getCrac().getId());
             LOGGER.error(msg);
             throw new FaraoException(msg);
-        }
-    }
-
-    public static List<BranchCnec> getMostLimitingElements(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins, int numberOfElements) {
-        List<BranchCnec> sortedCnecs = cnecs.stream().
-                filter(BranchCnec::isOptimized).
-                sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
-                collect(Collectors.toList());
-        if (sortedCnecs.isEmpty()) {
-            // There are only pure MNECs
-            sortedCnecs = cnecs.stream().
-                    sorted(Comparator.comparingDouble(cnec -> computeCnecMargin(cnec, variantId, unit, relativePositiveMargins))).
-                    collect(Collectors.toList());
-        }
-        return sortedCnecs.subList(0, Math.min(numberOfElements, sortedCnecs.size()));
-    }
-
-    public static PerimeterStatus createPerimeterStatus(SensitivityStatus sensitivityStatus) {
-        switch (sensitivityStatus) {
-            case DEFAULT:
-                return PerimeterStatus.DEFAULT;
-            case FALLBACK:
-                return PerimeterStatus.FALLBACK;
-            case FAILURE:
-                return PerimeterStatus.FAILURE;
-        }
-        throw new FaraoException(String.format("Sensitivity status %s not recognized", sensitivityStatus.toString()));
-    }
-
-    public static BranchCnec getMostLimitingElement(Set<BranchCnec> cnecs, String variantId, Unit unit, boolean relativePositiveMargins) {
-        return getMostLimitingElements(cnecs, variantId, unit, relativePositiveMargins, 1).get(0);
-    }
-
-    public static double computeCnecMargin(BranchCnec cnec, String variantId, Unit unit, boolean relativePositiveMargins) {
-        CnecResult cnecResult = ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(variantId);
-        unit.checkPhysicalParameter(PhysicalParameter.FLOW);
-        double actualValue = unit.equals(Unit.MEGAWATT) ? cnecResult.getFlowInMW() : cnecResult.getFlowInA();
-        double absoluteMargin = cnec.computeMargin(actualValue, Side.LEFT, unit);
-        if (relativePositiveMargins && (absoluteMargin > 0)) {
-            return absoluteMargin / ((FlowCnec) cnec).getExtension(CnecResultExtension.class).getVariant(variantId).getAbsolutePtdfSum();
-        } else {
-            return absoluteMargin;
         }
     }
 

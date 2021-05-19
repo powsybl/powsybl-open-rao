@@ -43,26 +43,6 @@ public class MnecFiller implements ProblemFiller {
         this.mnecConstraintAdjustmentCoefficient = mnecParameters.getMnecConstraintAdjustmentCoefficient();
     }
 
-    final BranchResult getInitialBranchResult() {
-        return initialBranchResult;
-    }
-
-    final Unit getUnit() {
-        return unit;
-    }
-
-    final double getMnecViolationCost() {
-        return mnecViolationCost;
-    }
-
-    final double getMnecAcceptableMarginDiminution() {
-        return mnecAcceptableMarginDiminution;
-    }
-
-    final double getMnecConstraintAdjustmentCoefficient() {
-        return mnecConstraintAdjustmentCoefficient;
-    }
-
     private Set<BranchCnec> getMnecs() {
         return mnecs;
     }

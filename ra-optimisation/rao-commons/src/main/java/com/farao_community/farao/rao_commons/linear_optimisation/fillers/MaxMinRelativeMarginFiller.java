@@ -44,18 +44,6 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         this.negativeMarginObjectiveCoefficient = maxMinRelativeMarginParameters.getNegativeMarginObjectiveCoefficient();
     }
 
-    final BranchResult getInitialBranchResult() {
-        return initialBranchResult;
-    }
-
-    final double getPtdfSumLowerBound() {
-        return ptdfSumLowerBound;
-    }
-
-    final double getNegativeMarginObjectiveCoefficient() {
-        return negativeMarginObjectiveCoefficient;
-    }
-
     @Override
     public void fill(LinearProblem linearProblem, BranchResult branchResult, SensitivityResult sensitivityResult) {
         super.fill(linearProblem, branchResult, sensitivityResult);

@@ -40,6 +40,11 @@ public class SensitivityResultImplTest {
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(10, sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.AMPERE), DOUBLE_TOLERANCE);
+
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.KILOVOLT));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.DEGREE));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.PERCENT_IMAX));
+        assertThrows(FaraoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, rangeAction, Unit.TAP));
     }
 
     @Test
