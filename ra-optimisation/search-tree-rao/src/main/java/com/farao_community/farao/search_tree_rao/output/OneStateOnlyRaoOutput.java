@@ -25,30 +25,33 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         this.postOptimizationResult = postOptimizationResult;
     }
 
-    @Override
-    public double getMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
+    private BranchResult getAppropriateResult(OptimizationState optimizationState, BranchCnec branchCnec) {
         State state = branchCnec.getState();
         if (optimizationState == OptimizationState.INITIAL) {
-            return initialResult.getMargin(branchCnec, unit);
+            return initialResult;
         }
-        if (state.equals(optimizedState)) {
-            return postOptimizationResult.getMargin(branchCnec, unit);
-        } else {
-            return initialResult.getMargin(branchCnec, unit);
+        if (optimizedState.isPreventive()) {
+            return postOptimizationResult;
         }
+        if (state.isPreventive()) {
+            return initialResult;
+        }
+        if (!optimizedState.isPreventive()
+                && optimizedState.getContingency().get().equals(state.getContingency().get())
+                && state.compareTo(optimizedState) >= 0) {
+            return postOptimizationResult;
+        }
+        return initialResult;
+    }
+
+    @Override
+    public double getMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
+        return getAppropriateResult(optimizationState, branchCnec).getMargin(branchCnec, unit);
     }
 
     @Override
     public double getRelativeMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        State state = branchCnec.getState();
-        if (optimizationState == OptimizationState.INITIAL) {
-            return initialResult.getRelativeMargin(branchCnec, unit);
-        }
-        if (state.equals(optimizedState)) {
-            return postOptimizationResult.getRelativeMargin(branchCnec, unit);
-        } else {
-            return initialResult.getRelativeMargin(branchCnec, unit);
-        }
+        return getAppropriateResult(optimizationState, branchCnec).getRelativeMargin(branchCnec, unit);
     }
 
     @Override
