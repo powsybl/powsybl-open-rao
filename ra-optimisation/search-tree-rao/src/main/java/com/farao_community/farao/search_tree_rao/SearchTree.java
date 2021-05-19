@@ -222,7 +222,11 @@ public class SearchTree {
             LOGGER.info("Leaves to evaluate: {}", networkActions.size());
         }
         AtomicInteger remainingLeaves = new AtomicInteger(networkActions.size());
-        //Network network = searchTreeInput.getNetwork(); // NetworkPool starts from root leaf network to keep initial optimization of range actions
+        // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
+        // from previous optimal leaf starting point
+        // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
+        previousDepthOptimalLeaf.getRangeActions()
+                .forEach(ra ->  ra.apply(network, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
         int leavesInParallel = Math.min(networkActions.size(), treeParameters.getLeavesInParallel());
         LOGGER.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel)) {

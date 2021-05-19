@@ -62,7 +62,7 @@ public class MinMarginEvaluator implements CostEvaluator {
     public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
         BranchCnec limitingElement = getMostLimitingElement(branchResult);
         if (limitingElement == null) {
-            return Double.NaN;
+            return 0;
         }
         return -marginEvaluator.getMargin(branchResult, getMostLimitingElement(branchResult), unit);
     }
