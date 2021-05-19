@@ -10,10 +10,12 @@ package com.farao_community.farao.rao_commons.adapter;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_commons.result.BranchResultFromMap;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -29,12 +31,18 @@ public class BranchResultAdapterWithFixedPtdfsAndCommercialFlowsTest {
     public void testBasicReturns() {
         BranchCnec cnec1 = Mockito.mock(BranchCnec.class);
         BranchCnec cnec2 = Mockito.mock(BranchCnec.class);
-        BranchResultAdapter branchResultAdapter = new BranchResultAdapterWithFixedPtdfsAndCommercialFlows(
+        BranchResultAdapterImpl.BranchResultAdpaterBuilder branchResultAdpaterBuilder = new BranchResultAdapterImpl.BranchResultAdpaterBuilder();
+        SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        BranchResult ptdfBranchResult = new BranchResultFromMap(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, 20.));
+        BranchResult commercialFlowBranchResult = new BranchResultFromMap(systematicSensitivityResult, Map.of(cnec2, 300.), new HashMap<>());
+        BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
+            .withPtdfsResults(ptdfBranchResult)
+            .withCommercialFlowsResults(commercialFlowBranchResult)
+            .build();
+        /*BranchResultAdapter branchResultAdapter = new BranchResultAdapterWithFixedPtdfsAndCommercialFlows(
                 Map.of(cnec1, 20.),
                 Map.of(cnec2, 300.)
-        );
-
-        SystematicSensitivityResult systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        );*/
         when(systematicSensitivityResult.getReferenceFlow(cnec1)).thenReturn(200.);
         when(systematicSensitivityResult.getReferenceIntensity(cnec1)).thenReturn(58.);
         when(systematicSensitivityResult.getReferenceFlow(cnec2)).thenReturn(500.);
