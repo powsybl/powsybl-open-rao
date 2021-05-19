@@ -7,33 +7,12 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import com.farao_community.farao.data.crac_result_extensions.*;
-import com.farao_community.farao.rao_api.results.RaoResult;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.Assert.*;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class SearchTreeRaoProviderTest {
 
-    private static final double DOUBLE_TOLERANCE = 1e-3;
+    /* private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private Crac crac;
     private String initialVariantId;
@@ -83,7 +62,7 @@ public class SearchTreeRaoProviderTest {
      *  - preventive perimeter being {preventive state (optimized), curative state after FR1-FR2co}
      *  - a curative perimeer being {curative state after FR1-FR3co (optimized)}
      */
-    private StateTree mockedStateTree(Crac crac) {
+    /*private StateTree mockedStateTree(Crac crac) {
         State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
         StateTree stateTree = Mockito.mock(StateTree.class);
         Mockito.when(stateTree.getOptimizedState(crac.getPreventiveState())).thenReturn(crac.getPreventiveState());
@@ -285,5 +264,5 @@ public class SearchTreeRaoProviderTest {
                 Map.of(curativeState, curativeRaoResult, curativeState2, preventiveRaoResult));
         assertEquals(-1000, resultExtension.getVariant(mergedRaoResult.getPostOptimVariantId()).getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(10, resultExtension.getVariant(mergedRaoResult.getPostOptimVariantId()).getVirtualCost(), DOUBLE_TOLERANCE);
-    }
+    }*/
 }
