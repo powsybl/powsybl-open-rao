@@ -94,6 +94,8 @@ public class SearchTree {
                     rangeActionsToOptimize.addAll(pstsForTso.stream()
                             .sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
                             .collect(Collectors.toList()).subList(pstsForTso.size() - maxPst, pstsForTso.size()));
+                } else {
+                    rangeActionsToOptimize.addAll(pstsForTso);
                 }
             });
             return rangeActionsToOptimize;
@@ -145,15 +147,7 @@ public class SearchTree {
         }*/
 
         LOGGER.info("Linear optimization on root leaf");
-        if (!availableRangeActions.isEmpty()) {
-            rootLeaf.optimize(
-                    iteratingLinearOptimizer,
-                    getSensitivityComputerForOptimizationBasedOn(prePerimeterOutput, availableRangeActions),
-                    searchTreeProblem.getLeafProblem(availableRangeActions)
-            );
-        } else {
-            LOGGER.info("No range actions to optimize");
-        }
+        optimizeLeaf(rootLeaf, prePerimeterOutput);
         LOGGER.info("{}", rootLeaf);
         SearchTreeRaoLogger.logRangeActions(optimalLeaf, availableRangeActions);
         SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, linearOptimizerParameters.getUnit(),
@@ -264,19 +258,24 @@ public class SearchTree {
         LOGGER.debug("{}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
             if (!stopCriterionReached(leaf)) {
-                Set<RangeAction> rangeActions = getRangeActionsToOptimize(leaf);
-                if (!rangeActions.isEmpty()) {
-                    leaf.optimize(
-                            iteratingLinearOptimizer,
-                            getSensitivityComputerForOptimizationBasedOn(leaf.getPreOptimBranchResult(), rangeActions), // We base the results on the results of the evaluation of the leaf in case something has been updated
-                            searchTreeProblem.getLeafProblem(rangeActions)
-                    );
-                } else {
-                    LOGGER.info("No range actions to optimize");
-                }
+                // We base the results on the results of the evaluation of the leaf in case something has been updated
+                optimizeLeaf(leaf, leaf.getPreOptimBranchResult());
                 LOGGER.info("{}", leaf);
             }
             updateOptimalLeaf(leaf);
+        }
+    }
+
+    private void optimizeLeaf(Leaf leaf, BranchResult baseBranchResult) {
+        Set<RangeAction> rangeActions = getRangeActionsToOptimize(leaf);
+        if (!rangeActions.isEmpty()) {
+            leaf.optimize(
+                    iteratingLinearOptimizer,
+                    getSensitivityComputerForOptimizationBasedOn(baseBranchResult, rangeActions),
+                    searchTreeProblem.getLeafProblem(rangeActions)
+            );
+        } else {
+            LOGGER.info("No range actions to optimize");
         }
     }
 

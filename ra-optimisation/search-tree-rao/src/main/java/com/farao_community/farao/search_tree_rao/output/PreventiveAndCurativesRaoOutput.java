@@ -65,7 +65,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
         if (optimizationState == OptimizationState.AFTER_PRA) {
             return postPreventiveResult.getFunctionalCost();
         }
-        double highestFunctionalCost = Double.MIN_VALUE;
+        double highestFunctionalCost = postPreventiveResult.getFunctionalCost();
         highestFunctionalCost = Math.max(highestFunctionalCost, postCurativeResults.values().stream().map(PerimeterResult::getFunctionalCost).max(Double::compareTo).get());
         return highestFunctionalCost;
     }

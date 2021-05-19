@@ -1,6 +1,7 @@
 package com.farao_community.farao.search_tree_rao.output;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.*;
@@ -22,6 +23,32 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         this.optimizedState = optimizedState;
         this.initialResult = initialResult;
         this.postOptimizationResult = postOptimizationResult;
+    }
+
+    @Override
+    public double getMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
+        State state = branchCnec.getState();
+        if (optimizationState == OptimizationState.INITIAL) {
+            return initialResult.getMargin(branchCnec, unit);
+        }
+        if (state.equals(optimizedState)) {
+            return postOptimizationResult.getMargin(branchCnec, unit);
+        } else {
+            return initialResult.getMargin(branchCnec, unit);
+        }
+    }
+
+    @Override
+    public double getRelativeMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
+        State state = branchCnec.getState();
+        if (optimizationState == OptimizationState.INITIAL) {
+            return initialResult.getRelativeMargin(branchCnec, unit);
+        }
+        if (state.equals(optimizedState)) {
+            return postOptimizationResult.getRelativeMargin(branchCnec, unit);
+        } else {
+            return initialResult.getRelativeMargin(branchCnec, unit);
+        }
     }
 
     @Override
