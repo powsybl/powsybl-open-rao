@@ -7,262 +7,332 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.PrePerimeterResult;
+import com.farao_community.farao.rao_commons.ToolProvider;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginEvaluator;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.powsybl.iidm.network.Network;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
+@PrepareForTest({SearchTreeRaoProvider.class, ObjectiveFunctionHelper.class, MinMarginEvaluator.class})
 public class SearchTreeRaoProviderTest {
-
-    /* private static final double DOUBLE_TOLERANCE = 1e-3;
-
+    private static final double DOUBLE_TOLERANCE = 1e-3;
     private Crac crac;
-    private String initialVariantId;
-    private String postOptimPrevVariantId;
-    private String postOptimCurVariantId;
+    private Network network;
+    private BranchResult initialBranchResult;
+    private BranchResult preperimBranchResult;
+    private BranchCnec cnec1;
+    private BranchCnec cnec2;
+    private BranchCnec cnec3;
+    private BranchCnec cnec4;
+    private State state1;
+    private State state2;
+    private State state3;
+    private RangeAction ra1;
+    private RangeAction ra2;
+    private PrePerimeterResult prePerimeterResult;
 
     @Before
     public void setUp() {
-        crac = CommonCracCreation.createWithPreventivePstRange();
+        cnec1 = Mockito.mock(BranchCnec.class);
+        cnec2 = Mockito.mock(BranchCnec.class);
+        cnec3 = Mockito.mock(BranchCnec.class);
+        cnec4 = Mockito.mock(BranchCnec.class);
+        crac = Mockito.mock(Crac.class);
+        network = Mockito.mock(Network.class);
+        initialBranchResult = Mockito.mock(BranchResult.class);
+        preperimBranchResult = Mockito.mock(BranchResult.class);
+        state1 = Mockito.mock(State.class);
+        state2 = Mockito.mock(State.class);
+        state3 = Mockito.mock(State.class);
 
-        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
+        when(crac.getBranchCnecs()).thenReturn(Set.of(cnec1, cnec2, cnec3, cnec4));
+        when(crac.getBranchCnecs(state1)).thenReturn(Set.of(cnec1));
+        when(crac.getBranchCnecs(state2)).thenReturn(Set.of(cnec2));
+        when(crac.getBranchCnecs(state3)).thenReturn(Set.of(cnec3, cnec4));
 
-        crac.newNetworkAction().withId("open BE2-FR3")
-                .withName("open BE2-FR3")
-                .withOperator("FR")
-                .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-                .newOnStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("Contingency FR1 FR3").withInstant(Instant.CURATIVE).add()
-                .add();
+        ra1 = Mockito.mock(RangeAction.class);
+        when(ra1.getMinValue(eq(network), anyDouble())).thenReturn(-5.);
+        when(ra1.getMaxValue(eq(network), anyDouble())).thenReturn(5.);
+        ra2 = Mockito.mock(RangeAction.class);
+        when(ra2.getMinValue(eq(network), anyDouble())).thenReturn(-3.);
+        when(ra2.getMaxValue(eq(network), anyDouble())).thenReturn(3.);
+        prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        when(prePerimeterResult.getOptimizedSetPoint(any())).thenReturn(-4.);
 
-        ResultVariantManager resultVariantManager = new ResultVariantManager();
-        crac.addExtension(ResultVariantManager.class, resultVariantManager);
-        initialVariantId = resultVariantManager.createNewUniqueVariantId("initial");
-        postOptimPrevVariantId = resultVariantManager.createNewUniqueVariantId("postOptim-prev");
-        postOptimCurVariantId = resultVariantManager.createNewUniqueVariantId("postOptim-cur");
-        resultVariantManager.setInitialVariantId(initialVariantId);
+        Mockito.when(cnec1.isOptimized()).thenReturn(true);
+        Mockito.when(cnec2.isOptimized()).thenReturn(true);
+        Mockito.when(cnec3.isOptimized()).thenReturn(true);
+        Mockito.when(cnec4.isOptimized()).thenReturn(false);
 
-        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(initialVariantId).setFlowInMW(600);
-        crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class).getVariant(postOptimPrevVariantId).setFlowInMW(300);
-
-        crac.getFlowCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
-                .getVariant(postOptimPrevVariantId).setFlowInMW(400);
-        crac.getFlowCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
-                .getVariant(postOptimCurVariantId).setFlowInMW(200);
-
-        ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
-                .getVariant(initialVariantId)).setTap(crac.getPreventiveState().getId(), 0);
-        ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
-                .getVariant(postOptimPrevVariantId)).setTap(crac.getPreventiveState().getId(), 5);
-        ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
-                .getVariant(postOptimCurVariantId)).setTap(curativeState.getId(), -10);
-
-        crac.getNetworkAction("open BE2-FR3").getExtension(NetworkActionResultExtension.class)
-                .getVariant(postOptimCurVariantId).activate(curativeState.getId());
+        Mockito.when(cnec1.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        Mockito.when(cnec1.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnec2.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnec2.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
+        Mockito.when(cnec3.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnec3.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnec4.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        Mockito.when(cnec4.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
     }
 
-    /* Creates simple state tree with :
-     *  - preventive perimeter being {preventive state (optimized), curative state after FR1-FR2co}
-     *  - a curative perimeer being {curative state after FR1-FR3co (optimized)}
-     */
-    /*private StateTree mockedStateTree(Crac crac) {
-        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
+    @Test
+    public void testRemoveRangeActionsWithWrongInitialSetpoint() {
+        Set<RangeAction> rangeActions = new HashSet<>(Set.of(ra1, ra2));
+        SearchTreeRaoProvider.removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterResult, network);
+        assertEquals(Set.of(ra1), rangeActions);
+        when(prePerimeterResult.getOptimizedSetPoint(any())).thenReturn(-3.);
+        rangeActions = new HashSet<>(Set.of(ra1, ra2));
+        SearchTreeRaoProvider.removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterResult, network);
+        assertEquals(Set.of(ra1, ra2), rangeActions);
+    }
+
+    @Test
+    public void testComputePerimeterCnecs() {
+        assertEquals(Set.of(cnec1), SearchTreeRaoProvider.computePerimeterCnecs(crac, Set.of(state1)));
+        assertEquals(Set.of(cnec2), SearchTreeRaoProvider.computePerimeterCnecs(crac, Set.of(state2)));
+        assertEquals(Set.of(cnec1, cnec2), SearchTreeRaoProvider.computePerimeterCnecs(crac, Set.of(state1, state2)));
+        assertEquals(Set.of(cnec3, cnec4), SearchTreeRaoProvider.computePerimeterCnecs(crac, Set.of(state3)));
+        assertEquals(Set.of(cnec2, cnec3, cnec4), SearchTreeRaoProvider.computePerimeterCnecs(crac, Set.of(state2, state3)));
+        assertEquals(Set.of(cnec1, cnec2, cnec3, cnec4), SearchTreeRaoProvider.computePerimeterCnecs(crac, null));
+    }
+
+    @Test
+    public void testCreateObjectiveFunction() throws Exception {
+        MinMarginEvaluator minMarginEvaluator = Mockito.mock(MinMarginEvaluator.class);
+        when(minMarginEvaluator.computeCost(any(), any())).thenReturn(67.);
+        PowerMockito.whenNew(MinMarginEvaluator.class).withAnyArguments().thenReturn(minMarginEvaluator);
+        RaoParameters raoParameters = new RaoParameters();
+        ObjectiveFunction objFun;
+
+        // no virtual cost (except for sensi fallback)
+        raoParameters.setMnecViolationCost(0);
+        raoParameters.setRaoWithLoopFlowLimitation(false);
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), new HashSet<>());
+        assertNotNull(objFun);
+        // TODO : how to test functional cost ?
+        //assertEquals(67., objFun.getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("sensitivity-fallback-cost"), objFun.getVirtualCostNames());
+
+        // mnec virtual cost
+        raoParameters.setMnecViolationCost(1);
+        raoParameters.setRaoWithLoopFlowLimitation(false);
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), new HashSet<>());
+        assertNotNull(objFun);
+        //assertEquals(67., objFun.getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost"), objFun.getVirtualCostNames());
+
+        // lf cost
+        raoParameters.setMnecViolationCost(0);
+        raoParameters.setRaoWithLoopFlowLimitation(true);
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), new HashSet<>());
+        assertNotNull(objFun);
+        //assertEquals(67., objFun.getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("sensitivity-fallback-cost", "loop-flow-cost"), objFun.getVirtualCostNames());
+
+        // mnec and lf costs
+        raoParameters.setMnecViolationCost(-1);
+        raoParameters.setRaoWithLoopFlowLimitation(true);
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), new HashSet<>());
+        assertNotNull(objFun);
+        //assertEquals(67., objFun.getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost", "loop-flow-cost"), objFun.getVirtualCostNames());
+    }
+
+    @Test
+    public void testGetLargestCnecThreshold() {
+        assertEquals(1000., SearchTreeRaoProvider.getLargestCnecThreshold(Set.of(cnec1)), DOUBLE_TOLERANCE);
+        assertEquals(1500., SearchTreeRaoProvider.getLargestCnecThreshold(Set.of(cnec2)), DOUBLE_TOLERANCE);
+        assertEquals(1500., SearchTreeRaoProvider.getLargestCnecThreshold(Set.of(cnec1, cnec2)), DOUBLE_TOLERANCE);
+        assertEquals(1500., SearchTreeRaoProvider.getLargestCnecThreshold(Set.of(cnec1, cnec2, cnec3)), DOUBLE_TOLERANCE);
+        assertEquals(1000., SearchTreeRaoProvider.getLargestCnecThreshold(Set.of(cnec1, cnec3)), DOUBLE_TOLERANCE);
+        assertEquals(1500., SearchTreeRaoProvider.getLargestCnecThreshold(Set.of(cnec1, cnec2, cnec4)), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testBuildSearchTreeInput() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
+        raoParameters.setMnecViolationCost(10);
+        raoParameters.setRaoWithLoopFlowLimitation(true);
+
+        TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
+        when(treeParameters.getMaxRaPerTso()).thenReturn(Map.of("fr",5));
+        when(treeParameters.getMaxPstPerTso()).thenReturn(Map.of("be", 1, "nl", 2));
+        when(treeParameters.getMaxTopoPerTso()).thenReturn(new HashMap<>());
+        when(treeParameters.getSkipNetworkActionsFarFromMostLimitingElement()).thenReturn(true);
+
+        ToolProvider toolProvider = Mockito.mock(ToolProvider.class);
+        when(toolProvider.getLoopFlowCnecs(any())).thenReturn(Set.of(cnec3, cnec4));
+
+        LinearOptimizerParameters linearOptimizerParameters = Mockito.mock(LinearOptimizerParameters.class);
+
+        PrePerimeterResult initialOutput = Mockito.mock(PrePerimeterResult.class);
+
+        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        when(crac.getNetworkActions(network, state1, UsageMethod.AVAILABLE)).thenReturn(Set.of(na1));
+        when(crac.getRangeActions(network, state1, UsageMethod.AVAILABLE)).thenReturn(new HashSet<>(Set.of(ra1, ra2)));
+
+        SearchTreeInput searchTreeInput = SearchTreeRaoProvider.buildSearchTreeInput(crac,
+                network,
+                state1,
+                Set.of(state1, state2),
+                initialOutput,
+                prePerimeterResult,
+                treeParameters,
+                raoParameters,
+                linearOptimizerParameters,
+                toolProvider);
+
+        assertSame(network, searchTreeInput.getNetwork());
+        assertEquals(Set.of(cnec1, cnec2), searchTreeInput.getCnecs());
+        assertEquals(Set.of(na1), searchTreeInput.getNetworkActions());
+        assertEquals(Set.of(ra1), searchTreeInput.getRangeActions()); // ra2 is not valid
+        assertNotNull(searchTreeInput.getObjectiveFunction());
+        //assertEquals(67., searchTreeInput.getObjectiveFunction().getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost", "loop-flow-cost"), searchTreeInput.getObjectiveFunction().getVirtualCostNames());
+        assertNotNull(searchTreeInput.getIteratingLinearOptimizer());
+        assertNotNull(searchTreeInput.getSearchTreeProblem());
+        assertEquals(Set.of(cnec1, cnec2), searchTreeInput.getSearchTreeProblem().cnecs);
+        assertEquals(Set.of(cnec3, cnec4), searchTreeInput.getSearchTreeProblem().loopFlowCnecs);
+        assertSame(initialOutput, searchTreeInput.getSearchTreeProblem().initialBranchResult);
+        assertSame(prePerimeterResult, searchTreeInput.getSearchTreeProblem().prePerimeterBranchResult);
+        assertSame(prePerimeterResult, searchTreeInput.getSearchTreeProblem().prePerimeterSetPoints);
+        assertSame(linearOptimizerParameters, searchTreeInput.getSearchTreeProblem().linearOptimizerParameters);
+        assertNotNull(searchTreeInput.getSearchTreeBloomer());
+        assertNotNull(searchTreeInput.getSearchTreeComputer());
+    }
+
+    @Test
+    public void testCreatePreventiveLinearOptimizerParameters() {
+        RaoParameters raoParameters = new RaoParameters();
+
+        // absolute ampere, no mnec, no lf
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        raoParameters.setRaoWithLoopFlowLimitation(false);
+        raoParameters.setMnecViolationCost(0);
+        raoParameters.setPstSensitivityThreshold(0.45);
+
+        LinearOptimizerParameters linearOptimizerParameters = SearchTreeRaoProvider.createPreventiveLinearOptimizerParameters(raoParameters);
+        assertNotNull(linearOptimizerParameters);
+        assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE, linearOptimizerParameters.getObjectiveFunction());
+        assertEquals(Unit.AMPERE, linearOptimizerParameters.getUnit());
+        assertNotNull(linearOptimizerParameters.getMaxMinMarginParameters());
+        assertNull(linearOptimizerParameters.getMaxMinRelativeMarginParameters());
+        assertFalse(linearOptimizerParameters.hasRelativeMargins());
+        assertEquals(0.45, linearOptimizerParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertFalse(linearOptimizerParameters.isRaoWithLoopFlowLimitation());
+        assertNull(linearOptimizerParameters.getLoopFlowParameters());
+        assertFalse(linearOptimizerParameters.hasMonitoredElements());
+        assertNull(linearOptimizerParameters.getMnecParameters());
+        assertFalse(linearOptimizerParameters.hasOperatorsNotToOptimize());
+        assertNull(linearOptimizerParameters.getUnoptimizedCnecParameters());
+
+        // relative mw, with mnec and lf
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.setRaoWithLoopFlowLimitation(true);
+        raoParameters.setMnecViolationCost(-10);
+        raoParameters.setPstSensitivityThreshold(0.67);
+
+        linearOptimizerParameters = SearchTreeRaoProvider.createPreventiveLinearOptimizerParameters(raoParameters);
+        assertNotNull(linearOptimizerParameters);
+        assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, linearOptimizerParameters.getObjectiveFunction());
+        assertEquals(Unit.MEGAWATT, linearOptimizerParameters.getUnit());
+        assertNull(linearOptimizerParameters.getMaxMinMarginParameters());
+        assertNotNull(linearOptimizerParameters.getMaxMinRelativeMarginParameters());
+        assertTrue(linearOptimizerParameters.hasRelativeMargins());
+        assertEquals(0.67, linearOptimizerParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertTrue(linearOptimizerParameters.isRaoWithLoopFlowLimitation());
+        assertNotNull(linearOptimizerParameters.getLoopFlowParameters());
+        assertEquals(raoParameters.getLoopFlowApproximationLevel(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel());
+        assertEquals(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        assertEquals(raoParameters.getLoopFlowViolationCost(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowViolationCost(), DOUBLE_TOLERANCE);
+        assertEquals(raoParameters.getLoopFlowAcceptableAugmentation(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowAcceptableAugmentation(), DOUBLE_TOLERANCE);
+        assertTrue(linearOptimizerParameters.hasMonitoredElements());
+        assertNotNull(linearOptimizerParameters.getMnecParameters());
+        assertEquals(raoParameters.getMnecViolationCost(), linearOptimizerParameters.getMnecParameters().getMnecViolationCost(), DOUBLE_TOLERANCE);
+        assertEquals(raoParameters.getMnecAcceptableMarginDiminution(), linearOptimizerParameters.getMnecParameters().getMnecAcceptableMarginDiminution(), DOUBLE_TOLERANCE);
+        assertEquals(raoParameters.getMnecConstraintAdjustmentCoefficient(), linearOptimizerParameters.getMnecParameters().getMnecConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        assertFalse(linearOptimizerParameters.hasOperatorsNotToOptimize());
+        assertNull(linearOptimizerParameters.getUnoptimizedCnecParameters());
+    }
+
+    @Test
+    public void testCreateCurativeLinearOptimizerParameters() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
         StateTree stateTree = Mockito.mock(StateTree.class);
-        Mockito.when(stateTree.getOptimizedState(crac.getPreventiveState())).thenReturn(crac.getPreventiveState());
-        Mockito.when(stateTree.getOptimizedState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE))).thenReturn(crac.getPreventiveState());
-        Mockito.when(stateTree.getOptimizedState(curativeState)).thenReturn(curativeState);
-        Mockito.when(stateTree.getOptimizedStates()).thenReturn(Set.of(crac.getPreventiveState(), curativeState));
-        Mockito.when(stateTree.getPerimeter(crac.getPreventiveState())).thenReturn(Set.of(crac.getPreventiveState(), crac.getState("Contingency FR1 FR2", Instant.CURATIVE)));
-        Mockito.when(stateTree.getPerimeter(curativeState)).thenReturn(Set.of(curativeState));
-        return stateTree;
+        Mockito.when(stateTree.getOperatorsNotSharingCras()).thenReturn(Set.of("DE", "NL"));
+
+        // absolute ampere, with mnec, no lf
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
+        raoParameters.setRaoWithLoopFlowLimitation(false);
+        raoParameters.setMnecViolationCost(10);
+        raoParameters.setPstSensitivityThreshold(0.45);
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(true);
+
+        LinearOptimizerParameters linearOptimizerParameters = SearchTreeRaoProvider.createCurativeLinearOptimizerParameters(raoParameters, stateTree, Set.of(cnec1, cnec2, cnec3, cnec4));
+        assertNotNull(linearOptimizerParameters);
+        assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE, linearOptimizerParameters.getObjectiveFunction());
+        assertEquals(Unit.AMPERE, linearOptimizerParameters.getUnit());
+        assertNotNull(linearOptimizerParameters.getMaxMinMarginParameters());
+        assertNull(linearOptimizerParameters.getMaxMinRelativeMarginParameters());
+        assertFalse(linearOptimizerParameters.hasRelativeMargins());
+        assertEquals(0.45, linearOptimizerParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertFalse(linearOptimizerParameters.isRaoWithLoopFlowLimitation());
+        assertNull(linearOptimizerParameters.getLoopFlowParameters());
+        assertTrue(linearOptimizerParameters.hasMonitoredElements());
+        assertNotNull(linearOptimizerParameters.getMnecParameters());
+        assertEquals(raoParameters.getMnecViolationCost(), linearOptimizerParameters.getMnecParameters().getMnecViolationCost(), DOUBLE_TOLERANCE);
+        assertEquals(raoParameters.getMnecAcceptableMarginDiminution(), linearOptimizerParameters.getMnecParameters().getMnecAcceptableMarginDiminution(), DOUBLE_TOLERANCE);
+        assertEquals(raoParameters.getMnecConstraintAdjustmentCoefficient(), linearOptimizerParameters.getMnecParameters().getMnecConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        assertFalse(linearOptimizerParameters.hasOperatorsNotToOptimize());
+        assertNull(linearOptimizerParameters.getUnoptimizedCnecParameters());
+
+        // relative mw, with lf no mnec
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
+        raoParameters.setRaoWithLoopFlowLimitation(true);
+        raoParameters.setMnecViolationCost(0);
+        raoParameters.setPstSensitivityThreshold(0.67);
+        raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(false);
+
+        linearOptimizerParameters = SearchTreeRaoProvider.createCurativeLinearOptimizerParameters(raoParameters, stateTree, Set.of(cnec1, cnec3, cnec4));
+        assertNotNull(linearOptimizerParameters);
+        assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, linearOptimizerParameters.getObjectiveFunction());
+        assertEquals(Unit.MEGAWATT, linearOptimizerParameters.getUnit());
+        assertNull(linearOptimizerParameters.getMaxMinMarginParameters());
+        assertNotNull(linearOptimizerParameters.getMaxMinRelativeMarginParameters());
+        assertTrue(linearOptimizerParameters.hasRelativeMargins());
+        assertEquals(0.67, linearOptimizerParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
+        assertTrue(linearOptimizerParameters.isRaoWithLoopFlowLimitation());
+        assertNotNull(linearOptimizerParameters.getLoopFlowParameters());
+        assertEquals(raoParameters.getLoopFlowApproximationLevel(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel());
+        assertEquals(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        assertEquals(raoParameters.getLoopFlowViolationCost(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowViolationCost(), DOUBLE_TOLERANCE);
+        assertEquals(raoParameters.getLoopFlowAcceptableAugmentation(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowAcceptableAugmentation(), DOUBLE_TOLERANCE);
+        assertTrue(linearOptimizerParameters.hasOperatorsNotToOptimize());
+        assertNotNull(linearOptimizerParameters.getUnoptimizedCnecParameters());
+        assertEquals(Set.of("DE", "NL"), linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize());
+        assertEquals(1000., linearOptimizerParameters.getUnoptimizedCnecParameters().getHighestThresholdValue(), DOUBLE_TOLERANCE);
     }
-
-    @Test
-    public void mergeRaoResults() {
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
-        preventiveRaoResult.setPreOptimVariantId(initialVariantId);
-        preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
-
-        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
-        curativeRaoResult.setPreOptimVariantId(postOptimPrevVariantId);
-        curativeRaoResult.setPostOptimVariantId(postOptimCurVariantId);
-
-        StateTree stateTree = mockedStateTree(crac);
-
-        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
-        RaoResult mergedRaoResult = new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
-                Map.of(curativeState, curativeRaoResult));
-
-        assertEquals(RaoResult.Status.DEFAULT, mergedRaoResult.getStatus());
-        assertEquals(postOptimPrevVariantId, mergedRaoResult.getPostOptimVariantId());
-        assertEquals(300, crac.getFlowCnec("cnec1basecase").getExtension(CnecResultExtension.class)
-                .getVariant(postOptimPrevVariantId).getFlowInMW(), 0.1);
-        assertEquals(200, crac.getFlowCnec("cnec1stateCurativeContingency1").getExtension(CnecResultExtension.class)
-                .getVariant(postOptimPrevVariantId).getFlowInMW(), 0.1);
-        assertEquals(Integer.valueOf(5), ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
-                .getVariant(postOptimPrevVariantId)).getTap(crac.getPreventiveState().getId()));
-        assertEquals(Integer.valueOf(-10), ((PstRangeResult) crac.getRangeAction("pst").getExtension(RangeActionResultExtension.class)
-                .getVariant(postOptimPrevVariantId)).getTap(curativeState.getId()));
-        assertTrue(crac.getNetworkAction("open BE2-FR3").getExtension(NetworkActionResultExtension.class)
-                .getVariant(postOptimPrevVariantId).isActivated(curativeState.getId()));
-        assertEquals(2, crac.getExtension(ResultVariantManager.class).getVariants().size());
-    }
-
-    @Test
-    public void mergeRaoResultsWithFailure() {
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
-        preventiveRaoResult.setPreOptimVariantId(initialVariantId);
-        preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
-
-        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.FAILURE);
-        curativeRaoResult.setPreOptimVariantId(postOptimPrevVariantId);
-        curativeRaoResult.setPostOptimVariantId(postOptimCurVariantId);
-
-        StateTree stateTree = mockedStateTree(crac);
-
-        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
-        RaoResult mergedRaoResult = new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
-                Map.of(curativeState, curativeRaoResult));
-
-        assertEquals(RaoResult.Status.FAILURE, mergedRaoResult.getStatus());
-    }
-
-    @Test
-    public void mergeRaoResultsWithNoOptimizationInCurative() {
-
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
-        preventiveRaoResult.setPreOptimVariantId(initialVariantId);
-        preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
-
-        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
-        curativeRaoResult.setPreOptimVariantId(postOptimPrevVariantId);
-        curativeRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
-
-        StateTree stateTree = mockedStateTree(crac);
-
-        State curativeState = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
-        new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
-                Map.of(curativeState, curativeRaoResult));
-
-        assertNotNull(crac.getExtension(CracResultExtension.class).getVariant(postOptimPrevVariantId));
-    }
-
-    @Test
-    public void testMergeObjectiveFunctionCostWorstIsCurative() {
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
-        preventiveRaoResult.setPreOptimVariantId(initialVariantId);
-        preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
-
-        RaoResult curativeRaoResult1 = new RaoResult(RaoResult.Status.DEFAULT);
-        curativeRaoResult1.setPreOptimVariantId(postOptimPrevVariantId);
-        curativeRaoResult1.setPostOptimVariantId(postOptimCurVariantId);
-
-        RaoResult curativeRaoResult2 = new RaoResult(RaoResult.Status.DEFAULT);
-        curativeRaoResult2.setPreOptimVariantId(postOptimPrevVariantId);
-        String postOptimCur2VariantId = crac.getExtension(ResultVariantManager.class).createNewUniqueVariantId("postOptim-cur-2");
-        curativeRaoResult2.setPostOptimVariantId(postOptimCur2VariantId);
-
-        StateTree stateTree = mockedStateTree(crac);
-
-        State curativeState1 = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
-        State curativeState2 = crac.getState("Contingency FR1 FR2", Instant.CURATIVE);
-
-        CracResultExtension resultExtension = crac.getExtension(CracResultExtension.class);
-
-        resultExtension.getVariant(postOptimPrevVariantId).setFunctionalCost(-1000);
-        resultExtension.getVariant(postOptimPrevVariantId).setVirtualCost(10);
-
-        resultExtension.getVariant(postOptimCurVariantId).setFunctionalCost(50);
-        resultExtension.getVariant(postOptimCurVariantId).setVirtualCost(0);
-
-        resultExtension.getVariant(postOptimCur2VariantId).setFunctionalCost(0);
-        resultExtension.getVariant(postOptimCur2VariantId).setVirtualCost(100);
-
-        RaoResult mergedRaoResult = new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
-                Map.of(curativeState1, curativeRaoResult1, curativeState2, curativeRaoResult2));
-        assertEquals(0, resultExtension.getVariant(mergedRaoResult.getPostOptimVariantId()).getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(100, resultExtension.getVariant(mergedRaoResult.getPostOptimVariantId()).getVirtualCost(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testMergeObjectiveFunctionCostWorstIsPreventive() {
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
-        preventiveRaoResult.setPreOptimVariantId(initialVariantId);
-        preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
-
-        RaoResult curativeRaoResult1 = new RaoResult(RaoResult.Status.DEFAULT);
-        curativeRaoResult1.setPreOptimVariantId(postOptimPrevVariantId);
-        curativeRaoResult1.setPostOptimVariantId(postOptimCurVariantId);
-
-        RaoResult curativeRaoResult2 = new RaoResult(RaoResult.Status.DEFAULT);
-        curativeRaoResult2.setPreOptimVariantId(postOptimPrevVariantId);
-        String postOptimCur2VariantId = crac.getExtension(ResultVariantManager.class).createNewUniqueVariantId("postOptim-cur-2");
-        curativeRaoResult2.setPostOptimVariantId(postOptimCur2VariantId);
-
-        StateTree stateTree = mockedStateTree(crac);
-
-        State curativeState1 = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
-        State curativeState2 = crac.getState("Contingency FR1 FR2", Instant.CURATIVE);
-
-        CracResultExtension resultExtension = crac.getExtension(CracResultExtension.class);
-
-        resultExtension.getVariant(postOptimPrevVariantId).setFunctionalCost(90);
-        resultExtension.getVariant(postOptimPrevVariantId).setVirtualCost(10);
-
-        resultExtension.getVariant(postOptimCurVariantId).setFunctionalCost(50);
-        resultExtension.getVariant(postOptimCurVariantId).setVirtualCost(0);
-
-        resultExtension.getVariant(postOptimCur2VariantId).setFunctionalCost(0);
-        resultExtension.getVariant(postOptimCur2VariantId).setVirtualCost(100);
-
-        RaoResult mergedRaoResult = new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
-                Map.of(curativeState1, curativeRaoResult1, curativeState2, curativeRaoResult2));
-        assertEquals(90, resultExtension.getVariant(mergedRaoResult.getPostOptimVariantId()).getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(10, resultExtension.getVariant(mergedRaoResult.getPostOptimVariantId()).getVirtualCost(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testMergeObjectiveFunctionCostIgnorePerimetersWithPureMnecs() {
-        Contingency contingency = crac.newContingency()
-                .withId("pure_mnecs_cont")
-                .withNetworkElement("BBE2AA1  FFR3AA1  1")
-                .add();
-        FlowCnec mnec = crac.newFlowCnec()
-                .withId("pure_mnec")
-                .withContingency(contingency.getId())
-                .withInstant(Instant.CURATIVE)
-                .withNetworkElement("BBE2AA1  FFR3AA1  1")
-                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
-                .withMonitored()
-                .add();
-
-        RaoResult preventiveRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
-        preventiveRaoResult.setPreOptimVariantId(initialVariantId);
-        preventiveRaoResult.setPostOptimVariantId(postOptimPrevVariantId);
-
-        RaoResult curativeRaoResult = new RaoResult(RaoResult.Status.DEFAULT);
-        curativeRaoResult.setPreOptimVariantId(postOptimPrevVariantId);
-        curativeRaoResult.setPostOptimVariantId(postOptimCurVariantId);
-
-        State curativeState = crac.getState(contingency, Instant.CURATIVE);
-        State curativeState2 = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
-
-        StateTree stateTree = mockedStateTree(crac);
-        Mockito.when(stateTree.getOptimizedState(curativeState)).thenReturn(curativeState);
-
-        CracResultExtension resultExtension = crac.getExtension(CracResultExtension.class);
-
-        resultExtension.getVariant(postOptimPrevVariantId).setFunctionalCost(-1000);
-        resultExtension.getVariant(postOptimPrevVariantId).setVirtualCost(10);
-
-        resultExtension.getVariant(postOptimCurVariantId).setFunctionalCost(0);
-        resultExtension.getVariant(postOptimCurVariantId).setVirtualCost(0);
-
-        CnecResultExtension mockCnecResultExtension = Mockito.mock(CnecResultExtension.class);
-        CnecResult cnecResult = new CnecResult();
-        Mockito.when(mockCnecResultExtension.getVariant(Mockito.anyString())).thenReturn(cnecResult);
-        mnec.addExtension(CnecResultExtension.class, mockCnecResultExtension); // just to avoid null pointer
-
-        RaoResult mergedRaoResult = new SearchTreeRaoProvider(stateTree).mergeRaoResults(crac, preventiveRaoResult,
-                Map.of(curativeState, curativeRaoResult, curativeState2, preventiveRaoResult));
-        assertEquals(-1000, resultExtension.getVariant(mergedRaoResult.getPostOptimVariantId()).getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(10, resultExtension.getVariant(mergedRaoResult.getPostOptimVariantId()).getVirtualCost(), DOUBLE_TOLERANCE);
-    }*/
 }
