@@ -127,7 +127,7 @@ public class SearchTree {
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, availableRangeActions));
         LOGGER.info("{}", rootLeaf);
-        if (rootLeaf.getSensitivityStatus().equals(Leaf.Status.ERROR)) {
+        if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
             return CompletableFuture.completedFuture(rootLeaf);
         } else if (stopCriterionReached(rootLeaf)) {
