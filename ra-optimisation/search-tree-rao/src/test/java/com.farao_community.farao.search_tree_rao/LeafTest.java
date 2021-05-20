@@ -465,7 +465,7 @@ public class LeafTest {
     @Test(expected = FaraoException.class)
     public void getCostlyElementsBeforeOptimization() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        leaf.getCostlyElements(virtualCostName,0);
+        leaf.getCostlyElements(virtualCostName, 0);
     }
 
     @Test
