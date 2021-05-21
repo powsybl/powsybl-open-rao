@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.results.LinearProblemStatus;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -97,8 +97,8 @@ public class LinearProblemResultTest {
             Mockito.when(setPointVariationVariable.solutionValue()).thenReturn(setPointVariationPerRangeAction.get(rangeAction));
         });
 
-        Mockito.when(activatedPstRangeAction.computeTapPosition(1.5)).thenReturn(3);
-        Mockito.when(notActivatedPstRangeAction.computeTapPosition(5.4)).thenReturn(10);
+        Mockito.when(activatedPstRangeAction.convertAngleToTap(1.5)).thenReturn(3);
+        Mockito.when(notActivatedPstRangeAction.convertAngleToTap(5.4)).thenReturn(10);
     }
 
     @Test(expected = FaraoException.class)

@@ -4,6 +4,9 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.results.*;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
 import com.powsybl.commons.extensions.Extension;
@@ -52,6 +55,18 @@ public class OneStateOnlyRaoOutput implements RaoResult {
     @Override
     public double getRelativeMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
         return getAppropriateResult(optimizationState, branchCnec).getRelativeMargin(branchCnec, unit);
+    }
+
+    @Override
+    public SensitivityStatus getComputationStatus() {
+        if (initialResult.getSensitivityStatus() == SensitivityStatus.FAILURE || postOptimizationResult.getSensitivityStatus() == SensitivityStatus.FAILURE) {
+            return SensitivityStatus.FAILURE;
+        }
+        if (initialResult.getSensitivityStatus() == postOptimizationResult.getSensitivityStatus()) {
+            return initialResult.getSensitivityStatus();
+        }
+        // TODO: specify what to return in case on is DEFAULT and the other one is FALLBACK
+        return SensitivityStatus.DEFAULT;
     }
 
     @Override

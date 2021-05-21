@@ -11,10 +11,14 @@ import com.farao_community.farao.data.crac_api.Instant;
 /**
  * The FreeToUse UsageRule is defined at a given Instant. For instance, if a RemedialAction
  * have a FreeToUse UsageRule with Instant "curative" and UsageMethod AVAILABLE, this
- * RemedialAction will be available in all the States with Instant "curative".
+ * RemedialAction will be available after all the contingencies at Instant "curative".
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface FreeToUse extends UsageRule {
+
+    /**
+     * Get the Instant of the free to use
+     */
     Instant getInstant();
 }

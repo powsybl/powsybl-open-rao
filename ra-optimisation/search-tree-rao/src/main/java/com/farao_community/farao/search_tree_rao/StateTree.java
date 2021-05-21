@@ -7,10 +7,13 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
@@ -25,7 +28,7 @@ public class StateTree {
     Map<State, Set<State>> perimeterPerOptimizedState = new HashMap<>();
     Set<String> operatorsNotSharingCras;
 
-    public StateTree(Crac crac, Network network, State startingState) {
+    public StateTree(Crac crac, State startingState) {
         List<List<State>> perimeters = new ArrayList<>();
 
         if (startingState.equals(crac.getPreventiveState())) {
@@ -37,7 +40,7 @@ public class StateTree {
             for (Contingency contingency : crac.getContingencies()) {
                 currentPerimeter = preventivePerimeter;
                 for (State state : crac.getStates(contingency)) {
-                    if (anyAvailableRemedialAction(crac, network, state)) {
+                    if (anyAvailableRemedialAction(crac, state)) {
                         currentPerimeter = new ArrayList<>();
                         perimeters.add(currentPerimeter);
                     }
@@ -53,7 +56,7 @@ public class StateTree {
             states.forEach(state -> optimizedStatePerState.put(state, states.get(0)));
         });
 
-        this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac, network, getOptimizedStates());
+        this.operatorsNotSharingCras = findOperatorsNotSharingCras(crac, getOptimizedStates());
     }
 
     public State getOptimizedState(State state) {
@@ -72,24 +75,24 @@ public class StateTree {
         return operatorsNotSharingCras;
     }
 
-    private static boolean anyAvailableRemedialAction(Crac crac, Network network, State state) {
-        return !crac.getNetworkActions(network, state, UsageMethod.AVAILABLE).isEmpty() ||
-                !crac.getRangeActions(network, state, UsageMethod.AVAILABLE).isEmpty();
+    private static boolean anyAvailableRemedialAction(Crac crac, State state) {
+        return !crac.getNetworkActions(state, UsageMethod.AVAILABLE).isEmpty() ||
+                !crac.getRangeActions(state, UsageMethod.AVAILABLE).isEmpty();
     }
 
-    static Set<String> findOperatorsNotSharingCras(Crac crac, Network network, Set<State> optimizedStates) {
-        Set<String> tsos = crac.getBranchCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
+    static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedStates) {
+        Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
         tsos.addAll(crac.getRangeActions().stream().map(RangeAction::getOperator).collect(Collectors.toSet()));
         tsos.addAll(crac.getNetworkActions().stream().map(NetworkAction::getOperator).collect(Collectors.toSet()));
         // <!> If a CNEC's operator is null, filter it out of the list of operators not sharing CRAs
-        return tsos.stream().filter(tso -> !Objects.isNull(tso) && !tsoHasCra(tso, crac, network, optimizedStates)).collect(Collectors.toSet());
+        return tsos.stream().filter(tso -> !Objects.isNull(tso) && !tsoHasCra(tso, crac, optimizedStates)).collect(Collectors.toSet());
     }
 
-    static boolean tsoHasCra(String tso, Crac crac, Network network, Set<State> optimizedStates) {
+    static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedStates) {
         for (State state : optimizedStates) {
             if ((!state.equals(crac.getPreventiveState())) &&
-                    (crac.getNetworkActions(network, state, UsageMethod.AVAILABLE).stream().anyMatch(networkAction -> networkAction.getOperator().equals(tso)) ||
-                            crac.getRangeActions(network, state, UsageMethod.AVAILABLE).stream().anyMatch(rangeAction -> rangeAction.getOperator().equals(tso)))) {
+                    (crac.getNetworkActions(state, UsageMethod.AVAILABLE).stream().anyMatch(networkAction -> networkAction.getOperator().equals(tso)) ||
+                            crac.getRangeActions(state, UsageMethod.AVAILABLE).stream().anyMatch(rangeAction -> rangeAction.getOperator().equals(tso)))) {
                 return true;
             }
         }

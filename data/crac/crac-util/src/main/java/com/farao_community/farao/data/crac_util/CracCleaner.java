@@ -9,8 +9,9 @@ package com.farao_community.farao.data.crac_util;
 
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
@@ -24,8 +25,10 @@ import static com.farao_community.farao.data.crac_util.CracCleaningFeature.REMOV
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
+ *
+ * @deprecated Please use the crac creator API to create a "clean" crac from the beginning
  */
-
+@Deprecated
 public class CracCleaner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CracCleaner.class);
@@ -38,7 +41,7 @@ public class CracCleaner {
 
         // remove Cnec whose NetworkElement is absent from the network
         ArrayList<BranchCnec> absentFromNetworkCnecs = new ArrayList<>();
-        crac.getBranchCnecs().forEach(cnec -> {
+        crac.getFlowCnecs().forEach(cnec -> {
             if (network.getBranch(cnec.getNetworkElement().getId()) == null) {
                 absentFromNetworkCnecs.add(cnec);
                 report.add(String.format("[REMOVED] Cnec %s with network element [%s] is not present in the network. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
@@ -49,7 +52,7 @@ public class CracCleaner {
         if (CHECK_CNEC_MNEC.isEnabled()) {
             // remove Cnecs that are neither optimized nor monitored
             ArrayList<BranchCnec> unmonitoredCnecs = new ArrayList<>();
-            crac.getBranchCnecs().forEach(cnec -> {
+            crac.getFlowCnecs().forEach(cnec -> {
                 if (!cnec.isOptimized() && !cnec.isMonitored()) {
                     unmonitoredCnecs.add(cnec);
                     report.add(String.format("[REMOVED] Cnec %s with network element [%s] is neither optimized nor monitored. It is removed from the Crac", cnec.getId(), cnec.getNetworkElement().getId()));
@@ -68,7 +71,7 @@ public class CracCleaner {
                 }
             });
         }
-        absentFromNetworkRangeActions.forEach(rangeAction -> crac.removeRangeAction(rangeAction.getId()));
+        absentFromNetworkRangeActions.forEach(rangeAction -> crac.removeRemedialAction(rangeAction.getId()));
 
         // remove NetworkAction whose NetworkElement is absent from the network
         ArrayList<NetworkAction> absentFromNetworkNetworkActions = new ArrayList<>();
@@ -85,15 +88,6 @@ public class CracCleaner {
         // list Contingencies whose NetworkElement is absent from the network or does not fit a valid Powsybl Contingency
         Set<Contingency> removedContingencies = new HashSet<>();
         for (Contingency contingency : crac.getContingencies()) {
-            if (!contingency.isSynchronized()) {
-                // It is necessary to skip XnodeContingencies that have not been synchronized since we don't know their
-                // network elements yet
-                // However, this means that we cannot clean out wrong XnodeContingencies
-                // When Crac import is refactored, we should be able to access the network at the time of creation
-                // of the contingencies. Then the network elements can be found from the start
-                // TODO : remove this when CRAC importer can use network
-                continue;
-            }
             contingency.getNetworkElements().forEach(networkElement -> {
                 Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
                 if (identifiable == null) {
@@ -124,7 +118,7 @@ public class CracCleaner {
         // remove Cnec whose contingency does not exist anymore
         removedContingencies.forEach(contingency ->
             crac.getStatesFromContingency(contingency.getId()).forEach(state ->
-                crac.getBranchCnecs(state).forEach(cnec -> {
+                crac.getCnecs(state).forEach(cnec -> {
                     crac.removeCnec(cnec.getId());
                     report.add(String.format("[REMOVED] Cnec %s is removed because its associated contingency [%s] has been removed", cnec.getId(), contingency.getId()));
                 })
@@ -148,7 +142,7 @@ public class CracCleaner {
         crac.getNetworkActions().forEach(ra -> cleanUsageRules(ra, removedStates, report));
 
          /* TODO : remove range actions with initial setpoints that do not respect their authorized range
-         This is not possible now since, for PstRange, we have to synchronize them first in order
+         This is not possible now since, for TapRange, we have to synchronize them first in order
          to be able to access current / min / max setpoints
          We can do this during CRAC refactoring (we should somehow merge CracCleaner.cleanCrac() & crac.synchronize() methods)
          For now, these "wrong" range actions are only handled in the LinearOptimizer (in the CoreProblemFiller)*/
@@ -157,24 +151,6 @@ public class CracCleaner {
         removedContingencies.forEach(contingency -> crac.removeContingency(contingency.getId()));
         removedStates.forEach(state -> crac.removeState(state.getId()));
         report.forEach(LOGGER::warn);
-
-        // remove PstRanges with a RELATIVE_TO_PREVIOUS_INSTANT for preventive PST RAs
-        List<RangeAction> removedRangeActions = new ArrayList<>();
-        crac.getRangeActions(network, crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(ra -> ra.getUsageRules().size() == 1).forEach(ra -> {
-            List<Range> removedRanges = new ArrayList<>();
-            ra.getRanges().forEach(range -> {
-                if (range.getRangeType() == RangeType.RELATIVE_TO_PREVIOUS_INSTANT) {
-                    report.add(String.format("[REMOVED] Range Action %s is a preventive range action with a range relative to previous instant. That range has been removed.", ra.getId()));
-                    removedRanges.add(range);
-                }
-            });
-            removedRanges.forEach(ra::removeRange);
-            if (ra.getRanges().isEmpty()) {
-                report.add(String.format("[REMOVED] Range Action %s has no ranges. It has been removed from the Crac.", ra.getId()));
-                removedRangeActions.add(ra);
-            }
-        });
-        removedRangeActions.forEach(ra -> crac.removeRangeAction(ra.getId()));
 
         return report;
     }

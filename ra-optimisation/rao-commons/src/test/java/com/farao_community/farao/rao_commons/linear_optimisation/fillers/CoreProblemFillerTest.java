@@ -8,8 +8,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -47,9 +49,9 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         init();
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinValue(network, 0);
-        maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxValue(network, 0);
-        initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinAdmissibleSetpoint(0);
+        maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxAdmissibleSetpoint(0);
+        initialAlpha = ((PstRangeAction) rangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
         initialRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, initialAlpha));
     }
@@ -276,7 +278,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         updateLinearProblem();
 
         // some additional data
-        final double currentAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double currentAlpha = ((PstRangeAction) rangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
 
@@ -320,7 +322,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         updateLinearProblem();
 
         // some additional data
-        final double currentAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double currentAlpha = ((PstRangeAction) rangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
 
@@ -360,27 +362,33 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Test
     public void testFillerWithRangeActionGroup() {
         crac.newPstRangeAction()
-                .setId("pst1-group1")
-                .setGroupId("group1")
-                .newNetworkElement().setId("BBE2AA1  BBE3AA1  1").add()
-                .setUnit(Unit.TAP)
-                .setMinValue(-2.)
-                .setMaxValue(5.)
-                .setOperator("RTE")
+                .withId("pst1-group1")
+                .withGroupId("group1")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(Map.of(-1, -20., 0, 0., 1, 20.))
+                .newTapRange()
+                    .withRangeType(RangeType.ABSOLUTE)
+                    .withMinTap(-2)
+                    .withMaxTap(5)
+                    .add()
+                .withOperator("RTE")
                 .add();
         crac.newPstRangeAction()
-                .setId("pst2-group1")
-                .setGroupId("group1")
-                .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
-                .setUnit(Unit.TAP)
-                .setMinValue(-5.)
-                .setMaxValue(10.)
-                .setOperator("RTE")
+                .withId("pst2-group1")
+                .withGroupId("group1")
+                .withNetworkElement("BBE1AA1  BBE3AA1  1")
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(Map.of(-1, -20., 0, 0., 1, 20.))
+                .newTapRange()
+                    .withRangeType(RangeType.ABSOLUTE)
+                    .withMinTap(-5)
+                    .withMaxTap(10)
+                    .add()
+                .withOperator("RTE")
                 .add();
 
         network = NetworkImportsUtil.import12NodesWith2PstsNetwork();
-        crac.desynchronize();
-        crac.synchronize(network);
 
         RangeAction ra1 = crac.getRangeAction("pst1-group1");
         RangeAction ra2 = crac.getRangeAction("pst2-group1");

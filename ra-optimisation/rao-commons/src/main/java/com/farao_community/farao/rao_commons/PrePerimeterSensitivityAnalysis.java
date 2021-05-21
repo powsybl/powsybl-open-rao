@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -40,7 +40,7 @@ public class PrePerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
         cnecs = crac.getBranchCnecs();
         rangeActions = new HashSet<>();
-        crac.getStates().forEach(state -> rangeActions.addAll(crac.getRangeActions(network, state, UsageMethod.AVAILABLE)));
+        crac.getStates().forEach(state -> rangeActions.addAll(crac.getRangeActions(state, UsageMethod.AVAILABLE)));
         this.raoParameters = raoParameters;
     }
 

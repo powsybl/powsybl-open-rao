@@ -16,6 +16,8 @@ import java.util.List;
 /**
  * Crac Factory interface.
  *
+ * A CracFactory enables the creation of a Crac object
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface CracFactory {
@@ -40,7 +42,7 @@ public interface CracFactory {
     }
 
     /**
-     * Function that returns the name of the implementation
+     * Function that returns the name of the factory implementation
      *
      * @return The name of the CracFactory implementation.
      */

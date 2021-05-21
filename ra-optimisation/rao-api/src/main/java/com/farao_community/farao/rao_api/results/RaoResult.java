@@ -10,6 +10,9 @@ package com.farao_community.farao.rao_api.results;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.extensions.Extendable;
 
@@ -26,6 +29,8 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
+
+    SensitivityStatus getComputationStatus();
 
     /**
      * It enables to access to a {@link PerimeterResult} which is a sub-representation of the {@link RaoResult}. Be

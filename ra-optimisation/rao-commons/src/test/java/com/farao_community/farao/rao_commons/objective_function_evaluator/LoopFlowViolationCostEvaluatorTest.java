@@ -8,15 +8,17 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
+import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
-import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -28,8 +30,8 @@ import static org.mockito.Mockito.when;
 public class LoopFlowViolationCostEvaluatorTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
-    private BranchCnec cnec1;
-    private BranchCnec cnec2;
+    private FlowCnec cnec1;
+    private FlowCnec cnec2;
     private BranchResult initialLoopFlows;
     private BranchResult currentLoopFlows;
     private SensitivityStatus sensitivityStatus;
@@ -38,13 +40,13 @@ public class LoopFlowViolationCostEvaluatorTest {
 
     @Before
     public void setUp() {
-        CnecLoopFlowExtension cnec1Extension = Mockito.mock(CnecLoopFlowExtension.class);
-        cnec1 = Mockito.mock(BranchCnec.class);
-        when(cnec1.getExtension(CnecLoopFlowExtension.class)).thenReturn(cnec1Extension);
+        LoopFlowThreshold cnec1Extension = Mockito.mock(LoopFlowThreshold.class);
+        cnec1 = Mockito.mock(FlowCnec.class);
+        when(cnec1.getExtension(LoopFlowThreshold.class)).thenReturn(cnec1Extension);
 
-        CnecLoopFlowExtension cnec2Extension = Mockito.mock(CnecLoopFlowExtension.class);
-        cnec2 = Mockito.mock(BranchCnec.class);
-        when(cnec2.getExtension(CnecLoopFlowExtension.class)).thenReturn(cnec2Extension);
+        LoopFlowThreshold cnec2Extension = Mockito.mock(LoopFlowThreshold.class);
+        cnec2 = Mockito.mock(FlowCnec.class);
+        when(cnec2.getExtension(LoopFlowThreshold.class)).thenReturn(cnec2Extension);
 
         initialLoopFlows = Mockito.mock(BranchResult.class);
         currentLoopFlows = Mockito.mock(BranchResult.class);
@@ -52,16 +54,16 @@ public class LoopFlowViolationCostEvaluatorTest {
         parameters = Mockito.mock(LoopFlowParameters.class);
     }
 
-    private void setInputThresholdWithReliabilityMargin(BranchCnec branchCnec, double inputThresholdWIthReliabilityMargin) {
-        CnecLoopFlowExtension cnecLoopFlowExtension = branchCnec.getExtension(CnecLoopFlowExtension.class);
+    private void setInputThresholdWithReliabilityMargin(FlowCnec branchCnec, double inputThresholdWIthReliabilityMargin) {
+        LoopFlowThreshold cnecLoopFlowExtension = branchCnec.getExtension(LoopFlowThreshold.class);
         when(cnecLoopFlowExtension.getThresholdWithReliabilityMargin(Unit.MEGAWATT)).thenReturn(inputThresholdWIthReliabilityMargin);
     }
 
-    private void setInitialLoopFLow(BranchCnec branchCnec, double initialLoopFLow) {
+    private void setInitialLoopFLow(FlowCnec branchCnec, double initialLoopFLow) {
         when(initialLoopFlows.getLoopFlow(branchCnec, Unit.MEGAWATT)).thenReturn(initialLoopFLow);
     }
 
-    private void setCurrentLoopFLow(BranchCnec branchCnec, double currentLoopFlow) {
+    private void setCurrentLoopFLow(FlowCnec branchCnec, double currentLoopFlow) {
         when(currentLoopFlows.getLoopFlow(branchCnec, Unit.MEGAWATT)).thenReturn(currentLoopFlow);
     }
 

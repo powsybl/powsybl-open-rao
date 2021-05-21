@@ -6,23 +6,18 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.PostContingencyState;
-import com.farao_community.farao.data.crac_impl.PreventiveState;
-import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -40,20 +35,52 @@ public class XnodeGlskHandlerTest {
         Network network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         ZonalData<LinearGlsk> glskZonalData = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/" + glskFileName)).getZonalGlsks(network, java.time.Instant.parse("2016-07-28T22:30:00Z"));
 
-        Set<NetworkElement> internalBranch = Collections.singleton(new NetworkElement("DDE1AA1  DDE3AA1  1"));
-        Set<NetworkElement> danglingLine = Collections.singleton(new NetworkElement("FFR1AA1  XLI_OB1B 1"));
+        Crac crac = CracFactory.findDefault().create("cracId");
 
-        State baseCase = new PreventiveState();
-        Contingency classicContingency = new ComplexContingency("internalBranch", internalBranch);
-        State contingencyClassic = new PostContingencyState(classicContingency, Instant.OUTAGE);
-        Contingency dlContingency = new ComplexContingency("danglingLine", danglingLine);
-        State contingencyDl = new PostContingencyState(dlContingency, Instant.OUTAGE);
+        Contingency classicContingency = crac.newContingency()
+            .withId("internalBranch")
+            .withNetworkElement("DDE1AA1  DDE3AA1  1")
+            .add();
 
-        BranchCnec cnec1 = new FlowCnecImpl("cnec1", new NetworkElement("ne"), "operator", baseCase, true, true, new HashSet<>(), 0.0);
-        BranchCnec cnec2 = new FlowCnecImpl("cnec2", new NetworkElement("ne"), "operator", contingencyClassic, true, true, new HashSet<>(), 0.0);
-        BranchCnec cnec3 = new FlowCnecImpl("cnec3", new NetworkElement("ne"), "operator", contingencyDl, true, true, new HashSet<>(), 0.0);
+        Contingency dlContingency = crac.newContingency()
+            .withId("danglingLine")
+            .withNetworkElement("FFR1AA1  XLI_OB1B 1")
+            .add();
 
-        Set<BranchCnec> cnecs = new HashSet<>(Arrays.asList(cnec1, cnec2, cnec3));
+        FlowCnec cnec1 = crac.newFlowCnec()
+            .withId("cnec1")
+            .withNetworkElement("anyNetworkElement")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_RIGHT_SIDE)
+                .withUnit(Unit.MEGAWATT)
+                .withMax(1000.0)
+                .add()
+            .add();
+
+        FlowCnec cnec2 = crac.newFlowCnec()
+            .withId("cnec2")
+            .withNetworkElement("anyNetworkElement")
+            .withInstant(Instant.OUTAGE)
+            .withContingency("internalBranch")
+                .newThreshold()
+                .withRule(BranchThresholdRule.ON_RIGHT_SIDE)
+                .withUnit(Unit.MEGAWATT)
+                .withMax(1000.0)
+                .add()
+            .add();
+
+        FlowCnec cnec3 = crac.newFlowCnec()
+            .withId("cnec3")
+            .withNetworkElement("anyNetworkElement")
+            .withInstant(Instant.OUTAGE)
+            .withContingency("danglingLine")
+            .newThreshold()
+                .withRule(BranchThresholdRule.ON_RIGHT_SIDE)
+                .withUnit(Unit.MEGAWATT)
+                .withMax(1000.0)
+                .add()
+            .add();
 
         XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glskZonalData, Set.of(classicContingency, dlContingency), network);
 

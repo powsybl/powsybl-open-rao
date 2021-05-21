@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_creator_api;
 
 import com.farao_community.farao.data.crac_creator_api.mock.CracCreatorMock;
 import com.farao_community.farao.data.crac_creator_api.mock.NativeCracMock;
+import com.farao_community.farao.data.crac_impl.CracImplFactory;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +55,12 @@ public class CracCreatorsTest {
 
         cracCreationContext = createCrac(new NativeCracMock(false), network, offsetDateTime);
         assertFalse(cracCreationContext.isCreationSuccessful());
+    }
+
+    @Test
+    public void testCreateCracWithFactory() {
+        CracCreationContext cracCreationContext = createCrac(new NativeCracMock(true), network, offsetDateTime, new CracImplFactory());
+        assertTrue(cracCreationContext.isCreationSuccessful());
     }
 
     @Test

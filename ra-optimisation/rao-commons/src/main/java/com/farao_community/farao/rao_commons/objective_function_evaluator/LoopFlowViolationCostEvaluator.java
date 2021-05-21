@@ -8,7 +8,8 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
@@ -48,9 +49,9 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     @Override
     public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
         double cost = loopflowCnecs
-            .stream()
-            .mapToDouble(cnec -> getLoopFlowExcess(branchResult, cnec) * loopFlowViolationCost)
-            .sum();
+                .stream()
+                .mapToDouble(cnec -> getLoopFlowExcess(branchResult, cnec) * loopFlowViolationCost)
+                .sum();
 
         if (cost > 0) {
             LOGGER.info("Some loopflow constraints are not respected.");
@@ -88,7 +89,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     private double getLoopFlowUpperBound(BranchCnec cnec) {
-        double loopFlowThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
+        double loopFlowThreshold = ((FlowCnec) cnec).getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
         double initialLoopFlow = initialLoopFLowResult.getLoopFlow(cnec, Unit.MEGAWATT);
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }

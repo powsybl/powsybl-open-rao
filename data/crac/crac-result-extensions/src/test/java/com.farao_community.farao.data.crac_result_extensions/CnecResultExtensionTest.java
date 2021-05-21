@@ -8,16 +8,7 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
-import com.farao_community.farao.data.crac_impl.cnec.FlowCnecImpl;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -42,15 +33,6 @@ public class CnecResultExtensionTest {
         // test variant deletion
         cnecResultExtension.deleteVariant("variant-before-opt");
         assertNull(cnecResultExtension.getVariant("variant-before-opt"));
-
-        // add extension to a Cnec
-        Set<BranchThreshold> thresholds = new HashSet<>();
-        BranchCnec cnec = new FlowCnecImpl("cnecId", new NetworkElement("networkElementId"), "operator",
-            Mockito.mock(State.class), true, false, thresholds, 0.);
-
-        cnec.addExtension(CnecResultExtension.class, cnecResultExtension);
-        CnecResultExtension ext = cnec.getExtension(CnecResultExtension.class);
-        assertNotNull(ext);
     }
 
     @Test

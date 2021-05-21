@@ -8,12 +8,13 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
+import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -27,7 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 /**
@@ -53,8 +55,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 0.
         );
-        CnecLoopFlowExtension cnecLoopFlowExtension = new CnecLoopFlowExtension(100.0, Unit.MEGAWATT);
-        cnec1.addExtension(CnecLoopFlowExtension.class, cnecLoopFlowExtension);
+        ((FlowCnec) cnec1).newExtension(LoopFlowThresholdAdder.class).withValue(100.).withUnit(Unit.MEGAWATT).add();
     }
 
     private void createMaxLoopFlowFiller(double initialLoopFlowValue) {

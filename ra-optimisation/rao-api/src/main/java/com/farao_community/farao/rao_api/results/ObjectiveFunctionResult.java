@@ -36,13 +36,7 @@ public interface ObjectiveFunctionResult {
      */
     double getFunctionalCost();
 
-    /**
-     * It gives an ordered list of the most constraining elements according to the objective function defined in
-     * the {@link RaoParameters}. They are evaluated and ordered from the functional costs of the different CNECs.
-     *
-     * @param number: The size of the list to be studied, so the number of limiting elements to be retrieved.
-     * @return The ordered list of the n first limiting elements.
-     */
+    // A voir dans l'implem si on stocke ou non
     List<BranchCnec> getMostLimitingElements(int number);
 
     /**

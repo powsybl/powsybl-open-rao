@@ -3,6 +3,9 @@ package com.farao_community.farao.search_tree_rao.output;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.results.*;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
 import com.powsybl.commons.extensions.Extension;
@@ -12,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILURE;
 
 public class PreventiveAndCurativesRaoOutput implements RaoResult {
     private PrePerimeterResult initialResult;
@@ -23,6 +28,17 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
         this.postPreventiveResult = postPreventiveResult;
         this.postCurativeResults = postCurativeResults.entrySet().stream().collect(
                 Collectors.toMap(Map.Entry::getKey, entry -> new PerimeterOutput(preCurativeResult, entry.getValue())));
+    }
+
+    @Override
+    public SensitivityStatus getComputationStatus() {
+        if (initialResult.getSensitivityStatus() == FAILURE
+                || postPreventiveResult.getSensitivityStatus() == FAILURE
+                || postCurativeResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
+            return FAILURE;
+        }
+        // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
+        return SensitivityStatus.DEFAULT;
     }
 
     @Override

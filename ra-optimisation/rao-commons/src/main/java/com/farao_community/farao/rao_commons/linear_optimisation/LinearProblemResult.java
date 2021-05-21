@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.results.LinearProblemStatus;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 
@@ -47,7 +47,7 @@ public class LinearProblemResult implements RangeActionResult {
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
-        return pstRangeAction.computeTapPosition(getOptimizedSetPoint(pstRangeAction));
+        return pstRangeAction.convertAngleToTap(getOptimizedSetPoint(pstRangeAction));
     }
 
     @Override

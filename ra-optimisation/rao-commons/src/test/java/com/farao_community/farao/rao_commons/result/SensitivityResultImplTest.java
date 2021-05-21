@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;

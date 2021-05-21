@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
@@ -44,39 +43,63 @@ public class RangeActionSensitivityProviderTest {
         network.getSubstation("BBE1AA").newVoltageLevel().setId("BBE1AA2").setNominalV(225).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         network.getVoltageLevel("BBE1AA2").getNodeBreakerView().newBusbarSection().setId("BB1").setNode(1).add();
 
-        Crac crac = CommonCracCreation.createWithPstRange();
-        ComplexContingency generatorContingency = new ComplexContingency("contingency-generator");
-        generatorContingency.addNetworkElement(new NetworkElement("BBE1AA1 _generator"));
-        ComplexContingency hvdcContingency = new ComplexContingency("contingency-hvdc");
-        hvdcContingency.addNetworkElement(new NetworkElement("HVDC1"));
-        ComplexContingency busbarSectionContingency = new ComplexContingency("contingency-busbar-section");
-        hvdcContingency.addNetworkElement(new NetworkElement("BB1"));
-        crac.addContingency(generatorContingency);
-        crac.addContingency(hvdcContingency);
-        crac.addContingency(busbarSectionContingency);
+        Crac crac = CommonCracCreation.createWithPreventivePstRange();
 
-        NetworkElement networkElement = crac.getBranchCnecs().iterator().next().getNetworkElement();
+        crac.newContingency()
+            .withId("contingency-generator")
+            .withNetworkElement("BBE1AA1 _generator")
+            .add();
 
-        crac.newBranchCnec()
-            .setId("generatorContingencyCnec")
-            .addNetworkElement(networkElement)
-            .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
-            .setInstant(Instant.CURATIVE)
-            .setContingency(generatorContingency)
+        crac.newContingency()
+            .withId("contingency-hvdc")
+            .withNetworkElement("HVDC1")
             .add();
-        crac.newBranchCnec()
-            .setId("hvdcContingencyCnec")
-            .addNetworkElement(networkElement)
-            .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
-            .setInstant(Instant.CURATIVE)
-            .setContingency(hvdcContingency)
+
+        crac.newContingency()
+            .withId("contingency-busbar-section")
+            .withNetworkElement("BB1")
             .add();
-        crac.newBranchCnec()
-            .setId("busbarContingencyCnec")
-            .addNetworkElement(networkElement)
-            .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
-            .setInstant(Instant.CURATIVE)
-            .setContingency(busbarSectionContingency)
+
+        crac.newFlowCnec()
+            .withId("generatorContingencyCnec")
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .newThreshold()
+                .withUnit(Unit.AMPERE)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-10.)
+                .withMax(10.)
+                .add()
+            .withNominalVoltage(380.)
+            .withInstant(Instant.CURATIVE)
+            .withContingency("contingency-generator")
+            .add();
+
+        crac.newFlowCnec()
+            .withId("hvdcContingencyCnec")
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .newThreshold()
+                .withUnit(Unit.AMPERE)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-10.)
+                .withMax(10.)
+                .add()
+            .withNominalVoltage(380.)
+            .withInstant(Instant.CURATIVE)
+            .withContingency("contingency-hvdc")
+            .add();
+
+        crac.newFlowCnec()
+            .withId("busbarContingencyCnec")
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .newThreshold()
+                .withUnit(Unit.AMPERE)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-10.)
+                .withMax(10.)
+                .add()
+            .withNominalVoltage(380.)
+            .withInstant(Instant.CURATIVE)
+            .withContingency("contingency-busbar-section")
             .add();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
@@ -94,18 +117,24 @@ public class RangeActionSensitivityProviderTest {
     @Test(expected = FaraoException.class)
     public void testFailureOnContingency() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.createWithPstRange();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange();
 
-        ComplexContingency busBreakerContingency = new ComplexContingency("contingency-fail");
-        busBreakerContingency.addNetworkElement(new NetworkElement("FFR3AA1"));
-        crac.addContingency(busBreakerContingency);
+        crac.newContingency()
+            .withId("contingency-fail")
+            .withNetworkElement("FFR3AA1")
+            .add();
 
-        crac.newBranchCnec()
-            .setId("failureCnec")
-            .newNetworkElement().setId("BBE1AA1  BBE3AA1  1").add()
-            .newThreshold().setUnit(Unit.AMPERE).setRule(BranchThresholdRule.ON_LEFT_SIDE).setMin(-10.).setMax(10.).add()
-            .setInstant(Instant.CURATIVE)
-            .setContingency(busBreakerContingency)
+        crac.newFlowCnec()
+            .withId("failureCnec")
+            .withNetworkElement("BBE1AA1  BBE3AA1  1")
+            .newThreshold()
+                .withUnit(Unit.AMPERE)
+                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+                .withMin(-10.)
+                .withMax(10.)
+                .add()
+            .withInstant(Instant.CURATIVE)
+            .withContingency("contingency-fail")
             .add();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(new HashSet<>(),
@@ -115,7 +144,7 @@ public class RangeActionSensitivityProviderTest {
 
     @Test
     public void factorsCracPstWithRange() {
-        Crac crac = CommonCracCreation.createWithPstRange();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange();
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(),
