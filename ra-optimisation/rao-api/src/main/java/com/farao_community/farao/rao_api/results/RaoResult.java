@@ -30,6 +30,8 @@ import java.util.Set;
  */
 public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
 
+    SensitivityStatus getComputationStatus();
+
     /**
      * It enables to access to a {@link PerimeterResult} which is a sub-representation of the {@link RaoResult}. Be
      * careful because some combinations of {@code optimizationState} and {@code state} can be quite tricky to

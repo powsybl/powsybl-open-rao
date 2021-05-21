@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
  */
 public interface PerimeterResult extends OptimizationResult {
 
-    PerimeterStatus getPerimeterStatus();
-
     /**
      * It gathers the {@link RangeAction} that are activated.
      *

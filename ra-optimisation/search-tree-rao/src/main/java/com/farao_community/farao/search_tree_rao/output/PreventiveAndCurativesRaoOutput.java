@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILURE;
+
 public class PreventiveAndCurativesRaoOutput implements RaoResult {
     private PrePerimeterResult initialResult;
     private PerimeterResult postPreventiveResult;
@@ -26,6 +28,17 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
         this.postPreventiveResult = postPreventiveResult;
         this.postCurativeResults = postCurativeResults.entrySet().stream().collect(
                 Collectors.toMap(Map.Entry::getKey, entry -> new PerimeterOutput(preCurativeResult, entry.getValue())));
+    }
+
+    @Override
+    public SensitivityStatus getComputationStatus() {
+        if (initialResult.getSensitivityStatus() == FAILURE
+                || postPreventiveResult.getSensitivityStatus() == FAILURE
+                || postCurativeResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
+            return FAILURE;
+        }
+        // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
+        return SensitivityStatus.DEFAULT;
     }
 
     @Override

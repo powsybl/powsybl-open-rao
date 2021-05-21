@@ -58,6 +58,18 @@ public class OneStateOnlyRaoOutput implements RaoResult {
     }
 
     @Override
+    public SensitivityStatus getComputationStatus() {
+        if (initialResult.getSensitivityStatus() == SensitivityStatus.FAILURE || postOptimizationResult.getSensitivityStatus() == SensitivityStatus.FAILURE) {
+            return SensitivityStatus.FAILURE;
+        }
+        if (initialResult.getSensitivityStatus() == postOptimizationResult.getSensitivityStatus()) {
+            return initialResult.getSensitivityStatus();
+        }
+        // TODO: specify what to return in case on is DEFAULT and the other one is FALLBACK
+        return SensitivityStatus.DEFAULT;
+    }
+
+    @Override
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
         if (!state.equals(optimizedState)) {
             // TODO : change this when getAppropriateResult will return a PerimeterResult (maybe throw an exception)

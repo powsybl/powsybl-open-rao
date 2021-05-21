@@ -12,10 +12,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.OptimizationState;
-import com.farao_community.farao.rao_api.results.PerimeterResult;
-import com.farao_community.farao.rao_api.results.PrePerimeterResult;
-import com.farao_community.farao.rao_api.results.RaoResult;
+import com.farao_community.farao.rao_api.results.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,6 +30,11 @@ import java.util.Set;
  */
 
 public class RaoResultImpl extends AbstractExtendable<RaoResultImpl> implements RaoResult<RaoResultImpl> {
+
+    @Override
+    public SensitivityStatus getComputationStatus() {
+        return null;
+    }
 
     @Override
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {

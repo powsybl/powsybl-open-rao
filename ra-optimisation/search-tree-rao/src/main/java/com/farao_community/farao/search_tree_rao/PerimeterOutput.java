@@ -23,11 +23,6 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public PerimeterStatus getPerimeterStatus() {
-        return null;
-    }
-
-    @Override
     public Set<RangeAction> getActivatedRangeActions() {
         return optimizationResult.getRangeActions().stream()
                 .filter(rangeAction -> prePerimeterResult.getOptimizedSetPoint(rangeAction) != optimizationResult.getOptimizedSetPoint(rangeAction))
