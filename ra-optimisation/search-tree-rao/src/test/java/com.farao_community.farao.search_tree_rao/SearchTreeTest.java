@@ -33,6 +33,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -246,7 +247,7 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void optimizeRootLeafWithTooManyRangeActions() throws Exception {
+    public void tooManyRangeActions() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
 
@@ -254,24 +255,14 @@ public class SearchTreeTest {
         raoWithRangeActionsForTso(tsoName);
         int maxPstOfTso = 1;
         setMaxPstPerTso(tsoName, maxPstOfTso);
+        mockRootLeafCost(5.);
 
-        Mockito.when(rootLeaf.getCost()).thenReturn(5.);
-        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(rootLeaf);
-        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction2)).thenReturn(3.);
+        searchTree.setTreeParameters(treeParameters);
+        searchTree.setAvailableRangeActions(availableRangeActions);
+        Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(rootLeaf);
 
-        /*SensitivityComputer sensitivityComputer = Mockito.mock(SensitivityComputer.class);
-        Set<RangeAction> rangeActionSet = Collections.singleton(rangeAction2);
-        Mockito.when(searchTreeComputer.getSensitivityComputer(rangeActionSet)).thenReturn(sensitivityComputer);
-        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
-        Mockito.when(searchTreeProblem.getLeafProblem(rangeActionSet)).thenReturn(leafProblem);
-        LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
-        Mockito.when(linearOptimizationResult.getRangeActions()).thenReturn(rangeActionSet);*/
-
-        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
-        assertEquals(3., result.getOptimizedSetPoint(rangeAction2), DOUBLE_TOLERANCE);
-        assertEquals(rootLeaf, result);
-        // assert result.getRangeActions().contains(rangeAction2); too difficult to mock
+        assert rangeActionsToOptimize.contains(rangeAction2);
+        assertFalse(rangeActionsToOptimize.contains(rangeAction1));
     }
 
     @Test
