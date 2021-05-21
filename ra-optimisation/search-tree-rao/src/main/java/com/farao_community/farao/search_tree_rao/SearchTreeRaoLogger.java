@@ -11,8 +11,6 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.ObjectiveFunctionResult;
-import com.farao_community.farao.rao_api.results.OptimizationResult;
 
 import java.text.DecimalFormat;
 import java.util.*;
