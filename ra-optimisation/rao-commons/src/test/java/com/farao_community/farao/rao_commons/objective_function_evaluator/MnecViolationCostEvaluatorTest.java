@@ -133,7 +133,6 @@ public class MnecViolationCostEvaluatorTest {
         assertEquals(0, evaluator.computeCost(currentBranchResult, Mockito.mock(SensitivityStatus.class)), 1e-12);
     }
 
-
     @Test
     public void testVirtualCostComputationInMW() {
         testCost(-100, 0, 0, 0);

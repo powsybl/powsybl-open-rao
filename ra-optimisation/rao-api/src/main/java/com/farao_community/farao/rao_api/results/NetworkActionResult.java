@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_api.results;
 
-import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 
 import java.util.Set;
 

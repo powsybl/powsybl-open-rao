@@ -8,8 +8,10 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
@@ -20,9 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
@@ -76,7 +81,7 @@ public class BestTapFinderTest {
     }
 
     private void setClosestTapPosition(PstRangeAction pstRangeAction, double setPoint, int tapPosition) {
-        when(pstRangeAction.computeTapPosition(setPoint)).thenReturn(tapPosition);
+        when(pstRangeAction.convertAngleToTap(setPoint)).thenReturn(tapPosition);
     }
 
     private void setMarginsForTap(PstRangeAction pstRangeAction, int tap, double marginForCnec1, double marginForCnec2) {
@@ -123,7 +128,7 @@ public class BestTapFinderTest {
 
     private PstRangeAction createPst() {
         PstRangeAction pst = Mockito.mock(PstRangeAction.class);
-        when(pst.getCurrentValue(network)).thenReturn(INITIAL_PST_SET_POINT);
+        when(pst.getCurrentSetpoint(network)).thenReturn(INITIAL_PST_SET_POINT);
         mockPstRangeAction(pst);
         setSensitivityValues(pst);
         return pst;
@@ -235,24 +240,6 @@ public class BestTapFinderTest {
         assertEquals(2, marginsForBestTaps.size());
         assertEquals(140, marginsForBestTaps.get(-1), DOUBLE_TOLERANCE);
         assertEquals(120, marginsForBestTaps.get(-2), DOUBLE_TOLERANCE);
-    }
-
-    @Before
-    public void setUp() {
-        network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CommonCracCreation.createWithPreventivePstRange();
-
-        pstRangeAction = (PstRangeAction) crac.getRangeAction("pst");
-
-        MPVariable mockVariable = Mockito.mock(MPVariable.class);
-        LinearProblem mockLp = Mockito.mock(LinearProblem.class);
-        Mockito.when(mockLp.getRangeActionSetPointVariable(pstRangeAction)).thenReturn(mockVariable);
-
-        systematicSensitivityResult = getMockSensiResult(crac);
-
-        Mockito.when(systematicSensitivityResult.getReferenceFlow(crac.getBranchCnec("cnec1basecase"))).thenReturn(3000.);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(pstRangeAction, crac.getBranchCnec("cnec1basecase"))).thenReturn(-250.);
-        Mockito.when(mockVariable.solutionValue()).thenReturn(6.);
     }
 
     @Test

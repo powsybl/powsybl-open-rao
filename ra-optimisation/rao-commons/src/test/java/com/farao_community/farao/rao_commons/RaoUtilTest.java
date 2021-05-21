@@ -11,9 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
@@ -30,7 +29,8 @@ import java.util.Arrays;
 
 import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
 import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -62,12 +62,6 @@ public class RaoUtilTest {
                 .withNetworkVariantId(variantId)
                 .withGlskProvider(glskProvider)
                 .build();
-    }
-
-    @Test
-    public void testThatRaoDataCreationSynchronizesCrac() {
-        RaoUtil.initCrac(crac, network);
-        assertTrue(crac.isSynchronized());
     }
 
     @Test(expected = FaraoException.class)

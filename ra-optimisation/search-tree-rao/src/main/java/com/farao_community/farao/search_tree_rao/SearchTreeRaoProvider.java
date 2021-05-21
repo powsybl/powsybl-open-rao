@@ -11,6 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputationWithXnodeGlskHandler;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -76,7 +78,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         RaoUtil.initData(raoInput, parameters);
 
-        stateTree = new StateTree(raoInput.getCrac(), raoInput.getNetwork(), raoInput.getCrac().getPreventiveState());
+        stateTree = new StateTree(raoInput.getCrac(), raoInput.getCrac().getPreventiveState());
         ToolProvider.ToolProviderBuilder toolProviderBuilder = ToolProvider.create()
                 .withNetwork(raoInput.getNetwork())
                 .withRaoParameters(parameters);
@@ -359,9 +361,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
         searchTreeInput.setNetwork(network);
         Set<BranchCnec> cnecs = computePerimeterCnecs(crac, perimeter);
         searchTreeInput.setCnecs(cnecs);
-        searchTreeInput.setNetworkActions(crac.getNetworkActions(network, optimizedState, UsageMethod.AVAILABLE));
+        searchTreeInput.setNetworkActions(crac.getNetworkActions(optimizedState, UsageMethod.AVAILABLE));
 
-        Set<RangeAction> rangeActions = crac.getRangeActions(network, optimizedState, UsageMethod.AVAILABLE);
+        Set<RangeAction> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE);
         removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterOutput, network);
         searchTreeInput.setRangeActions(rangeActions);
 
@@ -453,8 +455,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
         Set<RangeAction> rangeActionsToRemove = new HashSet<>();
         for (RangeAction rangeAction : rangeActions) {
             double preperimeterSetPoint = prePerimeterSetPoints.getOptimizedSetPoint(rangeAction);
-            double minSetPoint = rangeAction.getMinValue(network, preperimeterSetPoint);
-            double maxSetPoint = rangeAction.getMaxValue(network, preperimeterSetPoint);
+            double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
+            double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
             if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
                 LOGGER.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
                         rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);

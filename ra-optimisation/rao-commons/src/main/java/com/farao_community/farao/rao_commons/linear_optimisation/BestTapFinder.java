@@ -7,15 +7,17 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
-import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ValidationException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -139,7 +141,7 @@ public final class BestTapFinder {
                                                              List<BranchCnec> mostLimitingCnecs,
                                                              BranchResult branchResult,
                                                              SensitivityResult sensitivityResult) {
-        int closestTap = pstRangeAction.computeTapPosition(angle);
+        int closestTap = pstRangeAction.convertAngleToTap(angle);
         double closestAngle = pstRangeAction.convertTapToAngle(closestTap);
 
         Integer otherTap = null;
@@ -150,13 +152,13 @@ public final class BestTapFinder {
         boolean testTapPlus1 = true;
         try {
             pstRangeAction.convertTapToAngle(closestTap + 1);
-        } catch (FaraoException e) {
+        } catch (FaraoException | ValidationException e) {
             testTapPlus1 = false;
         }
         boolean testTapMinus1 = true;
         try {
             pstRangeAction.convertTapToAngle(closestTap - 1);
-        } catch (FaraoException e) {
+        } catch (FaraoException | ValidationException e) {
             testTapMinus1 = false;
         }
 
@@ -222,7 +224,7 @@ public final class BestTapFinder {
         double minMargin2 = Double.MAX_VALUE;
         for (BranchCnec cnec : cnecs) {
             double sensitivity = sensitivityResult.getSensitivityValue(cnec, pstRangeAction, MEGAWATT);
-            double currentSetPoint = pstRangeAction.getCurrentValue(network);
+            double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
             double referenceFlow = branchResult.getFlow(cnec, MEGAWATT);
 
             double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;

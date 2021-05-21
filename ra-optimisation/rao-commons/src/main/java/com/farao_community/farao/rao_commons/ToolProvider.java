@@ -11,10 +11,11 @@ import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataImpl;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -102,14 +103,18 @@ public final class ToolProvider {
         return loopFlowComputation;
     }
 
+    private boolean hasLoopFlowExtension(BranchCnec cnec) {
+        return !Objects.isNull(((FlowCnec) cnec).getExtension(LoopFlowThreshold.class));
+    }
+
     public Set<BranchCnec> getLoopFlowCnecs(Set<BranchCnec> allCnecs) {
         if (!raoParameters.getLoopflowCountries().isEmpty()) {
             return allCnecs.stream()
-                    .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
+                    .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
                     .collect(Collectors.toSet());
         } else {
             return allCnecs.stream()
-                    .filter(cnec -> !Objects.isNull(cnec.getExtension(CnecLoopFlowExtension.class)))
+                    .filter(this::hasLoopFlowExtension)
                     .collect(Collectors.toSet());
         }
     }

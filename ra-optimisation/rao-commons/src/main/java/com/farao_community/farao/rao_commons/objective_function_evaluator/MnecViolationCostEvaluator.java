@@ -12,8 +12,6 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_api.parameters.MnecParameters;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
-import com.farao_community.farao.rao_commons.adapter.SystematicSensitivityResultAdapter;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
 
 import java.util.*;
 import java.util.function.Function;
@@ -77,8 +75,8 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             sortedElements = cnecs.stream()
                     .filter(Cnec::isMonitored)
                     .collect(Collectors.toMap(
-                            Function.identity(),
-                            cnec -> computeCost(branchResult, cnec)
+                        Function.identity(),
+                        cnec -> computeCost(branchResult, cnec)
                     ))
                     .entrySet().stream()
                     .filter(entry -> entry.getValue() != 0)

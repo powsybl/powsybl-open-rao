@@ -10,6 +10,9 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -68,11 +71,11 @@ public class SearchTreeRaoProviderTest {
         when(crac.getBranchCnecs(state3)).thenReturn(Set.of(cnec3, cnec4));
 
         ra1 = Mockito.mock(RangeAction.class);
-        when(ra1.getMinValue(eq(network), anyDouble())).thenReturn(-5.);
-        when(ra1.getMaxValue(eq(network), anyDouble())).thenReturn(5.);
+        when(ra1.getMinAdmissibleSetpoint(anyDouble())).thenReturn(-5.);
+        when(ra1.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(5.);
         ra2 = Mockito.mock(RangeAction.class);
-        when(ra2.getMinValue(eq(network), anyDouble())).thenReturn(-3.);
-        when(ra2.getMaxValue(eq(network), anyDouble())).thenReturn(3.);
+        when(ra2.getMinAdmissibleSetpoint(anyDouble())).thenReturn(-3.);
+        when(ra2.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(3.);
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         when(prePerimeterResult.getOptimizedSetPoint(any())).thenReturn(-4.);
 
@@ -179,8 +182,8 @@ public class SearchTreeRaoProviderTest {
         PrePerimeterResult initialOutput = Mockito.mock(PrePerimeterResult.class);
 
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        when(crac.getNetworkActions(network, state1, UsageMethod.AVAILABLE)).thenReturn(Set.of(na1));
-        when(crac.getRangeActions(network, state1, UsageMethod.AVAILABLE)).thenReturn(new HashSet<>(Set.of(ra1, ra2)));
+        when(crac.getNetworkActions(state1, UsageMethod.AVAILABLE)).thenReturn(Set.of(na1));
+        when(crac.getRangeActions(state1, UsageMethod.AVAILABLE)).thenReturn(new HashSet<>(Set.of(ra1, ra2)));
 
         SearchTreeInput searchTreeInput = SearchTreeRaoProvider.buildSearchTreeInput(crac,
                 network,

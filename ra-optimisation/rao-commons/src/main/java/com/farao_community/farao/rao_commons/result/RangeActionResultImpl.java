@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.powsybl.iidm.network.Network;
 
@@ -34,7 +34,7 @@ public class RangeActionResultImpl implements RangeActionResult {
 
     public RangeActionResultImpl(Network network, Set<RangeAction> rangeActions) {
         this(rangeActions.stream()
-                .collect(Collectors.toMap(Function.identity(), rangeAction -> rangeAction.getCurrentValue(network))));
+                .collect(Collectors.toMap(Function.identity(), rangeAction -> rangeAction.getCurrentSetpoint(network))));
     }
 
     @Override
@@ -47,7 +47,7 @@ public class RangeActionResultImpl implements RangeActionResult {
         if (!setPoints.containsKey(pstRangeAction)) {
             throw new FaraoException(format("PST range action %s is not present in the result", pstRangeAction.getName()));
         }
-        return pstRangeAction.computeTapPosition(getOptimizedSetPoint(pstRangeAction));
+        return pstRangeAction.convertAngleToTap(getOptimizedSetPoint(pstRangeAction));
     }
 
     @Override

@@ -8,10 +8,7 @@ package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
-import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
@@ -19,6 +16,8 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Test;
+
+import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -38,12 +37,12 @@ public class XnodeGlskHandlerTest {
 
         Crac crac = CracFactory.findDefault().create("cracId");
 
-        crac.newContingency()
+        Contingency classicContingency = crac.newContingency()
             .withId("internalBranch")
             .withNetworkElement("DDE1AA1  DDE3AA1  1")
             .add();
 
-        crac.newContingency()
+        Contingency dlContingency = crac.newContingency()
             .withId("danglingLine")
             .withNetworkElement("FFR1AA1  XLI_OB1B 1")
             .add();
@@ -58,11 +57,6 @@ public class XnodeGlskHandlerTest {
                 .withMax(1000.0)
                 .add()
             .add();
-        State baseCase = new PreventiveState();
-        Contingency classicContingency = new ComplexContingency("internalBranch", internalBranch);
-        State contingencyClassic = new PostContingencyState(classicContingency, Instant.OUTAGE);
-        Contingency dlContingency = new ComplexContingency("danglingLine", danglingLine);
-        State contingencyDl = new PostContingencyState(dlContingency, Instant.OUTAGE);
 
         FlowCnec cnec2 = crac.newFlowCnec()
             .withId("cnec2")
@@ -88,7 +82,6 @@ public class XnodeGlskHandlerTest {
                 .add()
             .add();
 
-        XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glskZonalData, crac.getBranchCnecs(), network);
         XnodeGlskHandler xnodeGlskHandler = new XnodeGlskHandler(glskZonalData, Set.of(classicContingency, dlContingency), network);
 
         assertTrue(xnodeGlskHandler.isLinearGlskValidForCnec(cnec1, glskZonalData.getData("10YNL----------L")));

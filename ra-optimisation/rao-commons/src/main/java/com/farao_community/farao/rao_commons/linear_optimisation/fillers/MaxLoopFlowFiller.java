@@ -9,11 +9,11 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
-import com.farao_community.farao.rao_commons.adapter.SystematicSensitivityResultAdapter;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -159,7 +159,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     }
 
     private double getLoopFlowUpperBound(BranchCnec cnec) {
-        double loopFlowThreshold = cnec.getExtension(CnecLoopFlowExtension.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
+        double loopFlowThreshold = ((FlowCnec) cnec).getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
         double initialLoopFlow = initialBranchResult.getLoopFlow(cnec, Unit.MEGAWATT);
         return Math.max(0.0,
             Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient);

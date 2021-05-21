@@ -9,10 +9,11 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_loopflow_extension.CnecLoopFlowExtension;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -43,8 +44,8 @@ public class ToolProviderTest {
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         raoParameters = new RaoParameters();
-        cnec1 = Mockito.mock(BranchCnec.class);
-        cnec2 = Mockito.mock(BranchCnec.class);
+        cnec1 = Mockito.mock(FlowCnec.class);
+        cnec2 = Mockito.mock(FlowCnec.class);
         Mockito.when(cnec1.getLocation(network)).thenReturn(Set.of(Optional.of(Country.FR), Optional.of(Country.BE)));
         Mockito.when(cnec2.getLocation(network)).thenReturn(Set.of(Optional.empty()));
     }
@@ -134,11 +135,11 @@ public class ToolProviderTest {
                 .build();
         assertTrue(toolProvider.getLoopFlowCnecs(Set.of(cnec1, cnec2)).isEmpty());
 
-        Mockito.when(cnec1.getExtension(CnecLoopFlowExtension.class)).thenReturn(Mockito.mock(CnecLoopFlowExtension.class));
+        Mockito.when(cnec1.getExtension(LoopFlowThreshold.class)).thenReturn(Mockito.mock(LoopFlowThreshold.class));
         assertEquals(Set.of(cnec1), toolProvider.getLoopFlowCnecs(Set.of(cnec1, cnec2)));
         assertTrue(toolProvider.getLoopFlowCnecs(Set.of(cnec2)).isEmpty());
 
-        Mockito.when(cnec2.getExtension(CnecLoopFlowExtension.class)).thenReturn(Mockito.mock(CnecLoopFlowExtension.class));
+        Mockito.when(cnec2.getExtension(LoopFlowThreshold.class)).thenReturn(Mockito.mock(LoopFlowThreshold.class));
         assertEquals(Set.of(cnec1, cnec2), toolProvider.getLoopFlowCnecs(Set.of(cnec1, cnec2)));
         assertEquals(Set.of(cnec1), toolProvider.getLoopFlowCnecs(Set.of(cnec1)));
         assertEquals(Set.of(cnec2), toolProvider.getLoopFlowCnecs(Set.of(cnec2)));

@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class RangeActionResultImplTest {
     public void setUp() {
         rangeAction = Mockito.mock(RangeAction.class);
         pstRangeAction = Mockito.mock(PstRangeAction.class);
-        when(pstRangeAction.computeTapPosition(2.75)).thenReturn(4);
+        when(pstRangeAction.convertAngleToTap(2.75)).thenReturn(4);
     }
 
     @Test
@@ -51,8 +51,8 @@ public class RangeActionResultImplTest {
     @Test
     public void testInitWithNetwork() {
         Network network = Mockito.mock(Network.class);
-        when(rangeAction.getCurrentValue(network)).thenReturn(200.);
-        when(pstRangeAction.getCurrentValue(network)).thenReturn(2.75);
+        when(rangeAction.getCurrentSetpoint(network)).thenReturn(200.);
+        when(pstRangeAction.getCurrentSetpoint(network)).thenReturn(2.75);
 
         RangeActionResultImpl rangeActionResultImpl = new RangeActionResultImpl(network, Set.of(rangeAction, pstRangeAction));
         checkContents(rangeActionResultImpl);
