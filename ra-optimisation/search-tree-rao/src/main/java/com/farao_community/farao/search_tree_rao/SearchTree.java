@@ -71,6 +71,14 @@ public class SearchTree {
         previousDepthOptimalLeaf = rootLeaf;
     }
 
+    void setTreeParameters(TreeParameters parameters) {
+        treeParameters = parameters;
+    }
+
+    void setAvailableRangeActions(Set<RangeAction> rangeActions) {
+        availableRangeActions = rangeActions;
+    }
+
     /**
      * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
      * the least impact on the most limiting element
@@ -120,7 +128,7 @@ public class SearchTree {
         this.bloomer = searchTreeInput.getSearchTreeBloomer();
         this.objectiveFunction = searchTreeInput.getObjectiveFunction();
         this.iteratingLinearOptimizer = searchTreeInput.getIteratingLinearOptimizer();
-        this.treeParameters = treeParameters;
+        setTreeParameters(treeParameters);
         this.linearOptimizerParameters = linearOptimizerParameters;
         initLeaves();
 
