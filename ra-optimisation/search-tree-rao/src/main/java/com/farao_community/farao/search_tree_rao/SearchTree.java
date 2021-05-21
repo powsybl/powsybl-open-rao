@@ -75,10 +75,10 @@ public class SearchTree {
      * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
      * the least impact on the most limiting element
      */
-    Set<RangeAction> getRangeActionsToOptimize(SensitivityResult sensitivityResult, Set<NetworkAction> networkActions, BranchCnec mostLimitingElement) {
+    Set<RangeAction> getRangeActionsToOptimize(Leaf leaf) {
         Map<String, Integer> maxPstPerTso = new HashMap<>(treeParameters.getMaxPstPerTso());
         treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
-            int appliedNetworkActionsForTso = (int) networkActions.stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
+            int appliedNetworkActionsForTso = (int) leaf.getNetworkActions().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
             int pstLimit =  raLimit - appliedNetworkActionsForTso;
             maxPstPerTso.put(tso, Math.min(pstLimit, maxPstPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
         });
@@ -92,7 +92,7 @@ public class SearchTree {
                 if (pstsForTso.size() > maxPst) {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
                     rangeActionsToOptimize.addAll(pstsForTso.stream()
-                            .sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, sensitivityResult))
+                            .sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
                             .collect(Collectors.toList()).subList(pstsForTso.size() - maxPst, pstsForTso.size()));
                 } else {
                     rangeActionsToOptimize.addAll(pstsForTso);
@@ -267,7 +267,7 @@ public class SearchTree {
     }
 
     private void optimizeLeaf(Leaf leaf, BranchResult baseBranchResult) {
-        Set<RangeAction> rangeActions = getRangeActionsToOptimize(leaf, leaf.getNetworkActions(), leaf.getMostLimitingElements(1).get(0));
+        Set<RangeAction> rangeActions = getRangeActionsToOptimize(leaf);
         if (!rangeActions.isEmpty()) {
             leaf.optimize(
                     iteratingLinearOptimizer,
