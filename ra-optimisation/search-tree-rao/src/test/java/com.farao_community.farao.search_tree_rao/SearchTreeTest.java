@@ -7,8 +7,11 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.PstRangeAction;
 import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.results.OptimizationResult;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
@@ -30,8 +33,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -52,6 +54,9 @@ public class SearchTreeTest {
     private Network network;
     private NetworkAction networkAction;
     private Set<NetworkAction> availableNetworkActions;
+    private RangeAction rangeAction1;
+    private RangeAction rangeAction2;
+    private RangeAction rangeAction3;
     private Set<RangeAction> availableRangeActions;
     private PrePerimeterResult prePerimeterOutput;
     private SearchTreeComputer searchTreeComputer;
@@ -70,12 +75,13 @@ public class SearchTreeTest {
     private LinearOptimizerParameters linearOptimizerParameters;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         searchTree = new SearchTree();
         setSearchTreeInput();
         treeParameters = Mockito.mock(TreeParameters.class);
         setTreeParameters();
         linearOptimizerParameters = Mockito.mock(LinearOptimizerParameters.class);
+        mockNetworkPool(network);
 
     }
 
@@ -86,7 +92,7 @@ public class SearchTreeTest {
         Mockito.when(treeParameters.getLeavesInParallel()).thenReturn(leavesInParallel);
     }
 
-    private void setSearchTreeInput() {
+    private void setSearchTreeInput() throws Exception {
         searchTreeInput = Mockito.mock(SearchTreeInput.class);
         network = Mockito.mock(Network.class);
         Mockito.when(searchTreeInput.getNetwork()).thenReturn(network);
@@ -109,6 +115,7 @@ public class SearchTreeTest {
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         Mockito.when(searchTreeInput.getIteratingLinearOptimizer()).thenReturn(iteratingLinearOptimizer);
         rootLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNetworkActions);
     }
 
     private void mockNativeLibraryLoader() {
@@ -151,7 +158,20 @@ public class SearchTreeTest {
     @Test
     public void runAndOptimizeOnlyRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+        Mockito.when(rootLeaf.getCost()).thenReturn(2.);
+        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(rootLeaf);
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        assertEquals(rootLeaf, result);
+        assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void rootLeafMeetsTargetObjectiveValue() throws Exception {
+        raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(3.);
+        searchTreeWithOneChildLeaf();
         Mockito.when(rootLeaf.getCost()).thenReturn(4., 2.);
         Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(rootLeaf);
@@ -187,15 +207,6 @@ public class SearchTreeTest {
         Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         PowerMockito.whenNew(Leaf.class).withArguments(network, prePerimeterOutput).thenReturn(rootLeaf);
 
-        Mockito.when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNetworkActions);
-
-        VariantManager variantManager = Mockito.mock(VariantManager.class);
-        String workingVariantId = "ID";
-        Mockito.when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
-        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
-        MockedFaraoNetworkPool faraoNetworkPool = new MockedFaraoNetworkPool(network, workingVariantId, leavesInParallel);
-        PowerMockito.whenNew(FaraoNetworkPool.class).withArguments(network, workingVariantId, 1).thenReturn(faraoNetworkPool);
-
         Leaf childLeaf = Mockito.mock(Leaf.class);
         Mockito.when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         PowerMockito.whenNew(Leaf.class).withArguments(network, rootLeaf.getNetworkActions(), networkAction, rootLeaf).thenReturn(childLeaf);
@@ -203,6 +214,126 @@ public class SearchTreeTest {
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(rootLeaf, result);
         assertEquals(4., result.getCost(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void runAndIterateOnTreeWithABetterChildLeaf() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+        searchTreeWithOneChildLeaf();
+        Leaf childLeaf = Mockito.mock(Leaf.class);
+
+        double rootLeafCostAfterOptim = 4.;
+        double childLeafCostAfterOptim = 3.;
+
+        mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
+
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        assertEquals(childLeaf, result);
+    }
+
+    @Test
+    public void runAndIterateOnTreeWithAWorseChildLeaf() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+        searchTreeWithOneChildLeaf();
+        Leaf childLeaf = Mockito.mock(Leaf.class);
+
+        double rootLeafCostAfterOptim = 4.;
+        double childLeafCostAfterOptim = 5.;
+
+        mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
+
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        assertEquals(rootLeaf, result);
+    }
+
+    @Test
+    public void optimizeRootLeafWithTooManyRangeActions() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+
+        String tsoName = "TSO";
+        raoWithRangeActionsForTso(tsoName);
+        int maxPstOfTso = 1;
+        setMaxPstPerTso(tsoName, maxPstOfTso);
+
+        Mockito.when(rootLeaf.getCost()).thenReturn(5.);
+        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(rootLeaf);
+        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction2)).thenReturn(3.);
+
+        /*SensitivityComputer sensitivityComputer = Mockito.mock(SensitivityComputer.class);
+        Set<RangeAction> rangeActionSet = Collections.singleton(rangeAction2);
+        Mockito.when(searchTreeComputer.getSensitivityComputer(rangeActionSet)).thenReturn(sensitivityComputer);
+        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
+        Mockito.when(searchTreeProblem.getLeafProblem(rangeActionSet)).thenReturn(leafProblem);
+        LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
+        Mockito.when(linearOptimizationResult.getRangeActions()).thenReturn(rangeActionSet);*/
+
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        assertEquals(3., result.getOptimizedSetPoint(rangeAction2), DOUBLE_TOLERANCE);
+        assertEquals(rootLeaf, result);
+        // assert result.getRangeActions().contains(rangeAction2); too difficult to mock
+    }
+
+    @Test
+    public void optimizeRootLeafWithRangeActions() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+
+        String tsoName = "TSO";
+        raoWithRangeActionsForTso(tsoName);
+        int maxPstOfTso = 2;
+        setMaxPstPerTso(tsoName, maxPstOfTso);
+
+        mockRootLeafCost(5.);
+        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction2)).thenReturn(3.);
+
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        assertEquals(3., result.getOptimizedSetPoint(rangeAction2), DOUBLE_TOLERANCE);
+    }
+
+    private void raoWithRangeActionsForTso(String tsoName) {
+        rangeAction1 = Mockito.mock(PstRangeAction.class);
+        rangeAction2 = Mockito.mock(PstRangeAction.class);
+        Mockito.when(rangeAction1.getOperator()).thenReturn(tsoName);
+        Mockito.when(rangeAction2.getOperator()).thenReturn(tsoName);
+        availableRangeActions.add(rangeAction1);
+        availableRangeActions.add(rangeAction2);
+
+        BranchCnec mostLimitingElement = Mockito.mock(BranchCnec.class);
+        Mockito.when(rootLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
+        Mockito.when(rootLeaf.getSensitivityValue(mostLimitingElement, rangeAction1, Unit.MEGAWATT)).thenReturn(1.);
+        Mockito.when(rootLeaf.getSensitivityValue(mostLimitingElement, rangeAction2, Unit.MEGAWATT)).thenReturn(2.);
+    }
+
+    private void mockRootLeafCost(double cost) throws Exception {
+        Mockito.when(rootLeaf.getCost()).thenReturn(cost);
+        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        PowerMockito.whenNew(Leaf.class).withArguments(network, prePerimeterOutput).thenReturn(rootLeaf);
+    }
+
+    private void setMaxPstPerTso(String tsoName, int maxPstOfTso) {
+        Map<String, Integer> maxPstPerTso = new HashMap<>();
+        maxPstPerTso.put(tsoName, maxPstOfTso);
+        Mockito.when(treeParameters.getMaxPstPerTso()).thenReturn(maxPstPerTso);
+    }
+
+    private void mockLeafsCosts(double rootLeafCostAfterOptim, double childLeafCostAfterOptim, Leaf childLeaf) throws Exception {
+        mockRootLeafCost(rootLeafCostAfterOptim);
+        Mockito.when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        Mockito.when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
+        PowerMockito.whenNew(Leaf.class).withArguments(network, rootLeaf.getNetworkActions(), networkAction, rootLeaf).thenReturn(childLeaf);
+    }
+
+    private void mockNetworkPool(Network network) throws Exception {
+        VariantManager variantManager = Mockito.mock(VariantManager.class);
+        String workingVariantId = "ID";
+        Mockito.when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
+        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+        MockedFaraoNetworkPool faraoNetworkPool = new MockedFaraoNetworkPool(network, workingVariantId, leavesInParallel);
+        PowerMockito.whenNew(FaraoNetworkPool.class).withArguments(network, workingVariantId, 1).thenReturn(faraoNetworkPool);
     }
 
     private void searchTreeWithOneChildLeaf() {
