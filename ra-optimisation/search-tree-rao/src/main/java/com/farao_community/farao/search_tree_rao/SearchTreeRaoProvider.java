@@ -154,9 +154,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         RaoResult mergedRaoResults = mergeRaoResults(initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, curativeResults);
 
         // log results
-        /*if (mergedRaoResults.isSuccessful()) {
-            SearchTreeRaoLogger.logMostLimitingElementsResults(raoInput.getCrac().getBranchCnecs(), mergedRaoResults.getPostOptimVariantId(), parameters.getObjectiveFunction().getUnit(), parameters.getObjectiveFunction().relativePositiveMargins(), NUMBER_LOGGED_ELEMENTS_END_RAO);
-        }*/
+        // TODO: find a way to display merged limiting elements from a RaoResult
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
 

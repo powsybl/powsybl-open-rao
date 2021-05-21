@@ -8,7 +8,6 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -55,7 +54,7 @@ public class AbsolutePtdfSumsComputationTest {
             new ZoneToZonePtdfDefinition("{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.any(BranchCnec.class)))
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.any(FlowCnec.class)))
             .thenAnswer(
                 new Answer<Double>() {
                     @Override public Double answer(InvocationOnMock invocation) {

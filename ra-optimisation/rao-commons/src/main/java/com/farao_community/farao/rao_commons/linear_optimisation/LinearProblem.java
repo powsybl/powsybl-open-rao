@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.farao_community.farao.rao_commons.linear_optimisation.LinearProbelmIdGenerator.*;
+import static com.farao_community.farao.rao_commons.linear_optimisation.LinearProblemIdGenerator.*;
 import static java.lang.String.format;
 
 /**

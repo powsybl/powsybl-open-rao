@@ -147,7 +147,6 @@ class Leaf implements OptimizationResult {
     void optimize(IteratingLinearOptimizer iteratingLinearOptimizer,
                   SensitivityComputer sensitivityComputer,
                   LeafProblem leafProblem) {
-        //todo: do not forget to test if there are range actions to optimize before launching this method
         if (status.equals(Status.EVALUATED)) {
             LOGGER.debug("Optimizing leaf...");
             LinearProblem linearProblem = leafProblem.getLinearProblem(

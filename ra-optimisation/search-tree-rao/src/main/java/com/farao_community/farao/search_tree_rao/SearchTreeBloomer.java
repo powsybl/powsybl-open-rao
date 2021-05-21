@@ -8,10 +8,10 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.CountryGraph;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -156,7 +156,7 @@ public final class SearchTreeBloomer {
     }
 
     private Set<Optional<Country>> getOptimizedMostLimitingElementLocation(Leaf leaf) {
-        BranchCnec cnec = leaf.getMostLimitingElements(1).get(0);
+        FlowCnec cnec = leaf.getMostLimitingElements(1).get(0);
         return cnec.getLocation(network);
     }
 }

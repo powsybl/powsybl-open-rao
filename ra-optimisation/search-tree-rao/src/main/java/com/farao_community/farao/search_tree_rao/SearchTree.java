@@ -137,13 +137,6 @@ public class SearchTree {
             SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, linearOptimizerParameters.getUnit(),
                     linearOptimizerParameters.hasRelativeMargins(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
         }
-        // todo: put somewhere else
-        /*else if (linearOptimizerParameters.hasOperatorsNotToOptimize() && noCnecToOptimize(linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize())) {
-            LOGGER.info("All CNECs belong to operators that are not being optimized. The search tree will stop.");
-            SearchTreeRaoLogger.logMostLimitingElementsResults(rootLeaf, linearOptimizerParameters.getUnit(),
-                    linearOptimizerParameters.hasRelativeMargins(), NUMBER_LOGGED_ELEMENTS_END_TREE);
-            return CompletableFuture.completedFuture(rootLeaf);
-        }*/
 
         LOGGER.info("Linear optimization on root leaf");
         optimizeLeaf(rootLeaf, prePerimeterOutput);
@@ -165,18 +158,6 @@ public class SearchTree {
                 linearOptimizerParameters.hasRelativeMargins(), NUMBER_LOGGED_ELEMENTS_END_TREE);
         return CompletableFuture.completedFuture(optimalLeaf);
     }
-
-    /**
-     * If all CNECs belong to operators not being optimized, then we can stop optimization after root leaf evaluation
-     */
-    //todo: put somewhere else, in the provider ?
-    /*boolean noCnecToOptimize(Set<String> operatorsNotToOptimize) {
-        if (Objects.isNull(operatorsNotToOptimize)) {
-            return false;
-        } else {
-            return searchTreeInput.getCnecs().stream().noneMatch(cnec -> !operatorsNotToOptimize.contains(cnec.getOperator()));
-        }
-    }*/
 
     private void iterateOnTree() {
         int depth = 0;

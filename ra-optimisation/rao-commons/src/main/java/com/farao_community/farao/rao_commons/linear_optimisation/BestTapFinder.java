@@ -49,6 +49,7 @@ public final class BestTapFinder {
                                          List<FlowCnec> mostLimitingCnecs,
                                          FlowResult flowResult,
                                          SensitivityResult sensitivityResult) {
+        // TODO: network could be replaced by the previous RangeActionResult
         Map<PstRangeAction, Integer> bestTaps = new HashMap<>();
         Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 

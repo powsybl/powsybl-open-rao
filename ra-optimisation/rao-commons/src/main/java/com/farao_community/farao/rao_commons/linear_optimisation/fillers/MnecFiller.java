@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -102,9 +101,9 @@ public class MnecFiller implements ProblemFiller {
     }
 
     public void fillObjectiveWithMnecPenaltyCost(LinearProblem linearProblem) {
-        getMonitoredCnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec ->
+        getMonitoredCnecs().stream().filter(FlowCnec::isMonitored).forEach(mnec ->
             linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec),
-                    RaoUtil.getBranchFlowUnitMultiplier(mnec, Side.LEFT, MEGAWATT, unit) * mnecViolationCost)
+                    RaoUtil.getFlowUnitMultiplier(mnec, Side.LEFT, MEGAWATT, unit) * mnecViolationCost)
         );
     }
 }

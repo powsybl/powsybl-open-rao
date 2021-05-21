@@ -12,7 +12,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class BranchThresholdAdderImplTest {
 
     @Test
     public void testAddThresholdInMW() {
-        BranchCnec<?> cnec = crac.newFlowCnec()
+        FlowCnec cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("neID")
             .newThreshold().withUnit(Unit.MEGAWATT).withMin(-250.0).withMax(1000.0).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -47,7 +47,7 @@ public class BranchThresholdAdderImplTest {
 
     @Test
     public void testAddThresholdInA() {
-        BranchCnec<?>  cnec = crac.newFlowCnec()
+        FlowCnec  cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.OUTAGE).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withMax(1000.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
@@ -59,7 +59,7 @@ public class BranchThresholdAdderImplTest {
 
     @Test
     public void testAddThresholdInPercent() {
-        BranchCnec<?>  cnec = crac.newFlowCnec()
+        FlowCnec  cnec = crac.newFlowCnec()
             .withId("test-cnec").withInstant(Instant.CURATIVE).withContingency(contingency.getId())
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withMin(-0.8).withMax(0.5).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()

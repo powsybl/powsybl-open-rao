@@ -20,9 +20,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This class aims at performing the initial sensitivity analysis of a RAO, the one
- * which defines the pre-optimisation variant. It is common to both the Search Tree
- * and the Linear RAO.
+ * This class aims at performing the sensitivity analysis before the optimization of a perimeter. At these specific
+ * instants we actually want to compute all the results on the network. They will be useful either for the optimization
+ * or to fill results in the final output.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -35,8 +35,6 @@ public class PrePerimeterSensitivityAnalysis {
     private SensitivityComputer sensitivityComputer;
 
     public PrePerimeterSensitivityAnalysis(Crac crac, ToolProvider toolProvider, RaoParameters raoParameters) {
-        // it is actually quite strange to ask for a RaoData here, but it is required in
-        // order to use the fillResultsWithXXX() methods of the CracResultManager.
         this.toolProvider = toolProvider;
         flowCnecs = crac.getFlowCnecs();
         rangeActions = new HashSet<>();

@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public final class LinearProbelmIdGenerator {
+public final class LinearProblemIdGenerator {
     private static final String VARIABLE_SUFFIX = "variable";
     private static final String CONSTRAINT_SUFFIX = "constraint";
     private static final String SEPARATOR = "_";
@@ -30,7 +30,7 @@ public final class LinearProbelmIdGenerator {
     private static final String MNEC_FLOW = "mnecflow";
     private static final String MARGIN_DECREASE = "margindecrease";
 
-    private LinearProbelmIdGenerator() {
+    private LinearProblemIdGenerator() {
         // Should not be instantiated
     }
 

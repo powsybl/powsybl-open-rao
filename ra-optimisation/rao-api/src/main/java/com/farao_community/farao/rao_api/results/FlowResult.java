@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_api.results;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 import java.util.Map;
@@ -21,7 +20,7 @@ import java.util.Map;
 public interface FlowResult {
 
     /**
-     * It gives the flow on a {@link BranchCnec} and in a given {@link Unit}.
+     * It gives the flow on a {@link FlowCnec} and in a given {@link Unit}.
      *
      * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
@@ -30,7 +29,7 @@ public interface FlowResult {
     double getFlow(FlowCnec flowCnec, Unit unit);
 
     /**
-     * It gives the margin on a {@link BranchCnec} in a given {@link Unit}. It is basically the difference between the
+     * It gives the margin on a {@link FlowCnec} in a given {@link Unit}. It is basically the difference between the
      * flow and the most constraining threshold in the flow direction of the given branch. If it is negative the branch
      * is under constraint.
      *
@@ -43,7 +42,7 @@ public interface FlowResult {
     }
 
     /**
-     * It gives the relative margin (according to CORE D-2 CC methodology) on a {@link BranchCnec} in a given
+     * It gives the relative margin (according to CORE D-2 CC methodology) on a {@link FlowCnec} in a given
      * {@link Unit}. If the margin is negative it gives it directly (same value as {@code getMargin} method. If the
      * margin is positive it gives this value divided by the sum of the zonal PTDFs on this branch of the studied zone.
      * Zones to include in this computation are defined in the {@link RaoParameters}. If it is negative the branch is
@@ -63,7 +62,7 @@ public interface FlowResult {
     }
 
     /**
-     * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link BranchCnec} in a given
+     * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} in a given
      * {@link Unit}. If the branch is not considered as a branch on which the loop flows are monitored, this method
      * could return {@code Double.NaN} values.
      *
@@ -74,7 +73,7 @@ public interface FlowResult {
     double getCommercialFlow(FlowCnec flowCnec, Unit unit);
 
     /**
-     * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link BranchCnec} in a given
+     * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} in a given
      * {@link Unit}. If the branch is not considered as a branch on which the loop flows are monitored, this method
      * could return {@code Double.NaN} values.
      *
@@ -87,7 +86,7 @@ public interface FlowResult {
     }
 
     /**
-     * It gives the sum of the computation areas' zonal PTDFs on a {@link BranchCnec}. If the computation does not
+     * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec}. If the computation does not
      * consider PTDF values or if the {@link RaoParameters} does not define any list of considered areas, this method
      * could return {@code Double.NaN} values.
      *
@@ -97,7 +96,7 @@ public interface FlowResult {
     double getPtdfZonalSum(FlowCnec flowCnec);
 
     /**
-     * It gives a map of the sums of the computation areas' zonal PTDFs for each {@link BranchCnec}. If the computation
+     * It gives a map of the sums of the computation areas' zonal PTDFs for each {@link FlowCnec}. If the computation
      * does not consider PTDF values or if the {@link RaoParameters} does not define any list of considered areas, this
      * method could return a map containing {@code Double.NaN} values.
      *

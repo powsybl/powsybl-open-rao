@@ -224,6 +224,7 @@ public class IteratingLinearOptimizerTest {
 
     }
 
+    // TODO: check what to do with these commented tests
     /*@Test
     public void testRemoveRangeActionsIfMaxNumberReached() {
         PstRangeActionImpl rangeActionToRemove = new PstRangeActionImpl("PRA_PST_BE_2", "PRA_PST_BE_2", "BE", new NetworkElement("BBE2AA1  BBE3AA1  1"));
