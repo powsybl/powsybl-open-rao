@@ -14,11 +14,14 @@ import com.farao_community.farao.rao_api.results.LinearProblemStatus;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
+import com.farao_community.farao.util.NativeLibraryLoader;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -30,6 +33,16 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class LinearProblem {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinearProblem.class);
+
+    static {
+        try {
+            NativeLibraryLoader.loadNativeLibrary("jniortools");
+        } catch (Exception e) {
+            LOGGER.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+        }
+    }
+
     public enum AbsExtension {
         POSITIVE,
         NEGATIVE
