@@ -57,6 +57,7 @@ public class OneStateOnlyRaoOutput implements RaoResult {
     @Override
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
         if (!state.equals(optimizedState)) {
+            // TODO : change this when getAppropriateResult will return a PerimeterResult (maybe throw an exception)
             return null;
         }
         return new PerimeterOutput(initialResult, postOptimizationResult);
@@ -65,7 +66,8 @@ public class OneStateOnlyRaoOutput implements RaoResult {
     @Override
     public PerimeterResult getPostPreventivePerimeterResult() {
         if (!optimizedState.getInstant().equals(Instant.PREVENTIVE)) {
-            return null;
+            // TODO : review this also
+            throw new FaraoException("Trying to access perimeter result for the wrong state.");
         }
         return new PerimeterOutput(initialResult, postOptimizationResult);
     }

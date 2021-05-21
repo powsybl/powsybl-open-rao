@@ -371,7 +371,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 prePerimeterOutput,
                 raoParameters,
                 linearOptimizerParameters,
-                toolProvider.getLoopFlowCnecs(cnecs)
+                toolProvider
         );
         searchTreeInput.setObjectiveFunction(objectiveFunction);
         searchTreeInput.setIteratingLinearOptimizer(new IteratingLinearOptimizer(objectiveFunction, raoParameters.getMaxIterations()));
@@ -411,7 +411,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                                                      BranchResult prePerimeterBranchResult,
                                                      RaoParameters raoParameters,
                                                      LinearOptimizerParameters linearOptimizerParameters,
-                                                     Set<BranchCnec> loopFlowCnecs) {
+                                                     ToolProvider toolProvider) {
         ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder = ObjectiveFunction.create();
         ObjectiveFunctionHelper.addMinMarginObjectiveFunction(cnecs, prePerimeterBranchResult, objectiveFunctionBuilder, linearOptimizerParameters);
         // TODO : replace this test with a dedicated parameter in RaoParameters
@@ -424,7 +424,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             objectiveFunctionBuilder.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
-                    loopFlowCnecs,
+                    toolProvider.getLoopFlowCnecs(cnecs),
                     initialBranchResult,
                     raoParameters.getLoopFlowParameters()
             ));

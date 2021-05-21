@@ -1,5 +1,6 @@
 package com.farao_community.farao.search_tree_rao.output;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.OptimizationState;
@@ -15,130 +16,129 @@ import java.util.Set;
 
 public class FailedRaoOutput implements RaoResult {
     //TODO: add optimization status (failed for this implem)
-    //TODO: copy syntax for failed iterating for the error thrown (and throw error for each method
 
     @Override
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public PerimeterResult getPostPreventivePerimeterResult() {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public PrePerimeterResult getInitialResult() {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
-        return 0;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public List<BranchCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public double getVirtualCost(OptimizationState optimizationState) {
-        return 0;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
-        return 0;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public List<BranchCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
-        return false;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        return false;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
-        return false;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        return 0;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        return 0;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
-        return 0;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
-        return 0;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public void addExtension(Class aClass, Extension extension) {
-
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public Extension getExtension(Class aClass) {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public Extension getExtensionByName(String s) {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public boolean removeExtension(Class aClass) {
-        return false;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 
     @Override
     public Collection getExtensions() {
-        return null;
+        throw new FaraoException("Should not be used: the RAO failed.");
     }
 }
