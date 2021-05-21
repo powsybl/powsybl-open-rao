@@ -16,14 +16,11 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.BranchResult;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_commons.ToolProvider;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginEvaluator;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.util.*;
 
@@ -32,10 +29,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-@PrepareForTest({SearchTreeRaoProvider.class, ObjectiveFunctionHelper.class, MinMarginEvaluator.class})
 public class SearchTreeRaoProviderTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Crac crac;
@@ -119,43 +114,37 @@ public class SearchTreeRaoProviderTest {
 
     @Test
     public void testCreateObjectiveFunction() throws Exception {
-        MinMarginEvaluator minMarginEvaluator = Mockito.mock(MinMarginEvaluator.class);
-        when(minMarginEvaluator.computeCost(any(), any())).thenReturn(67.);
-        PowerMockito.whenNew(MinMarginEvaluator.class).withAnyArguments().thenReturn(minMarginEvaluator);
         RaoParameters raoParameters = new RaoParameters();
         ObjectiveFunction objFun;
+        ToolProvider toolProvider = Mockito.mock(ToolProvider.class);
+        when(toolProvider.getLoopFlowCnecs(any())).thenReturn(new HashSet<>());
 
         // no virtual cost (except for sensi fallback)
         raoParameters.setMnecViolationCost(0);
         raoParameters.setRaoWithLoopFlowLimitation(false);
-        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), new HashSet<>());
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
-        // TODO : how to test functional cost ?
-        //assertEquals(67., objFun.getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
         assertEquals(Set.of("sensitivity-fallback-cost"), objFun.getVirtualCostNames());
 
         // mnec virtual cost
         raoParameters.setMnecViolationCost(1);
         raoParameters.setRaoWithLoopFlowLimitation(false);
-        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), new HashSet<>());
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
-        //assertEquals(67., objFun.getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
         assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost"), objFun.getVirtualCostNames());
 
         // lf cost
         raoParameters.setMnecViolationCost(0);
         raoParameters.setRaoWithLoopFlowLimitation(true);
-        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), new HashSet<>());
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
-        //assertEquals(67., objFun.getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
         assertEquals(Set.of("sensitivity-fallback-cost", "loop-flow-cost"), objFun.getVirtualCostNames());
 
         // mnec and lf costs
         raoParameters.setMnecViolationCost(-1);
         raoParameters.setRaoWithLoopFlowLimitation(true);
-        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), new HashSet<>());
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
-        //assertEquals(67., objFun.getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
         assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost", "loop-flow-cost"), objFun.getVirtualCostNames());
     }
 
@@ -177,7 +166,7 @@ public class SearchTreeRaoProviderTest {
         raoParameters.setRaoWithLoopFlowLimitation(true);
 
         TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
-        when(treeParameters.getMaxRaPerTso()).thenReturn(Map.of("fr",5));
+        when(treeParameters.getMaxRaPerTso()).thenReturn(Map.of("fr", 5));
         when(treeParameters.getMaxPstPerTso()).thenReturn(Map.of("be", 1, "nl", 2));
         when(treeParameters.getMaxTopoPerTso()).thenReturn(new HashMap<>());
         when(treeParameters.getSkipNetworkActionsFarFromMostLimitingElement()).thenReturn(true);
@@ -209,7 +198,6 @@ public class SearchTreeRaoProviderTest {
         assertEquals(Set.of(na1), searchTreeInput.getNetworkActions());
         assertEquals(Set.of(ra1), searchTreeInput.getRangeActions()); // ra2 is not valid
         assertNotNull(searchTreeInput.getObjectiveFunction());
-        //assertEquals(67., searchTreeInput.getObjectiveFunction().getFunctionalCost(Mockito.mock(BranchResult.class), Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
         assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost", "loop-flow-cost"), searchTreeInput.getObjectiveFunction().getVirtualCostNames());
         assertNotNull(searchTreeInput.getIteratingLinearOptimizer());
         assertNotNull(searchTreeInput.getSearchTreeProblem());
