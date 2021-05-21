@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
@@ -59,7 +60,7 @@ public class AbsolutePtdfSumsComputationTest {
                 new Answer<Double>() {
                     @Override public Double answer(InvocationOnMock invocation) {
                         LinearGlsk linearGlsk = (LinearGlsk) invocation.getArguments()[0];
-                        BranchCnec branchCnec = (BranchCnec) invocation.getArguments()[1];
+                        FlowCnec branchCnec = (FlowCnec) invocation.getArguments()[1];
                         if (branchCnec.getId().equals("cnec1basecase")) {
                             switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
                                 case "10YFR-RTE------C":
@@ -100,13 +101,13 @@ public class AbsolutePtdfSumsComputationTest {
     @Test
     public void testComputation() {
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
-        Map<BranchCnec, Double> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getBranchCnecs(), systematicSensitivityResult);
-        assertEquals(0.6, ptdfSums.get(crac.getBranchCnec("cnec1basecase")), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.1 - 0.3 + 0.4) = 0.1 + 0.2 + 0.1 + 0.2
-        assertEquals(0.9, ptdfSums.get(crac.getBranchCnec("cnec2basecase")), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.9 - 0.2 + 0.1) = 0 + 0.1 + 0.1 + 0.7
-        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec1stateCurativeContingency1")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec1stateCurativeContingency2")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec2stateCurativeContingency1")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec2stateCurativeContingency2")), DOUBLE_TOLERANCE);
+        Map<FlowCnec, Double> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
+        assertEquals(0.6, ptdfSums.get(crac.getFlowCnec("cnec1basecase")), DOUBLE_TOLERANCE); // abs(0.1 - 0.2) + abs(0.1 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.1 - 0.3 + 0.4) = 0.1 + 0.2 + 0.1 + 0.2
+        assertEquals(0.9, ptdfSums.get(crac.getFlowCnec("cnec2basecase")), DOUBLE_TOLERANCE); // abs(0.3 - 0.3) + abs(0.3 - 0.2) + abs(0.2 - 0.3) + abs(0.3 - 0.9 - 0.2 + 0.1) = 0 + 0.1 + 0.1 + 0.7
+        assertEquals(0, ptdfSums.get(crac.getFlowCnec("cnec1stateCurativeContingency1")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getFlowCnec("cnec1stateCurativeContingency2")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getFlowCnec("cnec2stateCurativeContingency1")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getFlowCnec("cnec2stateCurativeContingency2")), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -120,13 +121,13 @@ public class AbsolutePtdfSumsComputationTest {
                 new ZoneToZonePtdfDefinition("{ES}-{DE}"), // ES doesn't exist in GLSK map
                 new ZoneToZonePtdfDefinition("{22Y201903144---0}-{22Y201903144---1}")); // EICodes that don't exist in GLSK map
         AbsolutePtdfSumsComputation absolutePtdfSumsComputation = new AbsolutePtdfSumsComputation(glskProvider, boundaries);
-        Map<BranchCnec, Double> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getBranchCnecs(), systematicSensitivityResult);
+        Map<FlowCnec, Double> ptdfSums = absolutePtdfSumsComputation.computeAbsolutePtdfSums(crac.getFlowCnecs(), systematicSensitivityResult);
         // Test that these 3 new boundaries are ignored (results should be the same as previous test)
-        assertEquals(0.6, ptdfSums.get(crac.getBranchCnec("cnec1basecase")), DOUBLE_TOLERANCE);
-        assertEquals(0.9, ptdfSums.get(crac.getBranchCnec("cnec2basecase")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec1stateCurativeContingency1")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec1stateCurativeContingency2")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec2stateCurativeContingency1")), DOUBLE_TOLERANCE);
-        assertEquals(0, ptdfSums.get(crac.getBranchCnec("cnec2stateCurativeContingency2")), DOUBLE_TOLERANCE);
+        assertEquals(0.6, ptdfSums.get(crac.getFlowCnec("cnec1basecase")), DOUBLE_TOLERANCE);
+        assertEquals(0.9, ptdfSums.get(crac.getFlowCnec("cnec2basecase")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getFlowCnec("cnec1stateCurativeContingency1")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getFlowCnec("cnec1stateCurativeContingency2")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getFlowCnec("cnec2stateCurativeContingency1")), DOUBLE_TOLERANCE);
+        assertEquals(0, ptdfSums.get(crac.getFlowCnec("cnec2stateCurativeContingency2")), DOUBLE_TOLERANCE);
     }
 }

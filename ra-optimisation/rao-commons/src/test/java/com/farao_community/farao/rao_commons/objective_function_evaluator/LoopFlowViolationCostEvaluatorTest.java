@@ -7,11 +7,10 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +31,8 @@ public class LoopFlowViolationCostEvaluatorTest {
 
     private FlowCnec cnec1;
     private FlowCnec cnec2;
-    private BranchResult initialLoopFlows;
-    private BranchResult currentLoopFlows;
+    private FlowResult initialLoopFlows;
+    private FlowResult currentLoopFlows;
     private SensitivityStatus sensitivityStatus;
     private LoopFlowParameters parameters;
     private LoopFlowViolationCostEvaluator evaluator;
@@ -48,8 +47,8 @@ public class LoopFlowViolationCostEvaluatorTest {
         cnec2 = Mockito.mock(FlowCnec.class);
         when(cnec2.getExtension(LoopFlowThreshold.class)).thenReturn(cnec2Extension);
 
-        initialLoopFlows = Mockito.mock(BranchResult.class);
-        currentLoopFlows = Mockito.mock(BranchResult.class);
+        initialLoopFlows = Mockito.mock(FlowResult.class);
+        currentLoopFlows = Mockito.mock(FlowResult.class);
         sensitivityStatus = Mockito.mock(SensitivityStatus.class);
         parameters = Mockito.mock(LoopFlowParameters.class);
     }
@@ -226,7 +225,7 @@ public class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<BranchCnec> costlyElements = evaluator.getCostlyElements(currentLoopFlows, 5);
+        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentLoopFlows, 5);
         assertEquals(2, costlyElements.size());
         assertSame(cnec1, costlyElements.get(0));
         assertSame(cnec2, costlyElements.get(1));
@@ -249,7 +248,7 @@ public class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<BranchCnec> costlyElements = evaluator.getCostlyElements(currentLoopFlows, 1);
+        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentLoopFlows, 1);
         assertEquals(1, costlyElements.size());
         assertSame(cnec1, costlyElements.get(0));
     }
@@ -271,7 +270,7 @@ public class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<BranchCnec> costlyElements = evaluator.getCostlyElements(currentLoopFlows, 5);
+        List<FlowCnec> costlyElements = evaluator.getCostlyElements(currentLoopFlows, 5);
         assertEquals(1, costlyElements.size());
         assertSame(cnec2, costlyElements.get(0));
     }

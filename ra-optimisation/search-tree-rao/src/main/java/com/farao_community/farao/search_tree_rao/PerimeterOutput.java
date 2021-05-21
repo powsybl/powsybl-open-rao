@@ -2,10 +2,10 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -30,22 +30,22 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public double getFlow(BranchCnec branchCnec, Unit unit) {
-        return optimizationResult.getFlow(branchCnec, unit);
+    public double getFlow(FlowCnec flowCnec, Unit unit) {
+        return optimizationResult.getFlow(flowCnec, unit);
     }
 
     @Override
-    public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
-        return optimizationResult.getCommercialFlow(branchCnec, unit);
+    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
+        return optimizationResult.getCommercialFlow(flowCnec, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(BranchCnec branchCnec) {
-        return optimizationResult.getPtdfZonalSum(branchCnec);
+    public double getPtdfZonalSum(FlowCnec flowCnec) {
+        return optimizationResult.getPtdfZonalSum(flowCnec);
     }
 
     @Override
-    public Map<BranchCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Double> getPtdfZonalSums() {
         return optimizationResult.getPtdfZonalSums();
     }
 
@@ -65,7 +65,7 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public List<BranchCnec> getMostLimitingElements(int number) {
+    public List<FlowCnec> getMostLimitingElements(int number) {
         return optimizationResult.getMostLimitingElements(number);
     }
 
@@ -85,7 +85,7 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         return getCostlyElements(virtualCostName, number);
     }
 
@@ -125,12 +125,12 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
         return 0;
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, LinearGlsk linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
         return 0;
     }
 }

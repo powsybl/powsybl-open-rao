@@ -9,9 +9,9 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.LinearOptimizationResult;
 import com.farao_community.farao.rao_api.results.LinearProblemStatus;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
@@ -32,22 +32,22 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public double getFlow(BranchCnec branchCnec, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, Unit unit) {
         throw new FaraoException("Should not be used");
     }
 
     @Override
-    public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
         throw new FaraoException("Should not be used");
     }
 
     @Override
-    public double getPtdfZonalSum(BranchCnec branchCnec) {
+    public double getPtdfZonalSum(FlowCnec flowCnec) {
         throw new FaraoException("Should not be used");
     }
 
     @Override
-    public Map<BranchCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Double> getPtdfZonalSums() {
         throw new FaraoException("Should not be used");
     }
 
@@ -57,7 +57,7 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public List<BranchCnec> getMostLimitingElements(int number) {
+    public List<FlowCnec> getMostLimitingElements(int number) {
         throw new FaraoException("Should not be used");
     }
 
@@ -77,7 +77,7 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         throw new FaraoException("Should not be used");
     }
 
@@ -112,12 +112,12 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
         throw new FaraoException("Should not be used");
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, LinearGlsk linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
         throw new FaraoException("Should not be used");
     }
 }

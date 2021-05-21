@@ -8,9 +8,9 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
 import java.util.*;
@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class MinMarginEvaluator implements CostEvaluator {
-    private final Set<BranchCnec> cnecs;
+    private final Set<FlowCnec> flowCnecs;
     private final Unit unit;
     private final MarginEvaluator marginEvaluator;
 
-    public MinMarginEvaluator(Set<BranchCnec> cnecs, Unit unit, MarginEvaluator marginEvaluator) {
-        this.cnecs = cnecs;
+    public MinMarginEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
+        this.flowCnecs = flowCnecs;
         this.unit = unit;
         this.marginEvaluator = marginEvaluator;
     }
@@ -41,29 +41,29 @@ public class MinMarginEvaluator implements CostEvaluator {
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(BranchResult branchResult, int numberOfElements) {
-        List<BranchCnec> sortedElements = cnecs.stream()
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements) {
+        List<FlowCnec> sortedElements = flowCnecs.stream()
                 .filter(Cnec::isOptimized)
-                .sorted(Comparator.comparing(branchCnec -> marginEvaluator.getMargin(branchResult, branchCnec, unit)))
+                .sorted(Comparator.comparing(flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit)))
                 .collect(Collectors.toList());
 
         return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }
 
-    public BranchCnec getMostLimitingElement(BranchResult branchResult) {
-        List<BranchCnec> costlyElements = getCostlyElements(branchResult, 1);
+    public FlowCnec getMostLimitingElement(FlowResult flowResult) {
+        List<FlowCnec> costlyElements = getCostlyElements(flowResult, 1);
         if (costlyElements.isEmpty()) {
             return null;
         }
-        return getCostlyElements(branchResult, 1).get(0);
+        return getCostlyElements(flowResult, 1).get(0);
     }
 
     @Override
-    public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
-        BranchCnec limitingElement = getMostLimitingElement(branchResult);
+    public double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+        FlowCnec limitingElement = getMostLimitingElement(flowResult);
         if (limitingElement == null) {
             return 0;
         }
-        return -marginEvaluator.getMargin(branchResult, getMostLimitingElement(branchResult), unit);
+        return -marginEvaluator.getMargin(flowResult, getMostLimitingElement(flowResult), unit);
     }
 }

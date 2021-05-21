@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
@@ -59,26 +59,26 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     }
 
     private void createMaxLoopFlowFiller(double initialLoopFlowValue) {
-        BranchResult initialBranchResult = Mockito.mock(BranchResult.class);
-        when(initialBranchResult.getLoopFlow(cnec1, Unit.MEGAWATT)).thenReturn(initialLoopFlowValue);
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getLoopFlow(cnec1, Unit.MEGAWATT)).thenReturn(initialLoopFlowValue);
         maxLoopFlowFiller = new MaxLoopFlowFiller(
                 Set.of(cnec1),
-                initialBranchResult,
+                initialFlowResult,
                 loopFlowParameters
         );
     }
 
     private void setCommercialFlowValue(double commercialFlowValue) {
-        when(branchResult.getCommercialFlow(cnec1, Unit.MEGAWATT)).thenReturn(commercialFlowValue);
+        when(flowResult.getCommercialFlow(cnec1, Unit.MEGAWATT)).thenReturn(commercialFlowValue);
     }
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblem(List.of(coreProblemFiller, maxLoopFlowFiller), mpSolver);
-        linearProblem.fill(branchResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 
     private void updateLinearProblem() {
-        linearProblem.update(branchResult, sensitivityResult);
+        linearProblem.update(flowResult, sensitivityResult);
     }
 
     @Test

@@ -7,9 +7,9 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -17,12 +17,12 @@ import java.util.*;
 
 public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
 
-    private BranchResult branchResult;
+    private FlowResult flowResult;
     private SensitivityResult sensitivityResult;
     private RangeActionResult rangeActionResult;
 
-    public PrePerimeterSensitivityOutput(BranchResult branchResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
-        this.branchResult = branchResult;
+    public PrePerimeterSensitivityOutput(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
+        this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;
         this.rangeActionResult = rangeActionResult;
     }
@@ -33,43 +33,43 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit) {
-        return sensitivityResult.getSensitivityValue(branchCnec, rangeAction, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, rangeAction, unit);
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, LinearGlsk linearGlsk, Unit unit) {
-        return sensitivityResult.getSensitivityValue(branchCnec, linearGlsk, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, linearGlsk, unit);
     }
 
     @Override
-    public double getFlow(BranchCnec branchCnec, Unit unit) {
-        return branchResult.getFlow(branchCnec, unit);
+    public double getFlow(FlowCnec flowCnec, Unit unit) {
+        return flowResult.getFlow(flowCnec, unit);
     }
 
     @Override
-    public double getRelativeMargin(BranchCnec branchCnec, Unit unit) {
-        return branchResult.getRelativeMargin(branchCnec, unit);
+    public double getRelativeMargin(FlowCnec flowCnec, Unit unit) {
+        return flowResult.getRelativeMargin(flowCnec, unit);
     }
 
     @Override
-    public double getLoopFlow(BranchCnec branchCnec, Unit unit) {
-        return branchResult.getLoopFlow(branchCnec, unit);
+    public double getLoopFlow(FlowCnec flowCnec, Unit unit) {
+        return flowResult.getLoopFlow(flowCnec, unit);
     }
 
     @Override
-    public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
-        return branchResult.getCommercialFlow(branchCnec, unit);
+    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
+        return flowResult.getCommercialFlow(flowCnec, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(BranchCnec branchCnec) {
-        return branchResult.getPtdfZonalSum(branchCnec);
+    public double getPtdfZonalSum(FlowCnec flowCnec) {
+        return flowResult.getPtdfZonalSum(flowCnec);
     }
 
     @Override
-    public Map<BranchCnec, Double> getPtdfZonalSums() {
-        return branchResult.getPtdfZonalSums();
+    public Map<FlowCnec, Double> getPtdfZonalSums() {
+        return flowResult.getPtdfZonalSums();
     }
 
     @Override
@@ -97,8 +97,8 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
         return rangeActionResult.getOptimizedSetPoints();
     }
 
-    public BranchResult getBranchResult() {
-        return branchResult;
+    public FlowResult getBranchResult() {
+        return flowResult;
     }
 
     public SensitivityResult getSensitivityResult() {
@@ -111,7 +111,7 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     }
 
     @Override
-    public List<BranchCnec> getMostLimitingElements(int number) {
+    public List<FlowCnec> getMostLimitingElements(int number) {
         return null;
     }
 
@@ -131,7 +131,7 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         return null;
     }
 }

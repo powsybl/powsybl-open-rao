@@ -3,7 +3,7 @@ package com.farao_community.farao.search_tree_rao.output;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -28,8 +28,8 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         this.postOptimizationResult = postOptimizationResult;
     }
 
-    private BranchResult getAppropriateResult(OptimizationState optimizationState, BranchCnec branchCnec) {
-        State state = branchCnec.getState();
+    private FlowResult getAppropriateResult(OptimizationState optimizationState, FlowCnec flowCnec) {
+        State state = flowCnec.getState();
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult;
         }
@@ -39,22 +39,25 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         if (state.isPreventive()) {
             return initialResult;
         }
-        if (!optimizedState.isPreventive()
-                && optimizedState.getContingency().get().equals(state.getContingency().get())
+        if (!optimizedState.isPreventive()) {
+            Contingency optimizedContingency = optimizedState.getContingency().orElseThrow(() -> new FaraoException("Should not happen"));
+            Contingency contingency = state.getContingency().orElseThrow(() -> new FaraoException("Should not happen"));
+            if (optimizedContingency.equals(contingency)
                 && state.compareTo(optimizedState) >= 0) {
-            return postOptimizationResult;
+                return postOptimizationResult;
+            }
         }
         return initialResult;
     }
 
     @Override
-    public double getMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        return getAppropriateResult(optimizationState, branchCnec).getMargin(branchCnec, unit);
+    public double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getMargin(flowCnec, unit);
     }
 
     @Override
-    public double getRelativeMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
-        return getAppropriateResult(optimizationState, branchCnec).getRelativeMargin(branchCnec, unit);
+    public double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
+        return getAppropriateResult(optimizationState, flowCnec).getRelativeMargin(flowCnec, unit);
     }
 
     @Override
@@ -102,7 +105,7 @@ public class OneStateOnlyRaoOutput implements RaoResult {
     }
 
     @Override
-    public List<BranchCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
+    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getMostLimitingElements(number);
         } else {
@@ -134,7 +137,7 @@ public class OneStateOnlyRaoOutput implements RaoResult {
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getCostlyElements(virtualCostName, number);
         } else {

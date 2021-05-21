@@ -9,9 +9,9 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.farao_community.farao.rao_api.parameters.MaxMinRelativeMarginParameters;
@@ -43,8 +43,8 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
-    private BranchCnec cnecNl;
-    private BranchCnec cnecFr;
+    private FlowCnec cnecNl;
+    private FlowCnec cnecFr;
 
     @Before
     public void setUp() {
@@ -82,41 +82,41 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
                 Unit.MEGAWATT,
                 maxMinMarginParameters
         );
-        BranchResult initialBranchResult = Mockito.mock(BranchResult.class);
-        when(initialBranchResult.getMargin(cnecNl, Unit.MEGAWATT)).thenReturn(400.);
-        when(initialBranchResult.getMargin(cnecFr, Unit.MEGAWATT)).thenReturn(600.);
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getMargin(cnecNl, Unit.MEGAWATT)).thenReturn(400.);
+        when(initialFlowResult.getMargin(cnecFr, Unit.MEGAWATT)).thenReturn(600.);
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
                 Set.of(cnecNl, cnecFr),
-                initialBranchResult,
+                initialFlowResult,
                 unoptimizedCnecParameters
         );
         linearProblem = new LinearProblem(List.of(coreProblemFiller, maxMinMarginFiller, unoptimizedCnecFiller), mpSolver);
-        linearProblem.fill(branchResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 
     private void buildLinearProblemWithMaxMinRelativeMargin() {
         MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = new MaxMinRelativeMarginParameters(
                 0.01, 1000, 0.01);
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
-        BranchResult initialBranchResult = Mockito.mock(BranchResult.class);
-        when(initialBranchResult.getMargin(cnecNl, Unit.MEGAWATT)).thenReturn(400.);
-        when(initialBranchResult.getMargin(cnecFr, Unit.MEGAWATT)).thenReturn(600.);
-        when(initialBranchResult.getPtdfZonalSum(cnecNl)).thenReturn(0.5);
-        when(initialBranchResult.getPtdfZonalSum(cnecFr)).thenReturn(2.6);
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getMargin(cnecNl, Unit.MEGAWATT)).thenReturn(400.);
+        when(initialFlowResult.getMargin(cnecFr, Unit.MEGAWATT)).thenReturn(600.);
+        when(initialFlowResult.getPtdfZonalSum(cnecNl)).thenReturn(0.5);
+        when(initialFlowResult.getPtdfZonalSum(cnecFr)).thenReturn(2.6);
         MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
                 Set.of(cnecNl, cnecFr),
-                initialBranchResult,
+                initialFlowResult,
                 Set.of(rangeAction),
                 Unit.MEGAWATT,
                 maxMinRelativeMarginParameters
         );
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
                 Set.of(cnecNl, cnecFr),
-                initialBranchResult,
+                initialFlowResult,
                 unoptimizedCnecParameters
         );
         linearProblem = new LinearProblem(List.of(coreProblemFiller, maxMinRelativeMarginFiller, unoptimizedCnecFiller), mpSolver);
-        linearProblem.fill(branchResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 
     @Test

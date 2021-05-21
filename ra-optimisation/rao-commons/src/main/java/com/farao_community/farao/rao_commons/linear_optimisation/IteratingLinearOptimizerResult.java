@@ -8,9 +8,9 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -23,20 +23,20 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     private LinearProblemStatus status;
     private int nbOfIteration;
     private final RangeActionResult rangeActionResult;
-    private final BranchResult branchResult;
+    private final FlowResult flowResult;
     private final SensitivityResult sensitivityResult;
     private final ObjectiveFunctionResult objectiveFunctionResult;
 
     public IteratingLinearOptimizerResult(LinearProblemStatus status,
                                           int nbOfIteration,
                                           RangeActionResult rangeActionResult,
-                                          BranchResult branchResult,
+                                          FlowResult flowResult,
                                           ObjectiveFunctionResult objectiveFunctionResult,
                                           SensitivityResult sensitivityResult) {
         this.status = status;
         this.nbOfIteration = nbOfIteration;
         this.rangeActionResult = rangeActionResult;
-        this.branchResult = branchResult;
+        this.flowResult = flowResult;
         this.objectiveFunctionResult = objectiveFunctionResult;
         this.sensitivityResult = sensitivityResult;
     }
@@ -57,8 +57,8 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
         return sensitivityResult;
     }
 
-    public BranchResult getBranchResult() {
-        return branchResult;
+    public FlowResult getBranchResult() {
+        return flowResult;
     }
 
     public ObjectiveFunctionResult getObjectiveFunctionResult() {
@@ -75,7 +75,7 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public List<BranchCnec> getMostLimitingElements(int number) {
+    public List<FlowCnec> getMostLimitingElements(int number) {
         return objectiveFunctionResult.getMostLimitingElements(number);
     }
 
@@ -95,7 +95,7 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         return objectiveFunctionResult.getCostlyElements(virtualCostName, number);
     }
 
@@ -105,23 +105,23 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public double getFlow(BranchCnec branchCnec, Unit unit) {
-        return branchResult.getFlow(branchCnec, unit);
+    public double getFlow(FlowCnec branchCnec, Unit unit) {
+        return flowResult.getFlow(branchCnec, unit);
     }
 
     @Override
-    public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
-        return branchResult.getCommercialFlow(branchCnec, unit);
+    public double getCommercialFlow(FlowCnec branchCnec, Unit unit) {
+        return flowResult.getCommercialFlow(branchCnec, unit);
     }
 
     @Override
-    public double getPtdfZonalSum(BranchCnec branchCnec) {
-        return branchResult.getPtdfZonalSum(branchCnec);
+    public double getPtdfZonalSum(FlowCnec branchCnec) {
+        return flowResult.getPtdfZonalSum(branchCnec);
     }
 
     @Override
-    public Map<BranchCnec, Double> getPtdfZonalSums() {
-        return branchResult.getPtdfZonalSums();
+    public Map<FlowCnec, Double> getPtdfZonalSums() {
+        return flowResult.getPtdfZonalSums();
     }
 
     @Override
@@ -155,12 +155,12 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec branchCnec, RangeAction rangeAction, Unit unit) {
         return sensitivityResult.getSensitivityValue(branchCnec, rangeAction, unit);
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, LinearGlsk linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec branchCnec, LinearGlsk linearGlsk, Unit unit) {
         return sensitivityResult.getSensitivityValue(branchCnec, linearGlsk, unit);
     }
 }

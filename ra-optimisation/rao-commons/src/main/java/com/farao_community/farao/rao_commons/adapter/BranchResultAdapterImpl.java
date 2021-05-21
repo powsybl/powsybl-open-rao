@@ -9,13 +9,13 @@ package com.farao_community.farao.rao_commons.adapter;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.AbsolutePtdfSumsComputation;
-import com.farao_community.farao.rao_commons.result.BranchResultImpl;
-import com.farao_community.farao.rao_commons.result.EmptyBranchResult;
+import com.farao_community.farao.rao_commons.result.FlowResultImpl;
+import com.farao_community.farao.rao_commons.result.EmptyFlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -26,12 +26,12 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class BranchResultAdapterImpl implements BranchResultAdapter {
-    private BranchResult fixedPtdfs = new EmptyBranchResult();
+    private FlowResult fixedPtdfs = new EmptyFlowResult();
     private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
-    private Set<BranchCnec> cnecs;
-    private BranchResult fixedCommercialFlows = new EmptyBranchResult();
+    private Set<FlowCnec> flowCnecs;
+    private FlowResult fixedCommercialFlows = new EmptyFlowResult();
     private LoopFlowComputation loopFlowComputation;
-    private Set<BranchCnec> loopFlowCnecs;
+    private Set<FlowCnec> loopFlowCnecs;
 
     private BranchResultAdapterImpl() {
         // Should not be used
@@ -42,32 +42,32 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
     }
 
     @Override
-    public BranchResult getResult(SystematicSensitivityResult systematicSensitivityResult) {
-        BranchResult ptdfs;
+    public FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult) {
+        FlowResult ptdfs;
         if (absolutePtdfSumsComputation != null) {
-            Map<BranchCnec, Double> ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(cnecs, systematicSensitivityResult);
-            ptdfs = new BranchResult() {
+            Map<FlowCnec, Double> ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
+            ptdfs = new FlowResult() {
                 @Override
-                public double getFlow(BranchCnec branchCnec, Unit unit) {
+                public double getFlow(FlowCnec flowCnec, Unit unit) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
+                public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public double getPtdfZonalSum(BranchCnec branchCnec) {
-                    if (ptdfsMap.containsKey(branchCnec)) {
-                        return ptdfsMap.get(branchCnec);
+                public double getPtdfZonalSum(FlowCnec flowCnec) {
+                    if (ptdfsMap.containsKey(flowCnec)) {
+                        return ptdfsMap.get(flowCnec);
                     } else {
-                        throw new FaraoException(String.format("No PTDF zonal sum for cnec %s", branchCnec.getId()));
+                        throw new FaraoException(String.format("No PTDF zonal sum for cnec %s", flowCnec.getId()));
                     }
                 }
 
                 @Override
-                public Map<BranchCnec, Double> getPtdfZonalSums() {
+                public Map<FlowCnec, Double> getPtdfZonalSums() {
                     return ptdfsMap;
                 }
             };
@@ -75,22 +75,22 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
             ptdfs = fixedPtdfs;
         }
 
-        BranchResult commercialFlows;
+        FlowResult commercialFlows;
         if (loopFlowComputation != null) {
             LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(
                     systematicSensitivityResult,
                     loopFlowCnecs
             );
-            commercialFlows = new BranchResult() {
+            commercialFlows = new FlowResult() {
                 @Override
-                public double getFlow(BranchCnec branchCnec, Unit unit) {
+                public double getFlow(FlowCnec flowCnec, Unit unit) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
+                public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
                     if (unit == Unit.MEGAWATT) {
-                        return loopFlowResult.getCommercialFlow(branchCnec);
+                        return loopFlowResult.getCommercialFlow(flowCnec);
                     } else {
                         throw new NotImplementedException();
                     }
@@ -98,46 +98,46 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                 }
 
                 @Override
-                public double getPtdfZonalSum(BranchCnec branchCnec) {
+                public double getPtdfZonalSum(FlowCnec flowCnec) {
                     throw new NotImplementedException();
                 }
 
                 @Override
-                public Map<BranchCnec, Double> getPtdfZonalSums() {
+                public Map<FlowCnec, Double> getPtdfZonalSums() {
                     throw new NotImplementedException();
                 }
             };
         } else {
             commercialFlows = fixedCommercialFlows;
         }
-        return new BranchResultImpl(systematicSensitivityResult, commercialFlows, ptdfs);
+        return new FlowResultImpl(systematicSensitivityResult, commercialFlows, ptdfs);
     }
 
     public static final class BranchResultAdpaterBuilder {
-        private BranchResult fixedPtdfs = new EmptyBranchResult();
+        private FlowResult fixedPtdfs = new EmptyFlowResult();
         private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
-        private Set<BranchCnec> cnecs;
-        private BranchResult fixedCommercialFlows = new EmptyBranchResult();
+        private Set<FlowCnec> cnecs;
+        private FlowResult fixedCommercialFlows = new EmptyFlowResult();
         private LoopFlowComputation loopFlowComputation;
-        private Set<BranchCnec> loopFlowCnecs;
+        private Set<FlowCnec> loopFlowCnecs;
 
-        public BranchResultAdpaterBuilder withPtdfsResults(BranchResult fixedPtdfs) {
+        public BranchResultAdpaterBuilder withPtdfsResults(FlowResult fixedPtdfs) {
             this.fixedPtdfs = fixedPtdfs;
             return this;
         }
 
-        public BranchResultAdpaterBuilder withPtdfsResults(AbsolutePtdfSumsComputation absolutePtdfSumsComputation, Set<BranchCnec> cnecs) {
+        public BranchResultAdpaterBuilder withPtdfsResults(AbsolutePtdfSumsComputation absolutePtdfSumsComputation, Set<FlowCnec> cnecs) {
             this.absolutePtdfSumsComputation = absolutePtdfSumsComputation;
             this.cnecs = cnecs;
             return this;
         }
 
-        public BranchResultAdpaterBuilder withCommercialFlowsResults(BranchResult fixedCommercialFlows) {
+        public BranchResultAdpaterBuilder withCommercialFlowsResults(FlowResult fixedCommercialFlows) {
             this.fixedCommercialFlows = fixedCommercialFlows;
             return this;
         }
 
-        public BranchResultAdpaterBuilder withCommercialFlowsResults(LoopFlowComputation loopFlowComputation, Set<BranchCnec> loopFlowCnecs) {
+        public BranchResultAdpaterBuilder withCommercialFlowsResults(LoopFlowComputation loopFlowComputation, Set<FlowCnec> loopFlowCnecs) {
             this.loopFlowComputation = loopFlowComputation;
             this.loopFlowCnecs = loopFlowCnecs;
             return this;
@@ -147,7 +147,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
             BranchResultAdapterImpl adapter = new BranchResultAdapterImpl();
             adapter.fixedPtdfs = fixedPtdfs;
             adapter.absolutePtdfSumsComputation = absolutePtdfSumsComputation;
-            adapter.cnecs = cnecs;
+            adapter.flowCnecs = cnecs;
             adapter.fixedCommercialFlows = fixedCommercialFlows;
             adapter.loopFlowComputation = loopFlowComputation;
             adapter.loopFlowCnecs = loopFlowCnecs;

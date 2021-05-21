@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -34,12 +34,12 @@ public final class LinearProbelmIdGenerator {
         // Should not be instantiated
     }
 
-    public static String flowVariableId(BranchCnec cnec) {
+    public static String flowVariableId(FlowCnec cnec) {
         return cnec.getId() + SEPARATOR + FLOW + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String flowConstraintId(BranchCnec cnec) {
-        return cnec.getId() + SEPARATOR + FLOW + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String flowConstraintId(FlowCnec flowCnec) {
+        return flowCnec.getId() + SEPARATOR + FLOW + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String rangeActionSetPointVariableId(RangeAction rangeAction) {
@@ -62,8 +62,8 @@ public final class LinearProbelmIdGenerator {
         return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String minimumMarginConstraintId(BranchCnec cnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
-        return cnec.getId() + SEPARATOR + MIN_MARGIN + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String minimumMarginConstraintId(FlowCnec flowCnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
+        return flowCnec.getId() + SEPARATOR + MIN_MARGIN + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String minimumMarginVariableId() {
@@ -74,31 +74,31 @@ public final class LinearProbelmIdGenerator {
         return MIN_RELATIVE_MARGIN + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String minimumRelativeMarginConstraintId(BranchCnec cnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
-        return cnec.getId() + SEPARATOR + MIN_RELATIVE_MARGIN + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String minimumRelativeMarginConstraintId(FlowCnec flowCnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
+        return flowCnec.getId() + SEPARATOR + MIN_RELATIVE_MARGIN + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String maxLoopFlowConstraintId(BranchCnec cnec, LinearProblem.BoundExtension lbOrUb) {
-        return cnec.getId() + SEPARATOR + MAX_LOOPFLOW + lbOrUb.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String maxLoopFlowConstraintId(FlowCnec flowCnec, LinearProblem.BoundExtension lbOrUb) {
+        return flowCnec.getId() + SEPARATOR + MAX_LOOPFLOW + lbOrUb.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String loopflowViolationVariableId(BranchCnec cnec) {
-        return cnec.getId() + SEPARATOR + LOOPFLOWVIOLATION + SEPARATOR + VARIABLE_SUFFIX;
+    public static String loopflowViolationVariableId(FlowCnec flowCnec) {
+        return flowCnec.getId() + SEPARATOR + LOOPFLOWVIOLATION + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String mnecViolationVariableId(BranchCnec mnec) {
+    public static String mnecViolationVariableId(FlowCnec mnec) {
         return mnec.getId() + SEPARATOR + MNEC_VIOLATION + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String mnecFlowConstraintId(BranchCnec mnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
+    public static String mnecFlowConstraintId(FlowCnec mnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
         return mnec.getId() + SEPARATOR + MNEC_FLOW + belowOrAboveThreshold.toString().toLowerCase()  + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String marginDecreaseVariableId(BranchCnec cnec) {
-        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + SEPARATOR + VARIABLE_SUFFIX;
+    public static String marginDecreaseVariableId(FlowCnec flowCnec) {
+        return flowCnec.getId() + SEPARATOR + MARGIN_DECREASE + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String marginDecreaseConstraintId(BranchCnec cnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
-        return cnec.getId() + SEPARATOR + MARGIN_DECREASE + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String marginDecreaseConstraintId(FlowCnec flowCnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
+        return flowCnec.getId() + SEPARATOR + MARGIN_DECREASE + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 }

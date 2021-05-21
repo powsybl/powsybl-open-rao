@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
@@ -37,8 +36,8 @@ import static org.junit.Assert.*;
 public class ToolProviderTest {
     private Network network;
     private RaoParameters raoParameters;
-    private BranchCnec cnec1;
-    private BranchCnec cnec2;
+    private FlowCnec cnec1;
+    private FlowCnec cnec2;
 
     @Before
     public void setUp() {

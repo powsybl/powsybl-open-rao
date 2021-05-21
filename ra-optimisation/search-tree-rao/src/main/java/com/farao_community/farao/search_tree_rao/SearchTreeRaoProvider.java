@@ -9,8 +9,8 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -107,7 +107,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                 raoInput.getCrac(),
-                raoInput.getNetwork(),
                 toolProvider,
                 parameters
         );
@@ -207,7 +206,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return basicLinearOptimizerBuilder(raoParameters).build();
     }
 
-    static LinearOptimizerParameters createCurativeLinearOptimizerParameters(RaoParameters raoParameters, StateTree stateTree, Set<BranchCnec> cnecs) {
+    static LinearOptimizerParameters createCurativeLinearOptimizerParameters(RaoParameters raoParameters, StateTree stateTree, Set<FlowCnec> cnecs) {
         LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = basicLinearOptimizerBuilder(raoParameters);
         SearchTreeRaoParameters parameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (parameters != null && !parameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
@@ -219,15 +218,15 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return builder.build();
     }
 
-    static double getLargestCnecThreshold(Set<BranchCnec> cnecs) {
+    static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
         double max = 0;
-        for (BranchCnec cnec : cnecs) {
-            if (cnec.isOptimized()) {
-                Optional<Double> minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
+        for (FlowCnec flowCnec : flowCnecs) {
+            if (flowCnec.isOptimized()) {
+                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
                 if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
                     max = Math.abs(minFlow.get());
                 }
-                Optional<Double> maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
+                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
                 if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
                     max = Math.abs(maxFlow.get());
                 }
@@ -237,7 +236,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis, RaoParameters raoParameters) {
-        Set<BranchCnec> cnecs = computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter());
+        Set<FlowCnec> cnecs = computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter());
         TreeParameters treeParameters = raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState()) ?
                 TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)) :
                 TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
@@ -307,7 +306,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                         try {
                             LOGGER.info("Optimizing curative state {}.", optimizedState.getId());
                             Network networkClone = networkPool.getAvailableNetwork();
-                            Set<BranchCnec> cnecs = computePerimeterCnecs(raoInput.getCrac(), stateTree.getPerimeter(optimizedState));
+                            Set<FlowCnec> cnecs = computePerimeterCnecs(raoInput.getCrac(), stateTree.getPerimeter(optimizedState));
                             LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree, cnecs);
 
                             SearchTreeInput searchTreeInput = buildSearchTreeInput(
@@ -359,12 +358,12 @@ public class SearchTreeRaoProvider implements RaoProvider {
         SearchTreeInput searchTreeInput = new SearchTreeInput();
 
         searchTreeInput.setNetwork(network);
-        Set<BranchCnec> cnecs = computePerimeterCnecs(crac, perimeter);
-        searchTreeInput.setCnecs(cnecs);
+        Set<FlowCnec> cnecs = computePerimeterCnecs(crac, perimeter);
+        searchTreeInput.setFlowCnecs(cnecs);
         searchTreeInput.setNetworkActions(crac.getNetworkActions(optimizedState, UsageMethod.AVAILABLE));
 
         Set<RangeAction> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE);
-        removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterOutput, network);
+        removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterOutput);
         searchTreeInput.setRangeActions(rangeActions);
 
         ObjectiveFunction objectiveFunction = createObjectiveFunction(
@@ -408,26 +407,26 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return searchTreeInput;
     }
 
-    static ObjectiveFunction createObjectiveFunction(Set<BranchCnec> cnecs,
-                                                     BranchResult initialBranchResult,
-                                                     BranchResult prePerimeterBranchResult,
+    static ObjectiveFunction createObjectiveFunction(Set<FlowCnec> cnecs,
+                                                     FlowResult initialFlowResult,
+                                                     FlowResult prePerimeterFlowResult,
                                                      RaoParameters raoParameters,
                                                      LinearOptimizerParameters linearOptimizerParameters,
                                                      ToolProvider toolProvider) {
         ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder = ObjectiveFunction.create();
-        ObjectiveFunctionHelper.addMinMarginObjectiveFunction(cnecs, prePerimeterBranchResult, objectiveFunctionBuilder, linearOptimizerParameters);
+        ObjectiveFunctionHelper.addMinMarginObjectiveFunction(cnecs, prePerimeterFlowResult, objectiveFunctionBuilder, linearOptimizerParameters);
         // TODO : replace this test with a dedicated parameter in RaoParameters
         if (raoParameters.getMnecParameters().getMnecViolationCost() != 0) {
             objectiveFunctionBuilder.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
                     cnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                    initialBranchResult,
+                    initialFlowResult,
                     raoParameters.getMnecParameters()
             ));
         }
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             objectiveFunctionBuilder.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
                     toolProvider.getLoopFlowCnecs(cnecs),
-                    initialBranchResult,
+                    initialFlowResult,
                     raoParameters.getLoopFlowParameters()
             ));
         }
@@ -437,20 +436,20 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return objectiveFunctionBuilder.build();
     }
 
-    public static Set<BranchCnec> computePerimeterCnecs(Crac crac, Set<State> perimeter) {
+    public static Set<FlowCnec> computePerimeterCnecs(Crac crac, Set<State> perimeter) {
         if (perimeter != null) {
-            Set<BranchCnec> cnecs = new HashSet<>();
-            perimeter.forEach(state -> cnecs.addAll(crac.getBranchCnecs(state)));
+            Set<FlowCnec> cnecs = new HashSet<>();
+            perimeter.forEach(state -> cnecs.addAll(crac.getFlowCnecs(state)));
             return cnecs;
         } else {
-            return crac.getBranchCnecs();
+            return crac.getFlowCnecs();
         }
     }
 
     /**
      * If range action's initial setpoint does not respect its allowed range, this function filters it out
      */
-    static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, RangeActionResult prePerimeterSetPoints, Network network) {
+    static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, RangeActionResult prePerimeterSetPoints) {
         //a temp set is needed to avoid ConcurrentModificationExceptions when trying to remove a range action from a set we are looping on
         Set<RangeAction> rangeActionsToRemove = new HashSet<>();
         for (RangeAction rangeAction : rangeActions) {

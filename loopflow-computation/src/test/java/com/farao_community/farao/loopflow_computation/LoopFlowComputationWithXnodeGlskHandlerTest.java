@@ -9,7 +9,7 @@ package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -38,9 +38,9 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
                 xnodeGlskHandler
         );
 
-        BranchCnec preventiveCnec = Mockito.mock(BranchCnec.class);
-        BranchCnec cnecAfterClassicContingency = Mockito.mock(BranchCnec.class);
-        BranchCnec cnecAfterDanglingContingency = Mockito.mock(BranchCnec.class);
+        FlowCnec preventiveCnec = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecAfterClassicContingency = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecAfterDanglingContingency = Mockito.mock(FlowCnec.class);
         LinearGlsk classicLinearGlsk = Mockito.mock(LinearGlsk.class);
         LinearGlsk virtualHubLinearGlsk = Mockito.mock(LinearGlsk.class);
         Mockito.when(xnodeGlskHandler.isLinearGlskValidForCnec(preventiveCnec, classicLinearGlsk)).thenReturn(true);

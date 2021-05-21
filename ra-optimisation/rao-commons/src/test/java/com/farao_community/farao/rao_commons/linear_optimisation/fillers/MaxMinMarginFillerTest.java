@@ -64,7 +64,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblem(List.of(coreProblemFiller, maxMinMarginFiller), mpSolver);
-        linearProblem.fill(branchResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 
     @Test
@@ -154,7 +154,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         // AbsoluteRangeActionVariables present, but no the FlowVariables
         linearProblem.addAbsoluteRangeActionVariationVariable(0.0, 0.0, rangeAction);
         try {
-            linearProblem.fill(branchResult, sensitivityResult);
+            linearProblem.fill(flowResult, sensitivityResult);
             fail();
         } catch (FaraoException e) {
             assertTrue(e.getMessage().contains("Flow variable"));
@@ -171,7 +171,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         // exceeds the max-pst-per-tso parameter
         linearProblem.addFlowVariable(0.0, 0.0, cnec1);
         linearProblem.addFlowVariable(0.0, 0.0, cnec2);
-        linearProblem.fill(branchResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 }
 

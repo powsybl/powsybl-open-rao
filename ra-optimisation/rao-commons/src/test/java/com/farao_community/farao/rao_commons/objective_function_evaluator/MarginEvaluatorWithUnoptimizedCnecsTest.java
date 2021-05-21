@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -24,51 +24,51 @@ import static org.mockito.Mockito.when;
 public class MarginEvaluatorWithUnoptimizedCnecsTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
-    private final BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
-    private final BranchResult currentBranchResult = Mockito.mock(BranchResult.class);
-    private final BranchResult prePerimeterBranchResult = Mockito.mock(BranchResult.class);
+    private final FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+    private final FlowResult currentFlowResult = Mockito.mock(FlowResult.class);
+    private final FlowResult prePerimeterFlowResult = Mockito.mock(FlowResult.class);
     private final MarginEvaluatorWithUnoptimizedCnecs marginEvaluatorWithUnoptimizedCnecs =
             new MarginEvaluatorWithUnoptimizedCnecs(
-                    BranchResult::getMargin,
+                    FlowResult::getMargin,
                     Set.of("FR"),
-                    prePerimeterBranchResult
+                    prePerimeterFlowResult
             );
 
     @Test
     public void getMarginInMegawattOnOptimizedCnec() {
-        when(branchCnec.getOperator()).thenReturn("NL");
-        when(currentBranchResult.getMargin(branchCnec, Unit.MEGAWATT)).thenReturn(200.);
+        when(flowCnec.getOperator()).thenReturn("NL");
+        when(currentFlowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(200.);
 
-        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentBranchResult, branchCnec, Unit.MEGAWATT);
+        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getMarginInAmpereOnOptimizedCnec() {
-        when(branchCnec.getOperator()).thenReturn("NL");
-        when(currentBranchResult.getMargin(branchCnec, Unit.AMPERE)).thenReturn(50.);
+        when(flowCnec.getOperator()).thenReturn("NL");
+        when(currentFlowResult.getMargin(flowCnec, Unit.AMPERE)).thenReturn(50.);
 
-        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentBranchResult, branchCnec, Unit.AMPERE);
+        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, Unit.AMPERE);
         assertEquals(50., margin, DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getMarginInMegawattOnConstrainedUnoptimizedCnec() {
-        when(branchCnec.getOperator()).thenReturn("FR");
-        when(currentBranchResult.getMargin(branchCnec, Unit.MEGAWATT)).thenReturn(200.);
-        when(prePerimeterBranchResult.getMargin(branchCnec, Unit.MEGAWATT)).thenReturn(400.);
+        when(flowCnec.getOperator()).thenReturn("FR");
+        when(currentFlowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(200.);
+        when(prePerimeterFlowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(400.);
 
-        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentBranchResult, branchCnec, Unit.MEGAWATT);
+        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, Unit.MEGAWATT);
         assertEquals(200., margin, DOUBLE_TOLERANCE);
     }
 
     @Test
     public void getMarginInMegawattOnUnconstrainedUnoptimizedCnec() {
-        when(branchCnec.getOperator()).thenReturn("FR");
-        when(currentBranchResult.getMargin(branchCnec, Unit.MEGAWATT)).thenReturn(200.);
-        when(prePerimeterBranchResult.getMargin(branchCnec, Unit.MEGAWATT)).thenReturn(100.);
+        when(flowCnec.getOperator()).thenReturn("FR");
+        when(currentFlowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(200.);
+        when(prePerimeterFlowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(100.);
 
-        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentBranchResult, branchCnec, Unit.MEGAWATT);
+        double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, Unit.MEGAWATT);
         assertEquals(Double.MAX_VALUE, margin, DOUBLE_TOLERANCE);
     }
 }

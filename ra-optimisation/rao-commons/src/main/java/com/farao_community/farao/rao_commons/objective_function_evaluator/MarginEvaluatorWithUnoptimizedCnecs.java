@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
 
 import java.util.*;
 
@@ -22,21 +22,21 @@ import java.util.*;
 public class MarginEvaluatorWithUnoptimizedCnecs implements MarginEvaluator {
     private final MarginEvaluator marginEvaluator;
     private final Set<String> countriesNotToOptimize;
-    private final BranchResult prePerimeterBranchResult;
+    private final FlowResult prePerimeterFlowResult;
 
     public MarginEvaluatorWithUnoptimizedCnecs(MarginEvaluator marginEvaluator,
                                                Set<String> countriesNotToOptimize,
-                                               BranchResult prePerimeterBranchResult) {
+                                               FlowResult prePerimeterFlowResult) {
         this.marginEvaluator = marginEvaluator;
         this.countriesNotToOptimize = countriesNotToOptimize;
-        this.prePerimeterBranchResult = prePerimeterBranchResult;
+        this.prePerimeterFlowResult = prePerimeterFlowResult;
     }
 
     @Override
-    public double getMargin(BranchResult branchResult, BranchCnec branchCnec, Unit unit) {
-        double newMargin = marginEvaluator.getMargin(branchResult, branchCnec, unit);
-        if (countriesNotToOptimize.contains(branchCnec.getOperator())) {
-            double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterBranchResult, branchCnec, unit);
+    public double getMargin(FlowResult flowResult, FlowCnec flowCnec, Unit unit) {
+        double newMargin = marginEvaluator.getMargin(flowResult, flowCnec, unit);
+        if (countriesNotToOptimize.contains(flowCnec.getOperator())) {
+            double prePerimeterMargin = marginEvaluator.getMargin(prePerimeterFlowResult, flowCnec, unit);
             if (newMargin > prePerimeterMargin - .0001 * Math.abs(prePerimeterMargin)) {
                 return Double.MAX_VALUE;
             }

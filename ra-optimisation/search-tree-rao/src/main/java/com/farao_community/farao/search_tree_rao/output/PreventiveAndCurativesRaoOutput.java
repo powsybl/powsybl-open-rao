@@ -82,7 +82,13 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
             return postPreventiveResult.getFunctionalCost();
         }
         double highestFunctionalCost = postPreventiveResult.getFunctionalCost();
-        highestFunctionalCost = Math.max(highestFunctionalCost, postCurativeResults.values().stream().map(PerimeterResult::getFunctionalCost).max(Double::compareTo).get());
+        highestFunctionalCost = Math.max(
+                highestFunctionalCost,
+                postCurativeResults.values().stream()
+                        .map(PerimeterResult::getFunctionalCost)
+                        .max(Double::compareTo)
+                        .orElseThrow(() -> new FaraoException("Should not happen"))
+        );
         return highestFunctionalCost;
     }
 

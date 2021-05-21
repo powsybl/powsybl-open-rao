@@ -7,10 +7,10 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -25,36 +25,36 @@ import java.util.Set;
 public class LeafProblem extends SearchTreeProblem {
     private final Set<RangeAction> rangeActions;
 
-    public LeafProblem(BranchResult initialBranchResult,
-                       BranchResult prePerimeterBranchResult,
+    public LeafProblem(FlowResult initialFlowResult,
+                       FlowResult prePerimeterFlowResult,
                        RangeActionResult prePerimeterSetPoints,
-                       Set<BranchCnec> cnecs,
-                       Set<BranchCnec> loopFlowCnecs,
+                       Set<FlowCnec> flowCnecs,
+                       Set<FlowCnec> loopFlowCnecs,
                        LinearOptimizerParameters linearOptimizerParameters,
                        Set<RangeAction> rangeActions) {
-        super(initialBranchResult, prePerimeterBranchResult, prePerimeterSetPoints, cnecs, loopFlowCnecs, linearOptimizerParameters);
+        super(initialFlowResult, prePerimeterFlowResult, prePerimeterSetPoints, flowCnecs, loopFlowCnecs, linearOptimizerParameters);
         this.rangeActions = rangeActions;
     }
 
-    public LinearProblem getLinearProblem(Network network, BranchResult preOptimBranchResult, SensitivityResult preOptimSensitivityResult) {
+    public LinearProblem getLinearProblem(Network network, FlowResult preOptimFlowResult, SensitivityResult preOptimSensitivityResult) {
         LinearProblem.LinearProblemBuilder linearProblemBuilder =  LinearProblem.create()
-                .withProblemFiller(createCoreProblemFiller(network, cnecs, rangeActions));
+                .withProblemFiller(createCoreProblemFiller(network, flowCnecs, rangeActions));
 
         if (linearOptimizerParameters.getObjectiveFunction().relativePositiveMargins()) {
-            linearProblemBuilder.withProblemFiller(createMaxMinRelativeMarginFiller(cnecs, rangeActions, preOptimBranchResult));
+            linearProblemBuilder.withProblemFiller(createMaxMinRelativeMarginFiller(flowCnecs, rangeActions, preOptimFlowResult));
         } else {
-            linearProblemBuilder.withProblemFiller(createMaxMinMarginFiller(cnecs, rangeActions));
+            linearProblemBuilder.withProblemFiller(createMaxMinMarginFiller(flowCnecs, rangeActions));
         }
 
-        linearProblemBuilder.withProblemFiller(createMnecFiller(cnecs));
+        linearProblemBuilder.withProblemFiller(createMnecFiller(flowCnecs));
 
         if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
             linearProblemBuilder.withProblemFiller(createLoopFlowFiller(loopFlowCnecs));
         }
         if (!Objects.isNull(linearOptimizerParameters.getUnoptimizedCnecParameters())) {
-            linearProblemBuilder.withProblemFiller(createUnoptimizedCnecFiller(cnecs));
+            linearProblemBuilder.withProblemFiller(createUnoptimizedCnecFiller(flowCnecs));
         }
-        linearProblemBuilder.withBranchResult(preOptimBranchResult);
+        linearProblemBuilder.withBranchResult(preOptimFlowResult);
         linearProblemBuilder.withSensitivityResult(preOptimSensitivityResult);
         return linearProblemBuilder.build();
     }

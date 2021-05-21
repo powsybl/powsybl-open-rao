@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -102,7 +102,7 @@ public class RaoUtilTest {
 
     @Test
     public void testGetBranchFlowUnitMultiplier() {
-        BranchCnec cnec = Mockito.mock(BranchCnec.class);
+        FlowCnec cnec = Mockito.mock(FlowCnec.class);
         Mockito.when(cnec.getNominalVoltage(Side.LEFT)).thenReturn(400.);
         Mockito.when(cnec.getNominalVoltage(Side.RIGHT)).thenReturn(200.);
 

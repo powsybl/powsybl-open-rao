@@ -65,7 +65,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
-                .withPtdfSensitivities(glsk, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .build();
 
         // Preventive perimeter
@@ -97,7 +97,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
             SystematicSensitivityInterface newSystematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(sensitivityAnalysisParameters)
-                .withPtdfSensitivities(glsk, crac.getBranchCnecs(state), Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, crac.getFlowCnecs(state), Collections.singleton(Unit.MEGAWATT))
                 .build();
             SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
             Optional<Contingency> contingencyOptional = state.getContingency();

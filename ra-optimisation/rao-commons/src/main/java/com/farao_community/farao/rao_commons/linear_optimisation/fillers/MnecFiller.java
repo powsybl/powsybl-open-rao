@@ -8,9 +8,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -27,47 +28,47 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecFiller implements ProblemFiller {
-    private final BranchResult initialBranchResult;
-    private final Set<BranchCnec> mnecs;
+    private final FlowResult initialFlowResult;
+    private final Set<FlowCnec> monitoredCnecs;
     private final Unit unit;
     private final double mnecViolationCost;
     private final double mnecAcceptableMarginDiminution;
     private final double mnecConstraintAdjustmentCoefficient;
 
-    public MnecFiller(BranchResult initialBranchResult, Set<BranchCnec> mnecs, Unit unit, MnecParameters mnecParameters) {
-        this.initialBranchResult = initialBranchResult;
-        this.mnecs = mnecs;
+    public MnecFiller(FlowResult initialFlowResult, Set<FlowCnec> monitoredCnecs, Unit unit, MnecParameters mnecParameters) {
+        this.initialFlowResult = initialFlowResult;
+        this.monitoredCnecs = monitoredCnecs;
         this.unit = unit;
         this.mnecViolationCost = mnecParameters.getMnecViolationCost();
         this.mnecAcceptableMarginDiminution = mnecParameters.getMnecAcceptableMarginDiminution();
         this.mnecConstraintAdjustmentCoefficient = mnecParameters.getMnecConstraintAdjustmentCoefficient();
     }
 
-    private Set<BranchCnec> getMnecs() {
-        return mnecs;
+    private Set<FlowCnec> getMonitoredCnecs() {
+        return monitoredCnecs;
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, BranchResult branchResult, SensitivityResult sensitivityResult) {
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         buildMarginViolationVariable(linearProblem);
         buildMnecMarginConstraints(linearProblem);
         fillObjectiveWithMnecPenaltyCost(linearProblem);
     }
 
     @Override
-    public void update(LinearProblem linearProblem, BranchResult branchResult, SensitivityResult sensitivityResult) {
+    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // nothing to do
     }
 
     private void buildMarginViolationVariable(LinearProblem linearProblem) {
-        getMnecs().forEach(mnec ->
+        getMonitoredCnecs().forEach(mnec ->
             linearProblem.addMnecViolationVariable(0, LinearProblem.infinity(), mnec)
         );
     }
 
     private void buildMnecMarginConstraints(LinearProblem linearProblem) {
-        getMnecs().forEach(mnec -> {
-                double mnecInitialFlowInMW = initialBranchResult.getFlow(mnec, MEGAWATT);
+        getMonitoredCnecs().forEach(mnec -> {
+                double mnecInitialFlowInMW = initialFlowResult.getFlow(mnec, MEGAWATT);
 
                 MPVariable flowVariable = linearProblem.getFlowVariable(mnec);
 
@@ -101,7 +102,7 @@ public class MnecFiller implements ProblemFiller {
     }
 
     public void fillObjectiveWithMnecPenaltyCost(LinearProblem linearProblem) {
-        getMnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec ->
+        getMonitoredCnecs().stream().filter(BranchCnec::isMonitored).forEach(mnec ->
             linearProblem.getObjective().setCoefficient(linearProblem.getMnecViolationVariable(mnec),
                     RaoUtil.getBranchFlowUnitMultiplier(mnec, Side.LEFT, MEGAWATT, unit) * mnecViolationCost)
         );

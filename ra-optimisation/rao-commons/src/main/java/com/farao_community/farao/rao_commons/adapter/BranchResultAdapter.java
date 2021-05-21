@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_commons.adapter;
 
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 /**
@@ -15,5 +15,5 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResul
  */
 public interface BranchResultAdapter {
 
-    BranchResult getResult(SystematicSensitivityResult systematicSensitivityResult);
+    FlowResult getResult(SystematicSensitivityResult systematicSensitivityResult);
 }

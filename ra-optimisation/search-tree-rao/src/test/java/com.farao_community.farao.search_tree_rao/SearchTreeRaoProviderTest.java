@@ -9,14 +9,14 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_commons.ToolProvider;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
@@ -38,12 +38,12 @@ public class SearchTreeRaoProviderTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Crac crac;
     private Network network;
-    private BranchResult initialBranchResult;
-    private BranchResult preperimBranchResult;
-    private BranchCnec cnec1;
-    private BranchCnec cnec2;
-    private BranchCnec cnec3;
-    private BranchCnec cnec4;
+    private FlowResult initialFlowResult;
+    private FlowResult preperimFlowResult;
+    private FlowCnec cnec1;
+    private FlowCnec cnec2;
+    private FlowCnec cnec3;
+    private FlowCnec cnec4;
     private State state1;
     private State state2;
     private State state3;
@@ -53,22 +53,22 @@ public class SearchTreeRaoProviderTest {
 
     @Before
     public void setUp() {
-        cnec1 = Mockito.mock(BranchCnec.class);
-        cnec2 = Mockito.mock(BranchCnec.class);
-        cnec3 = Mockito.mock(BranchCnec.class);
-        cnec4 = Mockito.mock(BranchCnec.class);
+        cnec1 = Mockito.mock(FlowCnec.class);
+        cnec2 = Mockito.mock(FlowCnec.class);
+        cnec3 = Mockito.mock(FlowCnec.class);
+        cnec4 = Mockito.mock(FlowCnec.class);
         crac = Mockito.mock(Crac.class);
         network = Mockito.mock(Network.class);
-        initialBranchResult = Mockito.mock(BranchResult.class);
-        preperimBranchResult = Mockito.mock(BranchResult.class);
+        initialFlowResult = Mockito.mock(FlowResult.class);
+        preperimFlowResult = Mockito.mock(FlowResult.class);
         state1 = Mockito.mock(State.class);
         state2 = Mockito.mock(State.class);
         state3 = Mockito.mock(State.class);
 
-        when(crac.getBranchCnecs()).thenReturn(Set.of(cnec1, cnec2, cnec3, cnec4));
-        when(crac.getBranchCnecs(state1)).thenReturn(Set.of(cnec1));
-        when(crac.getBranchCnecs(state2)).thenReturn(Set.of(cnec2));
-        when(crac.getBranchCnecs(state3)).thenReturn(Set.of(cnec3, cnec4));
+        when(crac.getFlowCnecs()).thenReturn(Set.of(cnec1, cnec2, cnec3, cnec4));
+        when(crac.getFlowCnecs(state1)).thenReturn(Set.of(cnec1));
+        when(crac.getFlowCnecs(state2)).thenReturn(Set.of(cnec2));
+        when(crac.getFlowCnecs(state3)).thenReturn(Set.of(cnec3, cnec4));
 
         ra1 = Mockito.mock(RangeAction.class);
         when(ra1.getMinAdmissibleSetpoint(anyDouble())).thenReturn(-5.);
@@ -97,11 +97,11 @@ public class SearchTreeRaoProviderTest {
     @Test
     public void testRemoveRangeActionsWithWrongInitialSetpoint() {
         Set<RangeAction> rangeActions = new HashSet<>(Set.of(ra1, ra2));
-        SearchTreeRaoProvider.removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterResult, network);
+        SearchTreeRaoProvider.removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterResult);
         assertEquals(Set.of(ra1), rangeActions);
         when(prePerimeterResult.getOptimizedSetPoint(any())).thenReturn(-3.);
         rangeActions = new HashSet<>(Set.of(ra1, ra2));
-        SearchTreeRaoProvider.removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterResult, network);
+        SearchTreeRaoProvider.removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterResult);
         assertEquals(Set.of(ra1, ra2), rangeActions);
     }
 
@@ -125,28 +125,28 @@ public class SearchTreeRaoProviderTest {
         // no virtual cost (except for sensi fallback)
         raoParameters.setMnecViolationCost(0);
         raoParameters.setRaoWithLoopFlowLimitation(false);
-        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialFlowResult, preperimFlowResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
         assertEquals(Set.of("sensitivity-fallback-cost"), objFun.getVirtualCostNames());
 
         // mnec virtual cost
         raoParameters.setMnecViolationCost(1);
         raoParameters.setRaoWithLoopFlowLimitation(false);
-        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialFlowResult, preperimFlowResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
         assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost"), objFun.getVirtualCostNames());
 
         // lf cost
         raoParameters.setMnecViolationCost(0);
         raoParameters.setRaoWithLoopFlowLimitation(true);
-        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialFlowResult, preperimFlowResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
         assertEquals(Set.of("sensitivity-fallback-cost", "loop-flow-cost"), objFun.getVirtualCostNames());
 
         // mnec and lf costs
         raoParameters.setMnecViolationCost(-1);
         raoParameters.setRaoWithLoopFlowLimitation(true);
-        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialBranchResult, preperimBranchResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
+        objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialFlowResult, preperimFlowResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
         assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost", "loop-flow-cost"), objFun.getVirtualCostNames());
     }
@@ -197,17 +197,17 @@ public class SearchTreeRaoProviderTest {
                 toolProvider);
 
         assertSame(network, searchTreeInput.getNetwork());
-        assertEquals(Set.of(cnec1, cnec2), searchTreeInput.getCnecs());
+        assertEquals(Set.of(cnec1, cnec2), searchTreeInput.getFlowCnecs());
         assertEquals(Set.of(na1), searchTreeInput.getNetworkActions());
         assertEquals(Set.of(ra1), searchTreeInput.getRangeActions()); // ra2 is not valid
         assertNotNull(searchTreeInput.getObjectiveFunction());
         assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost", "loop-flow-cost"), searchTreeInput.getObjectiveFunction().getVirtualCostNames());
         assertNotNull(searchTreeInput.getIteratingLinearOptimizer());
         assertNotNull(searchTreeInput.getSearchTreeProblem());
-        assertEquals(Set.of(cnec1, cnec2), searchTreeInput.getSearchTreeProblem().cnecs);
+        assertEquals(Set.of(cnec1, cnec2), searchTreeInput.getSearchTreeProblem().flowCnecs);
         assertEquals(Set.of(cnec3, cnec4), searchTreeInput.getSearchTreeProblem().loopFlowCnecs);
-        assertSame(initialOutput, searchTreeInput.getSearchTreeProblem().initialBranchResult);
-        assertSame(prePerimeterResult, searchTreeInput.getSearchTreeProblem().prePerimeterBranchResult);
+        assertSame(initialOutput, searchTreeInput.getSearchTreeProblem().initialFlowResult);
+        assertSame(prePerimeterResult, searchTreeInput.getSearchTreeProblem().prePerimeterFlowResult);
         assertSame(prePerimeterResult, searchTreeInput.getSearchTreeProblem().prePerimeterSetPoints);
         assertSame(linearOptimizerParameters, searchTreeInput.getSearchTreeProblem().linearOptimizerParameters);
         assertNotNull(searchTreeInput.getSearchTreeBloomer());

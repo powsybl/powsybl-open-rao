@@ -8,10 +8,10 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.*;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
@@ -49,7 +49,6 @@ public class SearchTree {
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
 
     private Network network;
-    private Set<BranchCnec> cnecs;
     private Set<NetworkAction> availableNetworkActions;
     private Set<RangeAction> availableRangeActions;
     private PrePerimeterResult prePerimeterOutput;
@@ -104,7 +103,7 @@ public class SearchTree {
         }
     }
 
-    private static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, SensitivityResult sensitivityResult) {
+    private static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult sensitivityResult) {
         Double sensi1 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra1, Unit.MEGAWATT));
         Double sensi2 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra2, Unit.MEGAWATT));
         return sensi1.compareTo(sensi2);
@@ -266,12 +265,12 @@ public class SearchTree {
         }
     }
 
-    private void optimizeLeaf(Leaf leaf, BranchResult baseBranchResult) {
+    private void optimizeLeaf(Leaf leaf, FlowResult baseFlowResult) {
         Set<RangeAction> rangeActions = getRangeActionsToOptimize(leaf);
         if (!rangeActions.isEmpty()) {
             leaf.optimize(
                     iteratingLinearOptimizer,
-                    getSensitivityComputerForOptimizationBasedOn(baseBranchResult, rangeActions),
+                    getSensitivityComputerForOptimizationBasedOn(baseFlowResult, rangeActions),
                     searchTreeProblem.getLeafProblem(rangeActions)
             );
         } else {
@@ -279,24 +278,24 @@ public class SearchTree {
         }
     }
 
-    private SensitivityComputer getSensitivityComputerForEvaluationBasedOn(BranchResult branchResult, Set<RangeAction> rangeActions) {
+    private SensitivityComputer getSensitivityComputerForEvaluationBasedOn(FlowResult flowResult, Set<RangeAction> rangeActions) {
         if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
             if (linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
                 return searchTreeComputer.getSensitivityComputerWithComputedCommercialFlows(rangeActions);
             } else {
-                return searchTreeComputer.getSensitivityComputerWithFixedCommercialFlows(branchResult, rangeActions);
+                return searchTreeComputer.getSensitivityComputerWithFixedCommercialFlows(flowResult, rangeActions);
             }
         } else {
             return searchTreeComputer.getSensitivityComputer(rangeActions);
         }
     }
 
-    private SensitivityComputer getSensitivityComputerForOptimizationBasedOn(BranchResult branchResult, Set<RangeAction> rangeActions) {
+    private SensitivityComputer getSensitivityComputerForOptimizationBasedOn(FlowResult flowResult, Set<RangeAction> rangeActions) {
         if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
             if (linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
                 return searchTreeComputer.getSensitivityComputerWithComputedCommercialFlows(rangeActions);
             } else {
-                return searchTreeComputer.getSensitivityComputerWithFixedCommercialFlows(branchResult, rangeActions);
+                return searchTreeComputer.getSensitivityComputerWithFixedCommercialFlows(flowResult, rangeActions);
             }
         } else {
             return searchTreeComputer.getSensitivityComputer(rangeActions);

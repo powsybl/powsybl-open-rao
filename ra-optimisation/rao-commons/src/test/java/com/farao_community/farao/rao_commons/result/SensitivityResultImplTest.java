@@ -9,8 +9,8 @@ package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -34,7 +34,7 @@ public class SensitivityResultImplTest {
         );
 
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
-        BranchCnec cnec = Mockito.mock(BranchCnec.class);
+        FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec)).thenReturn(8.);
         when(systematicSensitivityResult.getSensitivityOnIntensity(rangeAction, cnec)).thenReturn(10.);
 
@@ -55,7 +55,7 @@ public class SensitivityResultImplTest {
         );
 
         LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
-        BranchCnec cnec = Mockito.mock(BranchCnec.class);
+        FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec)).thenReturn(8.);
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);

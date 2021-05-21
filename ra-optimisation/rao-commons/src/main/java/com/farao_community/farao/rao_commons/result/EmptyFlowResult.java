@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
 
 import java.util.Collections;
 import java.util.Map;
@@ -17,24 +17,24 @@ import java.util.Map;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class EmptyBranchResult implements BranchResult {
+public class EmptyFlowResult implements FlowResult {
     @Override
-    public double getFlow(BranchCnec branchCnec, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, Unit unit) {
         return Double.NaN;
     }
 
     @Override
-    public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
         return Double.NaN;
     }
 
     @Override
-    public double getPtdfZonalSum(BranchCnec branchCnec) {
+    public double getPtdfZonalSum(FlowCnec flowCnec) {
         return Double.NaN;
     }
 
     @Override
-    public Map<BranchCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Double> getPtdfZonalSums() {
         return Collections.emptyMap();
     }
 }

@@ -9,8 +9,8 @@ package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -42,20 +42,20 @@ public class SensitivityResultImpl implements SensitivityResult {
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getSensitivityOnFlow(rangeAction, branchCnec);
+            return systematicSensitivityResult.getSensitivityOnFlow(rangeAction, flowCnec);
         } else if (unit == Unit.AMPERE) {
-            return systematicSensitivityResult.getSensitivityOnIntensity(rangeAction, branchCnec);
+            return systematicSensitivityResult.getSensitivityOnIntensity(rangeAction, flowCnec);
         } else {
             throw new FaraoException(format("Unknown unit for sensitivity value on range action : %s.", unit));
         }
     }
 
     @Override
-    public double getSensitivityValue(BranchCnec branchCnec, LinearGlsk linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, branchCnec);
+            return systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec);
         } else {
             throw new FaraoException(format("Unknown unit for sensitivity value on linear GLSK : %s.", unit));
         }

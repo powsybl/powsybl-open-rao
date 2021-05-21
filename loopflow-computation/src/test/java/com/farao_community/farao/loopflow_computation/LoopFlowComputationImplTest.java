@@ -32,11 +32,11 @@ public class LoopFlowComputationImplTest {
         crac = ExampleGenerator.crac();
 
         LoopFlowThresholdImpl loopFlowExtensionMock = Mockito.mock(LoopFlowThresholdImpl.class);
-        crac.getBranchCnec("FR-BE1").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
-        crac.getBranchCnec("BE1-BE2").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
-        crac.getBranchCnec("BE2-NL").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
-        crac.getBranchCnec("FR-DE").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
-        crac.getBranchCnec("DE-NL").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
+        crac.getFlowCnec("FR-BE1").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
+        crac.getFlowCnec("BE1-BE2").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
+        crac.getFlowCnec("BE2-NL").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
+        crac.getFlowCnec("FR-DE").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
+        crac.getFlowCnec("DE-NL").addExtension(LoopFlowThresholdImpl.class, loopFlowExtensionMock);
     }
 
     @Test
@@ -46,24 +46,24 @@ public class LoopFlowComputationImplTest {
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(crac, glsk);
 
         LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
-        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getBranchCnecs());
+        LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs());
 
-        assertEquals(-50., loopFlowResult.getLoopFlow(crac.getBranchCnec("FR-BE1")), DOUBLE_TOLERANCE);
-        assertEquals(200., loopFlowResult.getLoopFlow(crac.getBranchCnec("BE1-BE2")), DOUBLE_TOLERANCE);
-        assertEquals(-50., loopFlowResult.getLoopFlow(crac.getBranchCnec("BE2-NL")), DOUBLE_TOLERANCE);
-        assertEquals(50., loopFlowResult.getLoopFlow(crac.getBranchCnec("FR-DE")), DOUBLE_TOLERANCE);
-        assertEquals(50., loopFlowResult.getLoopFlow(crac.getBranchCnec("DE-NL")), DOUBLE_TOLERANCE);
+        assertEquals(-50., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1")), DOUBLE_TOLERANCE);
+        assertEquals(200., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2")), DOUBLE_TOLERANCE);
+        assertEquals(-50., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE2-NL")), DOUBLE_TOLERANCE);
+        assertEquals(50., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-DE")), DOUBLE_TOLERANCE);
+        assertEquals(50., loopFlowResult.getLoopFlow(crac.getFlowCnec("DE-NL")), DOUBLE_TOLERANCE);
 
-        assertEquals(80, loopFlowResult.getCommercialFlow(crac.getBranchCnec("FR-BE1")), DOUBLE_TOLERANCE);
-        assertEquals(80., loopFlowResult.getCommercialFlow(crac.getBranchCnec("BE1-BE2")), DOUBLE_TOLERANCE);
-        assertEquals(80, loopFlowResult.getCommercialFlow(crac.getBranchCnec("BE2-NL")), DOUBLE_TOLERANCE);
-        assertEquals(120., loopFlowResult.getCommercialFlow(crac.getBranchCnec("FR-DE")), DOUBLE_TOLERANCE);
-        assertEquals(120., loopFlowResult.getCommercialFlow(crac.getBranchCnec("DE-NL")), DOUBLE_TOLERANCE);
+        assertEquals(80, loopFlowResult.getCommercialFlow(crac.getFlowCnec("FR-BE1")), DOUBLE_TOLERANCE);
+        assertEquals(80., loopFlowResult.getCommercialFlow(crac.getFlowCnec("BE1-BE2")), DOUBLE_TOLERANCE);
+        assertEquals(80, loopFlowResult.getCommercialFlow(crac.getFlowCnec("BE2-NL")), DOUBLE_TOLERANCE);
+        assertEquals(120., loopFlowResult.getCommercialFlow(crac.getFlowCnec("FR-DE")), DOUBLE_TOLERANCE);
+        assertEquals(120., loopFlowResult.getCommercialFlow(crac.getFlowCnec("DE-NL")), DOUBLE_TOLERANCE);
 
-        assertEquals(30., loopFlowResult.getReferenceFlow(crac.getBranchCnec("FR-BE1")), DOUBLE_TOLERANCE);
-        assertEquals(280., loopFlowResult.getReferenceFlow(crac.getBranchCnec("BE1-BE2")), DOUBLE_TOLERANCE);
-        assertEquals(30., loopFlowResult.getReferenceFlow(crac.getBranchCnec("BE2-NL")), DOUBLE_TOLERANCE);
-        assertEquals(170., loopFlowResult.getReferenceFlow(crac.getBranchCnec("FR-DE")), DOUBLE_TOLERANCE);
-        assertEquals(170., loopFlowResult.getReferenceFlow(crac.getBranchCnec("DE-NL")), DOUBLE_TOLERANCE);
+        assertEquals(30., loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-BE1")), DOUBLE_TOLERANCE);
+        assertEquals(280., loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE1-BE2")), DOUBLE_TOLERANCE);
+        assertEquals(30., loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE2-NL")), DOUBLE_TOLERANCE);
+        assertEquals(170., loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-DE")), DOUBLE_TOLERANCE);
+        assertEquals(170., loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL")), DOUBLE_TOLERANCE);
     }
 }

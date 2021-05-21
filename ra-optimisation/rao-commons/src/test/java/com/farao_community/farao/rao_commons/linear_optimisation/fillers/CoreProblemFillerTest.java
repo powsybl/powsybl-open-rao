@@ -8,9 +8,9 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
@@ -58,7 +58,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblem(List.of(coreProblemFiller), mpSolver);
-        linearProblem.fill(branchResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 
     private void initializeForPreventive(double pstSenssitivityThreshold) {
@@ -69,7 +69,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         initialize(cnec2, 0);
     }
 
-    private void initialize(BranchCnec cnec, double pstSensitivityThreshold) {
+    private void initialize(FlowCnec cnec, double pstSensitivityThreshold) {
         coreProblemFiller = new CoreProblemFiller(
                 network,
                 Set.of(cnec),
@@ -262,13 +262,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
         initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
-        when(branchResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT2);
-        when(branchResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT2);
+        when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT2);
+        when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT2);
         when(sensitivityResult.getSensitivityValue(cnec1, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT2);
         when(sensitivityResult.getSensitivityValue(cnec2, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
 
         // update the problem
-        linearProblem.update(branchResult, sensitivityResult);
+        linearProblem.update(flowResult, sensitivityResult);
     }
 
     @Test

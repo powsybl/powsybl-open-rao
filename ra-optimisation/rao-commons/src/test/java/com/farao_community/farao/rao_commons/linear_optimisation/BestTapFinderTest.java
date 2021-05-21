@@ -8,11 +8,11 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
@@ -43,22 +43,22 @@ public class BestTapFinderTest {
 
     private Network network;
     private RangeActionResult rangeActionResult;
-    private BranchResult branchResult;
+    private FlowResult flowResult;
     private SensitivityResult sensitivityResult;
-    private BranchCnec cnec1;
-    private BranchCnec cnec2;
+    private FlowCnec cnec1;
+    private FlowCnec cnec2;
     private PstRangeAction pstRangeAction;
 
     @Before
     public void setUp() {
         sensitivityResult = Mockito.mock(SensitivityResult.class);
-        cnec1 = Mockito.mock(BranchCnec.class);
-        cnec2 = Mockito.mock(BranchCnec.class);
+        cnec1 = Mockito.mock(FlowCnec.class);
+        cnec2 = Mockito.mock(FlowCnec.class);
         network = Mockito.mock(Network.class);
 
-        branchResult = Mockito.mock(BranchResult.class);
-        when(branchResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
-        when(branchResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
+        flowResult = Mockito.mock(FlowResult.class);
+        when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_1);
+        when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_2);
 
         rangeActionResult = Mockito.mock(RangeActionResult.class);
         pstRangeAction = createPst();
@@ -105,7 +105,7 @@ public class BestTapFinderTest {
                 pstRangeAction,
                 startingSetPoint,
                 List.of(cnec1, cnec2),
-                branchResult,
+                flowResult,
                 sensitivityResult
         );
     }
@@ -115,7 +115,7 @@ public class BestTapFinderTest {
                 rangeActionResult,
                 network,
                 List.of(cnec1, cnec2),
-                branchResult,
+                flowResult,
                 sensitivityResult
         );
     }

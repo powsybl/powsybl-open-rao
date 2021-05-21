@@ -12,10 +12,10 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.*;
@@ -153,7 +153,7 @@ public class LeafTest {
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
 
-    private Leaf prepareLeafForEvaluation(NetworkAction networkAction, SensitivityStatus expectedSensitivityStatus, BranchResult expectedBranchResult, double expectedCost, List<BranchCnec> mostLimitingCnecs) {
+    private Leaf prepareLeafForEvaluation(NetworkAction networkAction, SensitivityStatus expectedSensitivityStatus, FlowResult expectedFlowResult, double expectedCost, List<FlowCnec> mostLimitingCnecs) {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         Leaf rootLeaf = new Leaf(network, prePerimeterResult);
         RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
@@ -161,7 +161,7 @@ public class LeafTest {
         SensitivityResult expectedSensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(expectedSensitivityResult);
         Mockito.when(expectedSensitivityResult.getSensitivityStatus()).thenReturn(expectedSensitivityStatus);
-        Mockito.when(sensitivityComputer.getBranchResult()).thenReturn(expectedBranchResult);
+        Mockito.when(sensitivityComputer.getBranchResult()).thenReturn(expectedFlowResult);
         ObjectiveFunctionResult expectedObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
         Mockito.when(costEvaluatorMock.evaluate(any(), any())).thenReturn(expectedObjectiveFunctionResult);
         Mockito.when(expectedObjectiveFunctionResult.getFunctionalCost()).thenReturn(expectedCost / 2);
@@ -175,22 +175,22 @@ public class LeafTest {
         return leaf;
     }
 
-    private Leaf prepareLeafForEvaluation(NetworkAction na1, SensitivityStatus expectedSensitivityStatus, BranchResult expectedBranchResult, double expectedCost) {
-        return prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedBranchResult, expectedCost, Collections.emptyList());
+    private Leaf prepareLeafForEvaluation(NetworkAction na1, SensitivityStatus expectedSensitivityStatus, FlowResult expectedFlowResult, double expectedCost) {
+        return prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost, Collections.emptyList());
     }
 
     @Test
     public void evaluateAChildLeaf() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
-        BranchResult expectedBranchResult = Mockito.mock(BranchResult.class);
+        FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedBranchResult, expectedCost);
+        Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
         leaf1.evaluate(costEvaluatorMock, sensitivityComputer);
 
         assertEquals(Leaf.Status.EVALUATED, leaf1.getStatus());
-        assertEquals(expectedBranchResult, leaf1.getPreOptimBranchResult());
+        assertEquals(expectedFlowResult, leaf1.getPreOptimBranchResult());
         assertEquals(expectedSensitivityStatus, leaf1.getSensitivityStatus());
         assertEquals(expectedCost, leaf1.getCost(), DOUBLE_TOLERANCE);
     }
@@ -199,9 +199,9 @@ public class LeafTest {
     public void testReevaluate() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
-        BranchResult expectedBranchResult = Mockito.mock(BranchResult.class);
+        FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedBranchResult, expectedCost);
+        Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
         leaf1.evaluate(costEvaluatorMock, sensitivityComputer);
 
@@ -270,38 +270,38 @@ public class LeafTest {
     }
 
     @Test
-    public void getFlowsAndPtdfsOnBranchCnecAfterEvaluation() {
+    public void getFlowsAndPtdfsOnFlowCnecAfterEvaluation() {
         //prepare leaf
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
-        BranchResult expectedBranchResult = Mockito.mock(BranchResult.class);
+        FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedBranchResult, expectedCost);
+        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
 
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
 
-        BranchResult branchResult = Mockito.mock(BranchResult.class);
-        Mockito.when(sensitivityComputer.getBranchResult()).thenReturn(branchResult);
+        FlowResult flowResult = Mockito.mock(FlowResult.class);
+        Mockito.when(sensitivityComputer.getBranchResult()).thenReturn(flowResult);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
 
         double expectedFlow = 3.;
         Unit unit = Unit.MEGAWATT;
-        Mockito.when(branchResult.getFlow(branchCnec, unit)).thenReturn(expectedFlow);
-        Mockito.when(branchResult.getCommercialFlow(branchCnec, unit)).thenReturn(expectedFlow);
-        assertEquals(expectedFlow, leaf.getFlow(branchCnec, unit), DOUBLE_TOLERANCE);
-        assertEquals(expectedFlow, leaf.getCommercialFlow(branchCnec, unit), DOUBLE_TOLERANCE);
+        Mockito.when(flowResult.getFlow(flowCnec, unit)).thenReturn(expectedFlow);
+        Mockito.when(flowResult.getCommercialFlow(flowCnec, unit)).thenReturn(expectedFlow);
+        assertEquals(expectedFlow, leaf.getFlow(flowCnec, unit), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, unit), DOUBLE_TOLERANCE);
 
         double expectedPtdf = 4.;
-        Mockito.when(branchResult.getPtdfZonalSum(branchCnec)).thenReturn(expectedPtdf);
-        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(branchCnec), DOUBLE_TOLERANCE);
+        Mockito.when(flowResult.getPtdfZonalSum(flowCnec)).thenReturn(expectedPtdf);
+        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(flowCnec), DOUBLE_TOLERANCE);
 
-        Map<BranchCnec, Double> expectedPtdfZonalSums = new HashMap<>();
-        Mockito.when(branchResult.getPtdfZonalSums()).thenReturn(expectedPtdfZonalSums);
+        Map<FlowCnec, Double> expectedPtdfZonalSums = new HashMap<>();
+        Mockito.when(flowResult.getPtdfZonalSums()).thenReturn(expectedPtdfZonalSums);
         assertEquals(expectedPtdfZonalSums, leaf.getPtdfZonalSums());
     }
 
     @Test
-    public void getFlowsAndPtdfsOnBranchCnecAfterOptimization() {
+    public void getFlowsAndPtdfsOnFlowCnecAfterOptimization() {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         SensitivityStatus sensitivityStatus = Mockito.mock(SensitivityStatus.class);
         Mockito.when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
@@ -311,44 +311,44 @@ public class LeafTest {
         Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), any(), any(), any(), any())).thenReturn(linearOptimizationResult);
         leaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
 
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
 
         double expectedFlow = 3.;
         Unit unit = Unit.MEGAWATT;
-        Mockito.when(linearOptimizationResult.getFlow(branchCnec, unit)).thenReturn(expectedFlow);
-        Mockito.when(linearOptimizationResult.getCommercialFlow(branchCnec, unit)).thenReturn(expectedFlow);
-        assertEquals(expectedFlow, leaf.getFlow(branchCnec, unit), DOUBLE_TOLERANCE);
-        assertEquals(expectedFlow, leaf.getCommercialFlow(branchCnec, unit), DOUBLE_TOLERANCE);
+        Mockito.when(linearOptimizationResult.getFlow(flowCnec, unit)).thenReturn(expectedFlow);
+        Mockito.when(linearOptimizationResult.getCommercialFlow(flowCnec, unit)).thenReturn(expectedFlow);
+        assertEquals(expectedFlow, leaf.getFlow(flowCnec, unit), DOUBLE_TOLERANCE);
+        assertEquals(expectedFlow, leaf.getCommercialFlow(flowCnec, unit), DOUBLE_TOLERANCE);
 
         double expectedPtdf = 4.;
-        Mockito.when(linearOptimizationResult.getPtdfZonalSum(branchCnec)).thenReturn(expectedPtdf);
-        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(branchCnec), DOUBLE_TOLERANCE);
+        Mockito.when(linearOptimizationResult.getPtdfZonalSum(flowCnec)).thenReturn(expectedPtdf);
+        assertEquals(expectedPtdf, leaf.getPtdfZonalSum(flowCnec), DOUBLE_TOLERANCE);
 
-        Map<BranchCnec, Double> expectedPtdfZonalSums = new HashMap<>();
+        Map<FlowCnec, Double> expectedPtdfZonalSums = new HashMap<>();
         Mockito.when(linearOptimizationResult.getPtdfZonalSums()).thenReturn(expectedPtdfZonalSums);
         assertEquals(expectedPtdfZonalSums, leaf.getPtdfZonalSums());
 
     }
 
     @Test(expected = FaraoException.class)
-    public void getFlowOnBranchCnecBeforeEvaluation() {
+    public void getFlowOnFlowCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
-        leaf.getFlow(branchCnec, Unit.MEGAWATT);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+        leaf.getFlow(flowCnec, Unit.MEGAWATT);
     }
 
     @Test(expected = FaraoException.class)
-    public void getCommercialFlowOnBranchCnecBeforeEvaluation() {
+    public void getCommercialFlowOnFlowCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
-        leaf.getCommercialFlow(branchCnec, Unit.MEGAWATT);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+        leaf.getCommercialFlow(flowCnec, Unit.MEGAWATT);
     }
 
     @Test(expected = FaraoException.class)
     public void getPtdfZonalSumOnCnecBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
-        leaf.getPtdfZonalSum(branchCnec);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+        leaf.getPtdfZonalSum(flowCnec);
     }
 
     @Test(expected = FaraoException.class)
@@ -361,9 +361,9 @@ public class LeafTest {
     public void getFunctionalCostAfterEvaluation() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
-        BranchResult expectedBranchResult = Mockito.mock(BranchResult.class);
+        FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedBranchResult, expectedCost);
+        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
         assertEquals(expectedCost / 2, leaf.getFunctionalCost(), DOUBLE_TOLERANCE);
     }
@@ -391,9 +391,9 @@ public class LeafTest {
     public void getVirtualCostAfterEvaluation() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
-        BranchResult expectedBranchResult = Mockito.mock(BranchResult.class);
+        FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedBranchResult, expectedCost);
+        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
         assertEquals(expectedCost / 2, leaf.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(expectedCost / 2, leaf.getVirtualCost(virtualCostName), DOUBLE_TOLERANCE);
@@ -430,14 +430,14 @@ public class LeafTest {
     public void getCostlyAndMostLimitingElementsAfterEvaluation() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
-        BranchResult expectedBranchResult = Mockito.mock(BranchResult.class);
+        FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
-        List<BranchCnec> branchCnecs = Collections.singletonList(branchCnec);
-        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedBranchResult, expectedCost, branchCnecs);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+        List<FlowCnec> flowCnecs = Collections.singletonList(flowCnec);
+        Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost, flowCnecs);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
-        assertEquals(branchCnecs, leaf.getMostLimitingElements(branchCnecs.size()));
-        assertEquals(branchCnecs, leaf.getCostlyElements(virtualCostName, branchCnecs.size()));
+        assertEquals(flowCnecs, leaf.getMostLimitingElements(flowCnecs.size()));
+        assertEquals(flowCnecs, leaf.getCostlyElements(virtualCostName, flowCnecs.size()));
     }
 
     @Test
@@ -448,12 +448,12 @@ public class LeafTest {
         LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
         Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), any(), any(), any(), any())).thenReturn(linearOptimizationResult);
         leaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
-        List<BranchCnec> branchCnecs = Collections.singletonList(branchCnec);
-        Mockito.when(linearOptimizationResult.getMostLimitingElements(branchCnecs.size())).thenReturn(branchCnecs);
-        assertEquals(branchCnecs, leaf.getMostLimitingElements(branchCnecs.size()));
-        Mockito.when(linearOptimizationResult.getCostlyElements(virtualCostName, branchCnecs.size())).thenReturn(branchCnecs);
-        assertEquals(branchCnecs, leaf.getCostlyElements(virtualCostName, branchCnecs.size()));
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+        List<FlowCnec> flowCnecs = Collections.singletonList(flowCnec);
+        Mockito.when(linearOptimizationResult.getMostLimitingElements(flowCnecs.size())).thenReturn(flowCnecs);
+        assertEquals(flowCnecs, leaf.getMostLimitingElements(flowCnecs.size()));
+        Mockito.when(linearOptimizationResult.getCostlyElements(virtualCostName, flowCnecs.size())).thenReturn(flowCnecs);
+        assertEquals(flowCnecs, leaf.getCostlyElements(virtualCostName, flowCnecs.size()));
     }
 
     @Test(expected = FaraoException.class)
@@ -617,16 +617,16 @@ public class LeafTest {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         Leaf leaf = new Leaf(network, prePerimeterResult);
 
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
         LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
         double expectedSensi = 3.;
 
-        Mockito.when(prePerimeterResult.getSensitivityValue(branchCnec, rangeAction, Unit.MEGAWATT)).thenReturn(expectedSensi);
-        Mockito.when(prePerimeterResult.getSensitivityValue(branchCnec, linearGlsk, Unit.MEGAWATT)).thenReturn(expectedSensi);
+        Mockito.when(prePerimeterResult.getSensitivityValue(flowCnec, rangeAction, Unit.MEGAWATT)).thenReturn(expectedSensi);
+        Mockito.when(prePerimeterResult.getSensitivityValue(flowCnec, linearGlsk, Unit.MEGAWATT)).thenReturn(expectedSensi);
 
-        assertEquals(expectedSensi, leaf.getSensitivityValue(branchCnec, rangeAction, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(expectedSensi, leaf.getSensitivityValue(branchCnec, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, rangeAction, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -638,32 +638,32 @@ public class LeafTest {
         Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), any(), any(), any(), any())).thenReturn(linearOptimizationResult);
         leaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
 
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
         LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
         double expectedSensi = 3.;
 
-        Mockito.when(linearOptimizationResult.getSensitivityValue(branchCnec, rangeAction, Unit.MEGAWATT)).thenReturn(expectedSensi);
-        Mockito.when(linearOptimizationResult.getSensitivityValue(branchCnec, linearGlsk, Unit.MEGAWATT)).thenReturn(expectedSensi);
+        Mockito.when(linearOptimizationResult.getSensitivityValue(flowCnec, rangeAction, Unit.MEGAWATT)).thenReturn(expectedSensi);
+        Mockito.when(linearOptimizationResult.getSensitivityValue(flowCnec, linearGlsk, Unit.MEGAWATT)).thenReturn(expectedSensi);
 
-        assertEquals(expectedSensi, leaf.getSensitivityValue(branchCnec, rangeAction, Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(expectedSensi, leaf.getSensitivityValue(branchCnec, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, rangeAction, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test(expected = FaraoException.class)
     public void getSensitivityValueOnRangeActionBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
-        leaf.getSensitivityValue(branchCnec, rangeAction, Unit.MEGAWATT);
+        leaf.getSensitivityValue(flowCnec, rangeAction, Unit.MEGAWATT);
     }
 
     @Test(expected = FaraoException.class)
     public void getSensitivityValueOnLinearGlskBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
-        BranchCnec branchCnec = Mockito.mock(BranchCnec.class);
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
-        leaf.getSensitivityValue(branchCnec, linearGlsk, Unit.MEGAWATT);
+        leaf.getSensitivityValue(flowCnec, linearGlsk, Unit.MEGAWATT);
     }
 
 }

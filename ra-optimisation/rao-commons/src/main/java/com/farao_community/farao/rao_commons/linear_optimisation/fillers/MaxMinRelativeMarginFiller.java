@@ -8,10 +8,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -29,26 +29,26 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
-    private final BranchResult initialBranchResult;
+    private final FlowResult initialFlowResult;
     private final Unit unit;
     private final double ptdfSumLowerBound;
     private final double negativeMarginObjectiveCoefficient;
 
-    public MaxMinRelativeMarginFiller(Set<BranchCnec> optimizedCnecs,
-                                      BranchResult initialBranchResult,
+    public MaxMinRelativeMarginFiller(Set<FlowCnec> optimizedCnecs,
+                                      FlowResult initialFlowResult,
                                       Set<RangeAction> rangeActions,
                                       Unit unit,
                                       MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
         super(optimizedCnecs, rangeActions, unit, maxMinRelativeMarginParameters);
-        this.initialBranchResult = initialBranchResult;
+        this.initialFlowResult = initialFlowResult;
         this.unit = unit;
         this.ptdfSumLowerBound = maxMinRelativeMarginParameters.getPtdfSumLowerBound();
         this.negativeMarginObjectiveCoefficient = maxMinRelativeMarginParameters.getNegativeMarginObjectiveCoefficient();
     }
 
     @Override
-    public void fill(LinearProblem linearProblem, BranchResult branchResult, SensitivityResult sensitivityResult) {
-        super.fill(linearProblem, branchResult, sensitivityResult);
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        super.fill(linearProblem, flowResult, sensitivityResult);
         updateMinimumNegativeMarginDefinitionAndCost(linearProblem);
         buildMinimumRelativeMarginVariable(linearProblem);
         buildMinimumRelativeMarginConstraints(linearProblem);
@@ -86,7 +86,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
         optimizedCnecs.forEach(cnec -> {
-            double relMarginCoef = Math.max(initialBranchResult.getPtdfZonalSum(cnec), ptdfSumLowerBound);
+            double relMarginCoef = Math.max(initialFlowResult.getPtdfZonalSum(cnec), ptdfSumLowerBound);
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {

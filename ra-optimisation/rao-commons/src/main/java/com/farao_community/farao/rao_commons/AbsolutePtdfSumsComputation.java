@@ -8,7 +8,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -32,23 +32,23 @@ public class AbsolutePtdfSumsComputation {
         this.zTozPtdfs = zTozPtdfs;
     }
 
-    public Map<BranchCnec, Double> computeAbsolutePtdfSums(Set<BranchCnec> cnecs, SystematicSensitivityResult sensitivityResult) {
-        Map<BranchCnec, Double> ptdfSums = new HashMap<>();
+    public Map<FlowCnec, Double> computeAbsolutePtdfSums(Set<FlowCnec> flowCnecs, SystematicSensitivityResult sensitivityResult) {
+        Map<FlowCnec, Double> ptdfSums = new HashMap<>();
         List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).collect(Collectors.toList());
-        for (BranchCnec cnec : cnecs) {
-            Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(cnec, glskProvider, eiCodesInPtdfs, sensitivityResult);
+        for (FlowCnec flowCnec : flowCnecs) {
+            Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(flowCnec, glskProvider, eiCodesInPtdfs, sensitivityResult);
             double sumOfZToZPtdf = zTozPtdfs.stream().mapToDouble(zToz -> Math.abs(computeZToZPtdf(zToz, ptdfMap))).sum();
-            ptdfSums.put(cnec, sumOfZToZPtdf);
+            ptdfSums.put(flowCnec, sumOfZToZPtdf);
         }
         return ptdfSums;
     }
 
-    private Map<EICode, Double> buildZoneToSlackPtdfMap(BranchCnec cnec, ZonalData<LinearGlsk> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult) {
+    private Map<EICode, Double> buildZoneToSlackPtdfMap(FlowCnec flowCnec, ZonalData<LinearGlsk> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult) {
         Map<EICode, Double> ptdfs = new HashMap<>();
         for (EICode eiCode : eiCodesInBoundaries) {
             LinearGlsk linearGlsk = glsks.getData(eiCode.getAreaCode());
             if (linearGlsk != null) {
-                double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
+                double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec);
                 ptdfs.put(eiCode, ptdfValue);
             }
         }

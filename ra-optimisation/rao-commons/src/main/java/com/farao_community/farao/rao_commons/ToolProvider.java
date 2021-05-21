@@ -13,7 +13,6 @@ import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
@@ -103,11 +102,11 @@ public final class ToolProvider {
         return loopFlowComputation;
     }
 
-    private boolean hasLoopFlowExtension(BranchCnec cnec) {
-        return !Objects.isNull(((FlowCnec) cnec).getExtension(LoopFlowThreshold.class));
+    private boolean hasLoopFlowExtension(FlowCnec cnec) {
+        return !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class));
     }
 
-    public Set<BranchCnec> getLoopFlowCnecs(Set<BranchCnec> allCnecs) {
+    public Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> allCnecs) {
         if (!raoParameters.getLoopflowCountries().isEmpty()) {
             return allCnecs.stream()
                     .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, raoParameters.getLoopflowCountries()))
@@ -123,7 +122,7 @@ public final class ToolProvider {
         return cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && loopflowCountries.contains(country.get()));
     }
 
-    public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<BranchCnec> cnecs,
+    public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
                                                                             Set<RangeAction> rangeActions,
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows) {
@@ -143,7 +142,7 @@ public final class ToolProvider {
             eic.addAll(getEicForLoopFlows());
             builder.withPtdfSensitivities(getGlskForEic(eic), cnecs, Collections.singleton(Unit.MEGAWATT));
         } else if (computeLoopFlows) {
-            Set<BranchCnec> loopflowCnecs = getLoopFlowCnecs(cnecs);
+            Set<FlowCnec> loopflowCnecs = getLoopFlowCnecs(cnecs);
             builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows()), loopflowCnecs, Collections.singleton(Unit.MEGAWATT));
         } else if (computePtdfs) {
             builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(Unit.MEGAWATT));

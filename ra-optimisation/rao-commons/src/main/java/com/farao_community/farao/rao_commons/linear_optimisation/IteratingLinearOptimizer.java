@@ -37,11 +37,11 @@ public class IteratingLinearOptimizer {
 
     public LinearOptimizationResult optimize(LinearProblem linearProblem,
                                              Network network,
-                                             BranchResult preOptimBranchResult,
+                                             FlowResult preOptimFlowResult,
                                              SensitivityResult preOptimSensitivityResult,
                                              RangeActionResult preOptimRangeActionResult,
                                              SensitivityComputer sensitivityComputer) {
-        IteratingLinearOptimizerResult bestResult = createResult(preOptimBranchResult, preOptimSensitivityResult, preOptimRangeActionResult, 0);
+        IteratingLinearOptimizerResult bestResult = createResult(preOptimFlowResult, preOptimSensitivityResult, preOptimRangeActionResult, 0);
 
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
             solveLinearProblem(linearProblem, iteration);
@@ -132,12 +132,12 @@ public class IteratingLinearOptimizer {
         }
     }
 
-    private IteratingLinearOptimizerResult createResult(BranchResult branchResult,
+    private IteratingLinearOptimizerResult createResult(FlowResult flowResult,
                                                         SensitivityResult sensitivityResult,
                                                         RangeActionResult rangeActionResult,
                                                         int nbOfIterations) {
-        return new IteratingLinearOptimizerResult(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionResult, branchResult,
-                objectiveFunction.evaluate(branchResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
+        return new IteratingLinearOptimizerResult(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionResult, flowResult,
+                objectiveFunction.evaluate(flowResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
     }
 
     private RangeActionResult roundResult(RangeActionResult rangeActionResult, Network network, IteratingLinearOptimizerResult previousResult) {

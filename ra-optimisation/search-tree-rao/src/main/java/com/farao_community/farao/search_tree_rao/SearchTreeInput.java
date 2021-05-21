@@ -1,6 +1,6 @@
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class SearchTreeInput {
     private Network network;
-    private Set<BranchCnec> cnecs;
+    private Set<FlowCnec> flowCnecs;
     private Set<NetworkAction> networkActions;
     private Set<RangeAction> rangeActions;
 
@@ -52,8 +52,8 @@ public class SearchTreeInput {
         return rangeActions;
     }
 
-    public Set<BranchCnec> getCnecs() {
-        return cnecs;
+    public Set<FlowCnec> getFlowCnecs() {
+        return flowCnecs;
     }
 
     public void setNetworkActions(Set<NetworkAction> networkActions) {
@@ -68,8 +68,8 @@ public class SearchTreeInput {
         this.rangeActions = rangeActions;
     }
 
-    public void setCnecs(Set<BranchCnec> cnecs) {
-        this.cnecs = cnecs;
+    public void setFlowCnecs(Set<FlowCnec> flowCnecs) {
+        this.flowCnecs = flowCnecs;
     }
 
     public ObjectiveFunction getObjectiveFunction() {

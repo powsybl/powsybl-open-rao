@@ -7,11 +7,10 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +25,14 @@ import java.util.stream.Collectors;
 public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowViolationCostEvaluator.class);
 
-    private final Set<BranchCnec> loopflowCnecs;
-    private final BranchResult initialLoopFLowResult;
+    private final Set<FlowCnec> loopflowCnecs;
+    private final FlowResult initialLoopFLowResult;
     private final double loopFlowViolationCost;
     private final double loopFlowAcceptableAugmentation;
-    private List<BranchCnec> sortedElements = new ArrayList<>();
+    private List<FlowCnec> sortedElements = new ArrayList<>();
 
-    public LoopFlowViolationCostEvaluator(Set<BranchCnec> loopflowCnecs,
-                                          BranchResult initialLoopFlowResult,
+    public LoopFlowViolationCostEvaluator(Set<FlowCnec> loopflowCnecs,
+                                          FlowResult initialLoopFlowResult,
                                           LoopFlowParameters loopFlowParameters) {
         this.loopflowCnecs = loopflowCnecs;
         this.initialLoopFLowResult = initialLoopFlowResult;
@@ -47,10 +46,10 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
+    public double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
         double cost = loopflowCnecs
                 .stream()
-                .mapToDouble(cnec -> getLoopFlowExcess(branchResult, cnec) * loopFlowViolationCost)
+                .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)
                 .sum();
 
         if (cost > 0) {
@@ -66,12 +65,12 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(BranchResult branchResult, int numberOfElements) {
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements) {
         if (sortedElements.isEmpty()) {
             sortedElements = loopflowCnecs.stream()
                     .collect(Collectors.toMap(
                         Function.identity(),
-                        cnec -> getLoopFlowExcess(branchResult, cnec)
+                        cnec -> getLoopFlowExcess(flowResult, cnec)
                     ))
                     .entrySet().stream()
                     .filter(entry -> entry.getValue() != 0)
@@ -84,12 +83,12 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }
 
-    double getLoopFlowExcess(BranchResult branchResult, BranchCnec cnec) {
-        return Math.max(0, Math.abs(branchResult.getLoopFlow(cnec, Unit.MEGAWATT)) - getLoopFlowUpperBound(cnec));
+    double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {
+        return Math.max(0, Math.abs(flowResult.getLoopFlow(cnec, Unit.MEGAWATT)) - getLoopFlowUpperBound(cnec));
     }
 
-    private double getLoopFlowUpperBound(BranchCnec cnec) {
-        double loopFlowThreshold = ((FlowCnec) cnec).getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
+    private double getLoopFlowUpperBound(FlowCnec cnec) {
+        double loopFlowThreshold = cnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
         double initialLoopFlow = initialLoopFLowResult.getLoopFlow(cnec, Unit.MEGAWATT);
         return Math.max(0.0, Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation));
     }

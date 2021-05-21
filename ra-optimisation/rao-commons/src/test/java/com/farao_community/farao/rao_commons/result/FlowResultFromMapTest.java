@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,20 +24,20 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class BranchResultFromMapTest {
+public class FlowResultFromMapTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     SystematicSensitivityResult systematicSensitivityResult;
-    BranchCnec loopFlowCnec;
-    BranchCnec optimizedCnec;
-    BranchResultFromMap branchResultFromMap;
+    FlowCnec loopFlowCnec;
+    FlowCnec optimizedCnec;
+    FlowResultFromMap branchResultFromMap;
 
     @Before
     public void setUp() {
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        loopFlowCnec = Mockito.mock(BranchCnec.class);
-        optimizedCnec = Mockito.mock(BranchCnec.class);
-        branchResultFromMap = new BranchResultFromMap(
+        loopFlowCnec = Mockito.mock(FlowCnec.class);
+        optimizedCnec = Mockito.mock(FlowCnec.class);
+        branchResultFromMap = new FlowResultFromMap(
                 systematicSensitivityResult,
                 Map.of(loopFlowCnec, 200.),
                 Map.of(optimizedCnec, 30.)
