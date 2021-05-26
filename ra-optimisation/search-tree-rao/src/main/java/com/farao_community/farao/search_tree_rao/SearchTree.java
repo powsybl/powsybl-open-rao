@@ -65,9 +65,21 @@ public class SearchTree {
     private LinearOptimizerParameters linearOptimizerParameters;
 
     void initLeaves() {
-        rootLeaf = new Leaf(network, prePerimeterOutput);
+        rootLeaf = makeLeaf(network, prePerimeterOutput);
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
+    }
+
+    Leaf makeLeaf(Network network, PrePerimeterResult prePerimeterOutput) {
+        return  new Leaf(network, prePerimeterOutput);
+    }
+
+    void setTreeParameters(TreeParameters parameters) {
+        treeParameters = parameters;
+    }
+
+    void setAvailableRangeActions(Set<RangeAction> rangeActions) {
+        availableRangeActions = rangeActions;
     }
 
     /**
@@ -119,7 +131,7 @@ public class SearchTree {
         this.bloomer = searchTreeInput.getSearchTreeBloomer();
         this.objectiveFunction = searchTreeInput.getObjectiveFunction();
         this.iteratingLinearOptimizer = searchTreeInput.getIteratingLinearOptimizer();
-        this.treeParameters = treeParameters;
+        setTreeParameters(treeParameters);
         this.linearOptimizerParameters = linearOptimizerParameters;
         initLeaves();
 
@@ -203,7 +215,7 @@ public class SearchTree {
                 .forEach(ra ->  ra.apply(network, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
         int leavesInParallel = Math.min(networkActions.size(), treeParameters.getLeavesInParallel());
         LOGGER.debug("Evaluating {} leaves in parallel", leavesInParallel);
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel)) {
+        try (FaraoNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
             networkActions.forEach(networkAction ->
                     networkPool.submit(() -> {
                         try {
@@ -224,11 +236,15 @@ public class SearchTree {
         }
     }
 
+    FaraoNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {
+        return new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel);
+    }
+
     void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
-            leaf = new Leaf(network, previousDepthOptimalLeaf.getNetworkActions(), networkAction, previousDepthOptimalLeaf);
+            leaf = createChildLeaf(network, networkAction);
         } catch (NotImplementedException e) {
             networkPool.releaseUsedNetwork(network);
             throw e;
@@ -244,6 +260,10 @@ public class SearchTree {
             }
             updateOptimalLeaf(leaf);
         }
+    }
+
+    Leaf createChildLeaf(Network network, NetworkAction networkAction) {
+        return new Leaf(network, previousDepthOptimalLeaf.getNetworkActions(), networkAction, previousDepthOptimalLeaf);
     }
 
     private void optimizeLeaf(Leaf leaf, FlowResult baseFlowResult) {
