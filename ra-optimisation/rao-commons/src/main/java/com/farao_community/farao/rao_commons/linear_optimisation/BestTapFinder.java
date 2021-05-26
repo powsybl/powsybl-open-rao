@@ -8,11 +8,16 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.RangeActionResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
+import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ValidationException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -39,19 +44,31 @@ public final class BestTapFinder {
      *
      * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
-    public static Map<PstRangeAction, Integer> find(Network network,
-                                                    List<BranchCnec> mostLimitingCnecs,
-                                                    Map<PstRangeAction, Double> optimalSetPointPerPst,
-                                                    SystematicSensitivityResult sensitivityResult) {
+    public static RangeActionResult find(RangeActionResult rangeActionResult,
+                                         Network network,
+                                         List<FlowCnec> mostLimitingCnecs,
+                                         FlowResult flowResult,
+                                         SensitivityResult sensitivityResult) {
+        // TODO: network could be replaced by the previous RangeActionResult
         Map<PstRangeAction, Integer> bestTaps = new HashMap<>();
         Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 
-        optimalSetPointPerPst.forEach((pstRangeAction, setPoint) ->
-                minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, setPoint, mostLimitingCnecs, sensitivityResult)));
+        Set<PstRangeAction> pstRangeActions = rangeActionResult.getOptimizedTaps().keySet();
+
+        pstRangeActions.forEach(pstRangeAction ->
+                minMarginPerTap.put(
+                        pstRangeAction,
+                        computeMinMarginsForBestTaps(
+                                network,
+                                pstRangeAction,
+                                rangeActionResult.getOptimizedSetPoint(pstRangeAction),
+                                mostLimitingCnecs,
+                                flowResult,
+                                sensitivityResult)));
 
         Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
-        for (PstRangeAction pstRangeAction : optimalSetPointPerPst.keySet()) {
+        for (PstRangeAction pstRangeAction : pstRangeActions) {
             Optional<String> optGroupId = pstRangeAction.getGroupId();
             if (optGroupId.isPresent()) {
                 bestTaps.put(pstRangeAction, bestTapPerPstGroup.get(optGroupId.get()));
@@ -60,7 +77,12 @@ public final class BestTapFinder {
                 bestTaps.put(pstRangeAction, bestTap);
             }
         }
-        return bestTaps;
+
+        Map<RangeAction, Double> roundedSetPoints = new HashMap<>(rangeActionResult.getOptimizedSetPoints());
+        for (var entry : bestTaps.entrySet()) {
+            roundedSetPoints.put(entry.getKey(), entry.getKey().convertTapToAngle(entry.getValue()));
+        }
+        return new RangeActionResultImpl(roundedSetPoints);
     }
 
     /**
@@ -117,8 +139,9 @@ public final class BestTapFinder {
     static Map<Integer, Double> computeMinMarginsForBestTaps(Network network,
                                                              PstRangeAction pstRangeAction,
                                                              double angle,
-                                                             List<BranchCnec> mostLimitingCnecs,
-                                                             SystematicSensitivityResult sensitivityResult) {
+                                                             List<FlowCnec> mostLimitingCnecs,
+                                                             FlowResult flowResult,
+                                                             SensitivityResult sensitivityResult) {
         int closestTap = pstRangeAction.convertAngleToTap(angle);
         double closestAngle = pstRangeAction.convertTapToAngle(closestTap);
 
@@ -130,13 +153,13 @@ public final class BestTapFinder {
         boolean testTapPlus1 = true;
         try {
             pstRangeAction.convertTapToAngle(closestTap + 1);
-        } catch (FaraoException e) {
+        } catch (FaraoException | ValidationException e) {
             testTapPlus1 = false;
         }
         boolean testTapMinus1 = true;
         try {
             pstRangeAction.convertTapToAngle(closestTap - 1);
-        } catch (FaraoException e) {
+        } catch (FaraoException | ValidationException e) {
             testTapMinus1 = false;
         }
 
@@ -168,7 +191,7 @@ public final class BestTapFinder {
         if (Math.abs(angle - approxLimitAngle) / Math.abs(closestAngle - otherAngle) < 0.15) {
             // Angle is too close to the limit between two tap positions
             // Chose the tap that maximizes the margin on the most limiting element
-            Pair<Double, Double> margins = computeMinMargins(network, pstRangeAction, mostLimitingCnecs, closestAngle, otherAngle, sensitivityResult);
+            Pair<Double, Double> margins = computeMinMargins(network, pstRangeAction, mostLimitingCnecs, closestAngle, otherAngle, flowResult, sensitivityResult);
             // Exception: if choosing the tap that is not the closest one to the optimal angle does not improve the margin
             // enough (current threshold of 10%), then only the closest tap is kept
             // This is actually a workaround that mitigates adverse effects of this rounding on virtual costs
@@ -186,37 +209,30 @@ public final class BestTapFinder {
      * This method estimates the minimum margin upon a given set of cnecs, for two angles of a given PST
      *
      * @param pstRangeAction: the PstRangeAction that we should test on two angles
-     * @param cnecs:          the set of cnecs to compute the minimum margin
+     * @param flowCnecs:          the set of cnecs to compute the minimum margin
      * @param angle1:         the first angle for the PST
      * @param angle2:         the second angle for the PST
      * @return a pair of two minimum margins (margin for angle1, margin for angle2)
      */
     static Pair<Double, Double> computeMinMargins(Network network,
                                                   PstRangeAction pstRangeAction,
-                                                  List<BranchCnec> cnecs,
+                                                  List<FlowCnec> flowCnecs,
                                                   double angle1,
                                                   double angle2,
-                                                  SystematicSensitivityResult sensitivityResult) {
+                                                  FlowResult flowResult,
+                                                  SensitivityResult sensitivityResult) {
         double minMargin1 = Double.MAX_VALUE;
         double minMargin2 = Double.MAX_VALUE;
-        for (BranchCnec cnec : cnecs) {
-            double sensitivity = sensitivityResult.getSensitivityOnFlow(pstRangeAction, cnec);
+        for (FlowCnec flowCnec : flowCnecs) {
+            double sensitivity = sensitivityResult.getSensitivityValue(flowCnec, pstRangeAction, MEGAWATT);
             double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
-            double referenceFlow = sensitivityResult.getReferenceFlow(cnec);
+            double referenceFlow = flowResult.getFlow(flowCnec, MEGAWATT);
 
             double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;
             double flow2 = sensitivity * (angle2 - currentSetPoint) + referenceFlow;
 
-            Optional<Double> minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
-            if (minFlow.isPresent()) {
-                minMargin1 = Math.min(minMargin1, flow1 - minFlow.get());
-                minMargin2 = Math.min(minMargin2, flow2 - minFlow.get());
-            }
-            Optional<Double> maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            if (maxFlow.isPresent()) {
-                minMargin1 = Math.min(minMargin1, maxFlow.get() - flow1);
-                minMargin2 = Math.min(minMargin2, maxFlow.get() - flow2);
-            }
+            minMargin1 = Math.min(minMargin1, flowCnec.computeMargin(flow1, Side.LEFT, MEGAWATT));
+            minMargin2 = Math.min(minMargin2, flowCnec.computeMargin(flow2, Side.LEFT, MEGAWATT));
         }
         return Pair.of(minMargin1, minMargin2);
     }

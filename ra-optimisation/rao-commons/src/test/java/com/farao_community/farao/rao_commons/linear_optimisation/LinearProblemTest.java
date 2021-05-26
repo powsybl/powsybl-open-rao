@@ -7,29 +7,22 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.google.ortools.linearsolver.MPSolver;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Collections;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(MPSolver.class)
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class LinearProblemTest {
 
     private static final double LB = -11.1;
@@ -40,18 +33,16 @@ public class LinearProblemTest {
     private static final String RANGE_ACTION_ID = "rangeaction_id";
 
     private LinearProblem linearProblem;
-    private Cnec cnec;
+    private FlowCnec cnec;
     private RangeAction rangeAction;
 
     @Before
     public void setUp() {
         MPSolver solver = new MPSolverMock();
-        PowerMockito.mockStatic(MPSolver.class);
-        when(MPSolver.infinity()).thenAnswer(invocationOnMock -> Double.POSITIVE_INFINITY);
-        linearProblem = new LinearProblem(solver);
+        linearProblem = new LinearProblem(Collections.emptyList(), solver);
 
         rangeAction = Mockito.mock(RangeAction.class);
-        cnec = Mockito.mock(Cnec.class);
+        cnec = Mockito.mock(FlowCnec.class);
 
         Mockito.when(rangeAction.getId()).thenReturn(RANGE_ACTION_ID);
         Mockito.when(cnec.getId()).thenReturn(CNEC_ID);

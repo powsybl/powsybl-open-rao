@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -18,14 +18,14 @@ import java.io.IOException;
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class RaoResultSerializer extends StdSerializer<RaoResult> {
+public class RaoResultSerializer extends StdSerializer<RaoResultImpl> {
 
     RaoResultSerializer() {
-        super(RaoResult.class);
+        super(RaoResultImpl.class);
     }
 
     @Override
-    public void serialize(RaoResult raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(RaoResultImpl raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
 
         jsonGenerator.writeStartObject();
 

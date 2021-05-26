@@ -9,14 +9,15 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
@@ -30,51 +31,33 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
-    protected final LinearProblem linearProblem;
-    protected final Set<BranchCnec> optimizedCnecs;
+    protected final Set<FlowCnec> optimizedCnecs;
     private final Set<RangeAction> rangeActions;
     private final Unit unit;
     protected double pstPenaltyCost;
 
-    public MaxMinMarginFiller(LinearProblem linearProblem, Set<BranchCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
-        this.linearProblem = linearProblem;
+    public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.optimizedCnecs = optimizedCnecs;
         this.rangeActions = rangeActions;
         this.unit = unit;
         this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
     }
 
-    final Set<BranchCnec> getOptimizedCnecs() {
-        return optimizedCnecs;
-    }
-
-    final Set<RangeAction> getRangeActions() {
-        return rangeActions;
-    }
-
-    final Unit getUnit() {
-        return unit;
-    }
-
-    final double getPstPenaltyCost() {
-        return pstPenaltyCost;
-    }
-
     @Override
-    public void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // build variables
-        buildMinimumMarginVariable();
+        buildMinimumMarginVariable(linearProblem);
 
         // build constraints
-        buildMinimumMarginConstraints();
+        buildMinimumMarginConstraints(linearProblem);
 
         // complete objective
-        fillObjectiveWithMinMargin();
-        fillObjectiveWithRangeActionPenaltyCost();
+        fillObjectiveWithMinMargin(linearProblem);
+        fillObjectiveWithRangeActionPenaltyCost(linearProblem);
     }
 
     @Override
-    public void update(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // Objective does not change, nothing to do
     }
 
@@ -83,10 +66,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * This variable represents the smallest margin of all Cnecs.
      * It is given in MEGAWATT.
      */
-    private void buildMinimumMarginVariable() {
-
+    private void buildMinimumMarginVariable(LinearProblem linearProblem) {
         if (!optimizedCnecs.isEmpty()) {
-            linearProblem.addMinimumMarginVariable(-linearProblem.infinity(), linearProblem.infinity());
+            linearProblem.addMinimumMarginVariable(-LinearProblem.infinity(), LinearProblem.infinity());
         } else {
             // if there is no Cnecs, the minMarginVariable is forced to zero.
             // otherwise it would be unbounded in the LP
@@ -110,7 +92,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
-    private void buildMinimumMarginConstraints() {
+    private void buildMinimumMarginConstraints(LinearProblem linearProblem) {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
@@ -126,17 +108,17 @@ public class MaxMinMarginFiller implements ProblemFiller {
             Optional<Double> maxFlow;
             minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
             maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            double unitConversionCoefficient = RaoUtil.getBranchFlowUnitMultiplier(cnec, Side.LEFT, unit, MEGAWATT);
+            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, unit, MEGAWATT);
             //TODO : check that using only Side.LEFT is sufficient
 
             if (minFlow.isPresent()) {
-                MPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                MPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 minimumMarginNegative.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
-                MPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                MPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 minimumMarginPositive.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
@@ -148,7 +130,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * <p>
      * min(-MM)
      */
-    private void fillObjectiveWithMinMargin() {
+    private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
 
         if (minimumMarginVariable == null) {
@@ -165,7 +147,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * <p>
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
-    private void fillObjectiveWithRangeActionPenaltyCost() {
+    private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
         rangeActions.forEach(rangeAction -> {
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 

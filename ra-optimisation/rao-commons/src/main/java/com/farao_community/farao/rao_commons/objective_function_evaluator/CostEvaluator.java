@@ -8,8 +8,9 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
 import java.util.List;
 
@@ -18,16 +19,18 @@ import java.util.List;
  */
 public interface CostEvaluator {
 
+    String getName();
+
     /**
      * It evaluates the cost of RaoData containing a Network, a Crac and a SystematicSensitivityResult on
      * the current RaoData variant.
      *
-     * @param raoData: RaoData object to evaluate the cost on.
      * @return Double value of the RaoData cost.
+     * @param flowResult
      */
-    double computeCost(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
+    double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus);
 
     Unit getUnit();
 
-    List<BranchCnec> getMostLimitingElements(SensitivityAndLoopflowResults sensitivityAndLoopflowResults, int numberOfElements);
+    List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements);
 }

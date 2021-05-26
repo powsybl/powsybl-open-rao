@@ -7,20 +7,23 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.rao_commons.RaoUtil;
+import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,8 +35,10 @@ import static org.mockito.Mockito.when;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({RaoUtil.class})
 public class CoreProblemFillerTest extends AbstractFillerTest {
+    private LinearProblem linearProblem;
+    private CoreProblemFiller coreProblemFiller;
+    private RangeActionResult initialRangeActionResult;
     // some additional data
     private double minAlpha;
     private double maxAlpha;
@@ -47,17 +52,37 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         minAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMinAdmissibleSetpoint(0);
         maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxAdmissibleSetpoint(0);
         initialAlpha = ((PstRangeAction) rangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
+
+        initialRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, initialAlpha));
+    }
+
+    private void buildLinearProblem() {
+        linearProblem = new LinearProblem(List.of(coreProblemFiller), mpSolver);
+        linearProblem.fill(flowResult, sensitivityResult);
+    }
+
+    private void initializeForPreventive(double pstSenssitivityThreshold) {
+        initialize(cnec1, pstSenssitivityThreshold);
+    }
+
+    private void initializeForCurative() {
+        initialize(cnec2, 0);
+    }
+
+    private void initialize(FlowCnec cnec, double pstSensitivityThreshold) {
+        coreProblemFiller = new CoreProblemFiller(
+                network,
+                Set.of(cnec),
+                Set.of(rangeAction),
+                initialRangeActionResult,
+                pstSensitivityThreshold
+        );
+        buildLinearProblem();
     }
 
     @Test
     public void fillTestOnPreventive() {
-        coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
-                network,
-                Set.of(cnec1),
-                Map.of(rangeAction, initialAlpha),
-                0.);
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+        initializeForPreventive(0);
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
@@ -110,19 +135,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
         //      - 2 per range action (absolute variation constraints)
-        assertEquals(3, linearProblem.getSolver().numVariables());
-        assertEquals(3, linearProblem.getSolver().numConstraints());
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(3, linearProblem.numConstraints());
     }
 
     @Test
     public void fillTestOnPreventiveFiltered() {
-        coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
-                network,
-                Set.of(cnec1),
-                Map.of(rangeAction, initialAlpha),
-                2.5);
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+        initializeForPreventive(2.5);
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
@@ -175,19 +194,13 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
         //      - 2 per range action (absolute variation constraints)
-        assertEquals(3, linearProblem.getSolver().numVariables());
-        assertEquals(3, linearProblem.getSolver().numConstraints());
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(3, linearProblem.numConstraints());
     }
 
     @Test
     public void fillTestOnCurative() {
-        coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
-                network,
-                Set.of(cnec2),
-                Map.of(rangeAction, initialAlpha),
-                0.);
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+        initializeForCurative();
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
@@ -240,38 +253,29 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
         //      - 2 per range action (absolute variation constraints)
-        assertEquals(3, linearProblem.getSolver().numVariables());
-        assertEquals(3, linearProblem.getSolver().numConstraints());
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(3, linearProblem.numConstraints());
     }
 
-    private void updateProblemWithCoreFiller() {
+    private void updateLinearProblem() {
         // arrange some additional data
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_IT2);
         initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
 
-        when(systematicSensitivityResult.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT2);
-        when(systematicSensitivityResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT2);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT2);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT2);
+        when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT2);
+        when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT2);
+        when(sensitivityResult.getSensitivityValue(cnec1, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT2);
+        when(sensitivityResult.getSensitivityValue(cnec2, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
 
-        // fill the problem
-        coreProblemFiller.update(sensitivityAndLoopflowResults);
+        // update the problem
+        linearProblem.update(flowResult, sensitivityResult);
     }
 
     @Test
     public void updateTestOnPreventive() {
-        coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
-                network,
-                Set.of(cnec1),
-                Map.of(rangeAction, initialAlpha),
-                0.);
-
-        // fill a first time the linearRaoProblem with some data
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
-
+        initializeForPreventive(0);
         // update the problem with new data
-        updateProblemWithCoreFiller();
+        updateLinearProblem();
 
         // some additional data
         final double currentAlpha = ((PstRangeAction) rangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
@@ -307,24 +311,15 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
         //      - 2 per range action (absolute variation constraints)
-        assertEquals(3, linearProblem.getSolver().numVariables());
-        assertEquals(3, linearProblem.getSolver().numConstraints());
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(3, linearProblem.numConstraints());
     }
 
     @Test
     public void updateTestOnCurative() {
-        coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
-                network,
-                Set.of(cnec2),
-                Map.of(rangeAction, initialAlpha),
-                0.);
-
-        // fill a first time the linearRaoProblem with some data
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
-
+        initializeForCurative();
         // update the problem with new data
-        updateProblemWithCoreFiller();
+        updateLinearProblem();
 
         // some additional data
         final double currentAlpha = ((PstRangeAction) rangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
@@ -360,8 +355,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // total number of constraints 4 :
         //      - 1 per CNEC (flow constraint)
         //      - 2 per range action (absolute variation constraints)
-        assertEquals(3, linearProblem.getSolver().numVariables());
-        assertEquals(3, linearProblem.getSolver().numConstraints());
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(3, linearProblem.numConstraints());
     }
 
     @Test
@@ -397,15 +392,15 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
         RangeAction ra1 = crac.getRangeAction("pst1-group1");
         RangeAction ra2 = crac.getRangeAction("pst2-group1");
+
         coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
                 network,
                 Set.of(cnec1),
-                Map.of(rangeAction, initialAlpha, ra1, 0., ra2, 0.),
-                0.);
-
-        // fill a first time the linearRaoProblem with some data
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+                Set.of(rangeAction, ra1, ra2),
+                new RangeActionResultImpl(Map.of(rangeAction, initialAlpha, ra1, 0., ra2, 0.)),
+                0.
+        );
+        buildLinearProblem();
 
         // check the number of variables and constraints
         // total number of variables 8 :
@@ -416,20 +411,22 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         //      - 1 per CNEC (flow constraint)
         //      - 2 per range action (absolute variation constraints) x 3
         //      - 1 per range action in a group (group constraint) x 2
-        assertEquals(8, linearProblem.getSolver().numVariables());
-        assertEquals(9, linearProblem.getSolver().numConstraints());
+        assertEquals(8, linearProblem.numVariables());
+        assertEquals(9, linearProblem.numConstraints());
     }
 
     @Test
     public void updateWithoutFillingTest() {
         coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
                 network,
                 Set.of(cnec1),
-                Map.of(rangeAction, initialAlpha),
-                0.);
+                Set.of(rangeAction),
+                initialRangeActionResult,
+                0.
+        );
+        linearProblem = new LinearProblem(List.of(coreProblemFiller), mpSolver);
         try {
-            updateProblemWithCoreFiller();
+            updateLinearProblem();
             fail();
         } catch (FaraoException e) {
             // should throw

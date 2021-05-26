@@ -8,13 +8,14 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.RangeActionResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
@@ -28,69 +29,57 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CoreProblemFiller implements ProblemFiller {
-    private final LinearProblem linearProblem;
     private final Network network;
-    private final Set<BranchCnec> cnecs;
-    private final Map<RangeAction, Double> prePerimeterSetPointPerRangeAction;
+    private final Set<FlowCnec> flowCnecs;
+    private final Set<RangeAction> rangeActions;
+    private final RangeActionResult prePerimeterRangeActionResult;
     private final double pstSensitivityThreshold;
 
-    public CoreProblemFiller(LinearProblem linearProblem,
-                             Network network,
-                             Set<BranchCnec> cnecs,
-                             Map<RangeAction, Double> prePerimeterSetPointPerRangeAction,
+    public CoreProblemFiller(Network network,
+                             Set<FlowCnec> flowCnecs,
+                             Set<RangeAction> rangeActions,
+                             RangeActionResult prePerimeterRangeActionResult,
                              double pstSensitivityThreshold) {
-        this.linearProblem = linearProblem;
         this.network = network;
-        this.cnecs = cnecs;
-        this.prePerimeterSetPointPerRangeAction = prePerimeterSetPointPerRangeAction;
+        this.flowCnecs = flowCnecs;
+        this.rangeActions = rangeActions;
+        this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
     }
 
-    final Set<BranchCnec> getCnecs() {
-        return cnecs;
-    }
-
-    final Map<RangeAction, Double> getPrePerimeterSetPointPerRangeAction() {
-        return prePerimeterSetPointPerRangeAction;
-    }
-
-    final double getPstSensitivityThreshold() {
-        return pstSensitivityThreshold;
-    }
-
     private Set<RangeAction> getRangeActions() {
-        return prePerimeterSetPointPerRangeAction.keySet();
+        return rangeActions;
     }
 
     @Override
-    public void fill(SensitivityAndLoopflowResults sensitivityResult) {
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // add variables
-        buildFlowVariables();
+        buildFlowVariables(linearProblem);
         getRangeActions().forEach(rangeAction -> {
-            double prePerimeterSetpoint = prePerimeterSetPointPerRangeAction.get(rangeAction);
-            buildRangeActionSetPointVariables(network, rangeAction, prePerimeterSetpoint);
-            buildRangeActionAbsoluteVariationVariables(rangeAction);
-            buildRangeActionGroupConstraint(rangeAction);
+            double prePerimeterSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
+            buildRangeActionSetPointVariables(linearProblem, rangeAction, prePerimeterSetpoint);
+            buildRangeActionAbsoluteVariationVariables(linearProblem, rangeAction);
+            buildRangeActionGroupConstraint(linearProblem, rangeAction);
         });
 
         // add constraints
-        buildFlowConstraints(sensitivityResult.getSystematicSensitivityResult());
-        buildRangeActionConstraints();
+        buildFlowConstraints(linearProblem, flowResult, sensitivityResult);
+        buildRangeActionConstraints(linearProblem);
     }
 
     @Override
-    public void update(SensitivityAndLoopflowResults sensitivityResult) {
+    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // update reference flow and sensitivities of flow constraints
-        updateFlowConstraints(sensitivityResult.getSystematicSensitivityResult());
+        updateFlowConstraints(linearProblem, flowResult, sensitivityResult);
     }
 
     /**
      * Build one flow variable F[c] for each Cnec c
      * This variable describes the estimated flow on the given Cnec c, in MEGAWATT
      */
-    private void buildFlowVariables() {
-        cnecs.forEach(cnec ->
-                linearProblem.addFlowVariable(-linearProblem.infinity(), linearProblem.infinity(), cnec)
+    private void buildFlowVariables(LinearProblem linearProblem) {
+        flowCnecs.forEach(cnec ->
+                linearProblem.addFlowVariable(-LinearProblem.infinity(), LinearProblem.infinity(), cnec)
         );
     }
 
@@ -107,7 +96,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * initialSetPoint[r] - maxNegativeVariation[r] <= S[r]
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
-    private void buildRangeActionSetPointVariables(Network network, RangeAction rangeAction, double prePerimeterValue) {
+    private void buildRangeActionSetPointVariables(LinearProblem linearProblem, RangeAction rangeAction, double prePerimeterValue) {
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterValue);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterValue);
         linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
@@ -121,8 +110,8 @@ public class CoreProblemFiller implements ProblemFiller {
      *     <li>in DEGREE for PST range actions</li>
      * </ul>
      */
-    private void buildRangeActionAbsoluteVariationVariables(RangeAction rangeAction) {
-        linearProblem.addAbsoluteRangeActionVariationVariable(0, linearProblem.infinity(), rangeAction);
+    private void buildRangeActionAbsoluteVariationVariables(LinearProblem linearProblem, RangeAction rangeAction) {
+        linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction);
     }
 
     /**
@@ -132,10 +121,10 @@ public class CoreProblemFiller implements ProblemFiller {
      *
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void buildFlowConstraints(SystematicSensitivityResult sensitivityResult) {
-        cnecs.forEach(cnec -> {
+    private void buildFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        flowCnecs.forEach(cnec -> {
             // create constraint
-            double referenceFlow = sensitivityResult.getReferenceFlow(cnec);
+            double referenceFlow = flowResult.getFlow(cnec, Unit.MEGAWATT);
             MPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec);
 
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
@@ -146,7 +135,7 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
-            addImpactOfRangeActionOnCnec(sensitivityResult, cnec);
+            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec);
         });
     }
 
@@ -155,9 +144,9 @@ public class CoreProblemFiller implements ProblemFiller {
      *
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void updateFlowConstraints(SystematicSensitivityResult sensitivityResult) {
-        cnecs.forEach(cnec -> {
-            double referenceFlow = sensitivityResult.getReferenceFlow(cnec);
+    private void updateFlowConstraints(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        flowCnecs.forEach(cnec -> {
+            double referenceFlow = flowResult.getFlow(cnec, Unit.MEGAWATT);
             MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
             if (flowConstraint == null) {
                 throw new FaraoException(format("Flow constraint on %s has not been defined yet.", cnec.getId()));
@@ -168,11 +157,11 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setLb(referenceFlow);
 
             //reset sensitivity coefficients
-            addImpactOfRangeActionOnCnec(sensitivityResult, cnec);
+            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec);
         });
     }
 
-    private void addImpactOfRangeActionOnCnec(SystematicSensitivityResult sensitivityResult, Cnec<?> cnec) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec) {
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
         MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
 
@@ -182,20 +171,20 @@ public class CoreProblemFiller implements ProblemFiller {
 
         getRangeActions().forEach(rangeAction -> {
             if (rangeAction instanceof PstRangeAction) {
-                addImpactOfPstOnCnec(sensitivityResult, rangeAction, cnec, flowConstraint);
+                addImpactOfPstOnCnec(linearProblem, sensitivityResult, rangeAction, cnec, flowConstraint);
             } else {
                 throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
             }
         });
     }
 
-    private void addImpactOfPstOnCnec(SystematicSensitivityResult sensitivityResult, RangeAction rangeAction, Cnec<?> cnec, MPConstraint flowConstraint) {
+    private void addImpactOfPstOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
         if (setPointVariable == null) {
             throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
         }
 
-        double sensitivity = sensitivityResult.getSensitivityOnFlow(rangeAction, cnec);
+        double sensitivity = sensitivityResult.getSensitivityValue(cnec, rangeAction, Unit.MEGAWATT);
 
         if (Math.abs(sensitivity) >= pstSensitivityThreshold) {
             double currentSetPoint = rangeAction.getCurrentSetpoint(network);
@@ -216,11 +205,21 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= S[r] - initialSetPoint[r]     (NEGATIVE)
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
-    private void buildRangeActionConstraints() {
+    private void buildRangeActionConstraints(LinearProblem linearProblem) {
         getRangeActions().forEach(rangeAction -> {
-            double prePerimeterSetPoint = prePerimeterSetPointPerRangeAction.get(rangeAction);
-            MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(-prePerimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.NEGATIVE);
-            MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(prePerimeterSetPoint, linearProblem.infinity(), rangeAction, LinearProblem.AbsExtension.POSITIVE);
+            double prePerimeterSetPoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
+            MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
+                    -prePerimeterSetPoint,
+                    LinearProblem.infinity(),
+                    rangeAction,
+                    LinearProblem.AbsExtension.NEGATIVE
+            );
+            MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
+                    prePerimeterSetPoint,
+                    LinearProblem.infinity(),
+                    rangeAction,
+                    LinearProblem.AbsExtension.POSITIVE
+            );
 
             MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -233,19 +232,19 @@ public class CoreProblemFiller implements ProblemFiller {
         });
     }
 
-    private void buildRangeActionGroupConstraint(RangeAction rangeAction) {
+    private void buildRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction rangeAction) {
         Optional<String> optGroupId = rangeAction.getGroupId();
         if (optGroupId.isPresent()) {
             String groupId = optGroupId.get();
             // For the first time the group ID is encountered a common variable for set point has to be created
             if (linearProblem.getRangeActionGroupSetPointVariable(groupId) == null) {
-                linearProblem.addRangeActionGroupSetPointVariable(-linearProblem.infinity(), linearProblem.infinity(), groupId);
+                linearProblem.addRangeActionGroupSetPointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId);
             }
-            addRangeActionGroupConstraint(rangeAction, groupId);
+            addRangeActionGroupConstraint(linearProblem, rangeAction, groupId);
         }
     }
 
-    private void addRangeActionGroupConstraint(RangeAction rangeAction, String groupId) {
+    private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction rangeAction, String groupId) {
         MPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetPointConstraint(0, 0, rangeAction);
         groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetPointVariable(rangeAction), 1);
         groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetPointVariable(groupId), -1);

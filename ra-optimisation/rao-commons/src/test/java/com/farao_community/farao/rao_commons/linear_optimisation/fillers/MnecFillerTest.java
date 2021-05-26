@@ -9,32 +9,37 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.MnecParameters;
+import com.farao_community.farao.rao_api.parameters.MnecParameters;
+import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
 public class MnecFillerTest extends AbstractFillerTest {
-    private BranchCnec mnec1;
-    private BranchCnec mnec2;
-    private MnecParameters parameters;
+    private LinearProblem linearProblem;
+    private CoreProblemFiller coreProblemFiller;
+    private FlowCnec mnec1;
+    private FlowCnec mnec2;
 
     @Before
     public void setUp() {
@@ -71,22 +76,26 @@ public class MnecFillerTest extends AbstractFillerTest {
 
         // fill the problem : the core filler is required
         coreProblemFiller = new CoreProblemFiller(
-                linearProblem,
                 network,
                 Set.of(mnec1, mnec2),
-                Collections.emptyMap(),
-                0);
-        coreProblemFiller.fill(sensitivityAndLoopflowResults);
+                Collections.emptySet(),
+                new RangeActionResultImpl(Collections.emptyMap()),
+                0.
+        );
     }
 
     private void fillProblemWithFiller(Unit unit) {
-        parameters = new MnecParameters(50, 10, 3.5);
+        MnecParameters parameters = new MnecParameters(50, 10, 3.5);
+        FlowResult flowResult = Mockito.mock(FlowResult.class);
+        when(flowResult.getFlow(mnec1, Unit.MEGAWATT)).thenReturn(900.);
+        when(flowResult.getFlow(mnec2, Unit.MEGAWATT)).thenReturn(-200.);
         MnecFiller mnecFiller = new MnecFiller(
-                linearProblem,
-                Map.of(mnec1, 900., mnec2, -200.),
+                flowResult,
+                Set.of(mnec1, mnec2),
                 unit,
                 parameters);
-        mnecFiller.fill(sensitivityAndLoopflowResults);
+        linearProblem = new LinearProblem(List.of(coreProblemFiller, mnecFiller), mpSolver);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 
     @Test

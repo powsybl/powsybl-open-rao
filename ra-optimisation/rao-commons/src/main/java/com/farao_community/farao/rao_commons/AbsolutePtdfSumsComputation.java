@@ -8,7 +8,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -23,35 +23,39 @@ import java.util.stream.Collectors;
  *  @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  *  @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class AbsolutePtdfSumsComputation {
-    private AbsolutePtdfSumsComputation() { }
+public class AbsolutePtdfSumsComputation {
+    private final ZonalData<LinearGlsk> glskProvider;
+    private final List<ZoneToZonePtdfDefinition> zTozPtdfs;
 
-    public static Map<BranchCnec, Double> computeAbsolutePtdfSums(Set<BranchCnec> cnecs, ZonalData<LinearGlsk> glsk, List<ZoneToZonePtdfDefinition> zTozPtdfs, SystematicSensitivityResult sensitivityResult) {
+    public AbsolutePtdfSumsComputation(ZonalData<LinearGlsk> glskProvider, List<ZoneToZonePtdfDefinition> zTozPtdfs) {
+        this.glskProvider = glskProvider;
+        this.zTozPtdfs = zTozPtdfs;
+    }
 
-        Map<BranchCnec, Double> ptdfSums = new HashMap<>();
+    public Map<FlowCnec, Double> computeAbsolutePtdfSums(Set<FlowCnec> flowCnecs, SystematicSensitivityResult sensitivityResult) {
+        Map<FlowCnec, Double> ptdfSums = new HashMap<>();
         List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).collect(Collectors.toList());
-        for (BranchCnec cnec : cnecs) {
-            Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(cnec, glsk, eiCodesInPtdfs, sensitivityResult);
+        for (FlowCnec flowCnec : flowCnecs) {
+            Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(flowCnec, glskProvider, eiCodesInPtdfs, sensitivityResult);
             double sumOfZToZPtdf = zTozPtdfs.stream().mapToDouble(zToz -> Math.abs(computeZToZPtdf(zToz, ptdfMap))).sum();
-            ptdfSums.put(cnec, sumOfZToZPtdf);
+            ptdfSums.put(flowCnec, sumOfZToZPtdf);
         }
         return ptdfSums;
     }
 
-    private static Map<EICode, Double> buildZoneToSlackPtdfMap(BranchCnec cnec, ZonalData<LinearGlsk> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult) {
-
+    private Map<EICode, Double> buildZoneToSlackPtdfMap(FlowCnec flowCnec, ZonalData<LinearGlsk> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult) {
         Map<EICode, Double> ptdfs = new HashMap<>();
         for (EICode eiCode : eiCodesInBoundaries) {
             LinearGlsk linearGlsk = glsks.getData(eiCode.getAreaCode());
             if (linearGlsk != null) {
-                double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, cnec);
+                double ptdfValue = sensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec);
                 ptdfs.put(eiCode, ptdfValue);
             }
         }
         return ptdfs;
     }
 
-    private static double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
+    private double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
         if (zToz.getZoneToSlackPtdfs().stream().anyMatch(zToS -> !zToSlackPtdfMap.containsKey(zToS.getEiCode()))) {
             // If one zone is missing its PTDF, ignore the boundary
             return 0;

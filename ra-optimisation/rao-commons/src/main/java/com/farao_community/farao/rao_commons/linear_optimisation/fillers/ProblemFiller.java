@@ -7,14 +7,16 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
+import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public interface ProblemFiller {
 
-    void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
+    void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult);
 
-    void update(SensitivityAndLoopflowResults sensitivityAndLoopflowResults);
+    void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult);
 }

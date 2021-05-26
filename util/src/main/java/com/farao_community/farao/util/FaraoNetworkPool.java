@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(FaraoNetworkPool.class);
-    private final BlockingQueue<Network> networksQueue;
+    protected final BlockingQueue<Network> networksQueue;
     private final String targetVariant;
 
     // State used to save initial content of target variant.
@@ -46,7 +46,7 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
         this(network, targetVariant, Runtime.getRuntime().availableProcessors());
     }
 
-    private void initAvailableNetworks(Network network) {
+    protected void initAvailableNetworks(Network network) {
         LOGGER.info("Filling network pool with copies of network '{}' on variant '{}'", network.getId(), targetVariant);
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().setWorkingVariant(targetVariant);
@@ -71,7 +71,7 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
         return networkClone;
     }
 
-    private void cleanVariants(Network networkClone) {
+    protected void cleanVariants(Network networkClone) {
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
                 .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
                 .filter(variantId -> !variantId.equals(stateSaveVariant))

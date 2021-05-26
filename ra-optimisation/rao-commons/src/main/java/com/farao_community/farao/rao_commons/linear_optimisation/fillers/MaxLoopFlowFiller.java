@@ -8,17 +8,16 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.SensitivityAndLoopflowResults;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.rao_commons.linear_optimisation.parameters.LoopFlowParameters;
+import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -26,54 +25,34 @@ import java.util.Set;
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class MaxLoopFlowFiller implements ProblemFiller {
-    private final LinearProblem linearProblem;
-    private final Map<BranchCnec, Double> initialLoopFlowPerLoopFlowCnec;
+    private final Set<FlowCnec> loopFlowCnecs;
+    private final FlowResult initialFlowResult;
     private final RaoParameters.LoopFlowApproximationLevel loopFlowApproximationLevel;
     private final double loopFlowAcceptableAugmentation;
     private final double loopFlowViolationCost;
     private final double loopFlowConstraintAdjustmentCoefficient;
 
-    public MaxLoopFlowFiller(LinearProblem linearProblem, Map<BranchCnec, Double> initialLoopFlowPerLoopFlowCnec, LoopFlowParameters loopFlowParameters) {
-        this.linearProblem = linearProblem;
-        this.initialLoopFlowPerLoopFlowCnec = initialLoopFlowPerLoopFlowCnec;
+    public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, LoopFlowParameters loopFlowParameters) {
+        this.loopFlowCnecs = loopFlowCnecs;
+        this.initialFlowResult = initialFlowResult;
         this.loopFlowApproximationLevel = loopFlowParameters.getLoopFlowApproximationLevel();
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getLoopFlowAcceptableAugmentation();
         this.loopFlowViolationCost = loopFlowParameters.getLoopFlowViolationCost();
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowParameters.getLoopFlowConstraintAdjustmentCoefficient();
     }
 
-    final Map<BranchCnec, Double> getInitialLoopFlowPerLoopFlowCnec() {
-        return initialLoopFlowPerLoopFlowCnec;
-    }
-
-    final RaoParameters.LoopFlowApproximationLevel getLoopFlowApproximationLevel() {
-        return loopFlowApproximationLevel;
-    }
-
-    final double getLoopFlowAcceptableAugmentation() {
-        return loopFlowAcceptableAugmentation;
-    }
-
-    final double getLoopFlowViolationCost() {
-        return loopFlowViolationCost;
-    }
-
-    final double getLoopFlowConstraintAdjustmentCoefficient() {
-        return loopFlowConstraintAdjustmentCoefficient;
-    }
-
-    private Set<BranchCnec> getLoopFlowCnecs() {
-        return initialLoopFlowPerLoopFlowCnec.keySet();
+    private Set<FlowCnec> getLoopFlowCnecs() {
+        return loopFlowCnecs;
     }
 
     @Override
-    public void fill(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
-        buildLoopFlowConstraintsAndUpdateObjectiveFunction(sensitivityAndLoopflowResults);
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        buildLoopFlowConstraintsAndUpdateObjectiveFunction(linearProblem, flowResult);
     }
 
     @Override
-    public void update(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
-        updateLoopFlowConstraints(sensitivityAndLoopflowResults);
+    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        updateLoopFlowConstraints(linearProblem, flowResult);
     }
 
     /**
@@ -98,9 +77,9 @@ public class MaxLoopFlowFiller implements ProblemFiller {
      * NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + CommercialFlow
      * and a "virtual cost" is added to objective function as "loopflowViolationVariable * Loopflow violation cost"
      */
-    private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    private void buildLoopFlowConstraintsAndUpdateObjectiveFunction(LinearProblem linearProblem, FlowResult flowResult) {
 
-        for (BranchCnec cnec : getLoopFlowCnecs()) {
+        for (FlowCnec cnec : getLoopFlowCnecs()) {
 
             // build loopFlow upper bound, with inputThreshold, initial loop-flows, and configuration parameters
             double loopFlowUpperBound = getLoopFlowUpperBound(cnec);
@@ -116,7 +95,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
             MPVariable loopflowViolationVariable = linearProblem.addLoopflowViolationVariable(
                     0,
-                    linearProblem.infinity(),
+                    LinearProblem.infinity(),
                     cnec
             );
 
@@ -125,8 +104,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             // NEGATIVE_INF <= flowVariable - loopflowViolationVariable <= MaxLoopFlow + commercialFlow
 
             MPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
-                    -loopFlowUpperBound + sensitivityAndLoopflowResults.getCommercialFlow(cnec),
-                    linearProblem.infinity(),
+                    -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, Unit.MEGAWATT),
+                    LinearProblem.infinity(),
                     cnec,
                     LinearProblem.BoundExtension.LOWER_BOUND
             );
@@ -134,8 +113,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
             positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1);
 
             MPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
-                    -linearProblem.infinity(),
-                    loopFlowUpperBound + sensitivityAndLoopflowResults.getCommercialFlow(cnec),
+                    -LinearProblem.infinity(),
+                    loopFlowUpperBound + flowResult.getCommercialFlow(cnec, Unit.MEGAWATT),
                     cnec,
                     LinearProblem.BoundExtension.UPPER_BOUND
             );
@@ -150,38 +129,37 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     /**
      * Update LoopFlow constraints' bounds when commercial flows have changed
      */
-    private void updateLoopFlowConstraints(SensitivityAndLoopflowResults sensitivityAndLoopflowResults) {
+    private void updateLoopFlowConstraints(LinearProblem linearProblem, FlowResult flowResult) {
 
         if (!loopFlowApproximationLevel.shouldUpdatePtdfWithPstChange()) {
             return;
         }
 
-        for (BranchCnec cnec : getLoopFlowCnecs()) {
+        for (FlowCnec loopFlowCnec : getLoopFlowCnecs()) {
 
-            double loopFlowUpperBound = getLoopFlowUpperBound(cnec);
+            double loopFlowUpperBound = getLoopFlowUpperBound(loopFlowCnec);
             if (loopFlowUpperBound == Double.POSITIVE_INFINITY) {
                 continue;
             }
-            double commercialFlow = sensitivityAndLoopflowResults.getCommercialFlow(cnec);
+            double commercialFlow = flowResult.getCommercialFlow(loopFlowCnec, Unit.MEGAWATT);
 
-            MPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.LOWER_BOUND);
+            MPConstraint positiveLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, LinearProblem.BoundExtension.LOWER_BOUND);
             if (positiveLoopflowViolationConstraint == null) {
-                throw new FaraoException(String.format("Positive LoopFlow violation constraint on %s has not been defined yet.", cnec.getId()));
+                throw new FaraoException(String.format("Positive LoopFlow violation constraint on %s has not been defined yet.", loopFlowCnec.getId()));
             }
             positiveLoopflowViolationConstraint.setLb(-loopFlowUpperBound + commercialFlow);
 
-            MPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.UPPER_BOUND);
+            MPConstraint negativeLoopflowViolationConstraint = linearProblem.getMaxLoopFlowConstraint(loopFlowCnec, LinearProblem.BoundExtension.UPPER_BOUND);
             if (negativeLoopflowViolationConstraint == null) {
-                throw new FaraoException(String.format("Negative LoopFlow violation constraint on %s has not been defined yet.", cnec.getId()));
+                throw new FaraoException(String.format("Negative LoopFlow violation constraint on %s has not been defined yet.", loopFlowCnec.getId()));
             }
             negativeLoopflowViolationConstraint.setUb(loopFlowUpperBound + commercialFlow);
         }
     }
 
-    private double getLoopFlowUpperBound(BranchCnec cnec) {
-        double loopFlowThreshold = ((FlowCnec) cnec).getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        //TODO : move loopflow threshold
-        double initialLoopFlow = initialLoopFlowPerLoopFlowCnec.get(cnec);
+    private double getLoopFlowUpperBound(FlowCnec loopFlowCnec) {
+        double loopFlowThreshold = loopFlowCnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
+        double initialLoopFlow = initialFlowResult.getLoopFlow(loopFlowCnec, Unit.MEGAWATT);
         return Math.max(0.0,
             Math.max(loopFlowThreshold, Math.abs(initialLoopFlow) + loopFlowAcceptableAugmentation) - loopFlowConstraintAdjustmentCoefficient);
     }
