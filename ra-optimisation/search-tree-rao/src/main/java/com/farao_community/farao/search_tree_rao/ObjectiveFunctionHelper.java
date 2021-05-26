@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.*;
 
 import java.util.Set;
@@ -24,15 +24,15 @@ public final class ObjectiveFunctionHelper {
     }
 
     public static ObjectiveFunction.ObjectiveFunctionBuilder addMinMarginObjectiveFunction(
-            Set<BranchCnec> cnecs,
-            BranchResult prePerimeterBranchResult,
+            Set<FlowCnec> cnecs,
+            FlowResult prePerimeterFlowResult,
             ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder,
             LinearOptimizerParameters linearOptimizerParameters) {
         MarginEvaluator marginEvaluator;
         if (linearOptimizerParameters.hasRelativeMargins()) {
-            marginEvaluator = BranchResult::getRelativeMargin;
+            marginEvaluator = FlowResult::getRelativeMargin;
         } else {
-            marginEvaluator = BranchResult::getMargin;
+            marginEvaluator = FlowResult::getMargin;
         }
         if (linearOptimizerParameters.getUnoptimizedCnecParameters() != null) {
             objectiveFunctionBuilder.withFunctionalCostEvaluator(new MinMarginEvaluator(
@@ -41,7 +41,7 @@ public final class ObjectiveFunctionHelper {
                     new MarginEvaluatorWithUnoptimizedCnecs(
                             marginEvaluator,
                             linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize(),
-                            prePerimeterBranchResult
+                            prePerimeterFlowResult
                     )
             ));
         } else {

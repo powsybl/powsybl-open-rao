@@ -9,13 +9,13 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.OnStateImpl;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.google.ortools.linearsolver.MPSolver;
@@ -61,10 +61,10 @@ abstract class AbstractFillerTest {
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
 
     MPSolver mpSolver;
-    BranchCnec cnec1;
-    BranchCnec cnec2;
+    FlowCnec cnec1;
+    FlowCnec cnec2;
     RangeAction rangeAction;
-    BranchResult branchResult;
+    FlowResult flowResult;
     SensitivityResult sensitivityResult;
     Crac crac;
     Network network;
@@ -87,9 +87,9 @@ abstract class AbstractFillerTest {
         PowerMockito.mockStatic(MPSolver.class);
         when(MPSolver.infinity()).thenAnswer((Answer<Double>) invocation -> Double.POSITIVE_INFINITY);
 
-        branchResult = Mockito.mock(BranchResult.class);
-        when(branchResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(branchResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
+        flowResult = Mockito.mock(FlowResult.class);
+        when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
+        when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
 
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityValue(cnec1, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);

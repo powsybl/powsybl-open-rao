@@ -47,7 +47,7 @@ public class IteratingLinearOptimizerTest {
 
     private LinearProblem linearProblem;
     private Network network;
-    private BranchResult branchResult;
+    private FlowResult flowResult;
     private SensitivityResult sensitivityResult;
     private RangeActionResult rangeActionResult;
     private BranchResultAdapter branchResultAdapter;
@@ -68,7 +68,7 @@ public class IteratingLinearOptimizerTest {
 
         linearProblem = Mockito.mock(LinearProblem.class);
         network = Mockito.mock(Network.class);
-        branchResult = Mockito.mock(BranchResult.class);
+        this.flowResult = Mockito.mock(FlowResult.class);
         sensitivityResult = Mockito.mock(SensitivityResult.class);
         rangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, 0.));
         branchResultAdapter = Mockito.mock(BranchResultAdapter.class);
@@ -76,9 +76,9 @@ public class IteratingLinearOptimizerTest {
 
         SystematicSensitivityResult sensi = Mockito.mock(SystematicSensitivityResult.class, "only sensi computation");
         when(systematicSensitivityInterface.run(network)).thenReturn(sensi);
-        BranchResult branchResult = Mockito.mock(BranchResult.class);
-        when(branchResultAdapter.getResult(sensi)).thenReturn(branchResult);
-        when(sensitivityComputer.getBranchResult()).thenReturn(branchResult);
+        FlowResult flowResult = Mockito.mock(FlowResult.class);
+        when(branchResultAdapter.getResult(sensi)).thenReturn(flowResult);
+        when(sensitivityComputer.getBranchResult()).thenReturn(flowResult);
         when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
@@ -123,7 +123,7 @@ public class IteratingLinearOptimizerTest {
         return optimizer.optimize(
                 linearProblem,
                 network,
-                branchResult,
+                flowResult,
                 sensitivityResult,
                 rangeActionResult,
                 sensitivityComputer
@@ -224,6 +224,7 @@ public class IteratingLinearOptimizerTest {
 
     }
 
+    // TODO: check what to do with these commented tests
     /*@Test
     public void testRemoveRangeActionsIfMaxNumberReached() {
         PstRangeActionImpl rangeActionToRemove = new PstRangeActionImpl("PRA_PST_BE_2", "PRA_PST_BE_2", "BE", new NetworkElement("BBE2AA1  BBE3AA1  1"));

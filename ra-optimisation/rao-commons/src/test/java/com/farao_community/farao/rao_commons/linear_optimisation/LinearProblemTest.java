@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.google.ortools.linearsolver.MPSolver;
@@ -33,7 +33,7 @@ public class LinearProblemTest {
     private static final String RANGE_ACTION_ID = "rangeaction_id";
 
     private LinearProblem linearProblem;
-    private BranchCnec cnec;
+    private FlowCnec cnec;
     private RangeAction rangeAction;
 
     @Before
@@ -42,7 +42,7 @@ public class LinearProblemTest {
         linearProblem = new LinearProblem(Collections.emptyList(), solver);
 
         rangeAction = Mockito.mock(RangeAction.class);
-        cnec = Mockito.mock(BranchCnec.class);
+        cnec = Mockito.mock(FlowCnec.class);
 
         Mockito.when(rangeAction.getId()).thenReturn(RANGE_ACTION_ID);
         Mockito.when(cnec.getId()).thenReturn(CNEC_ID);

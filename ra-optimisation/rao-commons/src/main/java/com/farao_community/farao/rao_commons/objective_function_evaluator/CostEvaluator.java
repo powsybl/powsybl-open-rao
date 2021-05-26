@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
 import java.util.List;
@@ -26,11 +26,11 @@ public interface CostEvaluator {
      * the current RaoData variant.
      *
      * @return Double value of the RaoData cost.
-     * @param branchResult
+     * @param flowResult
      */
-    double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus);
+    double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus);
 
     Unit getUnit();
 
-    List<BranchCnec> getCostlyElements(BranchResult branchResult, int numberOfElements);
+    List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements);
 }

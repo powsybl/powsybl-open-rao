@@ -9,8 +9,8 @@ package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,30 +27,30 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class BranchResultImplTest {
+public class FlowResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     SystematicSensitivityResult systematicSensitivityResult;
-    BranchCnec loopFlowCnec;
-    BranchCnec optimizedCnec;
-    BranchResultImpl branchResult;
+    FlowCnec loopFlowCnec;
+    FlowCnec optimizedCnec;
+    FlowResultImpl branchResult;
 
     @Before
     public void setUp() {
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        loopFlowCnec = Mockito.mock(BranchCnec.class);
-        optimizedCnec = Mockito.mock(BranchCnec.class);
+        loopFlowCnec = Mockito.mock(FlowCnec.class);
+        optimizedCnec = Mockito.mock(FlowCnec.class);
 
-        BranchResult fixedCommercialFlows = Mockito.mock(BranchResult.class);
+        FlowResult fixedCommercialFlows = Mockito.mock(FlowResult.class);
         when(fixedCommercialFlows.getCommercialFlow(loopFlowCnec, Unit.MEGAWATT)).thenReturn(200.);
         when(fixedCommercialFlows.getCommercialFlow(eq(optimizedCnec), any())).thenThrow(new FaraoException("a mock of what would happen if trying to access LF"));
 
-        BranchResult fixedPtdfs = Mockito.mock(BranchResult.class);
+        FlowResult fixedPtdfs = Mockito.mock(FlowResult.class);
         when(fixedPtdfs.getPtdfZonalSums()).thenReturn(Map.of(optimizedCnec, 30.));
         when(fixedPtdfs.getPtdfZonalSum(optimizedCnec)).thenReturn(30.);
         when(fixedPtdfs.getPtdfZonalSum(loopFlowCnec)).thenThrow(new FaraoException("a mock of what would happen if trying to access ptdf sum"));
 
-        branchResult = new BranchResultImpl(
+        branchResult = new FlowResultImpl(
                 systematicSensitivityResult,
                 fixedCommercialFlows,
                 fixedPtdfs

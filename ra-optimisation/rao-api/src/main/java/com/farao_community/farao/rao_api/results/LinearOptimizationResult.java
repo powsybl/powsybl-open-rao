@@ -10,7 +10,7 @@ package com.farao_community.farao.rao_api.results;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface LinearOptimizationResult extends BranchResult, SensitivityResult, RangeActionResult, ObjectiveFunctionResult {
+public interface LinearOptimizationResult extends FlowResult, SensitivityResult, RangeActionResult, ObjectiveFunctionResult {
 
     LinearProblemStatus getStatus();
 }

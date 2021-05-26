@@ -1,8 +1,15 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.farao_community.farao.search_tree_rao.output;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -82,12 +89,18 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
             return postPreventiveResult.getFunctionalCost();
         }
         double highestFunctionalCost = postPreventiveResult.getFunctionalCost();
-        highestFunctionalCost = Math.max(highestFunctionalCost, postCurativeResults.values().stream().map(PerimeterResult::getFunctionalCost).max(Double::compareTo).get());
+        highestFunctionalCost = Math.max(
+                highestFunctionalCost,
+                postCurativeResults.values().stream()
+                        .map(PerimeterResult::getFunctionalCost)
+                        .max(Double::compareTo)
+                        .orElseThrow(() -> new FaraoException("Should not happen"))
+        );
         return highestFunctionalCost;
     }
 
     @Override
-    public List<BranchCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
+    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
         //TODO : store values to be able to merge easily
         return null;
     }
@@ -128,7 +141,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         //TODO : store values to be able to merge easily
         return null;
     }

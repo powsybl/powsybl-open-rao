@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.ObjectiveFunctionResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
@@ -20,30 +20,30 @@ import java.util.Set;
  */
 public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
-    private final BranchResult branchResult;
+    private final FlowResult flowResult;
     private final SensitivityStatus sensitivityStatus;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
-                                       BranchResult branchResult,
+                                       FlowResult flowResult,
                                        SensitivityStatus sensitivityStatus) {
         this.objectiveFunction = objectiveFunction;
-        this.branchResult = branchResult;
+        this.flowResult = flowResult;
         this.sensitivityStatus = sensitivityStatus;
     }
 
     @Override
     public double getFunctionalCost() {
-        return objectiveFunction.getFunctionalCost(branchResult, sensitivityStatus);
+        return objectiveFunction.getFunctionalCost(flowResult, sensitivityStatus);
     }
 
     @Override
-    public List<BranchCnec> getMostLimitingElements(int number) {
-        return objectiveFunction.getMostLimitingElements(branchResult, number);
+    public List<FlowCnec> getMostLimitingElements(int number) {
+        return objectiveFunction.getMostLimitingElements(flowResult, number);
     }
 
     @Override
     public double getVirtualCost() {
-        return objectiveFunction.getVirtualCost(branchResult, sensitivityStatus);
+        return objectiveFunction.getVirtualCost(flowResult, sensitivityStatus);
     }
 
     @Override
@@ -53,11 +53,11 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return objectiveFunction.getVirtualCost(branchResult, sensitivityStatus, virtualCostName);
+        return objectiveFunction.getVirtualCost(flowResult, sensitivityStatus, virtualCostName);
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(String virtualCostName, int number) {
-        return objectiveFunction.getCostlyElements(branchResult, virtualCostName, number);
+    public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
+        return objectiveFunction.getCostlyElements(flowResult, virtualCostName, number);
     }
 }

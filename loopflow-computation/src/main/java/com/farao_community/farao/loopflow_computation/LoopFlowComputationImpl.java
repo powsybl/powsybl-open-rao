@@ -8,8 +8,8 @@ package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -42,32 +42,32 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     }
 
     @Override
-    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<BranchCnec> cnecs) {
+    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs) {
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withDefaultParameters(sensitivityAnalysisParameters)
-            .withPtdfSensitivities(glsk, cnecs, Collections.singleton(Unit.MEGAWATT))
+            .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
             .build();
 
         SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
 
-        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, cnecs);
+        return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, flowCnecs);
     }
 
     @Override
-    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<BranchCnec> cnecs) {
+    public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<FlowCnec> flowCnecs) {
         LoopFlowResult results = new LoopFlowResult();
 
-        for (BranchCnec cnec : cnecs) {
-            double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(cnec);
-            double commercialFLow = getGlskStream(cnec)
-                .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), cnec) * referenceProgram.getGlobalNetPosition(entry.getKey()))
+        for (FlowCnec flowCnec : flowCnecs) {
+            double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec);
+            double commercialFLow = getGlskStream(flowCnec)
+                .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec) * referenceProgram.getGlobalNetPosition(entry.getKey()))
                 .sum();
-            results.addCnecResult(cnec, refFlow - commercialFLow, commercialFLow, refFlow);
+            results.addCnecResult(flowCnec, refFlow - commercialFLow, commercialFLow, refFlow);
         }
         return results;
     }
 
-    protected Stream<Map.Entry<EICode, LinearGlsk>> getGlskStream(BranchCnec cnec) {
+    protected Stream<Map.Entry<EICode, LinearGlsk>> getGlskStream(FlowCnec flowCnec) {
         return buildRefProgGlskMap().entrySet().stream();
     }
 

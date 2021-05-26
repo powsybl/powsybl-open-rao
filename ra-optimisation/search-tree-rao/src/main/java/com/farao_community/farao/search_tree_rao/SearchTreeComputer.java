@@ -7,9 +7,9 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.ToolProvider;
 
@@ -21,8 +21,8 @@ import java.util.Set;
  */
 public final class SearchTreeComputer {
     private ToolProvider toolProvider;
-    private Set<BranchCnec> cnecs;
-    private BranchResult fixedPtdfs;
+    private Set<FlowCnec> flowCnecs;
+    private FlowResult fixedPtdfs;
 
     private SearchTreeComputer() {
         // Should not be used
@@ -34,11 +34,11 @@ public final class SearchTreeComputer {
 
     SensitivityComputer getSensitivityComputerWithComputedCommercialFlows(Set<RangeAction> rangeActions) {
         SensitivityComputer.SensitivityComputerBuilder builder = getBuilder(rangeActions);
-        builder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(cnecs));
+        builder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         return builder.build();
     }
 
-    SensitivityComputer getSensitivityComputerWithFixedCommercialFlows(BranchResult fixedCommercialFlows, Set<RangeAction> rangeActions) {
+    SensitivityComputer getSensitivityComputerWithFixedCommercialFlows(FlowResult fixedCommercialFlows, Set<RangeAction> rangeActions) {
         SensitivityComputer.SensitivityComputerBuilder builder = getBuilder(rangeActions);
         builder.withCommercialFlowsResults(fixedCommercialFlows);
         return builder.build();
@@ -51,7 +51,7 @@ public final class SearchTreeComputer {
     SensitivityComputer.SensitivityComputerBuilder getBuilder(Set<RangeAction> rangeActions) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder =  SensitivityComputer.create()
                 .withToolProvider(toolProvider)
-                .withCnecs(cnecs)
+                .withCnecs(flowCnecs)
                 .withRangeActions(rangeActions);
         if (fixedPtdfs != null) {
             sensitivityComputerBuilder.withPtdfsResults(fixedPtdfs);
@@ -61,20 +61,20 @@ public final class SearchTreeComputer {
 
     public static final class SearchTreeComputerBuilder {
         private ToolProvider toolProvider;
-        private Set<BranchCnec> cnecs;
-        private BranchResult fixedPtdfs;
+        private Set<FlowCnec> cnecs;
+        private FlowResult fixedPtdfs;
 
         public SearchTreeComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
             return this;
         }
 
-        public SearchTreeComputerBuilder withCnecs(Set<BranchCnec> cnecs) {
+        public SearchTreeComputerBuilder withCnecs(Set<FlowCnec> cnecs) {
             this.cnecs = cnecs;
             return this;
         }
 
-        public SearchTreeComputerBuilder withPtdfsResults(BranchResult fixedPtdfs) {
+        public SearchTreeComputerBuilder withPtdfsResults(FlowResult fixedPtdfs) {
             this.fixedPtdfs = fixedPtdfs;
             return this;
         }
@@ -84,7 +84,7 @@ public final class SearchTreeComputer {
             Objects.requireNonNull(cnecs);
             SearchTreeComputer searchTreeComputer = new SearchTreeComputer();
             searchTreeComputer.toolProvider = toolProvider;
-            searchTreeComputer.cnecs = cnecs;
+            searchTreeComputer.flowCnecs = cnecs;
             searchTreeComputer.fixedPtdfs = fixedPtdfs;
             return searchTreeComputer;
         }

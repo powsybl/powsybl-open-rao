@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -65,7 +65,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
-                .withPtdfSensitivities(glsk, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
                 .build();
 
         // Preventive perimeter
@@ -97,7 +97,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
             SystematicSensitivityInterface newSystematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(sensitivityAnalysisParameters)
-                .withPtdfSensitivities(glsk, crac.getBranchCnecs(state), Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, crac.getFlowCnecs(state), Collections.singleton(Unit.MEGAWATT))
                 .build();
             SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
             Optional<Contingency> contingencyOptional = state.getContingency();
@@ -115,7 +115,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private void updateDataMonitoredBranch(DataMonitoredBranch dataMonitoredBranch, Crac crac, SystematicSensitivityResult sensitivityResult, ZonalData<LinearGlsk> glsk) {
         if (dataMonitoredBranch.getInstantId().equals(afterCraInstant.toString())) {
-            BranchCnec cnec = crac.getBranchCnec(dataMonitoredBranch.getId());
+            FlowCnec cnec = crac.getFlowCnec(dataMonitoredBranch.getId());
             dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
             glsk.getDataPerZone().forEach((zone, zonalData) -> {
                 List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
@@ -259,11 +259,11 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private List<DataMonitoredBranch> buildDataMonitoredBranches(Crac crac, Set<State> states, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
         List<DataMonitoredBranch> branchResultList = new ArrayList<>();
-        states.forEach(state -> crac.getBranchCnecs(state).forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(cnec, glsk, result))));
+        states.forEach(state -> crac.getFlowCnecs(state).forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(cnec, glsk, result))));
         return branchResultList;
     }
 
-    private DataMonitoredBranch buildDataMonitoredBranch(BranchCnec<?> cnec, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
+    private DataMonitoredBranch buildDataMonitoredBranch(FlowCnec cnec, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
         double maxThreshold = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
         double minThreshold = cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         return new DataMonitoredBranch(
@@ -277,7 +277,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         );
     }
 
-    private List<DataPtdfPerCountry> buildDataPtdfPerCountry(BranchCnec cnec, ZonalData<LinearGlsk> glskProvider, SystematicSensitivityResult result) {
+    private List<DataPtdfPerCountry> buildDataPtdfPerCountry(FlowCnec cnec, ZonalData<LinearGlsk> glskProvider, SystematicSensitivityResult result) {
         Map<String, LinearGlsk> glsks = glskProvider.getDataPerZone();
         return glsks.values().stream()
                 .map(glsk ->

@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.MaxMinRelativeMarginParameters;
@@ -61,11 +61,11 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {
-        BranchResult initialBranchResult = Mockito.mock(BranchResult.class);
-        when(initialBranchResult.getPtdfZonalSum(cnec1)).thenReturn(cnecInitialAbsolutePtdfSum);
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getPtdfZonalSum(cnec1)).thenReturn(cnecInitialAbsolutePtdfSum);
         maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
                 Set.of(cnec1),
-                initialBranchResult,
+                initialFlowResult,
                 Set.of(rangeAction),
                 unit,
                 parameters
@@ -74,7 +74,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblem(List.of(coreProblemFiller, maxMinRelativeMarginFiller), mpSolver);
-        linearProblem.fill(branchResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 
     @Test

@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
@@ -73,7 +73,7 @@ public final class RaoUtil {
         }
     }
 
-    public static double getBranchFlowUnitMultiplier(BranchCnec cnec, Side voltageSide, Unit unitFrom, Unit unitTo) {
+    public static double getFlowUnitMultiplier(FlowCnec cnec, Side voltageSide, Unit unitFrom, Unit unitTo) {
         if (unitFrom == unitTo) {
             return 1;
         }

@@ -7,11 +7,11 @@
 
 package com.farao_community.farao.rao_api;
 
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.rao_api.results.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -57,7 +57,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResultImpl> implements 
     }
 
     @Override
-    public List<BranchCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
+    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
         return null;
     }
 
@@ -77,7 +77,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResultImpl> implements 
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
         return null;
     }
 

@@ -7,8 +7,8 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.OptimizationResult;
@@ -20,25 +20,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This class aims at performing the initial sensitivity analysis of a RAO, the one
- * which defines the pre-optimisation variant. It is common to both the Search Tree
- * and the Linear RAO.
+ * This class aims at performing the sensitivity analysis before the optimization of a perimeter. At these specific
+ * instants we actually want to compute all the results on the network. They will be useful either for the optimization
+ * or to fill results in the final output.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PrePerimeterSensitivityAnalysis {
-    private final Set<BranchCnec> cnecs;
+    private final Set<FlowCnec> flowCnecs;
     private final Set<RangeAction> rangeActions;
     private final ToolProvider toolProvider;
     private final RaoParameters raoParameters;
 
     private SensitivityComputer sensitivityComputer;
 
-    public PrePerimeterSensitivityAnalysis(Crac crac, Network network, ToolProvider toolProvider, RaoParameters raoParameters) {
-        // it is actually quite strange to ask for a RaoData here, but it is required in
-        // order to use the fillResultsWithXXX() methods of the CracResultManager.
+    public PrePerimeterSensitivityAnalysis(Crac crac, ToolProvider toolProvider, RaoParameters raoParameters) {
         this.toolProvider = toolProvider;
-        cnecs = crac.getBranchCnecs();
+        flowCnecs = crac.getFlowCnecs();
         rangeActions = new HashSet<>();
         crac.getStates().forEach(state -> rangeActions.addAll(crac.getRangeActions(state, UsageMethod.AVAILABLE)));
         this.raoParameters = raoParameters;
@@ -47,10 +45,10 @@ public class PrePerimeterSensitivityAnalysis {
     public PrePerimeterResult run(Network network) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
-            sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(cnecs));
+            sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), cnecs);
+            sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
         }
         sensitivityComputer = sensitivityComputerBuilder.build();
         return runAndGetResult(network);
@@ -60,7 +58,7 @@ public class PrePerimeterSensitivityAnalysis {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             if (raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(cnecs));
+                sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
             } else {
                 sensitivityComputerBuilder.withCommercialFlowsResults(optimizationResult);
             }
@@ -75,7 +73,7 @@ public class PrePerimeterSensitivityAnalysis {
     private SensitivityComputer.SensitivityComputerBuilder getBuilder() {
         return SensitivityComputer.create()
                 .withToolProvider(toolProvider)
-                .withCnecs(cnecs)
+                .withCnecs(flowCnecs)
                 .withRangeActions(rangeActions);
     }
 

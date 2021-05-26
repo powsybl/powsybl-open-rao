@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_api.results;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -59,48 +59,48 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
     PrePerimeterResult getInitialResult();
 
     /**
-     * It gives the flow on a {@link BranchCnec} at a given {@link OptimizationState} and in a
+     * It gives the flow on a {@link FlowCnec} at a given {@link OptimizationState} and in a
      * given {@link Unit}.
      *
      * @param optimizationState: The state of optimization to be studied.
-     * @param branchCnec: The branch to be studied.
+     * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
-    default double getFlow(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
+    default double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
         if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getFlow(branchCnec, unit);
+            return getInitialResult().getFlow(flowCnec, unit);
         } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getFlow(branchCnec, unit);
+                || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
+            return getPostPreventivePerimeterResult().getFlow(flowCnec, unit);
         } else {
-            return getPerimeterResult(optimizationState, branchCnec.getState()).getFlow(branchCnec, unit);
+            return getPerimeterResult(optimizationState, flowCnec.getState()).getFlow(flowCnec, unit);
         }
     }
 
     /**
-     * It gives the margin on a {@link BranchCnec} at a given {@link OptimizationState} and in a
+     * It gives the margin on a {@link FlowCnec} at a given {@link OptimizationState} and in a
      * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the
      * flow direction of the given branch. If it is negative the branch is under constraint.
      *
      * @param optimizationState: The state of optimization to be studied.
-     * @param branchCnec: The branch to be studied.
+     * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch at the optimization state in the given unit.
      */
-    default double getMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
+    default double getMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
         if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getMargin(branchCnec, unit);
+            return getInitialResult().getMargin(flowCnec, unit);
         } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getMargin(branchCnec, unit);
+                || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
+            return getPostPreventivePerimeterResult().getMargin(flowCnec, unit);
         } else {
-            return getPerimeterResult(optimizationState, branchCnec.getState()).getMargin(branchCnec, unit);
+            return getPerimeterResult(optimizationState, flowCnec.getState()).getMargin(flowCnec, unit);
         }
     }
 
     /**
-     * It gives the relative margin (according to CORE D-2 CC methodology) on a {@link BranchCnec} at a given
+     * It gives the relative margin (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
      * {@link OptimizationState} and in a given {@link Unit}. If the margin is negative it gives it directly (same
      * value as {@code getMargin} method. If the margin is positive it gives this value divided by the sum of the zonal
      * PTDFs on this branch of the studied zone. Zones to include in this computation are defined in the
@@ -108,80 +108,80 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      * computation or the sum of them is null, this method could return {@code Double.NaN} values.
      *
      * @param optimizationState: The state of optimization to be studied.
-     * @param branchCnec: The branch to be studied.
+     * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
-    default double getRelativeMargin(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
+    default double getRelativeMargin(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
         if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getRelativeMargin(branchCnec, unit);
+            return getInitialResult().getRelativeMargin(flowCnec, unit);
         } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getRelativeMargin(branchCnec, unit);
+                || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
+            return getPostPreventivePerimeterResult().getRelativeMargin(flowCnec, unit);
         } else {
-            return getPerimeterResult(optimizationState, branchCnec.getState()).getRelativeMargin(branchCnec, unit);
+            return getPerimeterResult(optimizationState, flowCnec.getState()).getRelativeMargin(flowCnec, unit);
         }
     }
 
     /**
-     * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link BranchCnec} at a given
+     * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
      * {@link OptimizationState} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
      * @param optimizationState: The state of optimization to be studied.
-     * @param branchCnec: The branch to be studied.
+     * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
-    default double getCommercialFlow(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
+    default double getCommercialFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
         if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getCommercialFlow(branchCnec, unit);
+            return getInitialResult().getCommercialFlow(flowCnec, unit);
         } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getCommercialFlow(branchCnec, unit);
+                || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
+            return getPostPreventivePerimeterResult().getCommercialFlow(flowCnec, unit);
         } else {
-            return getPerimeterResult(optimizationState, branchCnec.getState()).getCommercialFlow(branchCnec, unit);
+            return getPerimeterResult(optimizationState, flowCnec.getState()).getCommercialFlow(flowCnec, unit);
         }
     }
 
     /**
-     * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link BranchCnec} at a given
+     * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
      * {@link OptimizationState} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
      * @param optimizationState: The state of optimization to be studied.
-     * @param branchCnec: The branch to be studied.
+     * @param flowCnec: The branch to be studied.
      * @param unit: The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
-    default double getLoopFlow(OptimizationState optimizationState, BranchCnec branchCnec, Unit unit) {
+    default double getLoopFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
         if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getLoopFlow(branchCnec, unit);
+            return getInitialResult().getLoopFlow(flowCnec, unit);
         } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getLoopFlow(branchCnec, unit);
+                || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
+            return getPostPreventivePerimeterResult().getLoopFlow(flowCnec, unit);
         } else {
-            return getPerimeterResult(optimizationState, branchCnec.getState()).getLoopFlow(branchCnec, unit);
+            return getPerimeterResult(optimizationState, flowCnec.getState()).getLoopFlow(flowCnec, unit);
         }
     }
 
     /**
-     * It gives the sum of the computation areas' zonal PTDFs on a {@link BranchCnec} at a given
+     * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
      * {@link OptimizationState}. If the computation does not consider PTDF values or if the {@link RaoParameters} does
      * not define any list of considered areas, this method could return {@code Double.NaN} values.
      *
      * @param optimizationState: The state of optimization to be studied.
-     * @param branchCnec: The branch to be studied.
+     * @param flowCnec: The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
-    default double getPtdfZonalSum(OptimizationState optimizationState, BranchCnec branchCnec) {
+    default double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec) {
         if (optimizationState.equals(OptimizationState.INITIAL)) {
-            return getInitialResult().getPtdfZonalSum(branchCnec);
+            return getInitialResult().getPtdfZonalSum(flowCnec);
         } else if (optimizationState.equals(OptimizationState.AFTER_PRA)
-                || Objects.isNull(getPerimeterResult(optimizationState, branchCnec.getState()))) {
-            return getPostPreventivePerimeterResult().getPtdfZonalSum(branchCnec);
+                || Objects.isNull(getPerimeterResult(optimizationState, flowCnec.getState()))) {
+            return getPostPreventivePerimeterResult().getPtdfZonalSum(flowCnec);
         } else {
-            return getPerimeterResult(optimizationState, branchCnec.getState()).getPtdfZonalSum(branchCnec);
+            return getPerimeterResult(optimizationState, flowCnec.getState()).getPtdfZonalSum(flowCnec);
         }
     }
 
@@ -214,7 +214,7 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      * @param number: The size of the list to be studied, so the number of limiting elements to be retrieved.
      * @return The ordered list of the n first limiting elements.
      */
-    List<BranchCnec> getMostLimitingElements(OptimizationState optimizationState, int number);
+    List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number);
 
     /**
      * It gives the sum of virtual costs of the situation at a given {@link OptimizationState} according to the
@@ -246,7 +246,7 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
     double getVirtualCost(OptimizationState optimizationState, String virtualCostName);
 
     /**
-     * It gives an ordered list of the costly {@link BranchCnec} according to the specified virtual cost at a given
+     * It gives an ordered list of the costly {@link FlowCnec} according to the specified virtual cost at a given
      * {@link OptimizationState}. If the virtual is null the list would be empty. If the specified virtual cost does
      * not imply any branch in its computation the list would be empty.
      *
@@ -255,7 +255,7 @@ public interface RaoResult<I extends RaoResult<I>> extends Extendable<I> {
      * @param number: The size of the list to be studied, so the number of costly elements to be retrieved.
      * @return The ordered list of the n first costly elements according to the given virtual cost.
      */
-    List<BranchCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number);
+    List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number);
 
     /**
      * It states if the {@link NetworkAction} was already activated when a specific {@link State} is studied. Meaning

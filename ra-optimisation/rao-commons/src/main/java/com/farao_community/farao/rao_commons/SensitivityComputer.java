@@ -7,10 +7,10 @@
 
 package com.farao_community.farao.rao_commons;
 
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.adapter.*;
 import com.farao_community.farao.rao_commons.result.SensitivityResultImpl;
@@ -49,7 +49,7 @@ public final class SensitivityComputer {
         }
     }
 
-    public BranchResult getBranchResult() {
+    public FlowResult getBranchResult() {
         return branchResultAdapter.getResult(result);
     }
 
@@ -63,21 +63,21 @@ public final class SensitivityComputer {
 
     public static final class SensitivityComputerBuilder {
         private ToolProvider toolProvider;
-        private Set<BranchCnec> cnecs;
+        private Set<FlowCnec> flowCnecs;
         private Set<RangeAction> rangeActions;
-        private BranchResult fixedPtdfs;
+        private FlowResult fixedPtdfs;
         private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
-        private BranchResult fixedCommercialFlows;
+        private FlowResult fixedCommercialFlows;
         private LoopFlowComputation loopFlowComputation;
-        private Set<BranchCnec> loopFlowCnecs;
+        private Set<FlowCnec> loopFlowCnecs;
 
         public SensitivityComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
             return this;
         }
 
-        public SensitivityComputerBuilder withCnecs(Set<BranchCnec> cnecs) {
-            this.cnecs = cnecs;
+        public SensitivityComputerBuilder withCnecs(Set<FlowCnec> flowCnecs) {
+            this.flowCnecs = flowCnecs;
             return this;
         }
 
@@ -86,23 +86,23 @@ public final class SensitivityComputer {
             return this;
         }
 
-        public SensitivityComputerBuilder withPtdfsResults(BranchResult fixedPtdfs) {
+        public SensitivityComputerBuilder withPtdfsResults(FlowResult fixedPtdfs) {
             this.fixedPtdfs = fixedPtdfs;
             return this;
         }
 
-        public SensitivityComputerBuilder withPtdfsResults(AbsolutePtdfSumsComputation absolutePtdfSumsComputation, Set<BranchCnec> cnecs) {
+        public SensitivityComputerBuilder withPtdfsResults(AbsolutePtdfSumsComputation absolutePtdfSumsComputation, Set<FlowCnec> cnecs) {
             this.absolutePtdfSumsComputation = absolutePtdfSumsComputation;
-            this.cnecs = cnecs;
+            this.flowCnecs = cnecs;
             return this;
         }
 
-        public SensitivityComputerBuilder withCommercialFlowsResults(BranchResult fixedCommercialFlows) {
+        public SensitivityComputerBuilder withCommercialFlowsResults(FlowResult fixedCommercialFlows) {
             this.fixedCommercialFlows = fixedCommercialFlows;
             return this;
         }
 
-        public SensitivityComputerBuilder withCommercialFlowsResults(LoopFlowComputation loopFlowComputation, Set<BranchCnec> loopFlowCnecs) {
+        public SensitivityComputerBuilder withCommercialFlowsResults(LoopFlowComputation loopFlowComputation, Set<FlowCnec> loopFlowCnecs) {
             this.loopFlowComputation = loopFlowComputation;
             this.loopFlowCnecs = loopFlowCnecs;
             return this;
@@ -110,13 +110,13 @@ public final class SensitivityComputer {
 
         public SensitivityComputer build() {
             Objects.requireNonNull(toolProvider);
-            Objects.requireNonNull(cnecs);
+            Objects.requireNonNull(flowCnecs);
             Objects.requireNonNull(rangeActions);
             SensitivityComputer sensitivityComputer = new SensitivityComputer();
             boolean computePtdfs = absolutePtdfSumsComputation != null;
             boolean computeLoopFlows = loopFlowComputation != null;
             sensitivityComputer.systematicSensitivityInterface = toolProvider.getSystematicSensitivityInterface(
-                    cnecs,
+                    flowCnecs,
                     rangeActions,
                     computePtdfs,
                     computeLoopFlows
@@ -128,7 +128,7 @@ public final class SensitivityComputer {
                 builder.withCommercialFlowsResults(fixedCommercialFlows);
             }
             if (absolutePtdfSumsComputation != null) {
-                builder.withPtdfsResults(absolutePtdfSumsComputation, cnecs);
+                builder.withPtdfsResults(absolutePtdfSumsComputation, flowCnecs);
             } else if (fixedPtdfs != null) {
                 builder.withPtdfsResults(fixedPtdfs);
             }

@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.ObjectiveFunctionResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
@@ -27,25 +27,25 @@ public final class ObjectiveFunction {
         this.virtualCostEvaluators = virtualCostEvaluators;
     }
 
-    public ObjectiveFunctionResult evaluate(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
-        return new ObjectiveFunctionResultImpl(this, branchResult, sensitivityStatus);
+    public ObjectiveFunctionResult evaluate(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+        return new ObjectiveFunctionResultImpl(this, flowResult, sensitivityStatus);
     }
 
     public static ObjectiveFunctionBuilder create() {
         return new ObjectiveFunctionBuilder();
     }
 
-    public double getFunctionalCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
-        return functionalCostEvaluator.computeCost(branchResult, sensitivityStatus);
+    public double getFunctionalCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+        return functionalCostEvaluator.computeCost(flowResult, sensitivityStatus);
     }
 
-    public List<BranchCnec> getMostLimitingElements(BranchResult branchResult, int number) {
-        return functionalCostEvaluator.getCostlyElements(branchResult, number);
+    public List<FlowCnec> getMostLimitingElements(FlowResult flowResult, int number) {
+        return functionalCostEvaluator.getCostlyElements(flowResult, number);
     }
 
-    public double getVirtualCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
+    public double getVirtualCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
         return virtualCostEvaluators.stream()
-                .mapToDouble(costEvaluator -> costEvaluator.computeCost(branchResult, sensitivityStatus))
+                .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, sensitivityStatus))
                 .sum();
     }
 
@@ -53,20 +53,20 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public double getVirtualCost(BranchResult branchResult, SensitivityStatus sensitivityStatus, String virtualCostName) {
+    public double getVirtualCost(FlowResult flowResult, SensitivityStatus sensitivityStatus, String virtualCostName) {
         return virtualCostEvaluators.stream()
                 .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
                 .findAny()
-                .map(costEvaluator -> costEvaluator.computeCost(branchResult, sensitivityStatus))
+                .map(costEvaluator -> costEvaluator.computeCost(flowResult, sensitivityStatus))
                 .orElse(Double.NaN);
     }
 
-    public List<BranchCnec> getCostlyElements(BranchResult branchResult, String virtualCostName, int number) {
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, String virtualCostName, int number) {
         Optional<CostEvaluator> optionalCostEvaluator =  virtualCostEvaluators.stream()
                 .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
                 .findAny();
         if (optionalCostEvaluator.isPresent()) {
-            return optionalCostEvaluator.get().getCostlyElements(branchResult, number);
+            return optionalCostEvaluator.get().getCostlyElements(flowResult, number);
         } else {
             return Collections.emptyList();
         }

@@ -26,7 +26,6 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearProblemResult implements RangeActionResult {
-    private final Map<RangeAction, Double> setPointVariationPerRangeAction = new HashMap<>();
     private final Map<RangeAction, Double> setPointPerRangeAction = new HashMap<>();
 
     public LinearProblemResult(LinearProblem linearProblem) {
@@ -34,10 +33,8 @@ public class LinearProblemResult implements RangeActionResult {
             throw new FaraoException("Impossible to define results on non-optimal Linear problem.");
         }
 
-        linearProblem.getRangeActions().forEach(rangeAction -> {
-            setPointPerRangeAction.put(rangeAction, linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue());
-            setPointVariationPerRangeAction.put(rangeAction, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction).solutionValue());
-        });
+        linearProblem.getRangeActions().forEach(rangeAction ->
+                setPointPerRangeAction.put(rangeAction, linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue()));
     }
 
     @Override

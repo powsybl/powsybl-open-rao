@@ -7,10 +7,10 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.parameters.MnecParameters;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
 import java.util.*;
@@ -26,14 +26,14 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecViolationCostEvaluator implements CostEvaluator {
-    private final Set<BranchCnec> cnecs;
-    private final BranchResult initialFlowResult;
+    private final Set<FlowCnec> flowCnecs;
+    private final FlowResult initialFlowResult;
     private final double mnecAcceptableMarginDiminutionInMW;
     private final double mnecViolationCostInMWPerMW;
-    private List<BranchCnec> sortedElements = new ArrayList<>();
+    private List<FlowCnec> sortedElements = new ArrayList<>();
 
-    public MnecViolationCostEvaluator(Set<BranchCnec> cnecs, BranchResult initialFlowResult, MnecParameters mnecParameters) {
-        this.cnecs = cnecs;
+    public MnecViolationCostEvaluator(Set<FlowCnec> flowCnecs, FlowResult initialFlowResult, MnecParameters mnecParameters) {
+        this.flowCnecs = flowCnecs;
         this.initialFlowResult = initialFlowResult;
         mnecAcceptableMarginDiminutionInMW = mnecParameters.getMnecAcceptableMarginDiminution();
         mnecViolationCostInMWPerMW = mnecParameters.getMnecViolationCost();
@@ -44,21 +44,21 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         return "mnec-cost";
     }
 
-    private double computeCost(BranchResult branchResult, BranchCnec mnec) {
+    private double computeCost(FlowResult flowResult, FlowCnec mnec) {
         double initialMargin = initialFlowResult.getMargin(mnec, MEGAWATT);
-        double currentMargin = branchResult.getMargin(mnec, MEGAWATT);
+        double currentMargin = flowResult.getMargin(mnec, MEGAWATT);
         return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDiminutionInMW) - currentMargin);
     }
 
     @Override
-    public double computeCost(BranchResult branchResult, SensitivityStatus sensitivityStatus) {
+    public double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
         if (Math.abs(mnecViolationCostInMWPerMW) < 1e-10) {
             return 0;
         }
         double totalMnecMarginViolation = 0;
-        for (BranchCnec mnec : cnecs) {
+        for (FlowCnec mnec : flowCnecs) {
             if (mnec.isMonitored()) {
-                totalMnecMarginViolation += computeCost(branchResult, mnec);
+                totalMnecMarginViolation += computeCost(flowResult, mnec);
             }
         }
         return mnecViolationCostInMWPerMW * totalMnecMarginViolation;
@@ -70,13 +70,13 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public List<BranchCnec> getCostlyElements(BranchResult branchResult, int numberOfElements) {
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements) {
         if (sortedElements.isEmpty()) {
-            sortedElements = cnecs.stream()
+            sortedElements = flowCnecs.stream()
                     .filter(Cnec::isMonitored)
                     .collect(Collectors.toMap(
                         Function.identity(),
-                        cnec -> computeCost(branchResult, cnec)
+                        cnec -> computeCost(flowResult, cnec)
                     ))
                     .entrySet().stream()
                     .filter(entry -> entry.getValue() != 0)

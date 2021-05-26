@@ -10,7 +10,7 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -36,8 +36,8 @@ public class LoopFlowComputationWithXnodeGlskHandler extends LoopFlowComputation
     }
 
     @Override
-    protected Stream<Map.Entry<EICode, LinearGlsk>> getGlskStream(BranchCnec cnec) {
-        return super.getGlskStream(cnec)
-                .filter(entry -> xnodeGlskHandler.isLinearGlskValidForCnec(cnec, entry.getValue()));
+    protected Stream<Map.Entry<EICode, LinearGlsk>> getGlskStream(FlowCnec flowCnec) {
+        return super.getGlskStream(flowCnec)
+                .filter(entry -> xnodeGlskHandler.isLinearGlskValidForCnec(flowCnec, entry.getValue()));
     }
 }

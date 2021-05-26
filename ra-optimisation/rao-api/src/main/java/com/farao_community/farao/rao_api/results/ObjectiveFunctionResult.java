@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_api.results;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public interface ObjectiveFunctionResult {
     double getFunctionalCost();
 
     // A voir dans l'implem si on stocke ou non
-    List<BranchCnec> getMostLimitingElements(int number);
+    List<FlowCnec> getMostLimitingElements(int number);
 
     /**
      * It gives the sum of virtual costs of the situation according to the objective function defined in
@@ -66,7 +66,7 @@ public interface ObjectiveFunctionResult {
     double getVirtualCost(String virtualCostName);
 
     /**
-     * It gives an ordered list of the costly {@link BranchCnec} according to the specified virtual cost. If the
+     * It gives an ordered list of the costly {@link FlowCnec} according to the specified virtual cost. If the
      * virtual is null the list would be empty. If the specified virtual cost does not imply any branch in its
      * computation the list would be empty.
      *
@@ -74,5 +74,5 @@ public interface ObjectiveFunctionResult {
      * @param number: The size of the list to be studied, so the number of costly elements to be retrieved.
      * @return The ordered list of the n first costly elements according to the given virtual cost.
      */
-    List<BranchCnec> getCostlyElements(String virtualCostName, int number);
+    List<FlowCnec> getCostlyElements(String virtualCostName, int number);
 }

@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -17,11 +17,11 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class EmptyBranchResultTest {
+public class EmptyFlowResultTest {
     @Test
     public void testBasicReturns() {
-        BranchCnec cnec = Mockito.mock(BranchCnec.class);
-        EmptyBranchResult branchResult = new EmptyBranchResult();
+        FlowCnec cnec = Mockito.mock(FlowCnec.class);
+        EmptyFlowResult branchResult = new EmptyFlowResult();
         assertTrue(Double.isNaN(branchResult.getFlow(cnec, Unit.MEGAWATT)));
         assertTrue(Double.isNaN(branchResult.getFlow(cnec, Unit.AMPERE)));
         assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, Unit.MEGAWATT)));

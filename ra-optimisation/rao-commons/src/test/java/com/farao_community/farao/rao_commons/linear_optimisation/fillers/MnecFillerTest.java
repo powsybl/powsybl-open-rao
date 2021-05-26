@@ -9,10 +9,10 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.MnecParameters;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
@@ -38,8 +38,8 @@ import static org.powermock.api.mockito.PowerMockito.when;
 public class MnecFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
-    private BranchCnec mnec1;
-    private BranchCnec mnec2;
+    private FlowCnec mnec1;
+    private FlowCnec mnec2;
 
     @Before
     public void setUp() {
@@ -86,16 +86,16 @@ public class MnecFillerTest extends AbstractFillerTest {
 
     private void fillProblemWithFiller(Unit unit) {
         MnecParameters parameters = new MnecParameters(50, 10, 3.5);
-        BranchResult branchResult = Mockito.mock(BranchResult.class);
-        when(branchResult.getFlow(mnec1, Unit.MEGAWATT)).thenReturn(900.);
-        when(branchResult.getFlow(mnec2, Unit.MEGAWATT)).thenReturn(-200.);
+        FlowResult flowResult = Mockito.mock(FlowResult.class);
+        when(flowResult.getFlow(mnec1, Unit.MEGAWATT)).thenReturn(900.);
+        when(flowResult.getFlow(mnec2, Unit.MEGAWATT)).thenReturn(-200.);
         MnecFiller mnecFiller = new MnecFiller(
-                branchResult,
+                flowResult,
                 Set.of(mnec1, mnec2),
                 unit,
                 parameters);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, mnecFiller), mpSolver);
-        linearProblem.fill(branchResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 
     @Test

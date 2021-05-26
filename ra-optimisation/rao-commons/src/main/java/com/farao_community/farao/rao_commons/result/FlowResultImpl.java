@@ -9,9 +9,9 @@ package com.farao_community.farao.rao_commons.result;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_api.results.BranchResult;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
@@ -20,27 +20,27 @@ import java.util.Map;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class BranchResultImpl implements BranchResult {
+public class FlowResultImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
-    private final BranchResult fixedCommercialFlows;
-    private final BranchResult fixedPtdfs;
+    private final FlowResult fixedCommercialFlows;
+    private final FlowResult fixedPtdfs;
 
-    public BranchResultImpl(SystematicSensitivityResult systematicSensitivityResult,
-                               BranchResult fixedCommercialFlows,
-                               BranchResult fixedPtdfs) {
+    public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
+                          FlowResult fixedCommercialFlows,
+                          FlowResult fixedPtdfs) {
         this.systematicSensitivityResult = systematicSensitivityResult;
         this.fixedCommercialFlows = fixedCommercialFlows;
         this.fixedPtdfs = fixedPtdfs;
     }
 
     @Override
-    public double getFlow(BranchCnec branchCnec, Unit unit) {
+    public double getFlow(FlowCnec flowCnec, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getReferenceFlow(branchCnec);
+            return systematicSensitivityResult.getReferenceFlow(flowCnec);
         } else if (unit == Unit.AMPERE) {
-            double intensity = systematicSensitivityResult.getReferenceIntensity(branchCnec);
+            double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec);
             if (Double.isNaN(intensity)) {
-                return systematicSensitivityResult.getReferenceFlow(branchCnec) * RaoUtil.getBranchFlowUnitMultiplier(branchCnec, Side.LEFT, Unit.MEGAWATT, Unit.AMPERE);
+                return systematicSensitivityResult.getReferenceFlow(flowCnec) * RaoUtil.getFlowUnitMultiplier(flowCnec, Side.LEFT, Unit.MEGAWATT, Unit.AMPERE);
             } else {
                 return intensity;
             }
@@ -50,21 +50,21 @@ public class BranchResultImpl implements BranchResult {
     }
 
     @Override
-    public double getCommercialFlow(BranchCnec branchCnec, Unit unit) {
+    public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
         if (unit == Unit.MEGAWATT) {
-            return fixedCommercialFlows.getCommercialFlow(branchCnec, unit);
+            return fixedCommercialFlows.getCommercialFlow(flowCnec, unit);
         } else {
             throw new FaraoException("Commercial flows only in MW.");
         }
     }
 
     @Override
-    public double getPtdfZonalSum(BranchCnec branchCnec) {
-        return fixedPtdfs.getPtdfZonalSum(branchCnec);
+    public double getPtdfZonalSum(FlowCnec flowCnec) {
+        return fixedPtdfs.getPtdfZonalSum(flowCnec);
     }
 
     @Override
-    public Map<BranchCnec, Double> getPtdfZonalSums() {
+    public Map<FlowCnec, Double> getPtdfZonalSums() {
         return fixedPtdfs.getPtdfZonalSums();
     }
 }

@@ -8,8 +8,8 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 
 import java.text.DecimalFormat;
@@ -47,10 +47,10 @@ final class SearchTreeRaoLogger {
     }
 
     static void logMostLimitingElementsResults(Leaf leaf, Unit unit, boolean relativePositiveMargins, int numberOfLoggedElements) {
-        List<BranchCnec> sortedCnecs = leaf.getMostLimitingElements(numberOfLoggedElements);
+        List<FlowCnec> sortedCnecs = leaf.getMostLimitingElements(numberOfLoggedElements);
 
         for (int i = 0; i < sortedCnecs.size(); i++) {
-            BranchCnec cnec = sortedCnecs.get(i);
+            FlowCnec cnec = sortedCnecs.get(i);
             String cnecNetworkElementName = cnec.getNetworkElement().getName();
             String cnecStateId = cnec.getState().getId();
             double cnecMargin = relativePositiveMargins ? leaf.getRelativeMargin(cnec, unit) : leaf.getMargin(cnec, unit);

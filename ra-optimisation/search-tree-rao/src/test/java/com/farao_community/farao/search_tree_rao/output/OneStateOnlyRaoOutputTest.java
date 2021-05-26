@@ -10,7 +10,7 @@ package com.farao_community.farao.search_tree_rao.output;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -42,8 +42,8 @@ public class OneStateOnlyRaoOutputTest {
     PstRangeAction pstRangeAction = mock(PstRangeAction.class);
     RangeAction rangeAction;
     NetworkAction networkAction;
-    BranchCnec cnec1;
-    BranchCnec cnec2;
+    FlowCnec cnec1;
+    FlowCnec cnec2;
     State cnec1state;
     State cnec2state;
 
@@ -56,8 +56,8 @@ public class OneStateOnlyRaoOutputTest {
         pstRangeAction = mock(PstRangeAction.class);
         rangeAction = mock(RangeAction.class);
         networkAction = mock(NetworkAction.class);
-        cnec1 = mock(BranchCnec.class);
-        cnec2 = mock(BranchCnec.class);
+        cnec1 = mock(FlowCnec.class);
+        cnec2 = mock(FlowCnec.class);
         cnec1state = mock(State.class);
         cnec2state = mock(State.class);
         when(cnec1.getState()).thenReturn(cnec1state);

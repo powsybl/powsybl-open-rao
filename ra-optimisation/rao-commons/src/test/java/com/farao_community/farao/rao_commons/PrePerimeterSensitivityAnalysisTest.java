@@ -9,7 +9,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
@@ -38,7 +38,7 @@ public class PrePerimeterSensitivityAnalysisTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Network network;
-    private BranchCnec cnec;
+    private FlowCnec cnec;
     private ToolProvider toolProvider;
     private RaoParameters raoParameters;
     private PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis;
@@ -51,7 +51,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         raoParameters = new RaoParameters();
         raoParameters.setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF);
 
-        cnec = Mockito.mock(BranchCnec.class);
+        cnec = Mockito.mock(FlowCnec.class);
 
         optimizationResult = Mockito.mock(OptimizationResult.class);
         when(optimizationResult.getPtdfZonalSums()).thenReturn(Map.of(cnec, 0.1));
@@ -61,7 +61,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         when(toolProvider.getLoopFlowComputation()).thenReturn(Mockito.mock(LoopFlowComputation.class));
         when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(Mockito.mock(AbsolutePtdfSumsComputation.class));
 
-        prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac, network, toolProvider, raoParameters);
+        prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac, toolProvider, raoParameters);
     }
 
     private void mockSystematicSensitivityInterface(boolean withPtdf, boolean withLf) {
