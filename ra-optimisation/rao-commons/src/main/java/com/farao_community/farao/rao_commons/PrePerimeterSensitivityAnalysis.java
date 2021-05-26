@@ -6,17 +6,14 @@
  */
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.OptimizationResult;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.powsybl.iidm.network.Network;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -34,11 +31,13 @@ public class PrePerimeterSensitivityAnalysis {
 
     private SensitivityComputer sensitivityComputer;
 
-    public PrePerimeterSensitivityAnalysis(Crac crac, ToolProvider toolProvider, RaoParameters raoParameters) {
+    public PrePerimeterSensitivityAnalysis(Set<RangeAction> rangeActions,
+                                           Set<FlowCnec> flowCnecs,
+                                           ToolProvider toolProvider,
+                                           RaoParameters raoParameters) {
         this.toolProvider = toolProvider;
-        flowCnecs = crac.getFlowCnecs();
-        rangeActions = new HashSet<>();
-        crac.getStates().forEach(state -> rangeActions.addAll(crac.getRangeActions(state, UsageMethod.AVAILABLE)));
+        this.flowCnecs = flowCnecs;
+        this.rangeActions = rangeActions;
         this.raoParameters = raoParameters;
     }
 
