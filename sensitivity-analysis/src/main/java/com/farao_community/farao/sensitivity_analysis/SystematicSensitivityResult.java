@@ -136,18 +136,24 @@ public class SystematicSensitivityResult {
 
     public double getReferenceFlow(Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
+        if (stateResult == null) {
+            return Double.NaN;
+        }
         return stateResult.getReferenceFlows().getOrDefault(cnec.getNetworkElement().getId(), Double.NaN);
     }
 
     public double getReferenceIntensity(Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
+        if (stateResult == null) {
+            return Double.NaN;
+        }
         return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), Double.NaN);
     }
 
     public double getSensitivityOnFlow(RangeAction rangeAction, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
-        if (!stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
+        if (stateResult == null || !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
             return Double.NaN;
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
@@ -160,7 +166,7 @@ public class SystematicSensitivityResult {
 
     public double getSensitivityOnFlow(String variableId, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
-        if (!stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
+        if (stateResult == null || !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
             return Double.NaN;
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
@@ -170,7 +176,7 @@ public class SystematicSensitivityResult {
     public double getSensitivityOnIntensity(RangeAction rangeAction, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
-        if (!stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId())) {
+        if (stateResult == null || !stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId())) {
             return Double.NaN;
         }
         Map<String, Double> sensitivities = stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId());

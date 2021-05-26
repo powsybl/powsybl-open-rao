@@ -105,19 +105,20 @@ public class SearchTreeRaoProvider implements RaoProvider {
         }
         this.toolProvider = toolProviderBuilder.build();
 
-        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                raoInput.getCrac(),
-                toolProvider,
-                parameters
-        );
-
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {
-            return optimizeOneStateOnly(raoInput, prePerimeterSensitivityAnalysis, parameters);
+            return optimizeOneStateOnly(raoInput, parameters);
         }
 
         // compute initial sensitivity on all CNECs
         // this is necessary to have initial flows for MNEC and loopflow constraints on CNECs, in preventive and curative perimeters
+        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+                raoInput.getCrac().getRangeActions(),
+                raoInput.getCrac().getFlowCnecs(),
+                toolProvider,
+                parameters
+        );
+
         PrePerimeterResult initialOutput;
         try {
             initialOutput = prePerimeterSensitivityAnalysis.run(raoInput.getNetwork());
@@ -233,13 +234,19 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return max;
     }
 
-    CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis, RaoParameters raoParameters) {
-        Set<FlowCnec> cnecs = computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter());
+    CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, RaoParameters raoParameters) {
+        Set<FlowCnec> perimeterCnecs = computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter());
         TreeParameters treeParameters = raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState()) ?
                 TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)) :
                 TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
-        LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree, cnecs);
+        LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree, perimeterCnecs);
 
+        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE),
+                perimeterCnecs,
+                toolProvider,
+                raoParameters
+        );
         PrePerimeterResult prePerimeterResult = prePerimeterSensitivityAnalysis.run(raoInput.getNetwork());
 
         SearchTreeInput searchTreeInput = buildSearchTreeInput(

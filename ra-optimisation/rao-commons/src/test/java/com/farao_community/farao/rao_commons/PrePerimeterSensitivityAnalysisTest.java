@@ -61,7 +61,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         when(toolProvider.getLoopFlowComputation()).thenReturn(Mockito.mock(LoopFlowComputation.class));
         when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(Mockito.mock(AbsolutePtdfSumsComputation.class));
 
-        prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac, toolProvider, raoParameters);
+        prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac.getRangeActions(), crac.getFlowCnecs(), toolProvider, raoParameters);
     }
 
     private void mockSystematicSensitivityInterface(boolean withPtdf, boolean withLf) {
