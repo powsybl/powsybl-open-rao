@@ -21,10 +21,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.nio.file.Path;
-
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -123,9 +120,12 @@ public class RaoTool implements Tool {
         RaoResult raoResult = Rao.run(raoInput, raoParameters);
 
         //Output
+        //todo: export some results
+        /*
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         OutputStream outputStream = new FileOutputStream(String.valueOf(outputFile));
-        //todo: uncomment
-        // JsonRaoResult.write(raoResult, outputStream);
+        JsonRaoResult.write(raoResult, outputStream);
+         */
+
     }
 }
