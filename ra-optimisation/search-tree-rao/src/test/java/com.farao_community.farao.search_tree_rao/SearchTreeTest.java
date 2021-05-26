@@ -12,13 +12,10 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.results.OptimizationResult;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
-import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.util.FaraoNetworkPool;
-import com.farao_community.farao.util.NativeLibraryLoader;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.Before;
@@ -39,7 +36,7 @@ import static org.junit.Assert.assertFalse;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({NativeLibraryLoader.class, SearchTreeRaoLogger.class, SystematicSensitivityInterface.class, Leaf.class, SearchTree.class, RaoUtil.class, IteratingLinearOptimizer.class})
+@PrepareForTest(SearchTree.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class SearchTreeTest {
 
@@ -90,7 +87,7 @@ public class SearchTreeTest {
         Mockito.when(treeParameters.getLeavesInParallel()).thenReturn(leavesInParallel);
     }
 
-    private void setSearchTreeInput() throws Exception {
+    private void setSearchTreeInput() {
         searchTreeInput = Mockito.mock(SearchTreeInput.class);
         network = Mockito.mock(Network.class);
         Mockito.when(searchTreeInput.getNetwork()).thenReturn(network);
@@ -114,11 +111,6 @@ public class SearchTreeTest {
         Mockito.when(searchTreeInput.getIteratingLinearOptimizer()).thenReturn(iteratingLinearOptimizer);
         rootLeaf = Mockito.mock(Leaf.class);
         Mockito.when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNetworkActions);
-    }
-
-    private void mockNativeLibraryLoader() {
-        PowerMockito.mockStatic(NativeLibraryLoader.class);
-        NativeLibraryLoader.loadNativeLibrary("jniortools");
     }
 
     @Test
