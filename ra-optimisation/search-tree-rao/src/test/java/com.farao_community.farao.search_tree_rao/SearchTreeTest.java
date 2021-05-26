@@ -20,12 +20,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.*;
 
@@ -35,9 +30,6 @@ import static org.junit.Assert.assertFalse;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(SearchTree.class)
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 public class SearchTreeTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
@@ -71,7 +63,7 @@ public class SearchTreeTest {
 
     @Before
     public void setUp() throws Exception {
-        searchTree = new SearchTree();
+        searchTree = Mockito.spy(new SearchTree());
         setSearchTreeInput();
         treeParameters = Mockito.mock(TreeParameters.class);
         setTreeParameters();
@@ -118,7 +110,7 @@ public class SearchTreeTest {
         raoWithoutLoopFlowLimitation();
 
         Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
-        PowerMockito.whenNew(Leaf.class).withArguments(network, prePerimeterOutput).thenReturn(rootLeaf);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(rootLeaf, result);
@@ -133,7 +125,7 @@ public class SearchTreeTest {
         double leafCost = 2.;
         Mockito.when(rootLeaf.getCost()).thenReturn(leafCost);
         Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
-        PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(rootLeaf);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(rootLeaf, result);
@@ -151,7 +143,7 @@ public class SearchTreeTest {
         setStopCriterionAtMinObjective();
         Mockito.when(rootLeaf.getCost()).thenReturn(2.);
         Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(rootLeaf);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
@@ -164,7 +156,7 @@ public class SearchTreeTest {
         searchTreeWithOneChildLeaf();
         Mockito.when(rootLeaf.getCost()).thenReturn(4., 2.);
         Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        PowerMockito.whenNew(Leaf.class).withAnyArguments().thenReturn(rootLeaf);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
@@ -195,11 +187,11 @@ public class SearchTreeTest {
 
         Mockito.when(rootLeaf.getCost()).thenReturn(4.);
         Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        PowerMockito.whenNew(Leaf.class).withArguments(network, prePerimeterOutput).thenReturn(rootLeaf);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
         Leaf childLeaf = Mockito.mock(Leaf.class);
         Mockito.when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
-        PowerMockito.whenNew(Leaf.class).withArguments(network, rootLeaf.getNetworkActions(), networkAction, rootLeaf).thenReturn(childLeaf);
+        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, networkAction);
 
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(rootLeaf, result);
@@ -291,7 +283,7 @@ public class SearchTreeTest {
     private void mockRootLeafCost(double cost) throws Exception {
         Mockito.when(rootLeaf.getCost()).thenReturn(cost);
         Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        PowerMockito.whenNew(Leaf.class).withArguments(network, prePerimeterOutput).thenReturn(rootLeaf);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
     }
 
     private void setMaxPstPerTso(String tsoName, int maxPstOfTso) {
@@ -304,7 +296,7 @@ public class SearchTreeTest {
         mockRootLeafCost(rootLeafCostAfterOptim);
         Mockito.when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
-        PowerMockito.whenNew(Leaf.class).withArguments(network, rootLeaf.getNetworkActions(), networkAction, rootLeaf).thenReturn(childLeaf);
+        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, networkAction);
     }
 
     private void mockNetworkPool(Network network) throws Exception {
@@ -313,7 +305,7 @@ public class SearchTreeTest {
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         MockedFaraoNetworkPool faraoNetworkPool = new MockedFaraoNetworkPool(network, workingVariantId, leavesInParallel);
-        PowerMockito.whenNew(FaraoNetworkPool.class).withArguments(network, workingVariantId, 1).thenReturn(faraoNetworkPool);
+        Mockito.doReturn(faraoNetworkPool).when(searchTree).makeFaraoNetworkPool(network, leavesInParallel);
     }
 
     private void searchTreeWithOneChildLeaf() {
