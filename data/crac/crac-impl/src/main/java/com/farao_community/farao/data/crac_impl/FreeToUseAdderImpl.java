@@ -52,6 +52,7 @@ public class FreeToUseAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
             owner.getCrac().addPreventiveState();
         }
         // TODO: when Instant.AUTO will be handled by FARAO, consider adding some states in the CRAC here.
+        // not required as as soon as there is no RA on AUTO instant
 
         FreeToUse freeToUse = new FreeToUseImpl(usageMethod, instant);
         owner.addUsageRule(freeToUse);

@@ -27,9 +27,7 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
 
     private Set<ElementaryAction> elementaryActions;
 
-    @Deprecated
-    // TODO : convert to private package
-    public NetworkActionImpl(String id, String name, String operator, List<UsageRule> usageRules,
+    NetworkActionImpl(String id, String name, String operator, List<UsageRule> usageRules,
                              Set<ElementaryAction> elementaryNetworkActions) {
         super(id, name, operator, usageRules);
         this.elementaryActions = new HashSet<>(elementaryNetworkActions);

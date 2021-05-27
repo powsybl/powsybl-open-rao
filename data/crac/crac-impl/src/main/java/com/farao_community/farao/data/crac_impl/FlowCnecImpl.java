@@ -49,20 +49,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         this.iMax[1] = iMaxRight;
     }
 
-    @Deprecated
-    // TODO : delete
-    public FlowCnecImpl(String id, String name, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored, Set<BranchThreshold> thresholds, double frm) {
-        super(id, name, networkElement, operator, state, optimized, monitored, thresholds);
-        this.frm = frm;
-    }
-
-    @Deprecated
-    // TODO : delete
-    public FlowCnecImpl(String id, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored, Set<BranchThreshold> thresholds, double frm) {
-        super(id, networkElement, operator, state, optimized, monitored, thresholds);
-        this.frm = frm;
-    }
-
     @Override
     public Double getIMax(Side side) {
         if (side.equals(LEFT)) {
@@ -164,30 +150,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
     private double changeValueSide(double value, Side oldSide, Side newSide) {
         return value * getNominalVoltage(oldSide) / getNominalVoltage(newSide);
-    }
-
-    @Override
-    @Deprecated
-    //todo: delete method
-    public void setReliabilityMargin(double reliabilityMargin) {
-        if (reliabilityMargin < 0) {
-            throw new FaraoException("Reliability margin should be positive.");
-        }
-        this.frm = reliabilityMargin;
-    }
-
-    @Override
-    @Deprecated
-    //todo: delete method
-    public FlowCnec copy() {
-        return new FlowCnecImpl(getId(), getName(), networkElement, getOperator(), state, optimized, monitored, thresholds, frm);
-    }
-
-    @Override
-    @Deprecated
-    //todo: delete method
-    public FlowCnec copy(NetworkElement networkElement, State state) {
-        return new FlowCnecImpl(getId(), getName(), networkElement, getOperator(), state, optimized, monitored, thresholds, frm);
     }
 
     @Override

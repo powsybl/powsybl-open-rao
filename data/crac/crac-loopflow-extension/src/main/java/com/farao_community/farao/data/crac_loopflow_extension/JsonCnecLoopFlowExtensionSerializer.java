@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_loopflow_extension;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;

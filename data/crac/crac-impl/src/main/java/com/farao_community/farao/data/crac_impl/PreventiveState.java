@@ -18,6 +18,9 @@ import java.util.Optional;
  */
 public class PreventiveState implements State {
 
+    PreventiveState() {
+    }
+
     @Override
     public String getId() {
         return "preventive";

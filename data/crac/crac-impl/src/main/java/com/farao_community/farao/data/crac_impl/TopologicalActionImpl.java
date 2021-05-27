@@ -27,9 +27,7 @@ public final class TopologicalActionImpl implements TopologicalAction {
     private NetworkElement networkElement;
     private ActionType actionType;
 
-    @Deprecated
-    // TODO : convert to private package
-    public TopologicalActionImpl(NetworkElement networkElement, ActionType actionType) {
+    TopologicalActionImpl(NetworkElement networkElement, ActionType actionType) {
         this.networkElement = networkElement;
         this.actionType = actionType;
     }

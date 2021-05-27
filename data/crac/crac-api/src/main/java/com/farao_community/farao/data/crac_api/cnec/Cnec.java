@@ -83,22 +83,11 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
         return getNetworkElement().getLocation(network);
     }
 
-    // deprecated methods
-
-    /**
-     * @deprecated
-     * use the method withReliabilityMargin() of the {@link CnecAdder} instead
-     */
-    @Deprecated
-    //todo: delete the method
-    void setReliabilityMargin(double reliabilityMargin);
-
     /**
      * @deprecated
      * use the method withMonitored() of the {@link CnecAdder} instead
      */
     @Deprecated
-    //todo: delete the method
     void setMonitored(boolean monitored);
 
     /**
@@ -106,27 +95,5 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
      * use the method withOptimized() of the {@link CnecAdder} instead
      */
     @Deprecated
-    //todo: delete the method
     void setOptimized(boolean optimized);
-
-    /**
-     * Enables to do an entire deep copy of a {@code Cnec}.
-     * @deprecated this method is not maintained anymore
-     *
-     * @return An object of the specific type {@link I} with copied inner objects.
-     */
-    @Deprecated
-    //todo: delete the method
-    I copy();
-
-    /**
-     * Enables to do a deep copy of a {@code Cnec} by replacing {@code networkElement} and {@code state} with already
-     * created objects. The main use is to ensure objects consistency within the {@link Crac}.
-     * @deprecated this method is not maintained anymore
-     *
-     * @return An object of the specific type {@link I} with copied inner objects.
-     */
-    @Deprecated
-    //todo: delete the method
-    I copy(NetworkElement networkElement, State state);
 }

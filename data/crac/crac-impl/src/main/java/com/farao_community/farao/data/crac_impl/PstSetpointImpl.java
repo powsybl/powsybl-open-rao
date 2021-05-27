@@ -24,9 +24,7 @@ public final class PstSetpointImpl implements PstSetpoint {
     private NetworkElement networkElement;
     private int setpoint;
 
-    @Deprecated
-    // TODO : convert to private package
-    public PstSetpointImpl(NetworkElement networkElement, int setpoint) {
+    PstSetpointImpl(NetworkElement networkElement, int setpoint) {
         this.networkElement = networkElement;
         this.setpoint = setpoint;
     }

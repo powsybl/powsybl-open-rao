@@ -46,8 +46,10 @@ public class TopologicalActionAdderImplTest {
         TopologicalAction topologicalAction = (TopologicalAction) networkAction.getElementaryActions().iterator().next();
         assertEquals("branchNetworkElementId", topologicalAction.getNetworkElement().getId());
         assertEquals(ActionType.OPEN, topologicalAction.getActionType());
-        assertEquals(1, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("branchNetworkElementId"));
+
+        // check that network element has been added in CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("branchNetworkElementId"));
     }
 
     @Test (expected = FaraoException.class)

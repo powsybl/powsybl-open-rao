@@ -46,8 +46,10 @@ public class PstSetpointAdderImplTest {
         PstSetpoint pstSetpoint = (PstSetpoint) networkAction.getElementaryActions().iterator().next();
         assertEquals("pstNetworkElementId", pstSetpoint.getNetworkElement().getId());
         assertEquals(0, pstSetpoint.getSetpoint(), 1e-3);
-        assertEquals(1, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("pstNetworkElementId"));
+
+        // check that network element has been created in CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("pstNetworkElementId"));
     }
 
     @Test (expected = FaraoException.class)

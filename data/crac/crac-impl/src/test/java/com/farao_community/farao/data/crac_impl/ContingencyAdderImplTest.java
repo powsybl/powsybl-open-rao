@@ -70,10 +70,10 @@ public class ContingencyAdderImplTest {
         assertEquals("neName2-2", ne2.getName());
 
         // Verify that network elements were created
-        assertEquals(3, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("neId1"));
-        assertNotNull(crac.getNetworkElement("neId2-1"));
-        assertNotNull(crac.getNetworkElement("neId2-2"));
+        assertEquals(3, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("neId1"));
+        assertNotNull(((CracImpl) crac).getNetworkElement("neId2-1"));
+        assertNotNull(((CracImpl) crac).getNetworkElement("neId2-2"));
     }
 
     @Test(expected = FaraoException.class)

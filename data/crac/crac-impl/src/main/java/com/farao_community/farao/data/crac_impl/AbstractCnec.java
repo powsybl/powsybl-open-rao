@@ -40,17 +40,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
         this.frm = frm;
     }
 
-    @Deprecated
-    //todo : delete method
-    protected AbstractCnec(String id, NetworkElement networkElement, String operator, State state, boolean optimized, boolean monitored) {
-        super(id);
-        this.networkElement = networkElement;
-        this.operator = operator;
-        this.state = state;
-        this.optimized = optimized;
-        this.monitored = monitored;
-    }
-
     @Override
     public final State getState() {
         return state;
@@ -68,7 +57,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
 
     @Override
     @Deprecated
-    //todo: delete method
     public void setOptimized(boolean optimized) {
         this.optimized = optimized;
     }
@@ -80,7 +68,6 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
 
     @Override
     @Deprecated
-    //todo: delete method
     public void setMonitored(boolean monitored) {
         this.monitored = monitored;
     }

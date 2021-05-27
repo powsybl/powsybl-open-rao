@@ -21,7 +21,7 @@ public class BranchThresholdAdderImpl extends ThresholdAdderImpl<BranchThreshold
     private final FlowCnecAdderImpl ownerAdder;
     private BranchThresholdRule rule;
 
-    public BranchThresholdAdderImpl(FlowCnecAdder ownerAdder) {
+    BranchThresholdAdderImpl(FlowCnecAdder ownerAdder) {
         Objects.requireNonNull(ownerAdder);
         this.ownerAdder = (FlowCnecAdderImpl) ownerAdder;
     }

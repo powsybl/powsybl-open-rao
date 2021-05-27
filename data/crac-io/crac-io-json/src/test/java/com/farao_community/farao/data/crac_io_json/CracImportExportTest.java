@@ -148,7 +148,6 @@ public class CracImportExportTest {
 
         Crac importedCrac = RoundTripUtil.roundTrip(crac);
 
-        assertEquals(8, importedCrac.getNetworkElements().size());
         assertEquals(3, importedCrac.getStates().size());
         assertEquals(2, importedCrac.getContingencies().size());
         assertEquals(5, importedCrac.getFlowCnecs().size());
@@ -175,6 +174,5 @@ public class CracImportExportTest {
         assertEquals(0.5, importedCrac.getPstRangeAction("pstRangeId").convertTapToAngle(-2));
         assertEquals(2.5, importedCrac.getPstRangeAction("pstRangeId").convertTapToAngle(2));
         assertEquals(2, importedCrac.getPstRangeAction("pstRangeId").convertAngleToTap(2.5));
-
     }
 }

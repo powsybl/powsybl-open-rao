@@ -20,9 +20,7 @@ public class TapRangeImpl extends AbstractRange implements TapRange {
     private int minTap;
     private int maxTap;
 
-    @Deprecated
-    //todo: make private package
-    public TapRangeImpl(int minTap, int maxTap, RangeType rangeType) {
+    TapRangeImpl(int minTap, int maxTap, RangeType rangeType) {
         super(rangeType, Unit.TAP);
         this.minTap = minTap;
         this.maxTap = maxTap;

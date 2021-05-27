@@ -14,7 +14,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class CracImplFactoryTest {
-    final String factoryName = "CracImplFactory";
+    private final String factoryName = "CracImplFactory";
 
     @Test
     public void testDependencyInjection() {

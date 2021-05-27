@@ -147,9 +147,8 @@ public class CracCleaner {
          We can do this during CRAC refactoring (we should somehow merge CracCleaner.cleanCrac() & crac.synchronize() methods)
          For now, these "wrong" range actions are only handled in the LinearOptimizer (in the CoreProblemFiller)*/
 
-        // remove states and contingencies
+        // remove contingencies
         removedContingencies.forEach(contingency -> crac.removeContingency(contingency.getId()));
-        removedStates.forEach(state -> crac.removeState(state.getId()));
         report.forEach(LOGGER::warn);
 
         return report;
@@ -159,9 +158,9 @@ public class CracCleaner {
         Set<UsageRule> removedUr = new HashSet<>();
         remedialAction.getUsageRules().forEach(usageRule -> {
             if (usageRule instanceof OnState && removedStates.contains(((OnState) usageRule).getState())) {
-                report.add(String.format("[REMOVED] OnState usage rule of RA %s is removed because its associated state [%s] has been removed",
+                report.add(String.format("[REMOVED] OnState usage rule of RA %s is removed because its associated Contingency [%s] has been removed",
                     remedialAction.getId(),
-                    ((OnState) usageRule).getState().getId()));
+                    ((OnState) usageRule).getState().getContingency().get().getId()));
                 removedUr.add(usageRule);
             }
         });

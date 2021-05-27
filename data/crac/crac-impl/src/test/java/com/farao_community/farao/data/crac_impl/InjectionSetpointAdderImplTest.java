@@ -45,8 +45,10 @@ public class InjectionSetpointAdderImplTest {
         InjectionSetpoint injectionSetpoint = (InjectionSetpoint) networkAction.getElementaryActions().iterator().next();
         assertEquals("groupNetworkElementId", injectionSetpoint.getNetworkElement().getId());
         assertEquals(100., injectionSetpoint.getSetpoint(), 1e-3);
-        assertEquals(1, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("groupNetworkElementId"));
+
+        // check that network element have been added to CracImpl
+        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
+        assertNotNull(((CracImpl) crac).getNetworkElement("groupNetworkElementId"));
     }
 
     @Test (expected = FaraoException.class)

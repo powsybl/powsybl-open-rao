@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -45,22 +44,6 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
         this.nominalVoltages[1] = nominalVRight;
     }
 
-    @Deprecated
-    // todo : delete method
-    protected AbstractBranchCnec(String id, String name, NetworkElement networkElement, String operator, State state, boolean optimized,
-                              boolean monitored, Set<BranchThreshold> thresholds) {
-        super(id, name, networkElement, operator, state, optimized, monitored, 0);
-        setThresholds(thresholds);
-    }
-
-    @Deprecated
-    // todo : delete method
-    protected AbstractBranchCnec(String id, NetworkElement networkElement, String operator, State state, boolean optimized,
-                              boolean monitored, Set<BranchThreshold> thresholds) {
-        super(id, networkElement, operator, state, optimized, monitored);
-        setThresholds(thresholds);
-    }
-
     @Override
     public double computeMargin(double actualValue, Side side, Unit unit) {
         double marginOnLowerBound = actualValue - getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
@@ -71,21 +54,6 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
     @Override
     public final Set<BranchThreshold> getThresholds() {
         return thresholds;
-    }
-
-    @Override
-    @Deprecated
-    //todo : delete
-    public void addThreshold(BranchThreshold branchThreshold) {
-        bounds.resetBounds();
-        thresholds.add(branchThreshold);
-    }
-
-    @Deprecated
-    //todo : delete
-    public void setThresholds(Set<BranchThreshold> thresholds) {
-        bounds.resetBounds();
-        this.thresholds = new HashSet<>(thresholds);
     }
 
     @Override

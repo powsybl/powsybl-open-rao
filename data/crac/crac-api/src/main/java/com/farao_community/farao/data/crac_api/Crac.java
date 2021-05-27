@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import org.joda.time.DateTime;
 
 import java.util.*;
 
@@ -322,49 +321,4 @@ public interface Crac extends Identifiable<Crac> {
      * Remove a NetworkAction - identified by its id - from the Crac
      */
     void removeNetworkAction(String id);
-
-    // deprecated methods to be deleted
-
-    /**
-     * @deprecated use the CracCreationContext to store that kind of information instead
-     */
-    @Deprecated
-    //todo: delete method
-    DateTime getNetworkDate();
-
-    /**
-     * @deprecated one can look directly in the network elements of a Cnec, Contingency, and/or RemedialAction instead
-     */
-    @Deprecated
-    //todo: delete method
-    Set<NetworkElement> getNetworkElements();
-
-    /**
-     * @deprecated one can look directly in the network elements of a Cnec, Contingency, and/or RemedialAction instead
-     */
-    @Deprecated
-    //todo: delete method
-    NetworkElement getNetworkElement(String networkElementId);
-
-    /**
-     * @deprecated use newContingency() instead
-     */
-    @Deprecated
-    //todo: delete method
-    void addContingency(Contingency contingency);
-
-    /**
-     * @deprecated states cannot be added or removed anymore, they are automatically created/removed with the other elements
-     * of the Crac (Contingencies, Cnec, RemedialAction, ...)
-     */
-    @Deprecated
-    //todo: delete method
-    void removeState(String stateId);
-
-    /**
-     * @deprecated use newFlowCnec() instead
-     */
-    @Deprecated
-    //todo: delete method
-    void addCnec(Cnec<?> cnec);
 }
