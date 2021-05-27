@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -28,8 +30,17 @@ public class OnStateImplTest {
     @Before
     public void setUp() {
         initialState = new PreventiveState();
-        curativeState1 = new PostContingencyState(new ContingencyImpl("contingency1"), Instant.CURATIVE);
-        curativeState2 = new PostContingencyState(new ContingencyImpl("contingency2"), Instant.CURATIVE);
+        Crac crac = new CracImplFactory().create("cracId");
+        Contingency contingency1 = crac.newContingency()
+            .withId("contingency1")
+            .withNetworkElement("anyNetworkElement")
+            .add();
+        Contingency contingency2 = crac.newContingency()
+            .withId("contingency2")
+            .withNetworkElement("anyNetworkElement")
+            .add();
+        curativeState1 = new PostContingencyState(contingency1, Instant.CURATIVE);
+        curativeState2 = new PostContingencyState(contingency2, Instant.CURATIVE);
     }
 
     @Test

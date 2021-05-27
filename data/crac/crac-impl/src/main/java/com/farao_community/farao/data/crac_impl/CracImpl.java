@@ -56,6 +56,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     // region NetworkElements management
     // ========================================
 
+    Set<NetworkElement> getNetworkElements() {
+        return new HashSet<>(networkElements.values());
+    }
+
     NetworkElement getNetworkElement(String id) {
         return networkElements.getOrDefault(id, null);
     }
