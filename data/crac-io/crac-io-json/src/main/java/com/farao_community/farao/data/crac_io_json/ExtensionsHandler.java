@@ -18,7 +18,6 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-// TODO : delete ? remove from API ?
 public final class ExtensionsHandler {
 
     private ExtensionsHandler() { }
