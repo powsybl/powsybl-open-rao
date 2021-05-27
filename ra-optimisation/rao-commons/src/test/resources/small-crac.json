@@ -91,6 +91,11 @@
           "instant": "preventive"
         }
       ],
+      "onStateUsageRules" : [ {
+        "instant" : "curative",
+        "contingencyId" : "N-1 NL1-NL3",
+        "usageMethod" : "available"
+      } ],
       "ranges": [
         {
           "min": -15,

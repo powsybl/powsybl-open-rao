@@ -7,7 +7,7 @@
  */
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
+import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
