@@ -23,11 +23,7 @@ public class ThresholdImpl implements Threshold {
     protected Double min;
     protected Double max;
 
-    public ThresholdImpl(Unit unit) {
-        this.unit = unit;
-    }
-
-    public ThresholdImpl(Unit unit, Double min, Double max) {
+    ThresholdImpl(Unit unit, Double min, Double max) {
         this.unit = unit;
         this.min = min;
         this.max = max;

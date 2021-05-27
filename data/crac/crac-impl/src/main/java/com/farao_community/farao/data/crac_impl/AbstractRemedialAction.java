@@ -32,44 +32,14 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         this.usageRules = usageRules;
     }
 
-    protected AbstractRemedialAction(String id, String name, String operator) {
-        super(id, name);
-        this.operator = operator;
-        this.usageRules = new ArrayList<>();
-    }
-
-    protected AbstractRemedialAction(String id, String operator) {
-        super(id);
-        this.operator = operator;
-        this.usageRules = new ArrayList<>();
-    }
-
-    protected AbstractRemedialAction(String id) {
-        super(id);
-        this.operator = "";
-        usageRules = new ArrayList<>();
-    }
-
     @Override
     public String getOperator() {
         return operator;
     }
 
-    @Deprecated
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
     @Override
     public final List<UsageRule> getUsageRules() {
         return usageRules;
-    }
-
-    @Override
-    @Deprecated
-    // TODO : convert to private package
-    public void addUsageRule(UsageRule usageRule) {
-        usageRules.add(usageRule);
     }
 
     @Override

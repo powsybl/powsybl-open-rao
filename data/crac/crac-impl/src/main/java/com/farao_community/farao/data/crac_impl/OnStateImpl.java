@@ -22,9 +22,7 @@ public final class OnStateImpl extends AbstractUsageRule implements OnState {
 
     private State state;
 
-    @Deprecated
-    // TODO : convert to private package
-    public OnStateImpl(UsageMethod usageMethod, State state) {
+    OnStateImpl(UsageMethod usageMethod, State state) {
         super(usageMethod);
         this.state = state;
     }

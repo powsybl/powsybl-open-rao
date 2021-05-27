@@ -34,7 +34,7 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
      */
     protected final BranchThresholdRule rule;
 
-    public BranchThresholdImpl(Unit unit, Double min, Double max, BranchThresholdRule rule) {
+    BranchThresholdImpl(Unit unit, Double min, Double max, BranchThresholdRule rule) {
         super(unit, min, max);
         this.rule = rule;
     }

@@ -11,15 +11,11 @@ import java.util.Set;
 
 public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> implements NetworkElement {
 
-    @Deprecated
-    //todo : make private package
-    public NetworkElementImpl(String id, String name) {
+    NetworkElementImpl(String id, String name) {
         super(id, name);
     }
 
-    @Deprecated
-    //todo : make private package
-    public NetworkElementImpl(String id) {
+    NetworkElementImpl(String id) {
         this(id, id);
     }
 

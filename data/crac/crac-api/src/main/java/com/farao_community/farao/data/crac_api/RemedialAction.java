@@ -64,15 +64,4 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
         return getNetworkElements().stream().map(networkElement -> networkElement.getLocation(network))
                 .flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
     }
-
-    // deprecated methods
-
-    /**
-     * @deprecated usage rules cannot be added anymore in a created RemedialAction. Use the newXXXUsageRule() of
-     * {@link RemedialActionAdder} instead.
-     */
-    @Deprecated
-    //todo: delete method
-    void addUsageRule(UsageRule usageRule);
-
 }

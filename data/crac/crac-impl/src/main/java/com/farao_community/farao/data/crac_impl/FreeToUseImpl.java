@@ -23,9 +23,7 @@ public final class FreeToUseImpl extends AbstractUsageRule implements FreeToUse 
 
     private Instant instant;
 
-    @Deprecated
-    // TODO : convert to private package
-    public FreeToUseImpl(UsageMethod usageMethod, Instant instant) {
+    FreeToUseImpl(UsageMethod usageMethod, Instant instant) {
         super(usageMethod);
         this.instant = instant;
     }

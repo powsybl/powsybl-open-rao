@@ -47,23 +47,6 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
         this.highTapPosition = Collections.max(tapToAngleConversionMap.keySet());
     }
 
-    @Deprecated
-    // TODO : delete
-    public PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<TapRange> ranges,
-                        NetworkElement networkElement, String groupId) {
-        super(id, name, operator, usageRules, groupId);
-        this.networkElement = networkElement;
-        this.ranges = ranges;
-    }
-
-    @Deprecated
-    // TODO : delete
-    public PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<TapRange> ranges, NetworkElement networkElement) {
-        super(id, name, operator, usageRules);
-        this.networkElement = networkElement;
-        this.ranges = ranges;
-    }
-
     @Override
     public NetworkElement getNetworkElement() {
         return networkElement;
@@ -205,12 +188,6 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
         return phaseTapChangerFromNetwork;
     }
 
-    @Deprecated
-    //todo: delete
-    public void setNetworkElement(NetworkElement networkElement) {
-        this.networkElement = networkElement;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -238,11 +215,5 @@ public final class PstRangeActionImpl extends AbstractRangeAction implements Pst
         hashCode += 31 * initialTapPosition;
         hashCode += 31 * networkElement.hashCode();
         return hashCode;
-    }
-
-    @Deprecated
-    //todo: delete
-    public void addRange(TapRange range) {
-        ranges.add(range);
     }
 }

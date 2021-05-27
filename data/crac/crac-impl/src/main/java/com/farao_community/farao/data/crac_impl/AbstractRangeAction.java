@@ -33,11 +33,6 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
         return Optional.ofNullable(groupId);
     }
 
-    @Deprecated
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

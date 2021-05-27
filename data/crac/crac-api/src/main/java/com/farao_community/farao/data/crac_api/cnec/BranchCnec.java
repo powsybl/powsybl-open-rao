@@ -85,14 +85,4 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      * {@code reliabilityMargin} into account.
      */
     double computeMargin(double actualValue, Side side, Unit unit);
-
-    // deprecated methods
-    /**
-     * Enables to add a {@link BranchThreshold} to the {@code BranchCnec}.
-     *
-     * @param branchThreshold: The {@link BranchThreshold} to be added to the {@code BranchCnec}
-     * @deprecated You will not be able to add thresholds to created CNECs anymore. Please use the {@link FlowCnecAdder} with the newThreshold() method accordingly.
-     */
-    @Deprecated
-    void addThreshold(BranchThreshold branchThreshold);
 }

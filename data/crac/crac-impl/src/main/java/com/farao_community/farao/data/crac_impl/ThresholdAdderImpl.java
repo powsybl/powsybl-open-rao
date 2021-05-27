@@ -21,6 +21,8 @@ public class ThresholdAdderImpl<I extends ThresholdAdder<I>> implements Threshol
     protected Double max;
     protected Double min;
 
+    ThresholdAdderImpl() {}
+
     @Override
     public I withUnit(Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.FLOW);

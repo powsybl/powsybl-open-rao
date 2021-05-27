@@ -28,27 +28,9 @@ public class ContingencyImpl extends AbstractIdentifiable<Contingency> implement
 
     private Set<NetworkElement> networkElements;
 
-    @Deprecated
-    // TODO : make private package
-    public ContingencyImpl(String id, String name, final Set<NetworkElement> networkElements) {
+    ContingencyImpl(String id, String name, final Set<NetworkElement> networkElements) {
         super(id, name);
         this.networkElements = networkElements;
-    }
-
-    @Deprecated
-    public ContingencyImpl(String id, final Set<NetworkElement> networkElements) {
-        this(id, id, networkElements);
-    }
-
-    @Deprecated
-    public ContingencyImpl(String id) {
-        super(id, id);
-        this.networkElements = new HashSet<>();
-    }
-
-    @Deprecated
-    public void addNetworkElement(NetworkElement networkElement) {
-        networkElements.add(networkElement);
     }
 
     @Override

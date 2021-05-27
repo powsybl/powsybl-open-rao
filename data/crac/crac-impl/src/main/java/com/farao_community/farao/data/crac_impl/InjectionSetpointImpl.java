@@ -22,9 +22,7 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     private NetworkElement networkElement;
     private double setpoint;
 
-    @Deprecated
-    // TODO : convert to private package
-    public InjectionSetpointImpl(NetworkElement networkElement, double setpoint) {
+    InjectionSetpointImpl(NetworkElement networkElement, double setpoint) {
         this.networkElement = networkElement;
         this.setpoint = setpoint;
     }

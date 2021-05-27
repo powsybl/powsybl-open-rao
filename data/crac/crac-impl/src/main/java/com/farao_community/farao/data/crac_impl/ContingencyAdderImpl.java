@@ -23,7 +23,7 @@ public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyA
     CracImpl owner;
     private final Set<NetworkElement> networkElements = new HashSet<>();
 
-    public ContingencyAdderImpl(CracImpl owner) {
+    ContingencyAdderImpl(CracImpl owner) {
         Objects.requireNonNull(owner);
         this.owner = owner;
     }
@@ -69,5 +69,6 @@ public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyA
             return owner.getContingency(id);
         }
         // TODO : create additional states if there are RAs with "FreeToUse" usage rule (on curative/auto instant)
+        // not required as as soon as there is no RA on AUTO instant
     }
 }
