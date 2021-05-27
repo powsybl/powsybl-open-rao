@@ -11,8 +11,6 @@ import com.farao_community.farao.data.crac_api.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
-
 import static org.junit.Assert.*;
 
 /**

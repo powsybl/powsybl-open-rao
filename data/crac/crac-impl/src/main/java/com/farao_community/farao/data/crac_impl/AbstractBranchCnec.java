@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -56,7 +55,6 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
     public final Set<BranchThreshold> getThresholds() {
         return thresholds;
     }
-
 
     @Override
     public Double getNominalVoltage(Side side) {

@@ -553,7 +553,6 @@ public class CracImplTest {
             .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
             .add();
 
-
         State state1 = crac.getState("co1", CURATIVE);
         State state2 = crac.getState("co2", CURATIVE);
 
