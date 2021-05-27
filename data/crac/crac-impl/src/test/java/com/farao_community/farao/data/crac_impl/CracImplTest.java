@@ -257,14 +257,15 @@ public class CracImplTest {
 
     @Test
     public void testRemoveContingency() {
-        Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(Mockito.mock(NetworkElement.class)));
-        Contingency contingency2 = new ContingencyImpl("co2", "co2", Collections.singleton(Mockito.mock(NetworkElement.class)));
-        crac.addContingency(contingency1);
-        crac.addContingency(contingency2);
+
+        crac.newContingency().withId("co1").withNetworkElement("ne1").add();
+        crac.newContingency().withId("co2").withNetworkElement("ne2").add();
 
         assertEquals(2, crac.getContingencies().size());
+        assertEquals(2, crac.getNetworkElements().size());
         crac.removeContingency("co2");
         assertEquals(1, crac.getContingencies().size());
+        assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getContingency("co1"));
         assertNull(crac.getContingency("co2"));
     }
