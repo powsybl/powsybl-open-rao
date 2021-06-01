@@ -9,23 +9,32 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
-
-    private double fallBackOvercost;
+    private final double fallBackOvercost;
 
     public SensitivityFallbackOvercostEvaluator(double overcost) {
         this.fallBackOvercost = overcost;
     }
 
-    public double getCost(RaoData raoData) {
+    @Override
+    public String getName() {
+        return "sensitivity-fallback-cost";
+    }
 
-        switch (raoData.getSystematicSensitivityResult().getStatus()) {
-            case SUCCESS:
+    @Override
+    public double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+        switch (sensitivityStatus) {
+            case DEFAULT:
                 return 0.;
             case FALLBACK:
                 return fallBackOvercost;
@@ -35,7 +44,13 @@ public class SensitivityFallbackOvercostEvaluator implements CostEvaluator {
         }
     }
 
+    @Override
     public Unit getUnit() {
-        return null;
+        return Unit.MEGAWATT;
+    }
+
+    @Override
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, int number) {
+        return Collections.emptyList();
     }
 }

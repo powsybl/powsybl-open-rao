@@ -7,8 +7,8 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -24,11 +24,11 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSimpleSensitivityProvider.class);
 
-    protected Set<BranchCnec> cnecs;
+    protected Set<FlowCnec> cnecs;
     protected boolean factorsInMegawatt;
     protected boolean factorsInAmpere;
 
-    AbstractSimpleSensitivityProvider(Set<BranchCnec> cnecs, Set<Unit> requestedUnits) {
+    AbstractSimpleSensitivityProvider(Set<FlowCnec> cnecs, Set<Unit> requestedUnits) {
         this.cnecs = cnecs;
         factorsInMegawatt = false;
         factorsInAmpere = false;
@@ -51,7 +51,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
         }
     }
 
-    public Set<BranchCnec> getBranchCnecs() {
+    public Set<FlowCnec> getFlowCnecs() {
         return cnecs;
     }
 

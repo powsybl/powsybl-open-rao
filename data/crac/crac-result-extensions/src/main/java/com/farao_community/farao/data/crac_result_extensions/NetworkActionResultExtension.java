@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.NetworkAction;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

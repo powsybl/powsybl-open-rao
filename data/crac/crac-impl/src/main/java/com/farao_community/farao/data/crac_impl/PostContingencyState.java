@@ -19,15 +19,12 @@ import java.util.Optional;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-@JsonTypeName("post-contingency-state")
-@JsonIdentityInfo(scope = PostContingencyState.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class PostContingencyState implements State {
     private String id;
     private Contingency contingency;
     private Instant instant;
 
-    @JsonCreator
-    public PostContingencyState(@JsonProperty("contingency") Contingency contingency, @JsonProperty("instant") Instant instant) {
+    PostContingencyState(Contingency contingency, Instant instant) {
         this.id = contingency.getId() + " - " + instant.toString();
         this.contingency = contingency;
         this.instant = instant;

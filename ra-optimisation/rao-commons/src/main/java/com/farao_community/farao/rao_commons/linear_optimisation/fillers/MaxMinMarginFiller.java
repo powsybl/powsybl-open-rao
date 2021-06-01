@@ -9,15 +9,20 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.PstRangeAction;
-import com.farao_community.farao.data.crac_api.Side;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -26,35 +31,33 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
+    protected final Set<FlowCnec> optimizedCnecs;
+    private final Set<RangeAction> rangeActions;
+    private final Unit unit;
+    protected double pstPenaltyCost;
 
-    private Unit unit;
-    private double pstPenaltyCost;
-
-    public MaxMinMarginFiller(Unit unit, double pstPenaltyCost) {
+    public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
+        this.optimizedCnecs = optimizedCnecs;
+        this.rangeActions = rangeActions;
         this.unit = unit;
-        this.pstPenaltyCost = pstPenaltyCost;
+        this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
     }
-
-    public void setUnit(Unit unit) {
-        this.unit = unit;
-    }
-    // End of methods for tests
 
     @Override
-    public void fill(RaoData raoData, LinearProblem linearProblem) {
+    public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // build variables
-        buildMinimumMarginVariable(linearProblem, raoData);
+        buildMinimumMarginVariable(linearProblem);
 
         // build constraints
-        buildMinimumMarginConstraints(raoData, linearProblem);
+        buildMinimumMarginConstraints(linearProblem);
 
         // complete objective
         fillObjectiveWithMinMargin(linearProblem);
-        fillObjectiveWithRangeActionPenaltyCost(raoData, linearProblem);
+        fillObjectiveWithRangeActionPenaltyCost(linearProblem);
     }
 
     @Override
-    public void update(RaoData raoData, LinearProblem linearProblem) {
+    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // Objective does not change, nothing to do
     }
 
@@ -63,10 +66,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * This variable represents the smallest margin of all Cnecs.
      * It is given in MEGAWATT.
      */
-    private void buildMinimumMarginVariable(LinearProblem linearProblem, RaoData raoData) {
-
-        if (raoData.getCnecs().stream().anyMatch(BranchCnec::isOptimized)) {
-            linearProblem.addMinimumMarginVariable(-linearProblem.infinity(), linearProblem.infinity());
+    private void buildMinimumMarginVariable(LinearProblem linearProblem) {
+        if (!optimizedCnecs.isEmpty()) {
+            linearProblem.addMinimumMarginVariable(-LinearProblem.infinity(), LinearProblem.infinity());
         } else {
             // if there is no Cnecs, the minMarginVariable is forced to zero.
             // otherwise it would be unbounded in the LP
@@ -90,12 +92,12 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
-    private void buildMinimumMarginConstraints(RaoData raoData, LinearProblem linearProblem) {
+    private void buildMinimumMarginConstraints(LinearProblem linearProblem) {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
-        raoData.getCnecs().stream().filter(BranchCnec::isOptimized).forEach(cnec -> {
+        optimizedCnecs.forEach(cnec -> {
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
             if (flowVariable == null) {
@@ -106,16 +108,17 @@ public class MaxMinMarginFiller implements ProblemFiller {
             Optional<Double> maxFlow;
             minFlow = cnec.getLowerBound(Side.LEFT, MEGAWATT);
             maxFlow = cnec.getUpperBound(Side.LEFT, MEGAWATT);
-            double unitConversionCoefficient = getUnitConversionCoefficient(cnec, raoData);
+            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, unit, MEGAWATT);
+            //TODO : check that using only Side.LEFT is sufficient
 
             if (minFlow.isPresent()) {
-                MPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                MPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), -minFlow.get(), cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 minimumMarginNegative.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
-                MPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                MPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-LinearProblem.infinity(), maxFlow.get(), cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 minimumMarginPositive.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
@@ -144,8 +147,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * <p>
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
-    private void fillObjectiveWithRangeActionPenaltyCost(RaoData raoData, LinearProblem linearProblem) {
-        raoData.getAvailableRangeActions().forEach(rangeAction -> {
+    private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
+        rangeActions.forEach(rangeAction -> {
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
             // If the PST has been filtered out, then absoluteVariationVariable is null
@@ -153,20 +156,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
             }
         });
-    }
-
-    /**
-     * Get unit conversion coefficient
-     * the flows are always defined in MW, so if the minimum margin is defined in ampere,
-     * and appropriate conversion coefficient should be used.
-     */
-    protected double getUnitConversionCoefficient(BranchCnec cnec, RaoData linearRaoData) {
-        if (unit.equals(MEGAWATT)) {
-            return 1;
-        } else {
-            // Unom(cnec) * sqrt(3) / 1000
-            return linearRaoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV() * Math.sqrt(3) / 1000;
-        }
     }
 }
 

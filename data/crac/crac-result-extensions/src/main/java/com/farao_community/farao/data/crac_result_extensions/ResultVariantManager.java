@@ -10,6 +10,9 @@ package com.farao_community.farao.data.crac_result_extensions;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.HashSet;
@@ -105,7 +108,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         getExtendable().getExtension(CracResultExtension.class).addVariant(variantId, new CracResult());
 
         // add CNEC result variant
-        getExtendable().getBranchCnecs().forEach(cnec -> {
+        getExtendable().getFlowCnecs().forEach(cnec -> {
             if (cnec.getExtension(CnecResultExtension.class) == null) {
                 cnec.addExtension(CnecResultExtension.class, new CnecResultExtension());
             }
@@ -151,7 +154,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         if (variants.size() == 1) { // if the crac does not contains other variant than this one : delete all extension
             getExtendable().removeExtension(CracResultExtension.class);
 
-            getExtendable().getBranchCnecs().forEach(cnec -> cnec.removeExtension(CnecResultExtension.class));
+            getExtendable().getFlowCnecs().forEach(cnec -> cnec.removeExtension(CnecResultExtension.class));
 
             for (NetworkAction networkAction: getExtendable().getNetworkActions()) {
                 networkAction.removeExtension(NetworkActionResultExtension.class);
@@ -165,7 +168,7 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
 
             getExtendable().getExtension(CracResultExtension.class).deleteVariant(variantId);
 
-            getExtendable().getBranchCnecs().forEach(cnec -> cnec.getExtension(CnecResultExtension.class).deleteVariant(variantId));
+            getExtendable().getFlowCnecs().forEach(cnec -> cnec.getExtension(CnecResultExtension.class).deleteVariant(variantId));
 
             for (NetworkAction networkAction: getExtendable().getNetworkActions()) {
                 networkAction.getExtension(NetworkActionResultExtension.class).deleteVariant(variantId);

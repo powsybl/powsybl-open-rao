@@ -7,16 +7,27 @@
 
 package com.farao_community.farao.data.crac_api.threshold;
 
-import com.farao_community.farao.data.crac_api.Side;
+import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 
 /**
+ * Specific {@link Threshold} for {@link BranchCnec}
+ *
+ * a BranchThreshold has a BranchThresholdRule, which defines on each side of the
+ * branch the threshold applies.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface BranchThreshold extends Threshold {
 
-    Side getSide();
-
-    void setSide(Side side);
-
+    /**
+     * Get the {@link BranchThresholdRule} of the threshold
+     */
     BranchThresholdRule getRule();
+
+    /**
+     * Get the {@link Side} of the Branch on which the threshold is defined, which is
+     * implicitly deduced from the rule of the threshold
+     */
+    Side getSide();
 }

@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -39,11 +39,11 @@ public final class JsonRaoResult {
     private JsonRaoResult() { }
 
     /**
-     * A configuration loader interface for the RaoResult extensions loaded
+     * A configuration loader interface for the RaoResultImpl extensions loaded
      *
      * @param <E> The extension class
      */
-    public interface ExtensionSerializer<E extends Extension<RaoResult>> extends ExtensionJsonSerializer<RaoResult, E> {
+    public interface ExtensionSerializer<E extends Extension<RaoResultImpl>> extends ExtensionJsonSerializer<RaoResultImpl, E> {
     }
 
     /**
@@ -60,10 +60,10 @@ public final class JsonRaoResult {
     }
 
     /**
-     * @param jsonFile Path where the RaoResult is read
-     * @return RaoResult from a JSON file (will NOT rely on platform config).
+     * @param jsonFile Path where the RaoResultImpl is read
+     * @return RaoResultImpl from a JSON file (will NOT rely on platform config).
      */
-    public static RaoResult read(Path jsonFile) {
+    public static RaoResultImpl read(Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -74,23 +74,23 @@ public final class JsonRaoResult {
     }
 
     /**
-     * @param jsonStream InputStream where the RaoResult is read
-     * @return RaoResult from a JSON file (will NOT rely on platform config).
+     * @param jsonStream InputStream where the RaoResultImpl is read
+     * @return RaoResultImpl from a JSON file (will NOT rely on platform config).
      */
-    public static RaoResult read(InputStream jsonStream) {
+    public static RaoResultImpl read(InputStream jsonStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readerFor(RaoResult.class).readValue(jsonStream);
+            return objectMapper.readerFor(RaoResultImpl.class).readValue(jsonStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     /**
-     * @param result RaoResult that is written into the jsonFile
-     * @param jsonFile Path where the RaoResult is written
+     * @param result RaoResultImpl that is written into the jsonFile
+     * @param jsonFile Path where the RaoResultImpl is written
      */
-    public static void write(RaoResult result, Path jsonFile) {
+    public static void write(RaoResultImpl result, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
@@ -101,10 +101,10 @@ public final class JsonRaoResult {
     }
 
     /**
-     * @param result RaoResult that is written into the OutputStream
-     * @param outputStream OutputStream where the RaoResult is written
+     * @param result RaoResultImpl that is written into the OutputStream
+     * @param outputStream OutputStream where the RaoResultImpl is written
      */
-    public static void write(RaoResult result, OutputStream outputStream) {
+    public static void write(RaoResultImpl result, OutputStream outputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
@@ -116,35 +116,35 @@ public final class JsonRaoResult {
 
     /**
      * Low level deserialization method, to be used for instance for updating rao results nested in another object.
-     * @param parser JsonParser containing the RaoResult data
+     * @param parser JsonParser containing the RaoResultImpl data
      * @param context DeserializationContext used for the deserialization
-     * @param raoResult RaoResult that will contain the data initially in the JsonParser
-     * @return RaoResult object updated while deserialization
+     * @param raoResult RaoResultImpl that will contain the data initially in the JsonParser
+     * @return RaoResultImpl object updated while deserialization
      * @throws IOException when an unknown field is found
      */
-    public static RaoResult deserialize(JsonParser parser, DeserializationContext context, RaoResult raoResult) throws IOException {
+    public static RaoResultImpl deserialize(JsonParser parser, DeserializationContext context, RaoResultImpl raoResult) throws IOException {
         return new RaoResultDeserializer().deserialize(parser, context, raoResult);
     }
 
     /**
      * Low level deserialization method, to be used for instance for updating rao results nested in another object.
-     * @param parser JsonParser containing the RaoResult data
+     * @param parser JsonParser containing the RaoResultImpl data
      * @param context DeserializationContext used for the deserialization
-     * @return RaoResult object updated while deserialization
+     * @return RaoResultImpl object updated while deserialization
      * @throws IOException when an unknown field is found
      */
-    public static RaoResult deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public static RaoResultImpl deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         return new RaoResultDeserializer().deserialize(parser, context);
     }
 
     /**
      * Low level serialization method, to be used for instance for writing rao results nested in another object.
-     * @param raoResult RaoResult containing what needs to be serialized
+     * @param raoResult RaoResultImpl containing what needs to be serialized
      * @param jsonGenerator JsonGenerator used for the serialization
      * @param serializerProvider SerializerProvider used for the serialization
      * @throws IOException if the serialization fails
      */
-    public static void serialize(RaoResult raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public static void serialize(RaoResultImpl raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         new RaoResultSerializer().serialize(raoResult, jsonGenerator, serializerProvider);
     }
 
