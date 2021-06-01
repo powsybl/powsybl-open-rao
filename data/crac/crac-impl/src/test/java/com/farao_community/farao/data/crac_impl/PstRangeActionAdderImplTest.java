@@ -8,142 +8,244 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.usage_rule.FreeToUseImpl;
-import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import java.util.HashMap;
+import java.util.Map;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PstRangeActionAdderImplTest {
-    private static final double DOUBLE_TOLERANCE = 1e-3;
-    private SimpleCrac crac;
-    private Network network;
+    private CracImpl crac;
     private String networkElementId;
+    private Map<Integer, Double> validTapToAngleConversionMap;
 
     @Before
     public void setUp() {
-        crac = new SimpleCrac("test-crac");
-        network = NetworkImportsUtil.import12NodesNetwork();
+        crac = new CracImpl("test-crac");
         networkElementId = "BBE2AA1  BBE3AA1  1";
+        validTapToAngleConversionMap = Map.of(-2, -20., -1, -10., 0, 0., 1, 10., 2, 20.);
     }
 
     @Test
     public void testAdd() {
-        Crac crac1 = crac.newPstRangeAction()
-                .setId("id1")
-                .setOperator("RTE")
-                .setUnit(Unit.TAP)
-                .setMinValue(0.0)
-                .setMaxValue(10.0)
-                .newNetworkElement().setId(networkElementId).add()
-                .add();
-        assertSame(crac, crac1);
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withNetworkElement(networkElementId)
+            .withGroupId("groupId1")
+            .newTapRange()
+                .withMinTap(-10)
+                .withMaxTap(10)
+                .withRangeType(RangeType.ABSOLUTE)
+                .add()
+            .newFreeToUseUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
+
         assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, crac.getRangeAction("id1").getNetworkElements().iterator().next().getId());
-        assertEquals("RTE", crac.getRangeAction("id1").getOperator());
-        crac.getRangeAction("id1").synchronize(network);
-        assertEquals(0.0, crac.getRangeAction("id1").getMinValue(network, 5), DOUBLE_TOLERANCE);
-        // TAP position 10 should be converted to 3.894 degrees
-        assertEquals(3.894, crac.getRangeAction("id1").getMaxValue(network, 5), DOUBLE_TOLERANCE);
-        // Verify that the PST is free to use
-        // TODO : change this when usage rules are implemented
-        assertEquals(1, crac.getRangeAction("id1").getUsageRules().size());
-        assertEquals(FreeToUseImpl.class, crac.getRangeAction("id1").getUsageRules().get(0).getClass());
-        FreeToUseImpl usageRule = (FreeToUseImpl) crac.getRangeAction("id1").getUsageRules().get(0);
-        assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals("BE", pstRangeAction.getOperator());
+        assertEquals(1, pstRangeAction.getRanges().size());
+        assertEquals(1, pstRangeAction.getUsageRules().size());
+        assertEquals(1, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement(networkElementId));
+    }
+
+    @Test
+    public void testAddWithoutGroupId() {
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withNetworkElement(networkElementId)
+            .newTapRange()
+                .withMinTap(-10)
+                .withMaxTap(10)
+                .withRangeType(RangeType.ABSOLUTE)
+                .add()
+            .newFreeToUseUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
+
+        assertEquals(1, crac.getRangeActions().size());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals("BE", pstRangeAction.getOperator());
+        assertEquals(1, pstRangeAction.getRanges().size());
+        assertEquals(1, pstRangeAction.getUsageRules().size());
+    }
+
+    @Test
+    public void testAddWithoutRangeAndUsageRule() {
+        /*
+        This behaviour is considered admissible:
+            - without range, the default range will be defined by the min/max value of the network
+            - without usage rule, the remedial action will never be available
+
+        This test should however returns two warnings
+         */
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withNetworkElement(networkElementId)
+            .withInitialTap(2)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
+
+        assertEquals(1, crac.getRangeActions().size());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertEquals("BE", pstRangeAction.getOperator());
+        assertEquals(0, pstRangeAction.getRanges().size());
+        assertEquals(0, pstRangeAction.getUsageRules().size());
+    }
+
+    @Test
+    public void testAddWithoutOperator() {
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .newTapRange()
+                .withMinTap(-10)
+                .withMaxTap(10)
+                .withRangeType(RangeType.ABSOLUTE)
+                .add()
+            .newFreeToUseUsageRule()
+                .withInstant(Instant.PREVENTIVE)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .withInitialTap(-2)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
+
+        assertEquals(1, crac.getRangeActions().size());
+        assertEquals(networkElementId, pstRangeAction.getNetworkElements().iterator().next().getId());
+        assertNull(pstRangeAction.getOperator());
+        assertEquals(1, pstRangeAction.getRanges().size());
+        assertEquals(1, pstRangeAction.getUsageRules().size());
     }
 
     @Test(expected = FaraoException.class)
     public void testNoIdFail() {
         crac.newPstRangeAction()
-                .setUnit(Unit.TAP)
-                .setMinValue(0.0)
-                .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
-                .add();
-    }
-
-    @Test
-    public void testNoOperatorOk() {
-        crac.newPstRangeAction()
-                .setId("id")
-                .setUnit(Unit.TAP)
-                .setMinValue(0.0)
-                .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
-                .add();
-        assertEquals(1, crac.getRangeActions().size());
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testNoUnitFail() {
-        crac.newPstRangeAction()
-                .setId("id")
-                .setMinValue(0.0)
-                .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
-                .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testWrongUnitFail() {
-        crac.newPstRangeAction()
-                .setId("id")
-                .setUnit(Unit.DEGREE)
-                .setMinValue(0.0)
-                .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
-                .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testNoMinValueFail() {
-        crac.newPstRangeAction()
-                .setId("id")
-                .setUnit(Unit.TAP)
-                .setMaxValue(10.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
-                .add();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testNoMaxValueFail() {
-        crac.newPstRangeAction()
-                .setId("id")
-                .setUnit(Unit.TAP)
-                .setMinValue(0.0)
-                .newNetworkElement().setId("neId").setName("neName").add()
-                .add();
+            .withOperator("BE")
+            .withNetworkElement(networkElementId)
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
     }
 
     @Test(expected = FaraoException.class)
     public void testNoNetworkElementFail() {
         crac.newPstRangeAction()
-                .setId("id")
-                .setUnit(Unit.TAP)
-                .setMinValue(0.0)
-                .setMaxValue(10.0)
+            .withId("id1")
+            .withOperator("BE")
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
+    }
+
+    @Test
+    public void testIdNotUnique() {
+        crac.newNetworkAction()
+            .withId("sameId")
+            .withOperator("BE")
+            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add()
+            .add();
+
+        try {
+            crac.newPstRangeAction()
+                .withId("sameId")
+                .withOperator("BE")
+                .withNetworkElement("networkElementId")
+                .withInitialTap(1)
+                .withTapToAngleConversionMap(validTapToAngleConversionMap)
                 .add();
+            fail();
+        } catch (FaraoException e) {
+            // should throw
+        }
     }
 
     @Test(expected = FaraoException.class)
-    public void testOnlyOneNetworkElement() {
+    public void testNoInitialTap() {
         crac.newPstRangeAction()
-                .newNetworkElement().setId("neId1").setName("neName1").add()
-                .newNetworkElement().setId("neId2").setName("neName2").add();
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testNullParentFail() {
-        PstRangeActionAdderImpl tmp = new PstRangeActionAdderImpl(null);
+    @Test(expected = FaraoException.class)
+    public void testNoTapToAngleConversionMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(0)
+            .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testEmptyTapToAngleConversionMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(new HashMap<>())
+            .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testIncompleteTapToAngleConversionMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-2, -20., 2, 20.))
+            .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testNotMonotonousTapToAngleConversionMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-2, -20., -1, -15., 0, 0., 1, -10., 2, 20.))
+            .add();
+    }
+
+    @Test(expected = FaraoException.class)
+    public void testInitialTapNotInMap() {
+        crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .withOperator("BE")
+            .withInitialTap(10)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
     }
 }

@@ -7,16 +7,16 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.Side;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_commons.RaoData;
-import org.apache.commons.lang3.NotImplementedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.rao_api.parameters.MnecParameters;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
-import static com.farao_community.farao.commons.Unit.AMPERE;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
@@ -26,69 +26,66 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MnecViolationCostEvaluator implements CostEvaluator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MnecViolationCostEvaluator.class);
+    private final Set<FlowCnec> flowCnecs;
+    private final FlowResult initialFlowResult;
+    private final double mnecAcceptableMarginDiminutionInMW;
+    private final double mnecViolationCostInMWPerMW;
+    private List<FlowCnec> sortedElements = new ArrayList<>();
 
-    private Unit unit;
-    private double mnecAcceptableMarginDiminution;
-    private double mnecViolationCost;
-
-    public MnecViolationCostEvaluator(Unit unit, double mnecAcceptableMarginDiminution, double mnecViolationCost) {
-        if ((unit != MEGAWATT) && (unit != AMPERE)) {
-            throw new NotImplementedException("MNEC violation cost is only implemented in MW and AMPERE units");
-        }
-        this.unit = unit;
-        this.mnecAcceptableMarginDiminution = mnecAcceptableMarginDiminution;
-        this.mnecViolationCost = mnecViolationCost;
+    public MnecViolationCostEvaluator(Set<FlowCnec> flowCnecs, FlowResult initialFlowResult, MnecParameters mnecParameters) {
+        this.flowCnecs = flowCnecs;
+        this.initialFlowResult = initialFlowResult;
+        mnecAcceptableMarginDiminutionInMW = mnecParameters.getMnecAcceptableMarginDiminution();
+        mnecViolationCostInMWPerMW = mnecParameters.getMnecViolationCost();
     }
 
     @Override
-    public double getCost(RaoData raoData) {
-        if (Math.abs(mnecViolationCost) < 1e-10) {
+    public String getName() {
+        return "mnec-cost";
+    }
+
+    private double computeCost(FlowResult flowResult, FlowCnec mnec) {
+        double initialMargin = initialFlowResult.getMargin(mnec, MEGAWATT);
+        double currentMargin = flowResult.getMargin(mnec, MEGAWATT);
+        return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDiminutionInMW) - currentMargin);
+    }
+
+    @Override
+    public double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+        if (Math.abs(mnecViolationCostInMWPerMW) < 1e-10) {
             return 0;
         }
         double totalMnecMarginViolation = 0;
-        boolean mnecsSkipped = false;
-        String initialVariantId =  raoData.getCrac().getExtension(ResultVariantManager.class).getInitialVariantId();
-        for (BranchCnec cnec : raoData.getCnecs()) {
-            if (cnec.isMonitored()) {
-                double initialFlow = (unit == MEGAWATT) ? cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInMW()
-                        : cnec.getExtension(CnecResultExtension.class).getVariant(initialVariantId).getFlowInA();
-                if (Double.isNaN(initialFlow)) {
-                    // Sensitivity results are not available, skip cnec
-                    // (happens on search tree rao rootleaf evaluation)
-                    mnecsSkipped = true;
-                    continue;
-                }
-                double initialMargin = cnec.computeMargin(initialFlow, Side.LEFT, unit);
-                double newFlow = (unit == MEGAWATT) ? raoData.getSystematicSensitivityResult().getReferenceFlow(cnec) :
-                        raoData.getSystematicSensitivityResult().getReferenceIntensity(cnec);
-                double newMargin = cnec.computeMargin(newFlow, Side.LEFT, unit);
-                double convertedAcceptableMarginDiminution = mnecAcceptableMarginDiminution / getUnitConversionCoefficient(cnec, raoData);
-                totalMnecMarginViolation += Math.max(0, Math.min(0, initialMargin - convertedAcceptableMarginDiminution) - newMargin);
+        for (FlowCnec mnec : flowCnecs) {
+            if (mnec.isMonitored()) {
+                totalMnecMarginViolation += computeCost(flowResult, mnec);
             }
         }
-        if (mnecsSkipped) {
-            LOGGER.warn("Some MNECs were skipped during violation cost evaluation, because their initial flow results were not available.");
-        }
-        return mnecViolationCost * totalMnecMarginViolation;
+        return mnecViolationCostInMWPerMW * totalMnecMarginViolation;
     }
 
     @Override
     public Unit getUnit() {
-        return this.unit;
+        return MEGAWATT;
     }
 
-    /**
-     * Get unit conversion coefficient between A and MW
-     * The acceptable margin diminution parameter is defined in MW, so if the minimum margin is defined in ampere,
-     * appropriate conversion coefficient should be used.
-     */
-    private double getUnitConversionCoefficient(BranchCnec cnec, RaoData linearRaoData) {
-        if (unit.equals(MEGAWATT)) {
-            return 1;
-        } else {
-            // Unom(cnec) * sqrt(3) / 1000
-            return linearRaoData.getNetwork().getBranch(cnec.getNetworkElement().getId()).getTerminal1().getVoltageLevel().getNominalV() * Math.sqrt(3) / 1000;
+    @Override
+    public List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements) {
+        if (sortedElements.isEmpty()) {
+            sortedElements = flowCnecs.stream()
+                    .filter(Cnec::isMonitored)
+                    .collect(Collectors.toMap(
+                        Function.identity(),
+                        cnec -> computeCost(flowResult, cnec)
+                    ))
+                    .entrySet().stream()
+                    .filter(entry -> entry.getValue() != 0)
+                    .sorted(Comparator.comparingDouble(Map.Entry::getValue))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
         }
+        Collections.reverse(sortedElements);
+
+        return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }
 }

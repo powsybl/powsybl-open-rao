@@ -39,11 +39,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-io-cne</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-io-json</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -100,11 +95,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-glsk-virtual-hubs</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-linear-rao</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

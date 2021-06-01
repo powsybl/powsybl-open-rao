@@ -7,27 +7,22 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.data.crac_impl.usage_rule.OnStateImpl;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.RaoData;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.SensitivityResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
-import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.ortools.linearsolver.MPSolver;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-
-import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 
@@ -38,7 +33,6 @@ import static org.mockito.Mockito.*;
 @PrepareForTest(MPSolver.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 abstract class AbstractFillerTest {
-
     static final double DOUBLE_TOLERANCE = 0.01;
 
     // data related to the two Cnecs
@@ -56,8 +50,6 @@ abstract class AbstractFillerTest {
     static final double SENSI_CNEC2_IT2 = -7.0;
 
     // data related to the Range Action
-    static final int MIN_TAP = -16;
-    static final int MAX_TAP = 16;
     static final int TAP_INITIAL = 5;
     static final int TAP_IT2 = -7;
 
@@ -66,14 +58,12 @@ abstract class AbstractFillerTest {
     static final String RANGE_ACTION_ID = "PRA_PST_BE";
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
 
-    BranchCnec cnec1;
-    BranchCnec cnec2;
+    MPSolver mpSolver;
+    FlowCnec cnec1;
+    FlowCnec cnec2;
     RangeAction rangeAction;
-
-    CoreProblemFiller coreProblemFiller;
-    LinearProblem linearProblem;
-    SystematicSensitivityResult systematicSensitivityResult;
-    RaoData raoData;
+    FlowResult flowResult;
+    SensitivityResult sensitivityResult;
     Crac crac;
     Network network;
 
@@ -82,33 +72,23 @@ abstract class AbstractFillerTest {
         // crac and network
         crac = CracImporters.importCrac("small-crac.json", getClass().getResourceAsStream("/small-crac.json"));
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac.synchronize(network);
 
         // get cnec and rangeAction
-        cnec1 = crac.getBranchCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
-        cnec2 = crac.getBranchCnecs().stream().filter(c -> c.getId().equals(CNEC_2_ID)).findFirst().orElseThrow(FaraoException::new);
+        cnec1 = crac.getFlowCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
+        cnec2 = crac.getFlowCnecs().stream().filter(c -> c.getId().equals(CNEC_2_ID)).findFirst().orElseThrow(FaraoException::new);
         rangeAction = crac.getRangeAction(RANGE_ACTION_ID);
-        rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        rangeAction.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getState("N-1 NL1-NL3", Instant.OUTAGE)));
 
         // MPSolver and linearRaoProblem
-        MPSolverMock solver = new MPSolverMock();
+        mpSolver = new MPSolverMock();
         PowerMockito.mockStatic(MPSolver.class);
         when(MPSolver.infinity()).thenAnswer((Answer<Double>) invocation -> Double.POSITIVE_INFINITY);
-        linearProblem = new LinearProblem(solver);
 
-        systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        when(systematicSensitivityResult.getReferenceFlow(cnec1)).thenReturn(REF_FLOW_CNEC1_IT1);
-        when(systematicSensitivityResult.getReferenceFlow(cnec2)).thenReturn(REF_FLOW_CNEC2_IT1);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec1)).thenReturn(SENSI_CNEC1_IT1);
-        when(systematicSensitivityResult.getSensitivityOnFlow(rangeAction, cnec2)).thenReturn(SENSI_CNEC2_IT1);
-    }
+        flowResult = Mockito.mock(FlowResult.class);
+        when(flowResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC1_IT1);
+        when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
 
-    void initRaoData(State state) {
-        raoData = new RaoData(network, crac, state, Collections.singleton(state), null, null, null, new RaoParameters());
-        raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
-        raoData.setSystematicSensitivityResult(systematicSensitivityResult);
-        raoData.getCrac().getExtension(ResultVariantManager.class).setInitialVariantId(raoData.getWorkingVariantId());
-        raoData.getCrac().getExtension(ResultVariantManager.class).setPrePerimeterVariantId(raoData.getWorkingVariantId());
+        sensitivityResult = Mockito.mock(SensitivityResult.class);
+        when(sensitivityResult.getSensitivityValue(cnec1, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
+        when(sensitivityResult.getSensitivityValue(cnec2, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
     }
 }

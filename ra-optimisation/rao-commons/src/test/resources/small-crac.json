@@ -2,90 +2,108 @@
   "type": "simple-crac",
   "id": "LS_unsecure",
   "name": "LS_unsecure",
-  "networkElements": [
-    {
-      "type": "NetworkElement",
-      "id": "BBE2AA1  FFR3AA1  1",
-      "name": "BBE2AA1  FFR3AA1  1"
-    },
-    {
-      "type": "NetworkElement",
-      "id": "NNL1AA1  NNL2AA1  1",
-      "name": "NNL1AA1  NNL2AA1  1"
-    },
-    {
-      "type": "NetworkElement",
-      "id": "BBE2AA1  BBE3AA1  1",
-      "name": "BBE2AA1  BBE3AA1  1"
-    }
-  ],
+  "networkElementsNamePerId": { },
   "contingencies": [
     {
-      "type": "complex-contingency",
       "id": "N-1 NL1-NL3",
-      "name": "N-1 NL1-NL3",
-      "networkElements": [
+      "networkElementsIds": [
         "NNL1AA1  NNL2AA1  1"
       ]
     }
   ],
-  "cnecs": [
+  "flowCnecs": [
     {
-      "type": "flow-cnec",
       "id": "Tieline BE FR - Defaut - N-1 NL1-NL3",
       "name": "Tieline BE FR",
-      "networkElement": "BBE2AA1  FFR3AA1  1",
+      "networkElementId": "BBE2AA1  FFR3AA1  1",
       "operator" : "FR",
       "thresholds": [ {
-        "type": "branch-threshold",
-        "unit": "MW",
+        "unit": "megawatt",
         "max": 750,
         "min" : -750,
-        "rule" : "ON_LEFT_SIDE"
+        "rule" : "onLeftSide"
       } ],
-      "contingency": "N-1 NL1-NL3",
+      "contingencyId": "N-1 NL1-NL3",
       "instant" : "outage",
-      "optimized": true
+      "optimized": true,
+      "nominalV" : [ 380.0 ]
     },
     {
-      "type": "flow-cnec",
       "id": "Tieline BE FR - N - preventive",
       "name": "Tieline BE FR",
-      "networkElement": "BBE2AA1  FFR3AA1  1",
+      "networkElementId": "BBE2AA1  FFR3AA1  1",
       "operator" : "FR",
       "thresholds": [ {
-        "type": "branch-threshold",
-        "unit": "MW",
+        "unit": "megawatt",
         "max": 750,
         "min" : -750,
-        "rule" : "ON_LEFT_SIDE"
+        "rule" : "onLeftSide"
       } ],
       "instant": "preventive",
-      "optimized": true
+      "optimized": true,
+      "nominalV" : [ 380.0 ]
     }
   ],
-  "rangeActions": [
+  "pstRangeActions": [
     {
-      "type": "pst-range-action-impl",
       "id": "PRA_PST_BE",
       "name": "PRA_PST_BE",
       "operator": "BE",
-      "usageRules": [
+      "initialTap": 0,
+      "tapToAngleConversionMap" : {
+        "-16" : -6.5,
+        "-15" : -6.0,
+        "-14" : -5.5,
+        "-13" : -5.0,
+        "-12" : -4.5,
+        "-11" : -4.0,
+        "-10" : -3.5,
+        "-9" : -3.0,
+        "-8" : -2.5,
+        "-7" : -2.0,
+        "-6" : -1.5,
+        "-5" : -1.0,
+        "-4" : -0.5,
+        "-3" : 0.0,
+        "-2" : 0.5,
+        "-1" : 1.0,
+        "0" : 1.5,
+        "1" : 2.0,
+        "2" : 2.5,
+        "3" : 3.0,
+        "4" : 3.5,
+        "5" : 4.0,
+        "6" : 4.5,
+        "7" : 5.0,
+        "8" : 5.5,
+        "9" : 6.0,
+        "10" : 6.5,
+        "11" : 7.0,
+        "12" : 7.5,
+        "13" : 8.0,
+        "14" : 8.5,
+        "15" : 9.0,
+        "16" : 9.5
+      },
+      "freeToUseUsageRules": [
         {
-          "type": "free-to-use",
-          "usageMethod": "AVAILABLE",
+          "usageMethod": "available",
           "instant": "preventive"
         }
       ],
+      "onStateUsageRules" : [ {
+        "instant" : "curative",
+        "contingencyId" : "N-1 NL1-NL3",
+        "usageMethod" : "available"
+      } ],
       "ranges": [
         {
-          "min": 2,
-          "max": 32,
-          "rangeType": "ABSOLUTE",
-          "rangeDefinition": "STARTS_AT_ONE"
+          "min": -15,
+          "max": 15,
+          "rangeType": "absolute"
         }
       ],
-      "networkElements": ["BBE2AA1  BBE3AA1  1"]
+      "networkElementId": "BBE2AA1  BBE3AA1  1"
     }
   ],
   "networkActions": []

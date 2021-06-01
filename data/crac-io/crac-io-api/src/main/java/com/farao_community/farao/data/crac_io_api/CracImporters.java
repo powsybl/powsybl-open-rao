@@ -14,7 +14,6 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -30,12 +29,8 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(Path cracPath) {
-        return importCrac(cracPath, null);
-    }
-
-    public static Crac importCrac(Path cracPath, OffsetDateTime timeStampFilter) {
         try (InputStream is = new FileInputStream(cracPath.toFile())) {
-            return importCrac(cracPath.getFileName().toString(), is, timeStampFilter);
+            return importCrac(cracPath.getFileName().toString(), is);
         } catch (FileNotFoundException e) {
             throw new FaraoException("File not found.");
         } catch (IOException e) {
@@ -51,10 +46,6 @@ public final class CracImporters {
     }
 
     public static Crac importCrac(String fileName, InputStream inputStream) {
-        return importCrac(fileName, inputStream, null);
-    }
-
-    public static Crac importCrac(String fileName, InputStream inputStream, OffsetDateTime timeStampFilter) {
         try {
             byte[] bytes = getBytesFromInputStream(inputStream);
 
@@ -62,7 +53,7 @@ public final class CracImporters {
             if (importer == null) {
                 throw new FaraoException("No importer found for this file");
             }
-            return importer.importCrac(new ByteArrayInputStream(bytes), timeStampFilter);
+            return importer.importCrac(new ByteArrayInputStream(bytes));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

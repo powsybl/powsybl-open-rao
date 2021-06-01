@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,11 +20,11 @@ import static org.junit.Assert.*;
  */
 public class JsonRaoResultTest extends AbstractConverterTest {
 
-    RaoResult raoResult;
+    RaoResultImpl raoResult;
 
     @Before
     public void setUp() throws IOException {
-        raoResult = new RaoResult(RaoResult.Status.SUCCESS);
+        raoResult = new RaoResultImpl(RaoResultImpl.Status.DEFAULT);
         raoResult.setPreOptimVariantId("variant1");
         raoResult.setPostOptimVariantId("variant2");
         super.setUp();
@@ -37,7 +37,7 @@ public class JsonRaoResultTest extends AbstractConverterTest {
 
     @Test
     public void writeExtension() throws IOException {
-        raoResult.setStatus(RaoResult.Status.FAILURE);
+        raoResult.setStatus(RaoResultImpl.Status.FAILURE);
         raoResult.setPreOptimVariantId("var1");
         raoResult.setPostOptimVariantId("var2");
         writeTest(raoResult, JsonRaoResult::write, AbstractConverterTest::compareTxt, "/RaoResultFailure.json");
@@ -45,7 +45,7 @@ public class JsonRaoResultTest extends AbstractConverterTest {
 
     @Test
     public void readExtension() throws IOException {
-        RaoResult raoResult = JsonRaoResult.read(getClass().getResourceAsStream("/RaoResultFailure.json"));
+        RaoResultImpl raoResult = JsonRaoResult.read(getClass().getResourceAsStream("/RaoResultFailure.json"));
         assertFalse(raoResult.isSuccessful());
         assertEquals("var1", raoResult.getPreOptimVariantId());
         assertNotNull("var2", raoResult.getPostOptimVariantId());

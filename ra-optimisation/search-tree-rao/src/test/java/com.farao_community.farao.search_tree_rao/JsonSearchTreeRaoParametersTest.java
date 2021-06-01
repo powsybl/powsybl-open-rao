@@ -7,7 +7,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.json.JsonRaoParameters;
 import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;

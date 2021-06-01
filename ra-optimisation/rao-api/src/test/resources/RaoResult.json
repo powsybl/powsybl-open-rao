@@ -1,5 +1,5 @@
 {
-  "status" : "SUCCESS",
+  "status" : "DEFAULT",
   "preOptimVariantId" : "variant1",
   "postOptimVariantId" : "variant2"
 }

@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creator_api;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 import com.powsybl.iidm.network.Network;
 
@@ -31,5 +32,5 @@ public interface CracCreator<T extends NativeCrac, S extends CracCreationContext
      * Create a Crac object from a NativeCrac, a Network and on OffsetDateTime.
      * Note that null offsetDateTime might be acceptable for CracCreator implementations
      */
-    S createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime);
+    S createCrac(T nativeCrac, Network network, OffsetDateTime offsetDateTime, CracFactory cracFactory);
 }

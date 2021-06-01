@@ -8,44 +8,37 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.crac_result_extensions.CnecResult;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
 import com.farao_community.farao.rao_api.RaoInput;
-import com.farao_community.farao.rao_api.RaoParameters;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.linear_optimisation.iterating_linear_optimizer.IteratingLinearOptimizerWithLoopFlows;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.CostEvaluator;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.MinMarginObjectiveFunction;
-import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.apache.commons.compress.utils.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
 
-import static com.farao_community.farao.commons.Unit.AMPERE;
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.rao_api.RaoParameters.ObjectiveFunction.*;
-import static org.junit.Assert.*;
+import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
+import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+
 public class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private RaoParameters raoParameters;
-    private RaoData raoData;
     private RaoInput raoInput;
     private Network network;
     private Crac crac;
@@ -71,112 +64,9 @@ public class RaoUtilTest {
                 .build();
     }
 
-    @Test
-    public void createLinearOptimizerFromRaoParameters() {
-        raoParameters.setObjectiveFunction(MAX_MIN_MARGIN_IN_AMPERE);
-        SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
-        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
-
-        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
-        assertFalse(((MinMarginObjectiveFunction) optimizer.getObjectiveFunctionEvaluator()).isRelative());
-        assertEquals(AMPERE, optimizer.getObjectiveFunctionEvaluator().getUnit());
-        assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
-        assertEquals(10, optimizer.getParameters().getMaxIterations());
-    }
-
-    @Test
-    public void createRelativeOptimizerMegawatt() {
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
-        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
-
-        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
-        assertTrue(((MinMarginObjectiveFunction) optimizer.getObjectiveFunctionEvaluator()).isRelative());
-        assertEquals(MEGAWATT, optimizer.getObjectiveFunctionEvaluator().getUnit());
-    }
-
-    @Test
-    public void createRelativeOptimizerAmpere() {
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
-        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
-
-        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
-        assertTrue(((MinMarginObjectiveFunction) optimizer.getObjectiveFunctionEvaluator()).isRelative());
-        assertEquals(AMPERE, optimizer.getObjectiveFunctionEvaluator().getUnit());
-    }
-
-    @Test
-    public void createLinearOptimizerFromRaoParametersWithLoopFlows() {
-        raoParameters.setRaoWithLoopFlowLimitation(true);
-        SystematicSensitivityInterface systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
-        IteratingLinearOptimizer optimizer = RaoUtil.createLinearOptimizer(raoParameters, systematicSensitivityInterface);
-
-        assertTrue(optimizer instanceof IteratingLinearOptimizerWithLoopFlows);
-        assertTrue(optimizer.getObjectiveFunctionEvaluator() instanceof MinMarginObjectiveFunction);
-        assertEquals(MEGAWATT, optimizer.getObjectiveFunctionEvaluator().getUnit());
-        assertEquals(0, optimizer.getParameters().getFallbackOverCost(), DOUBLE_TOLERANCE);
-        assertEquals(10, optimizer.getParameters().getMaxIterations());
-    }
-
-    @Test
-    public void createCostEvaluatorFromRaoParametersMegawatt() {
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters, null);
-        assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
-        assertEquals(MEGAWATT, costEvaluator.getUnit());
-    }
-
-    @Test
-    public void createCostEvaluatorFromRaoParametersAmps() {
-        raoParameters.setObjectiveFunction(MAX_MIN_MARGIN_IN_AMPERE);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters, null);
-        assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
-        assertEquals(AMPERE, costEvaluator.getUnit());
-    }
-
-    @Test
-    public void createCostEvaluatorFromRaoParametersRelativeMW() {
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters, null);
-        assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
-        assertEquals(MEGAWATT, costEvaluator.getUnit());
-    }
-
-    @Test
-    public void createCostEvaluatorFromRaoParametersRelativeAmps() {
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
-        CostEvaluator costEvaluator = RaoUtil.createObjectiveFunction(raoParameters, null);
-        assertTrue(costEvaluator instanceof MinMarginObjectiveFunction);
-        assertEquals(AMPERE, costEvaluator.getUnit());
-    }
-
-    @Test
-    public void testThatRaoDataCreationSynchronizesCrac() {
-        RaoUtil.initCrac(crac, network);
-        assertTrue(crac.isSynchronized());
-    }
-
-    @Test
-    public void testCreationOfSystematicSensitivityInterface() {
-        raoParameters.setRaoWithLoopFlowLimitation(true);
-        raoData = new RaoData(
-                raoInput.getNetwork(),
-                raoInput.getCrac(),
-                raoInput.getOptimizedState(),
-                raoInput.getPerimeter(),
-                raoInput.getReferenceProgram(),
-                raoInput.getGlskProvider(),
-                raoInput.getBaseCracVariantId(),
-                raoParameters);
-        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, false);
-        assertNotNull(systematicSensitivityInterface);
-    }
-
     @Test(expected = FaraoException.class)
     public void testExceptionForGlskOnRelativeMargin() {
-        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("FR:ES", "ES:PT")));
+        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
@@ -203,24 +93,6 @@ public class RaoUtilTest {
         RaoUtil.checkParameters(raoParameters, raoInput);
     }
 
-    @Test
-    public void testCreateSystematicSensitivityInterfaceOnRelativeMargin() {
-        raoParameters.setRelativeMarginPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{BE}", "{BE}-{NL}", "{FR}-{DE}", "{DE}-{NL}")));
-        addGlskProvider();
-        raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        raoData = new RaoData(
-                raoInput.getNetwork(),
-                raoInput.getCrac(),
-                raoInput.getOptimizedState(),
-                raoInput.getPerimeter(),
-                raoInput.getReferenceProgram(),
-                raoInput.getGlskProvider(),
-                raoInput.getBaseCracVariantId(),
-                raoParameters);
-        SystematicSensitivityInterface systematicSensitivityInterface = RaoUtil.createSystematicSensitivityInterface(raoParameters, raoData, true);
-        assertNotNull(systematicSensitivityInterface);
-    }
-
     @Test(expected = FaraoException.class)
     public void testAmpereWithDc() {
         raoParameters.setObjectiveFunction(MAX_MIN_RELATIVE_MARGIN_IN_AMPERE);
@@ -229,86 +101,25 @@ public class RaoUtilTest {
     }
 
     @Test
-    public void testComputeCnecMargin() {
-        CnecResult result = Mockito.mock(CnecResult.class);
-        Mockito.when(result.getAbsolutePtdfSum()).thenReturn(0.5);
-        CnecResultExtension resultExtension = Mockito.mock(CnecResultExtension.class);
-        Mockito.when(resultExtension.getVariant(Mockito.anyString())).thenReturn(result);
-        BranchCnec cnec = Mockito.mock(BranchCnec.class);
-        Mockito.when(cnec.getExtension(Mockito.eq(CnecResultExtension.class))).thenReturn(resultExtension);
+    public void testGetBranchFlowUnitMultiplier() {
+        FlowCnec cnec = Mockito.mock(FlowCnec.class);
+        Mockito.when(cnec.getNominalVoltage(Side.LEFT)).thenReturn(400.);
+        Mockito.when(cnec.getNominalVoltage(Side.RIGHT)).thenReturn(200.);
 
-        Mockito.when(cnec.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(1000.0);
-        Mockito.when(cnec.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(100.0);
-        assertEquals(1000, RaoUtil.computeCnecMargin(cnec, variantId, MEGAWATT, false), DOUBLE_TOLERANCE);
-        assertEquals(100, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, false), DOUBLE_TOLERANCE);
-        assertEquals(2000, RaoUtil.computeCnecMargin(cnec, variantId, MEGAWATT, true), DOUBLE_TOLERANCE);
-        assertEquals(200, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, true), DOUBLE_TOLERANCE);
+        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.MEGAWATT, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1., RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        Mockito.when(cnec.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(-1000.0);
-        Mockito.when(cnec.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(-100.0);
-        assertEquals(-1000, RaoUtil.computeCnecMargin(cnec, variantId, MEGAWATT, false), DOUBLE_TOLERANCE);
-        assertEquals(-100, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, false), DOUBLE_TOLERANCE);
-        assertEquals(-1000, RaoUtil.computeCnecMargin(cnec, variantId, MEGAWATT, true), DOUBLE_TOLERANCE);
-        assertEquals(-100, RaoUtil.computeCnecMargin(cnec, variantId, AMPERE, true), DOUBLE_TOLERANCE);
-    }
+        assertEquals(1000 / 400. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(400 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
-    private Set<BranchCnec> setUpMockCnecs(boolean optimized, boolean monitored) {
-        // CNEC 1 : margin of 1000 MW / 100 A, sum of PTDFs = 1
-        CnecResult result1 = Mockito.mock(CnecResult.class);
-        Mockito.when(result1.getAbsolutePtdfSum()).thenReturn(1.0);
-        CnecResultExtension resultExtension1 = Mockito.mock(CnecResultExtension.class);
-        Mockito.when(resultExtension1.getVariant(Mockito.anyString())).thenReturn(result1);
+        assertEquals(1000 / 200. / Math.sqrt(3), RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.MEGAWATT, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(200 * Math.sqrt(3) / 1000., RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
-        BranchCnec cnec1 = Mockito.mock(BranchCnec.class);
-        Mockito.when(cnec1.getId()).thenReturn("cnec1");
-        Mockito.when(cnec1.isOptimized()).thenReturn(optimized);
-        Mockito.when(cnec1.isMonitored()).thenReturn(monitored);
-        Mockito.when(cnec1.getExtension(Mockito.eq(CnecResultExtension.class))).thenReturn(resultExtension1);
-        Mockito.when(cnec1.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(1000.);
-        Mockito.when(cnec1.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(100.);
-
-        // CNEC 2 : margin of 600 MW / 60 A, sum of PTDFs = 0.5
-        CnecResult result2 = Mockito.mock(CnecResult.class);
-        Mockito.when(result2.getAbsolutePtdfSum()).thenReturn(0.5);
-        CnecResultExtension resultExtension2 = Mockito.mock(CnecResultExtension.class);
-        Mockito.when(resultExtension2.getVariant(Mockito.anyString())).thenReturn(result2);
-
-        BranchCnec cnec2 = Mockito.mock(BranchCnec.class);
-        Mockito.when(cnec2.getId()).thenReturn("cnec2");
-        Mockito.when(cnec2.isOptimized()).thenReturn(optimized);
-        Mockito.when(cnec2.isMonitored()).thenReturn(monitored);
-        Mockito.when(cnec2.getExtension(Mockito.eq(CnecResultExtension.class))).thenReturn(resultExtension2);
-        Mockito.when(cnec2.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(MEGAWATT))).thenReturn(600.);
-        Mockito.when(cnec2.computeMargin(Mockito.anyDouble(), Mockito.any(), Mockito.eq(AMPERE))).thenReturn(60.);
-
-        return Sets.newHashSet(cnec1, cnec2);
-    }
-
-    @Test
-    public void testGetMostLimitingElement() {
-        Set<BranchCnec> cnecs = setUpMockCnecs(true, false);
-
-        // In absolute margins, cnec2 is most limiting
-        assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, false).getId());
-        assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, false).getId());
-
-        // In relative margins, cnec1 is most limiting
-        assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, true).getId());
-        assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, true).getId());
-    }
-
-    @Test
-    public void testGetMostLimitingElementOnPureMnecs() {
-        Set<BranchCnec> cnecs = setUpMockCnecs(false, true);
-
-        // In absolute margins, cnec2 is most limiting
-        assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, false).getId());
-        assertEquals("cnec2", RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, false).getId());
-
-        // In relative margins, cnec1 is most limiting
-        assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, MEGAWATT, true).getId());
-        assertEquals("cnec1", RaoUtil.getMostLimitingElement(cnecs, variantId, AMPERE, true).getId());
-
+        assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.MEGAWATT, Unit.PERCENT_IMAX));
+        assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.KILOVOLT, Unit.MEGAWATT));
+        assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.TAP));
+        assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.DEGREE, Unit.AMPERE));
     }
 }
-

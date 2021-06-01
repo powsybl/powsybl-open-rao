@@ -9,8 +9,8 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -78,15 +78,15 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
-        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<LinearGlsk> glsk, Set<BranchCnec> cnecs, Set<Unit> units) {
+        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<LinearGlsk> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
             return this.withSensitivityProvider(new PtdfSensitivityProvider(glsk, cnecs, units));
         }
 
-        public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<BranchCnec> cnecs, Set<Unit> units) {
+        public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
             return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units));
         }
 
-        public SystematicSensitivityInterfaceBuilder withLoadflow(Set<BranchCnec> cnecs, Set<Unit> units) {
+        public SystematicSensitivityInterfaceBuilder withLoadflow(Set<FlowCnec> cnecs, Set<Unit> units) {
             return this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
         }
 

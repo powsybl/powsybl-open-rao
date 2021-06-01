@@ -4,61 +4,83 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
-import com.farao_community.farao.data.crac_api.cnec.BranchCnec;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
+import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
+import com.farao_community.farao.rao_api.parameters.MaxMinRelativeMarginParameters;
+import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.rao_api.RaoParameters.DEFAULT_PST_PENALTY_COST;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 @RunWith(PowerMockRunner.class)
 public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
+    private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
 
+    private LinearProblem linearProblem;
+    private CoreProblemFiller coreProblemFiller;
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
-    static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
-    BranchCnec cnecNl;
-    BranchCnec cnecFr;
+    private MaxMinRelativeMarginParameters parameters;
 
     @Before
     public void setUp() {
         init();
-        coreProblemFiller = new CoreProblemFiller();
-        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(MEGAWATT, DEFAULT_PST_PENALTY_COST, 1000, 0.01);
+        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
+        double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, initialAlpha));
+        coreProblemFiller = new CoreProblemFiller(
+                network,
+                Set.of(cnec1),
+                Set.of(rangeAction),
+                initialRangeActionResult,
+                0.
+        );
+        parameters = new MaxMinRelativeMarginParameters(0.01, 1000, 0.01);
     }
 
-    private void fillProblemWithCoreFiller() {
-        // arrange some additional data
-        network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
-        raoData.getCracResultManager().applyRangeActionResultsOnNetwork();
+    private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getPtdfZonalSum(cnec1)).thenReturn(cnecInitialAbsolutePtdfSum);
+        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
+                Set.of(cnec1),
+                initialFlowResult,
+                Set.of(rangeAction),
+                unit,
+                parameters
+        );
+    }
 
-        // fill the problem : the core filler is required
-        coreProblemFiller.fill(raoData, linearProblem);
+    private void buildLinearProblem() {
+        linearProblem = new LinearProblem(List.of(coreProblemFiller, maxMinRelativeMarginFiller), mpSolver);
+        linearProblem.fill(flowResult, sensitivityResult);
     }
 
     @Test
     public void fillWithMaxMinRelativeMarginInMegawatt() {
-        initRaoData(crac.getPreventiveState());
-        // this is almost a copy of fillWithMaxMinMarginInMegawatt()
-        // only the coefficients in the MinMargin constraint should be different
-        fillProblemWithCoreFiller();
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.9);
-        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.7);
-        maxMinRelativeMarginFiller.fill(raoData, linearProblem);
+        createMaxMinRelativeMarginFiller(MEGAWATT, 0.9);
+        buildLinearProblem();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -95,20 +117,14 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        assertEquals(5, linearProblem.getSolver().numVariables());
-        assertEquals(7, linearProblem.getSolver().numConstraints());
+        assertEquals(5, linearProblem.numVariables());
+        assertEquals(7, linearProblem.numConstraints());
     }
 
     @Test
     public void fillWithMaxMinRelativeMarginInAmpere() {
-        initRaoData(crac.getPreventiveState());
-        // this is almost a copy of fillWithMaxMinMarginInAmpere()
-        // only the objective function should be different
-        fillProblemWithCoreFiller();
-        cnec1.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.005);
-        cnec2.getExtension(CnecResultExtension.class).getVariant(raoData.getPreOptimVariantId()).setAbsolutePtdfSum(0.1);
-        maxMinRelativeMarginFiller.setUnit(AMPERE);
-        maxMinRelativeMarginFiller.fill(raoData, linearProblem);
+        createMaxMinRelativeMarginFiller(AMPERE, 0.005);
+        buildLinearProblem();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
         MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
@@ -148,7 +164,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        assertEquals(5, linearProblem.getSolver().numVariables());
-        assertEquals(7, linearProblem.getSolver().numConstraints());
+        assertEquals(5, linearProblem.numVariables());
+        assertEquals(7, linearProblem.numConstraints());
     }
 }

@@ -168,7 +168,6 @@ public class FlowbasedComputationTool implements Tool {
             cracCleaner.enableFeature(CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES);
             cracCleaner.cleanCrac(crac, network);
         }
-        crac.synchronize(network);
         ZonalData<LinearGlsk> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {

@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_creator_api;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 
+import java.util.List;
+
 /**
  *  Common interface of a Crac creation context
  *
@@ -35,4 +37,9 @@ public interface CracCreationContext {
      * Get the created Crac object
      */
     public Crac getCrac();
+
+    /**
+     * Get a report with important information about the creation process
+     */
+    List<String> getCreationReport();
 }

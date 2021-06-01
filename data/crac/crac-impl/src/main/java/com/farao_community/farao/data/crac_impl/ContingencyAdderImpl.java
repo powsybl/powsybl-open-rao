@@ -11,59 +11,64 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.ContingencyAdder;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.NetworkElementAdder;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+
+import static java.lang.String.format;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class ContingencyAdderImpl extends AbstractIdentifiableAdder<ContingencyAdder> implements ContingencyAdder {
-    SimpleCrac parent;
+    CracImpl owner;
     private final Set<NetworkElement> networkElements = new HashSet<>();
-    private final Set<String> xnodeIds = new HashSet<>();
 
-    public ContingencyAdderImpl(SimpleCrac parent) {
-        Objects.requireNonNull(parent);
-        this.parent = parent;
+    ContingencyAdderImpl(CracImpl owner) {
+        Objects.requireNonNull(owner);
+        this.owner = owner;
     }
 
     @Override
-    public NetworkElementAdder<ContingencyAdder> newNetworkElement() {
-        return new NetworkElementAdderImpl<>(this);
+    protected String getTypeDescription() {
+        return "Contingency";
     }
 
     @Override
-    public Contingency add() {
-        checkId();
-        Contingency contingency;
-        if (!this.xnodeIds.isEmpty()) {
-            contingency = new XnodeContingency(this.id, this.name, this.xnodeIds);
-        } else {
-            // this also applies if both sets are empty
-            contingency = new ComplexContingency(this.id, this.name, this.networkElements);
-        }
-        parent.addContingency(contingency);
-        return parent.getContingency(contingency.getId());
+    public ContingencyAdder withNetworkElement(String networkElementId) {
+        return this.withNetworkElement(networkElementId, networkElementId);
     }
 
     @Override
-    public ContingencyAdder addNetworkElement(NetworkElement networkElement) {
-        if (!this.xnodeIds.isEmpty()) {
-            throw new FaraoException("You cannot mix Xnodes and NetworkElements in the contingency adder");
-        }
+    public ContingencyAdder withNetworkElement(String networkElementId, String networkElementName) {
+        /*
+         * A contingency contains several network elements to trip. When adding a contingency, all the contained
+         * network elements have to be in the networkElements list of the crac.
+         * Here we go through all the network elements of the contingency, if an equal element is already present in
+         * the crac list we can directly pick its reference, if not we first have to create a new element of the
+         * list copying the network element contained in the contingency.
+         * Then we can create a new contingency referring to network elements already presents in the crac.
+         */
+        NetworkElement networkElement = this.owner.addNetworkElement(networkElementId, networkElementName);
         this.networkElements.add(networkElement);
         return this;
     }
 
     @Override
-    public ContingencyAdder addXnode(String xnode) {
-        if (!this.networkElements.isEmpty()) {
-            throw new FaraoException("You cannot mix Xnodes and NetworkElements in the contingency adder");
+    public Contingency add() {
+        checkId();
+        Contingency contingency = new ContingencyImpl(id, name, networkElements);
+        if (owner.getContingency(id) != null) {
+            if (owner.getContingency(id).equals(contingency)) {
+                // If the same contingency exists in the crac
+                return owner.getContingency(id);
+            } else {
+                throw new FaraoException(format("A contingency with the same ID (%s) but a different name or network elements already exists.", this.id));
+            }
+        } else {
+            owner.addContingency(contingency);
+            return owner.getContingency(id);
         }
-        this.xnodeIds.add(xnode);
-        return this;
+        // TODO : create additional states if there are RAs with "FreeToUse" usage rule (on curative/auto instant)
+        // not required as as soon as there is no RA on AUTO instant
     }
 }

@@ -33,30 +33,30 @@ public final class TreeParameters {
     private double relativeNetworkActionMinimumImpactThreshold;
     private double absoluteNetworkActionMinimumImpactThreshold;
     private int leavesInParallel;
+    private boolean skipNetworkActionsFarFromMostLimitingElement;
     private Map<String, Integer> maxTopoPerTso;
     private Map<String, Integer> maxPstPerTso;
     private Map<String, Integer> maxRaPerTso;
-    private Set<String> operatorsNotToOptimize;
 
     private TreeParameters() {
     }
 
     private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue,
-                           Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso, int leavesInParallel, Set<String> operatorsNotToOptimize) {
+                           Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso, int leavesInParallel) {
         this.maximumSearchDepth = searchTreeRaoParameters.getMaximumSearchDepth();
         this.relativeNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold();
         this.absoluteNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getAbsoluteNetworkActionMinimumImpactThreshold();
+        this.skipNetworkActionsFarFromMostLimitingElement = searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement();
         this.leavesInParallel = leavesInParallel;
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
         this.maxTopoPerTso = maxTopoPerTso;
         this.maxPstPerTso = maxPstPerTso;
         this.maxRaPerTso = maxRaPerTso;
-        this.operatorsNotToOptimize = operatorsNotToOptimize;
     }
 
     private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, int leavesInParallel) {
-        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, new HashMap<>(), new HashMap<>(), new HashMap<>(), leavesInParallel, null);
+        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, new HashMap<>(), new HashMap<>(), new HashMap<>(), leavesInParallel);
     }
 
     public StopCriterion getStopCriterion() {
@@ -80,7 +80,7 @@ public final class TreeParameters {
         }
     }
 
-    public static TreeParameters buildForCurativePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters, Double preventiveOptimizedCost, Set<String> operatorsNotSharingRas) {
+    public static TreeParameters buildForCurativePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters, Double preventiveOptimizedCost) {
         SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
         StopCriterion stopCriterion;
         double targetObjectiveValue;
@@ -106,8 +106,7 @@ public final class TreeParameters {
         }
         return new TreeParameters(parameters, stopCriterion, targetObjectiveValue,
                 parameters.getMaxCurativeTopoPerTso(), parameters.getMaxCurativePstPerTso(),
-                parameters.getMaxCurativeRaPerTso(), parameters.getCurativeLeavesInParallel(),
-                parameters.getCurativeRaoOptimizeOperatorsNotSharingCras() ? null : operatorsNotSharingRas);
+                parameters.getMaxCurativeRaPerTso(), parameters.getCurativeLeavesInParallel());
     }
 
     public int getMaximumSearchDepth() {
@@ -126,6 +125,10 @@ public final class TreeParameters {
         return leavesInParallel;
     }
 
+    public boolean getSkipNetworkActionsFarFromMostLimitingElement() {
+        return skipNetworkActionsFarFromMostLimitingElement;
+    }
+
     public Map<String, Integer> getMaxTopoPerTso() {
         return maxTopoPerTso;
     }
@@ -136,9 +139,5 @@ public final class TreeParameters {
 
     public Map<String, Integer> getMaxRaPerTso() {
         return maxRaPerTso;
-    }
-
-    public Set<String> getOperatorsNotToOptimize() {
-        return operatorsNotToOptimize;
     }
 }

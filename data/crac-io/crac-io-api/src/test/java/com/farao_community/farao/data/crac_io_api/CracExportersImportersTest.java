@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.time.OffsetDateTime;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -37,8 +36,7 @@ public class CracExportersImportersTest {
 
     @Test
     public void testImportWithInstant() {
-        OffsetDateTime offsetDateTime = OffsetDateTime.parse("2020-01-01T01:00:00Z");
-        Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()), offsetDateTime);
+        Crac crac = CracImporters.importCrac(Paths.get(new File(getClass().getResource(cracFile).getFile()).getAbsolutePath()));
         Assert.assertNotNull(crac);
     }
 }

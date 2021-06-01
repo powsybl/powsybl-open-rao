@@ -8,11 +8,9 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_impl.ComplexContingency;
-import com.farao_community.farao.data.crac_impl.PostContingencyState;
-import com.farao_community.farao.data.crac_impl.PreventiveState;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +24,6 @@ public class RangeActionResultTest {
     private static final double EPSILON = 0.01;
 
     private RangeActionResult rangeActionResult;
-    private Set<String> states;
     private State initialState;
     private State outage1;
     private State curative1;
@@ -35,12 +32,19 @@ public class RangeActionResultTest {
 
     @Before
     public void setUp() {
-        states = new HashSet<>();
-        initialState = new PreventiveState();
-        outage1 = new PostContingencyState(new ComplexContingency("co1"), Instant.OUTAGE);
-        curative1 = new PostContingencyState(new ComplexContingency("co1"), Instant.CURATIVE);
-        outage2 = new PostContingencyState(new ComplexContingency("co2"), Instant.OUTAGE);
-        curative2 = new PostContingencyState(new ComplexContingency("co2"), Instant.CURATIVE);
+        initialState = Mockito.mock(State.class);
+        outage1 = Mockito.mock(State.class);
+        curative1 = Mockito.mock(State.class);
+        outage2 = Mockito.mock(State.class);
+        curative2 = Mockito.mock(State.class);
+
+        Mockito.when(initialState.getId()).thenReturn("preventive");
+        Mockito.when(outage1.getId()).thenReturn("co1 - outage");
+        Mockito.when(curative1.getId()).thenReturn("co1 - curative");
+        Mockito.when(outage2.getId()).thenReturn("co2 - outage");
+        Mockito.when(curative2.getId()).thenReturn("co2 - curative");
+
+        Set<String> states = new HashSet<>();
         states.add(initialState.getId());
         states.add(outage1.getId());
         states.add(curative1.getId());

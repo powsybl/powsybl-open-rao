@@ -37,6 +37,10 @@ public class MPSolverMock extends MPSolver {
         objective = new MPObjectiveMock();
     }
 
+    public static double infinity() {
+        return Double.MAX_VALUE;
+    }
+
     @Override
     public MPVariableMock makeNumVar(double lb, double ub, String name) {
         // check that variable does not already exists

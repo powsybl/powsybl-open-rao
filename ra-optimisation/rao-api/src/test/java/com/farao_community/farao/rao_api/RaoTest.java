@@ -8,13 +8,14 @@ package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.rao_mock.AnotherRaoProviderMock;
 import com.farao_community.farao.rao_api.rao_mock.RaoProviderMock;
+import com.farao_community.farao.rao_api.results.RaoResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.After;
@@ -34,7 +35,6 @@ public class RaoTest {
     private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
     private RaoInput raoInput;
-    private ComputationManager computationManager;
 
     @Before
     public void setUp() {
@@ -46,7 +46,6 @@ public class RaoTest {
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
         raoInput = RaoInput.build(network, crac).withNetworkVariantId("variant-id").build();
-        computationManager = Mockito.mock(ComputationManager.class);
     }
 
     @After
@@ -65,10 +64,10 @@ public class RaoTest {
         // run rao
         RaoResult result = defaultRao.run(raoInput, new RaoParameters());
         assertNotNull(result);
-        assertEquals(RaoResult.Status.SUCCESS, result.getStatus());
+        //todo : assertEquals(RaoResultImpl.Status.DEFAULT, result.getStatus());
         RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters()).join();
         assertNotNull(resultAsync);
-        assertEquals(RaoResult.Status.SUCCESS, resultAsync.getStatus());
+        // todo: assertEquals(RaoResultImpl.Status.DEFAULT, resultAsync.getStatus());
     }
 
     @Test(expected = FaraoException.class)

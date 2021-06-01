@@ -8,8 +8,8 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
-import com.farao_community.farao.data.crac_api.ExtensionsHandler;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.google.auto.service.AutoService;

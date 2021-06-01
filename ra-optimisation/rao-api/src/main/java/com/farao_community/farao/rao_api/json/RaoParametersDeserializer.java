@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_api.json;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;

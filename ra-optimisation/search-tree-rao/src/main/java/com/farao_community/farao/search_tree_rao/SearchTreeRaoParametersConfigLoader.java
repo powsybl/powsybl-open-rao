@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;

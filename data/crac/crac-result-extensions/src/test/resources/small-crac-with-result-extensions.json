@@ -2,117 +2,109 @@
   "type": "simple-crac",
   "id": "LS_unsecure",
   "name": "LS_unsecure",
-  "networkElements": [
-    {
-      "type": "NetworkElement",
-      "id": "BBE2AA1  FFR3AA1  1",
-      "name": "BBE2AA1  FFR3AA1  1"
-    },
-    {
-      "type": "NetworkElement",
-      "id": "NNL1AA1  NNL2AA1  1",
-      "name": "NNL1AA1  NNL2AA1  1"
-    },
-    {
-      "type": "NetworkElement",
-      "id": "BBE2AA1  BBE3AA1  1",
-      "name": "BBE2AA1  BBE3AA1  1"
-    }
-  ],
+  "networkElementsNamePerId": {},
   "contingencies": [
     {
-      "type": "complex-contingency",
       "id": "N-1 NL1-NL3",
-      "name": "N-1 NL1-NL3",
-      "networkElements": [
+      "networkElementsIds": [
         "NNL1AA1  NNL2AA1  1"
       ]
     }
   ],
-  "cnecs": [
+  "flowCnecs": [
     {
-      "type": "flow-cnec",
       "id": "Tieline BE FR - Défaut - N-1 NL1-NL3",
       "name": "Tieline BE FR",
-      "networkElement": "BBE2AA1  FFR3AA1  1",
-      "thresholds": [ {
-        "type": "branch-threshold",
-        "unit": "MW",
-        "min": -750,
-        "max": 750,
-        "rule" : "ON_LEFT_SIDE"
-      }],
-      "contingency": "N-1 NL1-NL3",
+      "networkElementId": "BBE2AA1  FFR3AA1  1",
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -750,
+          "max": 750,
+          "rule": "onLeftSide"
+        }
+      ],
+      "contingencyId": "N-1 NL1-NL3",
       "instant": "outage",
-      "extensions" : {
-        "CnecResultExtension" : {
-          "resultsPerVariant" : {
-            "variant2" : {
-              "type" : "cnec-result",
-              "flowInA" : 750.0,
-              "flowInMW" : -450.0,
-              "absolutePtdfSum" : 0.85
+      "extensions": {
+        "CnecResultExtension": {
+          "resultsPerVariant": {
+            "variant2": {
+              "type": "cnec-result",
+              "flowInA": 750.0,
+              "flowInMW": -450.0,
+              "absolutePtdfSum": 0.85
             },
-            "variant1" : {
-              "type" : "cnec-result",
-              "flowInA" : NaN,
-              "flowInMW" : NaN
+            "variant1": {
+              "type": "cnec-result",
+              "flowInA": NaN,
+              "flowInMW": NaN
             }
           }
         }
       }
     },
     {
-      "type": "flow-cnec",
       "id": "Tieline BE FR - N - preventive",
       "name": "Tieline BE FR",
-      "networkElement": "BBE2AA1  FFR3AA1  1",
-      "thresholds": [{
-        "type": "branch-threshold",
-        "unit": "MW",
-        "min": -750,
-        "max": 750,
-        "rule" : "ON_LEFT_SIDE"
-      }],
+      "networkElementId": "BBE2AA1  FFR3AA1  1",
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -750,
+          "max": 750,
+          "rule": "onLeftSide"
+        }
+      ],
       "instant": "preventive"
     }
   ],
-  "rangeActions": [
+  "pstRangeActions": [
     {
-      "type": "pst-range-action-impl",
       "id": "PRA_PST_BE",
       "name": "PRA_PST_BE",
       "operator": "BE",
-      "usageRules": [
+      "initialTap": 0,
+      "tapToAngleConversionMap": {
+        "-3": 0.0,
+        "-2": 0.5,
+        "-1": 1.0,
+        "0": 1.5,
+        "1": 2.0,
+        "2": 2.5,
+        "3": 3.0
+      },
+      "freeToUseUsageRules": [
         {
-          "type": "free-to-use",
-          "usageMethod": "AVAILABLE",
+          "usageMethod": "available",
           "instant": "preventive"
         }
       ],
       "ranges": [
         {
-          "min": 1,
-          "max": 33,
-          "rangeType": "ABSOLUTE",
-          "rangeDefinition": "STARTS_AT_ONE"
+          "min": -16,
+          "max": 16,
+          "rangeType": "absolute"
         }
       ],
-      "networkElements": ["BBE2AA1  BBE3AA1  1"]
+      "networkElementId": "BBE2AA1  BBE3AA1  1"
     }
   ],
   "networkActions": [],
   "extensions": {
-    "ResultVariantManager" : {
-      "variantIds" : [ "variant2", "variant1" ]
+    "ResultVariantManager": {
+      "variantIds": [
+        "variant2",
+        "variant1"
+      ]
     },
     "CracResultExtension": {
-      "resultsPerVariant" : {
-        "variant1" : {
-          "type" : "crac-result",
-          "networkSecurityStatus" : "UNSECURED",
-          "functionalCost" : 10.0,
-          "virtualCost" : 5.0
+      "resultsPerVariant": {
+        "variant1": {
+          "type": "crac-result",
+          "networkSecurityStatus": "UNSECURED",
+          "functionalCost": 10.0,
+          "virtualCost": 5.0
         }
       }
     }

@@ -9,6 +9,8 @@ package com.farao_community.farao.data.crac_creator_api.mock;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creator_api.CracCreationContext;
 
+import java.util.List;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -27,6 +29,11 @@ public class CracCreationContextMock implements CracCreationContext {
 
     @Override
     public Crac getCrac() {
+        return null;
+    }
+
+    @Override
+    public List<String> getCreationReport() {
         return null;
     }
 }

@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_api.json;
 
-import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 public class RaoResultJsonModule  extends SimpleModule {
 
     public RaoResultJsonModule() {
-        addDeserializer(RaoResult.class, new RaoResultDeserializer());
-        addSerializer(RaoResult.class, new RaoResultSerializer());
+        addDeserializer(RaoResultImpl.class, new RaoResultDeserializer());
+        addSerializer(RaoResultImpl.class, new RaoResultSerializer());
     }
 }

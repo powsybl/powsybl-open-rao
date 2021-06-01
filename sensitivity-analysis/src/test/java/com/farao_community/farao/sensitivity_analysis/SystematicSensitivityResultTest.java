@@ -8,9 +8,9 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.RangeAction;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
@@ -44,8 +44,8 @@ public class SystematicSensitivityResultTest {
     private static final double EPSILON = 1e-2;
 
     private Network network;
-    private Cnec nStateCnec;
-    private Cnec contingencyCnec;
+    private FlowCnec nStateCnec;
+    private FlowCnec contingencyCnec;
     private RangeAction rangeAction;
     private LinearGlsk linearGlsk;
 
@@ -55,20 +55,20 @@ public class SystematicSensitivityResultTest {
     @Before
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        Crac crac = CommonCracCreation.createWithPstRange();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange();
 
         ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         // Ra Provider
-        rangeActionSensitivityProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getBranchCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        rangeActionSensitivityProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Ptdf Provider
-        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider, crac.getBranchCnecs(), Collections.singleton(Unit.MEGAWATT));
+        ptdfSensitivityProvider = new PtdfSensitivityProvider(glskProvider, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
 
-        nStateCnec = crac.getBranchCnec("cnec1basecase");
+        nStateCnec = crac.getFlowCnec("cnec1basecase");
         rangeAction = crac.getRangeAction("pst");
-        contingencyCnec = crac.getBranchCnec("cnec1stateCurativeContingency1");
+        contingencyCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
         linearGlsk = glskProvider.getData("10YFR-RTE------C");
     }
 

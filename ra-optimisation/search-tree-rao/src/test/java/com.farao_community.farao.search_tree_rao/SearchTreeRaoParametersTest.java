@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.rao_api.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.config.PlatformConfig;
 import org.junit.Before;
 import org.junit.Test;

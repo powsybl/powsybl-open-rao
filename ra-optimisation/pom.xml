@@ -16,7 +16,6 @@
     <description>Remedial actions optimisation engine</description>
 
     <modules>
-        <module>linear-rao</module>
         <module>rao-api</module>
         <module>rao-commons</module>
         <module>search-tree-rao</module>

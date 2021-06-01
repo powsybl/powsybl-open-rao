@@ -7,8 +7,11 @@
 
 package com.farao_community.farao.data.crac_api;
 
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+
 /**
- * Enum representing the instants of a RAO
+ * Enum representing the instants at which {@link Cnec} can be monitored and
+ * {@link RemedialAction} applied.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

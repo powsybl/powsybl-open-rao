@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_api.json;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.rao_api.RaoResult;
+import com.farao_community.farao.rao_api.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -23,21 +23,21 @@ import java.util.List;
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class RaoResultDeserializer extends StdDeserializer<RaoResult> {
+public class RaoResultDeserializer extends StdDeserializer<RaoResultImpl> {
 
     RaoResultDeserializer() {
-        super(RaoResult.class);
+        super(RaoResultImpl.class);
     }
 
     @Override
-    public RaoResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        return deserialize(parser, deserializationContext, new RaoResult(RaoResult.Status.UNDEFINED));
+    public RaoResultImpl deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        return deserialize(parser, deserializationContext, new RaoResultImpl(RaoResultImpl.Status.UNDEFINED));
     }
 
     @Override
-    public RaoResult deserialize(JsonParser parser, DeserializationContext deserializationContext, RaoResult raoResult) throws IOException {
+    public RaoResultImpl deserialize(JsonParser parser, DeserializationContext deserializationContext, RaoResultImpl raoResult) throws IOException {
 
-        List<Extension<RaoResult>> extensions = Collections.emptyList();
+        List<Extension<RaoResultImpl>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
 
@@ -71,17 +71,20 @@ public class RaoResultDeserializer extends StdDeserializer<RaoResult> {
         return raoResult;
     }
 
-    private RaoResult.Status getStatusFromString(String status) {
+    private RaoResultImpl.Status getStatusFromString(String status) {
         switch (status) {
 
-            case "FAILURE":
-                return RaoResult.Status.FAILURE;
+            case "DEFAULT":
+                return RaoResultImpl.Status.DEFAULT;
 
-            case "SUCCESS":
-                return RaoResult.Status.SUCCESS;
+            case "FALLBACK":
+                return RaoResultImpl.Status.FALLBACK;
+
+            case "FAILURE":
+                return RaoResultImpl.Status.FAILURE;
 
             case "UNDEFINED":
-                return RaoResult.Status.UNDEFINED;
+                return RaoResultImpl.Status.UNDEFINED;
 
             default:
                 throw new FaraoException("Unexpected field: " + status);

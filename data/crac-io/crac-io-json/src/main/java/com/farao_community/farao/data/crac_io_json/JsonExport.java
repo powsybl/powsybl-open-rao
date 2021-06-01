@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_impl.json.CracImplJsonModule;
 import com.farao_community.farao.data.crac_io_api.CracExporter;
+import com.farao_community.farao.data.crac_io_json.serializers.CracJsonSerializerModule;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -17,7 +17,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
@@ -38,11 +40,10 @@ public class JsonExport implements CracExporter {
 
     @Override
     public void exportCrac(Crac crac, OutputStream outputStream) {
-
         try {
             ObjectMapper objectMapper = createObjectMapper();
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            SimpleModule module = new CracImplJsonModule();
+            SimpleModule module = new CracJsonSerializerModule();
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, crac);
