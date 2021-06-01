@@ -26,8 +26,8 @@ import java.util.Set;
 public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
 
     /**
-     * Getter of the {@link BranchThreshold} below which the {@link PhysicalParameter} of this {@code BranchCnec}
-     * should ideally remain.
+     * Getter of the {@link BranchThreshold}s that the {@link PhysicalParameter} of this {@code BranchCnec} 
+     * should ideally meet.
      */
     Set<BranchThreshold> getThresholds();
 
