@@ -16,7 +16,7 @@
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
-      "version" : "1.3",
+      "version" : "1.5",
       "voltageInitMode" : "UNIFORM_VALUES",
       "transformerVoltageControlOn" : false,
       "phaseShifterRegulationOn" : false,
@@ -24,7 +24,13 @@
       "twtSplitShuntAdmittance" : false,
       "simulShunt" : false,
       "readSlackBus" : false,
-      "writeSlackBus" : false
+      "writeSlackBus" : false,
+      "dc" : false,
+      "distributedSlack" : true,
+      "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
+      "dcUseTransformerRatio" : true,
+      "countriesToBalance" : [ ],
+      "connectedComponentMode" : "MAIN"
     }
   },
   "extensions" : {
