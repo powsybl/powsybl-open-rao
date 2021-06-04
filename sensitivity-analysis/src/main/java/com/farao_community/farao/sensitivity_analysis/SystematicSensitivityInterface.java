@@ -9,7 +9,9 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
@@ -88,6 +90,14 @@ public final class SystematicSensitivityInterface {
 
         public SystematicSensitivityInterfaceBuilder withLoadflow(Set<FlowCnec> cnecs, Set<Unit> units) {
             return this.withSensitivityProvider(new LoadflowProvider(cnecs, units));
+        }
+
+        public SystematicSensitivityInterfaceBuilder withAppliedNetworkAction(State state, NetworkAction networkAction) {
+            return this;
+        }
+
+        public SystematicSensitivityInterfaceBuilder withAppliedRangeAction(State state, RangeAction rangeAction, double setpoint) {
+            return this;
         }
 
         public SystematicSensitivityInterface build() {
