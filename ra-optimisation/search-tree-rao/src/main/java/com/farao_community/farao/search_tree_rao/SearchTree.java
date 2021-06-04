@@ -96,6 +96,9 @@ public class SearchTree {
 
         Set<RangeAction> rangeActionsToOptimize = new HashSet<>();
         if (!maxPstPerTso.isEmpty()) {
+            // First add range actions for operators not i the list
+            rangeActionsToOptimize.addAll(availableRangeActions.stream().filter(rangeAction -> !maxPstPerTso.containsKey(rangeAction.getOperator())).collect(Collectors.toSet()));
+            // Next filter the other ones depending on the sensitivity
             maxPstPerTso.forEach((tso, maxPst) -> {
                 Set<RangeAction> pstsForTso = availableRangeActions.stream()
                         .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))

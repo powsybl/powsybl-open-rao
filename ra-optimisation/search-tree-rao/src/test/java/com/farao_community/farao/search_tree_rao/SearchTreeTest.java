@@ -243,6 +243,9 @@ public class SearchTreeTest {
         int maxPstOfTso = 1;
         setMaxPstPerTso(tsoName, maxPstOfTso);
         mockRootLeafCost(5.);
+        RangeAction rangeAction4 = Mockito.mock(PstRangeAction.class);
+        Mockito.when(rangeAction4.getOperator()).thenReturn("TSO - not in map");
+        availableRangeActions.add(rangeAction4);
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
@@ -250,6 +253,8 @@ public class SearchTreeTest {
 
         assert rangeActionsToOptimize.contains(rangeAction2);
         assertFalse(rangeActionsToOptimize.contains(rangeAction1));
+
+        assert rangeActionsToOptimize.contains(rangeAction4);
     }
 
     @Test
