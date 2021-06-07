@@ -58,6 +58,8 @@ public class SearchTree {
     private ObjectiveFunction objectiveFunction;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
 
+    private Map<RangeAction, Double> initialRangeActionSetPoints;
+
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
@@ -105,9 +107,16 @@ public class SearchTree {
                         .collect(Collectors.toSet());
                 if (pstsForTso.size() > maxPst) {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
+                    // If in previous depth some RangeActions were activated, consider them optimizable and decrement the allowed number of PSTs
+                    // We have to do this because at the end of every depth, we apply optimal RangeActions for the next depth
+                    Set<RangeAction> appliedRangeActionsForTso = leaf.getRangeActions().stream().filter(rangeAction -> rangeAction.getOperator().equals(tso)
+                            && leaf.getOptimizedSetPoint(rangeAction) != initialRangeActionSetPoints.get(rangeAction)).collect(Collectors.toSet());
+                    rangeActionsToOptimize.addAll(appliedRangeActionsForTso);
+                    pstsForTso.removeAll(appliedRangeActionsForTso);
+                    int pstLimit = maxPst - appliedRangeActionsForTso.size();
                     rangeActionsToOptimize.addAll(pstsForTso.stream()
                             .sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
-                            .collect(Collectors.toList()).subList(pstsForTso.size() - maxPst, pstsForTso.size()));
+                            .collect(Collectors.toList()).subList(pstsForTso.size() - pstLimit, pstsForTso.size()));
                 } else {
                     rangeActionsToOptimize.addAll(pstsForTso);
                 }
@@ -137,6 +146,11 @@ public class SearchTree {
         setTreeParameters(treeParameters);
         this.linearOptimizerParameters = linearOptimizerParameters;
         initLeaves();
+
+        this.initialRangeActionSetPoints = new HashMap<>();
+        rootLeaf.getRangeActions().stream().forEach(rangeAction -> {
+            initialRangeActionSetPoints.put(rangeAction, rangeAction.getCurrentSetpoint(network));
+        });
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, availableRangeActions));
