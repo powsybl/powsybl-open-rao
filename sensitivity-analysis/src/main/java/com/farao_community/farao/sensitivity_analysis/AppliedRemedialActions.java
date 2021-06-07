@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class AppliedRemedialActions {
+class AppliedRemedialActions {
 
     private Map<State, AppliedRemedialActionsPerState> appliedRa = new HashMap<>();
 
@@ -48,6 +48,13 @@ public class AppliedRemedialActions {
         return appliedRa.keySet();
     }
 
+    void applyOnNetwork(State state, Network network) {
+        if (appliedRa.containsKey(state)) {
+            appliedRa.get(state).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
+            appliedRa.get(state).networkActions.forEach(networkAction -> networkAction.apply(network));
+        }
+    }
+
     private void checkState(State state) {
         if (!state.getInstant().equals(Instant.CURATIVE)) {
             throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE remedial actions.");
@@ -56,12 +63,4 @@ public class AppliedRemedialActions {
             appliedRa.put(state, new AppliedRemedialActionsPerState());
         }
     }
-
-    void apply(State state, Network network) {
-        if (appliedRa.containsKey(state)) {
-            appliedRa.get(state).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
-            appliedRa.get(state).networkActions.forEach(networkAction -> networkAction.apply(network));
-        }
-    }
-
 }

@@ -15,8 +15,6 @@ import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,27 +26,25 @@ import java.util.Set;
  */
 public class SystematicSensitivityResult {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityResult.class);
-
     private static class StateResult {
         private final Map<String, Double> referenceFlows = new HashMap<>();
         private final Map<String, Double> referenceIntensities = new HashMap<>();
         private final Map<String, Map<String, Double>> flowSensitivities = new HashMap<>();
         private final Map<String, Map<String, Double>> intensitySensitivities = new HashMap<>();
 
-        public Map<String, Double> getReferenceFlows() {
+        private Map<String, Double> getReferenceFlows() {
             return referenceFlows;
         }
 
-        public Map<String, Double> getReferenceIntensities() {
+        private Map<String, Double> getReferenceIntensities() {
             return referenceIntensities;
         }
 
-        public Map<String, Map<String, Double>> getFlowSensitivities() {
+        private Map<String, Map<String, Double>> getFlowSensitivities() {
             return flowSensitivities;
         }
 
-        public Map<String, Map<String, Double>> getIntensitySensitivities() {
+        private Map<String, Map<String, Double>> getIntensitySensitivities() {
             return intensitySensitivities;
         }
     }
@@ -63,19 +59,31 @@ public class SystematicSensitivityResult {
     private final StateResult nStateResult = new StateResult();
     private final Map<String, StateResult> contingencyResults = new HashMap<>();
 
-    public SystematicSensitivityResult(SensitivityAnalysisResult results) {
-        if (results == null || !results.isOk()) {
-            this.status = SensitivityComputationStatus.FAILURE;
-            return;
-        }
+    public SystematicSensitivityResult() {
         this.status = SensitivityComputationStatus.SUCCESS;
-        fillData(results);
-        postTreatIntensities();
     }
 
-    void postTreatIntensities() {
+    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results) {
+
+        if (results == null || !results.isOk()) {
+            this.status = SensitivityComputationStatus.FAILURE;
+            return this;
+        }
+
+        results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult));
+        results.getSensitivityValuesContingencies().forEach((contingencyId, sensitivityValues) -> {
+            StateResult contingencyStateResult = new StateResult();
+            sensitivityValues.forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult));
+            contingencyResults.put(contingencyId, contingencyStateResult);
+        });
+
+        return this;
+    }
+
+    public SystematicSensitivityResult postTreatIntensities() {
         postTreatIntensitiesOnState(nStateResult);
         contingencyResults.values().forEach(this::postTreatIntensitiesOnState);
+        return this;
     }
 
     private void postTreatIntensitiesOnState(StateResult stateResult) {
@@ -89,21 +97,6 @@ public class SystematicSensitivityResult {
                 sensitivities.forEach((actionId, sensi) -> sensitivities.put(actionId, -sensi));
             }
         });
-    }
-
-    void fillData(SensitivityAnalysisResult results) {
-        results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult));
-        results.getSensitivityValuesContingencies().forEach((contingencyId, sensitivityValues) -> {
-            StateResult contingencyStateResult = new StateResult();
-            sensitivityValues.forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult));
-            contingencyResults.put(contingencyId, contingencyStateResult);
-        });
-    }
-
-    void fillData(SensitivityAnalysisResult results, Contingency contingency) {
-        StateResult contingencyStateResult = new StateResult();
-        results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult));
-        contingencyResults.put(contingency.getId(), contingencyStateResult);
     }
 
     private void fillIndividualValue(SensitivityValue value, StateResult stateResult) {

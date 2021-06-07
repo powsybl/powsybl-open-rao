@@ -76,7 +76,7 @@ public class SystematicSensitivityResultTest {
     public void testCompleteRaResultManipulation() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), rangeActionSensitivityProvider, rangeActionSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityAnalysisResult);
+        SystematicSensitivityResult result = new SystematicSensitivityResult();
 
         // Then
         assertTrue(result.isSuccess());
@@ -98,7 +98,7 @@ public class SystematicSensitivityResultTest {
     public void testCompletePtdfResultManipulation() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), ptdfSensitivityProvider, ptdfSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityAnalysisResult);
+        SystematicSensitivityResult result = new SystematicSensitivityResult();
 
         // Then
         assertTrue(result.isSuccess());
@@ -117,7 +117,7 @@ public class SystematicSensitivityResultTest {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
         Mockito.when(sensitivityAnalysisResult.isOk()).thenReturn(false);
-        SystematicSensitivityResult result = new SystematicSensitivityResult(sensitivityAnalysisResult);
+        SystematicSensitivityResult result = new SystematicSensitivityResult();
 
         // Then
         assertFalse(result.isSuccess());
