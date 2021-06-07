@@ -152,9 +152,7 @@ public class SearchTree {
         initLeaves();
 
         this.initialRangeActionSetPoints = new HashMap<>();
-        rootLeaf.getRangeActions().stream().forEach(rangeAction -> {
-            initialRangeActionSetPoints.put(rangeAction, rangeAction.getCurrentSetpoint(network));
-        });
+        rootLeaf.getRangeActions().stream().forEach(rangeAction -> initialRangeActionSetPoints.put(rangeAction, rangeAction.getCurrentSetpoint(network)));
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, availableRangeActions));
