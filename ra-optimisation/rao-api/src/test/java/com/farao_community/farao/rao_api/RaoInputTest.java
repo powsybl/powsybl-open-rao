@@ -7,12 +7,10 @@
 
 package com.farao_community.farao.rao_api;
 
-import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
@@ -22,8 +20,6 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -82,40 +78,4 @@ public class RaoInputTest {
         assertEquals(-200, actualRefProg.getExchange(areaGermany, areaNetherlands), DOUBLE_TOLERANCE);
     }
 
-    @Test(expected = FaraoException.class)
-    public void testBuildWithBaseCaseVariantAndNoResultVariantManager() {
-        Mockito.when(crac.getExtension(ResultVariantManager.class)).thenReturn(null);
-        defaultBuilder
-            .withBaseCracVariantId("pre-optim-variant")
-            .build();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testBuildWithBaseCaseVariantAndNonExistingVariant() {
-        ResultVariantManager resultVariantManager = Mockito.mock(ResultVariantManager.class);
-        Mockito.when(crac.getExtension(ResultVariantManager.class)).thenReturn(resultVariantManager);
-        Mockito.when(resultVariantManager.getVariants()).thenReturn(Stream.of("pre-optim-variant", "post-optim-variant").collect(Collectors.toSet()));
-        defaultBuilder
-            .withBaseCracVariantId("non-existing-variant")
-            .build();
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testBuildWithNoBaseCaseVariantAndExistingVariants() {
-        ResultVariantManager resultVariantManager = Mockito.mock(ResultVariantManager.class);
-        Mockito.when(crac.getExtension(ResultVariantManager.class)).thenReturn(resultVariantManager);
-        Mockito.when(resultVariantManager.getVariants()).thenReturn(Stream.of("pre-optim-variant", "post-optim-variant").collect(Collectors.toSet()));
-        defaultBuilder.build();
-    }
-
-    @Test
-    public void testBuildWithBaseCaseVariantAndExistingVariant() {
-        ResultVariantManager resultVariantManager = Mockito.mock(ResultVariantManager.class);
-        Mockito.when(crac.getExtension(ResultVariantManager.class)).thenReturn(resultVariantManager);
-        Mockito.when(resultVariantManager.getVariants()).thenReturn(Stream.of("pre-optim-variant", "post-optim-variant").collect(Collectors.toSet()));
-        RaoInput raoInput = defaultBuilder
-            .withBaseCracVariantId("post-optim-variant")
-            .build();
-        assertEquals("post-optim-variant", raoInput.getBaseCracVariantId());
-    }
 }
