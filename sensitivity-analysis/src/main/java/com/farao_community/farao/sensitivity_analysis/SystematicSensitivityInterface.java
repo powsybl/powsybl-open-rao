@@ -120,6 +120,7 @@ public final class SystematicSensitivityInterface {
             systematicSensitivityInterface.defaultParameters = defaultParameters;
             systematicSensitivityInterface.fallbackParameters = fallbackParameters;
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
+            systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
             return systematicSensitivityInterface;
         }
     }
@@ -176,7 +177,7 @@ public final class SystematicSensitivityInterface {
     private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         try {
             SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, sensitivityAnalysisParameters);
+                .runSensitivity(network, cnecSensitivityProvider, sensitivityAnalysisParameters, appliedRemedialActions);
 
             if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityAnalysisException("Some output data of the sensitivity analysis are missing.");

@@ -100,6 +100,12 @@ public class SystematicSensitivityResult {
         });
     }
 
+    void fillData(SensitivityAnalysisResult results, Contingency contingency) {
+        StateResult contingencyStateResult = new StateResult();
+        results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult));
+        contingencyResults.put(contingency.getId(), contingencyStateResult);
+    }
+
     private void fillIndividualValue(SensitivityValue value, StateResult stateResult) {
         double reference = value.getFunctionReference();
         double sensitivity = value.getValue();

@@ -17,10 +17,7 @@ import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisUtil.convertCracContingencyToPowsybl;
@@ -70,28 +67,32 @@ final class SystematicSensitivityAdapter {
         // systematic analyses for states with RA
         Map<State, SensitivityAnalysisResult> resultWithRaMap = new HashMap<>();
         String workingVariantId = network.getVariantManager().getWorkingVariantId();
-        ComputationManager computationManager = DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager();
         int i = 1;
         for (State state : appliedRemedialActions.getStatesWithRa()) {
 
             LOGGER.debug("- curative state {} with RA [{}/{}]", i, state.getContingency().get().getId(), appliedRemedialActions.getStatesWithRa().size());
 
             String variantForState = RandomizedString.getRandomizedString();
-            network.getVariantManager().cloneVariant(workingVariantId, RandomizedString.getRandomizedString());
+            network.getVariantManager().cloneVariant(workingVariantId, variantForState);
             network.getVariantManager().setWorkingVariant(variantForState);
 
-            state.getContingency().get().apply(network, computationManager);
             appliedRemedialActions.apply(state, network);
 
-            SensitivityAnalysisResult resultWithRa = SensitivityAnalysis.run(network, cnecSensitivityProvider, sensitivityComputationParameters);
+            List<Contingency> contingency = Collections.singletonList(convertCracContingencyToPowsybl(state.getContingency().get(), network));
+
+            SensitivityAnalysisResult resultWithRa = SensitivityAnalysis.run(network, variantForState, cnecSensitivityProvider, contingency, sensitivityComputationParameters);
             resultWithRaMap.put(state, resultWithRa);
 
             result.fillData(resultWithRa);
+            network.getVariantManager().removeVariant(variantForState);
             i++;
         }
 
         // merge results
         result.postTreatIntensities();
+
+        network.getVariantManager().setWorkingVariant(workingVariantId);
+
         return result;
     }
 

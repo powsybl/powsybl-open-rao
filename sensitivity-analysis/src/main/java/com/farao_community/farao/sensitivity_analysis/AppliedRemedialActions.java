@@ -52,7 +52,7 @@ public class AppliedRemedialActions {
         if (!state.getInstant().equals(Instant.CURATIVE)) {
             throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE remedial actions.");
         }
-        if (appliedRa.containsKey(state)) {
+        if (!appliedRa.containsKey(state)) {
             appliedRa.put(state, new AppliedRemedialActionsPerState());
         }
     }
