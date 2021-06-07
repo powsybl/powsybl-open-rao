@@ -42,8 +42,8 @@ final class SystematicSensitivityAdapter {
 
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
-                                                      SensitivityAnalysisParameters sensitivityComputationParameters,
-                                                      AppliedRemedialActions appliedRemedialActions) {
+                                                      AppliedRemedialActions appliedRemedialActions,
+                                                      SensitivityAnalysisParameters sensitivityComputationParameters) {
 
         if (appliedRemedialActions == null || appliedRemedialActions.isEmpty()) {
             return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters);
