@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class AppliedRemedialActions {
+public class AppliedRemedialActions {
 
     private Map<State, AppliedRemedialActionsPerState> appliedRa = new HashMap<>();
 
@@ -30,25 +30,30 @@ class AppliedRemedialActions {
         private Map<RangeAction, Double> rangeActions = new HashMap<>();
     }
 
-    void addAppliedNetworkAction(State state, NetworkAction networkAction) {
+    public void addAppliedNetworkAction(State state, NetworkAction networkAction) {
         checkState(state);
         appliedRa.get(state).networkActions.add(networkAction);
     }
 
-    void addAppliedRangeAction(State state, RangeAction rangeAction, double setpoint) {
+    public void addAppliedNetworkActions(State state, Set<NetworkAction> networkActions) {
+        checkState(state);
+        appliedRa.get(state).networkActions.addAll(networkActions);
+    }
+
+    public void addAppliedRangeAction(State state, RangeAction rangeAction, double setpoint) {
         checkState(state);
         appliedRa.get(state).rangeActions.put(rangeAction, setpoint);
     }
 
-    boolean isEmpty() {
+    public boolean isEmpty() {
         return appliedRa.isEmpty();
     }
 
-    Set<State> getStatesWithRa() {
+    public Set<State> getStatesWithRa() {
         return appliedRa.keySet();
     }
 
-    void applyOnNetwork(State state, Network network) {
+    public void applyOnNetwork(State state, Network network) {
         if (appliedRa.containsKey(state)) {
             appliedRa.get(state).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
             appliedRa.get(state).networkActions.forEach(networkAction -> networkAction.apply(network));

@@ -17,6 +17,7 @@ import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
@@ -63,6 +64,7 @@ public class SearchTree {
     private Leaf previousDepthOptimalLeaf;
     private TreeParameters treeParameters;
     private LinearOptimizerParameters linearOptimizerParameters;
+    private AppliedRemedialActions appliedRemedialActions;
 
     void initLeaves() {
         rootLeaf = makeLeaf(network, prePerimeterOutput);

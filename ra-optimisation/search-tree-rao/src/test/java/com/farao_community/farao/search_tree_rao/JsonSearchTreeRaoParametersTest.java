@@ -35,6 +35,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(SearchTreeRaoParameters.class).setAbsoluteNetworkActionMinimumImpactThreshold(20);
         parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeRaPerTso(Map.of("RTE", 5));
         parameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(false);
+        parameters.getExtension(SearchTreeRaoParameters.class).setWithSecondPreventiveOptimization(true);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SearchTreeRaoParameters.json");
     }
 
@@ -64,6 +65,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         assertTrue(extension.getSkipNetworkActionsFarFromMostLimitingElement());
         assertEquals(2, extension.getMaxNumberOfBoundariesForSkippingNetworkActions());
         assertFalse(extension.getCurativeRaoOptimizeOperatorsNotSharingCras());
+        assertTrue(extension.getWithSecondPreventiveOptimization());
 
         assertEquals(2, extension.getMaxCurativeTopoPerTso().size());
         assertEquals(3, extension.getMaxCurativeTopoPerTso().get("RTE").intValue());
