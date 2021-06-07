@@ -27,8 +27,7 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -249,12 +248,35 @@ public class SearchTreeTest {
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
+        Mockito.doReturn(false).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction1), Mockito.any());
+        Mockito.doReturn(false).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction2), Mockito.any());
         Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(rootLeaf);
 
         assert rangeActionsToOptimize.contains(rangeAction2);
         assertFalse(rangeActionsToOptimize.contains(rangeAction1));
 
         assert rangeActionsToOptimize.contains(rangeAction4);
+    }
+
+    @Test
+    public void tooManyRangeActions2() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+
+        String tsoName = "TSO";
+        raoWithRangeActionsForTso(tsoName);
+        int maxPstOfTso = 1;
+        setMaxPstPerTso(tsoName, maxPstOfTso);
+        mockRootLeafCost(5.);
+
+        searchTree.setTreeParameters(treeParameters);
+        searchTree.setAvailableRangeActions(availableRangeActions);
+        Mockito.doReturn(true).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction1), Mockito.any());
+        Mockito.doReturn(false).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction2), Mockito.any());
+        Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(rootLeaf);
+
+        assertTrue(rangeActionsToOptimize.contains(rangeAction1));
+        assertFalse(rangeActionsToOptimize.contains(rangeAction2));
     }
 
     @Test
