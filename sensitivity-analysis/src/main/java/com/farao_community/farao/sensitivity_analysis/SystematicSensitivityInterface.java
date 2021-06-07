@@ -52,12 +52,18 @@ public final class SystematicSensitivityInterface {
     private boolean fallbackMode = false;
 
     /**
+     * The remedialActions that are applied in the initial network or after some contingencies
+     */
+    private AppliedRemedialActions appliedRemedialActions;
+
+    /**
      * Builder
      */
     public static final class SystematicSensitivityInterfaceBuilder {
         private SensitivityAnalysisParameters defaultParameters;
         private SensitivityAnalysisParameters fallbackParameters;
         private MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
+        private AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         private boolean providerInitialised = false;
 
         private SystematicSensitivityInterfaceBuilder() {
@@ -93,14 +99,17 @@ public final class SystematicSensitivityInterface {
         }
 
         public SystematicSensitivityInterfaceBuilder withAppliedNetworkAction(State state, NetworkAction networkAction) {
+            appliedRemedialActions.addAppliedNetworkAction(state, networkAction);
             return this;
         }
 
         public SystematicSensitivityInterfaceBuilder withAppliedRangeAction(State state, RangeAction rangeAction, double setpoint) {
+            appliedRemedialActions.addAppliedRangeAction(state, rangeAction, setpoint);
             return this;
         }
 
         public SystematicSensitivityInterface build() {
+
             if (!providerInitialised) {
                 throw new SensitivityAnalysisException("Sensitivity provider is mandatory when building a SystematicSensitivityInterface.");
             }

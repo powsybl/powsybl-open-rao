@@ -69,13 +69,11 @@ public class SystematicSensitivityResult {
             return;
         }
         this.status = SensitivityComputationStatus.SUCCESS;
-        LOGGER.debug("Filling data...");
         fillData(results);
-        LOGGER.debug("Data post treatment...");
         postTreatIntensities();
     }
 
-    private void postTreatIntensities() {
+    void postTreatIntensities() {
         postTreatIntensitiesOnState(nStateResult);
         contingencyResults.values().forEach(this::postTreatIntensitiesOnState);
     }
@@ -93,7 +91,7 @@ public class SystematicSensitivityResult {
         });
     }
 
-    private void fillData(SensitivityAnalysisResult results) {
+    void fillData(SensitivityAnalysisResult results) {
         results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult));
         results.getSensitivityValuesContingencies().forEach((contingencyId, sensitivityValues) -> {
             StateResult contingencyStateResult = new StateResult();
