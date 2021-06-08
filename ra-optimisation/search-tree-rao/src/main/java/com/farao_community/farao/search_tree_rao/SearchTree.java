@@ -128,7 +128,11 @@ public class SearchTree {
     }
 
     boolean isRangeActionUsed(RangeAction rangeAction, Leaf leaf) {
-        return leaf.getOptimizedSetPoint(rangeAction) != initialRangeActionSetPoints.get(rangeAction);
+        return leaf.getRangeActions().contains(rangeAction) && leaf.getOptimizedSetPoint(rangeAction) != getInitialRangeActionSetPoint(rangeAction);
+    }
+
+    double getInitialRangeActionSetPoint(RangeAction rangeAction) {
+        return initialRangeActionSetPoints.get(rangeAction);
     }
 
     private static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult sensitivityResult) {
