@@ -59,6 +59,8 @@ public class SearchTree {
     private ObjectiveFunction objectiveFunction;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
 
+    private Map<RangeAction, Double> initialRangeActionSetPoints;
+
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
@@ -98,15 +100,25 @@ public class SearchTree {
 
         Set<RangeAction> rangeActionsToOptimize = new HashSet<>();
         if (!maxPstPerTso.isEmpty()) {
+            // First add range actions for operators not in the map
+            rangeActionsToOptimize.addAll(availableRangeActions.stream().filter(rangeAction -> !maxPstPerTso.containsKey(rangeAction.getOperator())).collect(Collectors.toSet()));
+            // Next filter the other ones depending on their sensitivity
             maxPstPerTso.forEach((tso, maxPst) -> {
                 Set<RangeAction> pstsForTso = availableRangeActions.stream()
                         .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
                         .collect(Collectors.toSet());
                 if (pstsForTso.size() > maxPst) {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
+                    // If in previous depth some RangeActions were activated, consider them optimizable and decrement the allowed number of PSTs
+                    // We have to do this because at the end of every depth, we apply optimal RangeActions for the next depth
+                    Set<RangeAction> appliedRangeActionsForTso = availableRangeActions.stream().filter(rangeAction -> rangeAction.getOperator().equals(tso)
+                            && isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
+                    rangeActionsToOptimize.addAll(appliedRangeActionsForTso);
+                    pstsForTso.removeAll(appliedRangeActionsForTso);
+                    int pstLimit = maxPst - appliedRangeActionsForTso.size();
                     rangeActionsToOptimize.addAll(pstsForTso.stream()
                             .sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
-                            .collect(Collectors.toList()).subList(pstsForTso.size() - maxPst, pstsForTso.size()));
+                            .collect(Collectors.toList()).subList(pstsForTso.size() - pstLimit, pstsForTso.size()));
                 } else {
                     rangeActionsToOptimize.addAll(pstsForTso);
                 }
@@ -115,6 +127,14 @@ public class SearchTree {
         } else {
             return availableRangeActions;
         }
+    }
+
+    boolean isRangeActionUsed(RangeAction rangeAction, Leaf leaf) {
+        return leaf.getRangeActions().contains(rangeAction) && leaf.getOptimizedSetPoint(rangeAction) != getInitialRangeActionSetPoint(rangeAction);
+    }
+
+    double getInitialRangeActionSetPoint(RangeAction rangeAction) {
+        return initialRangeActionSetPoints.get(rangeAction);
     }
 
     private static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult sensitivityResult) {
@@ -136,6 +156,9 @@ public class SearchTree {
         setTreeParameters(treeParameters);
         this.linearOptimizerParameters = linearOptimizerParameters;
         initLeaves();
+
+        this.initialRangeActionSetPoints = new HashMap<>();
+        rootLeaf.getRangeActions().stream().forEach(rangeAction -> initialRangeActionSetPoints.put(rangeAction, rangeAction.getCurrentSetpoint(network)));
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, availableRangeActions));
