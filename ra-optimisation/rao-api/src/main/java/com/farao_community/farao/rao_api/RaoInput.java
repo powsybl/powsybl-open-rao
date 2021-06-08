@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_api;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_result_extensions.ResultVariantManager;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -31,7 +30,6 @@ public final class RaoInput {
         private static final String REQUIRED_ARGUMENT_MESSAGE = "%s is mandatory when building RAO input.";
 
         private Crac crac;
-        private String baseCracVariantId;
         private Network network;
         private String networkVariantId;
         private State optimizedState;
@@ -44,11 +42,6 @@ public final class RaoInput {
 
         public RaoInputBuilder withCrac(Crac crac) {
             this.crac = crac;
-            return this;
-        }
-
-        public RaoInputBuilder withBaseCracVariantId(String baseCracVariantId) {
-            this.baseCracVariantId = baseCracVariantId;
             return this;
         }
 
@@ -86,9 +79,6 @@ public final class RaoInput {
             RaoInput raoInput = new RaoInput();
             raoInput.crac = Optional.ofNullable(crac).orElseThrow(() -> requiredArgumentError("CRAC"));
 
-            checkBaseCracVariantId();
-            raoInput.baseCracVariantId = baseCracVariantId;
-
             raoInput.network = Optional.ofNullable(network).orElseThrow(() -> requiredArgumentError("Network"));
             raoInput.networkVariantId = networkVariantId != null ? networkVariantId : network.getVariantManager().getWorkingVariantId();
             raoInput.optimizedState = optimizedState;
@@ -102,25 +92,9 @@ public final class RaoInput {
             return new RaoInputException(format(REQUIRED_ARGUMENT_MESSAGE, type));
         }
 
-        private void checkBaseCracVariantId() {
-            ResultVariantManager resultVariantManager = crac.getExtension(ResultVariantManager.class);
-            if (baseCracVariantId != null) {
-                if (resultVariantManager == null) {
-                    throw new RaoInputException("Base CRAC variant cannot be specified if CRAC does not have result variant manager.");
-                }
-                if (!resultVariantManager.getVariants().contains(baseCracVariantId)) {
-                    throw new RaoInputException(format("Base CRAC variant %s does not exist.", baseCracVariantId));
-                }
-            } else {
-                if (resultVariantManager != null && resultVariantManager.getVariants() != null) {
-                    throw new RaoInputException("Base CRAC variant has to be specified if CRAC already has got pre-optimization variant.");
-                }
-            }
-        }
     }
 
     private Crac crac;
-    private String baseCracVariantId;
     private State optimizedState;
     private Set<State> perimeter;
     private Network network;
@@ -145,10 +119,6 @@ public final class RaoInput {
 
     public Crac getCrac() {
         return crac;
-    }
-
-    public String getBaseCracVariantId() {
-        return baseCracVariantId;
     }
 
     public State getOptimizedState() {
