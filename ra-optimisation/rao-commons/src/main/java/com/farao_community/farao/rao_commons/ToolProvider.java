@@ -11,9 +11,14 @@ import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataImpl;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
@@ -147,6 +152,16 @@ public final class ToolProvider {
         } else if (computePtdfs) {
             builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(Unit.MEGAWATT));
         }
+
+        Crac crac = CracFactory.findDefault().create("cracId");
+
+        crac.newContingency().withId("co1_fr2_fr3_1").withNetworkElement("FFR2AA1  FFR3AA1  1").add();
+        crac.newNetworkAction().withId("na-id")
+            .newTopologicalAction().withNetworkElement("FFR1AA1  FFR5AA1  1").withActionType(ActionType.CLOSE).add()
+            .newOnStateUsageRule().withContingency("co1_fr2_fr3_1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
+        builder.withAppliedNetworkAction(crac.getState("co1_fr2_fr3_1", Instant.CURATIVE), crac.getNetworkAction("na-id"));
 
         return builder.build();
     }

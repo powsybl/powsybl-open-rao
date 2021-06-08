@@ -48,8 +48,12 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     @Override
     public List<SensitivityFactor> getAdditionalFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
-        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
 
+        if (afterContingencyOnly) {
+            return factors;
+        }
+
+        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
         cnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty())
             .map(Cnec::getNetworkElement)

@@ -56,6 +56,9 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
     @Override
     public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
         List<SensitivityFactor> factors = new ArrayList<>();
+        if (afterContingencyOnly) {
+            return factors;
+        }
         SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
         getSensitivityFunctions(network, contingencyId).forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
         return factors;

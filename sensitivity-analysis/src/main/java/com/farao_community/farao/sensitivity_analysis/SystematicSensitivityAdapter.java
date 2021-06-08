@@ -66,6 +66,7 @@ final class SystematicSensitivityAdapter {
         result.completeData(SensitivityAnalysis.run(network, cnecSensitivityProvider, contingenciesWithoutRa, sensitivityComputationParameters));
 
         // systematic analyses for states with RA
+        cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
         String workingVariantId = network.getVariantManager().getWorkingVariantId();
         int counterForLogs = 2;
         for (State state : appliedRemedialActions.getStatesWithRa()) {
