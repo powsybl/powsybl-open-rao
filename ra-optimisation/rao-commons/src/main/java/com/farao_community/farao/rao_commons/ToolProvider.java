@@ -152,17 +152,7 @@ public final class ToolProvider {
         } else if (computePtdfs) {
             builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(Unit.MEGAWATT));
         }
-
-        Crac crac = CracFactory.findDefault().create("cracId");
-
-        crac.newContingency().withId("co1_fr2_fr3_1").withNetworkElement("FFR2AA1  FFR3AA1  1").add();
-        crac.newNetworkAction().withId("na-id")
-            .newTopologicalAction().withNetworkElement("FFR1AA1  FFR5AA1  1").withActionType(ActionType.CLOSE).add()
-            .newOnStateUsageRule().withContingency("co1_fr2_fr3_1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .add();
-
-        builder.withAppliedNetworkAction(crac.getState("co1_fr2_fr3_1", Instant.CURATIVE), crac.getNetworkAction("na-id"));
-
+        
         return builder.build();
     }
 

@@ -19,7 +19,7 @@ final class SensitivityAnalysisUtil {
         return new Contingency(id, contingencyElements);
     }
 
-    static private ContingencyElement convertCracContingencyElementToPowsybl(NetworkElement cracContingencyElement, Network network) {
+    private static ContingencyElement convertCracContingencyElementToPowsybl(NetworkElement cracContingencyElement, Network network) {
         String elementId = cracContingencyElement.getId();
         Identifiable<?> networkIdentifiable = network.getIdentifiable(elementId);
         if (networkIdentifiable instanceof Branch) {
