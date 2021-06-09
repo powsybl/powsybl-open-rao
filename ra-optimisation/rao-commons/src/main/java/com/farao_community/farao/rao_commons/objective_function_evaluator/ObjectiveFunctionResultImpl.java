@@ -22,6 +22,8 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
     private final FlowResult flowResult;
     private final SensitivityStatus sensitivityStatus;
+    private Double functionalCost;
+    private Double virtualCost;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
                                        FlowResult flowResult,
@@ -33,7 +35,10 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getFunctionalCost() {
-        return objectiveFunction.getFunctionalCost(flowResult, sensitivityStatus);
+        if (functionalCost == null) {
+            functionalCost = objectiveFunction.getFunctionalCost(flowResult, sensitivityStatus);
+        }
+        return functionalCost;
     }
 
     @Override
@@ -43,7 +48,10 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost() {
-        return objectiveFunction.getVirtualCost(flowResult, sensitivityStatus);
+        if (virtualCost == null) {
+            virtualCost = objectiveFunction.getVirtualCost(flowResult, sensitivityStatus);
+        }
+        return virtualCost;
     }
 
     @Override

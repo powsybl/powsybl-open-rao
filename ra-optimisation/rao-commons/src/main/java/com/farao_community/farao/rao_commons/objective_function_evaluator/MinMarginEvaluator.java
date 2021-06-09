@@ -55,7 +55,7 @@ public class MinMarginEvaluator implements CostEvaluator {
         if (costlyElements.isEmpty()) {
             return null;
         }
-        return getCostlyElements(flowResult, 1).get(0);
+        return costlyElements.get(0);
     }
 
     @Override
@@ -64,6 +64,6 @@ public class MinMarginEvaluator implements CostEvaluator {
         if (limitingElement == null) {
             return 0;
         }
-        return -marginEvaluator.getMargin(flowResult, getMostLimitingElement(flowResult), unit);
+        return -marginEvaluator.getMargin(flowResult, limitingElement, unit);
     }
 }
