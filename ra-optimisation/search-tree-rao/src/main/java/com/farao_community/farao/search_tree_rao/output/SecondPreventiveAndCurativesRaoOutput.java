@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.output;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -37,11 +38,18 @@ import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILUR
  */
 public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
     private PrePerimeterResult initialResult;
+    private PerimeterResult postFirstPreventiveResult; // for RAs optimized during 1st preventive
     private PerimeterResult postSecondPreventiveResult; // flows computed using PRA + CRA
     private PrePerimeterResult preCurativeResult; // flows computed using PRA only
     private Map<State, OptimizationResult> postCurativeResults;
+    Set<RemedialAction> remedialActionsExcludedFromSecondPreventive; //  RAs only optimized in 1st preventive
 
-    public SecondPreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult, PerimeterResult postSecondPreventiveResult, PrePerimeterResult preCurativeResult, Map<State, OptimizationResult> postCurativeResults) {
+    public SecondPreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult,
+                                                 PerimeterResult postFirstPreventiveResult,
+                                                 PerimeterResult postSecondPreventiveResult,
+                                                 PrePerimeterResult preCurativeResult,
+                                                 Map<State, OptimizationResult> postCurativeResults,
+                                                 Set<RemedialAction> remedialActionsExcludedFromSecondPreventive) {
         this.initialResult = initialResult;
         this.postSecondPreventiveResult = postSecondPreventiveResult;
         this.preCurativeResult = preCurativeResult;
@@ -181,6 +189,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postSecondPreventiveResult.getActivatedRangeActions().contains(rangeAction);
         } else if (postSecondPreventiveResult.getActivatedRangeActions().contains(rangeAction)) {
+            // if the RangeAction is preventive (or both preventive and curative), then its final optimal value is in the 2nd preventive RAO
             return postSecondPreventiveResult.getOptimizedSetPoint(rangeAction) != postCurativeResults.get(state).getOptimizedSetPoint(rangeAction);
         } else {
             return initialResult.getOptimizedSetPoint(rangeAction) != postCurativeResults.get(state).getOptimizedSetPoint(rangeAction);

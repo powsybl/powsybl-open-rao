@@ -195,6 +195,7 @@ public class SearchTreeRaoProviderTest {
                 raoParameters,
                 linearOptimizerParameters,
                 toolProvider,
+                false,
                 null);
 
         assertSame(network, searchTreeInput.getNetwork());
