@@ -33,12 +33,15 @@ import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILUR
  * It also needs a sensitivity computation result with 2nd preventive PRAs, without CRAs (pre-curative)
  * It is assumed that all CNECs are present in post-second preventive results, as well as in
  * pre-curative sensi results
+ * If there are RAs that were excluded from the 2nd preventive and optimized only during the
+ * 1st preventive RAO, then we need this set of excluded RAs as well as the 1st preventive
+ * result, in order to correctly detect the usage of the RAs.
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
     private PrePerimeterResult initialResult;
-    private PerimeterResult postFirstPreventiveResult; // for RAs optimized during 1st preventive
+    private PerimeterResult postFirstPreventiveResult; // used for RAs optimized only during 1st preventive (excluded from 2nd)
     private PerimeterResult postSecondPreventiveResult; // flows computed using PRA + CRA
     private PrePerimeterResult preCurativeResult; // flows computed using PRA only
     private Map<State, OptimizationResult> postCurativeResults;
@@ -51,9 +54,11 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
                                                  Map<State, OptimizationResult> postCurativeResults,
                                                  Set<RemedialAction> remedialActionsExcludedFromSecondPreventive) {
         this.initialResult = initialResult;
+        this.postFirstPreventiveResult = postFirstPreventiveResult;
         this.postSecondPreventiveResult = postSecondPreventiveResult;
         this.preCurativeResult = preCurativeResult;
         this.postCurativeResults = postCurativeResults;
+        this.remedialActionsExcludedFromSecondPreventive = remedialActionsExcludedFromSecondPreventive;
     }
 
     @Override
@@ -161,6 +166,8 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return false;
+        } else if (remedialActionsExcludedFromSecondPreventive.contains(networkAction)) {
+            return postFirstPreventiveResult.isActivated(networkAction);
         } else {
             return postSecondPreventiveResult.isActivated(networkAction);
         }
@@ -168,8 +175,12 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
-            return postSecondPreventiveResult.getActivatedNetworkActions().contains(networkAction);
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
+            if (remedialActionsExcludedFromSecondPreventive.contains(networkAction)) {
+                return postFirstPreventiveResult.getActivatedNetworkActions().contains(networkAction);
+            } else {
+                return postSecondPreventiveResult.getActivatedNetworkActions().contains(networkAction);
+            }
         } else {
             return postCurativeResults.get(state).getActivatedNetworkActions().contains(networkAction);
         }
@@ -177,8 +188,11 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
-            return postSecondPreventiveResult.getActivatedNetworkActions();
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
+            Set<NetworkAction> activatedNetworkActions = postFirstPreventiveResult.getActivatedNetworkActions().stream()
+                    .filter(networkAction -> remedialActionsExcludedFromSecondPreventive.contains(networkAction)).collect(Collectors.toSet());
+            activatedNetworkActions.addAll(postSecondPreventiveResult.getActivatedNetworkActions());
+            return activatedNetworkActions;
         } else {
             return postCurativeResults.get(state).getActivatedNetworkActions();
         }
@@ -186,8 +200,12 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
-            return postSecondPreventiveResult.getActivatedRangeActions().contains(rangeAction);
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
+            if (remedialActionsExcludedFromSecondPreventive.contains(rangeAction)) {
+                return postFirstPreventiveResult.getActivatedRangeActions().contains(rangeAction);
+            } else {
+                return postSecondPreventiveResult.getActivatedRangeActions().contains(rangeAction);
+            }
         } else if (postSecondPreventiveResult.getActivatedRangeActions().contains(rangeAction)) {
             // if the RangeAction is preventive (or both preventive and curative), then its final optimal value is in the 2nd preventive RAO
             return postSecondPreventiveResult.getOptimizedSetPoint(rangeAction) != postCurativeResults.get(state).getOptimizedSetPoint(rangeAction);
@@ -207,7 +225,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
             return postSecondPreventiveResult.getOptimizedTap(pstRangeAction);
         } else {
             return postCurativeResults.get(state).getOptimizedTap(pstRangeAction);
@@ -225,7 +243,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
             return postSecondPreventiveResult.getOptimizedSetPoint(rangeAction);
         } else {
             return postCurativeResults.get(state).getOptimizedSetPoint(rangeAction);
@@ -234,8 +252,11 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
-            return postSecondPreventiveResult.getActivatedRangeActions();
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
+            Set<RangeAction> activatedRangeActions = postFirstPreventiveResult.getActivatedRangeActions().stream()
+                    .filter(networkAction -> remedialActionsExcludedFromSecondPreventive.contains(networkAction)).collect(Collectors.toSet());
+            activatedRangeActions.addAll(postSecondPreventiveResult.getActivatedRangeActions());
+            return activatedRangeActions;
         } else {
             return postCurativeResults.get(state).getRangeActions().stream()
                     .filter(rangeAction -> isActivatedDuringState(state, rangeAction))
@@ -245,7 +266,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
             return postSecondPreventiveResult.getOptimizedTaps();
         } else {
             return postCurativeResults.get(state).getOptimizedTaps();
@@ -254,7 +275,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
             return postSecondPreventiveResult.getOptimizedSetPoints();
         } else {
             return postCurativeResults.get(state).getOptimizedSetPoints();

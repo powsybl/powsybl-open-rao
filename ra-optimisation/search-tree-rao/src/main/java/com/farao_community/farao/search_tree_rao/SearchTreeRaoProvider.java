@@ -396,7 +396,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private AppliedRemedialActions getAppliedRemedialActionsInCurative(Map<State, OptimizationResult> curativeResults, PrePerimeterResult preCurativeResults) {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         curativeResults.forEach((state, optimizationResult) -> appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions()));
-        // Add all range actions that were activated in curative, but that are not also preventive
+        // Add all range actions that were activated in curative, even if they are also preventive (they will be excluded from 2nd preventive)
         curativeResults.forEach((state, optimizationResult) ->
                 (new PerimeterOutput(preCurativeResults, optimizationResult)).getActivatedRangeActions()
                         .forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetPoint(rangeAction)))
