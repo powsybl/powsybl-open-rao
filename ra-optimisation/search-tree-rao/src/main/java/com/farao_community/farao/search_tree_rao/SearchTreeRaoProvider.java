@@ -168,7 +168,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         if (withSecondPreventiveRao) {
             LOGGER.info("Second preventive perimeter optimization [start]");
             network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_STATE);
-            applyCurativeRangeActions(network, preventiveResult, raoInput.getCrac());
+            applyPreventiveResultsForCurativeRangeActions(network, preventiveResult, raoInput.getCrac());
             AppliedRemedialActions appliedRemedialActions = getAppliedRemedialActionsInCurative(curativeResults, preCurativeSensitivityAnalysisOutput);
             PrePerimeterResult sensiWithCurativeRas = prePerimeterSensitivityAnalysis.runBasedOn(network, preventiveResult, appliedRemedialActions);
             PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, sensiWithCurativeRas, appliedRemedialActions).join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
@@ -199,7 +199,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
      * It is used for second preventive optimization along with 1st preventive results in order to keep the result
      * of 1st preventive for range actions that are both preventive and curative
      */
-    private void applyCurativeRangeActions(Network network, PerimeterResult perimeterResult, Crac crac) {
+    static void applyPreventiveResultsForCurativeRangeActions(Network network, PerimeterResult perimeterResult, Crac crac) {
         perimeterResult.getActivatedRangeActions().stream()
                 .filter(rangeAction -> isRangeActionCurative(rangeAction, crac))
                 .forEach(rangeAction -> rangeAction.apply(network, perimeterResult.getOptimizedSetPoint(rangeAction)));
@@ -393,67 +393,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return curativeResults;
     }
 
-    private AppliedRemedialActions getAppliedRemedialActionsInCurative(Map<State, OptimizationResult> curativeResults, PrePerimeterResult preCurativeResults) {
-        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
-        curativeResults.forEach((state, optimizationResult) -> appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions()));
-        // Add all range actions that were activated in curative, even if they are also preventive (they will be excluded from 2nd preventive)
-        curativeResults.forEach((state, optimizationResult) ->
-                (new PerimeterOutput(preCurativeResults, optimizationResult)).getActivatedRangeActions()
-                        .forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetPoint(rangeAction)))
-        );
-        return appliedRemedialActions;
-    }
-
-    boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, Map<State, OptimizationResult> curativeRaoResults) {
-        if (raoParameters.getExtension(SearchTreeRaoParameters.class) == null
-                || !raoParameters.getExtension(SearchTreeRaoParameters.class).getWithSecondPreventiveOptimization()) {
-            return false;
-        }
-        SearchTreeRaoParameters.CurativeRaoStopCriterion curativeRaoStopCriterion = raoParameters.getExtension(SearchTreeRaoParameters.class).getCurativeRaoStopCriterion();
-        switch (curativeRaoStopCriterion) {
-            case MIN_OBJECTIVE:
-                // Run 2nd preventive RAO in all cases
-                return true;
-            case SECURE:
-                // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
-                return curativeRaoResults.values().stream().anyMatch(optimizationResult -> optimizationResult.getFunctionalCost() > 0);
-            case PREVENTIVE_OBJECTIVE:
-                // TODO : Run 2nd preventive RAO if one perimeter of the curative optimization has a worst cost than the preventive perimeter
-                return false;
-            case PREVENTIVE_OBJECTIVE_AND_SECURE:
-                // TODO : Run 2nd preventive RAO if one perimeter of the curative optimization has a worst cost than the preventive perimeter or is unsecure
-                return false;
-            default:
-                throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", curativeRaoStopCriterion));
-        }
-    }
-
-    private CompletableFuture<RaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult, AppliedRemedialActions appliedRemedialActions) {
-        TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
-        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
-        SearchTreeInput searchTreeInput = buildSearchTreeInput(
-                raoInput.getCrac(),
-                raoInput.getNetwork(),
-                raoInput.getCrac().getPreventiveState(),
-                stateTree.getPerimeter(raoInput.getCrac().getPreventiveState()),
-                prePerimeterResult,
-                prePerimeterResult,
-                preventiveTreeParameters,
-                raoParameters,
-                linearOptimizerParameters,
-                toolProvider,
-                true,
-                appliedRemedialActions
-        );
-
-        OptimizationResult perimeterResult = new SearchTree().run(searchTreeInput, preventiveTreeParameters, linearOptimizerParameters).join();
-
-        perimeterResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), perimeterResult.getOptimizedSetPoint(rangeAction)));
-        perimeterResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
-
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult));
-    }
-
     static SearchTreeInput buildSearchTreeInput(Crac crac,
                                                 Network network,
                                                 State optimizedState,
@@ -584,6 +523,71 @@ public class SearchTreeRaoProvider implements RaoProvider {
         rangeActionsToRemove.forEach(rangeActions::remove);
     }
 
+    // ========================================
+    // region Second preventive RAO
+    // ========================================
+
+    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, Map<State, OptimizationResult> curativeRaoResults) {
+        if (raoParameters.getExtension(SearchTreeRaoParameters.class) == null
+                || !raoParameters.getExtension(SearchTreeRaoParameters.class).getWithSecondPreventiveOptimization()) {
+            return false;
+        }
+        SearchTreeRaoParameters.CurativeRaoStopCriterion curativeRaoStopCriterion = raoParameters.getExtension(SearchTreeRaoParameters.class).getCurativeRaoStopCriterion();
+        switch (curativeRaoStopCriterion) {
+            case MIN_OBJECTIVE:
+                // Run 2nd preventive RAO in all cases
+                return true;
+            case SECURE:
+                // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
+                return curativeRaoResults.values().stream().anyMatch(optimizationResult -> optimizationResult.getFunctionalCost() >= 0);
+            case PREVENTIVE_OBJECTIVE:
+                // TODO : Run 2nd preventive RAO if one perimeter of the curative optimization has a worst cost than the preventive perimeter
+                return false;
+            case PREVENTIVE_OBJECTIVE_AND_SECURE:
+                // TODO : Run 2nd preventive RAO if one perimeter of the curative optimization has a worst cost than the preventive perimeter or is unsecure
+                return false;
+            default:
+                throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", curativeRaoStopCriterion));
+        }
+    }
+
+    static AppliedRemedialActions getAppliedRemedialActionsInCurative(Map<State, OptimizationResult> curativeResults, PrePerimeterResult preCurativeResults) {
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        curativeResults.forEach((state, optimizationResult) -> appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions()));
+        // Add all range actions that were activated in curative, even if they are also preventive (they will be excluded from 2nd preventive)
+        curativeResults.forEach((state, optimizationResult) ->
+                (new PerimeterOutput(preCurativeResults, optimizationResult)).getActivatedRangeActions()
+                        .forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetPoint(rangeAction)))
+        );
+        return appliedRemedialActions;
+    }
+
+    private CompletableFuture<RaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult, AppliedRemedialActions appliedRemedialActions) {
+        TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
+        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
+        SearchTreeInput searchTreeInput = buildSearchTreeInput(
+                raoInput.getCrac(),
+                raoInput.getNetwork(),
+                raoInput.getCrac().getPreventiveState(),
+                stateTree.getPerimeter(raoInput.getCrac().getPreventiveState()),
+                prePerimeterResult,
+                prePerimeterResult,
+                preventiveTreeParameters,
+                raoParameters,
+                linearOptimizerParameters,
+                toolProvider,
+                true,
+                appliedRemedialActions
+        );
+
+        OptimizationResult perimeterResult = new SearchTree().run(searchTreeInput, preventiveTreeParameters, linearOptimizerParameters).join();
+
+        perimeterResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), perimeterResult.getOptimizedSetPoint(rangeAction)));
+        perimeterResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
+
+        return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult));
+    }
+
     /**
      * For second preventive optimization, we shouldn't re-optimize range actions that are also curative
      */
@@ -619,4 +623,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                     .anyMatch(otherRangeAction -> otherRangeAction.getNetworkElements().equals(rangeAction.getNetworkElements()));
         }
     }
+
+    // ========================================
+    // endregion
+    // ========================================
 }
