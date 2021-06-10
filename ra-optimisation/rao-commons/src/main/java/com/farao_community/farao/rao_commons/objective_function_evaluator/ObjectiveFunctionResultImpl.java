@@ -12,7 +12,9 @@ import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.ObjectiveFunctionResult;
 import com.farao_community.farao.rao_api.results.SensitivityStatus;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,8 +24,9 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
     private final FlowResult flowResult;
     private final SensitivityStatus sensitivityStatus;
+    private boolean areCostComputed;
     private Double functionalCost;
-    private Double virtualCost;
+    private Map<String, Double> virtualCosts;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
                                        FlowResult flowResult,
@@ -31,12 +34,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
         this.objectiveFunction = objectiveFunction;
         this.flowResult = flowResult;
         this.sensitivityStatus = sensitivityStatus;
+        this.areCostComputed = false;
     }
 
     @Override
     public double getFunctionalCost() {
-        if (functionalCost == null) {
-            functionalCost = objectiveFunction.getFunctionalCost(flowResult, sensitivityStatus);
+        if (!areCostComputed) {
+            computeCosts();
         }
         return functionalCost;
     }
@@ -48,10 +52,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost() {
-        if (virtualCost == null) {
-            virtualCost = objectiveFunction.getVirtualCost(flowResult, sensitivityStatus);
+        if (!areCostComputed) {
+            computeCosts();
         }
-        return virtualCost;
+        if (virtualCosts.size() > 0) {
+            return virtualCosts.values().stream().mapToDouble(v -> v).sum();
+        }
+        return 0;
     }
 
     @Override
@@ -61,11 +68,21 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return objectiveFunction.getVirtualCost(flowResult, sensitivityStatus, virtualCostName);
+        if (!areCostComputed) {
+            computeCosts();
+        }
+        return virtualCosts.getOrDefault(virtualCostName, Double.NaN);
     }
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         return objectiveFunction.getCostlyElements(flowResult, virtualCostName, number);
+    }
+
+    private void computeCosts() {
+        functionalCost = objectiveFunction.getFunctionalCost(flowResult, sensitivityStatus);
+        virtualCosts = new HashMap<>();
+        getVirtualCostNames().forEach(vcn -> virtualCosts.put(vcn, objectiveFunction.getVirtualCost(flowResult, sensitivityStatus, vcn)));
+        areCostComputed = true;
     }
 }
