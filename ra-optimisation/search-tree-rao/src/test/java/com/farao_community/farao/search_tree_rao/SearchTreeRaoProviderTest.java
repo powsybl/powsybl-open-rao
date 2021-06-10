@@ -13,17 +13,21 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.OptimizationResult;
+import com.farao_community.farao.rao_api.results.PerimeterResult;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_commons.ToolProvider;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -567,13 +571,101 @@ public class SearchTreeRaoProviderTest {
         assertNotNull(searchTreeInput.getSearchTreeComputer());
     }
 
+    private void setUpCracWithRealRAs(boolean curative) {
+        network = NetworkImportsUtil.import12NodesNetwork();
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger();
+        HashMap<Integer, Double> tapToAngleConversionMap = new HashMap<>();
+        phaseTapChanger.getAllSteps().forEach((stepInt, step) -> tapToAngleConversionMap.put(stepInt, step.getAlpha()));
+        crac = CracFactory.findDefault().create("test-crac");
+        Contingency contingency1 = crac.newContingency()
+                .withId("contingency1")
+                .withNetworkElement("contingency1-ne")
+                .add();
+        Contingency contingency2 = crac.newContingency()
+                .withId("contingency2")
+                .withNetworkElement("contingency2-ne")
+                .add();
+        // ra1 : preventive only
+        PstRangeActionAdder adder = crac.newPstRangeAction()
+                .withId("ra1")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(0).withTapToAngleConversionMap(tapToAngleConversionMap)
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
+        if (curative) {
+            adder.newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
+        }
+        ra1 = adder.add();
+        // na1 : preventive + curative
+        na1 = crac.newNetworkAction()
+                .withId("na1")
+                .newTopologicalAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+
+        state1 = crac.getState(contingency1, Instant.CURATIVE);
+        state2 = crac.getState(contingency2, Instant.CURATIVE);
+    }
+
     @Test
     public void testApplyPreventiveResultsForCurativeRangeActions() {
+        PerimeterResult perimeterResult = Mockito.mock(PerimeterResult.class);
+        String pstNeId = "BBE2AA1  BBE3AA1  1";
 
+        setUpCracWithRealRAs(false);
+        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetPoint(ra1);
+        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions();
+        SearchTreeRaoProvider.applyPreventiveResultsForCurativeRangeActions(network, perimeterResult, crac);
+        assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+
+        setUpCracWithRealRAs(true);
+        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetPoint(ra1);
+        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions();
+        SearchTreeRaoProvider.applyPreventiveResultsForCurativeRangeActions(network, perimeterResult, crac);
+        assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test
     public void testGetAppliedRemedialActionsInCurative() {
+        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        Mockito.doReturn(0.).when(prePerimeterResult).getOptimizedSetPoint(ra1);
 
+        String pstNeId = "BBE2AA1  BBE3AA1  1";
+        String naNeId = "BBE1AA1  BBE2AA1  1";
+
+        setUpCracWithRealRAs(true);
+
+        OptimizationResult optimResult1 = Mockito.mock(OptimizationResult.class);
+        Mockito.doReturn(Set.of(ra1)).when(optimResult1).getRangeActions();
+        Mockito.doReturn(-1.5583491325378418).when(optimResult1).getOptimizedSetPoint(ra1);
+        Mockito.doReturn(Set.of()).when(optimResult1).getActivatedNetworkActions();
+
+        OptimizationResult optimResult2 = Mockito.mock(OptimizationResult.class);
+        Mockito.doReturn(Set.of(ra1)).when(optimResult2).getRangeActions();
+        Mockito.doReturn(0.).when(optimResult2).getOptimizedSetPoint(ra1);
+        Mockito.doReturn(Set.of(na1)).when(optimResult2).getActivatedNetworkActions();
+
+        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
+
+        AppliedRemedialActions appliedRemedialActions = SearchTreeRaoProvider.getAppliedRemedialActionsInCurative(curativeResults, prePerimeterResult);
+
+        // apply only range action
+        appliedRemedialActions.applyOnNetwork(state1, network);
+        assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+        assertTrue(network.getLine(naNeId).getTerminal1().isConnected());
+
+        // reset network
+        network = NetworkImportsUtil.import12NodesNetwork();
+
+        // apply only network action
+        appliedRemedialActions.applyOnNetwork(state2, network);
+        assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+        assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
+
+        // apply also range action
+        appliedRemedialActions.applyOnNetwork(state1, network);
+        assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+        assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
     }
+
 }
