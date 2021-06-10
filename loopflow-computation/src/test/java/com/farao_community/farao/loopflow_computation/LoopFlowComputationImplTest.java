@@ -45,7 +45,7 @@ public class LoopFlowComputationImplTest {
         ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(crac, glsk);
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, null);
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs());
 
         assertEquals(-50., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1")), DOUBLE_TOLERANCE);
