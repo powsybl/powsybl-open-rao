@@ -79,6 +79,7 @@ public class SearchTreeTest {
         leavesInParallel = 1;
         Mockito.when(treeParameters.getMaximumSearchDepth()).thenReturn(maximumSearchDepth);
         Mockito.when(treeParameters.getLeavesInParallel()).thenReturn(leavesInParallel);
+        Mockito.when(treeParameters.getMaxRa()).thenReturn(Integer.MAX_VALUE);
     }
 
     private void setSearchTreeInput() {
