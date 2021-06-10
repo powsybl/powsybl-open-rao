@@ -18,6 +18,7 @@
     <modules>
         <module>rao-api</module>
         <module>rao-commons</module>
+        <module>rao-result-io</module>
         <module>search-tree-rao</module>
     </modules>
 

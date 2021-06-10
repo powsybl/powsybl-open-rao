@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILURE;
 
-public class PreventiveAndCurativesRaoOutput implements RaoResult {
+public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     private PrePerimeterResult initialResult;
     private PerimeterResult postPreventiveResult;
     private Map<State, PerimeterResult> postCurativeResults;
@@ -243,30 +243,5 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
         } else {
             return postCurativeResults.get(state).getOptimizedSetPoints();
         }
-    }
-
-    @Override
-    public void addExtension(Class aClass, Extension extension) {
-
-    }
-
-    @Override
-    public Extension getExtension(Class aClass) {
-        return null;
-    }
-
-    @Override
-    public Extension getExtensionByName(String s) {
-        return null;
-    }
-
-    @Override
-    public boolean removeExtension(Class aClass) {
-        return false;
-    }
-
-    @Override
-    public Collection getExtensions() {
-        return null;
     }
 }

@@ -240,28 +240,4 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         return postOptimizationResult.getOptimizedSetPoints();
     }
 
-    @Override
-    public void addExtension(Class aClass, Extension extension) {
-
-    }
-
-    @Override
-    public Extension getExtension(Class aClass) {
-        return null;
-    }
-
-    @Override
-    public Extension getExtensionByName(String s) {
-        return null;
-    }
-
-    @Override
-    public boolean removeExtension(Class aClass) {
-        return false;
-    }
-
-    @Override
-    public Collection getExtensions() {
-        return null;
-    }
 }

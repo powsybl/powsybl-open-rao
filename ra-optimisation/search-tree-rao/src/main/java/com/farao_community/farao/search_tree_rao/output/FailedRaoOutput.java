@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.results.OptimizationState;
 import com.farao_community.farao.rao_api.results.PerimeterResult;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
-import com.farao_community.farao.rao_api.results.RaoResult;
 import com.farao_community.farao.rao_api.results.*;
 import com.powsybl.commons.extensions.Extension;
 
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class FailedRaoOutput implements RaoResult {
+public class FailedRaoOutput implements SearchTreeRaoResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
     //TODO: add optimization status (failed for this implem)
 
@@ -134,28 +133,4 @@ public class FailedRaoOutput implements RaoResult {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
-    @Override
-    public void addExtension(Class aClass, Extension extension) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public Extension getExtension(Class aClass) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public Extension getExtensionByName(String s) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public boolean removeExtension(Class aClass) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public Collection getExtensions() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
 }
