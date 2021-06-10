@@ -156,7 +156,11 @@ public final class SearchTreeBloomer {
     }
 
     private Set<Optional<Country>> getOptimizedMostLimitingElementLocation(Leaf leaf) {
-        FlowCnec cnec = leaf.getMostLimitingElements(1).get(0);
-        return cnec.getLocation(network);
+        List<FlowCnec> mostLimitingElement = leaf.getMostLimitingElements(1);
+        if (mostLimitingElement.isEmpty()) {
+            // can happen in curative perimeters with MNEC only
+            return new HashSet<>();
+        }
+        return mostLimitingElement.get(0).getLocation(network);
     }
 }
