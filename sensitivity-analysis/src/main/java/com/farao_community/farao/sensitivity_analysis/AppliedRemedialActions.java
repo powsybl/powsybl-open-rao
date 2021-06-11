@@ -31,18 +31,24 @@ public class AppliedRemedialActions {
     }
 
     public void addAppliedNetworkAction(State state, NetworkAction networkAction) {
-        checkState(state);
-        appliedRa.get(state).networkActions.add(networkAction);
+        if (networkAction != null) {
+            checkState(state);
+            appliedRa.get(state).networkActions.add(networkAction);
+        }
     }
 
     public void addAppliedNetworkActions(State state, Set<NetworkAction> networkActions) {
-        checkState(state);
-        appliedRa.get(state).networkActions.addAll(networkActions);
+        if (!networkActions.isEmpty()) {
+            checkState(state);
+            appliedRa.get(state).networkActions.addAll(networkActions);
+        }
     }
 
     public void addAppliedRangeAction(State state, RangeAction rangeAction, double setpoint) {
-        checkState(state);
-        appliedRa.get(state).rangeActions.put(rangeAction, setpoint);
+        if (rangeAction != null) {
+            checkState(state);
+            appliedRa.get(state).rangeActions.put(rangeAction, setpoint);
+        }
     }
 
     public boolean isEmpty() {
@@ -64,8 +70,6 @@ public class AppliedRemedialActions {
         if (!state.getInstant().equals(Instant.CURATIVE)) {
             throw new FaraoException("Sensitivity analysis with applied remedial actions only work with CURATIVE remedial actions.");
         }
-        if (!appliedRa.containsKey(state)) {
-            appliedRa.put(state, new AppliedRemedialActionsPerState());
-        }
+        appliedRa.putIfAbsent(state, new AppliedRemedialActionsPerState());
     }
 }
