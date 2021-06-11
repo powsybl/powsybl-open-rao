@@ -249,8 +249,6 @@ public class SearchTreeTest {
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
-        Mockito.doReturn(false).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction1), Mockito.any());
-        Mockito.doReturn(false).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction2), Mockito.any());
         Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(rootLeaf);
 
         assert rangeActionsToOptimize.contains(rangeAction2);
@@ -272,12 +270,10 @@ public class SearchTreeTest {
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
-        Mockito.doReturn(true).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction1), Mockito.any());
-        Mockito.doReturn(false).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction2), Mockito.any());
         Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(rootLeaf);
 
-        assertTrue(rangeActionsToOptimize.contains(rangeAction1));
-        assertFalse(rangeActionsToOptimize.contains(rangeAction2));
+        assertTrue(rangeActionsToOptimize.contains(rangeAction2));
+        assertFalse(rangeActionsToOptimize.contains(rangeAction1));
     }
 
     @Test
@@ -320,7 +316,9 @@ public class SearchTreeTest {
         rangeAction1 = Mockito.mock(PstRangeAction.class);
         rangeAction2 = Mockito.mock(PstRangeAction.class);
         Mockito.when(rangeAction1.getOperator()).thenReturn(tsoName);
+        Mockito.when(rangeAction1.getName()).thenReturn("PST1");
         Mockito.when(rangeAction2.getOperator()).thenReturn(tsoName);
+        Mockito.when(rangeAction2.getName()).thenReturn("PST2");
         availableRangeActions.add(rangeAction1);
         availableRangeActions.add(rangeAction2);
 

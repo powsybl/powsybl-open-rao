@@ -354,40 +354,37 @@ public class SearchTree {
         }
 
         public void filterPstPerTso() {
+            Map<String, Integer> maxPstPerTso = recomputeMaxPstPerTso(leaf);
+            if (maxPstPerTso.isEmpty()) {
+                return;
+            }
+            // Filter the psts from Tso present in the map depending on their sensitivity
+            maxPstPerTso.forEach((tso, maxPst) -> {
+                Set<RangeAction> pstsForTso = availableRangeActions.stream()
+                    .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
+                    .collect(Collectors.toSet());
+                if (pstsForTso.size() > maxPst) {
+                    LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
+                    List<RangeAction> pstsSortedBySensitivity = pstsForTso.stream()
+                        .sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                        .collect(Collectors.toList());
+                    rangeActionsToOptimize.removeAll(pstsSortedBySensitivity.subList(0, maxPst));
+                }
+            });
+        }
+
+        /**
+        * Create an updated version of maxPstPerTso map so as to deduce the number of applied network actions from the
+        * total number of ra per tso and compare this value to max number of pst per Tso set in the treeParameters.
+         */
+        private Map<String, Integer> recomputeMaxPstPerTso(Leaf leaf) {
             Map<String, Integer> maxPstPerTso = new HashMap<>(treeParameters.getMaxPstPerTso());
             treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
                 int appliedNetworkActionsForTso = (int) leaf.getNetworkActions().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
                 int pstLimit = raLimit - appliedNetworkActionsForTso;
                 maxPstPerTso.put(tso, Math.min(pstLimit, maxPstPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
             });
-
-            Set<RangeAction> rangeActionsToOptimize = new HashSet<>();
-            if (!maxPstPerTso.isEmpty()) {
-                // First add range actions for operators not in the map
-                rangeActionsToOptimize.addAll(availableRangeActions.stream().filter(rangeAction -> !maxPstPerTso.containsKey(rangeAction.getOperator())).collect(Collectors.toSet()));
-                // Next filter the other ones depending on their sensitivity
-                maxPstPerTso.forEach((tso, maxPst) -> {
-                    Set<RangeAction> pstsForTso = availableRangeActions.stream()
-                        .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
-                        .collect(Collectors.toSet());
-                    if (pstsForTso.size() > maxPst) {
-                        LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
-                        // If in previous depth some RangeActions were activated, consider them optimizable and decrement the allowed number of PSTs
-                        // We have to do this because at the end of every depth, we apply optimal RangeActions for the next depth
-                        Set<RangeAction> appliedRangeActionsForTso = availableRangeActions.stream().filter(rangeAction -> rangeAction.getOperator().equals(tso)
-                            && isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
-                        rangeActionsToOptimize.addAll(appliedRangeActionsForTso);
-                        pstsForTso.removeAll(appliedRangeActionsForTso);
-                        int pstLimit = maxPst - appliedRangeActionsForTso.size();
-                        rangeActionsToOptimize.addAll(pstsForTso.stream()
-                            .sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
-                            .collect(Collectors.toList()).subList(pstsForTso.size() - pstLimit, pstsForTso.size()));
-                    } else {
-                        rangeActionsToOptimize.addAll(pstsForTso);
-                    }
-                });
-                this.rangeActionsToOptimize = rangeActionsToOptimize;
-            }
+            return maxPstPerTso;
         }
 
         public void filterTsos() {
