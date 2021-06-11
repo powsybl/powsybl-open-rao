@@ -51,8 +51,9 @@ final class SystematicSensitivityAdapter {
 
         LOGGER.debug("Systematic sensitivity analysis with applied RA [start]");
 
-        Set<State> statesWithoutRa = getStatesWithoutRa(appliedRemedialActions, cnecSensitivityProvider);
         Set<State> statesWithRa = appliedRemedialActions.getStatesWithRa();
+        Set<State> statesWithoutRa = cnecSensitivityProvider.getFlowCnecs().stream().map(Cnec::getState).collect(Collectors.toSet());
+        statesWithoutRa.removeAll(statesWithRa);
 
         // systematic analysis for states without RA
         LOGGER.debug("... (1/{}) {} state(s) without RA ", statesWithRa.size() + 1, statesWithoutRa.size());
@@ -96,11 +97,5 @@ final class SystematicSensitivityAdapter {
 
         network.getVariantManager().setWorkingVariant(workingVariantId);
         return result.postTreatIntensities();
-    }
-
-    private static Set<State> getStatesWithoutRa(AppliedRemedialActions appliedRemedialActions, CnecSensitivityProvider cnecSensitivityProvider) {
-        Set<State> states = cnecSensitivityProvider.getFlowCnecs().stream().map(Cnec::getState).collect(Collectors.toSet());
-        states.removeAll(appliedRemedialActions.getStatesWithRa());
-        return states;
     }
 }
