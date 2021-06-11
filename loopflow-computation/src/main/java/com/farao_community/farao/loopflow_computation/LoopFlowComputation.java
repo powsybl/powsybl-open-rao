@@ -73,8 +73,10 @@ public class LoopFlowComputation {
     static boolean isInMainComponent(LinearGlsk linearGlsk, Network network) {
         for (String glsk : linearGlsk.getGLSKs().keySet()) {
             Generator generator = network.getGenerator(glsk);
-            if (generator != null && generator.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
-                return true;
+            if (generator != null) {
+                if (generator.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
+                    return true;
+                }
             } else {
                 Load load = network.getLoad(glsk);
                 if (load != null && load.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
