@@ -369,6 +369,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         Set<RangeAction> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE);
         removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterOutput);
+        removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterOutput);
         searchTreeInput.setRangeActions(rangeActions);
 
         ObjectiveFunction objectiveFunction = createObjectiveFunction(
@@ -468,5 +469,21 @@ public class SearchTreeRaoProvider implements RaoProvider {
             }
         }
         rangeActionsToRemove.forEach(rangeActions::remove);
+    }
+
+    /**
+     * If aligned range actionsé initial setpoint are different, this function filters them out
+     */
+    static void removeAlignedRangeActionsWithDifferentInitialSetpoints(Set<RangeAction> rangeActions, RangeActionResult prePerimeterSetPoints) {
+        Set<String> groups = rangeActions.stream().map(RangeAction::getGroupId)
+                .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+        for (String group : groups) {
+            Set<RangeAction> groupRangeActions = rangeActions.stream().filter(rangeAction -> rangeAction.getGroupId().isPresent() && rangeAction.getGroupId().get().equals(group)).collect(Collectors.toSet());
+            double preperimeterSetPoint = prePerimeterSetPoints.getOptimizedSetPoint(groupRangeActions.iterator().next());
+            if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getOptimizedSetPoint(rangeAction) - preperimeterSetPoint) > 1e-6)) {
+                LOGGER.warn("Range actions of group {} do not have the same initial setpoint. They will be filtered out of the linear problem.", group);
+                rangeActions.removeAll(groupRangeActions);
+            }
+        }
     }
 }
