@@ -73,7 +73,7 @@ public class LoopFlowComputationImplTest {
     @Test
     public void testIsInMainComponent() {
         LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
-        Map<String, Float> map = Map.of("gen1", 5f,"load1", 6f, "load2", 6f);
+        Map<String, Float> map = Map.of("gen1", 5f, "load1", 6f, "load2", 6f);
         Mockito.doReturn(map).when(linearGlsk).getGLSKs();
 
         Network network = Mockito.mock(Network.class);
