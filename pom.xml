@@ -6,7 +6,7 @@
 
     <groupId>com.farao-community.farao</groupId>
     <artifactId>farao-core</artifactId>
-    <version>2.4.3</version>
+    <version>2.4.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>FARAO</name>
