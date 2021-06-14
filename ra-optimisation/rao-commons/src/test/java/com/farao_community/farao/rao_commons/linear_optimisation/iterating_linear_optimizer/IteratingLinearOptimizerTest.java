@@ -171,6 +171,7 @@ public class IteratingLinearOptimizerTest {
 
     @Test
     public void optimizeWithInfeasibility() {
+        raoData.getNetwork().getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().setTapPosition(5);
         String preOptimVariant = raoData.getWorkingVariantId();
 
         Mockito.when(linearOptimizer.getSolverResultStatusString()).thenReturn("INFEASIBLE");
@@ -198,5 +199,8 @@ public class IteratingLinearOptimizerTest {
         assertEquals(0, crac.getRangeAction("PRA_PST_BE").getExtension(RangeActionResultExtension.class)
             .getVariant(preOptimVariant)
             .getSetPoint(crac.getState("N-1 NL1-NL3", Instant.OUTAGE).getId()), DOUBLE_TOLERANCE);
+
+        // The network should be rolled back to initial setpoint also
+        assertEquals(0, raoData.getNetwork().getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 }

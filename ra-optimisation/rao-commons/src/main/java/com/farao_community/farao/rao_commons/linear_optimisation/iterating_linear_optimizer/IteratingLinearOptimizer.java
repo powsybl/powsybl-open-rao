@@ -158,6 +158,7 @@ public class IteratingLinearOptimizer {
 
     private String getBestVariantWithSafeDelete(String variantToDelete) {
         cracVariantManager.setWorkingVariant(bestVariantId);
+        raoData.getCracResultManager().applyRangeActionResultsOnNetwork();
         if (!variantToDelete.equals(raoData.getPreOptimVariantId())) {
             cracVariantManager.deleteVariant(variantToDelete, false);
         }
