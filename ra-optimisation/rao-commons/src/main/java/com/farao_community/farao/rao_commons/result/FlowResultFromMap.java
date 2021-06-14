@@ -11,12 +11,13 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -34,6 +35,12 @@ public class FlowResultFromMap implements FlowResult {
         this.systematicSensitivityResult = systematicSensitivityResult;
         this.commercialFlows = commercialFlows;
         this.ptdfZonalSums = ptdfZonalSums;
+    }
+
+    @Override
+    public Set<FlowCnec> getFlowCnecs() {
+        // not required, class only used for tests
+        return null;
     }
 
     @Override

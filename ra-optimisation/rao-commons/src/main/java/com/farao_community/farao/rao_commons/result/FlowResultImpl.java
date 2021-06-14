@@ -11,26 +11,35 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.RaoUtil;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class FlowResultImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
+    private Set<FlowCnec> flowCnecs;
     private final FlowResult fixedCommercialFlows;
     private final FlowResult fixedPtdfs;
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
+                          Set<FlowCnec> flowCnecs,
                           FlowResult fixedCommercialFlows,
                           FlowResult fixedPtdfs) {
         this.systematicSensitivityResult = systematicSensitivityResult;
+        this.flowCnecs = flowCnecs;
         this.fixedCommercialFlows = fixedCommercialFlows;
         this.fixedPtdfs = fixedPtdfs;
+    }
+
+    @Override
+    public Set<FlowCnec> getFlowCnecs() {
+        return flowCnecs;
     }
 
     @Override

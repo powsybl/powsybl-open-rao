@@ -3,9 +3,12 @@ package com.farao_community.farao.search_tree_rao.output;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 
 import java.util.Objects;
+import java.util.Set;
 
 public interface SearchTreeRaoResult extends RaoResult {
 
@@ -34,6 +37,11 @@ public interface SearchTreeRaoResult extends RaoResult {
      * @return The full initial perimeter result to be studied with comprehensive data.
      */
     PrePerimeterResult getInitialResult();
+
+    @Override
+    default Set<FlowCnec> getFlowCnecs() {
+        return getInitialResult().getFlowCnecs();
+    }
 
     @Override
     default double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {

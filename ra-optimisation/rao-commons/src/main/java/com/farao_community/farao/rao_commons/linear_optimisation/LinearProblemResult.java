@@ -10,8 +10,8 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.LinearProblemStatus;
-import com.farao_community.farao.rao_api.results.RangeActionResult;
+import com.farao_community.farao.rao_commons.result_api.LinearProblemStatus;
+import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 
 import java.util.Collections;
 import java.util.HashMap;

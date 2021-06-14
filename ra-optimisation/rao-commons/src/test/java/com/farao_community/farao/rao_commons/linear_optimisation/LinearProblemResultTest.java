@@ -10,7 +10,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.LinearProblemStatus;
+import com.farao_community.farao.rao_commons.result_api.LinearProblemStatus;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;

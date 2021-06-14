@@ -8,9 +8,9 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.ObjectiveFunctionResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ public final class ObjectiveFunction {
         this.virtualCostEvaluators = virtualCostEvaluators;
     }
 
-    public ObjectiveFunctionResult evaluate(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+    public ObjectiveFunctionResult evaluate(FlowResult flowResult, ComputationStatus sensitivityStatus) {
         return new ObjectiveFunctionResultImpl(this, flowResult, sensitivityStatus);
     }
 
@@ -35,7 +35,7 @@ public final class ObjectiveFunction {
         return new ObjectiveFunctionBuilder();
     }
 
-    public double getFunctionalCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+    public double getFunctionalCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
         return functionalCostEvaluator.computeCost(flowResult, sensitivityStatus);
     }
 
@@ -43,7 +43,7 @@ public final class ObjectiveFunction {
         return functionalCostEvaluator.getCostlyElements(flowResult, number);
     }
 
-    public double getVirtualCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+    public double getVirtualCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
         return virtualCostEvaluators.stream()
                 .mapToDouble(costEvaluator -> costEvaluator.computeCost(flowResult, sensitivityStatus))
                 .sum();
@@ -53,7 +53,7 @@ public final class ObjectiveFunction {
         return virtualCostEvaluators.stream().map(CostEvaluator::getName).collect(Collectors.toSet());
     }
 
-    public double getVirtualCost(FlowResult flowResult, SensitivityStatus sensitivityStatus, String virtualCostName) {
+    public double getVirtualCost(FlowResult flowResult, ComputationStatus sensitivityStatus, String virtualCostName) {
         return virtualCostEvaluators.stream()
                 .filter(costEvaluator -> costEvaluator.getName().equals(virtualCostName))
                 .findAny()

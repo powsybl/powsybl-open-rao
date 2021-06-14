@@ -12,9 +12,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_result_extensions.CnecResultExtension;
-import com.farao_community.farao.data.crac_result_extensions.CracResultExtension;
-import com.farao_community.farao.rao_api.results.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
@@ -56,11 +54,5 @@ public class FailedRaoOutputTest {
         assertThrows(FaraoException.class, () -> failedRaoOutput.getActivatedRangeActionsDuringState(state));
         assertThrows(FaraoException.class, () -> failedRaoOutput.getOptimizedTapsOnState(state));
         assertThrows(FaraoException.class, () -> failedRaoOutput.getOptimizedSetPointsOnState(state));
-
-        assertThrows(FaraoException.class, () -> failedRaoOutput.addExtension(CracResultExtension.class, new CracResultExtension()));
-        assertThrows(FaraoException.class, failedRaoOutput::getExtensions);
-        assertThrows(FaraoException.class, () -> failedRaoOutput.getExtension(CracResultExtension.class));
-        assertThrows(FaraoException.class, () -> failedRaoOutput.getExtensionByName("CracResultExtension"));
-        assertThrows(FaraoException.class, () -> failedRaoOutput.removeExtension(CnecResultExtension.class));
     }
 }

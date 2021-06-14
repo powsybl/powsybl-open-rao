@@ -13,17 +13,18 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
-import com.powsybl.commons.extensions.Extension;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILURE;
+import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
 
 public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     private PrePerimeterResult initialResult;
@@ -38,17 +39,16 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public SensitivityStatus getComputationStatus() {
+    public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == FAILURE
                 || postPreventiveResult.getSensitivityStatus() == FAILURE
                 || postCurativeResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
             return FAILURE;
         }
         // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
-        return SensitivityStatus.DEFAULT;
+        return ComputationStatus.DEFAULT;
     }
 
-    @Override
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
         if (optimizationState == OptimizationState.INITIAL) {
             if (state.getInstant() == Instant.PREVENTIVE) {

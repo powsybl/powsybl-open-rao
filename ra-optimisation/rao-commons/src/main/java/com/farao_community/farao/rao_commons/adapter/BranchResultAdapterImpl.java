@@ -12,10 +12,10 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.loopflow_computation.LoopFlowResult;
-import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.AbsolutePtdfSumsComputation;
 import com.farao_community.farao.rao_commons.result.FlowResultImpl;
 import com.farao_community.farao.rao_commons.result.EmptyFlowResult;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -47,6 +47,11 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         if (absolutePtdfSumsComputation != null) {
             Map<FlowCnec, Double> ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
             ptdfs = new FlowResult() {
+                @Override
+                public Set<FlowCnec> getFlowCnecs() {
+                    return flowCnecs;
+                }
+
                 @Override
                 public double getFlow(FlowCnec flowCnec, Unit unit) {
                     throw new NotImplementedException();
@@ -83,6 +88,11 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
             );
             commercialFlows = new FlowResult() {
                 @Override
+                public Set<FlowCnec> getFlowCnecs() {
+                    throw new NotImplementedException();
+                }
+
+                @Override
                 public double getFlow(FlowCnec flowCnec, Unit unit) {
                     throw new NotImplementedException();
                 }
@@ -110,7 +120,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         } else {
             commercialFlows = fixedCommercialFlows;
         }
-        return new FlowResultImpl(systematicSensitivityResult, commercialFlows, ptdfs);
+        return new FlowResultImpl(systematicSensitivityResult, flowCnecs, commercialFlows, ptdfs);
     }
 
     public static final class BranchResultAdpaterBuilder {

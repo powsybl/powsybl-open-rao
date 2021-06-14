@@ -11,8 +11,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.SensitivityResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -29,15 +29,15 @@ public class SensitivityResultImpl implements SensitivityResult {
     }
 
     @Override
-    public SensitivityStatus getSensitivityStatus() {
+    public ComputationStatus getSensitivityStatus() {
         switch (systematicSensitivityResult.getStatus()) {
             case SUCCESS:
-                return SensitivityStatus.DEFAULT;
+                return ComputationStatus.DEFAULT;
             case FALLBACK:
-                return SensitivityStatus.FALLBACK;
+                return ComputationStatus.FALLBACK;
             default:
             case FAILURE:
-                return SensitivityStatus.FAILURE;
+                return ComputationStatus.FAILURE;
         }
     }
 

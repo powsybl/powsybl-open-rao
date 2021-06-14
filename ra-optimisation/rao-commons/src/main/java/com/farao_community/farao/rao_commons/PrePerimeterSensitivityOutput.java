@@ -10,7 +10,11 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
+import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
+import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.*;
@@ -28,7 +32,7 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     }
 
     @Override
-    public SensitivityStatus getSensitivityStatus() {
+    public ComputationStatus getSensitivityStatus() {
         return sensitivityResult.getSensitivityStatus();
     }
 
@@ -40,6 +44,11 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
         return sensitivityResult.getSensitivityValue(flowCnec, linearGlsk, unit);
+    }
+
+    @Override
+    public Set<FlowCnec> getFlowCnecs() {
+        return flowResult.getFlowCnecs();
     }
 
     @Override

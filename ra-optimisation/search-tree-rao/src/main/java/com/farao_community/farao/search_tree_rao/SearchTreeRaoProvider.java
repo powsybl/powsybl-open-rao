@@ -14,18 +14,21 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputationWithXnodeGlskHandler;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.*;
 import com.farao_community.farao.rao_api.RaoProvider;
-import com.farao_community.farao.rao_api.results.*;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.*;
-import com.farao_community.farao.search_tree_rao.output.FailedRaoOutput;
-import com.farao_community.farao.search_tree_rao.output.OneStateOnlyRaoOutput;
-import com.farao_community.farao.search_tree_rao.output.PreventiveAndCurativesRaoOutput;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
+import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.output.*;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
@@ -51,7 +54,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
     private static final String PREVENTIVE_STATE = "PreventiveState";
     private static final String CURATIVE_STATE = "CurativeState";
-    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
 
     private StateTree stateTree;
     private ToolProvider toolProvider;
@@ -135,10 +137,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
         network.getVariantManager().setWorkingVariant(PREVENTIVE_STATE);
 
         if (stateTree.getOptimizedStates().size() == 1) {
-            return optimizePreventivePerimeter(raoInput, parameters, initialOutput);
+            return CompletableFuture.completedFuture(optimizePreventivePerimeter(raoInput, parameters, initialOutput));
         }
 
-        PerimeterResult preventiveResult = optimizePreventivePerimeter(raoInput, parameters, initialOutput).join().getPerimeterResult(OptimizationState.AFTER_PRA, raoInput.getCrac().getPreventiveState());
+        PerimeterResult preventiveResult = optimizePreventivePerimeter(raoInput, parameters, initialOutput).getPerimeterResult(OptimizationState.AFTER_PRA, raoInput.getCrac().getPreventiveState());
         LOGGER.info("Preventive perimeter optimization [end]");
 
         // optimize curative perimeters
@@ -270,7 +272,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getOptimizedState(), prePerimeterResult, optimizationResult));
     }
 
-    private CompletableFuture<RaoResult> optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    private SearchTreeRaoResult optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
@@ -291,7 +293,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         perimeterResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), perimeterResult.getOptimizedSetPoint(rangeAction)));
         perimeterResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult));
+        return new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult);
     }
 
     private Map<State, OptimizationResult> optimizeCurativePerimeters(RaoInput raoInput,
