@@ -216,7 +216,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
             return initialResult.getOptimizedTap(pstRangeAction);
         } else {
             return postSecondPreventiveResult.getOptimizedTap(pstRangeAction);
@@ -234,7 +234,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
-        if (state.getInstant() == Instant.PREVENTIVE) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
             return initialResult.getOptimizedSetPoint(rangeAction);
         } else {
             return postSecondPreventiveResult.getOptimizedSetPoint(rangeAction);
