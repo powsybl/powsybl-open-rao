@@ -9,15 +9,12 @@ package com.farao_community.farao.search_tree_rao.output;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

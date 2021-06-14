@@ -48,7 +48,6 @@ public class PstRangeActionResult {
         return initialSetpoint;
     }
 
-
     public int getOptimizedTapOnState(State state) {
 
         // does not handle RA applicable on OUTAGE instant
@@ -56,9 +55,7 @@ public class PstRangeActionResult {
 
         if (activationPerState.containsKey(state)) {
             return activationPerState.get(state).tap;
-        }
-
-        else if (!state.getInstant().equals(Instant.PREVENTIVE)) {
+        } else if (!state.getInstant().equals(Instant.PREVENTIVE)) {
             Optional<PstRangeActionResultPerState> resultForPreventiveState = findActivationForPreventiveState();
 
             if (resultForPreventiveState.isPresent()) {
@@ -76,9 +73,7 @@ public class PstRangeActionResult {
 
         if (activationPerState.containsKey(state)) {
             return activationPerState.get(state).setpoint;
-        }
-
-        else if (!state.getInstant().equals(Instant.PREVENTIVE)) {
+        } else if (!state.getInstant().equals(Instant.PREVENTIVE)) {
             Optional<PstRangeActionResultPerState> resultForPreventiveState = findActivationForPreventiveState();
 
             if (resultForPreventiveState.isPresent()) {

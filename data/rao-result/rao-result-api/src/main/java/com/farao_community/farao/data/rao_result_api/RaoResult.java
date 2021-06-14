@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

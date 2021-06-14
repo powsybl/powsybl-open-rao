@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.Unit;
@@ -13,6 +19,9 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class RaoResultImpl implements RaoResult {
 
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
@@ -33,11 +42,6 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public ComputationStatus getComputationStatus() {
         return sensitivityStatus;
-    }
-
-    @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecResults.keySet();
     }
 
     @Override
@@ -92,11 +96,6 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number) {
-        return null;
-    }
-
-    @Override
     public double getVirtualCost(OptimizationState optimizationState) {
         return costResults.getOrDefault(optimizationState, DEFAULT_COST_RESULT).getVirtualCost();
     }
@@ -111,19 +110,9 @@ public class RaoResultImpl implements RaoResult {
         return costResults.getOrDefault(optimizationState, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
     }
 
-    @Override
-    public List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number) {
-        return null;
-    }
-
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
         networkActionResults.putIfAbsent(networkAction, new NetworkActionResult());
         return networkActionResults.get(networkAction);
-    }
-
-    @Override
-    public Set<NetworkAction> getNetworkActions() {
-        return networkActionResults.keySet();
     }
 
     @Override
@@ -227,5 +216,4 @@ public class RaoResultImpl implements RaoResult {
         return pstRangeActionResults.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getOptimizedSetpointOnState(state)));
     }
-
 }

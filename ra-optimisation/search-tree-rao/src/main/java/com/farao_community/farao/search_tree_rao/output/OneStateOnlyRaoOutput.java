@@ -21,12 +21,14 @@ import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 public class OneStateOnlyRaoOutput implements SearchTreeRaoResult {
     private State optimizedState;
     private PrePerimeterResult initialResult;

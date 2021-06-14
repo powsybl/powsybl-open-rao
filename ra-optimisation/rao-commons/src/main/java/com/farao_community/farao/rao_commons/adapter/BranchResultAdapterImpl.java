@@ -47,10 +47,6 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         if (absolutePtdfSumsComputation != null) {
             Map<FlowCnec, Double> ptdfsMap = absolutePtdfSumsComputation.computeAbsolutePtdfSums(flowCnecs, systematicSensitivityResult);
             ptdfs = new FlowResult() {
-                @Override
-                public Set<FlowCnec> getFlowCnecs() {
-                    return flowCnecs;
-                }
 
                 @Override
                 public double getFlow(FlowCnec flowCnec, Unit unit) {
@@ -87,11 +83,6 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
                     loopFlowCnecs
             );
             commercialFlows = new FlowResult() {
-                @Override
-                public Set<FlowCnec> getFlowCnecs() {
-                    throw new NotImplementedException();
-                }
-
                 @Override
                 public double getFlow(FlowCnec flowCnec, Unit unit) {
                     throw new NotImplementedException();

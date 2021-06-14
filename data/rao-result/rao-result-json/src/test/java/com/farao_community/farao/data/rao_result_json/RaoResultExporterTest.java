@@ -9,12 +9,10 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
-import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_impl.*;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
@@ -89,7 +87,7 @@ public class RaoResultExporterTest {
 
         new RaoResultExporter().export(raoResult, crac, new FileOutputStream(new File("/tmp/raoResult.json")));
 
-        RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(new FileInputStream(new File("/tmp/raoResult.json")), crac);
+        //RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(new FileInputStream(new File("/tmp/raoResult.json")), crac);
 
         System.out.println("coucou");
     }

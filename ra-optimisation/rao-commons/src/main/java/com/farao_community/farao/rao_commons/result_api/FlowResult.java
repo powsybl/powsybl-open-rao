@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

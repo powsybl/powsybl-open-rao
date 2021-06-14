@@ -17,7 +17,6 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResul
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static java.lang.String.format;
 

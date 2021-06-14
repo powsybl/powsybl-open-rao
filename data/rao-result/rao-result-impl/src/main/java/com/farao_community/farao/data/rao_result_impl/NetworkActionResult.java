@@ -22,7 +22,9 @@ public class NetworkActionResult {
         isActivatedInStates = new HashSet<>();
     }
 
-    public boolean isActivated(State state) {return isActivatedInStates.contains(state);}
+    public boolean isActivated(State state) {
+        return isActivatedInStates.contains(state);
+    }
 
     public Set<State> getStatesWithActivation() {
         return isActivatedInStates;
