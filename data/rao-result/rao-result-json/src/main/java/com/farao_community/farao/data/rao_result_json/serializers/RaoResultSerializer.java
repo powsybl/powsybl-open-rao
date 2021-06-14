@@ -80,7 +80,7 @@ public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
     private void serializeFlowCnecResults(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
-        List<FlowCnec> sortedListOfFlowCnecs = raoResult.getFlowCnecs().stream()
+        List<FlowCnec> sortedListOfFlowCnecs = crac.getFlowCnecs().stream()
             .sorted(Comparator.comparing(FlowCnec::getId))
             .collect(Collectors.toList());
 
@@ -147,7 +147,7 @@ public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
     private void serializeNetworkActionResults(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
-        List<NetworkAction> sortedListOfNetworkActions = raoResult.getNetworkActions().stream()
+        List<NetworkAction> sortedListOfNetworkActions = crac.getNetworkActions().stream()
             .sorted(Comparator.comparing(NetworkAction::getId))
             .collect(Collectors.toList());
 

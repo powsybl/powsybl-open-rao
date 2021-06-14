@@ -38,11 +38,6 @@ public class FlowResultImpl implements FlowResult {
     }
 
     @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getReferenceFlow(flowCnec);

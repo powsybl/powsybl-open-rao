@@ -22,11 +22,6 @@ import java.util.Set;
 public class EmptyFlowResult implements FlowResult {
 
     @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return new HashSet<>();
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {
         return Double.NaN;
     }

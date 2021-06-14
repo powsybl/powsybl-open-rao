@@ -40,11 +40,6 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return prePerimeterResult.getFlowCnecs();
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {
         return optimizationResult.getFlow(flowCnec, unit);
     }
@@ -62,11 +57,6 @@ public class PerimeterOutput implements PerimeterResult {
     @Override
     public Map<FlowCnec, Double> getPtdfZonalSums() {
         return optimizationResult.getPtdfZonalSums();
-    }
-
-    @Override
-    public Set<NetworkAction> getNetworkActions() {
-        return optimizationResult.getNetworkActions();
     }
 
     @Override

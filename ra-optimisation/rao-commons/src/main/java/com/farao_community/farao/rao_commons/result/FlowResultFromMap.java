@@ -38,12 +38,6 @@ public class FlowResultFromMap implements FlowResult {
     }
 
     @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        // not required, class only used for tests
-        return null;
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getReferenceFlow(flowCnec);

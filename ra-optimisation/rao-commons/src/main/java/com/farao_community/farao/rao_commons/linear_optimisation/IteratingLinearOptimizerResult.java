@@ -107,11 +107,6 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowResult.getFlowCnecs();
-    }
-
-    @Override
     public double getFlow(FlowCnec branchCnec, Unit unit) {
         return flowResult.getFlow(branchCnec, unit);
     }

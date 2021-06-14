@@ -15,6 +15,7 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -49,15 +50,28 @@ public interface SearchTreeRaoResult extends RaoResult {
      */
     PrePerimeterResult getInitialResult();
 
-    //todo: javadoc
-    Set<PerimeterResult> getAllPerimeterResults();
+    /**
+     * It gives an ordered list of the most constraining elements at a given {@link OptimizationState} according to the
+     * objective function defined in the RAO. They are evaluated and ordered from the functional
+     * costs of the different CNECs.
+     *
+     * @param optimizationState: The state of optimization to be studied.
+     * @param number: The size of the list to be studied, so the number of limiting elements to be retrieved.
+     * @return The ordered list of the n first limiting elements.
+     */
+    List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number);
 
-    @Override
-    default Set<FlowCnec> getFlowCnecs() {
-        Set<FlowCnec> flowCnecs = getInitialResult().getFlowCnecs();
-        getAllPerimeterResults().forEach(perimeterResult -> flowCnecs.addAll(perimeterResult.getFlowCnecs()));
-        return flowCnecs;
-    }
+    /**
+     * It gives an ordered list of the costly {@link FlowCnec} according to the specified virtual cost at a given
+     * {@link OptimizationState}. If the virtual is null the list would be empty. If the specified virtual cost does
+     * not imply any branch in its computation the list would be empty.
+     *
+     * @param optimizationState: The state of optimization to be studied.
+     * @param virtualCostName: The name of the virtual cost.
+     * @param number: The size of the list to be studied, so the number of costly elements to be retrieved.
+     * @return The ordered list of the n first costly elements according to the given virtual cost.
+     */
+    List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number);
 
     @Override
     default double getFlow(OptimizationState optimizationState, FlowCnec flowCnec, Unit unit) {
@@ -134,12 +148,5 @@ public interface SearchTreeRaoResult extends RaoResult {
     @Override
     default double getCost(OptimizationState optimizationState) {
         return getFunctionalCost(optimizationState) + getVirtualCost(optimizationState);
-    }
-
-    @Override
-    default Set<NetworkAction> getNetworkActions() {
-        Set<NetworkAction> networkActions = new HashSet<>();
-        getAllPerimeterResults().forEach(perimeterResult -> networkActions.addAll(perimeterResult.getNetworkActions()));
-        return networkActions;
     }
 }

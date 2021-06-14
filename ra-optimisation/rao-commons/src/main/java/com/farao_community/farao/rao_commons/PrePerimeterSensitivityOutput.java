@@ -47,11 +47,6 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     }
 
     @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowResult.getFlowCnecs();
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {
         return flowResult.getFlow(flowCnec, unit);
     }

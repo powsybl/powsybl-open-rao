@@ -85,13 +85,6 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public Set<PerimeterResult> getAllPerimeterResults() {
-        Set<PerimeterResult> perimeterResults = new HashSet<>(postCurativeResults.values());
-        perimeterResults.add(postPreventiveResult);
-        return perimeterResults;
-    }
-
-    @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();

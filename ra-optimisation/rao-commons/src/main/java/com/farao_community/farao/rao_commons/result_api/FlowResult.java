@@ -20,8 +20,6 @@ import java.util.Set;
  */
 public interface FlowResult {
 
-    Set<FlowCnec> getFlowCnecs();
-
     /**
      * It gives the flow on a {@link FlowCnec} and in a given {@link Unit}.
      *

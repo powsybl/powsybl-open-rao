@@ -30,9 +30,6 @@ public interface RaoResult {
 
     ComputationStatus getComputationStatus();
 
-    //todo : javadoc
-    Set<FlowCnec> getFlowCnecs();
-
     /**
      * It gives the flow on a {@link FlowCnec} at a given {@link OptimizationState} and in a
      * given {@link Unit}.
@@ -125,17 +122,6 @@ public interface RaoResult {
     double getFunctionalCost(OptimizationState optimizationState);
 
     /**
-     * It gives an ordered list of the most constraining elements at a given {@link OptimizationState} according to the
-     * objective function defined in the RAO. They are evaluated and ordered from the functional
-     * costs of the different CNECs.
-     *
-     * @param optimizationState: The state of optimization to be studied.
-     * @param number: The size of the list to be studied, so the number of limiting elements to be retrieved.
-     * @return The ordered list of the n first limiting elements.
-     */
-    List<FlowCnec> getMostLimitingElements(OptimizationState optimizationState, int number);
-
-    /**
      * It gives the sum of virtual costs of the situation at a given {@link OptimizationState} according to the
      * objective function defined in the RAO. It represents the secondary parts of the objective
      * function.
@@ -163,22 +149,6 @@ public interface RaoResult {
      * @return The specific virtual cost of the situation state.
      */
     double getVirtualCost(OptimizationState optimizationState, String virtualCostName);
-
-    /**
-     * It gives an ordered list of the costly {@link FlowCnec} according to the specified virtual cost at a given
-     * {@link OptimizationState}. If the virtual is null the list would be empty. If the specified virtual cost does
-     * not imply any branch in its computation the list would be empty.
-     *
-     * @param optimizationState: The state of optimization to be studied.
-     * @param virtualCostName: The name of the virtual cost.
-     * @param number: The size of the list to be studied, so the number of costly elements to be retrieved.
-     * @return The ordered list of the n first costly elements according to the given virtual cost.
-     */
-    List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number);
-
-
-    //todo: javadoc
-    Set<NetworkAction> getNetworkActions();
 
     /**
      * It states if the {@link NetworkAction} was already activated when a specific {@link State} is studied. Meaning

@@ -32,11 +32,6 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        throw new FaraoException("Should not be used");
-    }
-
-    @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {
         throw new FaraoException("Should not be used");
     }

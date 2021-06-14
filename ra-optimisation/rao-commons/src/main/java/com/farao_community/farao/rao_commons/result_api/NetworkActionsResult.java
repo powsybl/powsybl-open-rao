@@ -16,9 +16,6 @@ import java.util.Set;
  */
 public interface NetworkActionsResult {
 
-    //todo: javadoc
-    Set<NetworkAction> getNetworkActions();
-
     /**
      * It states if the {@link NetworkAction} is activated.
      *

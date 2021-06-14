@@ -103,11 +103,6 @@ public class OneStateOnlyRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public Set<PerimeterResult> getAllPerimeterResults() {
-        return Collections.singleton((PerimeterResult) postOptimizationResult);
-    }
-
-    @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();

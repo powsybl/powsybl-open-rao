@@ -104,7 +104,6 @@ class Leaf implements OptimizationResult {
         return status;
     }
 
-    @Override
     public Set<NetworkAction> getNetworkActions() {
         return networkActions;
     }
@@ -185,11 +184,6 @@ class Leaf implements OptimizationResult {
         }
         info += ", Status: " + status.getMessage();
         return info;
-    }
-
-    @Override
-    public Set<FlowCnec> getFlowCnecs() {
-        return preOptimFlowResult.getFlowCnecs();
     }
 
     @Override
