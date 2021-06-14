@@ -14,7 +14,11 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Set;
 
@@ -23,11 +27,17 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({LoopFlowComputationImpl.class})
 public class LoopFlowComputationWithXnodeGlskHandlerTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
     public void testCommercialFlowsWithCnecAfterDanglingLineContingency() {
+        PowerMockito.mockStatic(LoopFlowComputationImpl.class);
+        Mockito.when(LoopFlowComputationImpl.isInMainComponent(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> true);
+
         ZonalData<LinearGlsk> glsk = Mockito.mock(ZonalData.class);
         ReferenceProgram referenceProgram = Mockito.mock(ReferenceProgram.class);
         XnodeGlskHandler xnodeGlskHandler = Mockito.mock(XnodeGlskHandler.class);
