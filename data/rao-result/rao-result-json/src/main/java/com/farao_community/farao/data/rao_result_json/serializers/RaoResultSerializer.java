@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.commons.Unit;
@@ -14,7 +20,11 @@ import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
+import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
     @Override
@@ -32,7 +42,7 @@ public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
             .sorted(Comparator.comparing(FlowCnec::getId))
             .collect(Collectors.toList());
 
-        jsonGenerator.writeArrayFieldStart("flowCnecResults");
+        jsonGenerator.writeArrayFieldStart(FLOWCNEC_RESULTS);
         for (FlowCnec flowCnec : sortedListOfFlowCnecs) {
             serializeFlowCnecResult(flowCnec, raoResult, jsonGenerator);
         }
@@ -41,7 +51,7 @@ public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
     private void serializeFlowCnecResult(FlowCnec flowCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("flowCnecId", flowCnec.getId());
+        jsonGenerator.writeStringField(FLOWCNEC_ID, flowCnec.getId());
 
         serializeFlowCnecResultForOptimizationState(OptimizationState.INITIAL, flowCnec, raoResult, jsonGenerator);
         serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_PRA, flowCnec, raoResult, jsonGenerator);
@@ -52,11 +62,13 @@ public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
     private void serializeFlowCnecResultForOptimizationState(OptimizationState optState, FlowCnec flowCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
-        //todo use constant instead of optState.toString()
-        jsonGenerator.writeObjectFieldStart(optState.toString());
+        jsonGenerator.writeObjectFieldStart(serializeOptimizationState(optState));
         serializeFlowCnecResultForOptimizationStateAndUnit(optState, MEGAWATT, flowCnec, raoResult, jsonGenerator);
         serializeFlowCnecResultForOptimizationStateAndUnit(optState, AMPERE, flowCnec, raoResult, jsonGenerator);
-
+        double ptdfZonalSum = raoResult.getPtdfZonalSum(optState, flowCnec);
+        if (!Double.isNaN(ptdfZonalSum)) {
+            jsonGenerator.writeNumberField(ZONAL_PTDF_SUM, ptdfZonalSum);
+        }
         jsonGenerator.writeEndObject();
     }
 
@@ -72,22 +84,21 @@ public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
             return;
         }
 
-        //todo use constant instead of unit.toString()
-        jsonGenerator.writeObjectFieldStart(unit.toString());
+        jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         if (!Double.isNaN(flow)) {
-            jsonGenerator.writeNumberField("flow", flow);
+            jsonGenerator.writeNumberField(FLOW, flow);
         }
         if (!Double.isNaN(margin)) {
-            jsonGenerator.writeNumberField("margin", margin);
+            jsonGenerator.writeNumberField(MARGIN, margin);
         }
         if (!Double.isNaN(relativeMargin)) {
-            jsonGenerator.writeNumberField("relativeMargin", relativeMargin);
+            jsonGenerator.writeNumberField(RELATIVE_MARGIN, relativeMargin);
         }
         if (!Double.isNaN(loopFlow)) {
-            jsonGenerator.writeNumberField("loopFlow", loopFlow);
+            jsonGenerator.writeNumberField(LOOP_FLOW, loopFlow);
         }
         if (!Double.isNaN(commercialFlow)) {
-            jsonGenerator.writeNumberField("commercialFlow", commercialFlow);
+            jsonGenerator.writeNumberField(COMMERCIAL_FLOW, commercialFlow);
         }
         jsonGenerator.writeEndObject();
     }

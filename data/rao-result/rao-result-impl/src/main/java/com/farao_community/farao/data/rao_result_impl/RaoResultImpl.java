@@ -66,12 +66,8 @@ public class RaoResultImpl implements RaoResult {
 
     }
 
-    public FlowCnecResult getFlowCnecResult(FlowCnec flowCnec) {
-        return flowCnecResults.get(flowCnec);
-    }
-
-    public FlowCnecResult addResultForCnec(FlowCnec flowCnec) {
-        flowCnecResults.put(flowCnec, new FlowCnecResult());
+    public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
+        flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
         return flowCnecResults.get(flowCnec);
     }
 

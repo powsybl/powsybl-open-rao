@@ -18,7 +18,7 @@ public class FlowCnecResult {
         results = new HashMap<>();
     }
 
-    public ElementaryFlowCnecResult addElementaryResult(OptimizationState optimizationState) {
+    public ElementaryFlowCnecResult getAndCreateIfAbsentResultForOptimizationState(OptimizationState optimizationState) {
         results.putIfAbsent(optimizationState, new ElementaryFlowCnecResult());
         return results.get(optimizationState);
     }
