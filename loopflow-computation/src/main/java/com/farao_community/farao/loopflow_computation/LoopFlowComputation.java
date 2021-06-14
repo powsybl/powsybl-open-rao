@@ -14,6 +14,8 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
@@ -59,13 +61,30 @@ public class LoopFlowComputation {
 
         for (BranchCnec cnec : cnecs) {
             double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(cnec);
-            double commercialFLow = refProgGlskMap.entrySet().stream()
+            double commercialFLow = refProgGlskMap.entrySet().stream().filter(entry -> isInMainComponent(entry.getValue(), network))
                 .filter(entry -> xnodeGlskHandler.isLinearGlskValidForCnec(cnec, entry.getValue()))
                 .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), cnec) * referenceProgram.getGlobalNetPosition(entry.getKey()))
                 .sum();
             results.addCnecResult(cnec, refFlow - commercialFLow, commercialFLow, refFlow);
         }
         return results;
+    }
+
+    static boolean isInMainComponent(LinearGlsk linearGlsk, Network network) {
+        for (String glsk : linearGlsk.getGLSKs().keySet()) {
+            Generator generator = network.getGenerator(glsk);
+            if (generator != null) {
+                if (generator.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
+                    return true;
+                }
+            } else {
+                Load load = network.getLoad(glsk);
+                if (load != null && load.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private Map<EICode, LinearGlsk> buildRefProgGlskMap() {
