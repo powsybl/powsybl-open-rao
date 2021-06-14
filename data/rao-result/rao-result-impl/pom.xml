@@ -15,6 +15,7 @@
     <description>RAO result business model standard implementation</description>
 
     <dependencies>
+        <!-- Compile dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-commons</artifactId>
@@ -24,6 +25,31 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-rao-result-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-crac-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>farao-crac-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-config-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

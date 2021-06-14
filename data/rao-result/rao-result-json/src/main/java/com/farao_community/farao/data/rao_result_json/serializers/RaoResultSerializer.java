@@ -43,14 +43,42 @@ public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
     public void serialize(RaoResult raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        serializeFlowCnecsResults(raoResult, jsonGenerator);
+        jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(raoResult.getComputationStatus()));
+        serializeCostResults(raoResult, jsonGenerator);
+        serializeFlowCnecResults(raoResult, jsonGenerator);
         serializeNetworkActionResults(raoResult, jsonGenerator);
         serializeRangeActionResults(raoResult, jsonGenerator);
         jsonGenerator.writeEndObject();
 
     }
 
-    private void serializeFlowCnecsResults(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private void serializeCostResults(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+
+        jsonGenerator.writeObjectFieldStart(COST_RESULTS);
+        serializeCostResultForOptimizationState(OptimizationState.INITIAL, raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(OptimizationState.AFTER_PRA, raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(OptimizationState.AFTER_CRA, raoResult, jsonGenerator);
+        jsonGenerator.writeEndObject();
+    }
+
+    private void serializeCostResultForOptimizationState(OptimizationState optState, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+
+        jsonGenerator.writeObjectFieldStart(serializeOptimizationState(optState));
+
+        jsonGenerator.writeNumberField(FUNCTIONAL_COST, raoResult.getFunctionalCost(optState));
+
+        if (!raoResult.getVirtualCostNames().isEmpty()) {
+            jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
+
+            for (String virtualCostName : raoResult.getVirtualCostNames()) {
+                jsonGenerator.writeNumberField(virtualCostName, raoResult.getVirtualCost(optState, virtualCostName));
+            }
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndObject();
+    }
+
+    private void serializeFlowCnecResults(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
         List<FlowCnec> sortedListOfFlowCnecs = raoResult.getFlowCnecs().stream()
             .sorted(Comparator.comparing(FlowCnec::getId))

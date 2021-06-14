@@ -9,6 +9,7 @@ package com.farao_community.farao.data.rao_result_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 
 /**
@@ -18,8 +19,12 @@ public final class RaoResultJsonConstants {
 
     private RaoResultJsonConstants() { }
 
-    public static final String INSTANT = "instant";
     public static final String CONTINGENCY_ID = "contingency";
+
+    // costs
+    public static final String COST_RESULTS = "costResults";
+    public static final String FUNCTIONAL_COST = "functionalCost";
+    public static final String VIRTUAL_COSTS = "virtualCost";
 
     // flowCnecResults
     public static final String FLOWCNEC_RESULTS = "flowCnecResults";
@@ -45,7 +50,9 @@ public final class RaoResultJsonConstants {
     public static final String INITIAL_SETPOINT = "initialSetpoint";
     public static final String TAP = "tap";
     public static final String SETPOINT = "setpoint";
+
     // instants
+    public static final String INSTANT = "instant";
     public static final String PREVENTIVE_INSTANT = "preventive";
     public static final String OUTAGE_INSTANT = "outage";
     public static final String AUTO_INSTANT = "auto";
@@ -63,6 +70,12 @@ public final class RaoResultJsonConstants {
     public static final String INITIAL_OPT_STATE = "initial";
     public static final String AFTER_PRA_OPT_STATE = "afterPRA";
     public static final String AFTER_CRA_OPT_STATE = "afterCRA";
+
+    // computation statuses
+    public static final String COMPUTATION_STATUS = "computationStatus";
+    public static final String DEFAULT_STATUS = "default";
+    public static final String FALLBACK_STATUS = "fallback";
+    public static final String FAILURE_STATUS = "failure";
 
     public static String serializeUnit(Unit unit) {
         switch (unit) {
@@ -155,6 +168,32 @@ public final class RaoResultJsonConstants {
                 return OptimizationState.AFTER_CRA;
             default:
                 throw new FaraoException(String.format("Unrecognized optimization state %s", stringValue));
+        }
+    }
+
+    public static String serializeStatus(ComputationStatus computationStatus) {
+        switch (computationStatus) {
+            case DEFAULT:
+                return DEFAULT_STATUS;
+            case FALLBACK:
+                return FALLBACK_STATUS;
+            case FAILURE:
+                return FAILURE_STATUS;
+            default:
+                throw new FaraoException(String.format("Unsupported computation status %s", computationStatus));
+        }
+    }
+
+    public static ComputationStatus deserializeStatus(String stringValue) {
+        switch (stringValue) {
+            case DEFAULT_STATUS:
+                return ComputationStatus.DEFAULT;
+            case FALLBACK_STATUS:
+                return ComputationStatus.FALLBACK;
+            case FAILURE_STATUS:
+                return ComputationStatus.FAILURE;
+            default:
+                throw new FaraoException(String.format("Unrecognized computation status %s", stringValue));
         }
     }
 }

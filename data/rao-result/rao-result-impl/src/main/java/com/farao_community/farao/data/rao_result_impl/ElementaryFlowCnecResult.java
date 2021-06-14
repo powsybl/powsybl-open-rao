@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.rao_result_impl;
 
 import com.farao_community.farao.commons.FaraoException;
@@ -7,9 +13,12 @@ import com.farao_community.farao.commons.Unit;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class ElementaryFlowCnecResult {
 
-    static final FlowCnecResultPerUnit DEFAULT_RESULT = new FlowCnecResultPerUnit();
+    private static final FlowCnecResultPerUnit DEFAULT_RESULT = new FlowCnecResultPerUnit();
 
     private Map<Unit, FlowCnecResultPerUnit> resultPerUnit;
     private double ptdfZonalSum;
@@ -22,7 +31,7 @@ public class ElementaryFlowCnecResult {
         private double commercialFlow = Double.NaN;
     }
 
-    public ElementaryFlowCnecResult() {
+    ElementaryFlowCnecResult() {
         this.resultPerUnit = new HashMap<>();
         this.ptdfZonalSum = Double.NaN;
     }
@@ -86,5 +95,4 @@ public class ElementaryFlowCnecResult {
         }
         resultPerUnit.putIfAbsent(unit, new FlowCnecResultPerUnit());
     }
-
 }

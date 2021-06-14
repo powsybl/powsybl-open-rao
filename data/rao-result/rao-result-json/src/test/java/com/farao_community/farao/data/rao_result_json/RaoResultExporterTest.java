@@ -7,12 +7,10 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.data.rao_result_impl.ElementaryFlowCnecResult;
-import com.farao_community.farao.data.rao_result_impl.FlowCnecResult;
-import com.farao_community.farao.data.rao_result_impl.PstRangeActionResult;
-import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
+import com.farao_community.farao.data.rao_result_impl.*;
 import org.junit.Test;
 
 import java.io.File;
@@ -69,21 +67,31 @@ public class RaoResultExporterTest {
 
         elementaryFlowCnecResult.setPtdfZonalSum(0.1);
 
-        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getPreventiveState());
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", Instant.CURATIVE));
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE));
 
         PstRangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentPstRangeActionResult(crac.getPstRangeAction("pst"));
         pstRangeActionResult.setInitialTap(3);
         pstRangeActionResult.setInitialSetPoint(2.3);
-        pstRangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), -7, -3.2);
+        pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -7, -3.2);
+
+        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(OptimizationState.INITIAL);
+        costResult.setFunctionalCost(100.);
+        costResult.setVirtualCost("loopFlow", 0.);
+        costResult.setVirtualCost("MNEC", 0.);
+
+        costResult = raoResult.getAndCreateIfAbsentCostResult(OptimizationState.AFTER_CRA);
+        costResult.setFunctionalCost(-50.);
+        costResult.setVirtualCost("loopFlow", 10.);
+        costResult.setVirtualCost("MNEC", 2.);
+
+        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
 
         new RaoResultExporter().export(raoResult, crac, new FileOutputStream(new File("/tmp/raoResult.json")));
 
         RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(new FileInputStream(new File("/tmp/raoResult.json")), crac);
 
         System.out.println("coucou");
-
     }
 
 }

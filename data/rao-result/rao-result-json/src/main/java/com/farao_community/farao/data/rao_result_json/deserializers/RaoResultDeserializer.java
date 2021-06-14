@@ -41,6 +41,11 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
+
+                case COMPUTATION_STATUS:
+                    raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
+                    break;
+
                 case FLOWCNEC_RESULTS:
                     jsonParser.nextToken();
                     FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);

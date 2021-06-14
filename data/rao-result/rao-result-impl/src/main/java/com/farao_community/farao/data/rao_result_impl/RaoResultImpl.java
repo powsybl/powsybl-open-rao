@@ -18,11 +18,17 @@ public class RaoResultImpl implements RaoResult {
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final PstRangeActionResult DEFAULT_PSTRANGEACTION_RESULT = new PstRangeActionResult("");
+    private static final CostResult DEFAULT_COST_RESULT = new CostResult();
 
     private ComputationStatus sensitivityStatus;
     private Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private Map<PstRangeAction, PstRangeActionResult> pstRangeActionResults = new HashMap<>();
+    private Map<OptimizationState, CostResult> costResults = new HashMap<>();
+
+    public void setComputationStatus(ComputationStatus computationStatus) {
+        this.sensitivityStatus = computationStatus;
+    }
 
     @Override
     public ComputationStatus getComputationStatus() {
@@ -70,14 +76,19 @@ public class RaoResultImpl implements RaoResult {
         return flowCnecResults.get(flowCnec);
     }
 
+    public CostResult getAndCreateIfAbsentCostResult(OptimizationState optimizationState) {
+        costResults.putIfAbsent(optimizationState, new CostResult());
+        return costResults.get(optimizationState);
+    }
+
     @Override
     public double getCost(OptimizationState optimizationState) {
-        return 0;
+        return costResults.getOrDefault(optimizationState, DEFAULT_COST_RESULT).getCost();
     }
 
     @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
-        return 0;
+        return costResults.getOrDefault(optimizationState, DEFAULT_COST_RESULT).getFunctionalCost();
     }
 
     @Override
@@ -87,17 +98,17 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public double getVirtualCost(OptimizationState optimizationState) {
-        return 0;
+        return costResults.getOrDefault(optimizationState, DEFAULT_COST_RESULT).getVirtualCost();
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return null;
+        return costResults.values().stream().flatMap(c -> c.getVirtualCostNames().stream()).collect(Collectors.toSet());
     }
 
     @Override
     public double getVirtualCost(OptimizationState optimizationState, String virtualCostName) {
-        return 0;
+        return costResults.getOrDefault(optimizationState, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
     }
 
     @Override
