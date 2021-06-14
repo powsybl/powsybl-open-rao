@@ -10,20 +10,19 @@ import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RaoResultImpl implements RaoResult {
 
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
+    private static final PstRangeActionResult DEFAULT_PSTRANGEACTION_RESULT = new PstRangeActionResult("");
 
     private ComputationStatus sensitivityStatus;
     private Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
+    private Map<PstRangeAction, PstRangeActionResult> pstRangeActionResults = new HashMap<>();
 
     @Override
     public ComputationStatus getComputationStatus() {
@@ -106,6 +105,16 @@ public class RaoResultImpl implements RaoResult {
         return null;
     }
 
+    public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
+        networkActionResults.putIfAbsent(networkAction, new NetworkActionResult());
+        return networkActionResults.get(networkAction);
+    }
+
+    @Override
+    public Set<NetworkAction> getNetworkActions() {
+        return networkActionResults.keySet();
+    }
+
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         if (state.isPreventive() || state.getContingency().isEmpty()) {
@@ -114,13 +123,13 @@ public class RaoResultImpl implements RaoResult {
 
         // if it is activated in the preventive state, return true
         if (networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT)
-            .getIsBeingActivatedStates().stream()
+            .getStatesWithActivation().stream()
             .anyMatch(State::isPreventive)) {
             return true;
         }
 
         return networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT)
-            .getIsBeingActivatedStates().stream()
+            .getStatesWithActivation().stream()
             .filter(st -> st.getContingency().isPresent())
             .filter(st -> st.getInstant().getOrder() < state.getInstant().getOrder())
             .anyMatch(st -> st.getContingency().get().getId().equals(state.getContingency().get().getId()));
@@ -128,55 +137,84 @@ public class RaoResultImpl implements RaoResult {
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        return networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT).getIsBeingActivatedStates().contains(state);
+        return networkActionResults.getOrDefault(networkAction, DEFAULT_NETWORKACTION_RESULT).getStatesWithActivation().contains(state);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         return networkActionResults.entrySet().stream()
-            .filter(e -> e.getValue().getIsBeingActivatedStates().contains(state))
+            .filter(e -> e.getValue().getStatesWithActivation().contains(state))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
 
+    public PstRangeActionResult getAndCreateIfAbsentPstRangeActionResult(PstRangeAction pstRangeAction) {
+        pstRangeActionResults.putIfAbsent(pstRangeAction, new PstRangeActionResult(pstRangeAction.getNetworkElement().getId()));
+        return pstRangeActionResults.get(pstRangeAction);
+    }
+
     @Override
     public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
+
+        if (rangeAction instanceof PstRangeAction) {
+            PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+            return pstRangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT).isActivatedDuringState(state);
+        }
+        // only handle PstRangeAction
         return false;
     }
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        return 0;
+        return pstRangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT).getPreOptimizedTapOnState(state);
     }
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        return 0;
+        return pstRangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT).getOptimizedTapOnState(state);
     }
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
-        return 0;
+
+        if (rangeAction instanceof PstRangeAction) {
+            PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+            return pstRangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT).getPreOptimizedSetpointOnState(state);
+        }
+        // only handle PstRangeAction
+        return Double.NaN;
     }
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
-        return 0;
+
+        if (rangeAction instanceof PstRangeAction) {
+            PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+            return pstRangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT).getOptimizedSetpointOnState(state);
+        }
+        // only handle PstRangeAction
+        return Double.NaN;
     }
 
     @Override
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
-        return null;
+        return pstRangeActionResults.entrySet().stream()
+            .filter(e -> e.getValue().isActivatedDuringState(state))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
+
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return null;
+        return pstRangeActionResults.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getOptimizedTapOnState(state)));
     }
 
     @Override
     public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
-        return null;
+        return pstRangeActionResults.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getOptimizedSetpointOnState(state)));
     }
 
 }

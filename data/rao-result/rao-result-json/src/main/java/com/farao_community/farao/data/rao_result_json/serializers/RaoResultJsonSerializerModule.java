@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.rao_result_json.serializers;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -15,8 +16,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  */
 public class RaoResultJsonSerializerModule extends SimpleModule {
 
-    public RaoResultJsonSerializerModule() {
+    public RaoResultJsonSerializerModule(Crac crac) {
         super();
-        this.addSerializer(RaoResult.class, new RaoResultSerializer());
+        this.addSerializer(RaoResult.class, new RaoResultSerializer(crac));
     }
 }

@@ -21,6 +21,7 @@ import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -99,6 +100,11 @@ public class OneStateOnlyRaoOutput implements SearchTreeRaoResult {
 
     public PrePerimeterResult getInitialResult() {
         return initialResult;
+    }
+
+    @Override
+    public Set<PerimeterResult> getAllPerimeterResults() {
+        return Collections.singleton((PerimeterResult) postOptimizationResult);
     }
 
     @Override

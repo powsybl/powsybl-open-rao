@@ -7,7 +7,13 @@
 package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -27,16 +33,24 @@ import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConsta
  */
 public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
+    private Crac crac;
+
+    RaoResultSerializer(Crac crac) {
+        this.crac = crac;
+    }
+
     @Override
     public void serialize(RaoResult raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        serializeFlowCnecsResult(raoResult, jsonGenerator);
+        serializeFlowCnecsResults(raoResult, jsonGenerator);
+        serializeNetworkActionResults(raoResult, jsonGenerator);
+        serializeRangeActionResults(raoResult, jsonGenerator);
         jsonGenerator.writeEndObject();
 
     }
 
-    private void serializeFlowCnecsResult(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private void serializeFlowCnecsResults(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
         List<FlowCnec> sortedListOfFlowCnecs = raoResult.getFlowCnecs().stream()
             .sorted(Comparator.comparing(FlowCnec::getId))
@@ -102,4 +116,110 @@ public class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         }
         jsonGenerator.writeEndObject();
     }
+
+    private void serializeNetworkActionResults(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+
+        List<NetworkAction> sortedListOfNetworkActions = raoResult.getNetworkActions().stream()
+            .sorted(Comparator.comparing(NetworkAction::getId))
+            .collect(Collectors.toList());
+
+        jsonGenerator.writeArrayFieldStart(NETWORKACTION_RESULTS);
+        for (NetworkAction networkAction : sortedListOfNetworkActions) {
+            serializeNetworkActionResult(networkAction, raoResult, jsonGenerator);
+        }
+        jsonGenerator.writeEndArray();
+    }
+
+    private void serializeNetworkActionResult(NetworkAction networkAction, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField(NETWORKACTION_ID, networkAction.getId());
+
+        List<State> statesWhenNetworkActionIsActivated = crac.getStates().stream()
+            .filter(state -> raoResult.isActivatedDuringState(state, networkAction))
+            .sorted(getStateComparatorForJson())
+            .collect(Collectors.toList());
+
+        jsonGenerator.writeArrayFieldStart(STATES_ACTIVATED_NETWORKACTION);
+        for (State state: statesWhenNetworkActionIsActivated) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
+            if (state.getContingency().isPresent()) {
+                jsonGenerator.writeStringField(CONTINGENCY_ID, state.getContingency().get().getId());
+
+            }
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeEndObject();
+    }
+
+    private void serializeRangeActionResults(RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+
+        List<PstRangeAction> sortedListOfRangeActions = crac.getPstRangeActions().stream()
+            .sorted(Comparator.comparing(RangeAction::getId))
+            .collect(Collectors.toList());
+
+        jsonGenerator.writeArrayFieldStart(PSTRANGEACTION_RESULTS);
+        for (PstRangeAction pstRangeAction : sortedListOfRangeActions) {
+            serializeRangeActionResult(pstRangeAction, raoResult, jsonGenerator);
+        }
+        jsonGenerator.writeEndArray();
+    }
+
+    private void serializeRangeActionResult(PstRangeAction pstRangeAction, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField(PSTRANGEACTION_ID, pstRangeAction.getId());
+        jsonGenerator.writeStringField(PST_NETWORKELEMENT_ID, pstRangeAction.getNetworkElement().getId());
+
+        double initialTap = raoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pstRangeAction);
+        double initialSetpoint = raoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pstRangeAction);
+
+        if (!Double.isNaN(initialTap)) {
+            jsonGenerator.writeNumberField(INITIAL_TAP, initialTap);
+        }
+        if (!Double.isNaN(initialSetpoint)) {
+            jsonGenerator.writeNumberField(INITIAL_SETPOINT, initialSetpoint);
+        }
+
+        List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
+            .filter(state -> raoResult.isActivatedDuringState(state, pstRangeAction))
+            .sorted(getStateComparatorForJson())
+            .collect(Collectors.toList());
+
+        jsonGenerator.writeArrayFieldStart(STATES_ACTIVATED_PSTRANGEACTION);
+        for (State state: statesWhenRangeActionIsActivated) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
+
+            int tap = raoResult.getOptimizedTapOnState(state, pstRangeAction);
+            double setpoint = raoResult.getOptimizedSetPointOnState(state, pstRangeAction);
+
+            if (state.getContingency().isPresent()) {
+                jsonGenerator.writeStringField(CONTINGENCY_ID, state.getContingency().get().getId());
+            }
+            jsonGenerator.writeNumberField(TAP, tap);
+            if (!Double.isNaN(setpoint)) {
+                jsonGenerator.writeNumberField(SETPOINT, setpoint);
+            }
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
+        jsonGenerator.writeEndObject();
+    }
+
+    private static Comparator<State> getStateComparatorForJson() {
+        return  (s1, s2) -> {
+            if (s1.getInstant().getOrder() != s2.getInstant().getOrder()) {
+                return s1.compareTo(s2);
+            } else if (s1.getInstant().equals(Instant.PREVENTIVE)) {
+                return 0;
+            } else {
+                return s1.getContingency().get().getId().compareTo(s2.getContingency().get().getId());
+            }
+        };
+    }
+
 }

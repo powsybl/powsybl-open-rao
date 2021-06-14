@@ -51,6 +51,11 @@ public class FailedRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
+    public Set<PerimeterResult> getAllPerimeterResults() {
+        throw new FaraoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
     public double getFunctionalCost(OptimizationState optimizationState) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }

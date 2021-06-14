@@ -2,11 +2,16 @@ package com.farao_community.farao.data.rao_result_json;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_impl.ElementaryFlowCnecResult;
 import com.farao_community.farao.data.rao_result_impl.FlowCnecResult;
+import com.farao_community.farao.data.rao_result_impl.PstRangeActionResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import org.junit.Test;
 
@@ -20,7 +25,14 @@ public class RaoResultExporterTest {
     @Test
     public void testExport() throws FileNotFoundException {
 
-        Crac crac = CommonCracCreation.create();
+        Crac crac = CommonCracCreation.createWithCurativePstRange();
+
+        NetworkAction na = crac.newNetworkAction().withId("na-id")
+            .newTopologicalAction().withNetworkElement("any").withActionType(ActionType.OPEN).add()
+            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newFreeToUseUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+
         RaoResultImpl raoResult = new RaoResultImpl();
 
         FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(crac.getFlowCnec("cnec1basecase"));
@@ -57,8 +69,16 @@ public class RaoResultExporterTest {
 
         elementaryFlowCnecResult.setPtdfZonalSum(0.1);
 
+        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getPreventiveState());
+        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", Instant.CURATIVE));
+        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE));
 
-        new RaoResultExporter().export(raoResult, new FileOutputStream(new File("/tmp/raoResult.json")));
+        PstRangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentPstRangeActionResult(crac.getPstRangeAction("pst"));
+        pstRangeActionResult.setInitialTap(3);
+        pstRangeActionResult.setInitialSetPoint(2.3);
+        pstRangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE), -7, -3.2);
+
+        new RaoResultExporter().export(raoResult, crac, new FileOutputStream(new File("/tmp/raoResult.json")));
 
         RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(new FileInputStream(new File("/tmp/raoResult.json")), crac);
 

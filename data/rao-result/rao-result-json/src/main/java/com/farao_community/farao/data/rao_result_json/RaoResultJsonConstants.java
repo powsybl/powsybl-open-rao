@@ -14,9 +14,12 @@ import com.farao_community.farao.data.rao_result_api.OptimizationState;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RaoResultJsonConstants {
+public final class RaoResultJsonConstants {
 
     private RaoResultJsonConstants() { }
+
+    public static final String INSTANT = "instant";
+    public static final String CONTINGENCY_ID = "contingency";
 
     // flowCnecResults
     public static final String FLOWCNEC_RESULTS = "flowCnecResults";
@@ -28,6 +31,20 @@ public class RaoResultJsonConstants {
     public static final String LOOP_FLOW = "loopFlow";
     public static final String ZONAL_PTDF_SUM = "zonalPtdfSum";
 
+    // networkActionResults
+    public static final String NETWORKACTION_RESULTS = "networkActionResults";
+    public static final String NETWORKACTION_ID = "networkActionId";
+    public static final String STATES_ACTIVATED_NETWORKACTION = "activatedStates";
+
+    // rangeActionResults
+    public static final String PSTRANGEACTION_RESULTS = "pstRangeActionResults";
+    public static final String PSTRANGEACTION_ID = "pstRangeActionId";
+    public static final String PST_NETWORKELEMENT_ID = "pstNetworkElementId";
+    public static final String STATES_ACTIVATED_PSTRANGEACTION = "activatedStates";
+    public static final String INITIAL_TAP = "initialTap";
+    public static final String INITIAL_SETPOINT = "initialSetpoint";
+    public static final String TAP = "tap";
+    public static final String SETPOINT = "setpoint";
     // instants
     public static final String PREVENTIVE_INSTANT = "preventive";
     public static final String OUTAGE_INSTANT = "outage";

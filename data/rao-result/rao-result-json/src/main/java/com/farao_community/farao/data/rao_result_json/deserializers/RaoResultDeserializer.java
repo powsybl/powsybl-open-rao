@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
-import com.farao_community.farao.data.rao_result_json.RaoResultImporter;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -19,7 +18,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.io.IOException;
 
-import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.FLOWCNEC_RESULTS;
+import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -45,6 +44,16 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                 case FLOWCNEC_RESULTS:
                     jsonParser.nextToken();
                     FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    break;
+
+                case NETWORKACTION_RESULTS:
+                    jsonParser.nextToken();
+                    NetworkActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    break;
+
+                case PSTRANGEACTION_RESULTS:
+                    jsonParser.nextToken();
+                    PstRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
                     break;
 
                 default:

@@ -19,6 +19,7 @@ import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,9 @@ import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
 
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     private PrePerimeterResult initialResult;
     private PerimeterResult postPreventiveResult;
@@ -78,6 +82,13 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     @Override
     public PrePerimeterResult getInitialResult() {
         return initialResult;
+    }
+
+    @Override
+    public Set<PerimeterResult> getAllPerimeterResults() {
+        Set<PerimeterResult> perimeterResults = new HashSet<>(postCurativeResults.values());
+        perimeterResults.add(postPreventiveResult);
+        return perimeterResults;
     }
 
     @Override

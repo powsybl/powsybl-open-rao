@@ -65,6 +65,11 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
+    public Set<NetworkAction> getNetworkActions() {
+        return optimizationResult.getNetworkActions();
+    }
+
+    @Override
     public boolean isActivated(NetworkAction networkAction) {
         return optimizationResult.isActivated(networkAction);
     }

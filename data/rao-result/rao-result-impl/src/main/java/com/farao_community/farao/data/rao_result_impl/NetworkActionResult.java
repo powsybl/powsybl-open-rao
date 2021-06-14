@@ -13,15 +13,15 @@ public class NetworkActionResult {
         isBeingActivatedStates = new HashSet<>();
     }
 
-    public Set<State> getIsBeingActivatedStates() {
+    public Set<State> getStatesWithActivation() {
         return isBeingActivatedStates;
     }
 
-    public void addStateDuringWhichActionIsActivated(State state) {
+    public void addActivationForState(State state) {
         isBeingActivatedStates.add(state);
     }
 
-    public void addStatesDuringWhichActionIsActivated(Set<State> states) {
+    public void addActivationForStates(Set<State> states) {
         isBeingActivatedStates.addAll(states);
     }
 

@@ -25,6 +25,7 @@ public class EmptyFlowResult implements FlowResult {
     public Set<FlowCnec> getFlowCnecs() {
         return new HashSet<>();
     }
+
     @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {
         return Double.NaN;

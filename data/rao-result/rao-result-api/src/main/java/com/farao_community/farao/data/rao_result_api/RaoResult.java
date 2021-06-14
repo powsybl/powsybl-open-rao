@@ -30,6 +30,7 @@ public interface RaoResult {
 
     ComputationStatus getComputationStatus();
 
+    //todo : javadoc
     Set<FlowCnec> getFlowCnecs();
 
     /**
@@ -174,6 +175,10 @@ public interface RaoResult {
      * @return The ordered list of the n first costly elements according to the given virtual cost.
      */
     List<FlowCnec> getCostlyElements(OptimizationState optimizationState, String virtualCostName, int number);
+
+
+    //todo: javadoc
+    Set<NetworkAction> getNetworkActions();
 
     /**
      * It states if the {@link NetworkAction} was already activated when a specific {@link State} is studied. Meaning
