@@ -125,23 +125,50 @@ public class CoreProblemFiller implements ProblemFiller {
      * the least impact on the most limiting element
      */
     private static Set<RangeAction> removeRangeActionsIfMaxNumberReached(Set<RangeAction> rangeActionsToFilter, RaoData raoData, Map<String, Integer> maxPstPerTso) {
-        Set<RangeAction> filteredRangeActions = new HashSet<>(rangeActionsToFilter);
+        Set<RangeAction> rangeActionsToOptimize = new HashSet<>();
         if (!Objects.isNull(maxPstPerTso) && !maxPstPerTso.isEmpty()) {
             RaoParameters.ObjectiveFunction objFunction = raoData.getRaoParameters().getObjectiveFunction();
             BranchCnec mostLimitingElement = RaoUtil.getMostLimitingElement(raoData.getCnecs(), raoData.getWorkingVariantId(), objFunction.getUnit(), objFunction.relativePositiveMargins());
-            maxPstPerTso.forEach((String tso, Integer maxPst) -> {
+            // First add range actions for operators not in the map
+            rangeActionsToOptimize.addAll(rangeActionsToFilter.stream().filter(rangeAction -> !maxPstPerTso.containsKey(rangeAction.getOperator())).collect(Collectors.toSet()));
+            // Next filter the other ones depending on their sensitivity
+            maxPstPerTso.forEach((tso, maxPst) -> {
                 Set<RangeAction> pstsForTso = rangeActionsToFilter.stream()
                         .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
                         .collect(Collectors.toSet());
                 if (pstsForTso.size() > maxPst) {
                     LOGGER.debug("{} range actions will be filtered out, in order to respect the maximum number of range actions of {} for TSO {}", pstsForTso.size() - maxPst, maxPst, tso);
-                    pstsForTso.stream().sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, raoData))
-                            .collect(Collectors.toList()).subList(0, pstsForTso.size() - maxPst)
-                            .forEach(filteredRangeActions::remove);
+                    // If in previous depth some RangeActions were activated, consider them optimizable and decrement the allowed number of PSTs
+                    // We have to do this because at the end of every depth, we apply optimal RangeActions for the next depth
+                    Set<RangeAction> appliedRangeActionsForTso = rangeActionsToFilter.stream().filter(rangeAction -> rangeAction.getOperator().equals(tso)
+                            && isRangeActionUsed(rangeAction, raoData)).collect(Collectors.toSet());
+                    rangeActionsToOptimize.addAll(appliedRangeActionsForTso);
+                    pstsForTso.removeAll(appliedRangeActionsForTso);
+                    int pstLimit = maxPst - appliedRangeActionsForTso.size();
+                    rangeActionsToOptimize.addAll(pstsForTso.stream()
+                            .sorted((ra1, ra2) -> compareAbsoluteSensitivities(ra1, ra2, mostLimitingElement, raoData))
+                            .collect(Collectors.toList()).subList(pstsForTso.size() - pstLimit, pstsForTso.size()));
+                } else {
+                    rangeActionsToOptimize.addAll(pstsForTso);
                 }
             });
+            return rangeActionsToOptimize;
+        } else {
+            return new HashSet<>(rangeActionsToFilter);
         }
-        return filteredRangeActions;
+    }
+
+    private static boolean isRangeActionUsed(RangeAction rangeAction, RaoData raoData) {
+        double setpoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(raoData.getWorkingVariantId()).getSetPoint(raoData.getOptimizedState().getId());
+        String prePerimeterVariantId = raoData.getCrac().getExtension(ResultVariantManager.class).getPrePerimeterVariantId();
+        double initialSetpoint = rangeAction.getExtension(RangeActionResultExtension.class).getVariant(prePerimeterVariantId).getSetPoint(raoData.getOptimizedState().getId());
+        if (Double.isNaN(setpoint)) {
+            return false;
+        } else if (Double.isNaN(initialSetpoint)) {
+            return true;
+        } else {
+            return Math.abs(initialSetpoint - setpoint) > 1e-6;
+        }
     }
 
     static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, BranchCnec cnec, RaoData raoData) {

@@ -570,6 +570,28 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.NEGATIVE));
     }
 
+    @Test
+    public void testFilterPst1AlreadyUsed() {
+        setUpWithTwoPsts();
+        String newVariant = raoData.getCracVariantManager().cloneWorkingVariant();
+        raoData.getCracVariantManager().setWorkingVariant(newVariant);
+        raoData.getCracResultManager().fillRangeActionResultsWithNetworkValues();
+        rangeAction1.getExtension(RangeActionResultExtension.class).getVariant(newVariant).setSetPoint(raoData.getOptimizedState().getId(), 100.);
+
+        // One PST can be used, cnec2 is most limiting, rangeAction2 has a larger sensitivity on cnec2
+        // But PST1 has already been used => filter out PST2
+        coreProblemFiller = new CoreProblemFiller(0, Map.of("FR", 1));
+        coreProblemFiller.fill(raoData, linearProblem);
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction1));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction2));
+        assertNotNull(linearProblem.getRangeActionSetPointVariable(rangeAction1));
+        assertNull(linearProblem.getRangeActionSetPointVariable(rangeAction2));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.POSITIVE));
+        assertNotNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction1, LinearProblem.AbsExtension.NEGATIVE));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.POSITIVE));
+        assertNull(linearProblem.getAbsoluteRangeActionVariationConstraint(rangeAction2, LinearProblem.AbsExtension.NEGATIVE));
+    }
+
     private void testFilterWrongRangeActions(int initialTapPosition, boolean shouldBeFiltered) {
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(initialTapPosition);
         initRaoData(crac.getPreventiveState());
