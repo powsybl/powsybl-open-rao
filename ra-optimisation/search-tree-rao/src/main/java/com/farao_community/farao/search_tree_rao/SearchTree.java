@@ -66,7 +66,6 @@ public class SearchTree {
     private Leaf previousDepthOptimalLeaf;
     private TreeParameters treeParameters;
     private LinearOptimizerParameters linearOptimizerParameters;
-    private AppliedRemedialActions appliedRemedialActions;
 
     void initLeaves() {
         rootLeaf = makeLeaf(network, prePerimeterOutput);
