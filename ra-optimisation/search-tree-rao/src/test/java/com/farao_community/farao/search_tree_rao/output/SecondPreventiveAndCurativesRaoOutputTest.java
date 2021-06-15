@@ -372,15 +372,14 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
     @Test
     public void testIsRangeActionActivatedDuringState() {
         assertTrue(output.isActivatedDuringState(preventiveState, rangeAction));
-        assertFalse(output.isActivatedDuringState(state1, rangeAction));
-        assertFalse(output.isActivatedDuringState(state2, rangeAction));
+        assertTrue(output.isActivatedDuringState(state1, rangeAction));
+        assertTrue(output.isActivatedDuringState(state2, rangeAction));
         assertTrue(output.isActivatedDuringState(state3, rangeAction));
 
-        when(curativeResult2.getOptimizedSetPoint(rangeAction)).thenReturn(45.6);
-        when(curativeResult2.getOptimizedSetPoints()).thenReturn(Map.of(rangeAction, 45.6));
+        when(curativeResult2.getOptimizedSetPoint(rangeAction)).thenReturn(55.6);
         assertTrue(output.isActivatedDuringState(preventiveState, rangeAction));
-        assertFalse(output.isActivatedDuringState(state1, rangeAction));
-        assertTrue(output.isActivatedDuringState(state2, rangeAction));
+        assertTrue(output.isActivatedDuringState(state1, rangeAction));
+        assertFalse(output.isActivatedDuringState(state2, rangeAction));
         assertTrue(output.isActivatedDuringState(state3, rangeAction));
 
         output = new SecondPreventiveAndCurativesRaoOutput(initialResult,
@@ -390,8 +389,8 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
                 Map.of(state1, curativeResult1, state2, curativeResult2),
                 Set.of(rangeAction));
         assertFalse(output.isActivatedDuringState(preventiveState, rangeAction));
-        assertFalse(output.isActivatedDuringState(state1, rangeAction));
-        assertTrue(output.isActivatedDuringState(state2, rangeAction));
+        assertTrue(output.isActivatedDuringState(state1, rangeAction));
+        assertFalse(output.isActivatedDuringState(state2, rangeAction));
         assertFalse(output.isActivatedDuringState(state3, rangeAction));
     }
 
@@ -430,10 +429,10 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
     }
 
     @Test
-    public void testgetActivatedRangeActionsDuringState() {
+    public void testGetActivatedRangeActionsDuringState() {
         assertEquals(Set.of(rangeAction), output.getActivatedRangeActionsDuringState(preventiveState));
-        assertEquals(Set.of(pstRangeAction), output.getActivatedRangeActionsDuringState(state1));
-        assertEquals(Set.of(pstRangeAction), output.getActivatedRangeActionsDuringState(state2));
+        assertEquals(Set.of(pstRangeAction, rangeAction), output.getActivatedRangeActionsDuringState(state1));
+        assertEquals(Set.of(pstRangeAction, rangeAction), output.getActivatedRangeActionsDuringState(state2));
         assertEquals(Set.of(rangeAction), output.getActivatedRangeActionsDuringState(state3));
 
         when(post2PResult.getActivatedRangeActions()).thenReturn(Set.of());
@@ -450,24 +449,38 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
     @Test
     public void testGetOptimizedTapsOnState() {
         when(post2PResult.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 222));
+
         when(curativeResult1.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 333));
+        when(curativeResult1.getOptimizedTap(pstRangeAction)).thenReturn(333);
+        // with next line, pstRangeAction should be detected as activated in state1
+        when(curativeResult1.getOptimizedSetPoint(pstRangeAction)).thenReturn(3330.);
+
         when(curativeResult2.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 444));
+        when(curativeResult2.getOptimizedTap(pstRangeAction)).thenReturn(444);
+        // with next line, pstRangeAction should not be detected as activated in state2
+        when(curativeResult2.getOptimizedSetPoint(pstRangeAction)).thenReturn(58.9);
 
         assertEquals(Map.of(pstRangeAction, 222), output.getOptimizedTapsOnState(preventiveState));
         assertEquals(Map.of(pstRangeAction, 333), output.getOptimizedTapsOnState(state1));
-        assertEquals(Map.of(pstRangeAction, 444), output.getOptimizedTapsOnState(state2));
+        assertEquals(Map.of(pstRangeAction, 22), output.getOptimizedTapsOnState(state2));
         assertEquals(Map.of(pstRangeAction, 222), output.getOptimizedTapsOnState(state3));
     }
 
     @Test
     public void testGetOptimizedSetPointsOnState() {
         when(post2PResult.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 222., rangeAction, 111.));
+
         when(curativeResult1.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 333.));
+        // with next line, pstRangeAction should be detected as activated in state1
+        when(curativeResult1.getOptimizedSetPoint(pstRangeAction)).thenReturn(333.);
+
         when(curativeResult2.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 444.));
+        // with next line, pstRangeAction should not be detected as activated in state2
+        when(curativeResult2.getOptimizedSetPoint(pstRangeAction)).thenReturn(58.9);
 
         assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(preventiveState));
-        assertEquals(Map.of(pstRangeAction, 333.), output.getOptimizedSetPointsOnState(state1));
-        assertEquals(Map.of(pstRangeAction, 444.), output.getOptimizedSetPointsOnState(state2));
+        assertEquals(Map.of(pstRangeAction, 333., rangeAction, 25.6), output.getOptimizedSetPointsOnState(state1));
+        assertEquals(Map.of(pstRangeAction, 28.9, rangeAction, 25.6), output.getOptimizedSetPointsOnState(state2));
         assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(state3));
     }
 
