@@ -51,8 +51,9 @@ final class SystematicSensitivityAdapter {
 
         LOGGER.debug("Systematic sensitivity analysis with applied RA [start]");
 
-        Set<State> statesWithoutRa = getStatesWithoutRa(appliedRemedialActions, cnecSensitivityProvider);
         Set<State> statesWithRa = appliedRemedialActions.getStatesWithRa();
+        Set<State> statesWithoutRa = cnecSensitivityProvider.getFlowCnecs().stream().map(Cnec::getState).collect(Collectors.toSet());
+        statesWithoutRa.removeAll(statesWithRa);
 
         // systematic analysis for states without RA
         LOGGER.debug("... (1/{}) {} state(s) without RA ", statesWithRa.size() + 1, statesWithoutRa.size());
@@ -66,17 +67,18 @@ final class SystematicSensitivityAdapter {
         result.completeData(SensitivityAnalysis.run(network, cnecSensitivityProvider, contingenciesWithoutRa, sensitivityComputationParameters));
 
         // systematic analyses for states with RA
+        cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
         String workingVariantId = network.getVariantManager().getWorkingVariantId();
         int counterForLogs = 2;
         for (State state : appliedRemedialActions.getStatesWithRa()) {
 
-            if (state.getContingency().isEmpty()) {
+            Optional<com.farao_community.farao.data.crac_api.Contingency> optContingency = state.getContingency();
+
+            if (optContingency.isEmpty()) {
                 throw new FaraoException("Sensitivity analysis with applied RA does not handled preventive RA.");
             }
 
-            com.farao_community.farao.data.crac_api.Contingency contingency = state.getContingency().get();
-
-            LOGGER.debug("... ({}/{}) curative state {}", counterForLogs, appliedRemedialActions.getStatesWithRa().size() + 1, contingency.getId());
+            LOGGER.debug("... ({}/{}) curative state {}", counterForLogs, appliedRemedialActions.getStatesWithRa().size() + 1, optContingency.get().getId());
 
             String variantForState = RandomizedString.getRandomizedString();
             network.getVariantManager().cloneVariant(workingVariantId, variantForState);
@@ -84,7 +86,7 @@ final class SystematicSensitivityAdapter {
 
             appliedRemedialActions.applyOnNetwork(state, network);
 
-            List<Contingency> contingencyList = Collections.singletonList(convertCracContingencyToPowsybl(contingency, network));
+            List<Contingency> contingencyList = Collections.singletonList(convertCracContingencyToPowsybl(optContingency.get(), network));
 
             result.completeData(SensitivityAnalysis.run(network, variantForState, cnecSensitivityProvider, contingencyList, sensitivityComputationParameters));
             network.getVariantManager().removeVariant(variantForState);
@@ -95,11 +97,5 @@ final class SystematicSensitivityAdapter {
 
         network.getVariantManager().setWorkingVariant(workingVariantId);
         return result.postTreatIntensities();
-    }
-
-    private static Set<State> getStatesWithoutRa(AppliedRemedialActions appliedRemedialActions, CnecSensitivityProvider cnecSensitivityProvider) {
-        Set<State> states = cnecSensitivityProvider.getFlowCnecs().stream().map(Cnec::getState).collect(Collectors.toSet());
-        states.removeAll(appliedRemedialActions.getStatesWithRa());
-        return states;
     }
 }

@@ -26,6 +26,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
     protected Set<FlowCnec> cnecs;
     protected boolean factorsInMegawatt;
     protected boolean factorsInAmpere;
+    protected boolean afterContingencyOnly = false;
 
     AbstractSimpleSensitivityProvider(Set<FlowCnec> cnecs, Set<Unit> requestedUnits) {
         this.cnecs = cnecs;
@@ -63,5 +64,10 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
         return cracContingencies.stream()
             .map(contingency -> SensitivityAnalysisUtil.convertCracContingencyToPowsybl(contingency, network))
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public void disableFactorsForBaseCaseSituation() {
+        this.afterContingencyOnly = true;
     }
 }
