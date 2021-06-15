@@ -9,8 +9,11 @@ package com.farao_community.farao.data.rao_result_json;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+
+import java.util.Comparator;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -196,4 +199,16 @@ public final class RaoResultJsonConstants {
                 throw new FaraoException(String.format("Unrecognized computation status %s", stringValue));
         }
     }
+
+    // state comparator
+    public static final Comparator<State> STATE_COMPARATOR = (s1, s2) -> {
+        if (s1.getInstant().getOrder() != s2.getInstant().getOrder()) {
+            return s1.compareTo(s2);
+        } else if (s1.getInstant().equals(Instant.PREVENTIVE)) {
+            return 0;
+        } else {
+            return s1.getContingency().get().getId().compareTo(s2.getContingency().get().getId());
+        }
+    };
+
 }

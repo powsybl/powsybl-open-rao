@@ -12,7 +12,7 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RaoResultJsonSerializerModule extends SimpleModule {
 

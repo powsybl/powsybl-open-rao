@@ -32,7 +32,7 @@ public class CostResult {
     }
 
     public double getVirtualCost() {
-        return virtualCosts.isEmpty() ? Double.NaN : virtualCosts.values().stream().mapToDouble(cost -> cost).sum();
+        return virtualCosts.isEmpty() ? Double.NaN : virtualCosts.values().stream().mapToDouble(cost -> cost).filter(cost -> !Double.isNaN(cost)).sum();
     }
 
     public double getVirtualCost(String virtualCostName) {
