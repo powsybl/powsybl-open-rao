@@ -45,7 +45,8 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
     private PerimeterResult postSecondPreventiveResult; // flows computed using PRA + CRA
     private PrePerimeterResult preCurativeResult; // flows computed using PRA only
     private Map<State, OptimizationResult> postCurativeResults;
-    Set<RemedialAction> remedialActionsExcludedFromSecondPreventive; //  RAs only optimized in 1st preventive
+    private Set<RemedialAction> remedialActionsExcludedFromSecondPreventive; //  RAs only optimized in 1st preventive
+    private static final String UNKNOWN_OPTIM_STATE = "Unknown OptimizationState: %s";
 
     public SecondPreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult,
                                                  PerimeterResult postFirstPreventiveResult,
@@ -97,7 +98,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
             case AFTER_CRA:
                 return postSecondPreventiveResult.getFunctionalCost();
             default:
-                throw new FaraoException(String.format("Unknown OptimizationState: %s", optimizationState));
+                throw new FaraoException(String.format(UNKNOWN_OPTIM_STATE, optimizationState));
         }
     }
 
@@ -111,7 +112,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
             case AFTER_CRA:
                 return postSecondPreventiveResult.getMostLimitingElements(number);
             default:
-                throw new FaraoException(String.format("Unknown OptimizationState: %s", optimizationState));
+                throw new FaraoException(String.format(UNKNOWN_OPTIM_STATE, optimizationState));
         }
     }
 
@@ -125,7 +126,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
             case AFTER_CRA:
                 return postSecondPreventiveResult.getVirtualCost();
             default:
-                throw new FaraoException(String.format("Unknown OptimizationState: %s", optimizationState));
+                throw new FaraoException(String.format(UNKNOWN_OPTIM_STATE, optimizationState));
         }
     }
 
@@ -144,7 +145,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
             case AFTER_CRA:
                 return postSecondPreventiveResult.getVirtualCost(virtualCostName);
             default:
-                throw new FaraoException(String.format("Unknown OptimizationState: %s", optimizationState));
+                throw new FaraoException(String.format(UNKNOWN_OPTIM_STATE, optimizationState));
         }
     }
 
@@ -158,7 +159,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
             case AFTER_CRA:
                 return postSecondPreventiveResult.getCostlyElements(virtualCostName, number);
             default:
-                throw new FaraoException(String.format("Unknown OptimizationState: %s", optimizationState));
+                throw new FaraoException(String.format(UNKNOWN_OPTIM_STATE, optimizationState));
         }
     }
 
