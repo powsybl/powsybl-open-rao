@@ -36,7 +36,7 @@ import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILUR
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
+public class SecondPreventiveAndCurativesRaoOutput implements RaoResult<SecondPreventiveAndCurativesRaoOutput> {
     private PrePerimeterResult initialResult;
     private PerimeterResult postFirstPreventiveResult; // used for RAs optimized only during 1st preventive (excluded from 2nd)
     private PerimeterResult postSecondPreventiveResult; // flows computed using PRA + CRA
@@ -277,7 +277,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
             return postSecondPreventiveResult.getOptimizedTaps();
         } else {
             Map<PstRangeAction, Integer> optimizedTapsOnState = new HashMap<>();
-            initialResult.getRangeActions().stream().filter(rangeAction -> rangeAction instanceof PstRangeAction)
+            initialResult.getRangeActions().stream().filter(PstRangeAction.class::isInstance)
                     .forEach(rangeAction -> optimizedTapsOnState.put((PstRangeAction) rangeAction, getOptimizedTapOnState(state, (PstRangeAction) rangeAction)));
             return optimizedTapsOnState;
         }
@@ -297,7 +297,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public void addExtension(Class aClass, Extension extension) {
-
+        // not supported
     }
 
     @Override
@@ -317,7 +317,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Collection getExtensions() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
