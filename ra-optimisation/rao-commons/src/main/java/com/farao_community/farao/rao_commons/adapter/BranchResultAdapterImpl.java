@@ -111,7 +111,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         } else {
             commercialFlows = fixedCommercialFlows;
         }
-        return new FlowResultImpl(systematicSensitivityResult, flowCnecs, commercialFlows, ptdfs);
+        return new FlowResultImpl(systematicSensitivityResult, commercialFlows, ptdfs);
     }
 
     public static final class BranchResultAdpaterBuilder {

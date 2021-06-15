@@ -16,23 +16,19 @@ import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class FlowResultImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
-    private Set<FlowCnec> flowCnecs;
     private final FlowResult fixedCommercialFlows;
     private final FlowResult fixedPtdfs;
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
-                          Set<FlowCnec> flowCnecs,
                           FlowResult fixedCommercialFlows,
                           FlowResult fixedPtdfs) {
         this.systematicSensitivityResult = systematicSensitivityResult;
-        this.flowCnecs = flowCnecs;
         this.fixedCommercialFlows = fixedCommercialFlows;
         this.fixedPtdfs = fixedPtdfs;
     }

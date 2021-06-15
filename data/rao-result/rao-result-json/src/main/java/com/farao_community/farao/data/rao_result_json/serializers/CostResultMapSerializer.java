@@ -61,10 +61,7 @@ final class CostResultMapSerializer {
         if (!Double.isNaN(raoResult.getFunctionalCost(optState))) {
             return true;
         }
-        if (!Double.isNaN(raoResult.getVirtualCost(optState))) {
-            return true;
-        }
-        return false;
+        return !Double.isNaN(raoResult.getVirtualCost(optState));
     }
 
     private static boolean containAnyVirtualCostForOptimizationState(RaoResult raoResult, OptimizationState optState) {

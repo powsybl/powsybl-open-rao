@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.PhysicalParameter;
 import com.farao_community.farao.commons.Unit;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -32,7 +32,7 @@ public class ElementaryFlowCnecResult {
     }
 
     ElementaryFlowCnecResult() {
-        this.resultPerUnit = new HashMap<>();
+        this.resultPerUnit = new EnumMap<>(Unit.class);
         this.ptdfZonalSum = Double.NaN;
     }
 

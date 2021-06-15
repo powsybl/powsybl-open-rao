@@ -52,7 +52,6 @@ public class FlowResultImplTest {
 
         branchResult = new FlowResultImpl(
                 systematicSensitivityResult,
-                null,
                 fixedCommercialFlows,
                 fixedPtdfs
         );

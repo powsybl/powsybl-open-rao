@@ -33,7 +33,7 @@ public class RaoResultImpl implements RaoResult {
     private Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
     private Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private Map<PstRangeAction, PstRangeActionResult> pstRangeActionResults = new HashMap<>();
-    private Map<OptimizationState, CostResult> costResults = new HashMap<>();
+    private Map<OptimizationState, CostResult> costResults = new EnumMap<>(OptimizationState.class);
 
     public void setComputationStatus(ComputationStatus computationStatus) {
         this.sensitivityStatus = computationStatus;

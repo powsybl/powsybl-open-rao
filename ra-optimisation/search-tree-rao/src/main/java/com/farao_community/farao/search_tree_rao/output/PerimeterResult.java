@@ -30,8 +30,8 @@ public interface PerimeterResult extends OptimizationResult {
 
     default Set<PstRangeAction> getActivatedPstRangeActions() {
         return getActivatedRangeActions().stream()
-                .filter(rangeAction -> rangeAction instanceof PstRangeAction)
-                .map(rangeAction -> (PstRangeAction) rangeAction)
+                .filter(PstRangeAction.class::isInstance)
+                .map(PstRangeAction.class::cast)
                 .collect(Collectors.toSet());
     }
 }

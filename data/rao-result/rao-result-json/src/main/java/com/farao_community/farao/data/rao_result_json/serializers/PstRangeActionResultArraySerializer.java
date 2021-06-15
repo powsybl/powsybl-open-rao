@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
@@ -68,8 +70,9 @@ final class PstRangeActionResultArraySerializer {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
 
-            if (state.getContingency().isPresent()) {
-                jsonGenerator.writeStringField(CONTINGENCY_ID, state.getContingency().get().getId());
+            Optional<Contingency> optContingency = state.getContingency();
+            if (optContingency.isPresent()) {
+                jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
             }
 
             Integer tap = safeGetOptimizedTap(raoResult, state, pstRangeAction);
