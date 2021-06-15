@@ -33,14 +33,14 @@ final class PstRangeActionResultArrayDeserializer {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(PSTRANGEACTION_ID)) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: Each %s must start with an %s field", PSTRANGEACTION_RESULTS, NETWORKACTION_ID));
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", PSTRANGEACTION_RESULTS, NETWORKACTION_ID));
             }
 
             String pstRangeActionId = jsonParser.nextTextValue();
             PstRangeAction pstRangeAction = crac.getPstRangeAction(pstRangeActionId);
 
             if (pstRangeAction == null) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: Cannot deserialize RaoResult: pstRangeAction with id %s does not exist in the Crac", pstRangeActionId));
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: cannot deserialize RaoResult: pstRangeAction with id %s does not exist in the Crac", pstRangeActionId));
             }
 
             PstRangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentPstRangeActionResult(pstRangeAction);
@@ -67,7 +67,7 @@ final class PstRangeActionResultArrayDeserializer {
                         break;
 
                     default:
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: Unexpected field in %s (%s)", PSTRANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", PSTRANGEACTION_RESULTS, jsonParser.getCurrentName()));
                 }
             }
         }
@@ -104,7 +104,7 @@ final class PstRangeActionResultArrayDeserializer {
                         break;
 
                     default:
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: Unexpected field in %s (%s)", PSTRANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", PSTRANGEACTION_RESULTS, jsonParser.getCurrentName()));
                 }
             }
 

@@ -32,9 +32,10 @@ final class FlowCnecResultArrayDeserializer {
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac) throws IOException {
 
+        jsonParser.nextToken();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(FLOWCNEC_ID)) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: Each %s must start with an %s field", FLOWCNEC_RESULTS, FLOWCNEC_ID));
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", FLOWCNEC_RESULTS, FLOWCNEC_ID));
             }
 
             String flowCnecId = jsonParser.nextTextValue();
@@ -68,7 +69,7 @@ final class FlowCnecResultArrayDeserializer {
                     deserializeElementaryFlowCnecResult(jsonParser, eFlowCnecResult);
                     break;
                 default:
-                    throw new FaraoException(String.format("Unexpected field in flowCnecResult (%s), an optimization state is expected", jsonParser.getCurrentName()));
+                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s), an optimization state is expected", FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
             }
         }
     }
@@ -89,7 +90,7 @@ final class FlowCnecResultArrayDeserializer {
                     eFlowCnecResult.setPtdfZonalSum(jsonParser.getDoubleValue());
                     break;
                 default:
-                    throw new FaraoException("Unexpected field in flowCnecResult (%s)");
+                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
             }
         }
     }
@@ -118,7 +119,7 @@ final class FlowCnecResultArrayDeserializer {
                     eFlowCnecResult.setLoopFlow(jsonParser.getDoubleValue(), unit);
                     break;
                 default:
-                    throw new FaraoException(String.format("Unexpected field in flowCnecResult (%s)", jsonParser.getCurrentName()));
+                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", FLOWCNEC_RESULTS, jsonParser.getCurrentName()));
             }
         }
     }

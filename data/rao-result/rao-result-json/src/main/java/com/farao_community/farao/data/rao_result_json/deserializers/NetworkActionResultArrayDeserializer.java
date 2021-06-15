@@ -33,14 +33,14 @@ final class NetworkActionResultArrayDeserializer {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(NETWORKACTION_ID)) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: Each %s must start with an %s field", NETWORKACTION_RESULTS, NETWORKACTION_ID));
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", NETWORKACTION_RESULTS, NETWORKACTION_ID));
             }
 
             String networkActionId = jsonParser.nextTextValue();
             NetworkAction networkAction = crac.getNetworkAction(networkActionId);
 
             if (networkAction == null) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: Cannot deserialize RaoResult: networkAction with id %s does not exist in the Crac", networkActionId));
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: cannot deserialize RaoResult: networkAction with id %s does not exist in the Crac", networkActionId));
             }
 
             NetworkActionResult networkActionResult = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
@@ -51,7 +51,7 @@ final class NetworkActionResultArrayDeserializer {
                         deserializeStates(jsonParser, networkActionResult, crac);
                         break;
                     default:
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: Unexpected field in %s (%s)", NETWORKACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", NETWORKACTION_RESULTS, jsonParser.getCurrentName()));
                 }
             }
         }
@@ -75,7 +75,7 @@ final class NetworkActionResultArrayDeserializer {
                         break;
 
                     default:
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: Unexpected field in %s (%s)", NETWORKACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", NETWORKACTION_RESULTS, jsonParser.getCurrentName()));
                 }
             }
 
@@ -98,5 +98,4 @@ final class NetworkActionResultArrayDeserializer {
 
         }
     }
-
 }

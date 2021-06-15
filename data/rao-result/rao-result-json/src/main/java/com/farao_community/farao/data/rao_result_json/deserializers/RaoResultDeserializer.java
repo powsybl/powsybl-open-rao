@@ -46,6 +46,10 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
                     break;
 
+                case COST_RESULTS:
+                    jsonParser.nextToken();
+                    CostResultMapDeserializer.deserialize(jsonParser, raoResult);
+
                 case FLOWCNEC_RESULTS:
                     jsonParser.nextToken();
                     FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
@@ -62,7 +66,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
 
                 default:
-                    throw new FaraoException("Unexpected field in RaoResult: " + jsonParser.getCurrentName());
+                    throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", jsonParser.getCurrentName()));
             }
         }
         return raoResult;
