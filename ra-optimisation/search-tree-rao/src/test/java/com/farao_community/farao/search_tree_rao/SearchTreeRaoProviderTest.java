@@ -539,10 +539,12 @@ public class SearchTreeRaoProviderTest {
 
         PrePerimeterResult initialOutput = Mockito.mock(PrePerimeterResult.class);
 
+        State preventiveState = crac.getPreventiveState();
+        Set<State> optimizedStates = Set.of(preventiveState, state2);
         assertThrows(NullPointerException.class, () -> SearchTreeRaoProvider.buildSearchTreeInput(crac,
                 network,
-                crac.getPreventiveState(),
-                Set.of(crac.getPreventiveState(), state2),
+                preventiveState,
+                optimizedStates,
                 initialOutput,
                 prePerimeterResult,
                 treeParameters,

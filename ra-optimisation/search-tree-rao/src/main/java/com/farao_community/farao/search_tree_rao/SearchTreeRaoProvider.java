@@ -161,7 +161,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         Map<State, OptimizationResult> curativeResults = optimizeCurativePerimeters(raoInput, parameters, curativeTreeParameters, network, initialOutput, preCurativeSensitivityAnalysisOutput);
 
-        RaoResult mergedRaoResults;
+        RaoResult<?> mergedRaoResults;
 
         // second preventive RAO
         boolean withSecondPreventiveRao = shouldRunSecondPreventiveRao(parameters, curativeResults);
@@ -177,7 +177,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             LOGGER.info("Second preventive perimeter optimization [end]");
 
             LOGGER.info("Merging preventive and curative RAO results.");
-            Set<RemedialAction> remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
+            Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
             mergedRaoResults = new SecondPreventiveAndCurativesRaoOutput(initialOutput, preventiveResult, secondPreventiveResult, preCurativeSensitivityAnalysisOutput, curativeResults, remedialActionsExcluded);
         } else {
             LOGGER.info("Merging preventive and curative RAO results.");

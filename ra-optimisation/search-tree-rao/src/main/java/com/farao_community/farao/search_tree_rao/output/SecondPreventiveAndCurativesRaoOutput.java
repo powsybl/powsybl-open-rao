@@ -45,7 +45,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
     private PerimeterResult postSecondPreventiveResult; // flows computed using PRA + CRA
     private PrePerimeterResult preCurativeResult; // flows computed using PRA only
     private Map<State, OptimizationResult> postCurativeResults;
-    private Set<RemedialAction> remedialActionsExcludedFromSecondPreventive; //  RAs only optimized in 1st preventive
+    private Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive; //  RAs only optimized in 1st preventive
     private static final String UNKNOWN_OPTIM_STATE = "Unknown OptimizationState: %s";
 
     public SecondPreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult,
@@ -53,7 +53,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult {
                                                  PerimeterResult postSecondPreventiveResult,
                                                  PrePerimeterResult preCurativeResult,
                                                  Map<State, OptimizationResult> postCurativeResults,
-                                                 Set<RemedialAction> remedialActionsExcludedFromSecondPreventive) {
+                                                 Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive) {
         this.initialResult = initialResult;
         this.postFirstPreventiveResult = postFirstPreventiveResult;
         this.postSecondPreventiveResult = postSecondPreventiveResult;
