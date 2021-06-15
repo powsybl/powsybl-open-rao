@@ -19,10 +19,7 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_impl.*;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -30,7 +27,9 @@ import java.io.FileOutputStream;
 public class RaoResultExporterTest {
 
     @Test
-    public void testExport() throws FileNotFoundException {
+    public void testExport() {
+
+        //todo : split in smaller testCases which focus in more details each element of the RaoResult
 
         Crac crac = CommonCracCreation.createWithCurativePstRange();
 
@@ -96,10 +95,15 @@ public class RaoResultExporterTest {
 
         raoResult.setComputationStatus(ComputationStatus.DEFAULT);
 
-        new RaoResultExporter().export(raoResult, crac, new FileOutputStream(new File("/tmp/raoResult.json")));
+        // export RaoResult
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        new RaoResultExporter().export(raoResult, crac, outputStream);
 
-        RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(new FileInputStream(new File("/tmp/raoResult.json")), crac);
+        // import RaoResult
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        RaoResult importedRaoResult = new RaoResultImporter().importRaoResult(inputStream, crac);
 
+        //todo: test importedRaoResult
         System.out.println("coucou");
     }
 
