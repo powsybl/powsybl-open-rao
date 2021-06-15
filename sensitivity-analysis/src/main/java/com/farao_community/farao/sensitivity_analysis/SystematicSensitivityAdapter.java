@@ -88,7 +88,7 @@ final class SystematicSensitivityAdapter {
 
             List<Contingency> contingencyList = Collections.singletonList(convertCracContingencyToPowsybl(optContingency.get(), network));
 
-            result.completeData(SensitivityAnalysis.run(network, variantForState, cnecSensitivityProvider, contingencyList, sensitivityComputationParameters));
+            result.completeData(SensitivityAnalysis.run(network, variantForState, cnecSensitivityProvider, contingencyList, sensitivityComputationParameters), true);
             network.getVariantManager().removeVariant(variantForState);
             counterForLogs++;
         }

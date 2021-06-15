@@ -6,9 +6,10 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityValue;
@@ -58,23 +59,29 @@ public class SystematicSensitivityResult {
     private SensitivityComputationStatus status;
     private final StateResult nStateResult = new StateResult();
     private final Map<String, StateResult> contingencyResults = new HashMap<>();
+    private final Map<String, StateResult> contingencyResultsAfterCra = new HashMap<>();
 
     public SystematicSensitivityResult() {
         this.status = SensitivityComputationStatus.SUCCESS;
     }
 
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results) {
+        return completeData(results, false);
+    }
+
+    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, boolean afterCra) {
 
         if (results == null || !results.isOk()) {
             this.status = SensitivityComputationStatus.FAILURE;
             return this;
         }
 
+        Map<String, StateResult> contingencyResultsToFill = afterCra ? contingencyResultsAfterCra : contingencyResults;
         results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult));
         results.getSensitivityValuesContingencies().forEach((contingencyId, sensitivityValues) -> {
             StateResult contingencyStateResult = new StateResult();
             sensitivityValues.forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult));
-            contingencyResults.put(contingencyId, contingencyStateResult);
+            contingencyResultsToFill.put(contingencyId, contingencyStateResult);
         });
 
         return this;
@@ -83,6 +90,7 @@ public class SystematicSensitivityResult {
     public SystematicSensitivityResult postTreatIntensities() {
         postTreatIntensitiesOnState(nStateResult);
         contingencyResults.values().forEach(this::postTreatIntensitiesOnState);
+        contingencyResultsAfterCra.values().forEach(this::postTreatIntensitiesOnState);
         return this;
     }
 
@@ -183,7 +191,11 @@ public class SystematicSensitivityResult {
     private StateResult getCnecStateResult(Cnec<?> cnec) {
         Optional<Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
-            return contingencyResults.get(optionalContingency.get().getId());
+            if (cnec.getState().getInstant().equals(Instant.CURATIVE) && contingencyResultsAfterCra.containsKey(optionalContingency.get().getId())) {
+                return contingencyResultsAfterCra.get(optionalContingency.get().getId());
+            } else {
+                return contingencyResults.get(optionalContingency.get().getId());
+            }
         } else {
             return nStateResult;
         }
