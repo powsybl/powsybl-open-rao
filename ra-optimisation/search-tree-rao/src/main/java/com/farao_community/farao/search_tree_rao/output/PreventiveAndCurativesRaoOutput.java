@@ -19,6 +19,7 @@ import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -125,7 +126,18 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return initialResult.getVirtualCostNames();
+        Set<String> virtualCostNames = new HashSet<>();
+        if (initialResult.getVirtualCostNames() != null) {
+            virtualCostNames.addAll(initialResult.getVirtualCostNames());
+        }
+        if (postPreventiveResult.getVirtualCostNames() != null) {
+            virtualCostNames.addAll(postPreventiveResult.getVirtualCostNames());
+        }
+        postCurativeResults.values().stream()
+            .filter(perimeterResult -> perimeterResult.getVirtualCostNames() != null)
+            .forEach(perimeterResult -> virtualCostNames.addAll(perimeterResult.getVirtualCostNames()));
+
+        return virtualCostNames;
     }
 
     @Override
@@ -162,8 +174,10 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedNetworkActions().contains(networkAction);
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postCurativeResults.get(state).getActivatedNetworkActions().contains(networkAction);
+        } else {
+            return false;
         }
     }
 
@@ -171,8 +185,10 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedNetworkActions();
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postCurativeResults.get(state).getActivatedNetworkActions();
+        } else {
+            return new HashSet<>();
         }
     }
 
@@ -180,8 +196,10 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedRangeActions().contains(rangeAction);
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postCurativeResults.get(state).getActivatedRangeActions().contains(rangeAction);
+        } else {
+            return false;
         }
     }
 
@@ -225,8 +243,10 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postCurativeResults.get(state).getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
+        } else {
+            return new HashSet<>();
         }
     }
 

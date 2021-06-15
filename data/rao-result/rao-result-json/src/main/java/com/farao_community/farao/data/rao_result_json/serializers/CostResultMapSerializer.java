@@ -11,6 +11,7 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.VIRTUAL_COSTS;
@@ -67,7 +68,7 @@ final class CostResultMapSerializer {
     }
 
     private static boolean containAnyVirtualCostForOptimizationState(RaoResult raoResult, OptimizationState optState) {
-        return raoResult.getVirtualCostNames().stream()
-            .anyMatch(costName -> !Double.isNaN(raoResult.getVirtualCost(optState, costName)));
+        return !Objects.isNull(raoResult.getVirtualCostNames()) &&
+            raoResult.getVirtualCostNames().stream().anyMatch(costName -> !Double.isNaN(raoResult.getVirtualCost(optState, costName)));
     }
 }

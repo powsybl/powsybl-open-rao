@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_json.serializers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -47,10 +48,10 @@ final class PstRangeActionResultArraySerializer {
         jsonGenerator.writeStringField(PSTRANGEACTION_ID, pstRangeAction.getId());
         jsonGenerator.writeStringField(PST_NETWORKELEMENT_ID, pstRangeAction.getNetworkElement().getId());
 
-        double initialTap = raoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pstRangeAction);
-        double initialSetpoint = raoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pstRangeAction);
+        Integer initialTap = safeGetPreOptimizedTap(raoResult, crac.getPreventiveState(), pstRangeAction);
+        Double initialSetpoint = safeGetPreOptimizedSetpoint(raoResult, crac.getPreventiveState(), pstRangeAction);
 
-        if (!Double.isNaN(initialTap)) {
+        if (initialTap != null) {
             jsonGenerator.writeNumberField(INITIAL_TAP, initialTap);
         }
         if (!Double.isNaN(initialSetpoint)) {
@@ -58,7 +59,7 @@ final class PstRangeActionResultArraySerializer {
         }
 
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
-            .filter(state -> raoResult.isActivatedDuringState(state, pstRangeAction))
+            .filter(state -> safeIsActivatedDuringState(raoResult, state, pstRangeAction))
             .sorted(STATE_COMPARATOR)
             .collect(Collectors.toList());
 
@@ -67,13 +68,16 @@ final class PstRangeActionResultArraySerializer {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
 
-            int tap = raoResult.getOptimizedTapOnState(state, pstRangeAction);
-            double setpoint = raoResult.getOptimizedSetPointOnState(state, pstRangeAction);
-
             if (state.getContingency().isPresent()) {
                 jsonGenerator.writeStringField(CONTINGENCY_ID, state.getContingency().get().getId());
             }
-            jsonGenerator.writeNumberField(TAP, tap);
+
+            Integer tap = safeGetOptimizedTap(raoResult, state, pstRangeAction);
+            Double setpoint = safeGetOptimizedSetpoint(raoResult, state, pstRangeAction);
+
+            if (tap != null) {
+                jsonGenerator.writeNumberField(TAP, tap);
+            }
             if (!Double.isNaN(setpoint)) {
                 jsonGenerator.writeNumberField(SETPOINT, setpoint);
             }
@@ -82,4 +86,47 @@ final class PstRangeActionResultArraySerializer {
         jsonGenerator.writeEndArray();
         jsonGenerator.writeEndObject();
     }
+
+    private static boolean safeIsActivatedDuringState(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
+        // isActivatedDuringState might throw an exception, for instance if the RAO was run one one state only, and the
+        // state in argument of this method is not the same state.
+        try {
+            return raoResult.isActivatedDuringState(state, pstRangeAction);
+        } catch (FaraoException e) {
+            return false;
+        }
+    }
+
+    private static Integer safeGetPreOptimizedTap(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
+        try {
+            return raoResult.getPreOptimizationTapOnState(state, pstRangeAction);
+        } catch (FaraoException e) {
+            return null;
+        }
+    }
+
+    private static Integer safeGetOptimizedTap(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
+        try {
+            return raoResult.getOptimizedTapOnState(state, pstRangeAction);
+        } catch (FaraoException e) {
+            return null;
+        }
+    }
+
+    private static Double safeGetPreOptimizedSetpoint(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
+        try {
+            return raoResult.getPreOptimizationSetPointOnState(state, pstRangeAction);
+        } catch (FaraoException e) {
+            return Double.NaN;
+        }
+    }
+
+    private static Double safeGetOptimizedSetpoint(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
+        try {
+            return raoResult.getOptimizedSetPointOnState(state, pstRangeAction);
+        } catch (FaraoException e) {
+            return Double.NaN;
+        }
+    }
+
 }

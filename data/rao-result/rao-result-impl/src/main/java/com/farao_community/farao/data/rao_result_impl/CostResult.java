@@ -24,7 +24,14 @@ public class CostResult {
     }
 
     public double getCost() {
-        return getFunctionalCost() + getVirtualCost();
+        double functionalCost = getFunctionalCost();
+        double virtualCost = getVirtualCost();
+
+        if (Double.isNaN(functionalCost) && Double.isNaN(virtualCost)) {
+            return Double.NaN;
+        }
+
+        return (Double.isNaN(functionalCost) ? 0 : functionalCost) + (Double.isNaN(virtualCost) ? 0 : virtualCost);
     }
 
     public double getFunctionalCost() {

@@ -46,4 +46,16 @@ public class CostResultTest {
 
         assertEquals(3, costResult.getVirtualCostNames().size());
     }
+
+    @Test
+    public void getCostWithOneCostDefinedTest() {
+        CostResult costResult = new CostResult();
+
+        costResult.setFunctionalCost(99);
+        assertEquals(99, costResult.getCost(), 1e-3);
+
+        costResult = new CostResult();
+        costResult.setVirtualCost("anyCost", 101);
+        assertEquals(101, costResult.getCost(), 1e-3);
+    }
 }

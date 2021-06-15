@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.rao_result_json.serializers;
 
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -30,7 +31,15 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
     public void serialize(RaoResult raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(raoResult.getComputationStatus()));
+        // computation status
+        ComputationStatus computationStatus = raoResult.getComputationStatus();
+        jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
+
+        if (computationStatus == ComputationStatus.FAILURE) {
+            jsonGenerator.writeEndObject();
+            return;
+        }
+
         CostResultMapSerializer.serialize(raoResult, jsonGenerator);
         FlowCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);

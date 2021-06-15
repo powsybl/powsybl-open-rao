@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.rao_result_json.serializers;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -47,7 +48,7 @@ final class NetworkActionResultArraySerializer {
         jsonGenerator.writeStringField(NETWORKACTION_ID, networkAction.getId());
 
         List<State> statesWhenNetworkActionIsActivated = crac.getStates().stream()
-            .filter(state -> raoResult.isActivatedDuringState(state, networkAction))
+            .filter(state -> safeIsActivatedDuringState(raoResult, state, networkAction))
             .sorted(STATE_COMPARATOR)
             .collect(Collectors.toList());
 
@@ -64,5 +65,15 @@ final class NetworkActionResultArraySerializer {
         jsonGenerator.writeEndArray();
 
         jsonGenerator.writeEndObject();
+    }
+
+    private static boolean safeIsActivatedDuringState(RaoResult raoResult, State state, NetworkAction networkAction) {
+        // isActivatedDuringState might throw an exception, for instance if the RAO was run one one state only, and the
+        // state in argument of this method is not the same state.
+        try {
+            return raoResult.isActivatedDuringState(state, networkAction);
+        } catch (FaraoException e) {
+            return false;
+        }
     }
 }

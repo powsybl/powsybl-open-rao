@@ -52,6 +52,9 @@ public class RangeActionResultImpl implements RangeActionResult {
 
     @Override
     public double getOptimizedSetPoint(RangeAction rangeAction) {
+        if (!setPoints.containsKey(rangeAction)) {
+            throw new FaraoException(format("PST range action %s is not present in the result", rangeAction.getName()));
+        }
         return setPoints.get(rangeAction);
     }
 
