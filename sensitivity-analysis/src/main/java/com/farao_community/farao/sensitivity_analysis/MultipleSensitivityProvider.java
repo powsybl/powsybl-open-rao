@@ -36,6 +36,11 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
     }
 
     @Override
+    public void disableFactorsForBaseCaseSituation() {
+        cnecSensitivityProviders.forEach(CnecSensitivityProvider::disableFactorsForBaseCaseSituation);
+    }
+
+    @Override
     public List<Contingency> getContingencies(Network network) {
         //using a set to avoid duplicates
         Set<Contingency> contingencies = new HashSet<>();

@@ -27,8 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -112,6 +111,23 @@ public class RangeActionSensitivityProviderTest {
         assertTrue(contingencyList.stream().anyMatch(contingency -> contingency.getId().equals("contingency-generator")));
         assertTrue(contingencyList.stream().anyMatch(contingency -> contingency.getId().equals("contingency-hvdc")));
         assertTrue(contingencyList.stream().anyMatch(contingency -> contingency.getId().equals("contingency-busbar-section")));
+    }
+
+    @Test
+    public void testDisableFactorForBaseCase() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange();
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+
+        // factors with basecase and contingency
+        assertEquals(4, provider.getAdditionalFactors(network).size());
+        assertEquals(4, provider.getAdditionalFactors(network, "Contingency FR1 FR3").size());
+
+        provider.disableFactorsForBaseCaseSituation();
+
+        // factors after disabling basecase
+        assertEquals(0, provider.getAdditionalFactors(network).size());
+        assertEquals(4, provider.getAdditionalFactors(network, "Contingency FR1 FR3").size());
     }
 
     @Test(expected = FaraoException.class)
