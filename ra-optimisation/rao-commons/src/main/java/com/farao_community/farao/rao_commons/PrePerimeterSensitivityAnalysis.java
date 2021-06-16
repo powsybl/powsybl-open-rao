@@ -43,6 +43,10 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     public PrePerimeterResult run(Network network) {
+        return run(network, null);
+    }
+
+    public PrePerimeterResult run(Network network, AppliedRemedialActions appliedRemedialActions) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
@@ -50,15 +54,12 @@ public class PrePerimeterSensitivityAnalysis {
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
         }
+        sensitivityComputerBuilder.withAppliedRemedialActions(appliedRemedialActions);
         sensitivityComputer = sensitivityComputerBuilder.build();
         return runAndGetResult(network);
     }
 
     public PrePerimeterResult runBasedOn(Network network, OptimizationResult optimizationResult) {
-        return runBasedOn(network, optimizationResult, null);
-    }
-
-    public PrePerimeterResult runBasedOn(Network network, OptimizationResult optimizationResult, AppliedRemedialActions appliedRemedialActions) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             if (raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
@@ -70,7 +71,6 @@ public class PrePerimeterSensitivityAnalysis {
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             sensitivityComputerBuilder.withPtdfsResults(optimizationResult);
         }
-        sensitivityComputerBuilder.withAppliedRemedialActions(appliedRemedialActions);
         sensitivityComputer = sensitivityComputerBuilder.build();
         return runAndGetResult(network);
     }
