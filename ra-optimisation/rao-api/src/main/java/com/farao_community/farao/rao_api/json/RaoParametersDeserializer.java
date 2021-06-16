@@ -93,6 +93,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     List<String> countryStrings = objectMapper.readValue(arrayNode.traverse(), new TypeReference<ArrayList<String>>() { });
                     parameters.setLoopflowCountries(countryStrings);
                     break;
+                case "rao-with-mnec-limitation":
+                    parser.nextToken();
+                    parameters.setRaoWithMnecLimitation(parser.getBooleanValue());
+                    break;
                 case "mnec-acceptable-margin-diminution":
                     parser.nextToken();
                     parameters.setMnecAcceptableMarginDiminution(parser.getDoubleValue());

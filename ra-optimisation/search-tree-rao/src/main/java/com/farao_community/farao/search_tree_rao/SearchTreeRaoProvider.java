@@ -182,7 +182,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             throw new FaraoException(String.format("Unhandled objective function %s", raoParameters.getObjectiveFunction()));
         }
 
-        if (raoParameters.getMnecViolationCost() != 0) {
+        if (raoParameters.isRaoWithMnecLimitation()) {
             MnecParameters mnecParameters = new MnecParameters(
                     raoParameters.getMnecAcceptableMarginDiminution(),
                     raoParameters.getMnecViolationCost(),
@@ -420,8 +420,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                                                      ToolProvider toolProvider) {
         ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder = ObjectiveFunction.create();
         ObjectiveFunctionHelper.addMinMarginObjectiveFunction(cnecs, prePerimeterFlowResult, objectiveFunctionBuilder, linearOptimizerParameters);
-        // TODO : replace this test with a dedicated parameter in RaoParameters
-        if (raoParameters.getMnecParameters().getMnecViolationCost() != 0) {
+
+        if (raoParameters.isRaoWithMnecLimitation()) {
             objectiveFunctionBuilder.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
                     cnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
                     initialFlowResult,
