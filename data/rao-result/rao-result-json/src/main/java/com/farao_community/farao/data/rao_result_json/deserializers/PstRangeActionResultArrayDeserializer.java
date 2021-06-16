@@ -10,7 +10,6 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.rao_result_impl.PstRangeActionResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
@@ -44,6 +43,8 @@ final class PstRangeActionResultArrayDeserializer {
             }
 
             PstRangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentPstRangeActionResult(pstRangeAction);
+            Integer afterPraTap = null;
+            Double afterPraSetpoint = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
 
@@ -61,6 +62,16 @@ final class PstRangeActionResultArrayDeserializer {
                         pstRangeActionResult.setInitialSetPoint(jsonParser.getDoubleValue());
                         break;
 
+                    case AFTER_PRA_TAP:
+                        jsonParser.nextToken();
+                        afterPraTap = jsonParser.getIntValue();
+                        break;
+
+                    case AFTER_PRA_SETPOINT:
+                        jsonParser.nextToken();
+                        afterPraSetpoint = jsonParser.getDoubleValue();
+                        break;
+
                     case STATES_ACTIVATED_NETWORKACTION:
                         jsonParser.nextToken();
                         deserializeResultsPerStates(jsonParser, pstRangeActionResult, crac);
@@ -69,6 +80,11 @@ final class PstRangeActionResultArrayDeserializer {
                     default:
                         throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", PSTRANGEACTION_RESULTS, jsonParser.getCurrentName()));
                 }
+            }
+            // Do this at the end: for PSTs with afterPraTap and afterPraSetpoint, initial tap/setpoint should be set to afterPra values
+            if (afterPraTap != null && afterPraSetpoint != null) {
+                pstRangeActionResult.setInitialTap(afterPraTap);
+                pstRangeActionResult.setInitialSetPoint(afterPraSetpoint);
             }
         }
     }
@@ -79,7 +95,6 @@ final class PstRangeActionResultArrayDeserializer {
         String contingencyId = null;
         Double setpoint = null;
         Integer tap = null;
-        State state;
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -108,26 +123,10 @@ final class PstRangeActionResultArrayDeserializer {
                 }
             }
 
-            if (instant == null) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: no instant defined in activated states of %s", PSTRANGEACTION_RESULTS));
-            }
-
-            if (instant == Instant.PREVENTIVE) {
-                state = crac.getPreventiveState();
-            } else {
-                if (contingencyId == null) {
-                    throw new FaraoException(String.format("Cannot deserialize RaoResult: no contingency defined in N-k activated states of %s", PSTRANGEACTION_RESULTS));
-                }
-                state = crac.getState(contingencyId, instant);
-                if (state == null) {
-                    throw new FaraoException(String.format("Cannot deserialize RaoResult: State at instant %s with contingency %s not found in Crac", instant, contingencyId));
-                }
-            }
-
             if (setpoint == null || tap == null) {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: tap and setpoint are required in %s", PSTRANGEACTION_RESULTS));
             }
-            pstRangeActionResult.addActivationForState(state, tap, setpoint);
+            pstRangeActionResult.addActivationForState(StateDeserializer.getState(instant, contingencyId, crac, PSTRANGEACTION_RESULTS), tap, setpoint);
 
         }
     }

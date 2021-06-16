@@ -51,6 +51,8 @@ public final class RaoResultJsonConstants {
     public static final String STATES_ACTIVATED_PSTRANGEACTION = "activatedStates";
     public static final String INITIAL_TAP = "initialTap";
     public static final String INITIAL_SETPOINT = "initialSetpoint";
+    public static final String AFTER_PRA_TAP = "afterPraTap";
+    public static final String AFTER_PRA_SETPOINT = "afterPraSetpoint";
     public static final String TAP = "tap";
     public static final String SETPOINT = "setpoint";
 

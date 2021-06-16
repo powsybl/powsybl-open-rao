@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
@@ -34,8 +36,8 @@ final class PstRangeActionResultArraySerializer {
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         List<PstRangeAction> sortedListOfRangeActions = crac.getPstRangeActions().stream()
-            .sorted(Comparator.comparing(RangeAction::getId))
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(RangeAction::getId))
+                .collect(Collectors.toList());
 
         jsonGenerator.writeArrayFieldStart(PSTRANGEACTION_RESULTS);
         for (PstRangeAction pstRangeAction : sortedListOfRangeActions) {
@@ -60,13 +62,15 @@ final class PstRangeActionResultArraySerializer {
             jsonGenerator.writeNumberField(INITIAL_SETPOINT, initialSetpoint);
         }
 
+        addAfterPraValuesForPurelyCurativePsts(pstRangeAction, raoResult, crac, jsonGenerator);
+
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
-            .filter(state -> safeIsActivatedDuringState(raoResult, state, pstRangeAction))
-            .sorted(STATE_COMPARATOR)
-            .collect(Collectors.toList());
+                .filter(state -> safeIsActivatedDuringState(raoResult, state, pstRangeAction))
+                .sorted(STATE_COMPARATOR)
+                .collect(Collectors.toList());
 
         jsonGenerator.writeArrayFieldStart(STATES_ACTIVATED_PSTRANGEACTION);
-        for (State state: statesWhenRangeActionIsActivated) {
+        for (State state : statesWhenRangeActionIsActivated) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));
 
@@ -132,4 +136,48 @@ final class PstRangeActionResultArraySerializer {
         }
     }
 
+    /**
+     * If range action is purely curative, it might have an associated preventive RA on the same network element
+     * In this case, this method exports its post-pra tap and setpoint values
+     */
+    static void addAfterPraValuesForPurelyCurativePsts(PstRangeAction pstRangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
+        if (isRangeActionCurative(pstRangeAction, crac) && !isRangeActionPreventive(pstRangeAction, crac)) {
+            PstRangeAction pra = getPreventivePstRangeActionAssociated(pstRangeAction, crac);
+            if (pra != null) {
+                Integer afterPraTap = safeGetOptimizedTap(raoResult, crac.getPreventiveState(), pra);
+                Double afterPraSetpoint = safeGetOptimizedSetpoint(raoResult, crac.getPreventiveState(), pra);
+                if (afterPraTap != null) {
+                    jsonGenerator.writeNumberField(AFTER_PRA_TAP, afterPraTap);
+                }
+                if (!Double.isNaN(afterPraSetpoint)) {
+                    jsonGenerator.writeNumberField(AFTER_PRA_SETPOINT, afterPraSetpoint);
+                }
+            }
+        }
+    }
+
+    static boolean isRangeActionPreventive(RangeAction rangeAction, Crac crac) {
+        return isRangeActionAvailableInState(rangeAction, crac.getPreventiveState(), crac);
+    }
+
+    static boolean isRangeActionCurative(RangeAction rangeAction, Crac crac) {
+        return crac.getStates().stream()
+                .filter(state -> !state.equals(crac.getPreventiveState()))
+                .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state, crac));
+    }
+
+    static boolean isRangeActionAvailableInState(RangeAction rangeAction, State state, Crac crac) {
+        Set<RangeAction> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE);
+        return rangeActionsForState.contains(rangeAction);
+    }
+
+    static PstRangeAction getPreventivePstRangeActionAssociated(PstRangeAction pstRangeAction, Crac crac) {
+        Set<RangeAction> rangeActionsForState = crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE);
+        return rangeActionsForState.stream()
+                .filter(PstRangeAction.class::isInstance)
+                .filter(otherRangeAction -> !otherRangeAction.equals(pstRangeAction))
+                .filter(otherRangeAction -> otherRangeAction.getNetworkElements().equals(pstRangeAction.getNetworkElements()))
+                .map(PstRangeAction.class::cast)
+                .findFirst().orElse(null);
+    }
 }
