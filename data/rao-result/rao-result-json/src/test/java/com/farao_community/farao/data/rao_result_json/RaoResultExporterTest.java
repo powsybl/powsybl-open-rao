@@ -194,6 +194,7 @@ public class RaoResultExporterTest {
         assertEquals(Map.of(pst, -7), importedRaoResult.getOptimizedTapsOnState(crac.getPreventiveState()));
         assertEquals(-3.2, importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
         assertEquals(Map.of(pst, -3.2), importedRaoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
+        assertEquals(Set.of(), importedRaoResult.getActivatedRangeActionsDuringState(crac.getState("Contingency FR1 FR3", Instant.AUTO)));
     }
 
     @Test
@@ -201,24 +202,29 @@ public class RaoResultExporterTest {
         setUp();
         assertFalse(importedRaoResult.wasActivatedBeforeState(crac.getPreventiveState(), na));
         assertFalse(importedRaoResult.isActivatedDuringState(crac.getPreventiveState(), na));
+        assertEquals(Set.of(), importedRaoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
 
         State state = crac.getState("Contingency FR1 FR3", Instant.AUTO);
         assertFalse(importedRaoResult.wasActivatedBeforeState(state, na));
         assertTrue(importedRaoResult.isActivated(state, na));
         assertTrue(importedRaoResult.isActivatedDuringState(state, na));
+        assertEquals(Set.of(na), importedRaoResult.getActivatedNetworkActionsDuringState(state));
         state = crac.getState("Contingency FR1 FR3", Instant.CURATIVE);
         assertTrue(importedRaoResult.wasActivatedBeforeState(state, na));
         assertTrue(importedRaoResult.isActivated(state, na));
         assertFalse(importedRaoResult.isActivatedDuringState(state, na));
+        assertEquals(Set.of(), importedRaoResult.getActivatedNetworkActionsDuringState(state));
 
         state = crac.getState("Contingency FR1 FR2", Instant.AUTO);
         assertFalse(importedRaoResult.wasActivatedBeforeState(state, na));
         assertFalse(importedRaoResult.isActivated(state, na));
         assertFalse(importedRaoResult.isActivatedDuringState(state, na));
+        assertEquals(Set.of(), importedRaoResult.getActivatedNetworkActionsDuringState(state));
         state = crac.getState("Contingency FR1 FR2", Instant.CURATIVE);
         assertFalse(importedRaoResult.wasActivatedBeforeState(state, na));
         assertTrue(importedRaoResult.isActivated(state, na));
         assertTrue(importedRaoResult.isActivatedDuringState(state, na));
+        assertEquals(Set.of(na), importedRaoResult.getActivatedNetworkActionsDuringState(state));
     }
 
     @Test
