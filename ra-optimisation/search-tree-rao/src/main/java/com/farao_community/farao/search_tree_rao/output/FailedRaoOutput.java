@@ -26,7 +26,6 @@ import java.util.Set;
  */
 public class FailedRaoOutput implements SearchTreeRaoResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
-    //TODO: add optimization status (failed for this implem)
 
     @Override
     public ComputationStatus getComputationStatus() {

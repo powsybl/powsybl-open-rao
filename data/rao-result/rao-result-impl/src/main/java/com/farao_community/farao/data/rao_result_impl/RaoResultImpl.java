@@ -72,7 +72,6 @@ public class RaoResultImpl implements RaoResult {
     @Override
     public double getPtdfZonalSum(OptimizationState optimizationState, FlowCnec flowCnec) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(optimizationState).getPtdfZonalSum();
-
     }
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {

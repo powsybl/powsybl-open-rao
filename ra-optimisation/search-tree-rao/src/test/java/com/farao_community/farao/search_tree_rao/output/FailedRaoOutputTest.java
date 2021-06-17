@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import org.junit.Test;
 
@@ -31,6 +32,8 @@ public class FailedRaoOutputTest {
         NetworkAction networkAction = mock(NetworkAction.class);
 
         FailedRaoOutput failedRaoOutput = new FailedRaoOutput();
+
+        assertEquals(ComputationStatus.FAILURE, failedRaoOutput.getComputationStatus());
         assertThrows(FaraoException.class, () -> failedRaoOutput.getPerimeterResult(optimizationState, state));
         assertThrows(FaraoException.class, failedRaoOutput::getPostPreventivePerimeterResult);
         assertThrows(FaraoException.class, failedRaoOutput::getInitialResult);
