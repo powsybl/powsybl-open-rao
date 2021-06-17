@@ -30,6 +30,7 @@ public final class SearchTreeBloomer {
     private final Network network;
     private final CountryGraph countryGraph;
     private final RangeActionResult prePerimeterRangeActionResult;
+    private final int maxRa;
     private final Map<String, Integer> maxTopoPerTso;
     private final Map<String, Integer> maxRaPerTso;
     private final boolean filterFarElements;
@@ -37,6 +38,7 @@ public final class SearchTreeBloomer {
 
     public SearchTreeBloomer(Network network,
                              RangeActionResult prePerimeterRangeActionResult,
+                             int maxRa,
                              Map<String, Integer> maxTopoPerTso,
                              Map<String, Integer> maxRaPerTso,
                              boolean filterFarElements,
@@ -44,6 +46,7 @@ public final class SearchTreeBloomer {
         this.network = network;
         countryGraph = new CountryGraph(network);
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
+        this.maxRa = maxRa;
         this.maxTopoPerTso = maxTopoPerTso;
         this.maxRaPerTso = maxRaPerTso;
         this.filterFarElements = filterFarElements;
@@ -57,6 +60,11 @@ public final class SearchTreeBloomer {
      * @return A set of available network actions after this leaf.
      */
     public Set<NetworkAction> bloom(Leaf fromLeaf, Set<NetworkAction> networkActions) {
+        int numberOfRangeActionsUsed = getNumberOfRangeActionsUsed(fromLeaf);
+        int numberOfNetworkActionsUsed = fromLeaf.getActivatedNetworkActions().size();
+        if (numberOfNetworkActionsUsed + numberOfRangeActionsUsed == maxRa) {
+            return new HashSet<>();
+        }
         Set<NetworkAction> availableNetworkActions = new HashSet<>(networkActions).stream()
                 .filter(na -> !fromLeaf.getActivatedNetworkActions().contains(na))
                 .collect(Collectors.toSet());
@@ -65,6 +73,12 @@ public final class SearchTreeBloomer {
         }
         availableNetworkActions = removeNetworkActionsIfMaxNumberReached(fromLeaf, availableNetworkActions);
         return availableNetworkActions;
+    }
+
+    private int getNumberOfRangeActionsUsed(Leaf fromLeaf) {
+        return (int) fromLeaf.getRangeActions().stream()
+            .filter(rangeAction -> hasRangeActionChangedComparedToPrePerimeter(fromLeaf, rangeAction))
+            .count();
     }
 
     /**
@@ -95,7 +109,7 @@ public final class SearchTreeBloomer {
         Map<String, Integer> updatedMaxTopoPerTso = new HashMap<>(maxTopoPerTso);
         maxRaPerTso.forEach((tso, raLimit) -> {
             int activatedPstsForTso = (int) fromLeaf.getRangeActions().stream()
-                    .filter(rangeAction -> rangeAction instanceof PstRangeAction && hasPstChangedComparedToPrePerimeter(fromLeaf, rangeAction))
+                    .filter(rangeAction -> rangeAction instanceof PstRangeAction && hasRangeActionChangedComparedToPrePerimeter(fromLeaf, rangeAction))
                     .count();
             int topoLimit =  raLimit - activatedPstsForTso;
             updatedMaxTopoPerTso.put(tso, Math.min(topoLimit, maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
@@ -103,7 +117,7 @@ public final class SearchTreeBloomer {
         return updatedMaxTopoPerTso;
     }
 
-    private boolean hasPstChangedComparedToPrePerimeter(Leaf fromLeaf, RangeAction rangeAction) {
+    private boolean hasRangeActionChangedComparedToPrePerimeter(Leaf fromLeaf, RangeAction rangeAction) {
         double optimizedSetPoint = fromLeaf.getOptimizedSetPoint(rangeAction);
         double prePerimeterSetPoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
         if (Double.isNaN(optimizedSetPoint)) {
