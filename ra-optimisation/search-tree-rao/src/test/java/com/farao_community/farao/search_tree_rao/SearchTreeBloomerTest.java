@@ -10,7 +10,6 @@ import com.farao_community.farao.commons.CountryBoundary;
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
@@ -19,7 +18,6 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_api.results.RangeActionResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -29,10 +27,10 @@ import org.mockito.Mockito;
 
 import java.util.*;
 
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.junit.Assert.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -133,7 +131,7 @@ public class SearchTreeBloomerTest {
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(crac.getFlowCnec("cnec1basecase"))); // be fr
         assertEquals(Set.of(naFrBe, naFr, naNlBe), bloomer.removeNetworkActionsFarFromMostLimitingElement(leaf, networkActions));
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(crac.getFlowCnec("cnec2basecase"))); // de fr
-        assertEquals(Set.of(naFrBe, naDe, naFr, naDeNl), bloomer.removeNetworkActionsFarFromMostLimitingElement(leaf, networkActions));;
+        assertEquals(Set.of(naFrBe, naDe, naFr, naDeNl), bloomer.removeNetworkActionsFarFromMostLimitingElement(leaf, networkActions));
 
         bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), null, null, true, 1);
         FlowCnec cnecBe = crac.newFlowCnec()
@@ -152,7 +150,7 @@ public class SearchTreeBloomerTest {
                 .withIMax(5000.)
                 .add();
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(cnecBe)); // be
-        assertEquals(Set.of(naFrBe, naFr, naDeNl, naNlBe, naNl), bloomer.removeNetworkActionsFarFromMostLimitingElement(leaf, networkActions));;
+        assertEquals(Set.of(naFrBe, naFr, naDeNl, naNlBe, naNl), bloomer.removeNetworkActionsFarFromMostLimitingElement(leaf, networkActions));
     }
 
 }
