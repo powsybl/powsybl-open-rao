@@ -78,8 +78,7 @@ public class IteratingLinearOptimizer {
 
             if (currentResult.getCost() >= bestResult.getCost()) {
                 logWorseResult(iteration, bestResult, currentResult);
-                applyRangeActions(bestResult.getRangeActions(), bestResult, network);
-                applyRangeActions(linearProblem.getRangeActions(), bestResult, network);
+                applyRangeActions(currentResult.getRangeActions(), bestResult, network);
                 return bestResult;
             }
 
