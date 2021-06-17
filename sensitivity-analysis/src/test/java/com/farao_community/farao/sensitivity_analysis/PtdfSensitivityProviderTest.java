@@ -55,11 +55,25 @@ public class PtdfSensitivityProviderTest {
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
 
-        String contingencyId = crac.getContingencies().iterator().next().getId();
         sensitivityFactors = ptdfSensitivityProvider.getAdditionalFactors(network, crac.getContingencies().iterator().next().getId());
         assertEquals(8, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
             && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
+    }
+
+    @Test
+    public void testDisableFactorForBaseCase() {
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+
+        // factors with basecase and contingency
+        assertEquals(8, ptdfSensitivityProvider.getAdditionalFactors(network).size());
+        assertEquals(8, ptdfSensitivityProvider.getAdditionalFactors(network, "Contingency FR1 FR3").size());
+
+        ptdfSensitivityProvider.disableFactorsForBaseCaseSituation();
+
+        // factors after disabling basecase
+        assertEquals(0, ptdfSensitivityProvider.getAdditionalFactors(network).size());
+        assertEquals(8, ptdfSensitivityProvider.getAdditionalFactors(network, "Contingency FR1 FR3").size());
     }
 
     @Test

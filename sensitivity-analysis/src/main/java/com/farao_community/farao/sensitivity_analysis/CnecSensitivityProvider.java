@@ -18,4 +18,6 @@ import java.util.Set;
 public interface CnecSensitivityProvider extends SensitivityFactorsProvider, ContingenciesProvider {
 
     Set<FlowCnec> getFlowCnecs();
+
+    void disableFactorsForBaseCaseSituation();
 }
