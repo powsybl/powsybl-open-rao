@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -16,7 +15,6 @@ import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinear
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Map;
 import java.util.Set;
 
 public class SearchTreeInput {
@@ -32,9 +30,6 @@ public class SearchTreeInput {
     private SearchTreeComputer searchTreeComputer;
 
     private PrePerimeterResult prePerimeterOutput;
-
-    private Map<State, Set<NetworkAction>> appliedNetworkActions;
-    private Map<State, Map<RangeAction, Double>> appliedRemedialActionsSetpoints;
 
     public SearchTreeBloomer getSearchTreeBloomer() {
         return searchTreeBloomer;
@@ -114,21 +109,5 @@ public class SearchTreeInput {
 
     public void setPrePerimeterOutput(PrePerimeterResult prePerimeterOutput) {
         this.prePerimeterOutput = prePerimeterOutput;
-    }
-
-    public Map<State, Set<NetworkAction>> getAppliedNetworkActions() {
-        return appliedNetworkActions;
-    }
-
-    public void setAppliedNetworkActions(Map<State, Set<NetworkAction>> appliedNetworkActions) {
-        this.appliedNetworkActions = appliedNetworkActions;
-    }
-
-    public Map<State, Map<RangeAction, Double>> getAppliedRemedialActionsSetpoints() {
-        return appliedRemedialActionsSetpoints;
-    }
-
-    public void setAppliedRemedialActionsSetpoints(Map<State, Map<RangeAction, Double>> appliedRemedialActionsSetpoints) {
-        this.appliedRemedialActionsSetpoints = appliedRemedialActionsSetpoints;
     }
 }

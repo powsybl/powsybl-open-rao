@@ -65,10 +65,6 @@ public class SystematicSensitivityResult {
         this.status = SensitivityComputationStatus.SUCCESS;
     }
 
-    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results) {
-        return completeData(results, false);
-    }
-
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, boolean afterCra) {
 
         if (results == null || !results.isOk()) {
