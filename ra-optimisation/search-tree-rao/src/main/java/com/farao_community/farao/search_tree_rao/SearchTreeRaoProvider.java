@@ -617,6 +617,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
      * It consists of range actions that are both preventive and curative, since they mustn't be re-optimized during 2nd preventive.
      */
     static Set<RangeAction> getRangeActionsExcludedFromSecondPreventive(Crac crac) {
+        // TODO :  we can avoid excluding (PRA+CRA) range actions that were not activated in any curative perimeter
         return crac.getRangeActions().stream().filter(rangeAction -> isRangeActionPreventive(rangeAction, crac) && isRangeActionCurative(rangeAction, crac)).collect(Collectors.toSet());
     }
 
