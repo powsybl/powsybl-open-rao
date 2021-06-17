@@ -37,6 +37,7 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeNumberField("curative-rao-min-obj-improvement", searchTreeRaoParameters.getCurativeRaoMinObjImprovement());
         jsonGenerator.writeBooleanField("skip-network-actions-far-from-most-limiting-element", searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement());
         jsonGenerator.writeNumberField("max-number-of-boundaries-for-skipping-network-actions", searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
+        jsonGenerator.writeNumberField("max-curative-ra", searchTreeRaoParameters.getMaxCurativeRa());
         jsonGenerator.writeObjectField("max-curative-topo-per-tso", searchTreeRaoParameters.getMaxCurativeTopoPerTso());
         jsonGenerator.writeObjectField("max-curative-pst-per-tso", searchTreeRaoParameters.getMaxCurativePstPerTso());
         jsonGenerator.writeObjectField("max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
@@ -83,6 +84,10 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                     break;
                 case "max-number-of-boundaries-for-skipping-network-actions":
                     parameters.setMaxNumberOfBoundariesForSkippingNetworkActions(jsonParser.getValueAsInt());
+                    break;
+                case "max-curative-ra":
+                    jsonParser.nextToken();
+                    parameters.setMaxCurativeRa(jsonParser.getValueAsInt());
                     break;
                 case "max-curative-topo-per-tso":
                     jsonParser.nextToken();

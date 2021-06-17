@@ -463,6 +463,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         searchTreeInput.setSearchTreeBloomer(new SearchTreeBloomer(
                 network,
                 prePerimeterOutput,
+                treeParameters.getMaxRa(),
                 treeParameters.getMaxTopoPerTso(),
                 treeParameters.getMaxRaPerTso(),
                 treeParameters.getSkipNetworkActionsFarFromMostLimitingElement(),
