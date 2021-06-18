@@ -79,11 +79,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
     public SearchTreeRaoProvider() {
     }
 
-    // Useful for tests
-    SearchTreeRaoProvider(StateTree stateTree) {
-        this.stateTree = stateTree;
-    }
-
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         RaoUtil.initData(raoInput, parameters);
@@ -164,29 +159,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
         RaoResult<?> mergedRaoResults;
 
         // second preventive RAO
-        boolean withSecondPreventiveRao = shouldRunSecondPreventiveRao(parameters, curativeResults);
-        if (withSecondPreventiveRao) {
-            LOGGER.info("Second preventive perimeter optimization [start]");
-            // Go back to the initial state of the network, saved in the SECOND_PREVENTIVE_STATE variant
-            network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_STATE);
-            // Apply 1st preventive results for range actions that are both preventive and curative. This way we are sure
-            // that the optimal setpoints of the curative results stay coherent with their allowed range and close to
-            // optimality in their perimeters. These range actions will be excluded from 2nd preventive RAO.
-            applyPreventiveResultsForCurativeRangeActions(network, preventiveResult, raoInput.getCrac());
-            // Get the applied remedial actions for every curative perimeter
-            AppliedRemedialActions appliedRemedialActions = getAppliedRemedialActionsInCurative(curativeResults, preCurativeSensitivityAnalysisOutput);
-            // Run a first sensitivity computation using initial network and applied CRAs
-            PrePerimeterResult sensiWithCurativeRemedialActions = prePerimeterSensitivityAnalysis.run(network, appliedRemedialActions);
-            // Run second preventive RAO
-            PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, sensiWithCurativeRemedialActions, appliedRemedialActions)
-                    .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
-            // Re-run sensitivity computation based on PRAs without CRAs, to access OptimizationState.AFTER_PRA results
-            preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, secondPreventiveResult);
-            LOGGER.info("Second preventive perimeter optimization [end]");
-
-            LOGGER.info("Merging preventive and curative RAO results.");
-            Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
-            mergedRaoResults = new SecondPreventiveAndCurativesRaoOutput(initialOutput, preventiveResult, secondPreventiveResult, preCurativeSensitivityAnalysisOutput, curativeResults, remedialActionsExcluded);
+        if (shouldRunSecondPreventiveRao(parameters, curativeResults)) {
+            mergedRaoResults = runSecondPreventiveRao(raoInput, parameters, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, curativeResults);
         } else {
             LOGGER.info("Merging preventive and curative RAO results.");
             mergedRaoResults = new PreventiveAndCurativesRaoOutput(initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, curativeResults);
@@ -579,6 +553,42 @@ public class SearchTreeRaoProvider implements RaoProvider {
             default:
                 throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", curativeRaoStopCriterion));
         }
+    }
+
+    /**
+     * Main function to run 2nd preventive RAO
+     * Using 1st preventive and curative results, it ets up network and range action contexts, then calls the optimizer
+     * It finally merges the three results into one RaoResult object
+     */
+    private RaoResult runSecondPreventiveRao(RaoInput raoInput,
+                                             RaoParameters parameters,
+                                             PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
+                                             PrePerimeterResult initialOutput,
+                                             PerimeterResult firstPreventiveResult,
+                                             PrePerimeterResult preCurativeSensitivityAnalysisOutput,
+                                             Map<State, OptimizationResult> curativeResults) {
+        LOGGER.info("Second preventive perimeter optimization [start]");
+        Network network = raoInput.getNetwork();
+        // Go back to the initial state of the network, saved in the SECOND_PREVENTIVE_STATE variant
+        network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_STATE);
+        // Apply 1st preventive results for range actions that are both preventive and curative. This way we are sure
+        // that the optimal setpoints of the curative results stay coherent with their allowed range and close to
+        // optimality in their perimeters. These range actions will be excluded from 2nd preventive RAO.
+        applyPreventiveResultsForCurativeRangeActions(network, firstPreventiveResult, raoInput.getCrac());
+        // Get the applied remedial actions for every curative perimeter
+        AppliedRemedialActions appliedRemedialActions = getAppliedRemedialActionsInCurative(curativeResults, preCurativeSensitivityAnalysisOutput);
+        // Run a first sensitivity computation using initial network and applied CRAs
+        PrePerimeterResult sensiWithCurativeRemedialActions = prePerimeterSensitivityAnalysis.run(network, appliedRemedialActions);
+        // Run second preventive RAO
+        PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, sensiWithCurativeRemedialActions, appliedRemedialActions)
+                .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
+        // Re-run sensitivity computation based on PRAs without CRAs, to access OptimizationState.AFTER_PRA results
+        PrePerimeterResult updatedPreCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, secondPreventiveResult);
+        LOGGER.info("Second preventive perimeter optimization [end]");
+
+        LOGGER.info("Merging first, second preventive and curative RAO results.");
+        Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
+        return new SecondPreventiveAndCurativesRaoOutput(initialOutput, firstPreventiveResult, secondPreventiveResult, updatedPreCurativeSensitivityAnalysisOutput, curativeResults, remedialActionsExcluded);
     }
 
     static AppliedRemedialActions getAppliedRemedialActionsInCurative(Map<State, OptimizationResult> curativeResults, PrePerimeterResult preCurativeResults) {

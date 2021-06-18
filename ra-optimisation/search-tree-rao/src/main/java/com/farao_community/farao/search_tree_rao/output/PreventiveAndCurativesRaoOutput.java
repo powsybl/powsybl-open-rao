@@ -223,7 +223,7 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedRangeActions();
         } else {
-            return postCurativeResults.get(state).getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
+            return postCurativeResults.get(state).getActivatedRangeActions();
         }
     }
 
