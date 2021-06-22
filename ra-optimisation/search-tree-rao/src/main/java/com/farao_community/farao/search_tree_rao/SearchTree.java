@@ -387,7 +387,27 @@ public class SearchTree {
         }
 
         public void filterTsos() {
-            // TODO: implement this method
+            int maxTso = treeParameters.getMaxTso();
+            if (maxTso == Integer.MAX_VALUE) {
+                return;
+            }
+            Set<RangeAction> appliedRangeActions = rangeActionsToOptimize.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
+            Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(networkAction -> networkAction.getOperator()).collect(Collectors.toSet());
+            activatedTsos.addAll(appliedRangeActions.stream().map(rangeAction -> rangeAction.getOperator()).collect(Collectors.toSet()));
+
+            Set<String> tsosToKeep = new HashSet<>(activatedTsos);
+
+            List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToOptimize.stream()
+                    .sorted((ra1, ra2) -> -compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                    .collect(Collectors.toList());
+            for (RangeAction rangeAction : rangeActionsSortedBySensitivity) {
+                if (tsosToKeep.size() >= maxTso) {
+                    break;
+                }
+                tsosToKeep.add(rangeAction.getOperator());
+            }
+
+            rangeActionsToOptimize.removeAll(rangeActionsToOptimize.stream().filter(rangeAction -> !tsosToKeep.contains(rangeAction.getOperator())).collect(Collectors.toSet()));
         }
 
         public void filterMaxRas() {

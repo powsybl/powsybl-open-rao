@@ -80,6 +80,7 @@ public class SearchTreeTest {
         Mockito.when(treeParameters.getMaximumSearchDepth()).thenReturn(maximumSearchDepth);
         Mockito.when(treeParameters.getLeavesInParallel()).thenReturn(leavesInParallel);
         Mockito.when(treeParameters.getMaxRa()).thenReturn(Integer.MAX_VALUE);
+        Mockito.when(treeParameters.getMaxTso()).thenReturn(Integer.MAX_VALUE);
         Mockito.when(treeParameters.getMaxPstPerTso()).thenReturn(new HashMap<>());
     }
 
