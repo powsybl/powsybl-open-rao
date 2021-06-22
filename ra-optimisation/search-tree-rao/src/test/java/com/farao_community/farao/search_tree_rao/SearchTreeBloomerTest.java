@@ -162,7 +162,7 @@ public class SearchTreeBloomerTest {
 
         Set<String> activatedTsos = bloomer.getActivatedTsos(leaf);
 
-        assertTrue(activatedTsos.size() == 2);
+        assertEquals(2, activatedTsos.size());
         assertTrue(activatedTsos.contains("fr"));
         assertTrue(activatedTsos.contains("be"));
     }
@@ -182,7 +182,7 @@ public class SearchTreeBloomerTest {
 
         Set<NetworkAction> filteredNetworkActions = bloomer.removeNetworkActionsTsoNotInSet(allNetworkActions, Collections.singleton("fr"));
 
-        assertTrue(filteredNetworkActions.size() == 2);
+        assertEquals(2, filteredNetworkActions.size());
         assertTrue(filteredNetworkActions.contains(nafr1));
         assertTrue(filteredNetworkActions.contains(nafr2));
 
