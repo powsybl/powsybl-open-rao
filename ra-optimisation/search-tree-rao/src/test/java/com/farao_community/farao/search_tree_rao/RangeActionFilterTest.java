@@ -37,7 +37,7 @@ public class RangeActionFilterTest {
     @Before
     public void setUp() {
         treeParameters = Mockito.mock(TreeParameters.class);
-        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>());
+        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
 
         leaf = Mockito.mock(Leaf.class);
         Mockito.when(leaf.getMostLimitingElements(Mockito.anyInt())).thenReturn(Collections.singletonList(Mockito.mock(FlowCnec.class)));
@@ -50,10 +50,11 @@ public class RangeActionFilterTest {
         prePerimeterSetPoints = new HashMap<>();
     }
 
-    private void setTreeParameters(int maxRa, int maxTso, Map<String, Integer> maxPstPerTso) {
+    private void setTreeParameters(int maxRa, int maxTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso) {
         Mockito.when(treeParameters.getMaxRa()).thenReturn(maxRa);
         Mockito.when(treeParameters.getMaxTso()).thenReturn(maxTso);
         Mockito.when(treeParameters.getMaxPstPerTso()).thenReturn(maxPstPerTso);
+        Mockito.when(treeParameters.getMaxRaPerTso()).thenReturn(maxRaPerTso);
     }
 
     private PstRangeAction addPstRangeAction(String operator, double prePerimeterSetPoint, double optimizedSetPoint, double sensitivity) {
@@ -96,7 +97,7 @@ public class RangeActionFilterTest {
 
         Map<String, Integer> maxPstPerTso = new HashMap<>();
         maxPstPerTso.put("fr", 5);
-        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso);
+        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, new HashMap<>());
 
         rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
         rangeActionFilter.filterPstPerTso();
@@ -114,7 +115,7 @@ public class RangeActionFilterTest {
         PstRangeAction pstfr2 = addPstRangeAction("fr", 0, 0, 2);
         PstRangeAction pstfr3 = addPstRangeAction("fr", 0, 0, 3);
 
-        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>());
+        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
 
         rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
         rangeActionFilter.filterPstPerTso();
@@ -135,7 +136,31 @@ public class RangeActionFilterTest {
 
         Map<String, Integer> maxPstPerTso = new HashMap<>();
         maxPstPerTso.put("fr", 2);
-        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso);
+        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, new HashMap<>());
+
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter.filterPstPerTso();
+        Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
+
+        assertEquals(2, filteredRangeActions.size());
+        assertTrue(filteredRangeActions.contains(pstfr2));
+        assertTrue(filteredRangeActions.contains(pstfr4));
+    }
+
+    @Test
+    public void testFilterPstPerTsoNetworkActionApplied() {
+        PstRangeAction pstfr1 = addPstRangeAction("fr", 0, 0, 1);
+        PstRangeAction pstfr2 = addPstRangeAction("fr", 0, 3, 2);
+        PstRangeAction pstfr3 = addPstRangeAction("fr", 0, 0, 3);
+        PstRangeAction pstfr4 = addPstRangeAction("fr", 0, 0, -4);
+
+        addAppliedNetworkAction("fr");
+
+        Map<String, Integer> maxPstPerTso = new HashMap<>();
+        maxPstPerTso.put("fr", 4);
+        Map<String, Integer> maxRaPerTso = new HashMap<>();
+        maxRaPerTso.put("fr", 3);
+        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, maxRaPerTso);
 
         rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
         rangeActionFilter.filterPstPerTso();
@@ -162,7 +187,7 @@ public class RangeActionFilterTest {
 
         addAppliedNetworkAction("be");
 
-        setTreeParameters(Integer.MAX_VALUE, 3, new HashMap<>());
+        setTreeParameters(Integer.MAX_VALUE, 3, new HashMap<>(), new HashMap<>());
 
         rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
         rangeActionFilter.filterTsos();
@@ -188,7 +213,7 @@ public class RangeActionFilterTest {
 
         addAppliedNetworkAction("fr");
 
-        setTreeParameters(3, Integer.MAX_VALUE, new HashMap<>());
+        setTreeParameters(3, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
 
         rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
         rangeActionFilter.filterMaxRas();

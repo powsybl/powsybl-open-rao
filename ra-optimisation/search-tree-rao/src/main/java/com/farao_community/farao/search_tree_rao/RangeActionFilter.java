@@ -65,7 +65,7 @@ class RangeActionFilter {
 
         Map<String, Integer> maxPstPerTso = new HashMap<>(treeParameters.getMaxPstPerTso());
         treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
-            int appliedNetworkActionsForTso = (int) leaf.getNetworkActions().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
+            int appliedNetworkActionsForTso = (int) leaf.getActivatedNetworkActions().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
             int pstLimit = raLimit - appliedNetworkActionsForTso;
             maxPstPerTso.put(tso, Math.min(pstLimit, maxPstPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
         });

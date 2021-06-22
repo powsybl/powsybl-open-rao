@@ -237,7 +237,7 @@ public class SearchTree {
     }
 
     Leaf createChildLeaf(Network network, NetworkAction networkAction) {
-        return new Leaf(network, previousDepthOptimalLeaf.getNetworkActions(), networkAction, previousDepthOptimalLeaf);
+        return new Leaf(network, previousDepthOptimalLeaf.getActivatedNetworkActions(), networkAction, previousDepthOptimalLeaf);
     }
 
     private void optimizeLeaf(Leaf leaf, FlowResult baseFlowResult) {
