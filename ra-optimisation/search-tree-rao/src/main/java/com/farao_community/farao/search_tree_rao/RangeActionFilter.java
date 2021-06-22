@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -31,7 +32,7 @@ class RangeActionFilter {
 
     public RangeActionFilter(Leaf leaf, Set<RangeAction> availableRangeActions, TreeParameters treeParameters, Map<RangeAction, Double> prePerimeterSetPoints) {
         this.leaf = leaf;
-        this.rangeActionsToOptimize = new HashSet(availableRangeActions);
+        this.rangeActionsToOptimize = new HashSet<>(availableRangeActions);
         this.treeParameters = treeParameters;
         this.prePerimeterSetPoints = prePerimeterSetPoints;
     }
@@ -78,8 +79,8 @@ class RangeActionFilter {
             return;
         }
         Set<RangeAction> appliedRangeActions = rangeActionsToOptimize.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
-        Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(networkAction -> networkAction.getOperator()).collect(Collectors.toSet());
-        activatedTsos.addAll(appliedRangeActions.stream().map(rangeAction -> rangeAction.getOperator()).collect(Collectors.toSet()));
+        Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
+        activatedTsos.addAll(appliedRangeActions.stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
 
         Set<String> tsosToKeep = new HashSet<>(activatedTsos);
 
@@ -112,7 +113,7 @@ class RangeActionFilter {
         }
         // If in previous depth some RangeActions were activated, consider them optimizable and decrement the allowed number of PSTs
         // We have to do this because at the end of every depth, we apply optimal RangeActions for the next depth
-        Set<RangeAction> rangeActionsToRemove = new HashSet(rangeActionsToFilter);
+        Set<RangeAction> rangeActionsToRemove = new HashSet<>(rangeActionsToFilter);
         Set<RangeAction> appliedRangeActions = rangeActionsToFilter.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
         int updatedNumberOfRangeActionsToKeep = numberOfRangeActionsToKeep - appliedRangeActions.size();
         if (updatedNumberOfRangeActionsToKeep > rangeActionsToFilter.size()) {

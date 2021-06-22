@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.CountryGraph;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -190,9 +191,9 @@ public final class SearchTreeBloomer {
     }
 
     Set<String> getActivatedTsos(Leaf leaf) {
-        Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(networkAction -> networkAction.getOperator()).collect(Collectors.toSet());
+        Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
         activatedTsos.addAll(leaf.getRangeActions().stream().filter(rangeaction -> hasRangeActionChangedComparedToPrePerimeter(leaf, rangeaction))
-                .map(rangeAction -> rangeAction.getOperator()).collect(Collectors.toSet()));
+                .map(RemedialAction::getOperator).collect(Collectors.toSet()));
         return activatedTsos;
     }
 }
