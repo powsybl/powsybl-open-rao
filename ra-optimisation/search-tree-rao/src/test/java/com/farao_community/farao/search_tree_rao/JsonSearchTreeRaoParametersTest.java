@@ -34,6 +34,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(SearchTreeRaoParameters.class).setRelativeNetworkActionMinimumImpactThreshold(0.1);
         parameters.getExtension(SearchTreeRaoParameters.class).setAbsoluteNetworkActionMinimumImpactThreshold(20);
         parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeRa(3);
+        parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeTso(2);
         parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeRaPerTso(Map.of("RTE", 5));
         parameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(false);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SearchTreeRaoParameters.json");

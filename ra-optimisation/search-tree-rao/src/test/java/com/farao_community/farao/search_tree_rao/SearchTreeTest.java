@@ -80,6 +80,7 @@ public class SearchTreeTest {
         Mockito.when(treeParameters.getMaximumSearchDepth()).thenReturn(maximumSearchDepth);
         Mockito.when(treeParameters.getLeavesInParallel()).thenReturn(leavesInParallel);
         Mockito.when(treeParameters.getMaxRa()).thenReturn(Integer.MAX_VALUE);
+        Mockito.when(treeParameters.getMaxTso()).thenReturn(Integer.MAX_VALUE);
         Mockito.when(treeParameters.getMaxPstPerTso()).thenReturn(new HashMap<>());
     }
 
@@ -275,25 +276,6 @@ public class SearchTreeTest {
 
         assertTrue(rangeActionsToOptimize.contains(rangeAction2));
         assertFalse(rangeActionsToOptimize.contains(rangeAction1));
-    }
-
-    @Test
-    public void testIsRangeActionUsed() {
-        rangeAction1 = Mockito.mock(RangeAction.class);
-        rangeAction2 = Mockito.mock(RangeAction.class);
-        rangeAction3 = Mockito.mock(RangeAction.class);
-
-        Mockito.when(rootLeaf.getRangeActions()).thenReturn(Set.of(rangeAction1, rangeAction2));
-        Mockito.doReturn(0.).when(searchTree).getInitialRangeActionSetPoint(rangeAction1);
-        Mockito.doReturn(0.).when(searchTree).getInitialRangeActionSetPoint(rangeAction2);
-        Mockito.doReturn(0.).when(searchTree).getInitialRangeActionSetPoint(rangeAction3);
-        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction1)).thenReturn(0.);
-        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction2)).thenReturn(2.);
-        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction3)).thenReturn(3.);
-
-        assertFalse(searchTree.isRangeActionUsed(rangeAction1, rootLeaf));
-        assertTrue(searchTree.isRangeActionUsed(rangeAction2, rootLeaf));
-        assertFalse(searchTree.isRangeActionUsed(rangeAction3, rootLeaf));
     }
 
     @Test

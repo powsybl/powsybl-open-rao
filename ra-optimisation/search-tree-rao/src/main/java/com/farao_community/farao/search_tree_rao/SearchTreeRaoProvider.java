@@ -404,6 +404,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 network,
                 prePerimeterOutput,
                 treeParameters.getMaxRa(),
+                treeParameters.getMaxTso(),
                 treeParameters.getMaxTopoPerTso(),
                 treeParameters.getMaxRaPerTso(),
                 treeParameters.getSkipNetworkActionsFarFromMostLimitingElement(),
