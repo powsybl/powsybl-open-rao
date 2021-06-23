@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.CountryGraph;
+import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -31,6 +32,7 @@ public final class SearchTreeBloomer {
     private final CountryGraph countryGraph;
     private final RangeActionResult prePerimeterRangeActionResult;
     private final int maxRa;
+    private final int maxTso;
     private final Map<String, Integer> maxTopoPerTso;
     private final Map<String, Integer> maxRaPerTso;
     private final boolean filterFarElements;
@@ -39,6 +41,7 @@ public final class SearchTreeBloomer {
     public SearchTreeBloomer(Network network,
                              RangeActionResult prePerimeterRangeActionResult,
                              int maxRa,
+                             int maxTso,
                              Map<String, Integer> maxTopoPerTso,
                              Map<String, Integer> maxRaPerTso,
                              boolean filterFarElements,
@@ -47,6 +50,7 @@ public final class SearchTreeBloomer {
         countryGraph = new CountryGraph(network);
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.maxRa = maxRa;
+        this.maxTso = maxTso;
         this.maxTopoPerTso = maxTopoPerTso;
         this.maxRaPerTso = maxRaPerTso;
         this.filterFarElements = filterFarElements;
@@ -68,6 +72,10 @@ public final class SearchTreeBloomer {
         Set<NetworkAction> availableNetworkActions = new HashSet<>(networkActions).stream()
                 .filter(na -> !fromLeaf.getActivatedNetworkActions().contains(na))
                 .collect(Collectors.toSet());
+        Set<String> activatedTsos = getActivatedTsos(fromLeaf);
+        if (activatedTsos.size() == maxTso) {
+            availableNetworkActions = removeNetworkActionsTsoNotInSet(availableNetworkActions, activatedTsos);
+        }
         if (filterFarElements) {
             availableNetworkActions = removeNetworkActionsFarFromMostLimitingElement(fromLeaf, availableNetworkActions);
         }
@@ -96,7 +104,7 @@ public final class SearchTreeBloomer {
             }
         });
         if (networkActionsToFilter.size() > filteredNetworkActions.size()) {
-            LOGGER.debug("{} network actions have been filtered out because the maximum number of network actions for their TSO has been reached", networkActionsToFilter.size() - filteredNetworkActions.size());
+            LOGGER.info("{} network actions have been filtered out because the maximum number of network actions for their TSO has been reached", networkActionsToFilter.size() - filteredNetworkActions.size());
         }
         return filteredNetworkActions;
     }
@@ -136,13 +144,13 @@ public final class SearchTreeBloomer {
      * @param networkActionsToFilter: the set of network actions to reduce
      * @return the reduced set of network actions
      */
-    private Set<NetworkAction> removeNetworkActionsFarFromMostLimitingElement(Leaf leaf, Set<NetworkAction> networkActionsToFilter) {
+    Set<NetworkAction> removeNetworkActionsFarFromMostLimitingElement(Leaf leaf, Set<NetworkAction> networkActionsToFilter) {
         Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementLocation(leaf);
         Set<NetworkAction> filteredNetworkActions = networkActionsToFilter.stream()
                 .filter(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph))
                 .collect(Collectors.toSet());
         if (networkActionsToFilter.size() > filteredNetworkActions.size()) {
-            LOGGER.debug("{} network actions have been filtered out because they are far from the most limiting element", networkActionsToFilter.size() - filteredNetworkActions.size());
+            LOGGER.info("{} network actions have been filtered out because they are far from the most limiting element", networkActionsToFilter.size() - filteredNetworkActions.size());
         }
         return filteredNetworkActions;
     }
@@ -150,7 +158,7 @@ public final class SearchTreeBloomer {
     /**
      * Says if a network action is close to a given set of countries, respecting the maximum number of boundaries
      */
-    private boolean isNetworkActionCloseToLocations(NetworkAction networkAction, Set<Optional<Country>> locations, CountryGraph countryGraph) {
+    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, Set<Optional<Country>> locations, CountryGraph countryGraph) {
         if (locations.stream().anyMatch(Optional::isEmpty)) {
             return true;
         }
@@ -169,8 +177,23 @@ public final class SearchTreeBloomer {
         return false;
     }
 
+    Set<NetworkAction> removeNetworkActionsTsoNotInSet(Set<NetworkAction> networkActionsToFilter, Set<String> tsosToKeep) {
+        Set<NetworkAction> filteredNetworkActions = networkActionsToFilter.stream().filter(networkAction -> tsosToKeep.contains(networkAction.getOperator())).collect(Collectors.toSet());
+        if (networkActionsToFilter.size() > filteredNetworkActions.size()) {
+            LOGGER.info("{} network actions have been filtered out because the max number of usable TSOs has been reached", networkActionsToFilter.size() - filteredNetworkActions.size());
+        }
+        return filteredNetworkActions;
+    }
+
     private Set<Optional<Country>> getOptimizedMostLimitingElementLocation(Leaf leaf) {
         FlowCnec cnec = leaf.getMostLimitingElements(1).get(0);
         return cnec.getLocation(network);
+    }
+
+    Set<String> getActivatedTsos(Leaf leaf) {
+        Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
+        activatedTsos.addAll(leaf.getRangeActions().stream().filter(rangeaction -> hasRangeActionChangedComparedToPrePerimeter(leaf, rangeaction))
+                .map(RemedialAction::getOperator).collect(Collectors.toSet()));
+        return activatedTsos;
     }
 }
