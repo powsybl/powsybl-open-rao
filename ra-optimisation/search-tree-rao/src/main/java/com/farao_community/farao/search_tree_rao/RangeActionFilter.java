@@ -53,8 +53,10 @@ class RangeActionFilter {
                     .collect(Collectors.toSet());
             if (pstsForTso.size() > maxPst) {
                 Set<RangeAction> rangeActionsToRemove = computeRangeActionsToRemove(pstsForTso, maxPst);
-                LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of pst for tso {}", rangeActionsToRemove.size(), tso);
-                rangeActionsToOptimize.removeAll(rangeActionsToRemove);
+                if (!rangeActionsToRemove.isEmpty()) {
+                    LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of pst for tso {}", rangeActionsToRemove.size(), tso);
+                    rangeActionsToOptimize.removeAll(rangeActionsToRemove);
+                }
             }
         });
     }
@@ -95,8 +97,10 @@ class RangeActionFilter {
             tsosToKeep.add(rangeAction.getOperator());
         }
         Set<RangeAction> rangeActionsToRemove = rangeActionsToOptimize.stream().filter(rangeAction -> !tsosToKeep.contains(rangeAction.getOperator())).collect(Collectors.toSet());
-        LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
-        rangeActionsToOptimize.removeAll(rangeActionsToRemove);
+        if (!rangeActionsToRemove.isEmpty()) {
+            LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
+            rangeActionsToOptimize.removeAll(rangeActionsToRemove);
+        }
     }
 
     public void filterMaxRas() {
@@ -105,8 +109,10 @@ class RangeActionFilter {
         }
         int numberOfNetworkActionsAlreadyApplied = leaf.getActivatedNetworkActions().size();
         Set<RangeAction> rangeActionsToRemove = computeRangeActionsToRemove(rangeActionsToOptimize, treeParameters.getMaxRa() - numberOfNetworkActionsAlreadyApplied);
-        LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
-        rangeActionsToOptimize.removeAll(rangeActionsToRemove);
+        if (!rangeActionsToRemove.isEmpty()) {
+            LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
+            rangeActionsToOptimize.removeAll(rangeActionsToRemove);
+        }
 
     }
 
