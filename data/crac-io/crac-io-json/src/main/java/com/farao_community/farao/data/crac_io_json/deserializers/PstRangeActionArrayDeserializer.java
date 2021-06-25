@@ -60,6 +60,10 @@ public final class PstRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         OnStateArrayDeserializer.deserialize(jsonParser, adder);
                         break;
+                    case ON_FLOW_CONSTRAINT_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
+                        break;
                     case NETWORK_ELEMENT_ID:
                         String networkElementId = jsonParser.nextTextValue();
                         if (networkElementsNamesPerId.containsKey(networkElementId)) {

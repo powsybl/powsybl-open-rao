@@ -128,6 +128,7 @@ public final class CracResultUtil {
         crac.getNetworkActions().forEach(na -> {
             UsageMethod usageMethod = na.getUsageMethod(state);
             if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                // TODO : activate TO_BE_EVALUATED (OnFlowConstraint) UsageMethods if necessary
                 na.apply(network);
             }
         });

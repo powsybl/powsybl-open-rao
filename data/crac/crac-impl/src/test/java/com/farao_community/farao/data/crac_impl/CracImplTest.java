@@ -28,9 +28,9 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
-import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
-import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.FORCED;
+import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.*;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * General test file
@@ -595,6 +595,52 @@ public class CracImplTest {
     }
 
     @Test
+    public void testFilterRangeActionUsageRules() {
+        crac.newContingency().withId("co1").withNetworkElement("neCo").add();
+        crac.newContingency().withId("co2").withNetworkElement("neCo").add();
+
+        PstRangeAction ra1 = crac.newPstRangeAction()
+            .withId("ra1")
+            .withNetworkElement("ne1")
+            .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
+            .add();
+        PstRangeAction ra2 = crac.newPstRangeAction()
+            .withId("ra2")
+            .withNetworkElement("ne1")
+            .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
+            .add();
+        PstRangeAction ra3 = crac.newPstRangeAction()
+            .withId("ra3")
+            .withNetworkElement("ne2")
+            .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
+            .add();
+        PstRangeAction ra4 = crac.newPstRangeAction()
+            .withId("ra4")
+            .withNetworkElement("ne2")
+            .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
+            .add();
+
+        State state1 = crac.getState("co1", CURATIVE);
+        State state2 = crac.getState("co2", CURATIVE);
+
+        assertTrue(crac.getRangeActions(state1, TO_BE_EVALUATED).isEmpty());
+        assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
+        assertEquals(Set.of(ra3), crac.getRangeActions(state2, AVAILABLE));
+        assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED));
+        assertEquals(Set.of(ra4), crac.getRangeActions(state2, FORCED));
+        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, AVAILABLE, FORCED));
+        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, AVAILABLE, FORCED));
+    }
+
+    @Test
     public void testRemoveNetworkAction() {
         NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
         Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
@@ -619,11 +665,10 @@ public class CracImplTest {
         NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", List.of(ur2), Collections.singleton(ea2));
         crac.addNetworkAction(ra4);
 
-        assertEquals(0, crac.getNetworkActions(state1, FORCED).size());
-        assertEquals(2, crac.getNetworkActions(state1, UsageMethod.AVAILABLE).size());
-        assertTrue(crac.getNetworkActions(state1, UsageMethod.AVAILABLE).containsAll(Set.of(ra1, ra3)));
-        assertEquals(2, crac.getNetworkActions(state2, FORCED).size());
-        assertTrue(crac.getNetworkActions(state2, FORCED).containsAll(Set.of(ra2, ra4)));
+        assertTrue(crac.getNetworkActions(state1, FORCED).isEmpty());
+        assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, AVAILABLE));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED));
+        assertEquals(Set.of(ra2, ra4, ra1, ra3), crac.getNetworkActions(state2, FORCED, AVAILABLE));
 
         assertEquals(4, crac.getNetworkActions().size());
         assertEquals(4, crac.getRemedialActions().size());
@@ -653,6 +698,40 @@ public class CracImplTest {
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement("neCo"));
         assertEquals(0, crac.getStates().size());
+    }
+
+    @Test
+    public void testFilterNetworkActionUsageRules() {
+        NetworkElement neCo = crac.addNetworkElement("neCo", "neCo");
+        Contingency contingency1 = new ContingencyImpl("co1", "co1", Collections.singleton(neCo));
+        crac.addContingency(contingency1);
+        State state1 = crac.addState(contingency1, CURATIVE);
+        UsageRule ur1 = new OnStateImpl(UsageMethod.AVAILABLE, state1);
+        State state2 = crac.addState(contingency1, OUTAGE);
+        UsageRule ur2 = new OnStateImpl(FORCED, state2);
+        UsageRule ur3 = new OnStateImpl(FORCED, state1);
+
+        NetworkElement ne1 = crac.addNetworkElement("ne1", "ne1");
+        NetworkElement ne2 = crac.addNetworkElement("ne2", "ne2");
+
+        ElementaryAction ea1 = new TopologicalActionImpl(ne1, ActionType.OPEN);
+        ElementaryAction ea2 = new TopologicalActionImpl(ne2, ActionType.CLOSE);
+
+        NetworkAction ra1 = new NetworkActionImpl("ra1", "ra1", "operator", List.of(ur1), Collections.singleton(ea1));
+        crac.addNetworkAction(ra1);
+        NetworkAction ra2 = new NetworkActionImpl("ra2", "ra2", "operator", List.of(ur2), Collections.singleton(ea1));
+        crac.addNetworkAction(ra2);
+        NetworkAction ra3 = new NetworkActionImpl("ra3", "ra3", "operator", List.of(ur3), Collections.singleton(ea2));
+        crac.addNetworkAction(ra3);
+        NetworkAction ra4 = new NetworkActionImpl("ra4", "ra4", "operator", List.of(ur2), Collections.singleton(ea2));
+        crac.addNetworkAction(ra4);
+
+        assertEquals(Set.of(ra1), crac.getNetworkActions(state1, AVAILABLE));
+        assertEquals(Set.of(), crac.getNetworkActions(state2, AVAILABLE));
+        assertEquals(Set.of(ra3), crac.getNetworkActions(state1, FORCED));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED));
+        assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, AVAILABLE, FORCED));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, AVAILABLE, FORCED));
     }
 
     @Test
