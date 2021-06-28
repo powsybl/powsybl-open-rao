@@ -365,6 +365,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         searchTreeInput.setNetwork(network);
         Set<FlowCnec> cnecs = computePerimeterCnecs(crac, perimeter);
         searchTreeInput.setFlowCnecs(cnecs);
+        searchTreeInput.setOptimizedState(optimizedState);
         searchTreeInput.setNetworkActions(crac.getNetworkActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED));
 
         Set<RangeAction> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED);

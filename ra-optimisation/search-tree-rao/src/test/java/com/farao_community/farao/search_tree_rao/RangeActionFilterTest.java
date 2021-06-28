@@ -82,7 +82,7 @@ public class RangeActionFilterTest {
         PstRangeAction pstnl = addPstRangeAction("nl", 0, 3, 0);
         leafRangeActions.remove(pstnl);
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints, false);
 
         assertFalse(rangeActionFilter.isRangeActionUsed(pstfr, leaf));
         assertTrue(rangeActionFilter.isRangeActionUsed(pstbe, leaf));
@@ -99,7 +99,7 @@ public class RangeActionFilterTest {
         maxPstPerTso.put("fr", 5);
         setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -117,7 +117,7 @@ public class RangeActionFilterTest {
 
         setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -138,7 +138,7 @@ public class RangeActionFilterTest {
         maxPstPerTso.put("fr", 2);
         setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -162,7 +162,7 @@ public class RangeActionFilterTest {
         maxRaPerTso.put("fr", 3);
         setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, maxRaPerTso);
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -189,7 +189,7 @@ public class RangeActionFilterTest {
 
         setTreeParameters(Integer.MAX_VALUE, 3, new HashMap<>(), new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterTsos();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -215,13 +215,33 @@ public class RangeActionFilterTest {
 
         setTreeParameters(3, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterMaxRas();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
         assertEquals(2, filteredRangeActions.size());
         assertTrue(filteredRangeActions.contains(pstfr1));
         assertTrue(filteredRangeActions.contains(pstfr3));
+    }
+
+    @Test
+    public void testFilterWithPriorities() {
+        PstRangeAction pstfr1 = addPstRangeAction("fr", 0, 0, 1);
+        PstRangeAction pstfr2 = addPstRangeAction("fr", 0, 0, 2);
+        PstRangeAction pstfr3 = addPstRangeAction("fr", 0, 0, 3);
+        Mockito.when(leaf.getRangeActions()).thenReturn(Set.of(pstfr2, pstfr3));
+        setTreeParameters(2, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
+
+        // initially pstfr2 and pstfr3 were available but not used
+        // the filter should prioritize pstfr1 even though it has the smallest sensi
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints, true);
+        rangeActionFilter.filterMaxRas();
+        assertEquals(Set.of(pstfr1, pstfr3), rangeActionFilter.getRangeActionsToOptimize());
+
+        // no priority, compare sensi
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterMaxRas();
+        assertEquals(Set.of(pstfr2, pstfr3), rangeActionFilter.getRangeActionsToOptimize());
     }
 
 }

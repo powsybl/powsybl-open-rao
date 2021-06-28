@@ -668,7 +668,7 @@ public class CracImplTest {
         assertTrue(crac.getNetworkActions(state1, FORCED).isEmpty());
         assertEquals(Set.of(ra1, ra3), crac.getNetworkActions(state1, AVAILABLE));
         assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED));
-        assertEquals(Set.of(ra2, ra4, ra1, ra3), crac.getNetworkActions(state2, FORCED, AVAILABLE));
+        assertEquals(Set.of(ra2, ra4), crac.getNetworkActions(state2, FORCED, AVAILABLE));
 
         assertEquals(4, crac.getNetworkActions().size());
         assertEquals(4, crac.getRemedialActions().size());

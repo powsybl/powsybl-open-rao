@@ -131,16 +131,6 @@ public class LeafTest {
         assertFalse(leaf2.isRoot());
     }
 
-    /*@Test
-    public void testBloom() {
-        Leaf rootLeaf = new Leaf(raoData, raoParameters, treeParameters, linearOptimizerParameters);
-        Set<NetworkAction> networkActions = rootLeaf.bloom();
-        assertEquals(2, networkActions.size());
-        assertTrue(networkActions.contains(na1));
-        assertTrue(networkActions.contains(na2));
-    } TODO: move to SearchTreeBloomerTest
-    */
-
     @Test
     public void evaluateAnAlreadyEvaluatedLeaf() {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
@@ -645,6 +635,7 @@ public class LeafTest {
 
         Mockito.when(linearOptimizationResult.getSensitivityValue(flowCnec, rangeAction, Unit.MEGAWATT)).thenReturn(expectedSensi);
         Mockito.when(linearOptimizationResult.getSensitivityValue(flowCnec, linearGlsk, Unit.MEGAWATT)).thenReturn(expectedSensi);
+        Mockito.when(linearOptimizationResult.getRangeActions()).thenReturn(Set.of(rangeAction));
 
         assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, rangeAction, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(expectedSensi, leaf.getSensitivityValue(flowCnec, linearGlsk, Unit.MEGAWATT), DOUBLE_TOLERANCE);

@@ -29,12 +29,19 @@ class RangeActionFilter {
     private Set<RangeAction> rangeActionsToOptimize;
     private final TreeParameters treeParameters;
     private final Map<RangeAction, Double> prePerimeterSetPoints;
+    private final Set<RangeAction> leastPriorityRangeActions;
 
-    public RangeActionFilter(Leaf leaf, Set<RangeAction> availableRangeActions, TreeParameters treeParameters, Map<RangeAction, Double> prePerimeterSetPoints) {
+    public RangeActionFilter(Leaf leaf, Set<RangeAction> availableRangeActions, TreeParameters treeParameters, Map<RangeAction, Double> prePerimeterSetPoints, boolean deprioritizeIgnoredRangeActions) {
         this.leaf = leaf;
         this.rangeActionsToOptimize = new HashSet<>(availableRangeActions);
         this.treeParameters = treeParameters;
         this.prePerimeterSetPoints = prePerimeterSetPoints;
+        if (deprioritizeIgnoredRangeActions) {
+            // define a lesser priority on range actions that have been ignored in previous optim
+            this.leastPriorityRangeActions = availableRangeActions.stream().filter(ra -> leaf.getRangeActions().contains(ra) && leaf.getOptimizedSetPoint(ra) == prePerimeterSetPoints.get(ra)).collect(Collectors.toSet());
+        } else {
+            this.leastPriorityRangeActions = new HashSet<>();
+        }
     }
 
     public Set<RangeAction> getRangeActionsToOptimize() {
@@ -132,10 +139,26 @@ class RangeActionFilter {
         } else {
             rangeActionsToRemove.removeAll(appliedRangeActions);
             List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToRemove.stream()
-                    .sorted((ra1, ra2) -> -compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
-                    .collect(Collectors.toList());
+                .sorted((ra1, ra2) -> comparePrioritiesAndSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                .collect(Collectors.toList());
             rangeActionsToRemove.removeAll(rangeActionsSortedBySensitivity.subList(0, updatedNumberOfRangeActionsToKeep));
             return rangeActionsToRemove;
+        }
+    }
+
+    /**
+     * First compares priority then sensi
+     * If a range action has more priority (depending on the contents of leastPriorityRangeActions) then the other, then
+     * it will be considered greater.
+     * If both RAs have the same priority, then absolute sensitivities will be compared.
+     */
+    private int comparePrioritiesAndSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult sensitivityResult) {
+        if (!leastPriorityRangeActions.contains(ra1) && leastPriorityRangeActions.contains(ra2)) {
+            return -1;
+        } else if (leastPriorityRangeActions.contains(ra1) && !leastPriorityRangeActions.contains(ra2)) {
+            return 1;
+        } else {
+            return -compareAbsoluteSensitivities(ra1, ra2, cnec, sensitivityResult);
         }
     }
 

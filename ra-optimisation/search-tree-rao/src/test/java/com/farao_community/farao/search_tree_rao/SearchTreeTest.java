@@ -8,11 +8,19 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_api.results.OptimizationResult;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
@@ -28,6 +36,10 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -77,44 +89,44 @@ public class SearchTreeTest {
     private void setTreeParameters() {
         maximumSearchDepth = 1;
         leavesInParallel = 1;
-        Mockito.when(treeParameters.getMaximumSearchDepth()).thenReturn(maximumSearchDepth);
-        Mockito.when(treeParameters.getLeavesInParallel()).thenReturn(leavesInParallel);
-        Mockito.when(treeParameters.getMaxRa()).thenReturn(Integer.MAX_VALUE);
-        Mockito.when(treeParameters.getMaxTso()).thenReturn(Integer.MAX_VALUE);
-        Mockito.when(treeParameters.getMaxPstPerTso()).thenReturn(new HashMap<>());
+        when(treeParameters.getMaximumSearchDepth()).thenReturn(maximumSearchDepth);
+        when(treeParameters.getLeavesInParallel()).thenReturn(leavesInParallel);
+        when(treeParameters.getMaxRa()).thenReturn(Integer.MAX_VALUE);
+        when(treeParameters.getMaxTso()).thenReturn(Integer.MAX_VALUE);
+        when(treeParameters.getMaxPstPerTso()).thenReturn(new HashMap<>());
     }
 
     private void setSearchTreeInput() {
         searchTreeInput = Mockito.mock(SearchTreeInput.class);
         network = Mockito.mock(Network.class);
-        Mockito.when(searchTreeInput.getNetwork()).thenReturn(network);
+        when(searchTreeInput.getNetwork()).thenReturn(network);
         availableNetworkActions = new HashSet<>();
-        Mockito.when(searchTreeInput.getNetworkActions()).thenReturn(availableNetworkActions);
+        when(searchTreeInput.getNetworkActions()).thenReturn(availableNetworkActions);
         availableRangeActions = new HashSet<>();
-        Mockito.when(searchTreeInput.getRangeActions()).thenReturn(availableRangeActions);
+        when(searchTreeInput.getRangeActions()).thenReturn(availableRangeActions);
         prePerimeterOutput = Mockito.mock(PrePerimeterResult.class);
-        Mockito.when(searchTreeInput.getPrePerimeterOutput()).thenReturn(prePerimeterOutput);
+        when(searchTreeInput.getPrePerimeterOutput()).thenReturn(prePerimeterOutput);
         searchTreeComputer = Mockito.mock(SearchTreeComputer.class);
         SensitivityComputer sensitivityComputer = Mockito.mock(SensitivityComputer.class);
-        Mockito.when(searchTreeComputer.getSensitivityComputer(availableRangeActions)).thenReturn(sensitivityComputer);
-        Mockito.when(searchTreeInput.getSearchTreeComputer()).thenReturn(searchTreeComputer);
+        when(searchTreeComputer.getSensitivityComputer(availableRangeActions)).thenReturn(sensitivityComputer);
+        when(searchTreeInput.getSearchTreeComputer()).thenReturn(searchTreeComputer);
         searchTreeProblem = Mockito.mock(SearchTreeProblem.class);
-        Mockito.when(searchTreeInput.getSearchTreeProblem()).thenReturn(searchTreeProblem);
+        when(searchTreeInput.getSearchTreeProblem()).thenReturn(searchTreeProblem);
         bloomer = Mockito.mock(SearchTreeBloomer.class);
-        Mockito.when(searchTreeInput.getSearchTreeBloomer()).thenReturn(bloomer);
+        when(searchTreeInput.getSearchTreeBloomer()).thenReturn(bloomer);
         objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        Mockito.when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
+        when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
-        Mockito.when(searchTreeInput.getIteratingLinearOptimizer()).thenReturn(iteratingLinearOptimizer);
+        when(searchTreeInput.getIteratingLinearOptimizer()).thenReturn(iteratingLinearOptimizer);
         rootLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNetworkActions);
+        when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNetworkActions);
     }
 
     @Test
     public void runOnAFailingRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
 
-        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
@@ -128,8 +140,8 @@ public class SearchTreeTest {
         setStopCriterionAtTargetObjectiveValue(3.);
 
         double leafCost = 2.;
-        Mockito.when(rootLeaf.getCost()).thenReturn(leafCost);
-        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
+        when(rootLeaf.getCost()).thenReturn(leafCost);
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
@@ -138,16 +150,16 @@ public class SearchTreeTest {
     }
 
     private void setStopCriterionAtTargetObjectiveValue(double value) {
-        Mockito.when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
-        Mockito.when(treeParameters.getTargetObjectiveValue()).thenReturn(value);
+        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
+        when(treeParameters.getTargetObjectiveValue()).thenReturn(value);
     }
 
     @Test
     public void runAndOptimizeOnlyRootLeaf() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
-        Mockito.when(rootLeaf.getCost()).thenReturn(2.);
-        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        when(rootLeaf.getCost()).thenReturn(2.);
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(rootLeaf, result);
@@ -159,8 +171,8 @@ public class SearchTreeTest {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(3.);
         searchTreeWithOneChildLeaf();
-        Mockito.when(rootLeaf.getCost()).thenReturn(4., 2.);
-        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        when(rootLeaf.getCost()).thenReturn(4., 2.);
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(rootLeaf, result);
@@ -190,12 +202,12 @@ public class SearchTreeTest {
         setStopCriterionAtMinObjective();
         searchTreeWithOneChildLeaf();
 
-        Mockito.when(rootLeaf.getCost()).thenReturn(4.);
-        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        when(rootLeaf.getCost()).thenReturn(4.);
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
         Leaf childLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
+        when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, networkAction);
 
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
@@ -246,12 +258,13 @@ public class SearchTreeTest {
         setMaxPstPerTso(tsoName, maxPstOfTso);
         mockRootLeafCost(5.);
         RangeAction rangeAction4 = Mockito.mock(PstRangeAction.class);
-        Mockito.when(rangeAction4.getOperator()).thenReturn("TSO - not in map");
+        when(rangeAction4.getOperator()).thenReturn("TSO - not in map");
+        when(rangeAction4.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         availableRangeActions.add(rangeAction4);
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
-        Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(rootLeaf);
+        Set<RangeAction> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(rootLeaf, availableRangeActions, false);
 
         assert rangeActionsToOptimize.contains(rangeAction2);
         assertFalse(rangeActionsToOptimize.contains(rangeAction1));
@@ -272,7 +285,7 @@ public class SearchTreeTest {
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
-        Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(rootLeaf);
+        Set<RangeAction> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(rootLeaf, availableRangeActions, false);
 
         assertTrue(rangeActionsToOptimize.contains(rangeAction2));
         assertFalse(rangeActionsToOptimize.contains(rangeAction1));
@@ -289,7 +302,7 @@ public class SearchTreeTest {
         setMaxPstPerTso(tsoName, maxPstOfTso);
 
         mockRootLeafCost(5.);
-        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction2)).thenReturn(3.);
+        when(rootLeaf.getOptimizedSetPoint(rangeAction2)).thenReturn(3.);
 
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(3., result.getOptimizedSetPoint(rangeAction2), DOUBLE_TOLERANCE);
@@ -301,12 +314,12 @@ public class SearchTreeTest {
         int maxCurativeRa = 2;
         setMaxRa(maxCurativeRa);
         Leaf childLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(childLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(networkAction));
+        when(childLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(networkAction));
         FlowCnec mostLimitingElement = Mockito.mock(FlowCnec.class);
-        Mockito.when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
+        when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
-        Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(childLeaf);
+        Set<RangeAction> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(childLeaf, availableRangeActions, false);
         assertEquals(1, rangeActionsToOptimize.size());
     }
 
@@ -316,73 +329,152 @@ public class SearchTreeTest {
         int maxCurativeRa = 1;
         setMaxRa(maxCurativeRa);
         Leaf childLeaf = Mockito.mock(Leaf.class);
-        Mockito.when(childLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(networkAction));
+        when(childLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(networkAction));
         FlowCnec mostLimitingElement = Mockito.mock(FlowCnec.class);
-        Mockito.when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
+        when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
-        Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(childLeaf);
+        Set<RangeAction> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(childLeaf, availableRangeActions, false);
         assertEquals(0, rangeActionsToOptimize.size());
     }
 
     private void raoWithRangeActionsForTso(String tsoName) {
         rangeAction1 = Mockito.mock(PstRangeAction.class);
         rangeAction2 = Mockito.mock(PstRangeAction.class);
-        Mockito.when(rangeAction1.getOperator()).thenReturn(tsoName);
-        Mockito.when(rangeAction1.getName()).thenReturn("PST1");
-        Mockito.when(rangeAction2.getOperator()).thenReturn(tsoName);
-        Mockito.when(rangeAction2.getName()).thenReturn("PST2");
+        when(rangeAction1.getOperator()).thenReturn(tsoName);
+        when(rangeAction1.getName()).thenReturn("PST1");
+        when(rangeAction1.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(rangeAction2.getOperator()).thenReturn(tsoName);
+        when(rangeAction2.getName()).thenReturn("PST2");
+        when(rangeAction2.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         availableRangeActions.add(rangeAction1);
         availableRangeActions.add(rangeAction2);
 
         FlowCnec mostLimitingElement = Mockito.mock(FlowCnec.class);
-        Mockito.when(rootLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
-        Mockito.when(rootLeaf.getSensitivityValue(mostLimitingElement, rangeAction1, Unit.MEGAWATT)).thenReturn(1.);
-        Mockito.when(rootLeaf.getSensitivityValue(mostLimitingElement, rangeAction2, Unit.MEGAWATT)).thenReturn(2.);
+        when(rootLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
+        when(rootLeaf.getSensitivityValue(mostLimitingElement, rangeAction1, Unit.MEGAWATT)).thenReturn(1.);
+        when(rootLeaf.getSensitivityValue(mostLimitingElement, rangeAction2, Unit.MEGAWATT)).thenReturn(2.);
     }
 
     private void mockRootLeafCost(double cost) throws Exception {
-        Mockito.when(rootLeaf.getCost()).thenReturn(cost);
-        Mockito.when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        when(rootLeaf.getCost()).thenReturn(cost);
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
     }
 
     private void setMaxPstPerTso(String tsoName, int maxPstOfTso) {
         Map<String, Integer> maxPstPerTso = new HashMap<>();
         maxPstPerTso.put(tsoName, maxPstOfTso);
-        Mockito.when(treeParameters.getMaxPstPerTso()).thenReturn(maxPstPerTso);
+        when(treeParameters.getMaxPstPerTso()).thenReturn(maxPstPerTso);
     }
 
     private void mockLeafsCosts(double rootLeafCostAfterOptim, double childLeafCostAfterOptim, Leaf childLeaf) throws Exception {
         mockRootLeafCost(rootLeafCostAfterOptim);
-        Mockito.when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
+        when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, networkAction);
     }
 
     private void mockNetworkPool(Network network) throws Exception {
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         String workingVariantId = "ID";
-        Mockito.when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
-        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+        when(variantManager.getWorkingVariantId()).thenReturn(workingVariantId);
+        when(network.getVariantManager()).thenReturn(variantManager);
         MockedFaraoNetworkPool faraoNetworkPool = new MockedFaraoNetworkPool(network, workingVariantId, leavesInParallel);
         Mockito.doReturn(faraoNetworkPool).when(searchTree).makeFaraoNetworkPool(network, leavesInParallel);
     }
 
     private void searchTreeWithOneChildLeaf() {
         networkAction = Mockito.mock(NetworkAction.class);
+        when(networkAction.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         availableNetworkActions.add(networkAction);
     }
 
     private void setStopCriterionAtMinObjective() {
-        Mockito.when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
+        when(treeParameters.getStopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
     }
 
     private void raoWithoutLoopFlowLimitation() {
-        Mockito.when(linearOptimizerParameters.isRaoWithLoopFlowLimitation()).thenReturn(false);
+        when(linearOptimizerParameters.isRaoWithLoopFlowLimitation()).thenReturn(false);
     }
 
     private void setMaxRa(int maxRa) {
-        Mockito.when(treeParameters.getMaxRa()).thenReturn(maxRa);
+        when(treeParameters.getMaxRa()).thenReturn(maxRa);
+    }
+
+    @Test
+    public void testIsNetworkActionAvailable() {
+        Crac crac = CommonCracCreation.create();
+        State optimizedState = mock(State.class);
+        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
+
+        FlowCnec flowCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
+        FlowResult flowResult = mock(FlowResult.class);
+
+        NetworkAction na1 = crac.newNetworkAction().withId("na1")
+            .newTopologicalAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
+            .newFreeToUseUsageRule().withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+        assertTrue(SearchTree.isRemedialActionAvailable(na1, optimizedState, flowResult));
+
+        NetworkAction na2 = crac.newNetworkAction().withId("na2")
+            .newTopologicalAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
+            .newOnFlowConstraintUsageRule().withInstant(Instant.CURATIVE).withFlowCnec(flowCnec.getId()).add()
+            .add();
+        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) na2.getUsageRules().get(0);
+
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
+        assertFalse(SearchTree.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
+        assertFalse(SearchTree.isRemedialActionAvailable(na2, optimizedState, flowResult));
+
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
+        assertTrue(SearchTree.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
+        assertTrue(SearchTree.isRemedialActionAvailable(na2, optimizedState, flowResult));
+
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
+        assertTrue(SearchTree.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
+        assertTrue(SearchTree.isRemedialActionAvailable(na2, optimizedState, flowResult));
+
+        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        assertFalse(SearchTree.isRemedialActionAvailable(na1, optimizedState, flowResult));
+        assertFalse(SearchTree.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
+        assertFalse(SearchTree.isRemedialActionAvailable(na2, optimizedState, flowResult));
+    }
+
+    @Test
+    public void testUpdateAvailableRangeActionsOnNewMargins() {
+        State optimizedState = mock(State.class);
+        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
+
+        FlowCnec flowCnec = mock(FlowCnec.class);
+        FlowResult flowResult = mock(FlowResult.class);
+
+        RangeAction ra1 = mock(RangeAction.class);
+        when(ra1.getUsageMethod(optimizedState)).thenReturn(UsageMethod.AVAILABLE);
+
+        OnFlowConstraint onFlowConstraint = mock(OnFlowConstraint.class);
+        when(onFlowConstraint.getInstant()).thenReturn(Instant.CURATIVE);
+        when(onFlowConstraint.getFlowCnec()).thenReturn(flowCnec);
+        when(onFlowConstraint.getUsageMethod(optimizedState)).thenReturn(UsageMethod.TO_BE_EVALUATED);
+        RangeAction ra2 = mock(RangeAction.class);
+        when(ra2.getUsageMethod(optimizedState)).thenReturn(UsageMethod.TO_BE_EVALUATED);
+        when(ra2.getUsageRules()).thenReturn(List.of(onFlowConstraint));
+
+        // only ra1 should be available if margin on cnec is positive
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
+        Set<RangeAction> rangeActions = SearchTree.updateAvailableRangeActionsOnNewMargins(Set.of(ra1, ra2), null, optimizedState, flowResult);
+        assertEquals(Set.of(ra1), rangeActions);
+        // same
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(100.);
+        rangeActions = SearchTree.updateAvailableRangeActionsOnNewMargins(Set.of(ra1, ra2), rangeActions, optimizedState, flowResult);
+        assertEquals(Set.of(ra1), rangeActions);
+        // now both ra1 and ra2 should be available because margin on cnec becomes negative
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
+        rangeActions = SearchTree.updateAvailableRangeActionsOnNewMargins(Set.of(ra1, ra2), rangeActions, optimizedState, flowResult);
+        assertEquals(Set.of(ra1, ra2), rangeActions);
+        // margin becomes positive again, but ra2 should stay available
+        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(5.);
+        rangeActions = SearchTree.updateAvailableRangeActionsOnNewMargins(Set.of(ra1, ra2), rangeActions, optimizedState, flowResult);
+        assertEquals(Set.of(ra1, ra2), rangeActions);
     }
 }
