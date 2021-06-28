@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 public class OnFlowConstraintImpl extends AbstractUsageRule implements OnFlowConstraint {
     private Instant instant;
     private FlowCnec flowCnec;
-    private final UsageMethod usageMethod = UsageMethod.TO_BE_EVALUATED;
 
     OnFlowConstraintImpl(Instant instant, FlowCnec flowCnec) {
         super(UsageMethod.TO_BE_EVALUATED);
@@ -38,6 +37,23 @@ public class OnFlowConstraintImpl extends AbstractUsageRule implements OnFlowCon
 
     @Override
     public UsageMethod getUsageMethod(State state) {
-        return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
+        return state.getInstant().equals(instant) ? UsageMethod.TO_BE_EVALUATED : UsageMethod.UNDEFINED;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OnFlowConstraintImpl rule = (OnFlowConstraintImpl) o;
+        return super.equals(o) && rule.getInstant().equals(instant) && rule.getFlowCnec().equals(flowCnec);
+    }
+
+    @Override
+    public int hashCode() {
+        return flowCnec.hashCode() * 19 + instant.hashCode() * 47;
     }
 }

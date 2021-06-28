@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraintAdder;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
@@ -106,43 +107,26 @@ public class OnFlowConstraintAdderImplTest {
 
     @Test
     public void testOutageException() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnFlowConstraintUsageRule()
-                .withInstant(Instant.OUTAGE)
-                .withFlowCnec("cnec2stateCurativeContingency1")
-                .add()
-                .add()
-        );
+        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.OUTAGE).withFlowCnec("cnec2stateCurativeContingency1");
+        assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     public void testAbsentCnecException() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnFlowConstraintUsageRule()
-                .withInstant(Instant.PREVENTIVE)
-                .withFlowCnec("fake_cnec")
-                .add()
-                .add()
-        );
+        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE)
+            .withFlowCnec("fake_cnec");
+        assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     public void testNoCnecException() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnFlowConstraintUsageRule()
-                .withInstant(Instant.PREVENTIVE)
-                .add()
-                .add()
-        );
+        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE);
+        assertThrows(FaraoException.class, adder::add);
     }
 
     @Test
     public void testNoInstantException() {
-        assertThrows(FaraoException.class, () ->
-            remedialActionAdder.newOnFlowConstraintUsageRule()
-                .withFlowCnec("cnec2stateCurativeContingency1")
-                .add()
-                .add()
-        );
+        OnFlowConstraintAdder adder = remedialActionAdder.newOnFlowConstraintUsageRule().withFlowCnec("cnec2stateCurativeContingency1");
+        assertThrows(FaraoException.class, adder::add);
     }
 }

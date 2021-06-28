@@ -44,4 +44,26 @@ public class OnFlowConstraintImplTest {
         assertEquals(UsageMethod.TO_BE_EVALUATED, onFlowConstraint.getUsageMethod(preventiveState));
         assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(curativeState));
     }
+
+    @Test
+    public void testEquals() {
+        OnFlowConstraint onFlowConstraint1 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
+        assertEquals(onFlowConstraint1, onFlowConstraint1);
+        assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint1.hashCode());
+
+        assertNotEquals(onFlowConstraint1, null);
+        assertNotEquals(onFlowConstraint1, Mockito.mock(FreeToUseImpl.class));
+
+        OnFlowConstraint onFlowConstraint2 = new OnFlowConstraintImpl(Instant.PREVENTIVE, flowCnec);
+        assertEquals(onFlowConstraint1, onFlowConstraint2);
+        assertEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
+
+        onFlowConstraint2 = new OnFlowConstraintImpl(Instant.CURATIVE, flowCnec);
+        assertNotEquals(onFlowConstraint1, onFlowConstraint2);
+        assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
+
+        onFlowConstraint2 = new OnFlowConstraintImpl(Instant.PREVENTIVE, Mockito.mock(FlowCnec.class));
+        assertNotEquals(onFlowConstraint1, onFlowConstraint2);
+        assertNotEquals(onFlowConstraint1.hashCode(), onFlowConstraint2.hashCode());
+    }
 }
