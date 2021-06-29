@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -27,13 +28,15 @@ class RangeActionFilter {
 
     private final Leaf leaf;
     private Set<RangeAction> rangeActionsToOptimize;
+    private final State optimizedState;
     private final TreeParameters treeParameters;
     private final Map<RangeAction, Double> prePerimeterSetPoints;
     private final Set<RangeAction> leastPriorityRangeActions;
 
-    public RangeActionFilter(Leaf leaf, Set<RangeAction> availableRangeActions, TreeParameters treeParameters, Map<RangeAction, Double> prePerimeterSetPoints, boolean deprioritizeIgnoredRangeActions) {
+    public RangeActionFilter(Leaf leaf, Set<RangeAction> availableRangeActions, State optimizedState, TreeParameters treeParameters, Map<RangeAction, Double> prePerimeterSetPoints, boolean deprioritizeIgnoredRangeActions) {
         this.leaf = leaf;
         this.rangeActionsToOptimize = new HashSet<>(availableRangeActions);
+        this.optimizedState = optimizedState;
         this.treeParameters = treeParameters;
         this.prePerimeterSetPoints = prePerimeterSetPoints;
         if (deprioritizeIgnoredRangeActions) {
@@ -46,6 +49,10 @@ class RangeActionFilter {
 
     public Set<RangeAction> getRangeActionsToOptimize() {
         return rangeActionsToOptimize;
+    }
+
+    public void filterUnavailableRangeActions() {
+        rangeActionsToOptimize.removeIf(ra -> !isRangeActionUsed(ra, leaf) && !SearchTree.isRemedialActionAvailable(ra, optimizedState, leaf));
     }
 
     public void filterPstPerTso() {

@@ -128,8 +128,16 @@ public final class CracResultUtil {
         crac.getNetworkActions().forEach(na -> {
             UsageMethod usageMethod = na.getUsageMethod(state);
             if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
-                // TODO : activate TO_BE_EVALUATED (OnFlowConstraint) UsageMethods if necessary
                 na.apply(network);
+            } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
+                LOGGER.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
+                /*
+                 * This method is only used in FlowbasedComputation.
+                 * We do not assess the availability of such remedial actions: they're not supposed to exist.
+                 * If it is needed in the future, we will have to loop around a sensitivity computation, followed by a
+                 * re-assessment of additional available RAs and applying them, then re-running sensitivity, etc
+                 * until the list of applied remedial actions stops changing
+                 */
             }
         });
     }

@@ -440,41 +440,4 @@ public class SearchTreeTest {
         assertFalse(SearchTree.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
         assertFalse(SearchTree.isRemedialActionAvailable(na2, optimizedState, flowResult));
     }
-
-    @Test
-    public void testUpdateAvailableRangeActionsOnNewMargins() {
-        State optimizedState = mock(State.class);
-        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
-
-        FlowCnec flowCnec = mock(FlowCnec.class);
-        FlowResult flowResult = mock(FlowResult.class);
-
-        RangeAction ra1 = mock(RangeAction.class);
-        when(ra1.getUsageMethod(optimizedState)).thenReturn(UsageMethod.AVAILABLE);
-
-        OnFlowConstraint onFlowConstraint = mock(OnFlowConstraint.class);
-        when(onFlowConstraint.getInstant()).thenReturn(Instant.CURATIVE);
-        when(onFlowConstraint.getFlowCnec()).thenReturn(flowCnec);
-        when(onFlowConstraint.getUsageMethod(optimizedState)).thenReturn(UsageMethod.TO_BE_EVALUATED);
-        RangeAction ra2 = mock(RangeAction.class);
-        when(ra2.getUsageMethod(optimizedState)).thenReturn(UsageMethod.TO_BE_EVALUATED);
-        when(ra2.getUsageRules()).thenReturn(List.of(onFlowConstraint));
-
-        // only ra1 should be available if margin on cnec is positive
-        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
-        Set<RangeAction> rangeActions = SearchTree.updateAvailableRangeActionsOnNewMargins(Set.of(ra1, ra2), null, optimizedState, flowResult);
-        assertEquals(Set.of(ra1), rangeActions);
-        // same
-        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(100.);
-        rangeActions = SearchTree.updateAvailableRangeActionsOnNewMargins(Set.of(ra1, ra2), rangeActions, optimizedState, flowResult);
-        assertEquals(Set.of(ra1), rangeActions);
-        // now both ra1 and ra2 should be available because margin on cnec becomes negative
-        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
-        rangeActions = SearchTree.updateAvailableRangeActionsOnNewMargins(Set.of(ra1, ra2), rangeActions, optimizedState, flowResult);
-        assertEquals(Set.of(ra1, ra2), rangeActions);
-        // margin becomes positive again, but ra2 should stay available
-        when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(5.);
-        rangeActions = SearchTree.updateAvailableRangeActionsOnNewMargins(Set.of(ra1, ra2), rangeActions, optimizedState, flowResult);
-        assertEquals(Set.of(ra1, ra2), rangeActions);
-    }
 }

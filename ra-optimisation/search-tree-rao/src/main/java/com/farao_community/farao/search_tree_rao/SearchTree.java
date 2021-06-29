@@ -92,7 +92,8 @@ public class SearchTree {
      * the range actions with the least impact
      */
     Set<RangeAction> applyRangeActionsFilters(Leaf leaf, Set<RangeAction> fromRangeActions, boolean deprioritizeIgnoredRangeActions) {
-        RangeActionFilter filter = new RangeActionFilter(leaf, fromRangeActions, treeParameters, prePerimeterRangeActionSetPoints, deprioritizeIgnoredRangeActions);
+        RangeActionFilter filter = new RangeActionFilter(leaf, fromRangeActions, optimizedState, treeParameters, prePerimeterRangeActionSetPoints, deprioritizeIgnoredRangeActions);
+        filter.filterUnavailableRangeActions();
         filter.filterPstPerTso();
         filter.filterTsos();
         filter.filterMaxRas();
@@ -252,48 +253,42 @@ public class SearchTree {
     }
 
     private void optimizeLeaf(Leaf leaf, FlowResult baseFlowResult) {
-        Set<RangeAction> previousIterationRangeActions = null;
-        // Recompute the list of available range actions with last margin results
-        Set<RangeAction> availableRangeActionsOnNewMargins = updateAvailableRangeActionsOnNewMargins(availableRangeActions, previousIterationRangeActions, optimizedState, leaf);
         int iteration = 0;
-        // Iterate on optimizer until the list stops changing
-        while (!availableRangeActionsOnNewMargins.equals(previousIterationRangeActions)) {
+        double previousCost = Double.MAX_VALUE;
+        Set<RangeAction> previousIterationRangeActions = null;
+        Set<RangeAction> rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, false);
+        // Iterate on optimizer until the list of range actions stops changing
+        while (!rangeActions.equals(previousIterationRangeActions)) {
             iteration++;
             if (iteration > 1) {
                 LOGGER.info("{}", leaf);
                 LOGGER.debug("The list of available range actions has changed, the leaf will be optimized again (iteration {})", iteration);
             }
-            Set<RangeAction> rangeActions = applyRangeActionsFilters(leaf, availableRangeActionsOnNewMargins, iteration > 1);
-            // TODO : break the loop also if rangeActions has not changed
             if (!rangeActions.isEmpty()) {
-                leaf.getOptimizedSetPoints();
                 leaf.optimize(
                     iteratingLinearOptimizer,
                     getSensitivityComputerForOptimizationBasedOn(baseFlowResult, rangeActions),
                     searchTreeProblem.getLeafProblem(rangeActions)
                 );
-                // TODO : check if result is degraded and stop looping + go back to best solution
-                // (hard, because we don't keep a copy of the leaf before optim)
+                // Check if result is worse than before (even though it should not happen). If it is, go back to
+                // previous result. The only way to do this is to re-run a linear optimization
+                // TODO : check if this actually happens. If it never does, delete this extra LP
+                if (leaf.getCost() > previousCost) {
+                    LOGGER.warn("The new iteration found a worse result (abnormal). The leaf will be optimized again with the previous list of range actions.");
+                    leaf.optimize(
+                        iteratingLinearOptimizer,
+                        getSensitivityComputerForOptimizationBasedOn(baseFlowResult, previousIterationRangeActions),
+                        searchTreeProblem.getLeafProblem(rangeActions)
+                    );
+                    break;
+                }
             } else {
                 LOGGER.info("No range actions to optimize");
             }
-            previousIterationRangeActions = availableRangeActionsOnNewMargins;
-            availableRangeActionsOnNewMargins = updateAvailableRangeActionsOnNewMargins(availableRangeActions, previousIterationRangeActions, optimizedState, leaf);
+            previousCost = leaf.getCost();
+            previousIterationRangeActions = rangeActions;
+            rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, true);
         }
-    }
-
-    /**
-     * Updates the list of available range actions depending on newest margin results
-     */
-    static Set<RangeAction> updateAvailableRangeActionsOnNewMargins(Set<RangeAction> availableRangeActions, Set<RangeAction> previousIterationRangeActions, State optimizedState, FlowResult flowResult) {
-        Set<RangeAction> availableRangeActionsOnNewMargins = availableRangeActions.stream().filter(ra -> isRemedialActionAvailable(ra, optimizedState, flowResult)).collect(Collectors.toSet());
-        if (previousIterationRangeActions != null) {
-            // Add all range actions from previous iteration to prevent diverging
-            // (ie If a range action was available in the previous iteration because its associated cnec
-            // was constrained, and the constraint disappeared, then keep the range action available)
-            availableRangeActionsOnNewMargins.addAll(previousIterationRangeActions);
-        }
-        return availableRangeActionsOnNewMargins;
     }
 
     private SensitivityComputer getSensitivityComputerForEvaluationBasedOn(FlowResult flowResult, Set<RangeAction> rangeActions) {
@@ -380,7 +375,7 @@ public class SearchTree {
     }
 
     /**
-     * Returns true if a OnFlowconstraint usage rule is verified, ie if the associated CNEC has a negative margin
+     * Returns true if a OnFlowConstraint usage rule is verified, ie if the associated CNEC has a negative margin
      * It needs a FlowResult to get the margin of the flow cnec
      */
     static boolean isOnFlowConstraintAvailable(OnFlowConstraint onFlowConstraint, State optimizedState, FlowResult flowResult) {
