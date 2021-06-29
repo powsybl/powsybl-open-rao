@@ -54,12 +54,12 @@ final class PstRangeActionResultArrayDeserializer {
 
                     case INITIAL_TAP:
                         jsonParser.nextToken();
-                        pstRangeActionResult.setInitialTap(jsonParser.getIntValue());
+                        pstRangeActionResult.setPreOptimTap(jsonParser.getIntValue());
                         break;
 
                     case INITIAL_SETPOINT:
                         jsonParser.nextToken();
-                        pstRangeActionResult.setInitialSetPoint(jsonParser.getDoubleValue());
+                        pstRangeActionResult.setPreOptimSetPoint(jsonParser.getDoubleValue());
                         break;
 
                     case AFTER_PRA_TAP:
@@ -83,8 +83,8 @@ final class PstRangeActionResultArrayDeserializer {
             }
             // Do this at the end: for PSTs with afterPraTap and afterPraSetpoint, initial tap/setpoint should be set to afterPra values
             if (afterPraTap != null && afterPraSetpoint != null) {
-                pstRangeActionResult.setInitialTap(afterPraTap);
-                pstRangeActionResult.setInitialSetPoint(afterPraSetpoint);
+                pstRangeActionResult.setPreOptimTap(afterPraTap);
+                pstRangeActionResult.setPreOptimSetPoint(afterPraSetpoint);
             }
         }
     }

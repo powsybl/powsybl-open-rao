@@ -51,7 +51,7 @@ public class PstRangeActionResultTest {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
 
         assertEquals("anyPstNetworkElement", pstRangeActionResult.getPstNetworkElementId());
-        assertEquals(Double.NaN, pstRangeActionResult.getInitialSetpoint());
+        assertEquals(Double.NaN, pstRangeActionResult.getPreOptimSetpoint());
 
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getState("Contingency FR1 FR2", OUTAGE)));
@@ -78,15 +78,15 @@ public class PstRangeActionResultTest {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
 
         // no default value possible, as a int is expected in all the methods of a RaoResult expecting a tap
-        pstRangeActionResult.getInitialTap();
+        pstRangeActionResult.getPreOptimTap();
     }
 
     @Test
     public void pstActivatedInPreventiveTest() {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
 
-        pstRangeActionResult.setInitialTap(3);
-        pstRangeActionResult.setInitialSetPoint(0.3);
+        pstRangeActionResult.setPreOptimTap(3);
+        pstRangeActionResult.setPreOptimSetPoint(0.3);
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), 16, 1.6);
 
         //is activated
@@ -97,8 +97,8 @@ public class PstRangeActionResultTest {
 
         // initial values
 
-        assertEquals(3, pstRangeActionResult.getInitialTap());
-        assertEquals(0.3, pstRangeActionResult.getInitialSetpoint(), 1e-3);
+        assertEquals(3, pstRangeActionResult.getPreOptimTap());
+        assertEquals(0.3, pstRangeActionResult.getPreOptimSetpoint(), 1e-3);
 
         // preventive state
         assertEquals(3, pstRangeActionResult.getPreOptimizedTapOnState(crac.getPreventiveState()));
@@ -123,8 +123,8 @@ public class PstRangeActionResultTest {
     public void pstActivatedInCurativeTest() {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
 
-        pstRangeActionResult.setInitialTap(3);
-        pstRangeActionResult.setInitialSetPoint(0.3);
+        pstRangeActionResult.setPreOptimTap(3);
+        pstRangeActionResult.setPreOptimSetPoint(0.3);
         pstRangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", CURATIVE), -16, -1.6);
 
         //is activated
@@ -135,8 +135,8 @@ public class PstRangeActionResultTest {
 
         // initial values
 
-        assertEquals(3, pstRangeActionResult.getInitialTap());
-        assertEquals(0.3, pstRangeActionResult.getInitialSetpoint(), 1e-3);
+        assertEquals(3, pstRangeActionResult.getPreOptimTap());
+        assertEquals(0.3, pstRangeActionResult.getPreOptimSetpoint(), 1e-3);
 
         // preventive state
         assertEquals(3, pstRangeActionResult.getPreOptimizedTapOnState(crac.getPreventiveState()));
@@ -167,8 +167,8 @@ public class PstRangeActionResultTest {
     public void pstActivatedInPreventiveAndCurative() {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
 
-        pstRangeActionResult.setInitialTap(3);
-        pstRangeActionResult.setInitialSetPoint(0.3);
+        pstRangeActionResult.setPreOptimTap(3);
+        pstRangeActionResult.setPreOptimSetPoint(0.3);
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), 16, 1.6);
         pstRangeActionResult.addActivationForState(crac.getState("Contingency FR1 FR2", CURATIVE), -16, -1.6);
 
@@ -181,8 +181,8 @@ public class PstRangeActionResultTest {
 
         // initial values
 
-        assertEquals(3, pstRangeActionResult.getInitialTap());
-        assertEquals(0.3, pstRangeActionResult.getInitialSetpoint(), 1e-3);
+        assertEquals(3, pstRangeActionResult.getPreOptimTap());
+        assertEquals(0.3, pstRangeActionResult.getPreOptimSetpoint(), 1e-3);
 
         // preventive state
         assertEquals(3, pstRangeActionResult.getPreOptimizedTapOnState(crac.getPreventiveState()));

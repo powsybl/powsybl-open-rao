@@ -20,8 +20,8 @@ import java.util.Set;
 public class PstRangeActionResult {
 
     private String pstNetworkElementId;
-    private Integer initialTap;
-    private double initialSetpoint;
+    private Integer preOptimTap;
+    private double preOptimSetpoint;
     private Map<State, PstRangeActionResultPerState> activationPerState;
 
     private static class PstRangeActionResultPerState {
@@ -31,8 +31,8 @@ public class PstRangeActionResult {
 
     public PstRangeActionResult(String pstNetworkElementId) {
         this.pstNetworkElementId = pstNetworkElementId;
-        initialTap = null;
-        initialSetpoint = Double.NaN;
+        preOptimTap = null;
+        preOptimSetpoint = Double.NaN;
         activationPerState = new HashMap<>();
     }
 
@@ -40,12 +40,12 @@ public class PstRangeActionResult {
         return pstNetworkElementId;
     }
 
-    public int getInitialTap() {
-        return initialTap;
+    public int getPreOptimTap() {
+        return preOptimTap;
     }
 
-    public double getInitialSetpoint() {
-        return initialSetpoint;
+    public double getPreOptimSetpoint() {
+        return preOptimSetpoint;
     }
 
     public int getOptimizedTapOnState(State state) {
@@ -63,7 +63,7 @@ public class PstRangeActionResult {
             }
         }
 
-        return initialTap;
+        return preOptimTap;
     }
 
     public double getOptimizedSetpointOnState(State state) {
@@ -81,7 +81,7 @@ public class PstRangeActionResult {
             }
         }
 
-        return initialSetpoint;
+        return preOptimSetpoint;
     }
 
     public int getPreOptimizedTapOnState(State state) {
@@ -97,7 +97,7 @@ public class PstRangeActionResult {
             }
         }
 
-        return initialTap;
+        return preOptimTap;
     }
 
     public double getPreOptimizedSetpointOnState(State state) {
@@ -113,7 +113,7 @@ public class PstRangeActionResult {
             }
         }
 
-        return initialSetpoint;
+        return preOptimSetpoint;
     }
 
     public boolean isActivatedDuringState(State state) {
@@ -128,12 +128,12 @@ public class PstRangeActionResult {
         this.pstNetworkElementId = pstNetworkElementId;
     }
 
-    public void setInitialTap(int initialTap) {
-        this.initialTap = initialTap;
+    public void setPreOptimTap(int preOptimTap) {
+        this.preOptimTap = preOptimTap;
     }
 
-    public void setInitialSetPoint(double setpoint) {
-        this.initialSetpoint = setpoint;
+    public void setPreOptimSetPoint(double setpoint) {
+        this.preOptimSetpoint = setpoint;
     }
 
     public void addActivationForState(State state, int tap, double setpoint) {
