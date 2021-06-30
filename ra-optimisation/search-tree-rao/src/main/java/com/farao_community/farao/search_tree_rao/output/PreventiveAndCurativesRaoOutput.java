@@ -242,9 +242,9 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     @Override
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return postPreventiveResult.getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
+            return postPreventiveResult.getActivatedRangeActions();
         } else if (postCurativeResults.containsKey(state)) {
-            return postCurativeResults.get(state).getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
+            return postCurativeResults.get(state).getActivatedRangeActions();
         } else {
             return new HashSet<>();
         }

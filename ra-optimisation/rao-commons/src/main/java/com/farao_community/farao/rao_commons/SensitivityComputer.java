@@ -14,6 +14,7 @@ import com.farao_community.farao.rao_commons.adapter.*;
 import com.farao_community.farao.rao_commons.result.SensitivityResultImpl;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -21,8 +22,7 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -70,6 +70,7 @@ public final class SensitivityComputer {
         private FlowResult fixedCommercialFlows;
         private LoopFlowComputation loopFlowComputation;
         private Set<FlowCnec> loopFlowCnecs;
+        private AppliedRemedialActions appliedRemedialActions;
 
         public SensitivityComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
@@ -108,6 +109,11 @@ public final class SensitivityComputer {
             return this;
         }
 
+        public SensitivityComputerBuilder withAppliedRemedialActions(AppliedRemedialActions appliedRemedialActions) {
+            this.appliedRemedialActions = appliedRemedialActions;
+            return this;
+        }
+
         public SensitivityComputer build() {
             Objects.requireNonNull(toolProvider);
             Objects.requireNonNull(flowCnecs);
@@ -119,7 +125,8 @@ public final class SensitivityComputer {
                     flowCnecs,
                     rangeActions,
                     computePtdfs,
-                    computeLoopFlows
+                    computeLoopFlows,
+                    appliedRemedialActions
             );
             BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {

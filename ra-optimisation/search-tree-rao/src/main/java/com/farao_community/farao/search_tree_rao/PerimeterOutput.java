@@ -116,7 +116,11 @@ public class PerimeterOutput implements PerimeterResult {
 
     @Override
     public double getOptimizedSetPoint(RangeAction rangeAction) {
-        return Optional.of(optimizationResult.getOptimizedSetPoint(rangeAction)).orElse(prePerimeterResult.getOptimizedSetPoint(rangeAction));
+        if (optimizationResult.getRangeActions().contains(rangeAction)) {
+            return optimizationResult.getOptimizedSetPoint(rangeAction);
+        } else {
+            return prePerimeterResult.getOptimizedSetPoint(rangeAction);
+        }
     }
 
     @Override
@@ -131,7 +135,7 @@ public class PerimeterOutput implements PerimeterResult {
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        return null;
+        return optimizationResult.getSensitivityStatus();
     }
 
     @Override

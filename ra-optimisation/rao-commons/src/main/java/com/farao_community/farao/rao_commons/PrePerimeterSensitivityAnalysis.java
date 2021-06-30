@@ -12,6 +12,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Set;
@@ -42,6 +43,10 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     public PrePerimeterResult run(Network network) {
+        return run(network, null);
+    }
+
+    public PrePerimeterResult run(Network network, AppliedRemedialActions appliedRemedialActions) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
@@ -49,6 +54,7 @@ public class PrePerimeterSensitivityAnalysis {
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
             sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
         }
+        sensitivityComputerBuilder.withAppliedRemedialActions(appliedRemedialActions);
         sensitivityComputer = sensitivityComputerBuilder.build();
         return runAndGetResult(network);
     }
