@@ -41,6 +41,8 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
             parameters.setPreventiveRaoStopCriterion(config.getEnumProperty("preventive-rao-stop-criterion", SearchTreeRaoParameters.PreventiveRaoStopCriterion.class, SearchTreeRaoParameters.DEFAULT_PREVENTIVE_RAO_STOP_CRITERION));
             parameters.setCurativeRaoStopCriterion(config.getEnumProperty("curative-rao-stop-criterion", SearchTreeRaoParameters.CurativeRaoStopCriterion.class, SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_STOP_CRITERION));
             parameters.setCurativeRaoMinObjImprovement(config.getDoubleProperty("curative-rao-min-obj-improvement", SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT));
+            parameters.setMaxCurativeRa(config.getIntProperty("max-curative-ra", SearchTreeRaoParameters.DEFAULT_MAX_CURATIVE_RA));
+            parameters.setMaxCurativeTso(config.getIntProperty("max-curative-tso", SearchTreeRaoParameters.DEFAULT_MAX_CURATIVE_TSO));
             // TODO : read the following three parameters when it's possible in ModuleConfig
             logMapReadError(config, "max-curative-topo-per-tso");
             logMapReadError(config, "max-curative-pst-per-tso");

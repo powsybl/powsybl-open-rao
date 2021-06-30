@@ -103,10 +103,6 @@ class Leaf implements OptimizationResult {
         return status;
     }
 
-    public Set<NetworkAction> getNetworkActions() {
-        return networkActions;
-    }
-
     boolean isRoot() {
         return networkActions.isEmpty();
     }

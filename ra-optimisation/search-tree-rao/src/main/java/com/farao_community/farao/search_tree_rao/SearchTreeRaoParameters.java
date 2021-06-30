@@ -44,6 +44,8 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final PreventiveRaoStopCriterion DEFAULT_PREVENTIVE_RAO_STOP_CRITERION = PreventiveRaoStopCriterion.SECURE;
     static final CurativeRaoStopCriterion DEFAULT_CURATIVE_RAO_STOP_CRITERION = CurativeRaoStopCriterion.MIN_OBJECTIVE;
     static final double DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT = 0;
+    static final int DEFAULT_MAX_CURATIVE_RA = Integer.MAX_VALUE;
+    static final int DEFAULT_MAX_CURATIVE_TSO = Integer.MAX_VALUE;
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_TOPO_PER_TSO = new HashMap<>();
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_PST_PER_TSO = new HashMap<>();
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
@@ -59,6 +61,8 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private PreventiveRaoStopCriterion preventiveRaoStopCriterion = DEFAULT_PREVENTIVE_RAO_STOP_CRITERION;
     private CurativeRaoStopCriterion curativeRaoStopCriterion = DEFAULT_CURATIVE_RAO_STOP_CRITERION;
     private double curativeRaoMinObjImprovement = DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT; // used for CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE and CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
+    private int maxCurativeRa = DEFAULT_MAX_CURATIVE_RA;
+    private int maxCurativeTso = DEFAULT_MAX_CURATIVE_TSO;
     private Map<String, Integer> maxCurativeTopoPerTso = DEFAULT_MAX_CURATIVE_TOPO_PER_TSO;
     private Map<String, Integer> maxCurativePstPerTso = DEFAULT_MAX_CURATIVE_PST_PER_TSO;
     private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
@@ -163,6 +167,32 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
             LOGGER.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
         }
         this.curativeRaoMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
+    }
+
+    public int getMaxCurativeRa() {
+        return maxCurativeRa;
+    }
+
+    public void setMaxCurativeRa(int maxCurativeRa) {
+        if (maxCurativeRa < 0) {
+            LOGGER.warn("The value {} provided for max number of curative RAs is smaller than 0. It will be set to 0 instead.", maxCurativeRa);
+            this.maxCurativeRa = 0;
+        } else {
+            this.maxCurativeRa = maxCurativeRa;
+        }
+    }
+
+    public int getMaxCurativeTso() {
+        return maxCurativeTso;
+    }
+
+    public void setMaxCurativeTso(int maxCurativeTso) {
+        if (maxCurativeTso < 0) {
+            LOGGER.warn("The value {} provided for max number of curative TSOs is smaller than 0. It will be set to 0 instead.", maxCurativeTso);
+            this.maxCurativeTso = 0;
+        } else {
+            this.maxCurativeTso = maxCurativeTso;
+        }
     }
 
     public Map<String, Integer> getMaxCurativeTopoPerTso() {

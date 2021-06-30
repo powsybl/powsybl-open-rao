@@ -7,8 +7,12 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.rao_api.results.*;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.adapter.BranchResultAdapter;
 import com.farao_community.farao.rao_commons.adapter.SensitivityResultAdapter;
@@ -222,67 +226,28 @@ public class IteratingLinearOptimizerTest {
         assertEquals(0, ((IteratingLinearOptimizerResult) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
-
-    }
-
-    // TODO: check what to do with these commented tests
-    /*@Test
-    public void testRemoveRangeActionsIfMaxNumberReached() {
-        PstRangeActionImpl rangeActionToRemove = new PstRangeActionImpl("PRA_PST_BE_2", "PRA_PST_BE_2", "BE", new NetworkElement("BBE2AA1  BBE3AA1  1"));
-        rangeActionToRemove.addRange(new PstRangeImpl(5, 10, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
-        rangeActionToRemove.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        ((SimpleCrac) crac).addRangeAction(rangeActionToRemove);
-        Network network = iteratingLinearOptimizerInput.getNetwork();
-        crac.desynchronize();
-        crac.synchronize(network);
-
-        Map<String, Integer> maxPstPerTso = new HashMap<>();
-        maxPstPerTso.put("BE", 1);
-
-        BranchCnec mostLimitingCnec = crac.getBranchCnec("NNL1AA1  NNL2AA1  1");
-        SystematicSensitivityResult sensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(sensitivityResult.getSensitivityOnFlow(crac.getRangeAction("PRA_PST_BE"), mostLimitingCnec)).thenReturn(5.);
-        Mockito.when(sensitivityResult.getSensitivityOnFlow(crac.getRangeAction("PRA_PST_BE_2"), mostLimitingCnec)).thenReturn(1.);
-
-        Map<RangeAction, Double> prePerimeterSetPoints = new HashMap<>();
-        crac.getRangeActions().forEach(rangeAction -> prePerimeterSetPoints.put(rangeAction, 0.));
-
-        Set<RangeAction> rangeActions = crac.getRangeActions();
-        assertEquals(2, rangeActions.size());
-        assertEquals(2, prePerimeterSetPoints.size());
-        IteratingLinearOptimizer.removeRangeActionsIfMaxNumberReached(rangeActions, prePerimeterSetPoints, maxPstPerTso, mostLimitingCnec, sensitivityResult);
-
-        assertEquals(1, rangeActions.size());
-        assertTrue(rangeActions.contains(crac.getRangeAction("PRA_PST_BE")));
-        assertFalse(rangeActions.contains(crac.getRangeAction("PRA_PST_BE_2")));
-
-        assertEquals(1, prePerimeterSetPoints.size());
-        assertTrue(prePerimeterSetPoints.containsKey(crac.getRangeAction("PRA_PST_BE")));
-        assertFalse(prePerimeterSetPoints.containsKey(crac.getRangeAction("PRA_PST_BE_2")));
     }
 
     @Test
-    public void testRemoveRangeActionsWithWrongInitialSetpoint() {
-        PstRangeActionImpl rangeActionToRemove = new PstRangeActionImpl("PRA_PST_BE_2", "PRA_PST_BE_2", "BE", new NetworkElement("BBE2AA1  BBE3AA1  1"));
-        rangeActionToRemove.addRange(new PstRangeImpl(5, 10, RangeType.ABSOLUTE, RangeDefinition.CENTERED_ON_ZERO));
-        rangeActionToRemove.addUsageRule(new OnStateImpl(UsageMethod.AVAILABLE, crac.getPreventiveState()));
-        ((SimpleCrac) crac).addRangeAction(rangeActionToRemove);
-        Network network = iteratingLinearOptimizerInput.getNetwork();
-        crac.desynchronize();
-        crac.synchronize(network);
-
-        Map<RangeAction, Double> initialSetpoints = new HashMap<>();
-        Set<RangeAction> rangeActions = crac.getRangeActions();
-        rangeActions.forEach(rangeAction -> initialSetpoints.put(rangeAction, 0.));
-        assertEquals(2, rangeActions.size());
-        assertEquals(2, initialSetpoints.size());
-        IteratingLinearOptimizer.removeRangeActionsWithWrongInitialSetpoint(rangeActions, initialSetpoints, network);
-
-        assertEquals(1, rangeActions.size());
-        assertTrue(rangeActions.contains(crac.getRangeAction("PRA_PST_BE")));
-        assertFalse(rangeActions.contains(crac.getRangeAction("PRA_PST_BE_2")));
-        assertEquals(1, initialSetpoints.size());
-        assertTrue(initialSetpoints.containsKey(crac.getRangeAction("PRA_PST_BE")));
-        assertFalse(initialSetpoints.containsKey(crac.getRangeAction("PRA_PST_BE_2")));
-     }*/
+    public void testUnapplyRangeAction() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
+        mockFunctionalCost(100., 140.);
+        Crac crac = CracFactory.findDefault().create("test-crac");
+        rangeAction = crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(Map.of(0, 0., 1, 1.)).add();
+        RangeActionResult preoptimRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, 0.));
+        when(linearProblem.getResults()).thenReturn(new RangeActionResultImpl(Map.of(rangeAction, 1.)));
+        network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().setTapPosition(5);
+        LinearOptimizationResult result = optimizer.optimize(
+                linearProblem,
+                network,
+                flowResult,
+                sensitivityResult,
+                preoptimRangeActionResult,
+                sensitivityComputer
+        );
+        assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+    }
 }

@@ -79,6 +79,9 @@ public class SearchTreeTest {
         leavesInParallel = 1;
         Mockito.when(treeParameters.getMaximumSearchDepth()).thenReturn(maximumSearchDepth);
         Mockito.when(treeParameters.getLeavesInParallel()).thenReturn(leavesInParallel);
+        Mockito.when(treeParameters.getMaxRa()).thenReturn(Integer.MAX_VALUE);
+        Mockito.when(treeParameters.getMaxTso()).thenReturn(Integer.MAX_VALUE);
+        Mockito.when(treeParameters.getMaxPstPerTso()).thenReturn(new HashMap<>());
     }
 
     private void setSearchTreeInput() {
@@ -248,8 +251,6 @@ public class SearchTreeTest {
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
-        Mockito.doReturn(false).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction1), Mockito.any());
-        Mockito.doReturn(false).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction2), Mockito.any());
         Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(rootLeaf);
 
         assert rangeActionsToOptimize.contains(rangeAction2);
@@ -271,31 +272,10 @@ public class SearchTreeTest {
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
-        Mockito.doReturn(true).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction1), Mockito.any());
-        Mockito.doReturn(false).when(searchTree).isRangeActionUsed(Mockito.eq(rangeAction2), Mockito.any());
         Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(rootLeaf);
 
-        assertTrue(rangeActionsToOptimize.contains(rangeAction1));
-        assertFalse(rangeActionsToOptimize.contains(rangeAction2));
-    }
-
-    @Test
-    public void testIsRangeActionUsed() {
-        rangeAction1 = Mockito.mock(RangeAction.class);
-        rangeAction2 = Mockito.mock(RangeAction.class);
-        rangeAction3 = Mockito.mock(RangeAction.class);
-
-        Mockito.when(rootLeaf.getRangeActions()).thenReturn(Set.of(rangeAction1, rangeAction2));
-        Mockito.doReturn(0.).when(searchTree).getInitialRangeActionSetPoint(rangeAction1);
-        Mockito.doReturn(0.).when(searchTree).getInitialRangeActionSetPoint(rangeAction2);
-        Mockito.doReturn(0.).when(searchTree).getInitialRangeActionSetPoint(rangeAction3);
-        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction1)).thenReturn(0.);
-        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction2)).thenReturn(2.);
-        Mockito.when(rootLeaf.getOptimizedSetPoint(rangeAction3)).thenReturn(3.);
-
-        assertFalse(searchTree.isRangeActionUsed(rangeAction1, rootLeaf));
-        assertTrue(searchTree.isRangeActionUsed(rangeAction2, rootLeaf));
-        assertFalse(searchTree.isRangeActionUsed(rangeAction3, rootLeaf));
+        assertTrue(rangeActionsToOptimize.contains(rangeAction2));
+        assertFalse(rangeActionsToOptimize.contains(rangeAction1));
     }
 
     @Test
@@ -315,11 +295,43 @@ public class SearchTreeTest {
         assertEquals(3., result.getOptimizedSetPoint(rangeAction2), DOUBLE_TOLERANCE);
     }
 
+    @Test
+    public void maxCurativeRaLimitNumberOfAvailableRangeActions() {
+        raoWithRangeActionsForTso("TSO");
+        int maxCurativeRa = 2;
+        setMaxRa(maxCurativeRa);
+        Leaf childLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(childLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(networkAction));
+        FlowCnec mostLimitingElement = Mockito.mock(FlowCnec.class);
+        Mockito.when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
+        searchTree.setTreeParameters(treeParameters);
+        searchTree.setAvailableRangeActions(availableRangeActions);
+        Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(childLeaf);
+        assertEquals(1, rangeActionsToOptimize.size());
+    }
+
+    @Test
+    public void maxCurativeRaPreventToOptimizeRangeActions() {
+        raoWithRangeActionsForTso("TSO");
+        int maxCurativeRa = 1;
+        setMaxRa(maxCurativeRa);
+        Leaf childLeaf = Mockito.mock(Leaf.class);
+        Mockito.when(childLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(networkAction));
+        FlowCnec mostLimitingElement = Mockito.mock(FlowCnec.class);
+        Mockito.when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
+        searchTree.setTreeParameters(treeParameters);
+        searchTree.setAvailableRangeActions(availableRangeActions);
+        Set<RangeAction> rangeActionsToOptimize = searchTree.getRangeActionsToOptimize(childLeaf);
+        assertEquals(0, rangeActionsToOptimize.size());
+    }
+
     private void raoWithRangeActionsForTso(String tsoName) {
         rangeAction1 = Mockito.mock(PstRangeAction.class);
         rangeAction2 = Mockito.mock(PstRangeAction.class);
         Mockito.when(rangeAction1.getOperator()).thenReturn(tsoName);
+        Mockito.when(rangeAction1.getName()).thenReturn("PST1");
         Mockito.when(rangeAction2.getOperator()).thenReturn(tsoName);
+        Mockito.when(rangeAction2.getName()).thenReturn("PST2");
         availableRangeActions.add(rangeAction1);
         availableRangeActions.add(rangeAction2);
 
@@ -368,5 +380,9 @@ public class SearchTreeTest {
 
     private void raoWithoutLoopFlowLimitation() {
         Mockito.when(linearOptimizerParameters.isRaoWithLoopFlowLimitation()).thenReturn(false);
+    }
+
+    private void setMaxRa(int maxRa) {
+        Mockito.when(treeParameters.getMaxRa()).thenReturn(maxRa);
     }
 }

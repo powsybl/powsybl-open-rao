@@ -78,6 +78,7 @@ public class IteratingLinearOptimizer {
 
             if (currentResult.getCost() >= bestResult.getCost()) {
                 logWorseResult(iteration, bestResult, currentResult);
+                applyRangeActions(currentResult.getRangeActions(), bestResult, network);
                 return bestResult;
             }
 
@@ -117,13 +118,18 @@ public class IteratingLinearOptimizer {
                 currentResult.getCost());
     }
 
+    private void applyRangeActions(Set<RangeAction> rangeActions,
+                                   RangeActionResult rangeActionResult,
+                                   Network network) {
+        rangeActions.forEach(rangeAction ->  rangeAction.apply(network, rangeActionResult.getOptimizedSetPoint(rangeAction)));
+    }
+
     private void applyRangeActionsAndRunSensitivityAnalysis(SensitivityComputer sensitivityComputer,
                                                             Set<RangeAction> rangeActions,
                                                             RangeActionResult rangeActionResult,
                                                             Network network,
                                                             int iteration) {
-        rangeActions.forEach(rangeAction ->  rangeAction.apply(network, rangeActionResult.getOptimizedSetPoint(rangeAction)));
-
+        applyRangeActions(rangeActions, rangeActionResult, network);
         try {
             sensitivityComputer.compute(network);
         } catch (SensitivityAnalysisException e) {

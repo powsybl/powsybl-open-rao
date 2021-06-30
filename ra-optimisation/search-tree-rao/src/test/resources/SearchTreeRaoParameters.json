@@ -50,6 +50,8 @@
       "curative-rao-min-obj-improvement" : 983.0,
       "skip-network-actions-far-from-most-limiting-element" : false,
       "max-number-of-boundaries-for-skipping-network-actions" : 2,
+      "max-curative-ra" : 3,
+      "max-curative-tso" : 2,
       "max-curative-topo-per-tso" : { },
       "max-curative-pst-per-tso" : { },
       "max-curative-ra-per-tso" : {
