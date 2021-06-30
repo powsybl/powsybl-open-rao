@@ -35,6 +35,7 @@ public final class TreeParameters {
     private int leavesInParallel;
     private boolean skipNetworkActionsFarFromMostLimitingElement;
     private int maxRa;
+    private int maxTso;
     private Map<String, Integer> maxTopoPerTso;
     private Map<String, Integer> maxPstPerTso;
     private Map<String, Integer> maxRaPerTso;
@@ -42,7 +43,7 @@ public final class TreeParameters {
     private TreeParameters() {
     }
 
-    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, int maxRa,
+    private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, int maxRa, int maxTso,
                            Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxPstPerTso, Map<String, Integer> maxRaPerTso, int leavesInParallel) {
         this.maximumSearchDepth = searchTreeRaoParameters.getMaximumSearchDepth();
         this.relativeNetworkActionMinimumImpactThreshold = searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold();
@@ -52,13 +53,14 @@ public final class TreeParameters {
         this.stopCriterion = stopCriterion;
         this.targetObjectiveValue = targetObjectiveValue;
         this.maxRa = maxRa;
+        this.maxTso = maxTso;
         this.maxTopoPerTso = maxTopoPerTso;
         this.maxPstPerTso = maxPstPerTso;
         this.maxRaPerTso = maxRaPerTso;
     }
 
     private TreeParameters(SearchTreeRaoParameters searchTreeRaoParameters, StopCriterion stopCriterion, double targetObjectiveValue, int leavesInParallel) {
-        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>(), new HashMap<>(), leavesInParallel);
+        this(searchTreeRaoParameters, stopCriterion, targetObjectiveValue, Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>(), new HashMap<>(), leavesInParallel);
     }
 
     public StopCriterion getStopCriterion() {
@@ -107,7 +109,7 @@ public final class TreeParameters {
                 throw new FaraoException("Unknown curative RAO stop criterion: " + parameters.getCurativeRaoStopCriterion());
         }
         return new TreeParameters(parameters, stopCriterion, targetObjectiveValue, parameters.getMaxCurativeRa(),
-                parameters.getMaxCurativeTopoPerTso(), parameters.getMaxCurativePstPerTso(),
+                parameters.getMaxCurativeTso(), parameters.getMaxCurativeTopoPerTso(), parameters.getMaxCurativePstPerTso(),
                 parameters.getMaxCurativeRaPerTso(), parameters.getCurativeLeavesInParallel());
     }
 
@@ -133,6 +135,10 @@ public final class TreeParameters {
 
     public int getMaxRa() {
         return maxRa;
+    }
+
+    public int getMaxTso() {
+        return maxTso;
     }
 
     public Map<String, Integer> getMaxTopoPerTso() {
