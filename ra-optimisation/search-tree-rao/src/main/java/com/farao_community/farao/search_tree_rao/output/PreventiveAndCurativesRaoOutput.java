@@ -221,9 +221,9 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     @Override
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return postPreventiveResult.getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
+            return postPreventiveResult.getActivatedRangeActions();
         } else {
-            return postCurativeResults.get(state).getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
+            return postCurativeResults.get(state).getActivatedRangeActions();
         }
     }
 

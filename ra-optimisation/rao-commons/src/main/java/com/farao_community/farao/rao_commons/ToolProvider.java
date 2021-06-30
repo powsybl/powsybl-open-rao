@@ -11,13 +11,14 @@ import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.commons.ZonalDataImpl;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -126,6 +127,15 @@ public final class ToolProvider {
                                                                             Set<RangeAction> rangeActions,
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows) {
+        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null);
+    }
+
+    public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
+                                                                            Set<RangeAction> rangeActions,
+                                                                            boolean computePtdfs,
+                                                                            boolean computeLoopFlows,
+                                                                            AppliedRemedialActions appliedRemedialActions) {
+
         Set<Unit> flowUnits = new HashSet<>();
         flowUnits.add(Unit.MEGAWATT);
         if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
@@ -135,7 +145,8 @@ public final class ToolProvider {
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
                 .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
-                .withRangeActionSensitivities(rangeActions, cnecs, flowUnits);
+                .withRangeActionSensitivities(rangeActions, cnecs, flowUnits)
+                .withAppliedRemedialActions(appliedRemedialActions);
 
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();

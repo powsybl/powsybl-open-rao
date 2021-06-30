@@ -32,5 +32,13 @@ public interface CostEvaluator {
 
     Unit getUnit();
 
+    /**
+     * Gets the most costly elements, ordered from most to least costly. Elements
+     * with a null cost are not in the list.
+     *
+     * @param flowResult: The results to use.
+     * @param numberOfElements: The size of the list to be studied, so the number of costly elements to be retrieved.
+     * @return The ordered list of the n first costly elements.
+     */
     List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements);
 }
