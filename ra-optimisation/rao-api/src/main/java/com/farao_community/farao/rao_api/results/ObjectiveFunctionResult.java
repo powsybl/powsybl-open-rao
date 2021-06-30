@@ -68,7 +68,7 @@ public interface ObjectiveFunctionResult {
     /**
      * It gives an ordered list of the costly {@link FlowCnec} according to the specified virtual cost. If the
      * virtual is null the list would be empty. If the specified virtual cost does not imply any branch in its
-     * computation the list would be empty.
+     * computation the list would be empty. Elements with a null virtual cost are not present in the list.
      *
      * @param virtualCostName: The name of the virtual cost.
      * @param number: The size of the list to be studied, so the number of costly elements to be retrieved.

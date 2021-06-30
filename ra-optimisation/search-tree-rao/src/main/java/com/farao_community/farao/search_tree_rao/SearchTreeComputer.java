@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.results.FlowResult;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.ToolProvider;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 
 import java.util.Objects;
 import java.util.Set;
@@ -23,6 +24,7 @@ public final class SearchTreeComputer {
     private ToolProvider toolProvider;
     private Set<FlowCnec> flowCnecs;
     private FlowResult fixedPtdfs;
+    private AppliedRemedialActions appliedRemedialActions;
 
     private SearchTreeComputer() {
         // Should not be used
@@ -52,7 +54,8 @@ public final class SearchTreeComputer {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder =  SensitivityComputer.create()
                 .withToolProvider(toolProvider)
                 .withCnecs(flowCnecs)
-                .withRangeActions(rangeActions);
+                .withRangeActions(rangeActions)
+                .withAppliedRemedialActions(appliedRemedialActions);
         if (fixedPtdfs != null) {
             sensitivityComputerBuilder.withPtdfsResults(fixedPtdfs);
         }
@@ -63,6 +66,7 @@ public final class SearchTreeComputer {
         private ToolProvider toolProvider;
         private Set<FlowCnec> cnecs;
         private FlowResult fixedPtdfs;
+        private AppliedRemedialActions appliedRemedialActions;
 
         public SearchTreeComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
@@ -79,6 +83,11 @@ public final class SearchTreeComputer {
             return this;
         }
 
+        public SearchTreeComputerBuilder withAppliedRemedialActions(AppliedRemedialActions appliedRemedialActions) {
+            this.appliedRemedialActions = appliedRemedialActions;
+            return this;
+        }
+
         public SearchTreeComputer build() {
             Objects.requireNonNull(toolProvider);
             Objects.requireNonNull(cnecs);
@@ -86,6 +95,7 @@ public final class SearchTreeComputer {
             searchTreeComputer.toolProvider = toolProvider;
             searchTreeComputer.flowCnecs = cnecs;
             searchTreeComputer.fixedPtdfs = fixedPtdfs;
+            searchTreeComputer.appliedRemedialActions = appliedRemedialActions;
             return searchTreeComputer;
         }
     }

@@ -11,16 +11,23 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_api.results.OptimizationResult;
+import com.farao_community.farao.rao_api.results.PerimeterResult;
 import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_commons.ToolProvider;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -49,6 +56,10 @@ public class SearchTreeRaoProviderTest {
     private State state3;
     private RangeAction ra1;
     private RangeAction ra2;
+    private RangeAction ra3;
+    private RangeAction ra4;
+    private RangeAction ra5;
+    private NetworkAction na1;
     private PrePerimeterResult prePerimeterResult;
 
     @Before
@@ -194,7 +205,9 @@ public class SearchTreeRaoProviderTest {
                 treeParameters,
                 raoParameters,
                 linearOptimizerParameters,
-                toolProvider);
+                toolProvider,
+                false,
+                null);
 
         assertSame(network, searchTreeInput.getNetwork());
         assertEquals(Set.of(cnec1, cnec2), searchTreeInput.getFlowCnecs());
@@ -350,5 +363,335 @@ public class SearchTreeRaoProviderTest {
         Set<RangeAction> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
         SearchTreeRaoProvider.removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterResult);
         assertEquals(Set.of(ra1, ra2), rangeActions);
+    }
+
+    @Test
+    public void testShouldRunSecondPreventiveRao() {
+        RaoParameters parameters = new RaoParameters();
+        State state1 = Mockito.mock(State.class);
+        State state2 = Mockito.mock(State.class);
+        OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
+        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimizationResult1, state2, optimizationResult2);
+
+        // No SearchTreeRaoParameters extension
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, curativeResults));
+
+        // Deactivated in parameters
+        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
+        parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
+        searchTreeRaoParameters.setWithSecondPreventiveOptimization(false);
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, curativeResults));
+
+        // CurativeRaoStopCriterion.MIN_OBJECTIVE
+        searchTreeRaoParameters.setWithSecondPreventiveOptimization(true);
+        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, curativeResults));
+
+        // CurativeRaoStopCriterion.SECURE, secure case
+        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.SECURE);
+        Mockito.doReturn(-1.).when(optimizationResult1).getFunctionalCost();
+        Mockito.doReturn(-10.).when(optimizationResult2).getFunctionalCost();
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, curativeResults));
+        // CurativeRaoStopCriterion.SECURE, unsecure case 1
+        Mockito.doReturn(0.).when(optimizationResult1).getFunctionalCost();
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, curativeResults));
+        // CurativeRaoStopCriterion.SECURE, unsecure case 2
+        Mockito.doReturn(5.).when(optimizationResult1).getFunctionalCost();
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, curativeResults));
+
+        // CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE
+        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE);
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, curativeResults));
+
+        // CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
+        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, curativeResults));
+    }
+
+    private void setUpCracWithRAs() {
+        crac = CracFactory.findDefault().create("test-crac");
+        Contingency contingency1 = crac.newContingency()
+                .withId("contingency1")
+                .withNetworkElement("contingency1-ne")
+                .add();
+        Contingency contingency2 = crac.newContingency()
+                .withId("contingency2")
+                .withNetworkElement("contingency2-ne")
+                .add();
+        // ra1 : preventive only
+        ra1 = crac.newPstRangeAction()
+                .withId("ra1")
+                .withNetworkElement("ra1-ne")
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.UNDEFINED).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        // ra2 : curative only
+        ra2 = crac.newPstRangeAction()
+                .withId("ra2")
+                .withNetworkElement("ra2-ne")
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.UNAVAILABLE).add()
+                .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        // ra3 : preventive and curative
+        ra3 = crac.newPstRangeAction()
+                .withId("ra3")
+                .withNetworkElement("ra3-ne")
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        // ra4 : preventive only, but with same NetworkElement as ra5
+        ra4 = crac.newPstRangeAction()
+                .withId("ra4")
+                .withNetworkElement("ra4-ne1")
+                .withNetworkElement("ra4-ne2")
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        // ra5 : curative only, but with same NetworkElement as ra4
+        ra5 = crac.newPstRangeAction()
+                .withId("ra5")
+                .withNetworkElement("ra4-ne1")
+                .withNetworkElement("ra4-ne2")
+                .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+                .add();
+        // na1 : preventive + curative
+        na1 = crac.newNetworkAction()
+                .withId("na1")
+                .newTopologicalAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+
+        state1 = crac.getState(contingency1, Instant.CURATIVE);
+        state2 = crac.getState(contingency2, Instant.CURATIVE);
+    }
+
+    @Test
+    public void testIsRangeActionAvailableInState() {
+        setUpCracWithRAs();
+
+        // ra1 is available in preventive only
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra1, crac.getPreventiveState(), crac));
+        assertFalse(SearchTreeRaoProvider.isRangeActionAvailableInState(ra1, state1, crac));
+        assertFalse(SearchTreeRaoProvider.isRangeActionAvailableInState(ra1, state2, crac));
+
+        // ra2 is available in state2 only
+        assertFalse(SearchTreeRaoProvider.isRangeActionAvailableInState(ra2, crac.getPreventiveState(), crac));
+        assertFalse(SearchTreeRaoProvider.isRangeActionAvailableInState(ra2, state1, crac));
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra2, state2, crac));
+
+        // ra3 is available in preventive and in state1
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra3, crac.getPreventiveState(), crac));
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra3, state1, crac));
+        assertFalse(SearchTreeRaoProvider.isRangeActionAvailableInState(ra3, state2, crac));
+
+        // ra4 is preventive, ra5 is available in state2, both have the same network element
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra4, crac.getPreventiveState(), crac));
+        assertFalse(SearchTreeRaoProvider.isRangeActionAvailableInState(ra4, state1, crac));
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra4, state2, crac));
+
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra5, crac.getPreventiveState(), crac));
+        assertFalse(SearchTreeRaoProvider.isRangeActionAvailableInState(ra5, state1, crac));
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra5, state2, crac));
+    }
+
+    @Test
+    public void testIsRangeActionPreventive() {
+        setUpCracWithRAs();
+        // ra1 is available in preventive only
+        assertTrue(SearchTreeRaoProvider.isRangeActionPreventive(ra1, crac));
+        // ra2 is available in state2 only
+        assertFalse(SearchTreeRaoProvider.isRangeActionPreventive(ra2, crac));
+        // ra3 is available in preventive and in state1
+        assertTrue(SearchTreeRaoProvider.isRangeActionPreventive(ra3, crac));
+        // ra4 is preventive, ra5 is available in state2, both have the same network element
+        assertTrue(SearchTreeRaoProvider.isRangeActionPreventive(ra4, crac));
+        assertTrue(SearchTreeRaoProvider.isRangeActionPreventive(ra5, crac));
+    }
+
+    @Test
+    public void testIsRangeActionCurative() {
+        setUpCracWithRAs();
+        // ra1 is available in preventive only
+        assertFalse(SearchTreeRaoProvider.isRangeActionCurative(ra1, crac));
+        // ra2 is available in state2 only
+        assertTrue(SearchTreeRaoProvider.isRangeActionCurative(ra2, crac));
+        // ra3 is available in preventive and in state1
+        assertTrue(SearchTreeRaoProvider.isRangeActionCurative(ra3, crac));
+        // ra4 is preventive, ra5 is available in state2, both have the same network element
+        assertTrue(SearchTreeRaoProvider.isRangeActionCurative(ra4, crac));
+        assertTrue(SearchTreeRaoProvider.isRangeActionCurative(ra5, crac));
+    }
+
+    @Test
+    public void testGetRangeActionsExcludedFromSecondPreventive() {
+        setUpCracWithRAs();
+        // detect range actions that are preventive and curative
+        assertEquals(Set.of(ra3, ra4, ra5), SearchTreeRaoProvider.getRangeActionsExcludedFromSecondPreventive(crac));
+    }
+
+    @Test
+    public void testRemoveRangeActionsExcludedFromSecondPreventive() {
+        setUpCracWithRAs();
+        Set<RangeAction> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
+        SearchTreeRaoProvider.removeRangeActionsExcludedFromSecondPreventive(rangeActions, crac);
+        assertEquals(Set.of(ra1, ra2), rangeActions);
+    }
+
+    @Test
+    public void testBuildSearchTreeInputForSecondPreventive() {
+        setUpCracWithRAs();
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
+        raoParameters.setMnecViolationCost(10);
+        raoParameters.setRaoWithLoopFlowLimitation(true);
+
+        TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
+        when(treeParameters.getMaxRaPerTso()).thenReturn(Map.of("fr", 5));
+        when(treeParameters.getMaxPstPerTso()).thenReturn(Map.of("be", 1, "nl", 2));
+        when(treeParameters.getMaxTopoPerTso()).thenReturn(new HashMap<>());
+        when(treeParameters.getSkipNetworkActionsFarFromMostLimitingElement()).thenReturn(true);
+
+        ToolProvider toolProvider = Mockito.mock(ToolProvider.class);
+        when(toolProvider.getLoopFlowCnecs(any())).thenReturn(Set.of(cnec3, cnec4));
+
+        LinearOptimizerParameters linearOptimizerParameters = Mockito.mock(LinearOptimizerParameters.class);
+
+        PrePerimeterResult initialOutput = Mockito.mock(PrePerimeterResult.class);
+
+        State preventiveState = crac.getPreventiveState();
+        Set<State> optimizedStates = Set.of(preventiveState, state2);
+        assertThrows(NullPointerException.class, () -> SearchTreeRaoProvider.buildSearchTreeInput(crac,
+                network,
+                preventiveState,
+                optimizedStates,
+                initialOutput,
+                prePerimeterResult,
+                treeParameters,
+                raoParameters,
+                linearOptimizerParameters,
+                toolProvider,
+                true,
+                null)
+        );
+
+        SearchTreeInput searchTreeInput = SearchTreeRaoProvider.buildSearchTreeInput(crac,
+                network,
+                crac.getPreventiveState(),
+                Set.of(crac.getPreventiveState(), state2),
+                initialOutput,
+                prePerimeterResult,
+                treeParameters,
+                raoParameters,
+                linearOptimizerParameters,
+                toolProvider,
+                true,
+                new AppliedRemedialActions());
+
+        assertEquals(Set.of(ra1), searchTreeInput.getRangeActions()); // only ra1 is purely preventive
+        assertEquals(Set.of(na1), searchTreeInput.getNetworkActions()); // na1 is preventive + curative but shouldn't be removed
+        assertNotNull(searchTreeInput.getSearchTreeComputer());
+    }
+
+    private void setUpCracWithRealRAs(boolean curative) {
+        network = NetworkImportsUtil.import12NodesNetwork();
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger();
+        HashMap<Integer, Double> tapToAngleConversionMap = new HashMap<>();
+        phaseTapChanger.getAllSteps().forEach((stepInt, step) -> tapToAngleConversionMap.put(stepInt, step.getAlpha()));
+        crac = CracFactory.findDefault().create("test-crac");
+        Contingency contingency1 = crac.newContingency()
+                .withId("contingency1")
+                .withNetworkElement("contingency1-ne")
+                .add();
+        Contingency contingency2 = crac.newContingency()
+                .withId("contingency2")
+                .withNetworkElement("contingency2-ne")
+                .add();
+        // ra1 : preventive only
+        PstRangeActionAdder adder = crac.newPstRangeAction()
+                .withId("ra1")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(0).withTapToAngleConversionMap(tapToAngleConversionMap)
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
+        if (curative) {
+            adder.newOnStateUsageRule().withContingency("contingency1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add();
+        }
+        ra1 = adder.add();
+        // na1 : preventive + curative
+        na1 = crac.newNetworkAction()
+                .withId("na1")
+                .newTopologicalAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
+                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .add();
+
+        state1 = crac.getState(contingency1, Instant.CURATIVE);
+        state2 = crac.getState(contingency2, Instant.CURATIVE);
+    }
+
+    @Test
+    public void testApplyPreventiveResultsForCurativeRangeActions() {
+        PerimeterResult perimeterResult = Mockito.mock(PerimeterResult.class);
+        String pstNeId = "BBE2AA1  BBE3AA1  1";
+
+        setUpCracWithRealRAs(false);
+        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetPoint(ra1);
+        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions();
+        SearchTreeRaoProvider.applyPreventiveResultsForCurativeRangeActions(network, perimeterResult, crac);
+        assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+
+        setUpCracWithRealRAs(true);
+        Mockito.doReturn(-1.5583491325378418).when(perimeterResult).getOptimizedSetPoint(ra1);
+        Mockito.doReturn(Set.of(ra1)).when(perimeterResult).getActivatedRangeActions();
+        SearchTreeRaoProvider.applyPreventiveResultsForCurativeRangeActions(network, perimeterResult, crac);
+        assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+    }
+
+    @Test
+    public void testGetAppliedRemedialActionsInCurative() {
+        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        Mockito.doReturn(0.).when(prePerimeterResult).getOptimizedSetPoint(ra1);
+
+        String pstNeId = "BBE2AA1  BBE3AA1  1";
+        String naNeId = "BBE1AA1  BBE2AA1  1";
+
+        setUpCracWithRealRAs(true);
+
+        OptimizationResult optimResult1 = Mockito.mock(OptimizationResult.class);
+        Mockito.doReturn(Set.of(ra1)).when(optimResult1).getRangeActions();
+        Mockito.doReturn(-1.5583491325378418).when(optimResult1).getOptimizedSetPoint(ra1);
+        Mockito.doReturn(Set.of()).when(optimResult1).getActivatedNetworkActions();
+
+        OptimizationResult optimResult2 = Mockito.mock(OptimizationResult.class);
+        Mockito.doReturn(Set.of(ra1)).when(optimResult2).getRangeActions();
+        Mockito.doReturn(0.).when(optimResult2).getOptimizedSetPoint(ra1);
+        Mockito.doReturn(Set.of(na1)).when(optimResult2).getActivatedNetworkActions();
+
+        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
+
+        AppliedRemedialActions appliedRemedialActions = SearchTreeRaoProvider.getAppliedRemedialActionsInCurative(curativeResults, prePerimeterResult);
+
+        // apply only range action
+        appliedRemedialActions.applyOnNetwork(state1, network);
+        assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+        assertTrue(network.getLine(naNeId).getTerminal1().isConnected());
+
+        // reset network
+        network = NetworkImportsUtil.import12NodesNetwork();
+
+        // apply only network action
+        appliedRemedialActions.applyOnNetwork(state2, network);
+        assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+        assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
+
+        // apply also range action
+        appliedRemedialActions.applyOnNetwork(state1, network);
+        assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
+        assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
     }
 }
