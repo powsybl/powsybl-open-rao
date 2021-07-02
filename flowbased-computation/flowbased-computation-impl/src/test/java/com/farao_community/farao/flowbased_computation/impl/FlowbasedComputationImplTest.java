@@ -58,7 +58,7 @@ public class FlowbasedComputationImplTest {
         crac = ExampleGenerator.crac("crac.json");
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
         checkCurativeAssertions(result);
     }
@@ -68,7 +68,7 @@ public class FlowbasedComputationImplTest {
         crac = ExampleGenerator.crac("crac_rao_result.json");
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
         checkCurativeAssertions(result);
     }
@@ -77,7 +77,7 @@ public class FlowbasedComputationImplTest {
     public void testRunWrongData() {
         crac = ExampleGenerator.crac("crac_rao_result_wrong.json");
         try {
-            flowBasedComputationProvider.run(network, crac, glsk, parameters);
+            flowBasedComputationProvider.run(network, crac, null, glsk, parameters);
             fail();
         } catch (FaraoException e) {
             assertEquals("Wrong number of variants: 1.", e.getMessage());
@@ -87,14 +87,14 @@ public class FlowbasedComputationImplTest {
     @Test
     public void testRunPraWithForced() {
         crac = ExampleGenerator.crac("crac_with_forced.json");
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
     }
 
     @Test
     public void testRunPraWithExtension() {
         crac = ExampleGenerator.crac("crac_with_extension.json");
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
     }
 
