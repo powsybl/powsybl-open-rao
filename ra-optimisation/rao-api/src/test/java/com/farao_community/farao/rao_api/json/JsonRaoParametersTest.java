@@ -62,6 +62,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         countries.add("BE");
         countries.add("FR");
         parameters.setLoopflowCountries(countries);
+        parameters.setRaoWithMnecLimitation(false);
         parameters.setMnecViolationCost(20);
         parameters.setMnecAcceptableMarginDiminution(30);
         parameters.setMnecConstraintAdjustmentCoefficient(3);

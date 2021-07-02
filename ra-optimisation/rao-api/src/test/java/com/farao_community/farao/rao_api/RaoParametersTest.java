@@ -67,15 +67,18 @@ public class RaoParametersTest {
     public void checkConfig() {
 
         MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
+        moduleConfig.setStringProperty("rao-with-mnec-limitation", Boolean.toString(true));
         moduleConfig.setStringProperty("rao-with-loop-flow-limitation", Boolean.toString(false));
-        moduleConfig.setStringProperty("loopflow-approximation", Boolean.toString(true));
-        moduleConfig.setStringProperty("loopflow-constraint-adjustment-coefficient", Objects.toString(0.0));
-        moduleConfig.setStringProperty("loopflow-violation-cost", Objects.toString(0.0));
+        moduleConfig.setStringProperty("loop-flow-constraint-adjustment-coefficient", Objects.toString(15.0));
+        moduleConfig.setStringProperty("loop-flow-violation-cost", Objects.toString(10.0));
 
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
 
+        assertTrue(parameters.isRaoWithMnecLimitation());
         assertFalse(parameters.isRaoWithLoopFlowLimitation());
+        assertEquals(15., parameters.getLoopFlowConstraintAdjustmentCoefficient(), 1e-6);
+        assertEquals(10., parameters.getLoopFlowViolationCost(), 1e-6);
     }
 
     @Test

@@ -46,7 +46,9 @@ public class LeafProblem extends SearchTreeProblem {
             linearProblemBuilder.withProblemFiller(createMaxMinMarginFiller(flowCnecs, rangeActions));
         }
 
-        linearProblemBuilder.withProblemFiller(createMnecFiller(flowCnecs));
+        if (linearOptimizerParameters.isRaoWithMnecLimitation()) {
+            linearProblemBuilder.withProblemFiller(createMnecFiller(flowCnecs));
+        }
 
         if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
             linearProblemBuilder.withProblemFiller(createLoopFlowFiller(loopFlowCnecs));

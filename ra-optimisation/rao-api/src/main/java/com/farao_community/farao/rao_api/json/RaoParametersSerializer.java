@@ -49,6 +49,7 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
             }
         });
         jsonGenerator.writeEndArray();
+        jsonGenerator.writeBooleanField("rao-with-mnec-limitation", parameters.isRaoWithMnecLimitation());
         jsonGenerator.writeNumberField("mnec-acceptable-margin-diminution", parameters.getMnecAcceptableMarginDiminution());
         jsonGenerator.writeNumberField("mnec-violation-cost", parameters.getMnecViolationCost());
         jsonGenerator.writeNumberField("mnec-constraint-adjustment-coefficient", parameters.getMnecConstraintAdjustmentCoefficient());

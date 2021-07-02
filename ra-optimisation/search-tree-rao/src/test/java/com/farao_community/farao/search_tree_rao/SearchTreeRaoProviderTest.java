@@ -144,19 +144,21 @@ public class SearchTreeRaoProviderTest {
         // mnec virtual cost
         raoParameters.setMnecViolationCost(1);
         raoParameters.setRaoWithLoopFlowLimitation(false);
+        raoParameters.setRaoWithMnecLimitation(true);
+        raoParameters.setMnecViolationCost(0);
         objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialFlowResult, preperimFlowResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
         assertEquals(Set.of("sensitivity-fallback-cost", "mnec-cost"), objFun.getVirtualCostNames());
 
         // lf cost
-        raoParameters.setMnecViolationCost(0);
+        raoParameters.setRaoWithMnecLimitation(false);
         raoParameters.setRaoWithLoopFlowLimitation(true);
         objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialFlowResult, preperimFlowResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
         assertEquals(Set.of("sensitivity-fallback-cost", "loop-flow-cost"), objFun.getVirtualCostNames());
 
         // mnec and lf costs
-        raoParameters.setMnecViolationCost(-1);
+        raoParameters.setRaoWithMnecLimitation(true);
         raoParameters.setRaoWithLoopFlowLimitation(true);
         objFun = SearchTreeRaoProvider.createObjectiveFunction(Set.of(cnec1), initialFlowResult, preperimFlowResult, raoParameters, Mockito.mock(LinearOptimizerParameters.class), toolProvider);
         assertNotNull(objFun);
@@ -177,8 +179,8 @@ public class SearchTreeRaoProviderTest {
     public void testBuildSearchTreeInput() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
-        raoParameters.setMnecViolationCost(10);
         raoParameters.setRaoWithLoopFlowLimitation(true);
+        raoParameters.setRaoWithMnecLimitation(true);
 
         TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
         when(treeParameters.getMaxRaPerTso()).thenReturn(Map.of("fr", 5));
@@ -248,7 +250,7 @@ public class SearchTreeRaoProviderTest {
         assertEquals(0.45, linearOptimizerParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertFalse(linearOptimizerParameters.isRaoWithLoopFlowLimitation());
         assertNull(linearOptimizerParameters.getLoopFlowParameters());
-        assertFalse(linearOptimizerParameters.hasMonitoredElements());
+        assertFalse(linearOptimizerParameters.isRaoWithMnecLimitation());
         assertNull(linearOptimizerParameters.getMnecParameters());
         assertFalse(linearOptimizerParameters.hasOperatorsNotToOptimize());
         assertNull(linearOptimizerParameters.getUnoptimizedCnecParameters());
@@ -256,6 +258,7 @@ public class SearchTreeRaoProviderTest {
         // relative mw, with mnec and lf
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.setRaoWithLoopFlowLimitation(true);
+        raoParameters.setRaoWithMnecLimitation(true);
         raoParameters.setMnecViolationCost(-10);
         raoParameters.setPstSensitivityThreshold(0.67);
 
@@ -273,7 +276,7 @@ public class SearchTreeRaoProviderTest {
         assertEquals(raoParameters.getLoopFlowConstraintAdjustmentCoefficient(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(raoParameters.getLoopFlowViolationCost(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowViolationCost(), DOUBLE_TOLERANCE);
         assertEquals(raoParameters.getLoopFlowAcceptableAugmentation(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowAcceptableAugmentation(), DOUBLE_TOLERANCE);
-        assertTrue(linearOptimizerParameters.hasMonitoredElements());
+        assertTrue(linearOptimizerParameters.isRaoWithMnecLimitation());
         assertNotNull(linearOptimizerParameters.getMnecParameters());
         assertEquals(raoParameters.getMnecViolationCost(), linearOptimizerParameters.getMnecParameters().getMnecViolationCost(), DOUBLE_TOLERANCE);
         assertEquals(raoParameters.getMnecAcceptableMarginDiminution(), linearOptimizerParameters.getMnecParameters().getMnecAcceptableMarginDiminution(), DOUBLE_TOLERANCE);
@@ -292,6 +295,7 @@ public class SearchTreeRaoProviderTest {
         // absolute ampere, with mnec, no lf
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         raoParameters.setRaoWithLoopFlowLimitation(false);
+        raoParameters.setRaoWithMnecLimitation(true);
         raoParameters.setMnecViolationCost(10);
         raoParameters.setPstSensitivityThreshold(0.45);
         raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(true);
@@ -306,7 +310,7 @@ public class SearchTreeRaoProviderTest {
         assertEquals(0.45, linearOptimizerParameters.getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertFalse(linearOptimizerParameters.isRaoWithLoopFlowLimitation());
         assertNull(linearOptimizerParameters.getLoopFlowParameters());
-        assertTrue(linearOptimizerParameters.hasMonitoredElements());
+        assertTrue(linearOptimizerParameters.isRaoWithMnecLimitation());
         assertNotNull(linearOptimizerParameters.getMnecParameters());
         assertEquals(raoParameters.getMnecViolationCost(), linearOptimizerParameters.getMnecParameters().getMnecViolationCost(), DOUBLE_TOLERANCE);
         assertEquals(raoParameters.getMnecAcceptableMarginDiminution(), linearOptimizerParameters.getMnecParameters().getMnecAcceptableMarginDiminution(), DOUBLE_TOLERANCE);
@@ -317,7 +321,8 @@ public class SearchTreeRaoProviderTest {
         // relative mw, with lf no mnec
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         raoParameters.setRaoWithLoopFlowLimitation(true);
-        raoParameters.setMnecViolationCost(0);
+        raoParameters.setRaoWithMnecLimitation(false);
+        raoParameters.setMnecViolationCost(100);
         raoParameters.setPstSensitivityThreshold(0.67);
         raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(false);
 
@@ -336,6 +341,7 @@ public class SearchTreeRaoProviderTest {
         assertEquals(raoParameters.getLoopFlowViolationCost(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowViolationCost(), DOUBLE_TOLERANCE);
         assertEquals(raoParameters.getLoopFlowAcceptableAugmentation(), linearOptimizerParameters.getLoopFlowParameters().getLoopFlowAcceptableAugmentation(), DOUBLE_TOLERANCE);
         assertTrue(linearOptimizerParameters.hasOperatorsNotToOptimize());
+        assertFalse(linearOptimizerParameters.isRaoWithMnecLimitation());
         assertNotNull(linearOptimizerParameters.getUnoptimizedCnecParameters());
         assertEquals(Set.of("DE", "NL"), linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize());
         assertEquals(1000., linearOptimizerParameters.getUnoptimizedCnecParameters().getHighestThresholdValue(), DOUBLE_TOLERANCE);
