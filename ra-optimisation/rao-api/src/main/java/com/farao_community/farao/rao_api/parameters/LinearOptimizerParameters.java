@@ -121,7 +121,7 @@ public final class LinearOptimizerParameters {
         return loopFlowParameters != null;
     }
 
-    public boolean hasMonitoredElements() {
+    public boolean isRaoWithMnecLimitation() {
         return mnecParameters != null;
     }
 

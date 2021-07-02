@@ -9,6 +9,7 @@
   "loop-flow-approximation" : "FIXED_PTDF",
   "loop-flow-acceptable-augmentation" : 0.0,
   "loop-flow-constraint-adjustment-coefficient" : 0.0,
+  "rao-with-mnec-limitation" : false,
   "mnec-acceptable-margin-diminution" : 50.0,
   "mnec-violation-cost" : 10.0,
   "mnec-constraint-adjustment-coefficient" : 0.0,
