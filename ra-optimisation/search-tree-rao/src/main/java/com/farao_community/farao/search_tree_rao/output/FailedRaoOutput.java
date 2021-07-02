@@ -13,25 +13,23 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.OptimizationState;
-import com.farao_community.farao.rao_api.results.PerimeterResult;
-import com.farao_community.farao.rao_api.results.PrePerimeterResult;
-import com.farao_community.farao.rao_api.results.RaoResult;
-import com.farao_community.farao.rao_api.results.*;
-import com.powsybl.commons.extensions.Extension;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class FailedRaoOutput implements RaoResult {
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
+public class FailedRaoOutput implements SearchTreeRaoResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
-    //TODO: add optimization status (failed for this implem)
 
     @Override
-    public SensitivityStatus getComputationStatus() {
-        return SensitivityStatus.FAILURE;
+    public ComputationStatus getComputationStatus() {
+        return ComputationStatus.FAILURE;
     }
 
     @Override
@@ -134,28 +132,4 @@ public class FailedRaoOutput implements RaoResult {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
-    @Override
-    public void addExtension(Class aClass, Extension extension) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public Extension getExtension(Class aClass) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public Extension getExtensionByName(String s) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public boolean removeExtension(Class aClass) {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
-
-    @Override
-    public Collection getExtensions() {
-        throw new FaraoException(SHOULD_NOT_BE_USED);
-    }
 }

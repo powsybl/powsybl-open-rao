@@ -58,7 +58,8 @@
       "max-curative-ra-per-tso" : {
         "RTE" : 5
       },
-      "curative-rao-optimize-operators-not-sharing-cras" : false
+      "curative-rao-optimize-operators-not-sharing-cras" : false,
+      "with-second-preventive-optimization" : true
     }
   }
 }

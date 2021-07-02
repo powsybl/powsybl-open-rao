@@ -10,8 +10,8 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,15 +55,15 @@ public class MinMarginEvaluator implements CostEvaluator {
         if (costlyElements.isEmpty()) {
             return null;
         }
-        return getCostlyElements(flowResult, 1).get(0);
+        return costlyElements.get(0);
     }
 
     @Override
-    public double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+    public double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
         FlowCnec limitingElement = getMostLimitingElement(flowResult);
         if (limitingElement == null) {
             return 0;
         }
-        return -marginEvaluator.getMargin(flowResult, getMostLimitingElement(flowResult), unit);
+        return -marginEvaluator.getMargin(flowResult, limitingElement, unit);
     }
 }

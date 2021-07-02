@@ -13,7 +13,10 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
+import com.farao_community.farao.search_tree_rao.output.PerimeterResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.*;
@@ -113,7 +116,11 @@ public class PerimeterOutput implements PerimeterResult {
 
     @Override
     public double getOptimizedSetPoint(RangeAction rangeAction) {
-        return Optional.of(optimizationResult.getOptimizedSetPoint(rangeAction)).orElse(prePerimeterResult.getOptimizedSetPoint(rangeAction));
+        if (optimizationResult.getRangeActions().contains(rangeAction)) {
+            return optimizationResult.getOptimizedSetPoint(rangeAction);
+        } else {
+            return prePerimeterResult.getOptimizedSetPoint(rangeAction);
+        }
     }
 
     @Override
@@ -127,8 +134,8 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public SensitivityStatus getSensitivityStatus() {
-        return null;
+    public ComputationStatus getSensitivityStatus() {
+        return optimizationResult.getSensitivityStatus();
     }
 
     @Override

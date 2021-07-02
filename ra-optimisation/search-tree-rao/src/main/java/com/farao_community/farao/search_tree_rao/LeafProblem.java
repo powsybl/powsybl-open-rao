@@ -10,9 +10,9 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.RangeActionResult;
-import com.farao_community.farao.rao_api.results.SensitivityResult;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
+import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.powsybl.iidm.network.Network;
 

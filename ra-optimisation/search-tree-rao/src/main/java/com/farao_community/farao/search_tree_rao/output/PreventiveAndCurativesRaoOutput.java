@@ -13,19 +13,24 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
-import com.powsybl.commons.extensions.Extension;
 
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILURE;
+import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
 
-public class PreventiveAndCurativesRaoOutput implements RaoResult {
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
+public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     private PrePerimeterResult initialResult;
     private PerimeterResult postPreventiveResult;
     private Map<State, PerimeterResult> postCurativeResults;
@@ -38,17 +43,16 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     }
 
     @Override
-    public SensitivityStatus getComputationStatus() {
+    public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == FAILURE
                 || postPreventiveResult.getSensitivityStatus() == FAILURE
                 || postCurativeResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
             return FAILURE;
         }
         // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
-        return SensitivityStatus.DEFAULT;
+        return ComputationStatus.DEFAULT;
     }
 
-    @Override
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
         if (optimizationState == OptimizationState.INITIAL) {
             if (state.getInstant() == Instant.PREVENTIVE) {
@@ -122,7 +126,18 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return initialResult.getVirtualCostNames();
+        Set<String> virtualCostNames = new HashSet<>();
+        if (initialResult.getVirtualCostNames() != null) {
+            virtualCostNames.addAll(initialResult.getVirtualCostNames());
+        }
+        if (postPreventiveResult.getVirtualCostNames() != null) {
+            virtualCostNames.addAll(postPreventiveResult.getVirtualCostNames());
+        }
+        postCurativeResults.values().stream()
+            .filter(perimeterResult -> perimeterResult.getVirtualCostNames() != null)
+            .forEach(perimeterResult -> virtualCostNames.addAll(perimeterResult.getVirtualCostNames()));
+
+        return virtualCostNames;
     }
 
     @Override
@@ -159,8 +174,10 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedNetworkActions().contains(networkAction);
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postCurativeResults.get(state).getActivatedNetworkActions().contains(networkAction);
+        } else {
+            return false;
         }
     }
 
@@ -168,8 +185,10 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedNetworkActions();
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postCurativeResults.get(state).getActivatedNetworkActions();
+        } else {
+            return new HashSet<>();
         }
     }
 
@@ -177,8 +196,10 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedRangeActions().contains(rangeAction);
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postCurativeResults.get(state).getActivatedRangeActions().contains(rangeAction);
+        } else {
+            return false;
         }
     }
 
@@ -221,9 +242,11 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
     @Override
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return postPreventiveResult.getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
+            return postPreventiveResult.getActivatedRangeActions();
+        } else if (postCurativeResults.containsKey(state)) {
+            return postCurativeResults.get(state).getActivatedRangeActions();
         } else {
-            return postCurativeResults.get(state).getActivatedRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
+            return new HashSet<>();
         }
     }
 
@@ -243,30 +266,5 @@ public class PreventiveAndCurativesRaoOutput implements RaoResult {
         } else {
             return postCurativeResults.get(state).getOptimizedSetPoints();
         }
-    }
-
-    @Override
-    public void addExtension(Class aClass, Extension extension) {
-
-    }
-
-    @Override
-    public Extension getExtension(Class aClass) {
-        return null;
-    }
-
-    @Override
-    public Extension getExtensionByName(String s) {
-        return null;
-    }
-
-    @Override
-    public boolean removeExtension(Class aClass) {
-        return false;
-    }
-
-    @Override
-    public Collection getExtensions() {
-        return null;
     }
 }

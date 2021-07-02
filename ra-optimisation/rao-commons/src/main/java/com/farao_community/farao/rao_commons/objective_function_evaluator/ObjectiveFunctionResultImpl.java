@@ -8,11 +8,13 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.ObjectiveFunctionResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -21,19 +23,26 @@ import java.util.Set;
 public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final ObjectiveFunction objectiveFunction;
     private final FlowResult flowResult;
-    private final SensitivityStatus sensitivityStatus;
+    private final ComputationStatus sensitivityStatus;
+    private boolean areCostComputed;
+    private Double functionalCost;
+    private Map<String, Double> virtualCosts;
 
     public ObjectiveFunctionResultImpl(ObjectiveFunction objectiveFunction,
                                        FlowResult flowResult,
-                                       SensitivityStatus sensitivityStatus) {
+                                       ComputationStatus sensitivityStatus) {
         this.objectiveFunction = objectiveFunction;
         this.flowResult = flowResult;
         this.sensitivityStatus = sensitivityStatus;
+        this.areCostComputed = false;
     }
 
     @Override
     public double getFunctionalCost() {
-        return objectiveFunction.getFunctionalCost(flowResult, sensitivityStatus);
+        if (!areCostComputed) {
+            computeCosts();
+        }
+        return functionalCost;
     }
 
     @Override
@@ -43,7 +52,13 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost() {
-        return objectiveFunction.getVirtualCost(flowResult, sensitivityStatus);
+        if (!areCostComputed) {
+            computeCosts();
+        }
+        if (virtualCosts.size() > 0) {
+            return virtualCosts.values().stream().mapToDouble(v -> v).sum();
+        }
+        return 0;
     }
 
     @Override
@@ -53,11 +68,21 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return objectiveFunction.getVirtualCost(flowResult, sensitivityStatus, virtualCostName);
+        if (!areCostComputed) {
+            computeCosts();
+        }
+        return virtualCosts.getOrDefault(virtualCostName, Double.NaN);
     }
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         return objectiveFunction.getCostlyElements(flowResult, virtualCostName, number);
+    }
+
+    private void computeCosts() {
+        functionalCost = objectiveFunction.getFunctionalCost(flowResult, sensitivityStatus);
+        virtualCosts = new HashMap<>();
+        getVirtualCostNames().forEach(vcn -> virtualCosts.put(vcn, objectiveFunction.getVirtualCost(flowResult, sensitivityStatus, vcn)));
+        areCostComputed = true;
     }
 }
