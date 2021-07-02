@@ -12,9 +12,9 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.LinearOptimizationResult;
-import com.farao_community.farao.rao_api.results.LinearProblemStatus;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.LinearOptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.LinearProblemStatus;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.List;
@@ -107,7 +107,7 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public SensitivityStatus getSensitivityStatus() {
+    public ComputationStatus getSensitivityStatus() {
         throw new FaraoException("Should not be used");
     }
 

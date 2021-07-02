@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.ToolProvider;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;

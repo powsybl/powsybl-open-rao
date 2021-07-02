@@ -16,14 +16,15 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.*;
-import com.powsybl.commons.extensions.Extension;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.rao_commons.result_api.*;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILURE;
+import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
 
 /**
  * A RaoResult implementation that uses curative RAO results and second preventive RAO results
@@ -36,7 +37,7 @@ import static com.farao_community.farao.rao_api.results.SensitivityStatus.FAILUR
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SecondPreventiveAndCurativesRaoOutput implements RaoResult<SecondPreventiveAndCurativesRaoOutput> {
+public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     private PrePerimeterResult initialResult;
     private PerimeterResult postFirstPreventiveResult; // used for RAs optimized only during 1st preventive (excluded from 2nd)
     private PerimeterResult postSecondPreventiveResult; // flows computed using PRA + CRA
@@ -70,14 +71,14 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult<SecondPr
     }
 
     @Override
-    public SensitivityStatus getComputationStatus() {
+    public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == FAILURE
                 || postSecondPreventiveResult.getSensitivityStatus() == FAILURE
                 || postCurativeResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
             return FAILURE;
         }
         // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
-        return SensitivityStatus.DEFAULT;
+        return ComputationStatus.DEFAULT;
     }
 
     @Override
@@ -293,31 +294,6 @@ public class SecondPreventiveAndCurativesRaoOutput implements RaoResult<SecondPr
                     .forEach(rangeAction -> optimizedSetpointsOnState.put(rangeAction, getOptimizedSetPointOnState(state, rangeAction)));
             return optimizedSetpointsOnState;
         }
-    }
-
-    @Override
-    public void addExtension(Class aClass, Extension extension) {
-        // not supported
-    }
-
-    @Override
-    public Extension getExtension(Class aClass) {
-        return null;
-    }
-
-    @Override
-    public Extension getExtensionByName(String s) {
-        return null;
-    }
-
-    @Override
-    public boolean removeExtension(Class aClass) {
-        return false;
-    }
-
-    @Override
-    public Collection getExtensions() {
-        return Collections.emptySet();
     }
 
     @Override
