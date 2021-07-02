@@ -14,7 +14,9 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +29,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static com.farao_community.farao.rao_api.results.OptimizationState.*;
+import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -236,22 +238,22 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
 
     @Test
     public void testGetComputationStatus() {
-        when(initialResult.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
-        when(post2PResult.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
-        when(curativeResult1.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
-        when(curativeResult2.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
-        assertEquals(SensitivityStatus.DEFAULT, output.getComputationStatus());
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(post2PResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(curativeResult1.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(curativeResult2.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
 
-        when(initialResult.getSensitivityStatus()).thenReturn(SensitivityStatus.FAILURE);
-        assertEquals(SensitivityStatus.FAILURE, output.getComputationStatus());
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
 
-        when(initialResult.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
-        when(post2PResult.getSensitivityStatus()).thenReturn(SensitivityStatus.FAILURE);
-        assertEquals(SensitivityStatus.FAILURE, output.getComputationStatus());
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(post2PResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
 
-        when(post2PResult.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
-        when(curativeResult2.getSensitivityStatus()).thenReturn(SensitivityStatus.FAILURE);
-        assertEquals(SensitivityStatus.FAILURE, output.getComputationStatus());
+        when(post2PResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(curativeResult2.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
     }
 
     @Test

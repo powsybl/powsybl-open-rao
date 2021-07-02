@@ -7,8 +7,8 @@
 package com.farao_community.farao.rao_api;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.results.RaoResult;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;

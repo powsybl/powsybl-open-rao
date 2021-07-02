@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_commons.adapter;
 
-import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 
 /**

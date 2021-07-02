@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
-import com.farao_community.farao.rao_api.results.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.*;
 
 import java.util.Set;

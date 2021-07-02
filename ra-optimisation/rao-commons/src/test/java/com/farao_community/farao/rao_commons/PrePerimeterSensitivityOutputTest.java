@@ -11,10 +11,10 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.RangeActionResult;
-import com.farao_community.farao.rao_api.results.SensitivityResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
+import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -46,10 +46,10 @@ public class PrePerimeterSensitivityOutputTest {
 
         PrePerimeterSensitivityOutput output = new PrePerimeterSensitivityOutput(flowResult, sensitivityResult, rangeActionResult);
 
-        when(sensitivityResult.getSensitivityStatus()).thenReturn(SensitivityStatus.DEFAULT);
-        assertEquals(SensitivityStatus.DEFAULT, output.getSensitivityStatus());
-        when(sensitivityResult.getSensitivityStatus()).thenReturn(SensitivityStatus.FALLBACK);
-        assertEquals(SensitivityStatus.FALLBACK, output.getSensitivityStatus());
+        when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        assertEquals(ComputationStatus.DEFAULT, output.getSensitivityStatus());
+        when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
+        assertEquals(ComputationStatus.FALLBACK, output.getSensitivityStatus());
 
         when(sensitivityResult.getSensitivityValue(cnec1, ra1, Unit.MEGAWATT)).thenReturn(0.5);
         when(sensitivityResult.getSensitivityValue(cnec2, ra1, Unit.AMPERE)).thenReturn(0.1);

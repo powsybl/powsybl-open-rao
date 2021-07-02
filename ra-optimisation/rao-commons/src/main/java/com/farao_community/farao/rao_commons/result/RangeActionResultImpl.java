@@ -10,7 +10,7 @@ package com.farao_community.farao.rao_commons.result;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.RangeActionResult;
+import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashMap;
@@ -52,6 +52,9 @@ public class RangeActionResultImpl implements RangeActionResult {
 
     @Override
     public double getOptimizedSetPoint(RangeAction rangeAction) {
+        if (!setPoints.containsKey(rangeAction)) {
+            throw new FaraoException(format("PST range action %s is not present in the result", rangeAction.getName()));
+        }
         return setPoints.get(rangeAction);
     }
 

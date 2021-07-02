@@ -14,17 +14,23 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
-import com.powsybl.commons.extensions.Extension;
 
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class OneStateOnlyRaoOutput implements RaoResult {
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
+public class OneStateOnlyRaoOutput implements SearchTreeRaoResult {
     private State optimizedState;
     private PrePerimeterResult initialResult;
     private OptimizationResult postOptimizationResult;
@@ -68,18 +74,17 @@ public class OneStateOnlyRaoOutput implements RaoResult {
     }
 
     @Override
-    public SensitivityStatus getComputationStatus() {
-        if (initialResult.getSensitivityStatus() == SensitivityStatus.FAILURE || postOptimizationResult.getSensitivityStatus() == SensitivityStatus.FAILURE) {
-            return SensitivityStatus.FAILURE;
+    public ComputationStatus getComputationStatus() {
+        if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE || postOptimizationResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            return ComputationStatus.FAILURE;
         }
         if (initialResult.getSensitivityStatus() == postOptimizationResult.getSensitivityStatus()) {
             return initialResult.getSensitivityStatus();
         }
         // TODO: specify what to return in case on is DEFAULT and the other one is FALLBACK
-        return SensitivityStatus.DEFAULT;
+        return ComputationStatus.DEFAULT;
     }
 
-    @Override
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
         if (!state.equals(optimizedState)) {
             // TODO : change this when getAppropriateResult will return a PerimeterResult (maybe throw an exception)
@@ -88,7 +93,6 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         return new PerimeterOutput(initialResult, postOptimizationResult);
     }
 
-    @Override
     public PerimeterResult getPostPreventivePerimeterResult() {
         if (!optimizedState.getInstant().equals(Instant.PREVENTIVE)) {
             // TODO : review this also
@@ -97,7 +101,6 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         return new PerimeterOutput(initialResult, postOptimizationResult);
     }
 
-    @Override
     public PrePerimeterResult getInitialResult() {
         return initialResult;
     }
@@ -131,7 +134,14 @@ public class OneStateOnlyRaoOutput implements RaoResult {
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return initialResult.getVirtualCostNames();
+        Set<String> virtualCostNames = new HashSet<>();
+        if (initialResult.getVirtualCostNames() != null) {
+            virtualCostNames.addAll(initialResult.getVirtualCostNames());
+        }
+        if (postOptimizationResult.getVirtualCostNames() != null) {
+            virtualCostNames.addAll(postOptimizationResult.getVirtualCostNames());
+        }
+        return virtualCostNames;
     }
 
     @Override
@@ -240,28 +250,4 @@ public class OneStateOnlyRaoOutput implements RaoResult {
         return postOptimizationResult.getOptimizedSetPoints();
     }
 
-    @Override
-    public void addExtension(Class aClass, Extension extension) {
-
-    }
-
-    @Override
-    public Extension getExtension(Class aClass) {
-        return null;
-    }
-
-    @Override
-    public Extension getExtensionByName(String s) {
-        return null;
-    }
-
-    @Override
-    public boolean removeExtension(Class aClass) {
-        return false;
-    }
-
-    @Override
-    public Collection getExtensions() {
-        return null;
-    }
 }

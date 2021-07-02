@@ -9,8 +9,8 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public interface CostEvaluator {
      * @return Double value of the RaoData cost.
      * @param flowResult
      */
-    double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus);
+    double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus);
 
     Unit getUnit();
 

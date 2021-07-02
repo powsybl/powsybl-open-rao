@@ -8,9 +8,9 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.MnecParameters;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -130,7 +130,7 @@ public class MnecViolationCostEvaluatorTest {
     public void computeCostWithTooLowCost() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(0.5e-10);
 
-        assertEquals(0, evaluator.computeCost(currentFlowResult, Mockito.mock(SensitivityStatus.class)), 1e-12);
+        assertEquals(0, evaluator.computeCost(currentFlowResult, Mockito.mock(ComputationStatus.class)), 1e-12);
     }
 
     @Test
@@ -155,13 +155,13 @@ public class MnecViolationCostEvaluatorTest {
 
         assertEquals(
                 expectedCostWithEval1,
-                evaluator1.computeCost(currentFlowResult, Mockito.mock(SensitivityStatus.class)),
+                evaluator1.computeCost(currentFlowResult, Mockito.mock(ComputationStatus.class)),
                 DOUBLE_TOLERANCE
         );
 
         assertEquals(
                 expectedCostWithEval2,
-                evaluator2.computeCost(currentFlowResult, Mockito.mock(SensitivityStatus.class)),
+                evaluator2.computeCost(currentFlowResult, Mockito.mock(ComputationStatus.class)),
                 DOUBLE_TOLERANCE
         );
     }

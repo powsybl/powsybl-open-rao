@@ -8,9 +8,9 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.ObjectiveFunctionResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,18 +28,18 @@ import static org.mockito.Mockito.when;
 public class ObjectiveFunctionTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
-    MinMarginEvaluator minMarginEvaluator;
-    MnecViolationCostEvaluator mnecViolationCostEvaluator;
-    LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
-    FlowResult flowResult;
-    SensitivityStatus sensitivityStatus;
-    FlowCnec cnec1;
-    FlowCnec cnec2;
+    private MinMarginEvaluator minMarginEvaluator;
+    private MnecViolationCostEvaluator mnecViolationCostEvaluator;
+    private LoopFlowViolationCostEvaluator loopFlowViolationCostEvaluator;
+    private FlowResult flowResult;
+    private ComputationStatus sensitivityStatus;
+    private FlowCnec cnec1;
+    private FlowCnec cnec2;
 
     @Before
     public void setUp() {
         flowResult = Mockito.mock(FlowResult.class);
-        sensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        sensitivityStatus = Mockito.mock(ComputationStatus.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
 
