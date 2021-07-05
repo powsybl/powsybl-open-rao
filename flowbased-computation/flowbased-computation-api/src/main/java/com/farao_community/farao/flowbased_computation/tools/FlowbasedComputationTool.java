@@ -174,7 +174,7 @@ public class FlowbasedComputationTool implements Tool {
             JsonFlowbasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));
         }
 
-        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, cimGlsk, parameters);
+        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, null, cimGlsk, parameters);
         if (outputFile != null) {
             JsonFlowbasedDomain.write(result.getFlowBasedDomain(), Files.newOutputStream(outputFile));
         }

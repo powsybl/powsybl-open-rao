@@ -9,6 +9,7 @@ package com.farao_community.farao.flowbased_computation;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
@@ -47,23 +48,23 @@ public final class FlowbasedComputation {
             Objects.requireNonNull(crac);
             Objects.requireNonNull(glsk);
             Objects.requireNonNull(parameters);
-            return provider.run(network, crac, glsk, parameters);
+            return provider.run(network, crac, null, glsk, parameters);
         }
 
         public CompletableFuture<FlowbasedComputationResult> runAsync(Network network, Crac crac, ZonalData<LinearGlsk> glsk) {
             return runAsync(network, crac, glsk, FlowbasedComputationParameters.load());
         }
 
-        public FlowbasedComputationResult run(Network network, Crac crac, ZonalData<LinearGlsk> glsk, FlowbasedComputationParameters parameters) {
+        public FlowbasedComputationResult run(Network network, Crac crac, ZonalData<LinearGlsk> glsk, RaoResult raoResult, FlowbasedComputationParameters parameters) {
             Objects.requireNonNull(network);
             Objects.requireNonNull(crac);
             Objects.requireNonNull(glsk);
             Objects.requireNonNull(parameters);
-            return provider.run(network, crac, glsk, parameters).join();
+            return provider.run(network, crac, raoResult, glsk, parameters).join();
         }
 
-        public FlowbasedComputationResult run(Network network, Crac crac, ZonalData<LinearGlsk> glsk) {
-            return run(network, crac, glsk, FlowbasedComputationParameters.load());
+        public FlowbasedComputationResult run(Network network, Crac crac, RaoResult raoResult, ZonalData<LinearGlsk> glsk) {
+            return run(network, crac, glsk, raoResult, FlowbasedComputationParameters.load());
         }
 
         @Override
@@ -107,11 +108,11 @@ public final class FlowbasedComputation {
         return find().runAsync(network, crac, glsk);
     }
 
-    public static FlowbasedComputationResult run(Network network, Crac crac, ZonalData<LinearGlsk> glsk, FlowbasedComputationParameters parameters) {
-        return find().run(network, crac, glsk, parameters);
+    public static FlowbasedComputationResult run(Network network, Crac crac,  RaoResult raoResult, ZonalData<LinearGlsk> glsk, FlowbasedComputationParameters parameters) {
+        return find().run(network, crac, glsk, raoResult, parameters);
     }
 
-    public static FlowbasedComputationResult run(Network network, Crac crac, ZonalData<LinearGlsk> glsk) {
-        return find().run(network, crac, glsk);
+    public static FlowbasedComputationResult run(Network network, Crac crac, ZonalData<LinearGlsk> glsk, RaoResult raoResult) {
+        return find().run(network, crac, raoResult, glsk);
     }
 }
