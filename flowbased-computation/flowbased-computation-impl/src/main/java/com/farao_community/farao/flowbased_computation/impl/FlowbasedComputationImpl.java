@@ -287,12 +287,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 na.apply(network);
             }
         });
-        LOGGER.debug("   ");
-        LOGGER.debug("For debug2: state: " + state);
-        LOGGER.debug("For debug2: nb of optimized setpoints on state: " + raoResult.getOptimizedSetPointsOnState(state));
         raoResult.getOptimizedSetPointsOnState(state).forEach((ra, setpoint) -> {
-            LOGGER.debug("For debug2: RA:" + ra.getId());
-            LOGGER.debug("For debug2: setpoint: " + setpoint);
             ra.apply(network, setpoint);
         });
     }
