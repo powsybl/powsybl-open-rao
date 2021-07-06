@@ -287,9 +287,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 na.apply(network);
             }
         });
-        raoResult.getOptimizedSetPointsOnState(state).forEach((ra, setpoint) -> {
-            ra.apply(network, setpoint);
-        });
+        raoResult.getOptimizedSetPointsOnState(state).forEach((ra, setpoint) -> ra.apply(network, setpoint));
     }
 
     private double zeroIfNaN(double value) {
