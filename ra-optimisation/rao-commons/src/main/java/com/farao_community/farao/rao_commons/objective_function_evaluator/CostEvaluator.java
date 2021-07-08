@@ -9,8 +9,8 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 
 import java.util.List;
 
@@ -28,9 +28,17 @@ public interface CostEvaluator {
      * @return Double value of the RaoData cost.
      * @param flowResult
      */
-    double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus);
+    double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus);
 
     Unit getUnit();
 
+    /**
+     * Gets the most costly elements, ordered from most to least costly. Elements
+     * with a null cost are not in the list.
+     *
+     * @param flowResult: The results to use.
+     * @param numberOfElements: The size of the list to be studied, so the number of costly elements to be retrieved.
+     * @return The ordered list of the n first costly elements.
+     */
     List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements);
 }

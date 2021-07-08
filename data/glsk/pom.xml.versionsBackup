@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.farao-community.farao</groupId>
+        <artifactId>farao-data</artifactId>
+        <version>2.4.3-SNAPSHOT</version>
+    </parent>
+    <artifactId>farao-glsk</artifactId>
+    <version>2.4.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>GLSK related modules</name>
+    <description>Module that regroups all features related to GLSK file</description>
+
+    <modules>
+        <module>glsk-document-api</module>
+        <module>glsk-document-cim</module>
+        <module>glsk-document-io-api</module>
+        <module>glsk-document-ucte</module>
+        <module>glsk-document-cse</module>
+        <module>glsk-quality-check-ucte</module>
+        <module>glsk-virtual-hubs</module>
+    </modules>
+</project>

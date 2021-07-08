@@ -67,5 +67,6 @@ public class RangeActionResultImplTest {
         assertEquals(2, rangeActionResultImpl.getOptimizedSetPoints().size());
         assertEquals(Set.of(rangeAction, pstRangeAction), rangeActionResultImpl.getRangeActions());
         assertThrows(FaraoException.class, () -> rangeActionResultImpl.getOptimizedTap(Mockito.mock(PstRangeAction.class)));
+        assertThrows(FaraoException.class, () -> rangeActionResultImpl.getOptimizedSetPoint(Mockito.mock(RangeAction.class)));
     }
 }

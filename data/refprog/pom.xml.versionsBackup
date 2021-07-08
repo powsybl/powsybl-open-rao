@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.farao-community.farao</groupId>
+        <artifactId>farao-data</artifactId>
+        <version>2.4.3-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>farao-refprog</artifactId>
+    <version>2.4.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>RefProg related modules</name>
+    <description>Module that regroups all features related to RefProg file</description>
+
+    <modules>
+        <module>reference-program</module>
+        <module>refprog-xml-importer</module>
+    </modules>
+</project>

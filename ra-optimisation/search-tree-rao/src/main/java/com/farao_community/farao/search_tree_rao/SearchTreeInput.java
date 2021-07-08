@@ -11,9 +11,9 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.PrePerimeterResult;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Set;

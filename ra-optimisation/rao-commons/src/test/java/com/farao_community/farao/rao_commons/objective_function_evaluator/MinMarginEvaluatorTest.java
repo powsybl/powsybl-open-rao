@@ -8,8 +8,8 @@
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -91,7 +91,7 @@ public class MinMarginEvaluatorTest {
 
     @Test
     public void computeCost() {
-        assertEquals(250., minMarginEvaluator.computeCost(flowResult, Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(250., minMarginEvaluator.computeCost(flowResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -111,6 +111,6 @@ public class MinMarginEvaluatorTest {
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
         assertTrue(minMarginEvaluator.getCostlyElements(flowResult, 10).isEmpty());
         assertNull(minMarginEvaluator.getMostLimitingElement(flowResult));
-        assertEquals(0, minMarginEvaluator.computeCost(flowResult, Mockito.mock(SensitivityStatus.class)), DOUBLE_TOLERANCE);
+        assertEquals(0, minMarginEvaluator.computeCost(flowResult, Mockito.mock(ComputationStatus.class)), DOUBLE_TOLERANCE);
     }
 }

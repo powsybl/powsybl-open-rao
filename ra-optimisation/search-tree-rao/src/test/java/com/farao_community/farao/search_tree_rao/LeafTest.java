@@ -17,13 +17,14 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.rao_api.results.*;
 import com.farao_community.farao.rao_commons.PrePerimeterSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -134,7 +135,7 @@ public class LeafTest {
     @Test
     public void evaluateAnAlreadyEvaluatedLeaf() {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        SensitivityStatus sensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         Mockito.when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
         Leaf rootLeaf = new Leaf(network, prePerimeterResult);
         ObjectiveFunctionResult preOptimObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
@@ -143,7 +144,7 @@ public class LeafTest {
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
 
-    private Leaf prepareLeafForEvaluation(NetworkAction networkAction, SensitivityStatus expectedSensitivityStatus, FlowResult expectedFlowResult, double expectedCost, List<FlowCnec> mostLimitingCnecs) {
+    private Leaf prepareLeafForEvaluation(NetworkAction networkAction, ComputationStatus expectedSensitivityStatus, FlowResult expectedFlowResult, double expectedCost, List<FlowCnec> mostLimitingCnecs) {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         Leaf rootLeaf = new Leaf(network, prePerimeterResult);
         RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
@@ -165,14 +166,14 @@ public class LeafTest {
         return leaf;
     }
 
-    private Leaf prepareLeafForEvaluation(NetworkAction na1, SensitivityStatus expectedSensitivityStatus, FlowResult expectedFlowResult, double expectedCost) {
+    private Leaf prepareLeafForEvaluation(NetworkAction na1, ComputationStatus expectedSensitivityStatus, FlowResult expectedFlowResult, double expectedCost) {
         return prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost, Collections.emptyList());
     }
 
     @Test
     public void evaluateAChildLeaf() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
         Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
@@ -188,7 +189,7 @@ public class LeafTest {
     @Test
     public void testReevaluate() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
         Leaf leaf1 = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
@@ -251,7 +252,7 @@ public class LeafTest {
     @Test
     public void optimize() {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        SensitivityStatus sensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         Mockito.when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
         Leaf rootLeaf = new Leaf(network, prePerimeterResult);
         LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
@@ -263,7 +264,7 @@ public class LeafTest {
     public void getFlowsAndPtdfsOnFlowCnecAfterEvaluation() {
         //prepare leaf
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
@@ -293,7 +294,7 @@ public class LeafTest {
     @Test
     public void getFlowsAndPtdfsOnFlowCnecAfterOptimization() {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        SensitivityStatus sensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         Mockito.when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
         Leaf leaf = new Leaf(network, prePerimeterResult);
         LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
@@ -350,7 +351,7 @@ public class LeafTest {
     @Test
     public void getFunctionalCostAfterEvaluation() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
@@ -380,7 +381,7 @@ public class LeafTest {
     @Test
     public void getVirtualCostAfterEvaluation() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
         Leaf leaf = prepareLeafForEvaluation(na1, expectedSensitivityStatus, expectedFlowResult, expectedCost);
@@ -419,7 +420,7 @@ public class LeafTest {
     @Test
     public void getCostlyAndMostLimitingElementsAfterEvaluation() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        SensitivityStatus expectedSensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
@@ -578,7 +579,7 @@ public class LeafTest {
     public void getSensitivityStatusAfterEvaluation() {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         Leaf leaf = new Leaf(network, prePerimeterResult);
-        SensitivityStatus sensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         Mockito.when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
         assertEquals(sensitivityStatus, leaf.getSensitivityStatus());
     }
@@ -591,7 +592,7 @@ public class LeafTest {
         LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
         Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), any(), any(), any(), any())).thenReturn(linearOptimizationResult);
         leaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
-        SensitivityStatus sensitivityStatus = Mockito.mock(SensitivityStatus.class);
+        ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         Mockito.when(linearOptimizationResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
         assertEquals(sensitivityStatus, leaf.getSensitivityStatus());
     }

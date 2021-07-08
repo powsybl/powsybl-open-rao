@@ -9,9 +9,9 @@ package com.farao_community.farao.rao_commons.objective_function_evaluator;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
-import com.farao_community.farao.rao_api.results.FlowResult;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public double computeCost(FlowResult flowResult, SensitivityStatus sensitivityStatus) {
+    public double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
         double cost = loopflowCnecs
                 .stream()
                 .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)

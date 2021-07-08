@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.SensitivityResult;
+import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
