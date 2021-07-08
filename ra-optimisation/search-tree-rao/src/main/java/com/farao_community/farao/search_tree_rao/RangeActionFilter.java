@@ -155,7 +155,7 @@ class RangeActionFilter {
 
     /**
      * First compares priority then sensi
-     * If a range action has more priority (depending on the contents of leastPriorityRangeActions) then the other, then
+     * If a range action has more priority (depending on the contents of leastPriorityRangeActions) than the other, then
      * it will be considered greater.
      * If both RAs have the same priority, then absolute sensitivities will be compared.
      */
