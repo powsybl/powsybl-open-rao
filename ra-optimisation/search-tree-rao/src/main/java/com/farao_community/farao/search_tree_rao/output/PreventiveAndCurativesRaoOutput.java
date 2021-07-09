@@ -205,8 +205,10 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getOptimizedTap(pstRangeAction);
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postPreventiveResult.getOptimizedTap(pstRangeAction);
+        } else {
+            throw new FaraoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
         }
     }
 
@@ -223,8 +225,10 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getOptimizedSetPoint(rangeAction);
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postPreventiveResult.getOptimizedSetPoint(rangeAction);
+        } else {
+            throw new FaraoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
         }
     }
 
