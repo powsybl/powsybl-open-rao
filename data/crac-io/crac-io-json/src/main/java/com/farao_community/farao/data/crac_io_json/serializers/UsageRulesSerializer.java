@@ -9,6 +9,7 @@ package com.farao_community.farao.data.crac_io_json.serializers;
 
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -17,8 +18,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.FREE_TO_USE_USAGE_RULES;
-import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.ON_STATE_USAGE_RULES;
+import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -30,6 +30,7 @@ public final class UsageRulesSerializer {
     public static void serializeUsageRules(RemedialAction<?> remedialAction, JsonGenerator gen) throws IOException {
         serializeUsageRules(remedialAction, FreeToUse.class, FREE_TO_USE_USAGE_RULES, gen);
         serializeUsageRules(remedialAction, OnState.class, ON_STATE_USAGE_RULES, gen);
+        serializeUsageRules(remedialAction, OnFlowConstraint.class, ON_FLOW_CONSTRAINT_USAGE_RULES, gen);
     }
 
     private static void serializeUsageRules(RemedialAction<?> remedialAction, Class<? extends UsageRule> usageRuleType, String arrayName, JsonGenerator gen) throws IOException {

@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -22,6 +23,7 @@ public class SearchTreeInput {
     private Set<FlowCnec> flowCnecs;
     private Set<NetworkAction> networkActions;
     private Set<RangeAction> rangeActions;
+    private State optimizedState;
 
     private ObjectiveFunction objectiveFunction;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
@@ -30,6 +32,14 @@ public class SearchTreeInput {
     private SearchTreeComputer searchTreeComputer;
 
     private PrePerimeterResult prePerimeterOutput;
+
+    public State getOptimizedState() {
+        return optimizedState;
+    }
+
+    public void setOptimizedState(State optimizedState) {
+        this.optimizedState = optimizedState;
+    }
 
     public SearchTreeBloomer getSearchTreeBloomer() {
         return searchTreeBloomer;

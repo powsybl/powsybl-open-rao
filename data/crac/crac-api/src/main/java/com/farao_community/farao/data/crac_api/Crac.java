@@ -267,10 +267,9 @@ public interface Crac extends Identifiable<Crac> {
     Set<RangeAction> getRangeActions();
 
     /**
-     * Gather all the range actions of a specified state with the specified usage method (available, forced or
-     * unavailable).
+     * Gather all the range actions of a specified state with one of the specified usage methods
      */
-    Set<RangeAction> getRangeActions(State state, UsageMethod usageMethod);
+    Set<RangeAction> getRangeActions(State state, UsageMethod... usageMethod);
 
     /**
      * Find a range action by its id, returns null if the range action does not exists
@@ -307,10 +306,9 @@ public interface Crac extends Identifiable<Crac> {
     Set<NetworkAction> getNetworkActions();
 
     /**
-     * Gather all the network actions of a specified state with the specified usage method (available, forced or
-     * unavailable).
+     * Gather all the network actions of a specified state with one of the specified usage methods
      */
-    Set<NetworkAction> getNetworkActions(State state, UsageMethod usageMethod);
+    Set<NetworkAction> getNetworkActions(State state, UsageMethod... usageMethod);
 
     /**
      * Find a NetworkAction by its id, returns null if the network action does not exists

@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -57,6 +57,10 @@ public final class NetworkActionArrayDeserializer {
                     case ON_STATE_USAGE_RULES:
                         jsonParser.nextToken();
                         OnStateArrayDeserializer.deserialize(jsonParser, adder);
+                        break;
+                    case ON_FLOW_CONSTRAINT_USAGE_RULES:
+                        jsonParser.nextToken();
+                        OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
                         break;
                     case TOPOLOGICAL_ACTIONS:
                         jsonParser.nextToken();

@@ -16,6 +16,7 @@ package com.farao_community.farao.data.crac_api.usage_rule;
 public enum UsageMethod {
     UNAVAILABLE,
     FORCED,
+    TO_BE_EVALUATED,
     AVAILABLE,
     UNDEFINED
 }

@@ -416,10 +416,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<RangeAction> getRangeActions(State state, UsageMethod usageMethod) {
+    public Set<RangeAction> getRangeActions(State state, UsageMethod... usageMethods) {
         // the only implementation of RangeAction is for now PstRangeAction
         return pstRangeActions.values().stream()
-            .filter(rangeAction -> rangeAction.getUsageMethod(state).equals(usageMethod))
+            .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
             .collect(Collectors.toSet());
     }
 
@@ -460,9 +460,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<NetworkAction> getNetworkActions(State state, UsageMethod usageMethod) {
+    public Set<NetworkAction> getNetworkActions(State state, UsageMethod... usageMethods) {
         return networkActions.values().stream()
-            .filter(networkAction -> networkAction.getUsageMethod(state).equals(usageMethod))
+            .filter(networkAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> networkAction.getUsageMethod(state).equals(usageMethod)))
             .collect(Collectors.toSet());
     }
 

@@ -51,6 +51,8 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
             return UsageMethod.UNAVAILABLE;
         } else if (usageMethods.contains(UsageMethod.FORCED)) {
             return UsageMethod.FORCED;
+        } else if (usageMethods.contains(UsageMethod.TO_BE_EVALUATED)) {
+            return UsageMethod.TO_BE_EVALUATED;
         } else if (usageMethods.contains(UsageMethod.AVAILABLE)) {
             return UsageMethod.AVAILABLE;
         } else {

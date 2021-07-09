@@ -7,10 +7,14 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -18,6 +22,10 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -82,7 +90,7 @@ public class RangeActionFilterTest {
         PstRangeAction pstnl = addPstRangeAction("nl", 0, 3, 0);
         leafRangeActions.remove(pstnl);
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
 
         assertFalse(rangeActionFilter.isRangeActionUsed(pstfr, leaf));
         assertTrue(rangeActionFilter.isRangeActionUsed(pstbe, leaf));
@@ -99,7 +107,7 @@ public class RangeActionFilterTest {
         maxPstPerTso.put("fr", 5);
         setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -117,7 +125,7 @@ public class RangeActionFilterTest {
 
         setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -138,7 +146,7 @@ public class RangeActionFilterTest {
         maxPstPerTso.put("fr", 2);
         setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -162,7 +170,7 @@ public class RangeActionFilterTest {
         maxRaPerTso.put("fr", 3);
         setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, maxRaPerTso);
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -189,7 +197,7 @@ public class RangeActionFilterTest {
 
         setTreeParameters(Integer.MAX_VALUE, 3, new HashMap<>(), new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterTsos();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
@@ -215,13 +223,77 @@ public class RangeActionFilterTest {
 
         setTreeParameters(3, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
 
-        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, treeParameters, prePerimeterSetPoints);
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterMaxRas();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
         assertEquals(2, filteredRangeActions.size());
         assertTrue(filteredRangeActions.contains(pstfr1));
         assertTrue(filteredRangeActions.contains(pstfr3));
+    }
+
+    @Test
+    public void testFilterWithPriorities() {
+        PstRangeAction pstfr1 = addPstRangeAction("fr", 0, 0, 1);
+        PstRangeAction pstfr2 = addPstRangeAction("fr", 0, 0, 2);
+        PstRangeAction pstfr3 = addPstRangeAction("fr", 0, 0, 3);
+        Mockito.when(leaf.getRangeActions()).thenReturn(Set.of(pstfr2, pstfr3));
+        setTreeParameters(2, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
+
+        // initially pstfr2 and pstfr3 were available but not used
+        // the filter should prioritize pstfr1 even though it has the smallest sensi
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, true);
+        rangeActionFilter.filterMaxRas();
+        assertEquals(Set.of(pstfr1, pstfr3), rangeActionFilter.getRangeActionsToOptimize());
+
+        // no priority, compare sensi
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterMaxRas();
+        assertEquals(Set.of(pstfr2, pstfr3), rangeActionFilter.getRangeActionsToOptimize());
+    }
+
+    @Test
+    public void testFilterUnavailableRangeActions() {
+        State optimizedState = mock(State.class);
+        when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
+
+        RangeActionFilter filter;
+
+        FlowCnec flowCnec = mock(FlowCnec.class);
+
+        RangeAction ra1 = mock(RangeAction.class);
+        when(ra1.getUsageMethod(optimizedState)).thenReturn(UsageMethod.AVAILABLE);
+
+        OnFlowConstraint onFlowConstraint = mock(OnFlowConstraint.class);
+        when(onFlowConstraint.getInstant()).thenReturn(Instant.CURATIVE);
+        when(onFlowConstraint.getFlowCnec()).thenReturn(flowCnec);
+        when(onFlowConstraint.getUsageMethod(optimizedState)).thenReturn(UsageMethod.TO_BE_EVALUATED);
+        RangeAction ra2 = mock(RangeAction.class);
+        when(ra2.getUsageMethod(optimizedState)).thenReturn(UsageMethod.TO_BE_EVALUATED);
+        when(ra2.getUsageRules()).thenReturn(List.of(onFlowConstraint));
+
+        Leaf leaf = mock(Leaf.class);
+        when(leaf.getRangeActions()).thenReturn(Set.of(ra1, ra2));
+        when(leaf.getOptimizedSetPoint(ra1)).thenReturn(0.);
+        when(leaf.getOptimizedSetPoint(ra2)).thenReturn(0.);
+
+        // only ra1 should be available if margin on cnec is positive
+        when(leaf.getMargin(eq(flowCnec), any())).thenReturn(10.);
+        filter = new RangeActionFilter(leaf, Set.of(ra1, ra2), optimizedState, mock(TreeParameters.class), Map.of(ra1, 0., ra2, 0.), false);
+        filter.filterUnavailableRangeActions();
+        assertEquals(Set.of(ra1), filter.getRangeActionsToOptimize());
+
+        // unless ra2 was used previously
+        when(leaf.getOptimizedSetPoint(ra2)).thenReturn(10.);
+        filter = new RangeActionFilter(leaf, Set.of(ra1, ra2), optimizedState, mock(TreeParameters.class), Map.of(ra1, 0., ra2, 0.), false);
+        filter.filterUnavailableRangeActions();
+        assertEquals(Set.of(ra1, ra2), filter.getRangeActionsToOptimize());
+
+        // now both ra1 and ra2 should be available because margin on cnec becomes negative
+        when(leaf.getOptimizedSetPoint(ra2)).thenReturn(0.);
+        when(leaf.getMargin(eq(flowCnec), any())).thenReturn(0.);
+        filter = new RangeActionFilter(leaf, Set.of(ra1, ra2), optimizedState, mock(TreeParameters.class), Map.of(ra1, 0., ra2, 0.), false);
+        filter.filterUnavailableRangeActions();
     }
 
 }

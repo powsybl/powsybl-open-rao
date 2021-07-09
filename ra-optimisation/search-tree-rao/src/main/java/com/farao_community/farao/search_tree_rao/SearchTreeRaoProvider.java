@@ -263,7 +263,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree, perimeterCnecs);
 
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE),
+                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED),
                 perimeterCnecs,
                 toolProvider,
                 raoParameters
@@ -394,9 +394,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
         Set<FlowCnec> cnecs;
         cnecs = isSecondPreventiveRao ? crac.getFlowCnecs() : computePerimeterCnecs(crac, perimeter);
         searchTreeInput.setFlowCnecs(cnecs);
-        searchTreeInput.setNetworkActions(crac.getNetworkActions(optimizedState, UsageMethod.AVAILABLE));
+        searchTreeInput.setOptimizedState(optimizedState);
+        searchTreeInput.setNetworkActions(crac.getNetworkActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED));
 
-        Set<RangeAction> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE);
+        Set<RangeAction> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED);
         removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterOutput);
         removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterOutput);
         if (isSecondPreventiveRao) {

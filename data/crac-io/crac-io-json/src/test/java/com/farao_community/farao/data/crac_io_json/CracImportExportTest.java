@@ -13,17 +13,18 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.CracImpl;
 import com.farao_community.farao.data.crac_impl.InjectionSetpointImpl;
+import com.farao_community.farao.data.crac_impl.OnFlowConstraintImpl;
 import com.farao_community.farao.data.crac_impl.PstSetpointImpl;
 import org.junit.Test;
 
 import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -141,7 +142,7 @@ public class CracImportExportTest {
                 .withGroupId("group-1")
                 .withInitialTap(1)
                 .withTapToAngleConversionMap(Map.of(-3, 0., -2, .5, -1, 1., 0, 1.5, 1, 2., 2, 2.5, 3, 3.))
-                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3prevId").add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(1).withMaxTap(7).add()
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
                 .add();
@@ -174,5 +175,11 @@ public class CracImportExportTest {
         assertEquals(0.5, importedCrac.getPstRangeAction("pstRangeId").convertTapToAngle(-2));
         assertEquals(2.5, importedCrac.getPstRangeAction("pstRangeId").convertTapToAngle(2));
         assertEquals(2, importedCrac.getPstRangeAction("pstRangeId").convertAngleToTap(2.5));
+
+        assertEquals(1, importedCrac.getPstRangeAction("pstRangeId2").getUsageRules().size());
+        assertTrue(importedCrac.getPstRangeAction("pstRangeId2").getUsageRules().get(0) instanceof OnFlowConstraintImpl);
+        OnFlowConstraint onFlowConstraint = (OnFlowConstraint) importedCrac.getPstRangeAction("pstRangeId2").getUsageRules().get(0);
+        assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
+        assertSame(importedCrac.getCnec("cnec3prevId"), onFlowConstraint.getFlowCnec());
     }
 }
