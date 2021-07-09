@@ -297,7 +297,7 @@ public class RangeActionFilterTest {
     }
 
     @Test
-    public void testComputeRangeActionsToRemove() {
+    public void testDontFailIfAllRangeActionsUsed() {
         Mockito.when(treeParameters.getMaxRa()).thenReturn(3);
         PstRangeAction pst1 = addPstRangeAction("op", 0, 3, 0);
         PstRangeAction pst2 = addPstRangeAction("op", 0, 3, 0);
