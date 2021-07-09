@@ -35,6 +35,7 @@ public final class JsonSerializationConstants {
     public static final String INSTANT = "instant";
 
     public static final String FLOW_CNECS = "flowCnecs";
+    public static final String FLOW_CNEC_ID = "flowCnecId";
 
     public static final String THRESHOLDS = "thresholds";
     public static final String FRM = "frm";
@@ -53,6 +54,7 @@ public final class JsonSerializationConstants {
     public static final String USAGE_METHOD = "usageMethod";
     public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules";
     public static final String ON_STATE_USAGE_RULES = "onStateUsageRules";
+    public static final String ON_FLOW_CONSTRAINT_USAGE_RULES = "onFlowConstraintUsageRules";
 
     public static final String TYPE = "type";
     public static final String ID = "id";
