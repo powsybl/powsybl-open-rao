@@ -14,9 +14,10 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.OptimizationResult;
-import com.farao_community.farao.rao_api.results.OptimizationState;
-import com.farao_community.farao.rao_api.results.PrePerimeterResult;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,6 +47,7 @@ public class OneStateOnlyRaoOutputTest {
     FlowCnec cnec2;
     State cnec1state;
     State cnec2state;
+    OneStateOnlyRaoOutput output;
 
     @Before
     public void setUp() {
@@ -111,14 +113,40 @@ public class OneStateOnlyRaoOutputTest {
         when(postOptimizationResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(1500.);
         when(postOptimizationResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(750.);
 
+        output = new OneStateOnlyRaoOutput(optimizedState, initialResult, postOptimizationResult);
+    }
+
+    @Test
+    public void testGetComputationStatus() {
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
+
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
+
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
+
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
+        when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
+        assertEquals(ComputationStatus.FALLBACK, output.getComputationStatus());
+
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
+        when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
+
+        when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(postOptimizationResult.getSensitivityStatus()).thenReturn(ComputationStatus.FALLBACK);
+        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 
     @Test
     public void testPreventiveCase() {
         when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
         when(optimizedState.isPreventive()).thenReturn(true);
-
-        OneStateOnlyRaoOutput output = new OneStateOnlyRaoOutput(optimizedState, initialResult, postOptimizationResult);
 
         assertSame(initialResult, output.getInitialResult());
         assertNotNull(output.getPostPreventivePerimeterResult());
@@ -211,7 +239,6 @@ public class OneStateOnlyRaoOutputTest {
         when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
         when(optimizedState.isPreventive()).thenReturn(false);
 
-        OneStateOnlyRaoOutput output = new OneStateOnlyRaoOutput(optimizedState, initialResult, postOptimizationResult);
         assertThrows(FaraoException.class, output::getPostPreventivePerimeterResult);
 
         // margins
@@ -254,8 +281,6 @@ public class OneStateOnlyRaoOutputTest {
     public void testCurativeCase2() {
         when(optimizedState.getInstant()).thenReturn(Instant.CURATIVE);
         when(optimizedState.isPreventive()).thenReturn(false);
-
-        OneStateOnlyRaoOutput output = new OneStateOnlyRaoOutput(optimizedState, initialResult, postOptimizationResult);
 
         // margins
         when(cnec1state.isPreventive()).thenReturn(false);

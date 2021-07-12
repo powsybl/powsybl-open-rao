@@ -9,8 +9,16 @@ package com.farao_community.farao.flowbased_computation.impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.flowbased_domain.DataMonitoredBranch;
 import com.farao_community.farao.data.flowbased_domain.DataPtdfPerCountry;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.data.rao_result_api.RaoResult;
+import com.farao_community.farao.data.rao_result_impl.ElementaryFlowCnecResult;
+import com.farao_community.farao.data.rao_result_impl.FlowCnecResult;
+import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationProvider;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
@@ -20,8 +28,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.Unit.AMPERE;
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
+import static com.farao_community.farao.data.rao_result_api.OptimizationState.AFTER_CRA;
+import static com.farao_community.farao.data.rao_result_api.OptimizationState.INITIAL;
 import static org.junit.Assert.*;
 
 /**
@@ -58,17 +71,18 @@ public class FlowbasedComputationImplTest {
         crac = ExampleGenerator.crac("crac.json");
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
         checkCurativeAssertions(result);
     }
 
     @Test
     public void testRunWithCraRaoResult() {
-        crac = ExampleGenerator.crac("crac_rao_result.json");
+        crac = ExampleGenerator.crac("crac_for_rao_result.json");
         assertTrue(network.getBranch("FR-BE").getTerminal1().isConnected());
         assertTrue(network.getBranch("FR-BE").getTerminal2().isConnected());
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        RaoResult raoResult = createRaoResult(crac.getFlowCnecs(), crac.getNetworkAction("Open line FR-BE"));
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, raoResult, glsk, parameters).join();
         checkAssertions(result);
         checkCurativeAssertions(result);
     }
@@ -77,7 +91,7 @@ public class FlowbasedComputationImplTest {
     public void testRunWrongData() {
         crac = ExampleGenerator.crac("crac_rao_result_wrong.json");
         try {
-            flowBasedComputationProvider.run(network, crac, glsk, parameters);
+            flowBasedComputationProvider.run(network, crac, null, glsk, parameters);
             fail();
         } catch (FaraoException e) {
             assertEquals("Wrong number of variants: 1.", e.getMessage());
@@ -87,14 +101,14 @@ public class FlowbasedComputationImplTest {
     @Test
     public void testRunPraWithForced() {
         crac = ExampleGenerator.crac("crac_with_forced.json");
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
     }
 
     @Test
     public void testRunPraWithExtension() {
         crac = ExampleGenerator.crac("crac_with_extension.json");
-        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, glsk, parameters).join();
+        FlowbasedComputationResult result = flowBasedComputationProvider.run(network, crac, null, glsk, parameters).join();
         checkAssertions(result);
     }
 
@@ -238,5 +252,53 @@ public class FlowbasedComputationImplTest {
                     DataPtdfPerCountry::getPtdf
                 ))
             ));
+    }
+
+    private RaoResult createRaoResult(Set<FlowCnec> flowCnecs, NetworkAction na) {
+        RaoResultImpl raoResult = new RaoResultImpl();
+
+        // Warning: these results on cnecs are not relevant, and maybe not coherent with
+        // the hardcoded results of FlowbasedComputationProviderMock, used in this test class.
+        flowCnecs.forEach(cnec -> {
+            FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
+
+            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(INITIAL);
+            ElementaryFlowCnecResult elementaryFlowCnecResult = flowCnecResult.getResult(INITIAL);
+
+            elementaryFlowCnecResult.setFlow(100., MEGAWATT);
+            elementaryFlowCnecResult.setMargin(101., MEGAWATT);
+            elementaryFlowCnecResult.setRelativeMargin(102., MEGAWATT);
+            elementaryFlowCnecResult.setLoopFlow(103., MEGAWATT);
+            elementaryFlowCnecResult.setCommercialFlow(104., MEGAWATT);
+
+            elementaryFlowCnecResult.setFlow(110., AMPERE);
+            elementaryFlowCnecResult.setMargin(111., AMPERE);
+            elementaryFlowCnecResult.setRelativeMargin(112., AMPERE);
+            elementaryFlowCnecResult.setLoopFlow(113., AMPERE);
+            elementaryFlowCnecResult.setCommercialFlow(114., AMPERE);
+
+            elementaryFlowCnecResult.setPtdfZonalSum(0.1);
+
+            flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(AFTER_CRA);
+            elementaryFlowCnecResult = flowCnecResult.getResult(AFTER_CRA);
+
+            elementaryFlowCnecResult.setFlow(200., MEGAWATT);
+            elementaryFlowCnecResult.setMargin(201., MEGAWATT);
+            elementaryFlowCnecResult.setRelativeMargin(202., MEGAWATT);
+            elementaryFlowCnecResult.setLoopFlow(203., MEGAWATT);
+
+            elementaryFlowCnecResult.setFlow(210., AMPERE);
+            elementaryFlowCnecResult.setMargin(211., AMPERE);
+            elementaryFlowCnecResult.setRelativeMargin(212., AMPERE);
+            elementaryFlowCnecResult.setLoopFlow(213., AMPERE);
+
+            elementaryFlowCnecResult.setPtdfZonalSum(0.1);
+        });
+
+        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("N-1 FR-BE", Instant.CURATIVE));
+
+        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
+
+        return raoResult;
     }
 }

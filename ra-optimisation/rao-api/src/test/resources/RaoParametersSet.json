@@ -11,6 +11,7 @@
   "loop-flow-constraint-adjustment-coefficient" : 0.5,
   "loop-flow-violation-cost" : 0.0,
   "loop-flow-countries" : [ "BE", "FR" ],
+  "rao-with-mnec-limitation" : false,
   "mnec-acceptable-margin-diminution" : 30.0,
   "mnec-violation-cost" : 20.0,
   "mnec-constraint-adjustment-coefficient" : 3.0,

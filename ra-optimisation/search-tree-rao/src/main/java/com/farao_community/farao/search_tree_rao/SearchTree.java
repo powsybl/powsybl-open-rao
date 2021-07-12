@@ -8,23 +8,28 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.InvalidParameterException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,6 +55,7 @@ public class SearchTree {
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
 
     private Network network;
+    private State optimizedState;
     private Set<NetworkAction> availableNetworkActions;
     private Set<RangeAction> availableRangeActions;
     private PrePerimeterResult prePerimeterOutput;
@@ -59,7 +65,7 @@ public class SearchTree {
     private ObjectiveFunction objectiveFunction;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
 
-    private Map<RangeAction, Double> initialRangeActionSetPoints;
+    private Map<RangeAction, Double> prePerimeterRangeActionSetPoints;
 
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
@@ -86,33 +92,21 @@ public class SearchTree {
     }
 
     /**
-     * If a TSO has a maximum number of usable ranges actions, this functions filters out the range actions with
-     * the least impact on the most limiting element
+     * If the allowed number of range actions (or RAs) is limited (by tso or globally), this function filters out
+     * the range actions with the least impact
      */
-    Set<RangeAction> getRangeActionsToOptimize(Leaf leaf) {
-        RangeActionFilter filter = new RangeActionFilter(leaf, availableRangeActions, treeParameters);
+    Set<RangeAction> applyRangeActionsFilters(Leaf leaf, Set<RangeAction> fromRangeActions, boolean deprioritizeIgnoredRangeActions) {
+        RangeActionFilter filter = new RangeActionFilter(leaf, fromRangeActions, optimizedState, treeParameters, prePerimeterRangeActionSetPoints, deprioritizeIgnoredRangeActions);
+        filter.filterUnavailableRangeActions();
         filter.filterPstPerTso();
         filter.filterTsos();
         filter.filterMaxRas();
         return filter.getRangeActionsToOptimize();
     }
 
-    boolean isRangeActionUsed(RangeAction rangeAction, Leaf leaf) {
-        return leaf.getRangeActions().contains(rangeAction) && leaf.getOptimizedSetPoint(rangeAction) != getInitialRangeActionSetPoint(rangeAction);
-    }
-
-    double getInitialRangeActionSetPoint(RangeAction rangeAction) {
-        return initialRangeActionSetPoints.get(rangeAction);
-    }
-
-    private static int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult sensitivityResult) {
-        Double sensi1 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra1, Unit.MEGAWATT));
-        Double sensi2 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra2, Unit.MEGAWATT));
-        return sensi1.compareTo(sensi2);
-    }
-
     public CompletableFuture<OptimizationResult> run(SearchTreeInput searchTreeInput, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters) {
         this.network = searchTreeInput.getNetwork();
+        this.optimizedState = searchTreeInput.getOptimizedState();
         this.availableNetworkActions = searchTreeInput.getNetworkActions();
         this.availableRangeActions = searchTreeInput.getRangeActions();
         this.prePerimeterOutput = searchTreeInput.getPrePerimeterOutput();
@@ -125,8 +119,8 @@ public class SearchTree {
         this.linearOptimizerParameters = linearOptimizerParameters;
         initLeaves();
 
-        this.initialRangeActionSetPoints = new HashMap<>();
-        rootLeaf.getRangeActions().stream().forEach(rangeAction -> initialRangeActionSetPoints.put(rangeAction, rangeAction.getCurrentSetpoint(network)));
+        this.prePerimeterRangeActionSetPoints = new HashMap<>();
+        rootLeaf.getRangeActions().stream().forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, prePerimeterOutput.getOptimizedSetPoint(rangeAction)));
 
         LOGGER.info("Evaluate root leaf");
         rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, availableRangeActions));
@@ -193,7 +187,10 @@ public class SearchTree {
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
     private void updateOptimalLeafWithNextDepthBestLeaf() {
-        final Set<NetworkAction> networkActions = bloomer.bloom(optimalLeaf, availableNetworkActions);
+        // Recompute the list of available network actions with last margin results
+        Set<NetworkAction> availableActionsOnNewMargins = availableNetworkActions.stream().filter(na -> isRemedialActionAvailable(na, optimizedState, optimalLeaf)).collect(Collectors.toSet());
+        // Bloom
+        final Set<NetworkAction> networkActions = bloomer.bloom(optimalLeaf, availableActionsOnNewMargins);
         if (networkActions.isEmpty()) {
             LOGGER.info("No more network action available");
             return;
@@ -256,19 +253,45 @@ public class SearchTree {
     }
 
     Leaf createChildLeaf(Network network, NetworkAction networkAction) {
-        return new Leaf(network, previousDepthOptimalLeaf.getNetworkActions(), networkAction, previousDepthOptimalLeaf);
+        return new Leaf(network, previousDepthOptimalLeaf.getActivatedNetworkActions(), networkAction, previousDepthOptimalLeaf);
     }
 
     private void optimizeLeaf(Leaf leaf, FlowResult baseFlowResult) {
-        Set<RangeAction> rangeActions = getRangeActionsToOptimize(leaf);
-        if (!rangeActions.isEmpty()) {
-            leaf.optimize(
-                iteratingLinearOptimizer,
-                getSensitivityComputerForOptimizationBasedOn(baseFlowResult, rangeActions),
-                searchTreeProblem.getLeafProblem(rangeActions)
-            );
-        } else {
-            LOGGER.info("No range actions to optimize");
+        int iteration = 0;
+        double previousCost = Double.MAX_VALUE;
+        Set<RangeAction> previousIterationRangeActions = null;
+        Set<RangeAction> rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, false);
+        // Iterate on optimizer until the list of range actions stops changing
+        while (!rangeActions.equals(previousIterationRangeActions)) {
+            iteration++;
+            if (iteration > 1) {
+                LOGGER.info("{}", leaf);
+                LOGGER.debug("The list of available range actions has changed, the leaf will be optimized again (iteration {})", iteration);
+            }
+            if (!rangeActions.isEmpty()) {
+                leaf.optimize(
+                    iteratingLinearOptimizer,
+                    getSensitivityComputerForOptimizationBasedOn(baseFlowResult, rangeActions),
+                    searchTreeProblem.getLeafProblem(rangeActions)
+                );
+                // Check if result is worse than before (even though it should not happen). If it is, go back to
+                // previous result. The only way to do this is to re-run a linear optimization
+                // TODO : check if this actually happens. If it never does, delete this extra LP
+                if (leaf.getCost() > previousCost) {
+                    LOGGER.warn("The new iteration found a worse result (abnormal). The leaf will be optimized again with the previous list of range actions.");
+                    leaf.optimize(
+                        iteratingLinearOptimizer,
+                        getSensitivityComputerForOptimizationBasedOn(baseFlowResult, previousIterationRangeActions),
+                        searchTreeProblem.getLeafProblem(rangeActions)
+                    );
+                    break;
+                }
+            } else {
+                LOGGER.info("No range actions to optimize");
+            }
+            previousCost = leaf.getCost();
+            previousIterationRangeActions = rangeActions;
+            rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, true);
         }
     }
 
@@ -338,90 +361,33 @@ public class SearchTree {
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
 
-    private class RangeActionFilter {
-
-        private final Leaf leaf;
-        private Set<RangeAction> rangeActionsToOptimize;
-        private final TreeParameters treeParameters;
-
-        public RangeActionFilter(Leaf leaf, Set<RangeAction> availableRangeActions, TreeParameters treeParameters) {
-            this.leaf = leaf;
-            this.rangeActionsToOptimize = new HashSet(availableRangeActions);
-            this.treeParameters = treeParameters;
+    /**
+     * Returns true if a remedial action is available depending on its usage rules
+     * If it has a OnFlowConstraint usage rule, then the margins are needed
+     */
+    static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State optimizedState, FlowResult flowResult) {
+        switch (remedialAction.getUsageMethod(optimizedState)) {
+            case AVAILABLE:
+                return true;
+            case TO_BE_EVALUATED:
+                return remedialAction.getUsageRules().stream()
+                    .anyMatch(usageRule -> (usageRule instanceof OnFlowConstraint)
+                        && isOnFlowConstraintAvailable((OnFlowConstraint) usageRule, optimizedState, flowResult));
+            default:
+                return false;
         }
+    }
 
-        public Set<RangeAction> getRangeActionsToOptimize() {
-            return rangeActionsToOptimize;
-        }
-
-        public void filterPstPerTso() {
-            Map<String, Integer> maxPstPerTso = recomputeMaxPstPerTso(leaf);
-            if (maxPstPerTso.isEmpty()) {
-                return;
-            }
-            // Filter the psts from Tso present in the map depending on their sensitivity
-            maxPstPerTso.forEach((tso, maxPst) -> {
-                Set<RangeAction> pstsForTso = availableRangeActions.stream()
-                    .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
-                    .collect(Collectors.toSet());
-                if (pstsForTso.size() > maxPst) {
-                    Set<RangeAction> rangeActionsToRemove = computeRangeActionsToRemove(pstsForTso, maxPst);
-                    rangeActionsToOptimize.removeAll(rangeActionsToRemove);
-                }
-            });
-        }
-
-        /**
-        * Create an updated version of maxPstPerTso map so as to deduce the number of applied network actions from the
-        * total number of ra per tso and compare this value to max number of pst per Tso set in the treeParameters.
-         */
-        private Map<String, Integer> recomputeMaxPstPerTso(Leaf leaf) {
-
-            Map<String, Integer> maxPstPerTso = new HashMap<>(treeParameters.getMaxPstPerTso());
-            treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
-                int appliedNetworkActionsForTso = (int) leaf.getNetworkActions().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
-                int pstLimit = raLimit - appliedNetworkActionsForTso;
-                maxPstPerTso.put(tso, Math.min(pstLimit, maxPstPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
-            });
-            return maxPstPerTso;
-        }
-
-        public void filterTsos() {
-            // TODO: implement this method
-        }
-
-        public void filterMaxRas() {
-            if (treeParameters.getMaxRa() == Integer.MAX_VALUE) {
-                return;
-            }
-            int numberOfNetworkActionsAlreadyApplied = leaf.getActivatedNetworkActions().size();
-            Set<RangeAction> rangeActionsToRemove = computeRangeActionsToRemove(rangeActionsToOptimize, treeParameters.getMaxRa() - numberOfNetworkActionsAlreadyApplied);
-            rangeActionsToOptimize.removeAll(rangeActionsToRemove);
-
-        }
-
-        private Set<RangeAction> computeRangeActionsToRemove(Set<RangeAction> rangeActionsToFilter, int numberOfRangeActionsToKeep) {
-            if (numberOfRangeActionsToKeep < 0) {
-                throw new InvalidParameterException("Trying to keep a negative number of remedial actions");
-            }
-            // If in previous depth some RangeActions were activated, consider them optimizable and decrement the allowed number of PSTs
-            // We have to do this because at the end of every depth, we apply optimal RangeActions for the next depth
-            Set<RangeAction> rangeActionsToRemove = new HashSet(rangeActionsToFilter);
-            Set<RangeAction> appliedRangeActions = rangeActionsToFilter.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
-            int updatedNumberOfRangeActionsToKeep = numberOfRangeActionsToKeep - appliedRangeActions.size();
-            if (updatedNumberOfRangeActionsToKeep > rangeActionsToFilter.size()) {
-                return new HashSet<>();
-            } else if (updatedNumberOfRangeActionsToKeep < 0) {
-                return rangeActionsToFilter;
-            } else {
-                rangeActionsToRemove.removeAll(appliedRangeActions);
-                List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToRemove.stream()
-                        .sorted((ra1, ra2) -> -compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
-                        .collect(Collectors.toList());
-                rangeActionsToRemove.removeAll(rangeActionsSortedBySensitivity.subList(0, updatedNumberOfRangeActionsToKeep));
-                LOGGER.debug("{} range actions will be filtered out", rangeActionsToRemove.size());
-                return rangeActionsToRemove;
-            }
+    /**
+     * Returns true if a OnFlowConstraint usage rule is verified, ie if the associated CNEC has a negative margin
+     * It needs a FlowResult to get the margin of the flow cnec
+     */
+    static boolean isOnFlowConstraintAvailable(OnFlowConstraint onFlowConstraint, State optimizedState, FlowResult flowResult) {
+        if (!onFlowConstraint.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)) {
+            return false;
+        } else {
+            // We don't actually need to know the unit of the objective function, we just need to know if the margin is negative
+            return flowResult.getMargin(onFlowConstraint.getFlowCnec(), Unit.MEGAWATT) <= 0;
         }
     }
 }

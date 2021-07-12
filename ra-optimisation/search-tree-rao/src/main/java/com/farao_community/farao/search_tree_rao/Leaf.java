@@ -12,11 +12,12 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.*;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_commons.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.rao_commons.result_api.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
@@ -102,10 +103,6 @@ class Leaf implements OptimizationResult {
         return status;
     }
 
-    public Set<NetworkAction> getNetworkActions() {
-        return networkActions;
-    }
-
     boolean isRoot() {
         return networkActions.isEmpty();
     }
@@ -147,7 +144,12 @@ class Leaf implements OptimizationResult {
     void optimize(IteratingLinearOptimizer iteratingLinearOptimizer,
                   SensitivityComputer sensitivityComputer,
                   LeafProblem leafProblem) {
-        if (status.equals(Status.EVALUATED)) {
+        if (status.equals(Status.OPTIMIZED)) {
+            // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
+            LOGGER.debug("Resetting range action setpoints to their pre-optim values");
+            resetPreOptimRangeActionsSetpoints();
+        }
+        if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             LOGGER.debug("Optimizing leaf...");
             LinearProblem linearProblem = leafProblem.getLinearProblem(
                     network,
@@ -168,6 +170,10 @@ class Leaf implements OptimizationResult {
         } else if (status.equals(Status.CREATED)) {
             LOGGER.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", this);
         }
+    }
+
+    private void resetPreOptimRangeActionsSetpoints() {
+        preOptimRangeActionResult.getRangeActions().forEach(rangeAction ->  rangeAction.apply(network, preOptimRangeActionResult.getOptimizedSetPoint(rangeAction)));
     }
 
     @Override
@@ -362,7 +368,7 @@ class Leaf implements OptimizationResult {
     }
 
     @Override
-    public SensitivityStatus getSensitivityStatus() {
+    public ComputationStatus getSensitivityStatus() {
         if (status == Status.EVALUATED) {
             return preOptimSensitivityResult.getSensitivityStatus();
         } else if (status == Status.OPTIMIZED) {
@@ -374,7 +380,8 @@ class Leaf implements OptimizationResult {
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
-        if (status == Status.EVALUATED) {
+        if (status == Status.EVALUATED ||
+            (status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction))) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, rangeAction, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSensitivityValue(flowCnec, rangeAction, unit);

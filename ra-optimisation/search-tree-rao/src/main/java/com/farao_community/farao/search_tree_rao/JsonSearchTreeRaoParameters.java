@@ -38,10 +38,12 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeBooleanField("skip-network-actions-far-from-most-limiting-element", searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement());
         jsonGenerator.writeNumberField("max-number-of-boundaries-for-skipping-network-actions", searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
         jsonGenerator.writeNumberField("max-curative-ra", searchTreeRaoParameters.getMaxCurativeRa());
+        jsonGenerator.writeNumberField("max-curative-tso", searchTreeRaoParameters.getMaxCurativeTso());
         jsonGenerator.writeObjectField("max-curative-topo-per-tso", searchTreeRaoParameters.getMaxCurativeTopoPerTso());
         jsonGenerator.writeObjectField("max-curative-pst-per-tso", searchTreeRaoParameters.getMaxCurativePstPerTso());
         jsonGenerator.writeObjectField("max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
         jsonGenerator.writeBooleanField("curative-rao-optimize-operators-not-sharing-cras", searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
+        jsonGenerator.writeBooleanField("with-second-preventive-optimization", searchTreeRaoParameters.getWithSecondPreventiveOptimization());
         jsonGenerator.writeEndObject();
     }
 
@@ -88,6 +90,10 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                     jsonParser.nextToken();
                     parameters.setMaxCurativeRa(jsonParser.getValueAsInt());
                     break;
+                case "max-curative-tso":
+                    jsonParser.nextToken();
+                    parameters.setMaxCurativeTso(jsonParser.getValueAsInt());
+                    break;
                 case "max-curative-topo-per-tso":
                     jsonParser.nextToken();
                     parameters.setMaxCurativeTopoPerTso(readStringToPositiveIntMap(jsonParser));
@@ -102,6 +108,9 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                     break;
                 case "curative-rao-optimize-operators-not-sharing-cras":
                     parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(jsonParser.getValueAsBoolean());
+                    break;
+                case "with-second-preventive-optimization":
+                    parameters.setWithSecondPreventiveOptimization(jsonParser.getValueAsBoolean());
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());

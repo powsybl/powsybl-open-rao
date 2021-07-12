@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.results.SensitivityStatus;
+import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Test;
@@ -70,10 +70,10 @@ public class SensitivityResultImplTest {
         );
 
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
-        assertEquals(SensitivityStatus.DEFAULT, sensitivityResultImpl.getSensitivityStatus());
+        assertEquals(ComputationStatus.DEFAULT, sensitivityResultImpl.getSensitivityStatus());
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK);
-        assertEquals(SensitivityStatus.FALLBACK, sensitivityResultImpl.getSensitivityStatus());
+        assertEquals(ComputationStatus.FALLBACK, sensitivityResultImpl.getSensitivityStatus());
         when(systematicSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
-        assertEquals(SensitivityStatus.FAILURE, sensitivityResultImpl.getSensitivityStatus());
+        assertEquals(ComputationStatus.FAILURE, sensitivityResultImpl.getSensitivityStatus());
     }
 }

@@ -42,11 +42,14 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
             parameters.setCurativeRaoStopCriterion(config.getEnumProperty("curative-rao-stop-criterion", SearchTreeRaoParameters.CurativeRaoStopCriterion.class, SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_STOP_CRITERION));
             parameters.setCurativeRaoMinObjImprovement(config.getDoubleProperty("curative-rao-min-obj-improvement", SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_MIN_OBJ_IMPROVEMENT));
             parameters.setMaxCurativeRa(config.getIntProperty("max-curative-ra", SearchTreeRaoParameters.DEFAULT_MAX_CURATIVE_RA));
+            parameters.setMaxCurativeTso(config.getIntProperty("max-curative-tso", SearchTreeRaoParameters.DEFAULT_MAX_CURATIVE_TSO));
             // TODO : read the following three parameters when it's possible in ModuleConfig
             logMapReadError(config, "max-curative-topo-per-tso");
             logMapReadError(config, "max-curative-pst-per-tso");
             logMapReadError(config, "max-curative-ra-per-tso");
             parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(config.getBooleanProperty("curative-rao-optimize-operators-not-sharing-cras", SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS));
+            parameters.setWithSecondPreventiveOptimization(config.getBooleanProperty("with-second-preventive-optimization", SearchTreeRaoParameters.DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION));
+
         }
         return parameters;
     }

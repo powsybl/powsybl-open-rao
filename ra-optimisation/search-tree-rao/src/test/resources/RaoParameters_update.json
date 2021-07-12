@@ -10,6 +10,7 @@
   "loop-flow-constraint-adjustment-coefficient": 0.0,
   "loop-flow-violation-cost": 0.0,
   "loop-flow-countries": [],
+  "rao-with-mnec-limitation" : false,
   "mnec-acceptable-margin-diminution": 100.0,
   "mnec-violation-cost": 10.0,
   "mnec-constraint-adjustment-coefficient": 0.0,
@@ -30,7 +31,8 @@
       },
       "max-curative-pst-per-tso" : { "Amprion" : 0 },
       "max-curative-ra-per-tso" : { "Tennet" : 1 , "50Hz" : 9 },
-      "curative-rao-optimize-operators-not-sharing-cras" : false
+      "curative-rao-optimize-operators-not-sharing-cras" : false,
+      "with-second-preventive-optimization" : true
     }
   }
 }

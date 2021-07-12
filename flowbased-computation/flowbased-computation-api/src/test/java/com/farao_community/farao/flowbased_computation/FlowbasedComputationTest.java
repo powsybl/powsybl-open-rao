@@ -43,7 +43,7 @@ public class FlowbasedComputationTest {
         FlowbasedComputation.Runner defaultFlowBased = FlowbasedComputation.find();
         assertEquals("FlowBasedComputationMock", defaultFlowBased.getName());
         assertEquals("1.0", defaultFlowBased.getVersion());
-        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, glsk);
+        FlowbasedComputationResult result = FlowbasedComputation.run(network, crac, glsk, null);
         assertNotNull(result);
         FlowbasedComputationResult resultAsync = FlowbasedComputation.runAsync(network, crac, glsk).join();
         assertNotNull(resultAsync);
