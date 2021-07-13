@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
@@ -19,7 +20,7 @@ import org.mockito.Mockito;
 
 import java.util.Map;
 
-import static junit.framework.TestCase.*;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
 /**
@@ -92,17 +93,14 @@ public class LoopFlowComputationImplTest {
     @Test
     public void testIsInMainComponent() {
         LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
-        Map<String, Float> map = Map.of("gen1", 5f, "load1", 6f, "load2", 6f);
-        Mockito.doReturn(map).when(linearGlsk).getGLSKs();
-
         Network network = Mockito.mock(Network.class);
 
+        Mockito.doReturn(Map.of("gen1", 5f)).when(linearGlsk).getGLSKs();
         Mockito.doReturn(null).when(network).getGenerator("gen1");
-        Mockito.doReturn(null).when(network).getLoad("load1");
-        Mockito.doReturn(null).when(network).getLoad("load2");
+        Mockito.doReturn(null).when(network).getLoad("gen1");
+        assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
-        assertFalse(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
-
+        Mockito.doReturn(Map.of("gen1", 5f, "load1", 6f, "load2", 6f)).when(linearGlsk).getGLSKs();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);
         Load load2 = Mockito.mock(Load.class);
@@ -136,8 +134,10 @@ public class LoopFlowComputationImplTest {
         assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
         Mockito.doReturn(null).when(network).getGenerator("gen1");
+        Mockito.doReturn(null).when(network).getLoad("gen1");
         Mockito.doReturn(null).when(network).getLoad("load1");
-        assertTrue(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
+        Mockito.doReturn(null).when(network).getGenerator("load1");
+        assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
     }
 
     @Test
@@ -150,6 +150,7 @@ public class LoopFlowComputationImplTest {
 
         Generator genDe = Mockito.mock(Generator.class);
         Generator genNl = Mockito.mock(Generator.class);
+        Generator genBe = Mockito.mock(Generator.class);
         Load loadFr = Mockito.mock(Load.class);
         Load loadBe = Mockito.mock(Load.class);
 
@@ -157,13 +158,16 @@ public class LoopFlowComputationImplTest {
         Mockito.when(network.getGenerator("Generator NL")).thenReturn(genNl);
         Mockito.when(network.getGenerator("Generator FR")).thenReturn(null);
         Mockito.when(network.getGenerator("Generator BE 1")).thenReturn(null);
+        Mockito.when(network.getGenerator("Generator BE 2")).thenReturn(genBe);
         Mockito.when(network.getLoad("Generator DE")).thenReturn(null);
         Mockito.when(network.getLoad("Generator NL")).thenReturn(null);
         Mockito.when(network.getLoad("Generator FR")).thenReturn(loadFr);
         Mockito.when(network.getLoad("Generator BE 1")).thenReturn(loadBe);
+        Mockito.when(network.getLoad("Generator BE 2")).thenReturn(null);
 
         Mockito.doReturn(mockInjection(true)).when(genDe).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(genNl).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(genBe).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(loadFr).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(loadBe).getTerminal();
 

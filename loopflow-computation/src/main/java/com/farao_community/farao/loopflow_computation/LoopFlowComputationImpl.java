@@ -7,6 +7,7 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.EICode;
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -82,7 +83,9 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
                 }
             } else {
                 Load load = network.getLoad(glsk);
-                if (load != null && load.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
+                if (load == null) {
+                    throw new FaraoException(String.format("%s is neither a generator nor a load in the network. It is not a valid GLSK.", glsk));
+                } else if (load.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
                     return true;
                 }
             }
