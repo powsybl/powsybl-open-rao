@@ -91,6 +91,7 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
         assertEquals("FLOWBASED_DATA_DOMAIN_BRANCH_1", preventiveBranch.getId());
         assertEquals("France-Germany interconnector", preventiveBranch.getName());
         assertEquals("FFR2AA1  DDE3AA1  1", preventiveBranch.getBranchId());
+        assertEquals(-2200., preventiveBranch.getFmin(), EPSILON);
         assertEquals(2300., preventiveBranch.getFmax(), EPSILON);
         assertEquals(123456., preventiveBranch.getFref(), EPSILON);
         assertEquals(5, preventiveBranch.getPtdfList().size());
@@ -103,6 +104,7 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
         assertEquals("FLOWBASED_DATA_DOMAIN_BRANCH_N_1_1", curativeBranch.getId());
         assertEquals("France-Germany interconnector", curativeBranch.getName());
         assertEquals("FFR2AA1  DDE3AA1  1", curativeBranch.getBranchId());
+        assertEquals(-2200., curativeBranch.getFmin(), EPSILON);
         assertEquals(2300., curativeBranch.getFmax(), EPSILON);
         assertEquals(1234567., curativeBranch.getFref(), EPSILON);
         assertEquals(5, curativeBranch.getPtdfList().size());

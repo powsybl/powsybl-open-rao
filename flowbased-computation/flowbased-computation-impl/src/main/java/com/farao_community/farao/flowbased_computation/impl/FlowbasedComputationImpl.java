@@ -283,7 +283,8 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 cnec.getName(),
                 cnec.getState().getInstant().toString(),
                 cnec.getNetworkElement().getId(),
-                Math.min(maxThreshold, -minThreshold),
+                minThreshold,
+                maxThreshold,
                 zeroIfNaN(result.getReferenceFlow(cnec)),
                 buildDataPtdfPerCountry(cnec, glsk, result)
         );
