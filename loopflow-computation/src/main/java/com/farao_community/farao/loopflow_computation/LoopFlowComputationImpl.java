@@ -75,22 +75,23 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     }
 
     static boolean isInMainComponent(LinearGlsk linearGlsk, Network network) {
+        boolean atLeastOneGlskConnected = false;
         for (String glsk : linearGlsk.getGLSKs().keySet()) {
             Generator generator = network.getGenerator(glsk);
             if (generator != null) {
                 if (generator.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
-                    return true;
+                    atLeastOneGlskConnected = true;
                 }
             } else {
                 Load load = network.getLoad(glsk);
                 if (load == null) {
                     throw new FaraoException(String.format("%s is neither a generator nor a load in the network. It is not a valid GLSK.", glsk));
                 } else if (load.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
-                    return true;
+                    atLeastOneGlskConnected = true;
                 }
             }
         }
-        return false;
+        return atLeastOneGlskConnected;
     }
 
     protected Stream<Map.Entry<EICode, LinearGlsk>> getGlskStream(FlowCnec flowCnec) {
