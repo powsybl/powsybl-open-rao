@@ -135,8 +135,10 @@ public class LoopFlowComputationImplTest {
 
         Mockito.doReturn(null).when(network).getGenerator("gen1");
         Mockito.doReturn(null).when(network).getLoad("gen1");
-        Mockito.doReturn(null).when(network).getLoad("load1");
         Mockito.doReturn(null).when(network).getGenerator("load1");
+        Mockito.doReturn(null).when(network).getLoad("load1");
+        Mockito.doReturn(null).when(network).getGenerator("load2");
+        Mockito.doReturn(load2).when(network).getLoad("load2");
         assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
     }
 
