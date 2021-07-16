@@ -30,6 +30,7 @@ public class DataMonitoredBranch {
     private String instantId;
     @NotNull(message = "monitoredBranch.branchId.empty")
     private final String branchId;
+    private double fmin;
     private double fmax;
     @NotNull(message = "dataMonitoredBranch.fref.empty")
     private double fref;
@@ -37,12 +38,13 @@ public class DataMonitoredBranch {
     @NotNull(message = "dataMonitoredBranch.ptdfList.empty")
     private List<DataPtdfPerCountry> ptdfList;
 
-    @ConstructorProperties({"id", "name", "instantId", "branchId", "fmax", "fref", "ptdfList"})
-    public DataMonitoredBranch(final String id, final String name, final String instantId, final String branchId, final double fmax, final double fref, final List<DataPtdfPerCountry> ptdfList) {
+    @ConstructorProperties({"id", "name", "instantId", "branchId", "fmin", "fmax", "fref", "ptdfList"})
+    public DataMonitoredBranch(final String id, final String name, final String instantId, final String branchId, final double fmin, final double fmax, final double fref, final List<DataPtdfPerCountry> ptdfList) {
         this.id = id;
         this.name = name;
         this.instantId = instantId;
         this.branchId = branchId;
+        this.fmin = fmin;
         this.fmax = fmax;
         this.fref = fref;
         this.ptdfList = Collections.unmodifiableList(ptdfList);
