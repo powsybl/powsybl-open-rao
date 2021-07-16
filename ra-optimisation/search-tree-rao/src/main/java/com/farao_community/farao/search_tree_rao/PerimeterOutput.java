@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 public class PerimeterOutput implements PerimeterResult {
 
-    OptimizationResult optimizationResult;
-    PrePerimeterResult prePerimeterResult;
+    private OptimizationResult optimizationResult;
+    private PrePerimeterResult prePerimeterResult;
 
     public PerimeterOutput(PrePerimeterResult prePerimeterResult, OptimizationResult optimizationResult) {
         this.prePerimeterResult = prePerimeterResult;
