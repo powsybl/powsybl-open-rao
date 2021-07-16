@@ -66,7 +66,7 @@ class RangeActionFilter {
                     .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
                     .collect(Collectors.toSet());
             if (pstsForTso.size() > maxPst) {
-                Set<RangeAction> rangeActionsToRemove = computeRangeActionsToRemove(pstsForTso, maxPst);
+                Set<RangeAction> rangeActionsToRemove = computeRangeActionsToExclude(pstsForTso, maxPst);
                 if (!rangeActionsToRemove.isEmpty()) {
                     LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of pst for tso {}", rangeActionsToRemove.size(), tso);
                     rangeActionsToOptimize.removeAll(rangeActionsToRemove);
@@ -122,7 +122,7 @@ class RangeActionFilter {
             return;
         }
         int numberOfNetworkActionsAlreadyApplied = leaf.getActivatedNetworkActions().size();
-        Set<RangeAction> rangeActionsToRemove = computeRangeActionsToRemove(rangeActionsToOptimize, treeParameters.getMaxRa() - numberOfNetworkActionsAlreadyApplied);
+        Set<RangeAction> rangeActionsToRemove = computeRangeActionsToExclude(rangeActionsToOptimize, treeParameters.getMaxRa() - numberOfNetworkActionsAlreadyApplied);
         if (!rangeActionsToRemove.isEmpty()) {
             LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
@@ -130,26 +130,47 @@ class RangeActionFilter {
 
     }
 
-    private Set<RangeAction> computeRangeActionsToRemove(Set<RangeAction> rangeActionsToFilter, int numberOfRangeActionsToKeep) {
+    private Set<RangeAction> computeRangeActionsToExclude(Set<RangeAction> rangeActions, int numberOfRangeActionsToKeep) {
         if (numberOfRangeActionsToKeep < 0) {
             throw new InvalidParameterException("Trying to keep a negative number of remedial actions");
         }
+        int updatedNumberOfRangeActionsToKeep = numberOfRangeActionsToKeep;
+        Set<RangeAction> rangeActionsToExclude = new HashSet<>(rangeActions);
         // If in previous depth some RangeActions were activated, consider them optimizable and decrement the allowed number of PSTs
         // We have to do this because at the end of every depth, we apply optimal RangeActions for the next depth
-        Set<RangeAction> rangeActionsToRemove = new HashSet<>(rangeActionsToFilter);
-        Set<RangeAction> appliedRangeActions = rangeActionsToFilter.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
-        int updatedNumberOfRangeActionsToKeep = numberOfRangeActionsToKeep - appliedRangeActions.size();
-        if (updatedNumberOfRangeActionsToKeep > rangeActionsToFilter.size()) {
-            return new HashSet<>();
-        } else if (updatedNumberOfRangeActionsToKeep < 0) {
-            return rangeActionsToFilter;
+        removeAppliedRangeActions(rangeActionsToExclude);
+        updatedNumberOfRangeActionsToKeep -= rangeActions.size() - rangeActionsToExclude.size();
+        // Then keep the range actions with the biggest impact
+        removeRangeActionsWithBiggestImpact(rangeActionsToExclude, updatedNumberOfRangeActionsToKeep);
+        return rangeActionsToExclude;
+    }
+
+    /**
+     * Removes from a set of RangeActions the ones that were previously used
+     *
+     * @param rangeActions the set of RangeActions to filter
+     */
+    private void removeAppliedRangeActions(Set<RangeAction> rangeActions) {
+        Set<RangeAction> appliedRangeActions = rangeActions.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
+        rangeActions.removeAll(appliedRangeActions);
+    }
+
+    /**
+     * Removes from a set of RangeActions the ones with the biggest priority or sensitivity on the most limiting element
+     *
+     * @param rangeActions the set of RangeActions to filter
+     * @param numberToRemove       the number of RangeActions to remove from the set
+     */
+    private void removeRangeActionsWithBiggestImpact(Set<RangeAction> rangeActions, int numberToRemove) {
+        if (numberToRemove < 0) {
+            // Nothing to do
+        } else if (numberToRemove >= rangeActions.size()) {
+            rangeActions.clear();
         } else {
-            rangeActionsToRemove.removeAll(appliedRangeActions);
-            List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToRemove.stream()
+            List<RangeAction> rangeActionsSortedBySensitivity = rangeActions.stream()
                 .sorted((ra1, ra2) -> comparePrioritiesAndSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
                 .collect(Collectors.toList());
-            rangeActionsToRemove.removeAll(rangeActionsSortedBySensitivity.subList(0, updatedNumberOfRangeActionsToKeep));
-            return rangeActionsToRemove;
+            rangeActions.removeAll(rangeActionsSortedBySensitivity.subList(0, numberToRemove));
         }
     }
 
