@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
@@ -60,6 +61,7 @@ public class SearchTreeRaoProviderTest {
     private RangeAction ra3;
     private RangeAction ra4;
     private RangeAction ra5;
+    private RangeAction ra6;
     private NetworkAction na1;
     private PrePerimeterResult prePerimeterResult;
 
@@ -426,6 +428,14 @@ public class SearchTreeRaoProviderTest {
                 .withId("contingency2")
                 .withNetworkElement("contingency2-ne")
                 .add();
+        crac.newFlowCnec()
+            .withId("cnec")
+            .withNetworkElement("cnec-ne")
+            .withContingency("contingency1")
+            .withInstant(Instant.CURATIVE)
+            .withNominalVoltage(220.)
+            .newThreshold().withRule(BranchThresholdRule.ON_RIGHT_SIDE).withMax(1000.).withUnit(Unit.AMPERE).add()
+            .add();
         // ra1 : preventive only
         ra1 = crac.newPstRangeAction()
                 .withId("ra1")
@@ -466,6 +476,14 @@ public class SearchTreeRaoProviderTest {
                 .newOnStateUsageRule().withContingency("contingency2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
                 .add();
+        // ra6 : preventive and curative (onFlowConsrtaint)
+        ra6 = crac.newPstRangeAction()
+            .withId("ra6")
+            .withNetworkElement("ra6-ne")
+            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnFlowConstraintUsageRule().withFlowCnec("cnec").withInstant(Instant.CURATIVE).add()
+            .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
+            .add();
         // na1 : preventive + curative
         na1 = crac.newNetworkAction()
                 .withId("na1")
@@ -505,6 +523,11 @@ public class SearchTreeRaoProviderTest {
         assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra5, crac.getPreventiveState(), crac));
         assertFalse(SearchTreeRaoProvider.isRangeActionAvailableInState(ra5, state1, crac));
         assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra5, state2, crac));
+
+        // ra6 is available in preventive and in state1 and in state2
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra6, crac.getPreventiveState(), crac));
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra6, state1, crac));
+        assertTrue(SearchTreeRaoProvider.isRangeActionAvailableInState(ra6, state2, crac));
     }
 
     @Test
