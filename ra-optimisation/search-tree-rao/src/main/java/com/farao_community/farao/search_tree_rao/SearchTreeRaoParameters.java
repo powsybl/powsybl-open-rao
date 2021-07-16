@@ -11,9 +11,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -51,6 +49,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
     static final boolean DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS = true;
     static final boolean DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION = false;
+    static final List<NetworkActionCombination> DEFAULT_NETWORK_ACTION_COMBINATIONS = new ArrayList<>();
 
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
@@ -69,6 +68,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
     private boolean curativeRaoOptimizeOperatorsNotSharingCras = DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS;
     private boolean withSecondPreventiveOptimization = DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION;
+    private List<NetworkActionCombination> networkActionCombinations = DEFAULT_NETWORK_ACTION_COMBINATIONS;
 
     @Override
     public String getName() {
@@ -247,5 +247,13 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setWithSecondPreventiveOptimization(boolean withSecondPreventiveOptimization) {
         this.withSecondPreventiveOptimization = withSecondPreventiveOptimization;
+    }
+
+    public List<NetworkActionCombination> getNetworkActionCombinations() {
+        return networkActionCombinations;
+    }
+
+    public void setNetworkActionCombinations(List<NetworkActionCombination> networkActionCombinations) {
+        this.networkActionCombinations = networkActionCombinations;
     }
 }

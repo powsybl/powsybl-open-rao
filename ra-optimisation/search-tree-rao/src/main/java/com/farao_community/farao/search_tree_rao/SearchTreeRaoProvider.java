@@ -442,7 +442,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 treeParameters.getMaxTopoPerTso(),
                 treeParameters.getMaxRaPerTso(),
                 treeParameters.getSkipNetworkActionsFarFromMostLimitingElement(),
-                raoParameters.getExtension(SearchTreeRaoParameters.class).getMaxNumberOfBoundariesForSkippingNetworkActions()
+                raoParameters.getExtension(SearchTreeRaoParameters.class).getMaxNumberOfBoundariesForSkippingNetworkActions(),
+                raoParameters.getExtension(SearchTreeRaoParameters.class).getNetworkActionCombinations()
         ));
         searchTreeInput.setPrePerimeterOutput(prePerimeterOutput);
 

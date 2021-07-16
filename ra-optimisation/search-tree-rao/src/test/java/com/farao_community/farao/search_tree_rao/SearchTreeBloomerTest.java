@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -39,20 +40,21 @@ import static org.mockito.Mockito.mock;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SearchTreeBloomerTest {
-    Crac crac;
-    Network network;
-    SearchTreeBloomer bloomer;
+
+    private Crac crac;
+    private Network network;
 
     @Before
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
-        bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, false, 0);
     }
 
     @Test
     public void testGetOptimizedMostLimitingElementsLocation() {
-        //Leaf rootLeaf = new Leaf(network, Mockito.mock(PrePerimeterResult.class));
+
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, false, 0, new ArrayList<>());
+
         Leaf leaf = mock(Leaf.class);
         Mockito.when(leaf.getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
 
@@ -84,7 +86,7 @@ public class SearchTreeBloomerTest {
 
     @Test
     public void testIsNetworkActionCloseToLocations() {
-        NetworkAction na = crac.newNetworkAction().withId("na")
+        NetworkAction na1 = crac.newNetworkAction().withId("na")
             .newTopologicalAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
             .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
             .add();
@@ -97,24 +99,31 @@ public class SearchTreeBloomerTest {
         boundaries.add(new CountryBoundary(Country.DE, Country.AT));
         CountryGraph countryGraph = new CountryGraph(boundaries);
 
-        bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, false, 0);
-        assertTrue(bloomer.isNetworkActionCloseToLocations(na, Set.of(Optional.empty()), countryGraph));
-        assertTrue(bloomer.isNetworkActionCloseToLocations(na, Set.of(Optional.of(Country.FR)), countryGraph));
-        assertTrue(bloomer.isNetworkActionCloseToLocations(na, Set.of(Optional.of(Country.BE)), countryGraph));
-        assertFalse(bloomer.isNetworkActionCloseToLocations(na, Set.of(Optional.of(Country.DE)), countryGraph));
-        assertFalse(bloomer.isNetworkActionCloseToLocations(na, Set.of(Optional.of(Country.AT)), countryGraph));
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, false, 0, new ArrayList<>());
+        assertTrue(bloomer.isNetworkActionCloseToLocations(na1, Set.of(Optional.empty()), countryGraph));
+        assertTrue(bloomer.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.FR)), countryGraph));
+        assertTrue(bloomer.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.BE)), countryGraph));
+        assertFalse(bloomer.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.DE)), countryGraph));
+        assertFalse(bloomer.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.AT)), countryGraph));
         assertTrue(bloomer.isNetworkActionCloseToLocations(na2, Set.of(Optional.of(Country.AT)), countryGraph));
-        bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, true, 1);
-        assertTrue(bloomer.isNetworkActionCloseToLocations(na, Set.of(Optional.of(Country.DE)), countryGraph));
-        assertFalse(bloomer.isNetworkActionCloseToLocations(na, Set.of(Optional.of(Country.AT)), countryGraph));
-        bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, true, 2);
-        assertTrue(bloomer.isNetworkActionCloseToLocations(na, Set.of(Optional.of(Country.AT)), countryGraph));
+
+        bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, true, 1, new ArrayList<>());
+        assertTrue(bloomer.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.DE)), countryGraph));
+        assertFalse(bloomer.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.AT)), countryGraph));
+
+        bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, true, 2, new ArrayList<>());
+        assertTrue(bloomer.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.AT)), countryGraph));
     }
 
-    private NetworkAction createNetworkAction(String networkElementId) {
-        return crac.newNetworkAction().withId("na - " + networkElementId)
-            .newTopologicalAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add()
-            .add();
+    private NetworkActionCombination createNetworkActionCombination(String... networkElementIds) {
+
+        for (String networkElementId : networkElementIds) {
+            crac.newNetworkAction().withId("na - " + networkElementId)
+                .newTopologicalAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add()
+                .add();
+        }
+
+        return new NetworkActionCombination(Arrays.stream(networkElementIds).map(neId -> crac.getNetworkAction("na - " + neId)).collect(Collectors.toSet()));
     }
 
     private NetworkAction createNetworkActionWithOperator(String networkElementId, String operator) {
@@ -137,24 +146,27 @@ public class SearchTreeBloomerTest {
 
     @Test
     public void testRemoveNetworkActionsFarFromMostLimitingElement() {
-        NetworkAction naFrBe = createNetworkAction("BBE2AA1  FFR3AA1  1");
-        NetworkAction naDe = createNetworkAction("DDE1AA1  DDE2AA1  1");
-        NetworkAction naFr = createNetworkAction("FFR2AA1  FFR3AA1  1");
-        NetworkAction naDeNl = createNetworkAction("DDE2AA1  NNL3AA1  1");
-        NetworkAction naNlBe = createNetworkAction("NNL2AA1  BBE3AA1  1");
-        NetworkAction naNl = createNetworkAction("NNL2AA1  NNL3AA1  1");
-        Set<NetworkAction> networkActions = Set.of(naFrBe, naDe, naFr, naDeNl, naNlBe, naNl);
+        NetworkActionCombination naFrBe = createNetworkActionCombination("BBE2AA1  FFR3AA1  1");
+        NetworkActionCombination naDe = createNetworkActionCombination("DDE1AA1  DDE2AA1  1");
+        NetworkActionCombination naFr = createNetworkActionCombination("FFR2AA1  FFR3AA1  1");
+        NetworkActionCombination naDeNl = createNetworkActionCombination("DDE2AA1  NNL3AA1  1");
+        NetworkActionCombination naNlBe = createNetworkActionCombination("NNL2AA1  BBE3AA1  1");
+        NetworkActionCombination naNl = createNetworkActionCombination("NNL2AA1  NNL3AA1  1");
+        NetworkActionCombination naCombDe = createNetworkActionCombination("DDE1AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1");
+        NetworkActionCombination naCombDeFrBe = createNetworkActionCombination("FFR2AA1  DDE3AA1  1", "BBE1AA1  BBE2AA1  1");
+
+        List<NetworkActionCombination> naCombinations = List.of(naFrBe, naDe, naFr, naDeNl, naNlBe, naNl, naCombDe, naCombDeFrBe);
 
         Leaf leaf = mock(Leaf.class);
         Mockito.when(leaf.getVirtualCostNames()).thenReturn(Collections.emptySet());
 
-        bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, true, 0);
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, true, 0, new ArrayList<>());
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(crac.getFlowCnec("cnec1basecase"))); // be fr
-        assertEquals(Set.of(naFrBe, naFr, naNlBe), bloomer.removeNetworkActionsFarFromMostLimitingElement(leaf, networkActions));
-        Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(crac.getFlowCnec("cnec2basecase"))); // de fr
-        assertEquals(Set.of(naFrBe, naDe, naFr, naDeNl), bloomer.removeNetworkActionsFarFromMostLimitingElement(leaf, networkActions));
+        assertEquals(List.of(naFrBe, naFr, naNlBe, naCombDeFrBe), bloomer.removeCombinationsFarFromMostLimitingElement(naCombinations, leaf));
 
-        bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, true, 1);
+        Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(crac.getFlowCnec("cnec2basecase"))); // de fr
+        assertEquals(List.of(naFrBe, naDe, naFr, naDeNl, naCombDe, naCombDeFrBe), bloomer.removeCombinationsFarFromMostLimitingElement(naCombinations, leaf));
+
         FlowCnec cnecBe = crac.newFlowCnec()
             .withId("cnecBe")
             .withNetworkElement("BBE1AA1  BBE2AA1  1")
@@ -170,8 +182,10 @@ public class SearchTreeBloomerTest {
             .withNominalVoltage(380.)
             .withIMax(5000.)
             .add();
+
+        bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, true, 1, new ArrayList<>());
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(cnecBe)); // be
-        assertEquals(Set.of(naFrBe, naFr, naDeNl, naNlBe, naNl), bloomer.removeNetworkActionsFarFromMostLimitingElement(leaf, networkActions));
+        assertEquals(List.of(naFrBe, naFr, naDeNl, naNlBe, naNl, naCombDeFrBe), bloomer.removeCombinationsFarFromMostLimitingElement(naCombinations, leaf));
     }
 
     @Test
@@ -194,6 +208,7 @@ public class SearchTreeBloomerTest {
         Mockito.when(leaf.getOptimizedSetPoint(activatedRa)).thenReturn(5.);
         Mockito.when(leaf.getOptimizedSetPoint(nonActivatedRa)).thenReturn(0.);
 
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, false, 0, new ArrayList<>());
         Set<String> activatedTsos = bloomer.getActivatedTsos(leaf);
 
         assertEquals(2, activatedTsos.size());
@@ -201,6 +216,7 @@ public class SearchTreeBloomerTest {
         assertTrue(activatedTsos.contains("be"));
     }
 
+    /*
     @Test
     public void testRemoveNetworkActionsNotInTso() {
         NetworkAction nafr1 = createNetworkActionWithOperator("FFR1AA1  FFR2AA1  1", "fr");
@@ -214,6 +230,7 @@ public class SearchTreeBloomerTest {
         allNetworkActions.add(nabe1);
         allNetworkActions.add(nabe2);
 
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), 0, Integer.MAX_VALUE, null, null, false, 0, new ArrayList<>());
         Set<NetworkAction> filteredNetworkActions = bloomer.removeNetworkActionsTsoNotInSet(allNetworkActions, Collections.singleton("fr"));
 
         assertEquals(2, filteredNetworkActions.size());
@@ -221,4 +238,5 @@ public class SearchTreeBloomerTest {
         assertTrue(filteredNetworkActions.contains(nafr2));
 
     }
+     */
 }

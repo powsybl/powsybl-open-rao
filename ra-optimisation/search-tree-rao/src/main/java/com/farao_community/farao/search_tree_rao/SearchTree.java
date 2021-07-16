@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -172,7 +173,6 @@ public class SearchTree {
                 SearchTreeRaoLogger.logRangeActions(optimalLeaf, availableRangeActions, "Best leaf so far");
                 SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, linearOptimizerParameters.getUnit(),
                     linearOptimizerParameters.hasRelativeMargins(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
-
             } else {
                 LOGGER.info("End of search tree : no network action of depth {} improve the objective function", depth + 1);
             }
@@ -190,31 +190,31 @@ public class SearchTree {
         // Recompute the list of available network actions with last margin results
         Set<NetworkAction> availableActionsOnNewMargins = availableNetworkActions.stream().filter(na -> isRemedialActionAvailable(na, optimizedState, optimalLeaf)).collect(Collectors.toSet());
         // Bloom
-        final Set<NetworkAction> networkActions = bloomer.bloom(optimalLeaf, availableActionsOnNewMargins);
-        if (networkActions.isEmpty()) {
+        final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, availableActionsOnNewMargins);
+        if (naCombinations.isEmpty()) {
             LOGGER.info("No more network action available");
             return;
         } else {
-            LOGGER.info("Leaves to evaluate: {}", networkActions.size());
+            LOGGER.info("Leaves to evaluate: {}", naCombinations.size());
         }
-        AtomicInteger remainingLeaves = new AtomicInteger(networkActions.size());
+        AtomicInteger remainingLeaves = new AtomicInteger(naCombinations.size());
         // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
         // from previous optimal leaf starting point
         // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
         previousDepthOptimalLeaf.getRangeActions()
             .forEach(ra -> ra.apply(network, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
-        int leavesInParallel = Math.min(networkActions.size(), treeParameters.getLeavesInParallel());
+        int leavesInParallel = Math.min(naCombinations.size(), treeParameters.getLeavesInParallel());
         LOGGER.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (FaraoNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
-            networkActions.forEach(networkAction ->
+            naCombinations.forEach(naCombination ->
                 networkPool.submit(() -> {
                     try {
                         Network networkClone = networkPool.getAvailableNetwork();
-                        optimizeNextLeafAndUpdate(networkAction, networkClone, networkPool);
+                        optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
                         networkPool.releaseUsedNetwork(networkClone);
                         LOGGER.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                     } catch (InterruptedException | NotImplementedException e) {
-                        LOGGER.error("Cannot apply remedial action {}", networkAction.getId());
+                        LOGGER.error("Cannot apply remedial action combination {}", naCombination.getConcatenatedId());
                         Thread.currentThread().interrupt();
                     }
                 }));
@@ -230,11 +230,11 @@ public class SearchTree {
         return new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel);
     }
 
-    void optimizeNextLeafAndUpdate(NetworkAction networkAction, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
+    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
-            leaf = createChildLeaf(network, networkAction);
+            leaf = createChildLeaf(network, naCombination);
         } catch (NotImplementedException e) {
             networkPool.releaseUsedNetwork(network);
             throw e;
@@ -252,8 +252,8 @@ public class SearchTree {
         }
     }
 
-    Leaf createChildLeaf(Network network, NetworkAction networkAction) {
-        return new Leaf(network, previousDepthOptimalLeaf.getActivatedNetworkActions(), networkAction, previousDepthOptimalLeaf);
+    Leaf createChildLeaf(Network network, NetworkActionCombination naCombination) {
+        return new Leaf(network, previousDepthOptimalLeaf.getActivatedNetworkActions(), naCombination, previousDepthOptimalLeaf);
     }
 
     private void optimizeLeaf(Leaf leaf, FlowResult baseFlowResult) {
