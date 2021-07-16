@@ -542,6 +542,8 @@ public class SearchTreeRaoProviderTest {
         // ra4 is preventive, ra5 is available in state2, both have the same network element
         assertTrue(SearchTreeRaoProvider.isRangeActionPreventive(ra4, crac));
         assertTrue(SearchTreeRaoProvider.isRangeActionPreventive(ra5, crac));
+        // ra6 is preventive and curative
+        assertTrue(SearchTreeRaoProvider.isRangeActionPreventive(ra6, crac));
     }
 
     @Test
@@ -556,13 +558,15 @@ public class SearchTreeRaoProviderTest {
         // ra4 is preventive, ra5 is available in state2, both have the same network element
         assertTrue(SearchTreeRaoProvider.isRangeActionCurative(ra4, crac));
         assertTrue(SearchTreeRaoProvider.isRangeActionCurative(ra5, crac));
+        // ra6 is preventive and curative
+        assertTrue(SearchTreeRaoProvider.isRangeActionCurative(ra6, crac));
     }
 
     @Test
     public void testGetRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
         // detect range actions that are preventive and curative
-        assertEquals(Set.of(ra3, ra4, ra5), SearchTreeRaoProvider.getRangeActionsExcludedFromSecondPreventive(crac));
+        assertEquals(Set.of(ra3, ra4, ra5, ra6), SearchTreeRaoProvider.getRangeActionsExcludedFromSecondPreventive(crac));
     }
 
     @Test
