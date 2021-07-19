@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_creation_util;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.ucte.util.UcteAliasesCreation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +28,6 @@ public class UcteBranchHelperTest {
     @Before
     public void setUp() {
         network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
-        UcteAliasesCreation.createAliases(network);
     }
 
     @Test
@@ -464,5 +462,38 @@ public class UcteBranchHelperTest {
         branchHelper = new UcteBranchHelper("8_CHARAC_8_CHARAC_1", network);
         assertFalse(branchHelper.isBranchValid());
         assertTrue(branchHelper.getInvalidBranchReason().contains("NODE1ID_ NODE2_ID SUFFIX"));
+    }
+
+    @Test
+    public void testValidBranchesWithWildCard() {
+        network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
+
+        // internal branch with order code, from/to same as network
+        UcteBranchHelper branchHelper = new UcteBranchHelper("BBE1AA1*", "BBE2AA1*", "1", null, network);
+        assertTrue(branchHelper.isBranchValid());
+        assertEquals("BBE1AA11 BBE2AA11 1", branchHelper.getBranchIdInNetwork());
+        assertFalse(branchHelper.isInvertedInNetwork());
+        assertFalse(branchHelper.isTieLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+
+        branchHelper = new UcteBranchHelper("FFR3AA1*", "XBEFR11*", "1", null, network);
+        assertTrue(branchHelper.isBranchValid());
+        assertEquals("FFR3AA11 XBEFR112 1 + XBEFR112 BBE2AA11 1", branchHelper.getBranchIdInNetwork());
+
+        branchHelper = new UcteBranchHelper("XDENL11*", "DDE2AA1*", "1", null, network);
+        assertTrue(branchHelper.isBranchValid());
+        assertEquals("DDE2AA11 XDENL111 1 + NNL3AA11 XDENL111 1", branchHelper.getBranchIdInNetwork());
+    }
+
+    @Test
+    public void testInvalidBranchesWithWildCard() {
+        network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
+
+        // multiple matches
+        UcteBranchHelper branchHelper = new UcteBranchHelper("DDE1AA1*", "DDE2AA1*", "1", null, network);
+        assertFalse(branchHelper.isBranchValid());
     }
 }
