@@ -97,7 +97,7 @@ final class SearchTreeBloomer {
 
     List<NetworkActionCombination> removeAlreadyActivatedNetworkActions(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
         return naCombinations.stream()
-            .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(na -> fromLeaf.getActivatedNetworkActions().contains(na)))
+            .filter(naCombination -> !naCombination.getNetworkActionSet().stream().anyMatch(na -> fromLeaf.getActivatedNetworkActions().contains(na)))
             .collect(Collectors.toList());
     }
 
@@ -107,7 +107,7 @@ final class SearchTreeBloomer {
         int numberOfNetworkActionsUsed = fromLeaf.getActivatedNetworkActions().size();
 
         List<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
-            .filter(naCombination -> naCombination.getNetworkActionSet().size() + numberOfRangeActionsUsed + numberOfNetworkActionsUsed > maxRa)
+            .filter(naCombination -> naCombination.getNetworkActionSet().size() + numberOfRangeActionsUsed + numberOfNetworkActionsUsed <= maxRa)
             .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
