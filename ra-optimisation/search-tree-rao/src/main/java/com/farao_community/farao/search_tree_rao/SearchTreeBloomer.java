@@ -191,7 +191,7 @@ final class SearchTreeBloomer {
         Map<String, Integer> updatedMaxTopoPerTso = new HashMap<>(maxTopoPerTso);
 
         // get set of all TSOs considered in the max number of RA limitation
-        Set<String> tsos = maxRaPerTso.keySet();
+        Set<String> tsos = new HashSet<>(maxRaPerTso.keySet());
         tsos.addAll(maxTopoPerTso.keySet());
 
         // get max number of network action which can still be activated, per Tso
