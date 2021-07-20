@@ -15,7 +15,6 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
