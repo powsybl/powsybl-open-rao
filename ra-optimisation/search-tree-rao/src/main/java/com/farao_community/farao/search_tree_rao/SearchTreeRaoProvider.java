@@ -661,7 +661,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     static boolean isRangeActionAvailableInState(RangeAction rangeAction, State state, Crac crac) {
-        Set<RangeAction> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE);
+        Set<RangeAction> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED);
         if (rangeActionsForState.contains(rangeAction)) {
             return true;
         } else {
