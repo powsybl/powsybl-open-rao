@@ -91,9 +91,7 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
         assertEquals("FLOWBASED_DATA_DOMAIN_BRANCH_1", preventiveBranch.getId());
         assertEquals("France-Germany interconnector", preventiveBranch.getName());
         assertEquals("FFR2AA1  DDE3AA1  1", preventiveBranch.getBranchId());
-        assertEquals(2300., preventiveBranch.getFmax(), EPSILON);
-        assertEquals(123456., preventiveBranch.getFref(), EPSILON);
-        assertEquals(5, preventiveBranch.getPtdfList().size());
+        testDataMonitoredBranch(preventiveBranch, -2200., 2300., 123456., 5);
 
         assertEquals(1, flowbasedDomain.getDataPostContingency().size());
         DataPostContingency postContingency = flowbasedDomain.getDataPostContingency().get(0);
@@ -103,9 +101,7 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
         assertEquals("FLOWBASED_DATA_DOMAIN_BRANCH_N_1_1", curativeBranch.getId());
         assertEquals("France-Germany interconnector", curativeBranch.getName());
         assertEquals("FFR2AA1  DDE3AA1  1", curativeBranch.getBranchId());
-        assertEquals(2300., curativeBranch.getFmax(), EPSILON);
-        assertEquals(1234567., curativeBranch.getFref(), EPSILON);
-        assertEquals(5, curativeBranch.getPtdfList().size());
+        testDataMonitoredBranch(curativeBranch, -2200., 2300., 1234567., 5);
 
         assertEquals(3, flowbasedDomain.getGlskData().size());
         DataGlskFactors dataGlskFactors = flowbasedDomain.getGlskData().get(0);
@@ -113,5 +109,12 @@ public class JsonFlowbasedDomainTest extends AbstractConverterTest {
         assertEquals(4, dataGlskFactors.getGlskFactors().size());
         Map<String, Float> glskMap = dataGlskFactors.getGlskFactors();
         assertEquals(0.2, glskMap.get("FR1 _generator"), 0.001);
+    }
+
+    private void testDataMonitoredBranch(DataMonitoredBranch dataMonitoredBranch, double fmin, double fmax, double fref, int nbPtdf) {
+        assertEquals(fmin, dataMonitoredBranch.getFmin(), EPSILON);
+        assertEquals(fmax, dataMonitoredBranch.getFmax(), EPSILON);
+        assertEquals(fref, dataMonitoredBranch.getFref(), EPSILON);
+        assertEquals(nbPtdf, dataMonitoredBranch.getPtdfList().size());
     }
 }
