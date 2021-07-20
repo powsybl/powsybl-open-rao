@@ -32,7 +32,6 @@ final class FlowCnecResultArrayDeserializer {
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac) throws IOException {
 
-        jsonParser.nextToken();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(FLOWCNEC_ID)) {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", FLOWCNEC_RESULTS, FLOWCNEC_ID));
