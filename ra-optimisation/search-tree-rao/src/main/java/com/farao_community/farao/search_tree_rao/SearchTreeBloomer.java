@@ -98,7 +98,7 @@ final class SearchTreeBloomer {
 
     List<NetworkActionCombination> removeAlreadyActivatedNetworkActions(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
         return naCombinations.stream()
-            .filter(naCombination -> !naCombination.getNetworkActionSet().stream().anyMatch(na -> fromLeaf.getActivatedNetworkActions().contains(na)))
+            .filter(naCombination -> naCombination.getNetworkActionSet().stream().noneMatch(na -> fromLeaf.getActivatedNetworkActions().contains(na)))
             .collect(Collectors.toList());
     }
 
