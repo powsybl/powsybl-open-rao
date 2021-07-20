@@ -32,7 +32,6 @@ public class UcteBranchHelper extends BranchHelper {
     private static final int ELEMENT_NAME_LENGTH = 12;
     private static final int MIN_BRANCH_ID_LENGTH = UCTE_NODE_LENGTH * 2 + 3;
     private static final int MAX_BRANCH_ID_LENGTH = UCTE_NODE_LENGTH * 2 + ELEMENT_NAME_LENGTH + 3;
-    private static final String WILDCARD_CHARACTER = "*";
     private static final String TIELINE_SEPARATOR = " + ";
 
     private String from;
@@ -240,7 +239,7 @@ public class UcteBranchHelper extends BranchHelper {
                     matchedElement = connectable;
                     matchedBranchMatchResult = branchMatchResult;
                 } else {
-                    invalidate(format("too many branches match the branch in the network (from: %s, to: %s, suffix: %s)", from, to, suffix));
+                    invalidate(format("too many branches match the branch in the network (from: %s, to: %s, suffix: %s), for example %s and %s", from, to, suffix, matchedElement.getId(), connectable.getId()));
                     return null;
                 }
             }
@@ -355,13 +354,7 @@ public class UcteBranchHelper extends BranchHelper {
      * the standard UCTE length
      */
     private static boolean matchNodeNames(String nodeName, String nodeNameInNetwork) {
-        if (nodeName.length() < UCTE_NODE_LENGTH) {
-            return nodeNameInNetwork.substring(0, nodeName.length()).equals(nodeName);
-        } else if (nodeName.endsWith(WILDCARD_CHARACTER)) {
-            return nodeNameInNetwork.substring(0, nodeName.length() - 1).equals(nodeName.substring(0, nodeName.length() - 1));
-        } else {
-            return nodeNameInNetwork.equals(nodeName);
-        }
+        return new UcteBusHelper(nodeName, nodeNameInNetwork).isValid();
     }
 
     /**
