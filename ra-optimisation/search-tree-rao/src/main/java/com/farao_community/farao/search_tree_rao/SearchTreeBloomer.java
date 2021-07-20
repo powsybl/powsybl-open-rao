@@ -85,6 +85,7 @@ final class SearchTreeBloomer {
                 .collect(Collectors.toList()));
 
         // filters
+        // (idea: create one class per filter which implement a common interface)
         networkActionCombinations = removeAlreadyActivatedNetworkActions(networkActionCombinations, fromLeaf);
 
         networkActionCombinations = removeCombinationsWhichExceedMaxNumberOfRa(networkActionCombinations, fromLeaf);
