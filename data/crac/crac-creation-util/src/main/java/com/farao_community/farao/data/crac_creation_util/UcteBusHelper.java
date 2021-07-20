@@ -34,9 +34,9 @@ public class UcteBusHelper {
                     isValid = true;
                     busIdInNetwork = bus.getId();
                 } else {
+                    invalidReason = String.format("Too many buses match name %s, for example %s and %s", nodeName, busIdInNetwork, bus.getId());
                     isValid = false;
                     busIdInNetwork = null;
-                    invalidReason = String.format("Too many buses match name %s, for example %s and %s", nodeName, busIdInNetwork, bus.getId());
                     return;
                 }
             }
