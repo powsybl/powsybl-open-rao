@@ -63,7 +63,7 @@ public class UcteBusHelper {
         if (nodeName.length() < UCTE_NODE_LENGTH) {
             return nodeNameInNetwork.substring(0, nodeName.length()).equals(nodeName);
         } else if (nodeName.endsWith(WILDCARD_CHARACTER)) {
-            return nodeNameInNetwork.substring(0, nodeName.length() - 1).equals(nodeName.substring(0, nodeNameInNetwork.length() - 1));
+            return nodeNameInNetwork.substring(0, nodeNameInNetwork.length() - 1).equals(nodeName.substring(0, nodeName.length() - 1));
         } else {
             return nodeNameInNetwork.equals(nodeName);
         }
