@@ -18,9 +18,9 @@ import static java.lang.String.format;
 
 /**
  * UcteBranchHelper is a utility class which manages branches defined with the UCTE convention
- * <p>
+ *
  * This utility class has been designed so as to be used in CRAC creators whose format
- * is based on a UCTE network and whose CRAC identifies critical branches with the following
+ * is based on a UCTE network and whose CRAC identifies network elements with the following
  * information: a "from node", a "to node" and a suffix. Either identified in separate fields,
  * or in a common concatenated id such as "FROMNODE TO__NODE SUFFIX".
  *
@@ -230,19 +230,19 @@ public class UcteBranchHelper extends BranchHelper {
     @Override
     protected Identifiable<?> findEquivalentElementInNetwork(Network network) {
         Identifiable<?> matchedElement = null;
-        BranchMatchResult matchedBranchMatchResult = null;
-        Set<Identifiable> identifiables = Stream.of(network.getBranchStream(), network.getDanglingLineStream(), network.getSwitchStream())
+        BranchMatchResult matchedResult = null;
+        Set<Identifiable> identifiablesToMatch = Stream.of(network.getBranchStream(), network.getDanglingLineStream(), network.getSwitchStream())
             .reduce(Stream::concat)
             .orElseGet(Stream::empty)
             .collect(Collectors.toSet());
-        for (Identifiable<?> identifiable : identifiables) {
-            BranchMatchResult branchMatchResult = matchBranch(identifiable);
-            if (branchMatchResult != BranchMatchResult.NOT_MATCHED) {
+        for (Identifiable<?> candidate : identifiablesToMatch) {
+            BranchMatchResult branchMatchResult = matchBranch(candidate);
+            if (branchMatchResult.matched()) {
                 if (Objects.isNull(matchedElement)) {
-                    matchedElement = identifiable;
-                    matchedBranchMatchResult = branchMatchResult;
+                    matchedElement = candidate;
+                    matchedResult = branchMatchResult;
                 } else {
-                    invalidate(format("too many branches match the branch in the network (from: %s, to: %s, suffix: %s), for example %s and %s", from, to, suffix, matchedElement.getId(), identifiable.getId()));
+                    invalidate(format("too many branches match the branch in the network (from: %s, to: %s, suffix: %s), for example %s and %s", from, to, suffix, matchedElement.getId(), candidate.getId()));
                     return null;
                 }
             }
@@ -252,8 +252,8 @@ public class UcteBranchHelper extends BranchHelper {
             return null;
         } else {
             this.branchIdInNetwork = matchedElement.getId();
-            this.isInvertedInNetwork = matchedBranchMatchResult.isInverted();
-            this.tieLineSide = matchedBranchMatchResult.getSide();
+            this.isInvertedInNetwork = matchedResult.isInverted();
+            this.tieLineSide = matchedResult.getSide();
             return matchedElement;
         }
     }
@@ -267,7 +267,7 @@ public class UcteBranchHelper extends BranchHelper {
     private BranchMatchResult matchBranch(Identifiable<?> identifiable) {
         // First match from & to
         BranchMatchResult matchResult = matchBranchFromTo(identifiable);
-        if (matchResult == BranchMatchResult.NOT_MATCHED) {
+        if (!matchResult.matched()) {
             return matchResult;
         }
         // then match suffix
