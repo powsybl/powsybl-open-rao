@@ -264,14 +264,14 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         if (networkActionCombinations == null) {
             networkActionCombinations = new ArrayList<>();
             networkActionIdCombinations.forEach(networkActionIds -> {
-                Optional<NetworkActionCombination> optNaCombination = getNetworkActioCombinationFromIds(networkActionIds, crac);
+                Optional<NetworkActionCombination> optNaCombination = getNetworkActionCombinationFromIds(networkActionIds, crac);
                 optNaCombination.ifPresent(networkActionCombination -> networkActionCombinations.add(networkActionCombination));
             });
         }
         return networkActionCombinations;
     }
 
-    private Optional<NetworkActionCombination> getNetworkActioCombinationFromIds(List<String> networkActionIds, Crac crac) {
+    private Optional<NetworkActionCombination> getNetworkActionCombinationFromIds(List<String> networkActionIds, Crac crac) {
 
         if (networkActionIds.size() < 2) {
             LOGGER.warn("A network-action-combination should at least contains 2 NetworkAction ids");
