@@ -231,15 +231,18 @@ public class UcteBranchHelper extends BranchHelper {
     protected Identifiable<?> findEquivalentElementInNetwork(Network network) {
         Identifiable<?> matchedElement = null;
         BranchMatchResult matchedBranchMatchResult = null;
-        Set<Connectable> connectables = Stream.concat(network.getBranchStream(), network.getDanglingLineStream()).collect(Collectors.toSet());
-        for (Connectable<?> connectable : connectables) {
-            BranchMatchResult branchMatchResult = matchBranch(connectable);
+        Set<Identifiable> identifiables = Stream.of(network.getBranchStream(), network.getDanglingLineStream(), network.getSwitchStream())
+            .reduce(Stream::concat)
+            .orElseGet(Stream::empty)
+            .collect(Collectors.toSet());
+        for (Identifiable<?> identifiable : identifiables) {
+            BranchMatchResult branchMatchResult = matchBranch(identifiable);
             if (branchMatchResult != BranchMatchResult.NOT_MATCHED) {
                 if (Objects.isNull(matchedElement)) {
-                    matchedElement = connectable;
+                    matchedElement = identifiable;
                     matchedBranchMatchResult = branchMatchResult;
                 } else {
-                    invalidate(format("too many branches match the branch in the network (from: %s, to: %s, suffix: %s), for example %s and %s", from, to, suffix, matchedElement.getId(), connectable.getId()));
+                    invalidate(format("too many branches match the branch in the network (from: %s, to: %s, suffix: %s), for example %s and %s", from, to, suffix, matchedElement.getId(), identifiable.getId()));
                     return null;
                 }
             }
@@ -256,19 +259,19 @@ public class UcteBranchHelper extends BranchHelper {
     }
 
     /**
-     * Match a connectable to the line defined with from/to/suffix
+     * Match an identifiable to the line defined with from/to/suffix
      *
-     * @param connectable the connectable to match
+     * @param identifiable the identifiable to match
      * @return a BranchMatchResult indicating if and how the branches match
      */
-    private BranchMatchResult matchBranch(Connectable<?> connectable) {
+    private BranchMatchResult matchBranch(Identifiable<?> identifiable) {
         // First match from & to
-        BranchMatchResult matchResult = matchBranchFromTo(connectable);
+        BranchMatchResult matchResult = matchBranchFromTo(identifiable);
         if (matchResult == BranchMatchResult.NOT_MATCHED) {
             return matchResult;
         }
         // then match suffix
-        if (getOrderCode(connectable, matchResult.getSide()).equals(suffix) || (getElementNames(connectable).contains(suffix))) {
+        if (getOrderCode(identifiable, matchResult.getSide()).equals(suffix) || (getElementNames(identifiable).contains(suffix))) {
             return matchResult;
         } else {
             return BranchMatchResult.NOT_MATCHED;
@@ -276,26 +279,30 @@ public class UcteBranchHelper extends BranchHelper {
     }
 
     /**
-     * Match a connectable to the line upon from/to fields only
+     * Match an identifiable to the line upon from/to fields only
      *
-     * @param connectable the connectable to match
+     * @param identifiable the identifiable to match
      * @return a BranchMatchResult indicating if and how the branches match
      */
-    private BranchMatchResult matchBranchFromTo(Connectable<?> connectable) {
-        if (connectable instanceof TieLine) {
-            String node1 = ((TieLine) connectable).getTerminal1().getBusBreakerView().getConnectableBus().getId();
-            String node2 = ((TieLine) connectable).getTerminal2().getBusBreakerView().getConnectableBus().getId();
-            String xnode = ((TieLine) connectable).getUcteXnodeCode();
+    private BranchMatchResult matchBranchFromTo(Identifiable<?> identifiable) {
+        if (identifiable instanceof TieLine) {
+            String node1 = ((TieLine) identifiable).getTerminal1().getBusBreakerView().getConnectableBus().getId();
+            String node2 = ((TieLine) identifiable).getTerminal2().getBusBreakerView().getConnectableBus().getId();
+            String xnode = ((TieLine) identifiable).getUcteXnodeCode();
             return matchFromToWithXnode(node1, node2, xnode);
-        } else if (connectable instanceof DanglingLine) {
+        } else if (identifiable instanceof DanglingLine) {
             // A dangling line is an Injection with a generator convention.
             // After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
-            String node = ((DanglingLine) connectable).getTerminal().getBusBreakerView().getConnectableBus().getId();
-            String xnode = ((DanglingLine) connectable).getUcteXnodeCode();
+            String node = ((DanglingLine) identifiable).getTerminal().getBusBreakerView().getConnectableBus().getId();
+            String xnode = ((DanglingLine) identifiable).getUcteXnodeCode();
             return matchFromTo(xnode, node);
-        } else if (connectable instanceof Branch) {
-            String node1 = ((Branch<?>) connectable).getTerminal1().getBusBreakerView().getConnectableBus().getId();
-            String node2 = ((Branch<?>) connectable).getTerminal2().getBusBreakerView().getConnectableBus().getId();
+        } else if (identifiable instanceof Branch) {
+            String node1 = ((Branch<?>) identifiable).getTerminal1().getBusBreakerView().getConnectableBus().getId();
+            String node2 = ((Branch<?>) identifiable).getTerminal2().getBusBreakerView().getConnectableBus().getId();
+            return matchFromTo(node1, node2);
+        } else if (identifiable instanceof Switch) {
+            String node1 = ((Switch) identifiable).getVoltageLevel().getBusBreakerView().getBus1(identifiable.getId()).getId();
+            String node2 = ((Switch) identifiable).getVoltageLevel().getBusBreakerView().getBus2(identifiable.getId()).getId();
             return matchFromTo(node1, node2);
         } else {
             return BranchMatchResult.NOT_MATCHED;
@@ -358,26 +365,26 @@ public class UcteBranchHelper extends BranchHelper {
     }
 
     /**
-     * Get the order code for a connectable, on a given side (side is important for tie lines)
+     * Get the order code for an identifiable, on a given side (side is important for tie lines)
      */
-    private static String getOrderCode(Connectable<?> connectable, Branch.Side side) {
+    private static String getOrderCode(Identifiable<?> identifiable, Branch.Side side) {
         String connectableId;
-        if (connectable.getId().length() > MAX_BRANCH_ID_LENGTH) {
-            int separator = connectable.getId().indexOf(TIELINE_SEPARATOR);
-            connectableId = side.equals(Branch.Side.ONE) ? connectable.getId().substring(0, separator) : connectable.getId().substring(separator + TIELINE_SEPARATOR.length());
+        if (identifiable.getId().length() > MAX_BRANCH_ID_LENGTH) {
+            int separator = identifiable.getId().indexOf(TIELINE_SEPARATOR);
+            connectableId = side.equals(Branch.Side.ONE) ? identifiable.getId().substring(0, separator) : identifiable.getId().substring(separator + TIELINE_SEPARATOR.length());
         } else {
-            connectableId = connectable.getId();
+            connectableId = identifiable.getId();
         }
         return connectableId.substring(UCTE_NODE_LENGTH * 2 + 2);
     }
 
     /**
-     * Get all the element names of a connectable
+     * Get all the element names of an identifiable
      */
-    private static Set<String> getElementNames(Connectable<?> connectable) {
-        return connectable.getPropertyNames().stream()
+    private static Set<String> getElementNames(Identifiable<?> identifiable) {
+        return identifiable.getPropertyNames().stream()
             .filter(propertyName -> propertyName.startsWith("elementName"))
-            .map(connectable::getProperty)
+            .map(identifiable::getProperty)
             .collect(Collectors.toSet());
     }
 

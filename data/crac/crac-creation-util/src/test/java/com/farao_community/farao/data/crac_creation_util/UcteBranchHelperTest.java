@@ -10,7 +10,6 @@ package com.farao_community.farao.data.crac_creation_util;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -25,14 +24,13 @@ public class UcteBranchHelperTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Network network;
 
-    @Before
-    public void setUp() {
-        network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
+    private void setUp(String networkFile) {
+        network = Importers.loadNetwork(networkFile, getClass().getResourceAsStream("/" + networkFile));
     }
 
     @Test
     public void testValidInternalBranch() {
-
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
         // internal branch with order code, from/to same as network
         UcteBranchHelper branchHelper = new UcteBranchHelper("BBE1AA1 ", "BBE2AA1 ", "1", null, network);
         assertTrue(branchHelper.isBranchValid());
@@ -90,6 +88,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testInvalidInternalBranch() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // unknown from
         assertFalse(new UcteBranchHelper("UNKNOW1 ", "BBE1AA1", "1", null, network).isBranchValid());
@@ -107,6 +106,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testValidTransformer() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         /* note that transformers from/to node are systematically inverted by PowSyBl UCTE importer
         For instance, the transformer with id "UCTNODE1 UCTNODE2 1" have :
@@ -203,6 +203,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testInvalidTransformer() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // transformer exists but not with this order code
         assertFalse(new UcteBranchHelper("BBE2AA1 ", "BBE3AA1 ", "2", null, network).isBranchValid());
@@ -213,6 +214,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testValidTieLine() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // tie-line with order code
         UcteBranchHelper branchHelper = new UcteBranchHelper("XFRDE11 ", "DDE3AA1 ", "1", null, network);
@@ -291,6 +293,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testInvalidTieLine() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // tie-line exists but not with this order code
         assertFalse(new UcteBranchHelper("XFRDE11 ", "FFR2AA1 ", "7", null, network).isBranchValid());
@@ -301,6 +304,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testValidDanglingLine() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // dangling-line with order code
         UcteBranchHelper branchHelper = new UcteBranchHelper("BBE2AA1 ", "XBE2AL1 ", "1", null, network);
@@ -339,6 +343,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testInvalidDanglingLine() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // dangling-line exists but not with this order code
         assertFalse(new UcteBranchHelper("XBE2AL1 ", "BBE2AA1 ", "2", null, network).isBranchValid());
@@ -349,6 +354,8 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testWithSevenCharacters() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
+
         /*
         if the from/to node contains less that 8 characters, the missing characters will be
         replaced by blank spaces at the end of the missing UCTE node id
@@ -377,6 +384,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testOtherConstructors() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         // element name
         UcteBranchHelper branchHelper = new UcteBranchHelper("BBE1AA1 ", "BBE3AA1 ", null, "BR BE1BE3", network);
@@ -415,6 +423,8 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testInvalidConstructor() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
+
         // no from
         assertFalse(new UcteBranchHelper(null, "BBE3AA1 ", "1", network).isBranchValid());
         assertFalse(new UcteBranchHelper(null, "BBE3AA1 ", "1", null, network).isBranchValid());
@@ -434,6 +444,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testInvalidBranchIdConstructor() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 
         /*
          The presence of 'NODE1ID_ NODE2_ID SUFFIX' in the invalid reason message is checked, as the messages
@@ -466,7 +477,7 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testValidBranchesWithWildCard() {
-        network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
+        setUp("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
         // internal branch with order code, from/to same as network
         UcteBranchHelper branchHelper = new UcteBranchHelper("BBE1AA1*", "BBE2AA1*", "1", null, network);
@@ -490,10 +501,25 @@ public class UcteBranchHelperTest {
 
     @Test
     public void testInvalidBranchesWithWildCard() {
-        network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
+        setUp("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
         // multiple matches
         UcteBranchHelper branchHelper = new UcteBranchHelper("DDE1AA1*", "DDE2AA1*", "1", null, network);
         assertFalse(branchHelper.isBranchValid());
+    }
+
+    @Test
+    public void testSwitch() {
+        setUp("TestCase16Nodes_with_different_imax.uct");
+
+        UcteBranchHelper branchHelper = new UcteBranchHelper("BBE1AA1", "BBE4AA1", "1", null, network);
+        assertTrue(branchHelper.isBranchValid());
+        assertEquals("BBE1AA1  BBE4AA1  1", branchHelper.getBranchIdInNetwork());
+        assertFalse(branchHelper.isInvertedInNetwork());
+
+        branchHelper = new UcteBranchHelper("BBE4AA1", "BBE1AA1", "1", null, network);
+        assertTrue(branchHelper.isBranchValid());
+        assertEquals("BBE1AA1  BBE4AA1  1", branchHelper.getBranchIdInNetwork());
+        assertTrue(branchHelper.isInvertedInNetwork());
     }
 }
