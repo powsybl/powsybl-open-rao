@@ -105,8 +105,8 @@ public class LeafTest {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         Leaf rootLeaf = new Leaf(network, prePerimeterResult);
         RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
-        Leaf leaf1 = new Leaf(network, rootLeaf.getActivatedNetworkActions(), na1, rangeActionResult);
-        Leaf leaf2 = new Leaf(network, leaf1.getActivatedNetworkActions(), na2, rangeActionResult);
+        Leaf leaf1 = new Leaf(network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionResult);
+        Leaf leaf2 = new Leaf(network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na2), rangeActionResult);
         assertEquals(1, leaf1.getActivatedNetworkActions().size());
         assertEquals(2, leaf2.getActivatedNetworkActions().size());
         assertTrue(leaf1.getActivatedNetworkActions().contains(na1));
@@ -125,8 +125,8 @@ public class LeafTest {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         Leaf rootLeaf = new Leaf(network, prePerimeterResult);
         RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
-        Leaf leaf1 = new Leaf(network, rootLeaf.getActivatedNetworkActions(), na1, rangeActionResult);
-        Leaf leaf2 = new Leaf(network, leaf1.getActivatedNetworkActions(), na1, rangeActionResult);
+        Leaf leaf1 = new Leaf(network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionResult);
+        Leaf leaf2 = new Leaf(network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionResult);
         assertEquals(1, leaf2.getActivatedNetworkActions().size());
         assertTrue(leaf2.getActivatedNetworkActions().contains(na1));
         assertFalse(leaf2.isRoot());
@@ -148,7 +148,7 @@ public class LeafTest {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         Leaf rootLeaf = new Leaf(network, prePerimeterResult);
         RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
-        Leaf leaf = new Leaf(network, rootLeaf.getActivatedNetworkActions(), networkAction, rangeActionResult);
+        Leaf leaf = new Leaf(network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(networkAction), rangeActionResult);
         SensitivityResult expectedSensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(expectedSensitivityResult);
         Mockito.when(expectedSensitivityResult.getSensitivityStatus()).thenReturn(expectedSensitivityStatus);

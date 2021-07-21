@@ -36,8 +36,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +53,7 @@ public class SearchTreeTest {
 
     private Network network;
     private NetworkAction networkAction;
+    private List<NetworkActionCombination> availableNaCombinations;
     private Set<NetworkAction> availableNetworkActions;
     private RangeAction rangeAction1;
     private RangeAction rangeAction2;
@@ -101,6 +101,7 @@ public class SearchTreeTest {
         network = Mockito.mock(Network.class);
         when(searchTreeInput.getNetwork()).thenReturn(network);
         availableNetworkActions = new HashSet<>();
+        availableNaCombinations = new ArrayList<>();
         when(searchTreeInput.getNetworkActions()).thenReturn(availableNetworkActions);
         availableRangeActions = new HashSet<>();
         when(searchTreeInput.getRangeActions()).thenReturn(availableRangeActions);
@@ -119,7 +120,7 @@ public class SearchTreeTest {
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         when(searchTreeInput.getIteratingLinearOptimizer()).thenReturn(iteratingLinearOptimizer);
         rootLeaf = Mockito.mock(Leaf.class);
-        when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNetworkActions);
+        when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNaCombinations);
     }
 
     @Test
@@ -208,7 +209,7 @@ public class SearchTreeTest {
 
         Leaf childLeaf = Mockito.mock(Leaf.class);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
-        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, networkAction);
+        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, new NetworkActionCombination(networkAction));
 
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
         assertEquals(rootLeaf, result);
@@ -372,7 +373,7 @@ public class SearchTreeTest {
         mockRootLeafCost(rootLeafCostAfterOptim);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
-        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, networkAction);
+        Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(eq(network), any());
     }
 
     private void mockNetworkPool(Network network) throws Exception {
@@ -388,6 +389,7 @@ public class SearchTreeTest {
         networkAction = Mockito.mock(NetworkAction.class);
         when(networkAction.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         availableNetworkActions.add(networkAction);
+        availableNaCombinations.add(new NetworkActionCombination(networkAction));
     }
 
     private void setStopCriterionAtMinObjective() {

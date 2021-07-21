@@ -6,14 +6,14 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -51,6 +51,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
     static final boolean DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS = true;
     static final boolean DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION = false;
+    static final List<List<String>> DEFAULT_NETWORK_ACTION_ID_COMBINATIONS = new ArrayList<>();
 
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
     private double relativeNetworkActionMinimumImpactThreshold = DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD;
@@ -69,6 +70,8 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
     private boolean curativeRaoOptimizeOperatorsNotSharingCras = DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS;
     private boolean withSecondPreventiveOptimization = DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION;
+    private List<List<String>> networkActionIdCombinations = DEFAULT_NETWORK_ACTION_ID_COMBINATIONS;
+    private List<NetworkActionCombination> networkActionCombinations = null;
 
     @Override
     public String getName() {
@@ -248,4 +251,44 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     public void setWithSecondPreventiveOptimization(boolean withSecondPreventiveOptimization) {
         this.withSecondPreventiveOptimization = withSecondPreventiveOptimization;
     }
+
+    public List<List<String>> getNetworkActionIdCombinations() {
+        return networkActionIdCombinations;
+    }
+
+    public void setNetworkActionIdCombinations(List<List<String>> networkActionCombinations) {
+        this.networkActionIdCombinations = networkActionCombinations;
+    }
+
+    public List<NetworkActionCombination> getNetworkActionCombinations(Crac crac) {
+        if (networkActionCombinations == null) {
+            networkActionCombinations = new ArrayList<>();
+            networkActionIdCombinations.forEach(networkActionIds -> {
+                Optional<NetworkActionCombination> optNaCombination = getNetworkActionCombinationFromIds(networkActionIds, crac);
+                optNaCombination.ifPresent(networkActionCombination -> networkActionCombinations.add(networkActionCombination));
+            });
+        }
+        return networkActionCombinations;
+    }
+
+    private Optional<NetworkActionCombination> getNetworkActionCombinationFromIds(List<String> networkActionIds, Crac crac) {
+
+        if (networkActionIds.size() < 2) {
+            LOGGER.warn("A network-action-combination should at least contains 2 NetworkAction ids");
+            return Optional.empty();
+        }
+
+        Set<NetworkAction> networkActions = new HashSet<>();
+        for (String naId : networkActionIds) {
+            NetworkAction na = crac.getNetworkAction(naId);
+            if (na == null) {
+                LOGGER.warn("Unknown network action id in network-action-combinations parameter: {}", naId);
+                return Optional.empty();
+            }
+            networkActions.add(na);
+        }
+
+        return Optional.of(new NetworkActionCombination(networkActions));
+    }
+
 }
