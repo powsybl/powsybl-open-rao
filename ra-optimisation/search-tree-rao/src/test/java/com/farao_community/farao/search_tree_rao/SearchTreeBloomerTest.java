@@ -44,6 +44,7 @@ public class SearchTreeBloomerTest {
     private Network network;
 
     private NetworkAction naFr1;
+    private NetworkAction naBe1;
     private PstRangeAction raBe1;
 
     private NetworkActionCombination indFr1;
@@ -85,11 +86,11 @@ public class SearchTreeBloomerTest {
             .add();
 
         naFr1 = createNetworkActionWithOperator("FFR1AA1  FFR2AA1  1", "fr");
+        naBe1 = createNetworkActionWithOperator("BBE1AA1  BBE2AA1  1", "be");
         raBe1 = createPstRangeActionWithOperator("BBE2AA1  BBE3AA1  1", "be");
 
         NetworkAction naFr2 = createNetworkActionWithOperator("FFR1AA1  FFR3AA1  1", "fr");
         NetworkAction naFr3 = createNetworkActionWithOperator("FFR2AA1  FFR3AA1  1", "fr");
-        NetworkAction naBe1 = createNetworkActionWithOperator("BBE1AA1  BBE2AA1  1", "be");
         NetworkAction naBe2 = createNetworkActionWithOperator("BBE1AA1  BBE3AA1  1", "be");
         NetworkAction naBe3 = createNetworkActionWithOperator("BBE2AA1  BBE3AA1  1", "be");
         NetworkAction naNl1 = createNetworkActionWithOperator("NNL1AA1  NNL2AA1  1", "nl");
@@ -134,6 +135,26 @@ public class SearchTreeBloomerTest {
         assertEquals(5, filteredNaCombinations.size());
         assertFalse(filteredNaCombinations.contains(indFr1));
         assertFalse(filteredNaCombinations.contains(comb3Fr));
+    }
+
+    @Test
+    public void testRemoveAlreadyTestedCombinations() {
+
+        // arrange naCombination list
+        List<NetworkActionCombination> naCombinations = List.of(indFr2, indNl1, indDe1, indFrDe, comb2Fr, comb2FrNl);
+        List<NetworkActionCombination> preDefinedNaCombinations = List.of(comb2Fr, comb3Fr, comb3Be, comb2BeNl, comb2FrNl, comb2FrDeBe);
+
+        // arrange previous Leaf -> naFr1 has already been activated
+        Leaf previousLeaf = mock(Leaf.class);
+        Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(naFr1, naBe1));
+
+        // filter already tested combinations
+        SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, null, null, false, 0, preDefinedNaCombinations);
+        List<NetworkActionCombination> filteredNaCombinations = bloomer.removeAlreadyTestedCombinations(naCombinations, previousLeaf);
+
+        assertEquals(4, filteredNaCombinations.size());
+        assertFalse(filteredNaCombinations.contains(indNl1)); // already tested within preDefined comb2BeNl
+        assertFalse(filteredNaCombinations.contains(indFrDe)); // already tested within preDefined comb2FrDeBe
     }
 
     @Test
