@@ -121,7 +121,7 @@ final class SearchTreeBloomer {
                 .filter(na -> !fromLeaf.getActivatedNetworkActions().contains(na))
                 .collect(Collectors.toList());
 
-            // if all the action of the combinations have been selected but one, there is no need
+            // if all the actions of the combinations have been selected but one, there is no need
             // to test that individual action anymore
             if (notTestedNaInCombination.size() == 1) {
                 alreadyTestedNetworkActions.add(notTestedNaInCombination.get(0));
