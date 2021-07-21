@@ -50,6 +50,7 @@ public class SearchTreeBloomerTest {
     private NetworkActionCombination indFr1;
     private NetworkActionCombination indFr2;
     private NetworkActionCombination indBe1;
+    private NetworkActionCombination indBe2;
     private NetworkActionCombination indNl1;
     private NetworkActionCombination indDe1;
     private NetworkActionCombination indFrDe;
@@ -103,6 +104,7 @@ public class SearchTreeBloomerTest {
         indFr1 = new NetworkActionCombination(naFr1);
         indFr2 = new NetworkActionCombination(naFr2);
         indBe1 = new NetworkActionCombination(naBe1);
+        indBe2 = new NetworkActionCombination(naBe2);
         indNl1 = new NetworkActionCombination(naNl1);
         indDe1 = new NetworkActionCombination(naDe1);
         indFrDe = new NetworkActionCombination(naFrDe);
@@ -141,7 +143,7 @@ public class SearchTreeBloomerTest {
     public void testRemoveAlreadyTestedCombinations() {
 
         // arrange naCombination list
-        List<NetworkActionCombination> naCombinations = List.of(indFr2, indNl1, indDe1, indFrDe, comb2Fr, comb2FrNl);
+        List<NetworkActionCombination> naCombinations = List.of(indFr2, indBe2, indNl1, indDe1, indFrDe, comb2Fr, comb2FrNl);
         List<NetworkActionCombination> preDefinedNaCombinations = List.of(comb2Fr, comb3Fr, comb3Be, comb2BeNl, comb2FrNl, comb2FrDeBe);
 
         // arrange previous Leaf -> naFr1 has already been activated
@@ -152,7 +154,7 @@ public class SearchTreeBloomerTest {
         SearchTreeBloomer bloomer = new SearchTreeBloomer(network, mock(RangeActionResult.class), Integer.MAX_VALUE, Integer.MAX_VALUE, null, null, false, 0, preDefinedNaCombinations);
         List<NetworkActionCombination> filteredNaCombinations = bloomer.removeAlreadyTestedCombinations(naCombinations, previousLeaf);
 
-        assertEquals(4, filteredNaCombinations.size());
+        assertEquals(5, filteredNaCombinations.size());
         assertFalse(filteredNaCombinations.contains(indNl1)); // already tested within preDefined comb2BeNl
         assertFalse(filteredNaCombinations.contains(indFrDe)); // already tested within preDefined comb2FrDeBe
     }
