@@ -87,6 +87,7 @@ final class SearchTreeBloomer {
         // filters
         // (idea: create one class per filter which implement a common interface)
         networkActionCombinations = removeAlreadyActivatedNetworkActions(networkActionCombinations, fromLeaf);
+        networkActionCombinations = removeAlreadyTestedCombinations(networkActionCombinations, fromLeaf);
 
         networkActionCombinations = removeCombinationsWhichExceedMaxNumberOfRa(networkActionCombinations, fromLeaf);
         networkActionCombinations = removeCombinationsWhichExceedMaxNumberOfRaPerTso(networkActionCombinations, fromLeaf);
@@ -99,6 +100,37 @@ final class SearchTreeBloomer {
     List<NetworkActionCombination> removeAlreadyActivatedNetworkActions(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
         return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().noneMatch(na -> fromLeaf.getActivatedNetworkActions().contains(na)))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Remove combinations which have already been tested in the previous depths of the SearchTree.
+     *
+     * For instance, if the preDefined combination ra1+ra2 exists, and if ra1 has already been selected, there is
+     * no need to bloom on ra2. If the remedial action ra2 was relevant, the combination ra1+ra2 would have been
+     * already selected in the previous depths.
+     */
+    List<NetworkActionCombination> removeAlreadyTestedCombinations(List<NetworkActionCombination> naCombinations, Leaf fromLeaf) {
+
+        List<NetworkAction> alreadyTestedNetworkActions = new ArrayList<>();
+
+        for (NetworkActionCombination preDefinedCombination : preDefinedNaCombinations) {
+
+            // elements of the combination which have not been activated yet
+            List<NetworkAction> notTestedNaInCombination = preDefinedCombination.getNetworkActionSet().stream()
+                .filter(na -> !fromLeaf.getActivatedNetworkActions().contains(na))
+                .collect(Collectors.toList());
+
+            // if all the action of the combinations have been selected but one, there is no need
+            // to test that individual action anymore
+            if (notTestedNaInCombination.size() == 1) {
+                alreadyTestedNetworkActions.add(notTestedNaInCombination.get(0));
+            }
+        }
+
+        return naCombinations.stream()
+            .filter(naCombination -> naCombination.getNetworkActionSet().size() != 1
+                || !alreadyTestedNetworkActions.contains(naCombination.getNetworkActionSet().iterator().next()))
             .collect(Collectors.toList());
     }
 
@@ -189,7 +221,7 @@ final class SearchTreeBloomer {
      * parameter and the maximum number of RA reduced by the number of remedial actions already used
      */
     private Map<String, Integer> getMaxNetworkActionPerTso(Leaf fromLeaf) {
-        Map<String, Integer> updatedMaxTopoPerTso = new HashMap<>(maxTopoPerTso);
+        Map<String, Integer> updatedMaxTopoPerTso = new HashMap<>();
 
         // get set of all TSOs considered in the max number of RA limitation
         Set<String> tsos = new HashSet<>(maxRaPerTso.keySet());
