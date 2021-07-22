@@ -27,9 +27,9 @@ public class UcteBusHelper {
     private boolean isValid = false;
     private String invalidReason;
 
-    public UcteBusHelper(String nodeName, Network network) {
+    public UcteBusHelper(String nodeName, Network network, boolean completeSmallBusIdsWithWildcards) {
         for (Bus bus : network.getBusBreakerView().getBuses()) {
-            if (matchNodeNames(nodeName, bus.getId())) {
+            if (matchNodeNames(nodeName, bus.getId(), completeSmallBusIdsWithWildcards)) {
                 if (Objects.isNull(busIdInNetwork)) {
                     isValid = true;
                     busIdInNetwork = bus.getId();
@@ -46,8 +46,8 @@ public class UcteBusHelper {
         }
     }
 
-    public UcteBusHelper(String busName, String matchingBusNameCandidate) {
-        if (matchNodeNames(busName, matchingBusNameCandidate)) {
+    public UcteBusHelper(String busName, String matchingBusNameCandidate, boolean completeSmallBusIdsWithWildcards) {
+        if (matchNodeNames(busName, matchingBusNameCandidate, completeSmallBusIdsWithWildcards)) {
             isValid = true;
             busIdInNetwork = matchingBusNameCandidate;
         } else {
@@ -59,13 +59,19 @@ public class UcteBusHelper {
      * Match a node name to a node name from the network. The node name can contain a wildcard or be shorter than
      * the standard UCTE length
      */
-    private static boolean matchNodeNames(String nodeName, String nodeNameInNetwork) {
+    private static boolean matchNodeNames(String nodeName, String nodeNameInNetwork, boolean completeSmallBusIdsWithWildcards) {
+        // TODO : unit tests for YNODE
+        String modNodeNameInNetwork = nodeNameInNetwork.replace("YNODE_", "");
         if (nodeName.length() < UCTE_NODE_LENGTH) {
-            return nodeNameInNetwork.substring(0, nodeName.length()).equals(nodeName);
+            if (completeSmallBusIdsWithWildcards) {
+                return modNodeNameInNetwork.substring(0, nodeName.length()).equals(nodeName);
+            } else {
+                return modNodeNameInNetwork.equals(String.format("%1$-8s", nodeName));
+            }
         } else if (nodeName.endsWith(WILDCARD_CHARACTER)) {
-            return nodeNameInNetwork.substring(0, nodeNameInNetwork.length() - 1).equals(nodeName.substring(0, nodeName.length() - 1));
+            return modNodeNameInNetwork.substring(0, modNodeNameInNetwork.length() - 1).equals(nodeName.substring(0, nodeName.length() - 1));
         } else {
-            return nodeNameInNetwork.equals(nodeName);
+            return modNodeNameInNetwork.equals(nodeName);
         }
     }
 

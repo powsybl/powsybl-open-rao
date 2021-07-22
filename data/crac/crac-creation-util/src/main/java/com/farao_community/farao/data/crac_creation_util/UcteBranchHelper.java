@@ -7,18 +7,19 @@
 
 package com.farao_community.farao.data.crac_creation_util;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.TieLine;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
 /**
  * UcteBranchHelper is a utility class which manages branches defined with the UCTE convention
- *
+ * <p>
  * This utility class has been designed so as to be used in CRAC creators whose format
  * is based on a UCTE network and whose CRAC identifies network elements with the following
  * information: a "from node", a "to node" and a suffix. Either identified in separate fields,
@@ -32,51 +33,24 @@ public class UcteBranchHelper extends BranchHelper {
     private static final int ELEMENT_NAME_LENGTH = 12;
     private static final int MIN_BRANCH_ID_LENGTH = UCTE_NODE_LENGTH * 2 + 3;
     private static final int MAX_BRANCH_ID_LENGTH = UCTE_NODE_LENGTH * 2 + ELEMENT_NAME_LENGTH + 3;
-    private static final String TIELINE_SEPARATOR = " + ";
 
     private String from;
     private String to;
     private String suffix;
 
-    private boolean isInvertedInNetwork;
+    private boolean isInvertedInNetwork = false;
     private Branch.Side tieLineSide = null;
     private boolean isTieLine = false;
-
-    private enum BranchMatchResult {
-        NOT_MATCHED,
-        MATCHED_ON_SIDE_ONE,
-        MATCHED_ON_SIDE_TWO,
-        INVERTED_ON_SIDE_ONE,
-        INVERTED_ON_SIDE_TWO;
-
-        public boolean matched() {
-            return !this.equals(NOT_MATCHED);
-        }
-
-        public boolean isInverted() {
-            return this.equals(INVERTED_ON_SIDE_ONE) || this.equals(INVERTED_ON_SIDE_TWO);
-        }
-
-        public Branch.Side getSide() {
-            if (this.equals(MATCHED_ON_SIDE_ONE) || this.equals(INVERTED_ON_SIDE_ONE)) {
-                return Branch.Side.ONE;
-            } else if (this.equals(MATCHED_ON_SIDE_TWO) || this.equals(INVERTED_ON_SIDE_TWO)) {
-                return Branch.Side.TWO;
-            } else {
-                return null;
-            }
-        }
-    }
 
     /**
      * Constructor, based on a separate fields.
      *
-     * @param fromNode, UCTE-id of the origin extremity of the branch
-     * @param toNode,   UCTE-id of the destination extremity of the branch
-     * @param suffix,   suffix of the branch, either an order code or an elementName
-     * @param network,  network on which the branch will be looked for, should contain UCTE aliases
+     * @param fromNode,      UCTE-id of the origin extremity of the branch
+     * @param toNode,        UCTE-id of the destination extremity of the branch
+     * @param suffix,        suffix of the branch, either an order code or an elementName
+     * @param networkHelper, UcteNetworkHelper object built upon the network
      */
-    public UcteBranchHelper(String fromNode, String toNode, String suffix, Network network) {
+    public UcteBranchHelper(String fromNode, String toNode, String suffix, UcteNetworkHelper networkHelper) {
         super(format("%1$-8s %2$-8s %3$-1s", fromNode, toNode, suffix));
         if (Objects.isNull(fromNode) || Objects.isNull(toNode) || Objects.isNull(suffix)) {
             invalidate("fromNode, toNode and suffix must not be null");
@@ -87,20 +61,20 @@ public class UcteBranchHelper extends BranchHelper {
         this.to = toNode;
         this.suffix = suffix;
 
-        interpretWithNetwork(network);
+        interpretWithNetwork(networkHelper);
     }
 
     /**
      * Constructor, based on a separate fields. Either the order code, or the element name must be
      * non-null. If the two are defined, the suffix which will be used by default is the order code.
      *
-     * @param fromNode,    UCTE-id of the origin extremity of the branch
-     * @param toNode,      UCTE-id of the destination extremity of the branch
-     * @param orderCode,   order code of the branch
-     * @param elementName, element name of the branch
-     * @param network,     network on which the branch will be looked for, should contain UCTE aliases
+     * @param fromNode,      UCTE-id of the origin extremity of the branch
+     * @param toNode,        UCTE-id of the destination extremity of the branch
+     * @param orderCode,     order code of the branch
+     * @param elementName,   element name of the branch
+     * @param networkHelper, UcteNetworkHelper object built upon the network
      */
-    public UcteBranchHelper(String fromNode, String toNode, String orderCode, String elementName, Network network) {
+    public UcteBranchHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkHelper networkHelper) {
         super(format("%1$-8s %2$-8s %3$-1s", fromNode, toNode, orderCode != null ? orderCode : elementName));
         if (Objects.isNull(fromNode) || Objects.isNull(toNode)) {
             invalidate("fromNode and toNode must not be null");
@@ -111,17 +85,17 @@ public class UcteBranchHelper extends BranchHelper {
         this.to = toNode;
 
         if (checkSuffix(orderCode, elementName)) {
-            interpretWithNetwork(network);
+            interpretWithNetwork(networkHelper);
         }
     }
 
     /**
      * Constructor, based on a concatenated id.
      *
-     * @param ucteBranchId, concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
-     * @param network,      network on which the branch will be looked for, should contain UCTE aliases
+     * @param ucteBranchId,  concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
+     * @param networkHelper, UcteNetworkHelper object built upon the network
      */
-    public UcteBranchHelper(String ucteBranchId, Network network) {
+    public UcteBranchHelper(String ucteBranchId, UcteNetworkHelper networkHelper) {
         super(ucteBranchId);
         if (Objects.isNull(ucteBranchId)) {
             invalidate("ucteBranchId must not be null");
@@ -129,7 +103,7 @@ public class UcteBranchHelper extends BranchHelper {
         }
 
         if (decomposeUcteBranchId(ucteBranchId)) {
-            interpretWithNetwork(network);
+            interpretWithNetwork(networkHelper);
         }
     }
 
@@ -204,188 +178,35 @@ public class UcteBranchHelper extends BranchHelper {
         }
     }
 
-    @Override
-    protected void interpretWithNetwork(Network network) {
-        Identifiable<?> networkElement = findEquivalentElementInNetwork(network);
-
-        if (Objects.isNull(networkElement)) {
+    protected void interpretWithNetwork(UcteNetworkHelper networkHelper) {
+        Pair<Identifiable<?>, UcteElement.MatchResult> networkElementMatch = null;
+        try {
+            networkElementMatch = networkHelper.findNetworkElement(from, to, suffix);
+        } catch (Exception e) {
+            invalidate(e.getMessage());
             return;
         }
 
+        if (Objects.isNull(networkElementMatch)) {
+            invalidate(format("branch was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));
+            return;
+        }
+        this.isInvertedInNetwork = networkElementMatch.getRight().isInverted();
+        this.branchIdInNetwork = networkElementMatch.getLeft().getId();
+
+        Identifiable<?> networkElement = networkElementMatch.getLeft();
         if (networkElement instanceof TieLine) {
             this.isTieLine = true;
+            this.tieLineSide = networkElementMatch.getRight().getSide();
             checkBranchNominalVoltage((TieLine) networkElement);
             checkTieLineCurrentLimits((TieLine) networkElement);
-
         } else if (networkElement instanceof Branch) {
             checkBranchNominalVoltage((Branch) networkElement);
             checkBranchCurrentLimits((Branch) networkElement);
-
         } else if (networkElement instanceof DanglingLine) {
             checkDanglingLineNominalVoltage((DanglingLine) networkElement);
             checkDanglingLineCurrentLimits((DanglingLine) networkElement);
         }
-    }
-
-    @Override
-    protected Identifiable<?> findEquivalentElementInNetwork(Network network) {
-        Identifiable<?> matchedElement = null;
-        BranchMatchResult matchedResult = null;
-        Set<Identifiable> identifiablesToMatch = Stream.of(network.getBranchStream(), network.getDanglingLineStream(), network.getSwitchStream())
-            .reduce(Stream::concat)
-            .orElseGet(Stream::empty)
-            .collect(Collectors.toSet());
-        for (Identifiable<?> candidate : identifiablesToMatch) {
-            BranchMatchResult branchMatchResult = matchBranch(candidate);
-            if (branchMatchResult.matched()) {
-                if (Objects.isNull(matchedElement)) {
-                    matchedElement = candidate;
-                    matchedResult = branchMatchResult;
-                } else {
-                    invalidate(format("too many branches match the branch in the network (from: %s, to: %s, suffix: %s), for example %s and %s", from, to, suffix, matchedElement.getId(), candidate.getId()));
-                    return null;
-                }
-            }
-        }
-        if (Objects.isNull(matchedElement)) {
-            invalidate(format("branch was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));
-            return null;
-        } else {
-            this.branchIdInNetwork = matchedElement.getId();
-            this.isInvertedInNetwork = matchedResult.isInverted();
-            this.tieLineSide = matchedResult.getSide();
-            return matchedElement;
-        }
-    }
-
-    /**
-     * Match an identifiable to the line defined with from/to/suffix
-     *
-     * @param identifiable the identifiable to match
-     * @return a BranchMatchResult indicating if and how the branches match
-     */
-    private BranchMatchResult matchBranch(Identifiable<?> identifiable) {
-        // First match from & to
-        BranchMatchResult matchResult = matchBranchFromTo(identifiable);
-        if (!matchResult.matched()) {
-            return matchResult;
-        }
-        // then match suffix
-        if (getOrderCode(identifiable, matchResult.getSide()).equals(suffix) || (getElementNames(identifiable).contains(suffix))) {
-            return matchResult;
-        } else {
-            return BranchMatchResult.NOT_MATCHED;
-        }
-    }
-
-    /**
-     * Match an identifiable to the line upon from/to fields only
-     *
-     * @param identifiable the identifiable to match
-     * @return a BranchMatchResult indicating if and how the branches match
-     */
-    private BranchMatchResult matchBranchFromTo(Identifiable<?> identifiable) {
-        if (identifiable instanceof TieLine) {
-            String node1 = ((TieLine) identifiable).getTerminal1().getBusBreakerView().getConnectableBus().getId();
-            String node2 = ((TieLine) identifiable).getTerminal2().getBusBreakerView().getConnectableBus().getId();
-            String xnode = ((TieLine) identifiable).getUcteXnodeCode();
-            return matchFromToWithXnode(node1, node2, xnode);
-        } else if (identifiable instanceof DanglingLine) {
-            // A dangling line is an Injection with a generator convention.
-            // After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
-            String node = ((DanglingLine) identifiable).getTerminal().getBusBreakerView().getConnectableBus().getId();
-            String xnode = ((DanglingLine) identifiable).getUcteXnodeCode();
-            return matchFromTo(xnode, node);
-        } else if (identifiable instanceof Branch) {
-            String node1 = ((Branch<?>) identifiable).getTerminal1().getBusBreakerView().getConnectableBus().getId();
-            String node2 = ((Branch<?>) identifiable).getTerminal2().getBusBreakerView().getConnectableBus().getId();
-            return matchFromTo(node1, node2);
-        } else if (identifiable instanceof Switch) {
-            String node1 = ((Switch) identifiable).getVoltageLevel().getBusBreakerView().getBus1(identifiable.getId()).getId();
-            String node2 = ((Switch) identifiable).getVoltageLevel().getBusBreakerView().getBus2(identifiable.getId()).getId();
-            return matchFromTo(node1, node2);
-        } else {
-            return BranchMatchResult.NOT_MATCHED;
-        }
-    }
-
-    /**
-     * Match the line's from-to to given networkNode1-networkNode2 or networkNode2-networkNode1
-     *
-     * @return a BranchMatchResult indicating if and how the branches match
-     */
-    private BranchMatchResult matchFromTo(String networkNode1, String networkNode2) {
-        if (matchNodeNames(from, networkNode1) && matchNodeNames(to, networkNode2)) {
-            return BranchMatchResult.MATCHED_ON_SIDE_ONE;
-        } else if (matchNodeNames(from, networkNode2) && matchNodeNames(to, networkNode1)) {
-            return BranchMatchResult.INVERTED_ON_SIDE_ONE;
-        } else {
-            return BranchMatchResult.NOT_MATCHED;
-        }
-    }
-
-    /**
-     * Match the line's from-to-xnode to given networkNode1-xnode-networkNode2 with multiple possible directions on the two sides of the xnode
-     *
-     * @return a BranchMatchResult indicating if and how the branches match
-     */
-    private BranchMatchResult matchFromToWithXnode(String networkNode1, String networkNode2, String networkXnode) {
-        /*
-         in UCTE import, the two Half Lines of an interconnection are merged into a TieLine
-         For instance, the TieLine "UCTNODE1 X___NODE 1 + UCTNODE2 X___NODE 1" is imported by PowSybl,
-         with :
-          - half1 = "UCTNODE1 X___NODE 1"
-          - half2 = "UCTNODE2 X___NODE 1"
-
-         In that case :
-          - if a criticial branch is defined with from = "UCTNODE1" and to = "X___NODE", the threshold
-            is ok as "UCTNODE1" is in the first half of the TieLine
-          - if a criticial branch is defined with from = "UCTNODE2" and to = "X___NODE", the threshold
-            should be inverted as "UCTNODE2" is in the second half of the TieLine
-        */
-        if (matchNodeNames(from, networkNode1) && matchNodeNames(to, networkXnode)) {
-            return BranchMatchResult.MATCHED_ON_SIDE_ONE;
-        } else if (matchNodeNames(from, networkXnode) && matchNodeNames(to, networkNode2)) {
-            return BranchMatchResult.MATCHED_ON_SIDE_TWO;
-        } else if (matchNodeNames(from, networkXnode) && matchNodeNames(to, networkNode1)) {
-            return BranchMatchResult.INVERTED_ON_SIDE_ONE;
-        } else if (matchNodeNames(from, networkNode2) && matchNodeNames(to, networkXnode)) {
-            return BranchMatchResult.INVERTED_ON_SIDE_TWO;
-        } else {
-            return BranchMatchResult.NOT_MATCHED;
-        }
-    }
-
-    /**
-     * Match a node name to a node name from the network. The node name can contain a wildcard or be shorter than
-     * the standard UCTE length
-     */
-    private static boolean matchNodeNames(String nodeName, String nodeNameInNetwork) {
-        return new UcteBusHelper(nodeName, nodeNameInNetwork).isValid();
-    }
-
-    /**
-     * Get the order code for an identifiable, on a given side (side is important for tie lines)
-     */
-    private static String getOrderCode(Identifiable<?> identifiable, Branch.Side side) {
-        String connectableId;
-        if (identifiable.getId().length() > MAX_BRANCH_ID_LENGTH) {
-            int separator = identifiable.getId().indexOf(TIELINE_SEPARATOR);
-            connectableId = side.equals(Branch.Side.ONE) ? identifiable.getId().substring(0, separator) : identifiable.getId().substring(separator + TIELINE_SEPARATOR.length());
-        } else {
-            connectableId = identifiable.getId();
-        }
-        return connectableId.substring(UCTE_NODE_LENGTH * 2 + 2);
-    }
-
-    /**
-     * Get all the element names of an identifiable
-     */
-    private static Set<String> getElementNames(Identifiable<?> identifiable) {
-        return identifiable.getPropertyNames().stream()
-            .filter(propertyName -> propertyName.startsWith("elementName"))
-            .map(identifiable::getProperty)
-            .collect(Collectors.toSet());
     }
 
     private void checkTieLineCurrentLimits(TieLine tieLine) {
