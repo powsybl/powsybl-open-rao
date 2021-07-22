@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_creation_util;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -32,6 +33,7 @@ public class UcteNetworkHelper {
     private Map<UcteElement, String> referenceMap;
     private boolean completeSmallBusIdsWithWildcards;
     private Map<String, Pair<Identifiable<?>, UcteElement.MatchResult>> resultCache = new ConcurrentHashMap<>();
+    private Set<String> notFoundCache = new HashSet<>();
 
     public UcteNetworkHelper(Network network, UcteNetworkHelperProperties properties) {
         if (!network.getSourceFormat().equals("UCTE")) {
@@ -126,11 +128,15 @@ public class UcteNetworkHelper {
             .collect(Collectors.toSet());
     }
 
+    // TODO : refactor to reduce complexity
     Pair<Identifiable<?>, UcteElement.MatchResult> findNetworkElement(String from, String to, String suffix) {
         String uniqueId = getUniqueId(from, to, suffix);
         if (resultCache.containsKey(uniqueId)) {
             return resultCache.get(uniqueId);
+        } else if (notFoundCache.contains(uniqueId)) {
+            return null;
         }
+
         // TODO : improve performance (cbcora import 11sec -> 1m13sec)
         UcteElement matchedElement = null;
         Pair<Identifiable<?>, UcteElement.MatchResult> matchedResult = null;
@@ -156,7 +162,11 @@ public class UcteNetworkHelper {
             }
         }
 
-        resultCache.put(uniqueId, matchedResult);
+        if (matchedResult != null) {
+            resultCache.put(uniqueId, matchedResult);
+        } else {
+            notFoundCache.add(uniqueId);
+        }
         return matchedResult;
     }
 
