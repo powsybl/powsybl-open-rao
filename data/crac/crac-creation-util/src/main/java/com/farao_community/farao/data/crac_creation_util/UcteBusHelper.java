@@ -11,6 +11,9 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
+import static com.farao_community.farao.data.crac_creation_util.UcteUtils.UCTE_NODE_LENGTH;
+import static com.farao_community.farao.data.crac_creation_util.UcteUtils.WILDCARD_CHARACTER;
+
 /**
  * UcteBusHelper is a utility class which manages buses defined with the UCTE convention
  * <p>
@@ -20,16 +23,27 @@ import java.util.Objects;
  */
 public class UcteBusHelper {
 
-    private static final int UCTE_NODE_LENGTH = 8;
-    private static final String WILDCARD_CHARACTER = "*";
-
     private String busIdInNetwork;
     private boolean isValid = false;
     private String invalidReason;
 
     public UcteBusHelper(String nodeName, Network network, boolean completeSmallBusIdsWithWildcards) {
+
+        // full id without wildcard
+        if (nodeName.length() == UCTE_NODE_LENGTH && !nodeName.endsWith(WILDCARD_CHARACTER)) {
+            lookForBusWithIdInNetwork(nodeName, network);
+            return;
+        }
+
+        // incomplete id, automatically completed with blank spaces
+        if (nodeName.length() < UCTE_NODE_LENGTH && !completeSmallBusIdsWithWildcards) {
+            lookForBusWithIdInNetwork(String.format("%1$-8s", nodeName), network);
+            return;
+        }
+
+        // complex search with wildcard (either *, or incomplete ids)
         for (Bus bus : network.getBusBreakerView().getBuses()) {
-            if (matchNodeNames(nodeName, bus.getId(), completeSmallBusIdsWithWildcards)) {
+            if (UcteUtils.matchNodeNames(nodeName, bus.getId(), completeSmallBusIdsWithWildcards)) {
                 if (Objects.isNull(busIdInNetwork)) {
                     isValid = true;
                     busIdInNetwork = bus.getId();
@@ -46,8 +60,9 @@ public class UcteBusHelper {
         }
     }
 
+    // todo: delete constructor, use util class instead
     public UcteBusHelper(String busName, String matchingBusNameCandidate, boolean completeSmallBusIdsWithWildcards) {
-        if (matchNodeNames(busName, matchingBusNameCandidate, completeSmallBusIdsWithWildcards)) {
+        if (UcteUtils.matchNodeNames(busName, matchingBusNameCandidate, completeSmallBusIdsWithWildcards)) {
             isValid = true;
             busIdInNetwork = matchingBusNameCandidate;
         } else {
@@ -56,22 +71,16 @@ public class UcteBusHelper {
     }
 
     /**
-     * Match a node name to a node name from the network. The node name can contain a wildcard or be shorter than
-     * the standard UCTE length
+     * Look for a bus in the network, knowing its full id (without wildcard)
      */
-    private static boolean matchNodeNames(String nodeName, String nodeNameInNetwork, boolean completeSmallBusIdsWithWildcards) {
-        // TODO : unit tests for YNODE
-        String modNodeNameInNetwork = nodeNameInNetwork.replace("YNODE_", "");
-        if (nodeName.length() < UCTE_NODE_LENGTH) {
-            if (completeSmallBusIdsWithWildcards) {
-                return modNodeNameInNetwork.substring(0, nodeName.length()).equals(nodeName);
-            } else {
-                return modNodeNameInNetwork.equals(String.format("%1$-8s", nodeName));
-            }
-        } else if (nodeName.endsWith(WILDCARD_CHARACTER)) {
-            return modNodeNameInNetwork.substring(0, modNodeNameInNetwork.length() - 1).equals(nodeName.substring(0, nodeName.length() - 1));
+    private void lookForBusWithIdInNetwork(String busId, Network network) {
+        Bus bus = network.getBusBreakerView().getBus(busId);
+
+        if (bus != null) {
+            busIdInNetwork = busId;
+            isValid = true;
         } else {
-            return modNodeNameInNetwork.equals(nodeName);
+            invalidReason = String.format("No bus in the network matches bus id %s", busId);
         }
     }
 

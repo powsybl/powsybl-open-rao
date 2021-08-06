@@ -9,9 +9,12 @@ package com.farao_community.farao.data.crac_creation_util;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.Set;
+
+import static com.farao_community.farao.data.crac_creation_util.UcteUtils.UCTE_NODE_LENGTH;
 
 /**
  * Represents a UCTE element, defined with a from, to, order code and element names
@@ -20,43 +23,49 @@ import java.util.Set;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UcteElement {
-    private static final int UCTE_NODE_LENGTH = 8;
+public class UcteConnectable implements Comparable<UcteConnectable> {
 
-    private String from;
-    private String to;
-    private String orderCode;
-    private Set<String> elementNames;
-    private String typeName;
-    private Branch.Side side;
-    private boolean isConventionInverted;
+    private String ucteFromNode;
+    private String ucteToNode;
+    private String ucteOrderCode;
+    private Set<String> ucteElementNames; //a set is required here as tie-line in iidm format have two element names
 
-    public UcteElement(String from, String to, String orderCode, Set<String> elementNames, Class type) {
-        this(from, to, orderCode, elementNames, type, Branch.Side.ONE);
+    private String iidmId;
+    private String iidmClassName;
+    private Branch.Side iidmSide;
+    private boolean isIidmConventionInverted;
+
+    public UcteConnectable(String from, String to, String orderCode, Set<String> elementNames, Identifiable iidmConnectable) {
+        this(from, to, orderCode, elementNames, iidmConnectable, Branch.Side.ONE);
     }
 
-    public UcteElement(String from, String to, String orderCode, Set<String> elementNames, Class type, Branch.Side side) {
+    public UcteConnectable(String from, String to, String orderCode, Set<String> elementNames, Identifiable iidmConnectable, Branch.Side side) {
         // TODO : unit tests for ynodes
-        this.from = from.replace("YNODE_", "");
-        this.to = to.replace("YNODE_", "");
-        if (this.from.length() != UCTE_NODE_LENGTH || this.to.length() != UCTE_NODE_LENGTH) {
-            throw new IllegalArgumentException(String.format("from (%s) and to (%s) should have %d characters", this.from, this.to, UCTE_NODE_LENGTH));
+        this.ucteFromNode = from.replace("YNODE_", "");
+        this.ucteToNode = to.replace("YNODE_", "");
+        if (this.ucteFromNode.length() != UCTE_NODE_LENGTH || this.ucteToNode.length() != UCTE_NODE_LENGTH) {
+            throw new IllegalArgumentException(String.format("from (%s) and to (%s) should have %d characters", this.ucteFromNode, this.ucteToNode, UCTE_NODE_LENGTH));
         }
-        this.orderCode = orderCode;
-        this.elementNames = elementNames;
-        this.typeName = type.getSimpleName();
-        this.side = side;
-        setInversion(type);
+        this.ucteOrderCode = orderCode;
+        this.ucteElementNames = elementNames;
+        this.iidmId = iidmConnectable.getId();
+        this.iidmClassName = iidmConnectable.getClass().getSimpleName();
+        this.iidmSide = side;
+        setInversion(iidmConnectable);
     }
 
-    private void setInversion(Class type) {
-        if (TwoWindingsTransformer.class.isAssignableFrom(type)) {
-            isConventionInverted = true;
-        } else if (DanglingLine.class.isAssignableFrom(type)) {
+    public String getIidmId() {
+        return iidmId;
+    }
+
+    private void setInversion(Identifiable iidmConnectable) {
+        if (iidmConnectable instanceof TwoWindingsTransformer) {
+            isIidmConventionInverted = true;
+        } else if (iidmConnectable instanceof DanglingLine) {
             // TODO
-            isConventionInverted = false;
+            isIidmConventionInverted = false;
         } else {
-            isConventionInverted = false;
+            isIidmConventionInverted = false;
         }
     }
 
@@ -107,20 +116,20 @@ public class UcteElement {
             return MatchResult.NOT_MATCHED;
         }
         if (matchFromTo(from, to, completeSmallBusIdsWithWildcards)) {
-            return MatchResult.getMatchedResult(false, this.side);
+            return MatchResult.getMatchedResult(false, this.iidmSide);
         } else if (matchFromTo(to, from, completeSmallBusIdsWithWildcards)) {
-            return MatchResult.getMatchedResult(true, this.side);
+            return MatchResult.getMatchedResult(true, this.iidmSide);
         } else {
             return MatchResult.NOT_MATCHED;
         }
     }
 
     private boolean matchFromTo(String from, String to, boolean completeSmallBusIdsWithWildcards) {
-        return matchBusNames(from, this.from, completeSmallBusIdsWithWildcards) && matchBusNames(to, this.to, completeSmallBusIdsWithWildcards);
+        return UcteUtils.matchNodeNames(from, this.ucteFromNode, completeSmallBusIdsWithWildcards) && UcteUtils.matchNodeNames(to, this.ucteToNode, completeSmallBusIdsWithWildcards);
     }
 
     private boolean matchSuffix(String suffix) {
-        return (suffix.equals(orderCode)) || (elementNames != null && elementNames.contains(suffix));
+        return (suffix.equals(ucteOrderCode)) || (ucteElementNames != null && ucteElementNames.contains(suffix));
     }
 
     /**
@@ -133,7 +142,7 @@ public class UcteElement {
 
     @Override
     public String toString() {
-        return String.format("%1$-8s %2$-8s %3$s - %4$s - side %5$s", from, to, orderCode, typeName, side);
+        return String.format(" %2$-8s %3$s - %4$s - side %5$s", ucteFromNode, ucteToNode, ucteOrderCode, iidmId, iidmSide);
     }
 
     @Override
@@ -142,19 +151,25 @@ public class UcteElement {
     }
 
     @Override
+    public int compareTo(UcteConnectable o) {
+        return this.hashCode() - o.hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UcteElement) {
-            UcteElement other = (UcteElement) obj;
-            return this.from.equals(other.from)
-                && this.to.equals(other.to)
-                && this.orderCode.equals(other.orderCode)
-                && this.typeName.equals(other.typeName)
-                && this.side.equals(other.side);
+        if (obj instanceof UcteConnectable) {
+            UcteConnectable other = (UcteConnectable) obj;
+            return this.ucteFromNode.equals(other.ucteFromNode)
+                && this.ucteToNode.equals(other.ucteToNode)
+                && this.ucteOrderCode.equals(other.ucteOrderCode)
+                && this.ucteElementNames.equals(other.ucteElementNames)
+                && this.iidmId.equals(other.iidmId);
         }
         return false;
     }
 
+    //todo: delete if not used
     public boolean isConventionInverted() {
-        return isConventionInverted;
+        return isIidmConventionInverted;
     }
 }

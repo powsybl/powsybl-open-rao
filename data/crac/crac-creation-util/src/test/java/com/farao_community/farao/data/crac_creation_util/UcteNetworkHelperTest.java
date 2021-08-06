@@ -41,23 +41,23 @@ public class UcteNetworkHelperTest {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct", false);
 
         // internal branch with order code, from/to same as network
-        Pair<Identifiable<?>, UcteElement.MatchResult> result = networkHelper.findNetworkElement("BBE1AA1 ", "BBE2AA1 ", "1");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        Pair<Identifiable<?>, UcteConnectable.MatchResult> result = networkHelper.findNetworkElement("BBE1AA1 ", "BBE2AA1 ", "1");
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE1AA1  BBE2AA1  1"), result.getLeft());
 
         // internal branch with element name, from/to same as network
         result = networkHelper.findNetworkElement("FFR1AA1 ", "FFR3AA1 ", "BR FR1FR3");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("FFR1AA1  FFR3AA1  2"), result.getLeft());
 
         // internal branch with order code, from/to different from network
         result = networkHelper.findNetworkElement("BBE2AA1 ", "BBE1AA1 ", "1");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE1AA1  BBE2AA1  1"), result.getLeft());
 
         // internal branch with element name, from/to different from network
         result = networkHelper.findNetworkElement("BBE3AA1 ", "BBE1AA1 ", "BR BE1BE3");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE1AA1  BBE3AA1  1"), result.getLeft());
     }
 
@@ -91,39 +91,39 @@ public class UcteNetworkHelperTest {
          */
 
         // transformer with order code, from/to same as network
-        Pair<Identifiable<?>, UcteElement.MatchResult> result = networkHelper.findNetworkElement("BBE2AA1 ", "BBE3AA1 ", "1");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        Pair<Identifiable<?>, UcteConnectable.MatchResult> result = networkHelper.findNetworkElement("BBE2AA1 ", "BBE3AA1 ", "1");
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE2AA1  BBE3AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("FFR1AA2 ", "FFR1AA1 ", "5");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("FFR1AA2  FFR1AA1  5"), result.getLeft());
 
         // transformer with element name, from/to same as network
         result = networkHelper.findNetworkElement("BBE2AA1 ", "BBE3AA1 ", "PST BE");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE2AA1  BBE3AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("BBE1AA1 ", "BBE1AA2 ", "TR BE1");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE1AA1  BBE1AA2  1"), result.getLeft());
 
         // transformer with order code, from/to different from network
         result = networkHelper.findNetworkElement("BBE3AA1 ", "BBE2AA1 ", "1");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE2AA1  BBE3AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("BBE2AA1 ", "BBE2AA2 ", "2");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE2AA2  BBE2AA1  2"), result.getLeft());
 
         // transformer with element name, from/to different from network
         result = networkHelper.findNetworkElement("BBE3AA1 ", "BBE2AA1 ", "PST BE");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE2AA1  BBE3AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("FFR1AA1 ", "FFR1AA2 ", "TR FR1");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("FFR1AA2  FFR1AA1  5"), result.getLeft());
     }
 
@@ -143,37 +143,37 @@ public class UcteNetworkHelperTest {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct", true);
 
         // tie-line with order code
-        Pair<Identifiable<?>, UcteElement.MatchResult> result = networkHelper.findNetworkElement("XFRDE11 ", "DDE3AA1 ", "1");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        Pair<Identifiable<?>, UcteConnectable.MatchResult> result = networkHelper.findNetworkElement("XFRDE11 ", "DDE3AA1 ", "1");
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("DDE3AA1 ", "XFRDE11 ", "1");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("XFRDE11 ", "FFR2AA1 ", "1");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_TWO, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_TWO, result.getRight());
         assertSame(network.getIdentifiable("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("FFR2AA1 ", "XFRDE11 ", "1");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_TWO, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_TWO, result.getRight());
         assertSame(network.getIdentifiable("XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1"), result.getLeft());
 
         // tie-line with element name
         result = networkHelper.findNetworkElement("NNL2AA1 ", "XNLBE11 ", "TL NL2X");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("XNLBE11 ", "NNL2AA1 ", "TL NL2X");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("XNLBE11 ", "BBE3AA1 ", "TL BE3X");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_TWO, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_TWO, result.getRight());
         assertSame(network.getIdentifiable("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("BBE3AA1 ", "XNLBE11 ", "TL BE3X");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_TWO, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_TWO, result.getRight());
         assertSame(network.getIdentifiable("NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1"), result.getLeft());
     }
 
@@ -193,21 +193,21 @@ public class UcteNetworkHelperTest {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct", true);
 
         // dangling-line with order code
-        Pair<Identifiable<?>, UcteElement.MatchResult> result = networkHelper.findNetworkElement("BBE2AA1 ", "XBE2AL1 ", "1");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        Pair<Identifiable<?>, UcteConnectable.MatchResult> result = networkHelper.findNetworkElement("BBE2AA1 ", "XBE2AL1 ", "1");
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE2AA1  XBE2AL1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("XBE2AL1 ", "BBE2AA1 ", "1");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE2AA1  XBE2AL1  1"), result.getLeft());
 
         // dangling-line with element name
         result = networkHelper.findNetworkElement("XDE2AL1 ", "DDE2AA1 ", "DL AL");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("XDE2AL1  DDE2AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("DDE2AA1 ", "XDE2AL1 ", "DL AL");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("XDE2AL1  DDE2AA1  1"), result.getLeft());
     }
 
@@ -226,12 +226,12 @@ public class UcteNetworkHelperTest {
     public void testSwitch() {
         setUp("TestCase16Nodes_with_different_imax.uct", true);
 
-        Pair<Identifiable<?>, UcteElement.MatchResult> result = networkHelper.findNetworkElement("BBE1AA1", "BBE4AA1", "1");
-        assertEquals(UcteElement.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
+        Pair<Identifiable<?>, UcteConnectable.MatchResult> result = networkHelper.findNetworkElement("BBE1AA1", "BBE4AA1", "1");
+        assertEquals(UcteConnectable.MatchResult.MATCHED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE1AA1  BBE4AA1  1"), result.getLeft());
 
         result = networkHelper.findNetworkElement("BBE4AA1", "BBE1AA1", "1");
-        assertEquals(UcteElement.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
+        assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE1AA1  BBE4AA1  1"), result.getLeft());
     }
 

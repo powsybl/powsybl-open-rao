@@ -179,13 +179,12 @@ public class UcteBranchHelper extends BranchHelper {
     }
 
     protected void interpretWithNetwork(UcteNetworkHelper networkHelper) {
-        Pair<Identifiable<?>, UcteElement.MatchResult> networkElementMatch = null;
-        try {
-            networkElementMatch = networkHelper.findNetworkElement(from, to, suffix);
-        } catch (Exception e) {
+        Pair<Identifiable<?>, UcteConnectable.MatchResult> networkElementMatch = null;
+        networkElementMatch = networkHelper.findNetworkElement(from, to, suffix);
+        /*catch (Exception e) {
             invalidate(e.getMessage());
             return;
-        }
+        }*/
 
         if (Objects.isNull(networkElementMatch)) {
             invalidate(format("branch was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));
