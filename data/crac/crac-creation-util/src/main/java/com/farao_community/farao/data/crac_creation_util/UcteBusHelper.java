@@ -28,19 +28,19 @@ public class UcteBusHelper {
     private boolean isValid = false;
     private String invalidReason;
 
-    public UcteBusHelper(String nodeName, Network network, UcteNetworkHelper ucteNetworkHelper) {
+    public UcteBusHelper(String nodeName, UcteNetworkHelper ucteNetworkHelper) {
 
         // full id without wildcard
         if (nodeName.length() == UCTE_NODE_LENGTH && !nodeName.endsWith(WILDCARD_CHARACTER)) {
-            lookForBusWithIdInNetwork(nodeName, network);
+            lookForBusWithIdInNetwork(nodeName, ucteNetworkHelper.getNetwork());
             return;
         }
 
         String modNodeName = nodeName;
         // incomplete id, automatically complete id with...
         if (nodeName.length() < UCTE_NODE_LENGTH) { // blank spaces,
-            if (!ucteNetworkHelper.getProperties().getBusIdMatchPolicy().equals(COMPLETE_WITH_WHITESPACES)) {
-                lookForBusWithIdInNetwork(String.format("%1$-8s", nodeName), network);
+            if (ucteNetworkHelper.getProperties().getBusIdMatchPolicy().equals(COMPLETE_WITH_WHITESPACES)) {
+                lookForBusWithIdInNetwork(String.format("%1$-8s", nodeName), ucteNetworkHelper.getNetwork());
                 return;
             } else {  // or, with wildcards
                 modNodeName = String.format("%1$-7s", nodeName) + WILDCARD_CHARACTER;
@@ -48,7 +48,7 @@ public class UcteBusHelper {
         }
 
         // complex search with wildcard (either *, or incomplete ids)
-        for (Bus bus : network.getBusBreakerView().getBuses()) {
+        for (Bus bus : ucteNetworkHelper.getNetwork().getBusBreakerView().getBuses()) {
             if (UcteUtils.matchNodeNames(modNodeName, bus.getId())) {
                 if (Objects.isNull(busIdInNetwork)) {
                     isValid = true;
