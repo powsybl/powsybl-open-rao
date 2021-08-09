@@ -92,7 +92,8 @@ class UcteConnectable implements Comparable<UcteConnectable> {
                 && this.ucteToNode.equals(other.ucteToNode)
                 && this.ucteOrderCode.equals(other.ucteOrderCode)
                 && this.ucteElementNames.equals(other.ucteElementNames)
-                && this.iidmIdentifiable.getId().equals(other.iidmIdentifiable.getId());
+                && this.iidmIdentifiable.getId().equals(other.iidmIdentifiable.getId())
+                && this.iidmSide.equals(other.iidmSide);
         }
         return false;
     }
