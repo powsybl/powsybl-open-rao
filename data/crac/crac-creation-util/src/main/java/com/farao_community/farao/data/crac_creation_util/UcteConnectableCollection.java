@@ -56,7 +56,7 @@ class UcteConnectableCollection {
 
         UcteMatchingResult ucteMatchingResult = lookForMatch(fromNodeId, toNodeId, suffix);
 
-        if (ucteMatchingResult.hasMatched()) {
+        if (!ucteMatchingResult.getStatus().equals(UcteMatchingResult.MatchStatus.NOT_FOUND)) {
             return ucteMatchingResult;
         }
 
