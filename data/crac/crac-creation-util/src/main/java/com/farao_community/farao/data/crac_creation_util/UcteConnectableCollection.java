@@ -134,8 +134,8 @@ class UcteConnectableCollection {
                     should be inverted as "UCTNODE2" is in the second half of the TieLine
                 */
                 String xnode = ((TieLine) branch).getUcteXnodeCode();
-                connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, UcteConnectable.Side.ONE));
-                connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, UcteConnectable.Side.TWO));
+                connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
+                connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
             } else if (branch instanceof TwoWindingsTransformer) {
                 /*
                     The terminals of the TwoWindingTransformer are inverted in the iidm network, compared to what
@@ -143,9 +143,9 @@ class UcteConnectableCollection {
 
                     The UCTE order is kept here, to avoid potential duplicates with other connectables.
                  */
-                connectables.put(to, new UcteConnectable(to, from, getOrderCode(branch), getElementNames(branch), branch));
+                connectables.put(to, new UcteConnectable(to, from, getOrderCode(branch), getElementNames(branch), branch, true));
             } else {
-                connectables.put(from, new UcteConnectable(from, to, getOrderCode(branch), getElementNames(branch), branch));
+                connectables.put(from, new UcteConnectable(from, to, getOrderCode(branch), getElementNames(branch), branch, false));
             }
         });
     }
@@ -154,9 +154,16 @@ class UcteConnectableCollection {
         network.getDanglingLineStream().forEach(danglingLine -> {
             // A dangling line is an Injection with a generator convention.
             // After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
-            String from = danglingLine.getUcteXnodeCode();
-            String to = danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId();
-            connectables.put(from, new UcteConnectable(from, to, getOrderCode(danglingLine), getElementNames(danglingLine), danglingLine));
+            String xNode = danglingLine.getUcteXnodeCode();
+            String rNode = danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId();
+
+            if (danglingLine.getId().startsWith("X")) {
+                // UCTE definition is in the same direction as iidm definition
+                connectables.put(xNode, new UcteConnectable(xNode, rNode, getOrderCode(danglingLine), getElementNames(danglingLine), danglingLine, false));
+            } else {
+                // UCTE definition is opposite as the iidm definition
+                connectables.put(rNode, new UcteConnectable(rNode, xNode, getOrderCode(danglingLine), getElementNames(danglingLine), danglingLine, true));
+            }
         });
     }
 
@@ -164,7 +171,7 @@ class UcteConnectableCollection {
         network.getSwitchStream().forEach(switchElement -> {
             String from = switchElement.getVoltageLevel().getBusBreakerView().getBus1(switchElement.getId()).getId();
             String to = switchElement.getVoltageLevel().getBusBreakerView().getBus2(switchElement.getId()).getId();
-            connectables.put(from, new UcteConnectable(from, to, getOrderCode(switchElement), getElementNames(switchElement), switchElement));
+            connectables.put(from, new UcteConnectable(from, to, getOrderCode(switchElement), getElementNames(switchElement), switchElement, false));
         });
     }
 

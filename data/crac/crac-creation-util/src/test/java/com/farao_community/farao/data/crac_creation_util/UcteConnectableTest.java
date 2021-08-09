@@ -35,7 +35,7 @@ public class UcteConnectableTest {
 
     @Test
     public void testMatch() {
-        UcteConnectable ucteElement = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch);
+        UcteConnectable ucteElement = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
 
         // found with order code, good direction
         assertTrue(ucteElement.doesMatch("ABC12345", "DEF12345", "1"));
@@ -66,14 +66,14 @@ public class UcteConnectableTest {
 
         Identifiable<?> tieLine = Mockito.mock(TieLine.class);
 
-        UcteConnectable ucteElement = new UcteConnectable("X_NODE12", "R_NODE12", "1", Set.of("en1", "en2"), tieLine, UcteConnectable.Side.ONE);
+        UcteConnectable ucteElement = new UcteConnectable("X_NODE12", "R_NODE12", "1", Set.of("en1", "en2"), tieLine, false, UcteConnectable.Side.ONE);
 
         // found with element name, inverted direction
         assertTrue(ucteElement.doesMatch("X_NODE12", "R_NODE12", "en2"));
         assertTrue(ucteElement.getUcteMatchingResult("X_NODE12", "R_NODE12", "en2").hasMatched());
         assertEquals(UcteConnectable.Side.ONE, ucteElement.getUcteMatchingResult("X_NODE12", "R_NODE12", "en2").getSide());
 
-        ucteElement = new UcteConnectable("X_NODE12", "R_NODE12", "1", Set.of("en1", "en2"), tieLine, UcteConnectable.Side.TWO);
+        ucteElement = new UcteConnectable("X_NODE12", "R_NODE12", "1", Set.of("en1", "en2"), tieLine, false, UcteConnectable.Side.TWO);
 
         // id with wildcard
         assertTrue(ucteElement.doesMatch("X_NODE1*", "R_NODE1*", "1"));
@@ -82,54 +82,70 @@ public class UcteConnectableTest {
     }
 
     @Test
+    public void testInversionInConvention() {
+
+        UcteConnectable ucteBranch = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
+
+        // found with element name, inverted direction
+        assertTrue(ucteBranch.getUcteMatchingResult("ABC12345", "DEF12345", "1").hasMatched());
+        assertFalse(ucteBranch.getUcteMatchingResult("ABC12345", "DEF12345", "1").isInverted());
+
+        UcteConnectable ucteTransfo = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, true);
+
+        // found with element name, inverted direction
+        assertTrue(ucteTransfo.getUcteMatchingResult("ABC12345", "DEF12345", "1").hasMatched());
+        assertTrue(ucteTransfo.getUcteMatchingResult("ABC12345", "DEF12345", "1").isInverted());
+    }
+
+    @Test
     public void testEquals() {
 
         Identifiable<?> branch = Mockito.mock(Branch.class);
         Mockito.when(branch.getId()).thenReturn("iidmBranchId");
 
-        UcteConnectable ucteElement1 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch);
-        UcteConnectable ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch);
+        UcteConnectable ucteElement1 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
+        UcteConnectable ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
         assertEquals(ucteElement1, ucteElement1);
         assertEquals(ucteElement1, ucteElement2);
         assertNotEquals(ucteElement1, null);
 
         // different from
-        ucteElement2 = new UcteConnectable("DIF12345", "DEF12345", "1", Set.of("en1", "en2"), branch);
+        ucteElement2 = new UcteConnectable("DIF12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false);
         assertNotEquals(ucteElement1, ucteElement2);
 
         // different to
-        ucteElement2 = new UcteConnectable("ABC12345", "XXX12345", "1", Set.of("en1", "en2"), branch);
+        ucteElement2 = new UcteConnectable("ABC12345", "XXX12345", "1", Set.of("en1", "en2"), branch, false);
         assertNotEquals(ucteElement1, ucteElement2);
 
         // different order code
-        ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "3", Set.of("en1", "en2"), branch);
+        ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "3", Set.of("en1", "en2"), branch, false);
         assertNotEquals(ucteElement1, ucteElement2);
 
         // different suffixes
-        ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en5"), branch);
+        ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en5"), branch, false);
         assertNotEquals(ucteElement1, ucteElement2);
 
         // different iidm identifiable
         Identifiable<?> branch2 = Mockito.mock(Branch.class);
         Mockito.when(branch2.getId()).thenReturn("anotherIidmBranchId");
-        ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch2);
+        ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch2, false);
         assertNotEquals(ucteElement1, ucteElement2);
 
         // different side
-        ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, UcteConnectable.Side.TWO);
+        ucteElement2 = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false, UcteConnectable.Side.TWO);
         assertNotEquals(ucteElement1, ucteElement2);
     }
 
     @Test
     public void testToString() {
-        UcteConnectable ucteElement = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, UcteConnectable.Side.ONE);
+        UcteConnectable ucteElement = new UcteConnectable("ABC12345", "DEF12345", "1", Set.of("en1", "en2"), branch, false, UcteConnectable.Side.ONE);
         assertEquals("ABC12345 DEF12345 1 - iidmBranchId - side ONE", ucteElement.toString());
     }
 
     @Test
     public void testConstructorException() {
         Set<String> suffixes = Set.of("en1");
-        assertThrows(IllegalArgumentException.class, () -> new UcteConnectable("ABC1234", "DEF12345", "1", suffixes, branch));
-        assertThrows(IllegalArgumentException.class, () -> new UcteConnectable("ABC12345", "DEF1234", "1", suffixes, branch));
+        assertThrows(IllegalArgumentException.class, () -> new UcteConnectable("ABC1234", "DEF12345", "1", suffixes, branch, false));
+        assertThrows(IllegalArgumentException.class, () -> new UcteConnectable("ABC12345", "DEF1234", "1", suffixes, branch, false));
     }
 }

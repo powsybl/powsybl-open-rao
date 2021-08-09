@@ -7,9 +7,7 @@
 
 package com.farao_community.farao.data.crac_creation_util;
 
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.Set;
 
@@ -39,11 +37,11 @@ class UcteConnectable implements Comparable<UcteConnectable> {
         BOTH // used for all elements but tie-lines
     }
 
-    UcteConnectable(String from, String to, String orderCode, Set<String> elementNames, Identifiable<?> iidmConnectable) {
-        this(from, to, orderCode, elementNames, iidmConnectable, Side.BOTH);
+    UcteConnectable(String from, String to, String orderCode, Set<String> elementNames, Identifiable<?> iidmConnectable, boolean isIidmConventionInverted) {
+        this(from, to, orderCode, elementNames, iidmConnectable, isIidmConventionInverted, Side.BOTH);
     }
 
-    UcteConnectable(String from, String to, String orderCode, Set<String> elementNames, Identifiable<?> iidmConnectable, Side side) {
+    UcteConnectable(String from, String to, String orderCode, Set<String> elementNames, Identifiable<?> iidmConnectable, boolean isIidmConventionInverted, Side side) {
         // TODO : unit tests for ynodes
         this.ucteFromNode = from.replace("YNODE_", "");
         this.ucteToNode = to.replace("YNODE_", "");
@@ -53,8 +51,8 @@ class UcteConnectable implements Comparable<UcteConnectable> {
         this.ucteOrderCode = orderCode;
         this.ucteElementNames = elementNames;
         this.iidmIdentifiable = iidmConnectable;
+        this.isIidmConventionInverted = isIidmConventionInverted;
         this.iidmSide = side;
-        setInversion(iidmConnectable);
     }
 
     boolean doesMatch(String from, String to, String suffix) {
@@ -104,16 +102,5 @@ class UcteConnectable implements Comparable<UcteConnectable> {
 
     private boolean matchSuffix(String suffix) {
         return (suffix.equals(ucteOrderCode)) || (ucteElementNames != null && ucteElementNames.contains(suffix));
-    }
-
-    private void setInversion(Identifiable iidmConnectable) {
-        if (iidmConnectable instanceof TwoWindingsTransformer) {
-            isIidmConventionInverted = true;
-        } else if (iidmConnectable instanceof DanglingLine) {
-            // TODO
-            isIidmConventionInverted = false;
-        } else {
-            isIidmConventionInverted = false;
-        }
     }
 }
