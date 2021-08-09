@@ -11,10 +11,10 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TieLine;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
 
+import static com.farao_community.farao.data.crac_creation_util.UcteConnectable.Side.TWO;
 import static java.lang.String.format;
 
 /**
@@ -179,24 +179,25 @@ public class UcteBranchHelper extends BranchHelper {
     }
 
     protected void interpretWithNetwork(UcteNetworkHelper networkHelper) {
-        Pair<Identifiable<?>, UcteConnectable.MatchResult> networkElementMatch = null;
-        networkElementMatch = networkHelper.findNetworkElement(from, to, suffix);
-        /*catch (Exception e) {
-            invalidate(e.getMessage());
-            return;
-        }*/
+        UcteMatchingResult ucteMatchingResult = networkHelper.findNetworkElement(from, to, suffix);
 
-        if (Objects.isNull(networkElementMatch)) {
+        if (ucteMatchingResult.getStatus() == UcteMatchingResult.MatchStatus.NOT_FOUND) {
             invalidate(format("branch was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));
             return;
         }
-        this.isInvertedInNetwork = networkElementMatch.getRight().isInverted();
-        this.branchIdInNetwork = networkElementMatch.getLeft().getId();
 
-        Identifiable<?> networkElement = networkElementMatch.getLeft();
+        if (ucteMatchingResult.getStatus() == UcteMatchingResult.MatchStatus.SEVERAL_MATCH) {
+            invalidate(format("several branch were found in the Network which match the description(from: %s, to: %s, suffix: %s)", from, to, suffix));
+            return;
+        }
+
+        this.isInvertedInNetwork = ucteMatchingResult.isInverted();
+        Identifiable<?> networkElement = ucteMatchingResult.getIidmIdentifiable();
+        this.branchIdInNetwork = networkElement.getId();
+
         if (networkElement instanceof TieLine) {
             this.isTieLine = true;
-            this.tieLineSide = networkElementMatch.getRight().getSide();
+            this.tieLineSide = ucteMatchingResult.getSide() == TWO ? Branch.Side.TWO : Branch.Side.ONE;
             checkBranchNominalVoltage((TieLine) networkElement);
             checkTieLineCurrentLimits((TieLine) networkElement);
         } else if (networkElement instanceof Branch) {

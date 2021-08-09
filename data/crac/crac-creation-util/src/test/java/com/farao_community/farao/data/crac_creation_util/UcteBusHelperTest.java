@@ -7,16 +7,12 @@
 
 package com.farao_community.farao.data.crac_creation_util;
 
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Network;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UcteBusHelperTest {
+
+    /*
     @Test
     public void testExactMatch() {
         String node = "FFR1AA1 ";
@@ -129,4 +125,7 @@ public class UcteBusHelperTest {
         assertNull(busHelper.getBusIdInNetwork());
         assertNotNull(busHelper.getInvalidReason());
     }
+
+
+     */
 }

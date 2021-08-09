@@ -13,7 +13,8 @@ package com.farao_community.farao.data.crac_creation_util;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UcteNetworkHelperProperties {
-    // For Bus IDs with less than 8 characters, either complete them with white spaces or wildcards
+
+    // For Bus IDs with 7 characters, either complete them with white spaces or wildcards
     public enum BusIdMatchPolicy {
         COMPLETE_WITH_WHITESPACES,
         COMPLETE_WITH_WILDCARDS

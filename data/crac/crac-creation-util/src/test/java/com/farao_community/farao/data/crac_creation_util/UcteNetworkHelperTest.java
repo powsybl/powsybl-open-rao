@@ -7,19 +7,13 @@
 
 package com.farao_community.farao.data.crac_creation_util;
 
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
-
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.*;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UcteNetworkHelperTest {
+
+    /*
+
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Network network;
     private UcteNetworkHelper networkHelper;
@@ -91,6 +85,7 @@ public class UcteNetworkHelperTest {
          */
 
         // transformer with order code, from/to same as network
+        /*
         Pair<Identifiable<?>, UcteConnectable.MatchResult> result = networkHelper.findNetworkElement("BBE2AA1 ", "BBE3AA1 ", "1");
         assertEquals(UcteConnectable.MatchResult.INVERTED_ON_SIDE_ONE, result.getRight());
         assertSame(network.getIdentifiable("BBE2AA1  BBE3AA1  1"), result.getLeft());
@@ -241,4 +236,6 @@ public class UcteNetworkHelperTest {
         assertThrows(IllegalArgumentException.class, () -> networkHelper.findNetworkElement("BBE", "BBE", "1"));
     }
 
+
+    */
 }

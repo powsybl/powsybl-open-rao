@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
+import static com.farao_community.farao.data.crac_creation_util.UcteNetworkHelperProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES;
 import static com.farao_community.farao.data.crac_creation_util.UcteUtils.UCTE_NODE_LENGTH;
 import static com.farao_community.farao.data.crac_creation_util.UcteUtils.WILDCARD_CHARACTER;
 
@@ -27,7 +28,7 @@ public class UcteBusHelper {
     private boolean isValid = false;
     private String invalidReason;
 
-    public UcteBusHelper(String nodeName, Network network, boolean completeSmallBusIdsWithWildcards) {
+    public UcteBusHelper(String nodeName, Network network, UcteNetworkHelper ucteNetworkHelper) {
 
         // full id without wildcard
         if (nodeName.length() == UCTE_NODE_LENGTH && !nodeName.endsWith(WILDCARD_CHARACTER)) {
@@ -35,20 +36,25 @@ public class UcteBusHelper {
             return;
         }
 
-        // incomplete id, automatically completed with blank spaces
-        if (nodeName.length() < UCTE_NODE_LENGTH && !completeSmallBusIdsWithWildcards) {
-            lookForBusWithIdInNetwork(String.format("%1$-8s", nodeName), network);
-            return;
+        String modNodeName = nodeName;
+        // incomplete id, automatically complete id with...
+        if (nodeName.length() < UCTE_NODE_LENGTH) { // blank spaces,
+            if (!ucteNetworkHelper.getProperties().getBusIdMatchPolicy().equals(COMPLETE_WITH_WHITESPACES)) {
+                lookForBusWithIdInNetwork(String.format("%1$-8s", nodeName), network);
+                return;
+            } else {  // or, with wildcards
+                modNodeName = String.format("%1$-7s", nodeName) + WILDCARD_CHARACTER;
+            }
         }
 
         // complex search with wildcard (either *, or incomplete ids)
         for (Bus bus : network.getBusBreakerView().getBuses()) {
-            if (UcteUtils.matchNodeNames(nodeName, bus.getId(), completeSmallBusIdsWithWildcards)) {
+            if (UcteUtils.matchNodeNames(modNodeName, bus.getId())) {
                 if (Objects.isNull(busIdInNetwork)) {
                     isValid = true;
                     busIdInNetwork = bus.getId();
                 } else {
-                    invalidReason = String.format("Too many buses match name %s, for example %s and %s", nodeName, busIdInNetwork, bus.getId());
+                    invalidReason = String.format("Too many buses match name %s, for example %s and %s", modNodeName, busIdInNetwork, bus.getId());
                     isValid = false;
                     busIdInNetwork = null;
                     return;
@@ -56,17 +62,7 @@ public class UcteBusHelper {
             }
         }
         if (Objects.isNull(busIdInNetwork)) {
-            invalidReason = String.format("No bus in the network matches bus name %s", nodeName);
-        }
-    }
-
-    // todo: delete constructor, use util class instead
-    public UcteBusHelper(String busName, String matchingBusNameCandidate, boolean completeSmallBusIdsWithWildcards) {
-        if (UcteUtils.matchNodeNames(busName, matchingBusNameCandidate, completeSmallBusIdsWithWildcards)) {
-            isValid = true;
-            busIdInNetwork = matchingBusNameCandidate;
-        } else {
-            invalidReason = String.format("Candidate bus %s does not match the bus name %s", matchingBusNameCandidate, busName);
+            invalidReason = String.format("No bus in the network matches bus name %s", modNodeName);
         }
     }
 

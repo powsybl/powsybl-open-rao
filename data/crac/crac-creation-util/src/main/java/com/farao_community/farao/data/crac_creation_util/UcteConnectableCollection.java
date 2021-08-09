@@ -1,20 +1,34 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.crac_creation_util;
 
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
-import org.apache.commons.lang3.tuple.Pair;
+import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation_util.UcteUtils.*;
 
-public class UcteConnectableCollection {
+/**
+ * A utility class that reads the network and stores UCTE information in order
+ * to easily map UCTE connectables (from/to/suffix) to elements in the network
+ *
+ * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
+class UcteConnectableCollection {
 
+    /*
+        The key of the map is the fromNodeId of the Connectable
+        The TreeMultiMap is stored by alphabetical order of the fromNodeId
+        One key can be associated to several values.
+     */
     private TreeMultimap<String, UcteConnectable> connectables;
 
     UcteConnectableCollection(Network network) {
@@ -24,20 +38,81 @@ public class UcteConnectableCollection {
         addSwitches(network);
     }
 
-    Pair<UcteConnectable, UcteConnectable.MatchResult> getConnectable(String from, String to, String suffix) {
+    UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix) {
 
-        UcteConnectable ucteConnectable = matchFromTo(from, to, suffix);
+        /*
+          priority is given to the search with the from/to direction given in argument
+          ---
 
-        if (ucteConnectable != null) {
-            return Pair.of(ucteConnectable, ucteConnectable.tryMatching(from, to, suffix, false));
+          Note that some UCTE cases have already been encountered with similar connectables. For instance, one transformer
+          and one switch, with ids:
+          - UCTNODE1 UCTNODE2 1
+          - UCTNODE2 UCTNODE1 1
+
+          In such cases, both connectables fit the same from/to/suffix. But instead of returning a
+          UcteMatchingRule.severalPossibleMatch(), which is reserved for ambiguous situations with wildcards, this
+          method returns the connectable with the id in the same order than the the ones given in argument of the method.
+         */
+
+        UcteMatchingResult ucteMatchingResult = lookForMatch(fromNodeId, toNodeId, suffix);
+
+        if (ucteMatchingResult.hasMatched()) {
+            return ucteMatchingResult;
         }
 
-        ucteConnectable = matchFromTo(to, from, suffix);
+        // if no result has been found in the direction in argument, look for an inverted one
+        ucteMatchingResult = lookForMatch(toNodeId, fromNodeId, suffix);
+        return ucteMatchingResult.invert();
+    }
 
-        if (ucteConnectable != null) {
-            return Pair.of(ucteConnectable, ucteConnectable.tryMatching(from, to, suffix, false));
+    private UcteMatchingResult lookForMatch(String fromNodeId, String toNodeId, String suffix) {
+
+        if (!fromNodeId.endsWith(UcteUtils.WILDCARD_CHARACTER)) {
+
+            // if the from node contains no wildcard, directly look for the entry of the TreeMultimap with the fromNode id
+            Collection<UcteConnectable> ucteElements = connectables.asMap().getOrDefault(fromNodeId, Collections.emptyList());
+            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements);
+
         } else {
-            return null;
+
+            // if the from node contains a wildcard, broad all entries of the map whose 7th first characters match the given id
+            // as the map is ordered in alphabetical order, the corresponding entries can be searched efficiently
+
+            String beforeFrom = fromNodeId.substring(0, UcteUtils.UCTE_NODE_LENGTH - 1) + Character.MIN_VALUE;
+            String afterFrom = fromNodeId.substring(0, UcteUtils.UCTE_NODE_LENGTH - 1) + Character.MAX_VALUE;
+
+            List<UcteConnectable> ucteElements = connectables.asMap().subMap(beforeFrom, afterFrom).values().stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements);
+        }
+    }
+
+    private UcteMatchingResult lookForMatchWithinCollection(String fromNodeId, String toNodeId, String suffix, Collection<UcteConnectable> ucteConnectables) {
+
+        if (fromNodeId.endsWith(WILDCARD_CHARACTER) || toNodeId.endsWith(WILDCARD_CHARACTER)) {
+            // if the nodes contains wildCards, we have to look for all possible match
+
+            List<UcteMatchingResult> matchedConnetables = ucteConnectables.stream()
+                .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix))
+                .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix))
+                .collect(Collectors.toList());
+
+            if (matchedConnetables.size() == 1) {
+                return matchedConnetables.get(0);
+            } else if (matchedConnetables.size() > 1) {
+                return UcteMatchingResult.severalPossibleMatch();
+            } else {
+                return UcteMatchingResult.notFound();
+            }
+        } else {
+
+            // if the nodes contains no wildCards, speed up the search by using findAny() instead of looking for all possible matches
+            return ucteConnectables.stream()
+                .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix))
+                .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix))
+                .findAny().orElse(UcteMatchingResult.notFound());
         }
     }
 
@@ -59,8 +134,16 @@ public class UcteConnectableCollection {
                     should be inverted as "UCTNODE2" is in the second half of the TieLine
                 */
                 String xnode = ((TieLine) branch).getUcteXnodeCode();
-                connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, Branch.Side.ONE));
-                connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, Branch.Side.TWO));
+                connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, UcteConnectable.Side.ONE));
+                connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, UcteConnectable.Side.TWO));
+            } else if (branch instanceof TwoWindingsTransformer) {
+                /*
+                    The terminals of the TwoWindingTransformer are inverted in the iidm network, compared to what
+                    is defined in the UCTE network.
+
+                    The UCTE order is kept here, to avoid potential duplicates with other connectables.
+                 */
+                connectables.put(to, new UcteConnectable(to, from, getOrderCode(branch), getElementNames(branch), branch));
             } else {
                 connectables.put(from, new UcteConnectable(from, to, getOrderCode(branch), getElementNames(branch), branch));
             }
@@ -106,35 +189,12 @@ public class UcteConnectableCollection {
 
     /**
      * Get all the element name of an identifiable
+     * Note that tie-line can contain several element names
      */
     private static Set<String> getElementNames(Identifiable<?> identifiable) {
         return identifiable.getPropertyNames().stream()
             .filter(propertyName -> propertyName.startsWith("elementName"))
             .map(identifiable::getProperty)
             .collect(Collectors.toSet());
-    }
-
-    private UcteConnectable matchFromTo(String from, String to, String suffix) {
-
-        if (!from.endsWith(UcteUtils.WILDCARD_CHARACTER)) {
-            Collection<UcteConnectable> ucteElements = connectables.asMap().getOrDefault(from, Collections.emptyList());
-
-            return ucteElements.stream()
-                .filter(ucteElement -> ucteElement.tryMatching(from, to, suffix, false).matched())
-                .findAny().orElse(null);
-
-        } else {
-
-            String beforeFrom = from.substring(0, UcteUtils.UCTE_NODE_LENGTH - 2) + Character.MIN_VALUE;
-            String afterFrom = from.substring(0, UcteUtils.UCTE_NODE_LENGTH - 2) + Character.MAX_VALUE;
-
-            List<UcteConnectable> ucteElements = connectables.asMap().subMap(beforeFrom, afterFrom).values().stream()
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-            return ucteElements.stream()
-                .filter(ucteElement -> ucteElement.tryMatching(from, to, suffix, false).matched())
-                .findAny().orElse(null);
-        }
     }
 }
