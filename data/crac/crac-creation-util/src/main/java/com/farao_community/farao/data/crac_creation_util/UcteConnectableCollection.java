@@ -118,8 +118,8 @@ class UcteConnectableCollection {
 
     private void addBranches(Network network) {
         network.getBranchStream().forEach(branch -> {
-            String from = branch.getTerminal1().getBusBreakerView().getConnectableBus().getId();
-            String to = branch.getTerminal2().getBusBreakerView().getConnectableBus().getId();
+            String from = getNodeName(branch.getTerminal1().getBusBreakerView().getConnectableBus().getId());
+            String to = getNodeName(branch.getTerminal2().getBusBreakerView().getConnectableBus().getId());
             if (branch instanceof TieLine) {
                 /*
                  in UCTE import, the two Half Lines of an interconnection are merged into a TieLine
@@ -134,8 +134,8 @@ class UcteConnectableCollection {
                     should be inverted as "UCTNODE2" is in the second half of the TieLine
                 */
                 String xnode = ((TieLine) branch).getUcteXnodeCode();
-                connectables.put(getNodeName(from), new UcteConnectable(getNodeName(from), xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
-                connectables.put(xnode, new UcteConnectable(xnode, getNodeName(to), getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
+                connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
+                connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
             } else if (branch instanceof TwoWindingsTransformer) {
                 /*
                     The terminals of the TwoWindingTransformer are inverted in the iidm network, compared to what
@@ -143,7 +143,7 @@ class UcteConnectableCollection {
 
                     The UCTE order is kept here, to avoid potential duplicates with other connectables.
                  */
-                connectables.put(getNodeName(to), new UcteConnectable(getNodeName(to), getNodeName(from), getOrderCode(branch), getElementNames(branch), branch, true));
+                connectables.put(to, new UcteConnectable(to, from, getOrderCode(branch), getElementNames(branch), branch, true));
             } else {
                 connectables.put(from, new UcteConnectable(from, to, getOrderCode(branch), getElementNames(branch), branch, false));
             }
@@ -155,7 +155,7 @@ class UcteConnectableCollection {
             // A dangling line is an Injection with a generator convention.
             // After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
             String xNode = danglingLine.getUcteXnodeCode();
-            String rNode = danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId();
+            String rNode = getNodeName(danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId());
 
             if (danglingLine.getId().startsWith("X")) {
                 // UCTE definition is in the same direction as iidm definition
@@ -169,8 +169,8 @@ class UcteConnectableCollection {
 
     private void addSwitches(Network network) {
         network.getSwitchStream().forEach(switchElement -> {
-            String from = switchElement.getVoltageLevel().getBusBreakerView().getBus1(switchElement.getId()).getId();
-            String to = switchElement.getVoltageLevel().getBusBreakerView().getBus2(switchElement.getId()).getId();
+            String from = getNodeName(switchElement.getVoltageLevel().getBusBreakerView().getBus1(switchElement.getId()).getId());
+            String to = getNodeName(switchElement.getVoltageLevel().getBusBreakerView().getBus2(switchElement.getId()).getId());
             connectables.put(from, new UcteConnectable(from, to, getOrderCode(switchElement), getElementNames(switchElement), switchElement, false));
         });
     }
