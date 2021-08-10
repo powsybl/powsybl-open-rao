@@ -25,14 +25,12 @@ final class UcteUtils {
      * the standard UCTE length
      */
     static boolean matchNodeNames(String nodeName, String nodeNameInNetwork) {
-        // TODO : unit tests for YNODE
-        String modNodeNameInNetwork = nodeNameInNetwork.replace("YNODE_", "");
         if (nodeName.length() < UCTE_NODE_LENGTH) {
-            return modNodeNameInNetwork.equals(String.format("%1$-8s", nodeName));
+            return nodeNameInNetwork.equals(String.format("%1$-8s", nodeName));
         } else if (nodeName.endsWith(WILDCARD_CHARACTER)) {
-            return modNodeNameInNetwork.substring(0, modNodeNameInNetwork.length() - 1).equals(nodeName.substring(0, nodeName.length() - 1));
+            return nodeNameInNetwork.substring(0, nodeNameInNetwork.length() - 1).equals(nodeName.substring(0, nodeName.length() - 1));
         } else {
-            return modNodeNameInNetwork.equals(nodeName);
+            return nodeNameInNetwork.equals(nodeName);
         }
     }
 }

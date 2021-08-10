@@ -42,9 +42,8 @@ class UcteConnectable implements Comparable<UcteConnectable> {
     }
 
     UcteConnectable(String from, String to, String orderCode, Set<String> elementNames, Identifiable<?> iidmConnectable, boolean isIidmConventionInverted, Side side) {
-        // TODO : unit tests for ynodes
-        this.ucteFromNode = from.replace("YNODE_", "");
-        this.ucteToNode = to.replace("YNODE_", "");
+        this.ucteFromNode = from;
+        this.ucteToNode = to;
         if (this.ucteFromNode.length() != UCTE_NODE_LENGTH || this.ucteToNode.length() != UCTE_NODE_LENGTH) {
             throw new IllegalArgumentException(String.format("from (%s) and to (%s) should have %d characters", this.ucteFromNode, this.ucteToNode, UCTE_NODE_LENGTH));
         }

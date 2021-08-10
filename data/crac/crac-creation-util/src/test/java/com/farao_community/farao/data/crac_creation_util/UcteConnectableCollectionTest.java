@@ -318,6 +318,23 @@ public class UcteConnectableCollectionTest {
     }
 
     @Test
+    public void testYNode() {
+        init("TestCase_severalVoltageLevels_Xnodes_Ynode.uct");
+
+        UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("NNL3AA11", "XDENL111", "TL NL3X");
+        assertTrue(result.hasMatched());
+        assertFalse(result.isInverted());
+        assertEquals(UcteConnectable.Side.ONE, result.getSide());
+        assertSame(network.getIdentifiable("NNL3AA11 XDENL111 1 + XDENL111 YNODE_XDENL111"), result.getIidmIdentifiable());
+
+        result = ucteConnectableCollection.lookForConnectable("XDENL111", "DDE2AA11", "1");
+        assertTrue(result.hasMatched());
+        assertFalse(result.isInverted());
+        assertEquals(UcteConnectable.Side.BOTH, result.getSide());
+        assertSame(network.getIdentifiable("DDE2AA11 XDENL111 1"), result.getIidmIdentifiable());
+    }
+
+    @Test
     public void testTooManyMatches() {
         init("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 

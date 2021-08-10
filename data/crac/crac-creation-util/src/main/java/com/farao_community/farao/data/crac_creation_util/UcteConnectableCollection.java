@@ -134,8 +134,8 @@ class UcteConnectableCollection {
                     should be inverted as "UCTNODE2" is in the second half of the TieLine
                 */
                 String xnode = ((TieLine) branch).getUcteXnodeCode();
-                connectables.put(from, new UcteConnectable(from, xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
-                connectables.put(xnode, new UcteConnectable(xnode, to, getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
+                connectables.put(getNodeName(from), new UcteConnectable(getNodeName(from), xnode, getOrderCode(branch, Branch.Side.ONE), getElementNames(branch), branch, false, UcteConnectable.Side.ONE));
+                connectables.put(xnode, new UcteConnectable(xnode, getNodeName(to), getOrderCode(branch, Branch.Side.TWO), getElementNames(branch), branch, false, UcteConnectable.Side.TWO));
             } else if (branch instanceof TwoWindingsTransformer) {
                 /*
                     The terminals of the TwoWindingTransformer are inverted in the iidm network, compared to what
@@ -143,7 +143,7 @@ class UcteConnectableCollection {
 
                     The UCTE order is kept here, to avoid potential duplicates with other connectables.
                  */
-                connectables.put(to, new UcteConnectable(to, from, getOrderCode(branch), getElementNames(branch), branch, true));
+                connectables.put(getNodeName(to), new UcteConnectable(getNodeName(to), getNodeName(from), getOrderCode(branch), getElementNames(branch), branch, true));
             } else {
                 connectables.put(from, new UcteConnectable(from, to, getOrderCode(branch), getElementNames(branch), branch, false));
             }
@@ -203,5 +203,9 @@ class UcteConnectableCollection {
             .filter(propertyName -> propertyName.startsWith("elementName"))
             .map(identifiable::getProperty)
             .collect(Collectors.toSet());
+    }
+
+    private static String getNodeName(String nodeName) {
+        return nodeName.replace("YNODE_", ""); // remove 'YNODE_' prefix that is added on some Xnode by powsybl
     }
 }
