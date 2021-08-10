@@ -66,7 +66,7 @@ final class UcteMatchingResult {
         return this;
     }
 
-    Identifiable<?> getIidmIdentifiable() {
+    Identifiable getIidmIdentifiable() {
         return iidmIdentifiable;
     }
 
