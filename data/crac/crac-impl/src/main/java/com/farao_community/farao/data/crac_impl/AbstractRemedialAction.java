@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -43,18 +44,18 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
 
     @Override
     public UsageMethod getUsageMethod(State state) {
-        List<UsageMethod> usageMethods = usageRules.stream()
+        Set<UsageMethod> usageMethods = usageRules.stream()
             .map(usageRule -> usageRule.getUsageMethod(state))
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
 
         if (usageMethods.contains(UsageMethod.UNAVAILABLE)) {
             return UsageMethod.UNAVAILABLE;
         } else if (usageMethods.contains(UsageMethod.FORCED)) {
             return UsageMethod.FORCED;
-        } else if (usageMethods.contains(UsageMethod.TO_BE_EVALUATED)) {
-            return UsageMethod.TO_BE_EVALUATED;
         } else if (usageMethods.contains(UsageMethod.AVAILABLE)) {
             return UsageMethod.AVAILABLE;
+        } else if (usageMethods.contains(UsageMethod.TO_BE_EVALUATED)) {
+            return UsageMethod.TO_BE_EVALUATED;
         } else {
             return UsageMethod.UNAVAILABLE;
         }
