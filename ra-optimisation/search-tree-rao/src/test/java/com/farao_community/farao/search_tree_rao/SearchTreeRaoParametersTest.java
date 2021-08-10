@@ -6,12 +6,18 @@
  */
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.config.PlatformConfig;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertTrue;
@@ -23,16 +29,10 @@ import static org.junit.Assert.assertNotNull;
  */
 public class SearchTreeRaoParametersTest {
 
-    private RaoParameters parameters;
-
-    @Before
-    public void setUp() {
-        PlatformConfig config = Mockito.mock(PlatformConfig.class);
-        parameters = RaoParameters.load(config);
-    }
-
     @Test
     public void testExtensionRecognition() {
+        PlatformConfig config = Mockito.mock(PlatformConfig.class);
+        RaoParameters parameters = RaoParameters.load(config);
         assertTrue(parameters.getExtensionByName("SearchTreeRaoParameters") instanceof SearchTreeRaoParameters);
         assertNotNull(parameters.getExtension(SearchTreeRaoParameters.class));
     }
@@ -93,5 +93,48 @@ public class SearchTreeRaoParametersTest {
         parameters.setMaxCurativeTopoPerTso(null);
         assertNotNull(parameters.getMaxCurativeTopoPerTso());
         assertTrue(parameters.getMaxCurativeTopoPerTso().isEmpty());
+    }
+
+    @Test
+    public void testNetworkActionCombinations() {
+
+        Crac crac = CracFactory.findDefault().create("crac");
+
+        crac.newNetworkAction()
+            .withId("topological-action-1")
+            .withOperator("operator-1")
+            .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
+            .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("topological-action-2")
+            .withOperator("operator-2")
+            .newTopologicalAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
+            .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+            .add();
+
+        crac.newNetworkAction()
+            .withId("pst-setpoint")
+            .withOperator("operator-2")
+            .newPstSetPoint().withSetpoint(10).withNetworkElement("any-other-network-element").add()
+            .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+            .add();
+
+        // test list
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+        parameters.setNetworkActionIdCombinations(List.of(
+            List.of("topological-action-1", "topological-action-2"), // OK
+            List.of("topological-action-1", "topological-action-2", "pst-setpoint"), // OK
+            List.of("topological-action-1", "unknown-na-id"), // should be filtered
+            List.of("topological-action-1"), // should be filtered (one action only)
+            new ArrayList<>())); // should be filtered
+
+        List<NetworkActionCombination> naCombinations = parameters.getNetworkActionCombinations(crac);
+
+        assertEquals(5, parameters.getNetworkActionIdCombinations().size());
+        assertEquals(2, naCombinations.size());
+        assertEquals(2, naCombinations.get(0).getNetworkActionSet().size());
+        assertEquals(3, naCombinations.get(1).getNetworkActionSet().size());
     }
 }

@@ -15,7 +15,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,6 +46,17 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeObjectField("max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
         jsonGenerator.writeBooleanField("curative-rao-optimize-operators-not-sharing-cras", searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
         jsonGenerator.writeBooleanField("with-second-preventive-optimization", searchTreeRaoParameters.getWithSecondPreventiveOptimization());
+
+        jsonGenerator.writeFieldName("network-action-combinations");
+        jsonGenerator.writeStartArray();
+        for (List<String> naIdCombination : searchTreeRaoParameters.getNetworkActionIdCombinations()) {
+            jsonGenerator.writeStartArray();
+            for (String naId : naIdCombination) {
+                jsonGenerator.writeString(naId);
+            }
+            jsonGenerator.writeEndArray();
+        }
+        jsonGenerator.writeEndArray();
         jsonGenerator.writeEndObject();
     }
 
@@ -112,6 +125,9 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                 case "with-second-preventive-optimization":
                     parameters.setWithSecondPreventiveOptimization(jsonParser.getValueAsBoolean());
                     break;
+                case "network-action-combinations":
+                    parameters.setNetworkActionIdCombinations(readListOfListOfString(jsonParser));
+                    break;
                 default:
                     throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
             }
@@ -132,6 +148,15 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
             }
         });
         return map;
+    }
+
+    private List<List<String>> readListOfListOfString(JsonParser jsonParser) throws IOException {
+        List<List<String>> parsedListOfList = new ArrayList<>();
+        jsonParser.nextToken();
+        while (!jsonParser.nextToken().isStructEnd()) {
+            parsedListOfList.add(jsonParser.readValueAs(ArrayList.class));
+        }
+        return parsedListOfList;
     }
 
     @Override

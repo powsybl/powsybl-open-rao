@@ -74,13 +74,13 @@ class Leaf implements OptimizationResult {
 
     Leaf(Network network,
          Set<NetworkAction> alreadyAppliedNetworkActions,
-         NetworkAction networkActionToApply,
+         NetworkActionCombination naCombinationToApply,
          RangeActionResult preOptimRangeActionResult) {
         this.network = network;
         this.preOptimRangeActionResult = preOptimRangeActionResult;
         networkActions = new HashSet<>(alreadyAppliedNetworkActions);
-        if (!Objects.isNull(networkActionToApply)) {
-            networkActions.add(networkActionToApply);
+        if (!Objects.isNull(naCombinationToApply)) {
+            networkActions.addAll(naCombinationToApply.getNetworkActionSet());
         }
 
         // apply Network Actions on initial network
