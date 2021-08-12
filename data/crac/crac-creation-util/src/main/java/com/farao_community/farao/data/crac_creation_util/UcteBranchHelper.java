@@ -7,17 +7,21 @@
 
 package com.farao_community.farao.data.crac_creation_util;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.TieLine;
 
 import java.util.Objects;
 
+import static com.farao_community.farao.data.crac_creation_util.UcteConnectable.Side.TWO;
 import static java.lang.String.format;
 
 /**
  * UcteBranchHelper is a utility class which manages branches defined with the UCTE convention
- *
+ * <p>
  * This utility class has been designed so as to be used in CRAC creators whose format
- * is based on a UCTE network and whose CRAC identifies critical branches with the following
+ * is based on a UCTE network and whose CRAC identifies network elements with the following
  * information: a "from node", a "to node" and a suffix. Either identified in separate fields,
  * or in a common concatenated id such as "FROMNODE TO__NODE SUFFIX".
  *
@@ -34,64 +38,64 @@ public class UcteBranchHelper extends BranchHelper {
     private String to;
     private String suffix;
 
-    private boolean isInvertedInNetwork;
+    private boolean isInvertedInNetwork = false;
     private Branch.Side tieLineSide = null;
     private boolean isTieLine = false;
 
     /**
      * Constructor, based on a separate fields.
      *
-     * @param fromNode, UCTE-id of the origin extremity of the branch
-     * @param toNode, UCTE-id of the destination extremity of the branch
-     * @param suffix, suffix of the branch, either an order code or an elementName
-     * @param network, network on which the branch will be looked for, should contain UCTE aliases
+     * @param fromNode,      UCTE-id of the origin extremity of the branch
+     * @param toNode,        UCTE-id of the destination extremity of the branch
+     * @param suffix,        suffix of the branch, either an order code or an elementName
+     * @param networkHelper, UcteNetworkHelper object built upon the network
      */
-    public UcteBranchHelper(String fromNode, String toNode, String suffix, Network network) {
+    public UcteBranchHelper(String fromNode, String toNode, String suffix, UcteNetworkHelper networkHelper) {
         super(format("%1$-8s %2$-8s %3$-1s", fromNode, toNode, suffix));
         if (Objects.isNull(fromNode) || Objects.isNull(toNode) || Objects.isNull(suffix)) {
             invalidate("fromNode, toNode and suffix must not be null");
             return;
         }
 
-        this.from = format("%1$-8s", fromNode);
-        this.to = format("%1$-8s", toNode);
+        this.from = fromNode;
+        this.to = toNode;
         this.suffix = suffix;
 
-        interpretWithNetwork(network);
+        interpretWithNetwork(networkHelper);
     }
 
     /**
      * Constructor, based on a separate fields. Either the order code, or the element name must be
      * non-null. If the two are defined, the suffix which will be used by default is the order code.
      *
-     * @param fromNode, UCTE-id of the origin extremity of the branch
-     * @param toNode, UCTE-id of the destination extremity of the branch
-     * @param orderCode, order code of the branch
-     * @param elementName, element name of the branch
-     * @param network, network on which the branch will be looked for, should contain UCTE aliases
+     * @param fromNode,      UCTE-id of the origin extremity of the branch
+     * @param toNode,        UCTE-id of the destination extremity of the branch
+     * @param orderCode,     order code of the branch
+     * @param elementName,   element name of the branch
+     * @param networkHelper, UcteNetworkHelper object built upon the network
      */
-    public UcteBranchHelper(String fromNode, String toNode, String orderCode, String elementName, Network network) {
+    public UcteBranchHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkHelper networkHelper) {
         super(format("%1$-8s %2$-8s %3$-1s", fromNode, toNode, orderCode != null ? orderCode : elementName));
         if (Objects.isNull(fromNode) || Objects.isNull(toNode)) {
             invalidate("fromNode and toNode must not be null");
             return;
         }
 
-        this.from = format("%1$-8s", fromNode);
-        this.to = format("%1$-8s", toNode);
+        this.from = fromNode;
+        this.to = toNode;
 
         if (checkSuffix(orderCode, elementName)) {
-            interpretWithNetwork(network);
+            interpretWithNetwork(networkHelper);
         }
     }
 
     /**
      * Constructor, based on a concatenated id.
      *
-     * @param ucteBranchId, concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
-     * @param network, network on which the branch will be looked for, should contain UCTE aliases
+     * @param ucteBranchId,  concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
+     * @param networkHelper, UcteNetworkHelper object built upon the network
      */
-    public UcteBranchHelper(String ucteBranchId, Network network) {
+    public UcteBranchHelper(String ucteBranchId, UcteNetworkHelper networkHelper) {
         super(ucteBranchId);
         if (Objects.isNull(ucteBranchId)) {
             invalidate("ucteBranchId must not be null");
@@ -99,7 +103,7 @@ public class UcteBranchHelper extends BranchHelper {
         }
 
         if (decomposeUcteBranchId(ucteBranchId)) {
-            interpretWithNetwork(network);
+            interpretWithNetwork(networkHelper);
         }
     }
 
@@ -174,131 +178,35 @@ public class UcteBranchHelper extends BranchHelper {
         }
     }
 
-    @Override
-    protected void interpretWithNetwork(Network network) {
-        Identifiable<?> networkElement = findEquivalentElementInNetwork(network);
+    protected void interpretWithNetwork(UcteNetworkHelper networkHelper) {
+        UcteMatchingResult ucteMatchingResult = networkHelper.findNetworkElement(from, to, suffix);
 
-        if (Objects.isNull(networkElement)) {
+        if (ucteMatchingResult.getStatus() == UcteMatchingResult.MatchStatus.NOT_FOUND) {
+            invalidate(format("branch was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));
             return;
         }
+
+        if (ucteMatchingResult.getStatus() == UcteMatchingResult.MatchStatus.SEVERAL_MATCH) {
+            invalidate(format("several branch were found in the Network which match the description(from: %s, to: %s, suffix: %s)", from, to, suffix));
+            return;
+        }
+
+        this.isInvertedInNetwork = ucteMatchingResult.isInverted();
+        Identifiable<?> networkElement = ucteMatchingResult.getIidmIdentifiable();
+        this.branchIdInNetwork = networkElement.getId();
 
         if (networkElement instanceof TieLine) {
             this.isTieLine = true;
-            checkTieLineInversion((TieLine) networkElement);
+            this.tieLineSide = ucteMatchingResult.getSide() == TWO ? Branch.Side.TWO : Branch.Side.ONE;
             checkBranchNominalVoltage((TieLine) networkElement);
             checkTieLineCurrentLimits((TieLine) networkElement);
-
         } else if (networkElement instanceof Branch) {
-            checkBranchInversion((Branch) networkElement);
             checkBranchNominalVoltage((Branch) networkElement);
             checkBranchCurrentLimits((Branch) networkElement);
-
         } else if (networkElement instanceof DanglingLine) {
-            checkDanglingLineInversion((DanglingLine) networkElement);
             checkDanglingLineNominalVoltage((DanglingLine) networkElement);
             checkDanglingLineCurrentLimits((DanglingLine) networkElement);
         }
-    }
-
-    @Override
-    protected Identifiable findEquivalentElementInNetwork(Network network) {
-
-         /* It is assumed that the Branches, DanglingLines and TieLines of the network have ids/aliases like below:
-        - "UCTNODE1 UCTENODE2 orderCode"
-        - "UCTNODE1 UCTENODE2 ELEMENTNAME"
-
-        This is normally the case for a Network imported from a UCTE file, on which the UcteAliasesCreation has been used.
-
-        Another possibility would be to stream all the branches of the network and check the ids of the two Buses on which
-        they are connected. It would probably be less efficient, but more flexible, notably for DanglingLines and TieLines.
-         */
-
-        Identifiable<?> fromToBranch = network.getIdentifiable(getLineName(from, to, suffix));
-
-        if (!Objects.isNull(fromToBranch)) {
-            this.branchIdInNetwork = fromToBranch.getId();
-            return fromToBranch;
-        }
-
-        Identifiable<?> toFromBranch = network.getIdentifiable(getLineName(to, from, suffix));
-        if (!Objects.isNull(toFromBranch)) {
-            this.branchIdInNetwork = toFromBranch.getId();
-            return toFromBranch;
-        }
-
-        invalidate(format("branch was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));
-        return null;
-    }
-
-    private void checkBranchInversion(Branch branch) {
-        if (branch.getTerminal1().getBusBreakerView().getConnectableBus().getId().equals(from)
-            && branch.getTerminal2().getBusBreakerView().getConnectableBus().getId().equals(to)) {
-            this.isInvertedInNetwork = false;
-            return;
-        }
-        if (branch.getTerminal1().getBusBreakerView().getConnectableBus().getId().equals(to)
-            && branch.getTerminal2().getBusBreakerView().getConnectableBus().getId().equals(from)) {
-            this.isInvertedInNetwork = true;
-            return;
-        }
-
-        invalidate(format("branch direction couldn't be properly identified in the network (from: %s, to: %s, suffix: %s, networkBranchId: %s)", from, to, suffix, branch.getId()));
-    }
-
-    private void checkTieLineInversion(TieLine tieLine) {
-
-         /*
-         in UCTE import, the two Half Lines of an interconnection are merged into a TieLine
-         For instance, the TieLine "UCTNODE1 X___NODE 1 + UCTNODE2 X___NODE 1" is imported by PowSybl,
-         with :
-          - half1 = "UCTNODE1 X___NODE 1"
-          - half2 = "UCTNODE2 X___NODE 1"
-
-         In that case :
-          - if a criticial branch is defined with from = "UCTNODE1" and to = "X___NODE", the threshold
-            is ok as "UCTNODE1" is in the first half of the TieLine
-          - if a criticial branch is defined with from = "UCTNODE2" and to = "X___NODE", the threshold
-            should be inverted as "UCTNODE2" is in the second half of the TieLine
-        */
-
-        if (tieLine.getTerminal1().getBusBreakerView().getConnectableBus().getId().equals(from)) {
-            this.isInvertedInNetwork = false;
-            this.tieLineSide = Branch.Side.ONE;
-
-        } else if (tieLine.getTerminal2().getBusBreakerView().getConnectableBus().getId().equals(to)) {
-            this.isInvertedInNetwork = false;
-            this.tieLineSide = Branch.Side.TWO;
-
-        } else if (tieLine.getTerminal1().getBusBreakerView().getConnectableBus().getId().equals(to)) {
-            this.isInvertedInNetwork = true;
-            this.tieLineSide = Branch.Side.ONE;
-
-        } else if (tieLine.getTerminal2().getBusBreakerView().getConnectableBus().getId().equals(from)) {
-            this.isInvertedInNetwork = true;
-            this.tieLineSide = Branch.Side.TWO;
-
-        } else {
-            invalidate(format("tie-line direction couldn't be properly identified in the network (from: %s, to: %s, suffix: %s, networkTieLineId: %s)", from, to, suffix, tieLine.getId()));
-        }
-    }
-
-    private void checkDanglingLineInversion(DanglingLine danglingLine) {
-
-        /*
-         A dangling line is an Injection with a generator convention.
-         After an UCTE import, the flow on the dangling line is therefore always from the X_NODE to the other node.
-        */
-
-        if (danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId().equals(from)) {
-            this.isInvertedInNetwork = true;
-            return;
-        }
-        if (danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId().equals(to)) {
-            this.isInvertedInNetwork = false;
-            return;
-        }
-
-        invalidate(format("dangling line direction couldn't be properly identified in the network (from: %s, to: %s, suffix: %s, networkDanglingLineId: %s)", from, to, suffix, danglingLine.getId()));
     }
 
     private void checkTieLineCurrentLimits(TieLine tieLine) {
@@ -306,15 +214,11 @@ public class UcteBranchHelper extends BranchHelper {
             this.currentLimitLeft = tieLine.getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
         }
         if (!Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
-            this.currentLimitRight =  tieLine.getCurrentLimits(Branch.Side.TWO).getPermanentLimit();
+            this.currentLimitRight = tieLine.getCurrentLimits(Branch.Side.TWO).getPermanentLimit();
         }
         if (Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE)) && Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
             invalidate(String.format("couldn't identify current limits of tie-line (from: %s, to: %s, suffix: %s, networkTieLineId: %s)", from, to, suffix, tieLine.getId()));
         }
-    }
-
-    private String getLineName(String nodeId1, String nodeId2, String suffix) {
-        return format("%1$-8s %2$-8s %3$s", nodeId1, nodeId2, suffix);
     }
 
     /**
