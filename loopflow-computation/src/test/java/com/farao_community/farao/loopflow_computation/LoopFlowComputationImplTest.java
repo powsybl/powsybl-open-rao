@@ -143,6 +143,31 @@ public class LoopFlowComputationImplTest {
     }
 
     @Test
+    public void testIsInMainComponentNullBus() {
+        LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
+        Network network = Mockito.mock(Network.class);
+
+        Terminal.BusView busView = Mockito.mock(Terminal.BusView.class);
+        Mockito.doReturn(null).when(busView).getBus();
+        Terminal terminal = Mockito.mock(Terminal.class);
+        Mockito.doReturn(busView).when(terminal).getBusView();
+
+        Mockito.doReturn(Map.of("gen1", 5f, "load1", 6f)).when(linearGlsk).getGLSKs();
+        Generator gen1 = Mockito.mock(Generator.class);
+        Load load1 = Mockito.mock(Load.class);
+        Mockito.doReturn(gen1).when(network).getGenerator("gen1");
+        Mockito.doReturn(load1).when(network).getLoad("load1");
+
+        Mockito.doReturn(terminal).when(gen1).getTerminal();
+        Mockito.doReturn(mockInjection(false)).when(load1).getTerminal();
+        assertFalse(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
+
+        Mockito.doReturn(mockInjection(false)).when(gen1).getTerminal();
+        Mockito.doReturn(terminal).when(load1).getTerminal();
+        assertFalse(LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
+    }
+
+    @Test
     public void testComputeLoopFlowsWithIsolatedGlsk() {
         ZonalData<LinearGlsk> glsk = ExampleGenerator.glskProvider();
         ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
