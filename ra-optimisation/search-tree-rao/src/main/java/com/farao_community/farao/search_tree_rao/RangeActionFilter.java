@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -158,8 +159,8 @@ class RangeActionFilter {
     /**
      * Removes from a set of RangeActions the ones with the biggest priority or sensitivity on the most limiting element
      *
-     * @param rangeActions the set of RangeActions to filter
-     * @param numberToRemove       the number of RangeActions to remove from the set
+     * @param rangeActions   the set of RangeActions to filter
+     * @param numberToRemove the number of RangeActions to remove from the set
      */
     private void removeRangeActionsWithBiggestImpact(Set<RangeAction> rangeActions, int numberToRemove) {
         if (numberToRemove < 0) {
@@ -168,9 +169,43 @@ class RangeActionFilter {
             rangeActions.clear();
         } else {
             List<RangeAction> rangeActionsSortedBySensitivity = rangeActions.stream()
-                .sorted((ra1, ra2) -> comparePrioritiesAndSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
-                .collect(Collectors.toList());
-            rangeActions.removeAll(rangeActionsSortedBySensitivity.subList(0, numberToRemove));
+                    .sorted((ra1, ra2) -> comparePrioritiesAndSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                    .collect(Collectors.toList());
+
+            List<RangeAction> raHasBeenExplored = new ArrayList<RangeAction>();
+            int numberToRemoveLeft = numberToRemove;
+            // Look for aligned PSTs
+            for (RangeAction ra : rangeActionsSortedBySensitivity) {
+                if (numberToRemoveLeft == 0) {
+                    return;
+                }
+                // ra has already been explored.
+                if (raHasBeenExplored.contains(ra)) {
+                    continue;
+                }
+                // If ra potentially has aligned PSTs
+                if (ra.getGroupId().isPresent()) {
+                    int countAlignedPst = 1;
+                    List<RangeAction> raWithSameGroupId = Stream.of(ra).collect(Collectors.toList());
+                    // check if other range actions in rangeActionsSortedBySensitivity have same groupId.
+                    for (RangeAction otherRa : rangeActionsSortedBySensitivity) {
+                        if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent() && otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
+                            raWithSameGroupId.add(otherRa);
+                            countAlignedPst++;
+                        }
+                    }
+                    raHasBeenExplored.addAll(raWithSameGroupId);
+                    // Remove all ra with same groupId, or none
+                    if (countAlignedPst <= numberToRemoveLeft) {
+                        rangeActions.removeAll(raWithSameGroupId);
+                        numberToRemoveLeft -= countAlignedPst;
+                    }
+                } else {
+                    rangeActions.removeAll(Stream.of(ra).collect(Collectors.toList()));
+                    raHasBeenExplored.add(ra);
+                    numberToRemoveLeft -= 1;
+                }
+            }
         }
     }
 
@@ -180,7 +215,8 @@ class RangeActionFilter {
      * it will be considered greater.
      * If both RAs have the same priority, then absolute sensitivities will be compared.
      */
-    private int comparePrioritiesAndSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult sensitivityResult) {
+    private int comparePrioritiesAndSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec
+            cnec, SensitivityResult sensitivityResult) {
         if (!leastPriorityRangeActions.contains(ra1) && leastPriorityRangeActions.contains(ra2)) {
             return -1;
         } else if (leastPriorityRangeActions.contains(ra1) && !leastPriorityRangeActions.contains(ra2)) {
@@ -190,7 +226,8 @@ class RangeActionFilter {
         }
     }
 
-    private int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult sensitivityResult) {
+    private int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult
+            sensitivityResult) {
         Double sensi1 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra1, Unit.MEGAWATT));
         Double sensi2 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra2, Unit.MEGAWATT));
         return sensi1.compareTo(sensi2);

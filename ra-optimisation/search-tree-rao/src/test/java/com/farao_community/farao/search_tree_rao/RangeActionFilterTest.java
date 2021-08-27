@@ -76,6 +76,18 @@ public class RangeActionFilterTest {
         return rangeAction;
     }
 
+    private PstRangeAction addPstRangeActionWithGroupId(String operator, double prePerimeterSetPoint, double optimizedSetPoint, double sensitivity, Optional<String> groupId) {
+        PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
+        Mockito.when(rangeAction.getOperator()).thenReturn(operator);
+        Mockito.when(rangeAction.getGroupId()).thenReturn(groupId);
+        Mockito.when(leaf.getOptimizedSetPoint(rangeAction)).thenReturn(optimizedSetPoint);
+        prePerimeterSetPoints.put(rangeAction, prePerimeterSetPoint);
+        availableRangeActions.add(rangeAction);
+        leafRangeActions.add(rangeAction);
+        Mockito.when(leaf.getSensitivityValue(Mockito.any(), Mockito.eq(rangeAction), Mockito.any())).thenReturn(sensitivity);
+        return rangeAction;
+    }
+
     private NetworkAction addAppliedNetworkAction(String operator) {
         NetworkAction networkAction = Mockito.mock(NetworkAction.class);
         Mockito.when(networkAction.getOperator()).thenReturn(operator);
@@ -230,6 +242,40 @@ public class RangeActionFilterTest {
         assertEquals(2, filteredRangeActions.size());
         assertTrue(filteredRangeActions.contains(pstfr1));
         assertTrue(filteredRangeActions.contains(pstfr3));
+    }
+
+    @Test
+    public void testFilterMaxRasWithAlignedPsts() {
+        // We can only keep 3 psts because one network action was activated
+        // pst1 is kept because it was activated
+        // aligned psts : group1 and group3 are kept
+        // pst9 is kept
+        PstRangeAction pstfr1 = addPstRangeAction("fr", 0, 3, 1);
+        PstRangeAction pstfr2 = addPstRangeActionWithGroupId("fr", 0, 0, 10, Optional.of("group_1"));
+        PstRangeAction pstfr3 = addPstRangeActionWithGroupId("fr", 0, 0, 1,  Optional.of("group_1"));
+        PstRangeAction pstfr4 = addPstRangeActionWithGroupId("fr", 0, 0, 2,  Optional.of("group_1"));
+        PstRangeAction pstfr5 = addPstRangeActionWithGroupId("fr", 0, 0, 6, Optional.of("group_2"));
+        PstRangeAction pstfr6 = addPstRangeActionWithGroupId("fr", 0, 0, 1,  Optional.of("group_2"));
+        PstRangeAction pstfr7 = addPstRangeActionWithGroupId("fr", 0, 0, 9,  Optional.of("group_3"));
+        PstRangeAction pstfr8 = addPstRangeActionWithGroupId("fr", 0, 0, 4,  Optional.of("group_3"));
+        PstRangeAction pstfr9 = addPstRangeAction("fr", 0, 0, 7);
+
+        addAppliedNetworkAction("fr");
+
+        setTreeParameters(8, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
+
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterMaxRas();
+        Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
+
+        assertEquals(7, filteredRangeActions.size());
+        assertTrue(filteredRangeActions.contains(pstfr1));
+        assertTrue(filteredRangeActions.contains(pstfr2));
+        assertTrue(filteredRangeActions.contains(pstfr3));
+        assertTrue(filteredRangeActions.contains(pstfr4));
+        assertTrue(filteredRangeActions.contains(pstfr7));
+        assertTrue(filteredRangeActions.contains(pstfr8));
+        assertTrue(filteredRangeActions.contains(pstfr9));
     }
 
     @Test
