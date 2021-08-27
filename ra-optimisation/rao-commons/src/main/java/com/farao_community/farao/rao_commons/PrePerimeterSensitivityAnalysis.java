@@ -9,12 +9,19 @@ package com.farao_community.farao.rao_commons;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.rao_api.parameters.UnoptimizedCnecParameters;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunctionHelper;
+import com.farao_community.farao.rao_commons.result.EmptyFlowResult;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
+import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -84,10 +91,21 @@ public class PrePerimeterSensitivityAnalysis {
 
     private PrePerimeterResult runAndGetResult(Network network) {
         sensitivityComputer.compute(network);
+        ObjectiveFunction objectiveFunction = getInitialMinMarginObjectiveFunction();
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(sensitivityComputer.getBranchResult(), sensitivityComputer.getSensitivityResult().getSensitivityStatus());
         return new PrePerimeterSensitivityOutput(
                 sensitivityComputer.getBranchResult(),
                 sensitivityComputer.getSensitivityResult(),
-                new RangeActionResultImpl(network, rangeActions)
+                new RangeActionResultImpl(network, rangeActions),
+                objectiveFunctionResult
         );
+    }
+
+    private ObjectiveFunction getInitialMinMarginObjectiveFunction() {
+        ObjectiveFunction.ObjectiveFunctionBuilder builder = ObjectiveFunction.create();
+        UnoptimizedCnecParameters emptyUnoptimizedCnecParameters = new UnoptimizedCnecParameters(new HashSet<>(), 0.0);
+        FlowResult emptyFlowResult = new EmptyFlowResult();
+        ObjectiveFunctionHelper.addMinMarginObjectiveFunction(flowCnecs, emptyFlowResult, builder, raoParameters.getObjectiveFunction().relativePositiveMargins(), emptyUnoptimizedCnecParameters, raoParameters.getObjectiveFunction().getUnit());
+        return builder.build();
     }
 }
