@@ -163,7 +163,7 @@ class RangeActionFilter {
      * @param numberToRemove the number of RangeActions to remove from the set
      */
     private void removeRangeActionsWithBiggestImpact(Set<RangeAction> rangeActions, int numberToRemove) {
-        if (numberToRemove < 0) {
+        if (numberToRemove <= 0) {
             // Nothing to do
         } else if (numberToRemove >= rangeActions.size()) {
             rangeActions.clear();
