@@ -100,22 +100,57 @@ class RangeActionFilter {
         Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
         activatedTsos.addAll(appliedRangeActions.stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
 
-        Set<String> tsosToKeep = new HashSet<>(activatedTsos);
+        Set<String> tsosToKeep = sortTsosToKeepBySensitivityAndGroupId(activatedTsos, maxTso);
 
-        List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToOptimize.stream()
-                .sorted((ra1, ra2) -> -compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
-                .collect(Collectors.toList());
-        for (RangeAction rangeAction : rangeActionsSortedBySensitivity) {
-            if (tsosToKeep.size() >= maxTso) {
-                break;
-            }
-            tsosToKeep.add(rangeAction.getOperator());
-        }
         Set<RangeAction> rangeActionsToRemove = rangeActionsToOptimize.stream().filter(rangeAction -> !tsosToKeep.contains(rangeAction.getOperator())).collect(Collectors.toSet());
         if (!rangeActionsToRemove.isEmpty()) {
             LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
+    }
+
+    Set<String> sortTsosToKeepBySensitivityAndGroupId(Set<String> activatedTsos, int maxTso) {
+        List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToOptimize.stream()
+                .sorted((ra1, ra2) -> -compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                .collect(Collectors.toList());
+
+        Set<String> tsosToKeep = new HashSet<>(activatedTsos);
+
+        // Look for aligned PSTs : PSTs sharing a groupId must be all kept, or all filtered out.
+        List<RangeAction> raHasBeenExplored = new ArrayList<>();
+        for (RangeAction ra : rangeActionsSortedBySensitivity) {
+            // If ra potentially has aligned PSTs
+            if (ra.getGroupId().isPresent()) {
+                // ra has already been explored.
+                if (raHasBeenExplored.contains(ra)) {
+                    continue;
+                }
+                Set<String> tsosToKeepIfAlignedPstAreKept = new HashSet<>(tsosToKeep);
+                tsosToKeepIfAlignedPstAreKept.add(ra.getOperator());
+                List<RangeAction> raWithSameGroupId = Stream.of(ra).collect(Collectors.toList());
+                // check if other range actions in rangeActionsSortedBySensitivity have same groupId.
+                for (RangeAction otherRa : rangeActionsSortedBySensitivity) {
+                    if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent() && otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
+                        raWithSameGroupId.add(otherRa);
+                        tsosToKeepIfAlignedPstAreKept.add(otherRa.getOperator());
+                    }
+                }
+                raHasBeenExplored.addAll(raWithSameGroupId);
+                // remove aligned pst from range actions to optimize
+                if (tsosToKeepIfAlignedPstAreKept.size() > maxTso) {
+                    rangeActionsToOptimize.removeAll(raWithSameGroupId);
+                    LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos on aligned PSTs.", raWithSameGroupId.size());
+                } else {
+                    tsosToKeep = tsosToKeepIfAlignedPstAreKept;
+                }
+            } else {
+                if (tsosToKeep.size() >= maxTso) {
+                    continue;
+                }
+                tsosToKeep.add(ra.getOperator());
+            }
+        }
+        return tsosToKeep;
     }
 
     public void filterMaxRas() {
@@ -128,7 +163,6 @@ class RangeActionFilter {
             LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
-
     }
 
     private Set<RangeAction> computeRangeActionsToExclude(Set<RangeAction> rangeActions, int numberOfRangeActionsToKeep) {
@@ -168,43 +202,47 @@ class RangeActionFilter {
         } else if (numberToRemove >= rangeActions.size()) {
             rangeActions.clear();
         } else {
-            List<RangeAction> rangeActionsSortedBySensitivity = rangeActions.stream()
-                    .sorted((ra1, ra2) -> comparePrioritiesAndSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
-                    .collect(Collectors.toList());
+            removeRangeActionsBySensitivityAndGroupId(rangeActions, numberToRemove);
+        }
+    }
 
-            List<RangeAction> raHasBeenExplored = new ArrayList<RangeAction>();
-            int numberToRemoveLeft = numberToRemove;
-            // Look for aligned PSTs
-            for (RangeAction ra : rangeActionsSortedBySensitivity) {
-                if (numberToRemoveLeft == 0) {
-                    return;
-                }
-                // ra has already been explored.
-                if (raHasBeenExplored.contains(ra)) {
-                    continue;
-                }
-                // If ra potentially has aligned PSTs
-                if (ra.getGroupId().isPresent()) {
-                    int countAlignedPst = 1;
-                    List<RangeAction> raWithSameGroupId = Stream.of(ra).collect(Collectors.toList());
-                    // check if other range actions in rangeActionsSortedBySensitivity have same groupId.
-                    for (RangeAction otherRa : rangeActionsSortedBySensitivity) {
-                        if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent() && otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
-                            raWithSameGroupId.add(otherRa);
-                            countAlignedPst++;
-                        }
+    private void removeRangeActionsBySensitivityAndGroupId(Set<RangeAction> rangeActions, int numberToRemove) {
+        List<RangeAction> rangeActionsSortedBySensitivity = rangeActions.stream()
+                .sorted((ra1, ra2) -> comparePrioritiesAndSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                .collect(Collectors.toList());
+
+        List<RangeAction> raHasBeenExplored = new ArrayList<>();
+        int numberToRemoveLeft = numberToRemove;
+        // Look for aligned PSTs
+        for (RangeAction ra : rangeActionsSortedBySensitivity) {
+            if (numberToRemoveLeft == 0) {
+                return;
+            }
+            // ra has already been explored.
+            if (raHasBeenExplored.contains(ra)) {
+                continue;
+            }
+            // If ra potentially has aligned PSTs
+            if (ra.getGroupId().isPresent()) {
+                int countAlignedPst = 1;
+                List<RangeAction> raWithSameGroupId = Stream.of(ra).collect(Collectors.toList());
+                // check if other range actions in rangeActionsSortedBySensitivity have same groupId.
+                for (RangeAction otherRa : rangeActionsSortedBySensitivity) {
+                    if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent() && otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
+                        raWithSameGroupId.add(otherRa);
+                        countAlignedPst++;
                     }
-                    raHasBeenExplored.addAll(raWithSameGroupId);
-                    // Remove all ra with same groupId, or none
-                    if (countAlignedPst <= numberToRemoveLeft) {
-                        rangeActions.removeAll(raWithSameGroupId);
-                        numberToRemoveLeft -= countAlignedPst;
-                    }
-                } else {
-                    rangeActions.removeAll(Stream.of(ra).collect(Collectors.toList()));
-                    raHasBeenExplored.add(ra);
-                    numberToRemoveLeft -= 1;
                 }
+                raHasBeenExplored.addAll(raWithSameGroupId);
+                // Remove all ra with same groupId, or none
+                if (countAlignedPst <= numberToRemoveLeft) {
+                    rangeActions.removeAll(raWithSameGroupId);
+                    numberToRemoveLeft -= countAlignedPst;
+                }
+            } else {
+                rangeActions.removeAll(Stream.of(ra).collect(Collectors.toList()));
+                raHasBeenExplored.add(ra);
+                numberToRemoveLeft -= 1;
             }
         }
     }
