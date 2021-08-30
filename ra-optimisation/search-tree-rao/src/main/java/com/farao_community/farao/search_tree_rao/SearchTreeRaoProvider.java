@@ -341,7 +341,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
                             SearchTreeInput searchTreeInput = buildSearchTreeInput(
                                     raoInput.getCrac(),
-                                    raoInput.getNetwork(),
+                                    networkClone,
                                     optimizedState,
                                     stateTree.getPerimeter(optimizedState),
                                     initialSensitivityOutput,
@@ -359,7 +359,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                             networkPool.releaseUsedNetwork(networkClone);
                             LOGGER.info("Curative state {} has been optimized.", optimizedState.getId());
                         } catch (InterruptedException | NotImplementedException | FaraoException | NullPointerException e) {
-                            LOGGER.error("Curative state {} could not be optimized.", optimizedState.getId());
+                            LOGGER.error("Curative state {} could not be optimized.", optimizedState.getId(), e);
                             Thread.currentThread().interrupt();
                         }
                     });
