@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -229,7 +228,6 @@ class RangeActionFilter {
                             Optional<String> groupId = rangeAction.getGroupId();
                             return groupId.isPresent() && groupId.get().equals(raGroupId.get());
                         }).collect(Collectors.toSet());
-
 
                 groupIdHasBeenExplored.add(raGroupId.get());
                 // Remove all ra with same groupId, or none
