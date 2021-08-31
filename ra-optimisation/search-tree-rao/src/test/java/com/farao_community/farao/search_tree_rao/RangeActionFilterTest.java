@@ -123,10 +123,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(3, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstfr3));
+        assertEquals(Set.of(pstfr1, pstfr2, pstfr3), filteredRangeActions);
     }
 
     @Test
@@ -141,10 +138,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(3, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstfr3));
+        assertEquals(Set.of(pstfr1, pstfr2, pstfr3), filteredRangeActions);
     }
 
     @Test
@@ -162,9 +156,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(2, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstfr4));
+        assertEquals(Set.of(pstfr2, pstfr4), filteredRangeActions);
     }
 
     @Test
@@ -186,9 +178,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(2, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstfr4));
+        assertEquals(Set.of(pstfr2, pstfr4), filteredRangeActions);
     }
 
     @Test
@@ -213,13 +203,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterTsos();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(6, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstbe1));
-        assertTrue(filteredRangeActions.contains(pstbe2));
-        assertTrue(filteredRangeActions.contains(pstde1));
-        assertTrue(filteredRangeActions.contains(pstde2));
+        assertEquals(Set.of(pstfr1, pstfr2, pstbe1, pstbe2, pstde1, pstde2), filteredRangeActions);
     }
 
     @Test
@@ -244,13 +228,23 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterTsos();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(6, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstbe1));
-        assertTrue(filteredRangeActions.contains(pstbe2));
-        assertTrue(filteredRangeActions.contains(pstde1));
-        assertTrue(filteredRangeActions.contains(pstde2));
+        assertEquals(Set.of(pstfr1, pstfr2, pstbe1, pstbe2, pstde1, pstde2), filteredRangeActions);
+    }
+
+    @Test
+    public void testFilterTsosWithAlignedPsts2() {
+        // fr and be psts should be kept because they have same groupId, and pst fr has highest sensitivity
+        PstRangeAction pstfr = addPstRangeActionWithGroupId("fr", 0, 0, 3, Optional.of("group_1"));
+        PstRangeAction pstbe = addPstRangeActionWithGroupId("be", 0, 0, 1, Optional.of("group_1"));
+        PstRangeAction pstnl = addPstRangeAction("nl", 0, 0, 2);
+
+        setTreeParameters(Integer.MAX_VALUE, 2, new HashMap<>(), new HashMap<>());
+
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterTsos();
+        Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
+
+        assertEquals(Set.of(pstbe, pstfr), filteredRangeActions);
     }
 
     @Test
@@ -270,9 +264,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterMaxRas();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(2, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr3));
+        assertEquals(Set.of(pstfr1, pstfr3), filteredRangeActions);
     }
 
     @Test
@@ -299,14 +291,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterMaxRas();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(7, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstfr3));
-        assertTrue(filteredRangeActions.contains(pstfr4));
-        assertTrue(filteredRangeActions.contains(pstfr7));
-        assertTrue(filteredRangeActions.contains(pstfr8));
-        assertTrue(filteredRangeActions.contains(pstfr9));
+        assertEquals(Set.of(pstfr1, pstfr2, pstfr3, pstfr4, pstfr7, pstfr8, pstfr9), filteredRangeActions);
     }
 
     @Test
