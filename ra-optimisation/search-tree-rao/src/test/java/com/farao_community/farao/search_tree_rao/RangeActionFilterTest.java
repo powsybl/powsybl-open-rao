@@ -223,6 +223,37 @@ public class RangeActionFilterTest {
     }
 
     @Test
+    public void testFilterTsosWithAlignedPsts() {
+        // fr psts are kept because one pst is activated
+        // be psts are kept because one network action is activated
+        // de psts are kept because between de and nl, de has the highest sensitivity pst
+        PstRangeAction pstfr1 = addPstRangeActionWithGroupId("fr", 0, 3, 1, Optional.of("group_1"));
+        PstRangeAction pstfr2 = addPstRangeAction("fr", 0, 0, 2);
+        PstRangeAction pstbe1 = addPstRangeAction("be", 0, 0, 3);
+        PstRangeAction pstbe2 = addPstRangeActionWithGroupId("be", 0, 0, 4, Optional.of("group_1"));
+        PstRangeAction pstnl1 = addPstRangeAction("nl", 0, 0, 5);
+        PstRangeAction pstnl2 = addPstRangeAction("nl", 0, 0, 6);
+        PstRangeAction pstde1 = addPstRangeAction("de", 0, 0, 0);
+        PstRangeAction pstde2 = addPstRangeAction("de", 0, 0, 7);
+
+        addAppliedNetworkAction("be");
+
+        setTreeParameters(Integer.MAX_VALUE, 3, new HashMap<>(), new HashMap<>());
+
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterTsos();
+        Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
+
+        assertEquals(6, filteredRangeActions.size());
+        assertTrue(filteredRangeActions.contains(pstfr1));
+        assertTrue(filteredRangeActions.contains(pstfr2));
+        assertTrue(filteredRangeActions.contains(pstbe1));
+        assertTrue(filteredRangeActions.contains(pstbe2));
+        assertTrue(filteredRangeActions.contains(pstde1));
+        assertTrue(filteredRangeActions.contains(pstde2));
+    }
+
+    @Test
     public void testFilterMaxRas() {
         // We can only keep 2 psts because one network action was activated
         // pst1 is kept because it was activated
