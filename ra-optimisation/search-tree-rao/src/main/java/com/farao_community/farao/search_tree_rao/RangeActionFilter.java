@@ -121,6 +121,7 @@ class RangeActionFilter {
         for (RangeAction ra : rangeActionsSortedBySensitivity) {
             // If ra potentially has aligned PSTs
             if (ra.getGroupId().isPresent()) {
+                String raGroupId = ra.getGroupId().get();
                 // ra has already been explored.
                 if (raHasBeenExplored.contains(ra)) {
                     continue;
@@ -131,7 +132,8 @@ class RangeActionFilter {
                 // check if other range actions in rangeActionsSortedBySensitivity have same groupId.
                 for (RangeAction otherRa : rangeActionsSortedBySensitivity) {
                     if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent()) {
-                        if (otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
+                        String otherRaGroupId = otherRa.getGroupId().get();
+                        if (otherRaGroupId.equals(raGroupId)) {
                             raWithSameGroupId.add(otherRa);
                             tsosToKeepIfAlignedPstAreKept.add(otherRa.getOperator());
                         }
@@ -226,12 +228,14 @@ class RangeActionFilter {
             }
             // If ra potentially has aligned PSTs
             if (ra.getGroupId().isPresent()) {
+                String raGroupId = ra.getGroupId().get();
                 int countAlignedPst = 1;
                 List<RangeAction> raWithSameGroupId = Stream.of(ra).collect(Collectors.toList());
                 // check if other range actions in rangeActionsSortedBySensitivity have same groupId.
                 for (RangeAction otherRa : rangeActionsSortedBySensitivity) {
                     if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent()) {
-                        if (otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
+                        String otherRaGroupId = otherRa.getGroupId().get();
+                        if (otherRaGroupId.equals(raGroupId)) {
                             raWithSameGroupId.add(otherRa);
                             countAlignedPst++;
                         }
