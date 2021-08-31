@@ -79,14 +79,15 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         for (String glsk : linearGlsk.getGLSKs().keySet()) {
             Generator generator = network.getGenerator(glsk);
             if (generator != null) {
-                if (generator.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
+                // If bus is disconnected, then powsybl returns a null bus
+                if (generator.getTerminal().getBusView().getBus() != null && generator.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
                     atLeastOneGlskConnected = true;
                 }
             } else {
                 Load load = network.getLoad(glsk);
                 if (load == null) {
                     throw new FaraoException(String.format("%s is neither a generator nor a load in the network. It is not a valid GLSK.", glsk));
-                } else if (load.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
+                } else if (load.getTerminal().getBusView().getBus() != null && load.getTerminal().getBusView().getBus().isInMainConnectedComponent()) {
                     atLeastOneGlskConnected = true;
                 }
             }
