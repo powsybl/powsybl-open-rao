@@ -130,9 +130,11 @@ class RangeActionFilter {
                 List<RangeAction> raWithSameGroupId = Stream.of(ra).collect(Collectors.toList());
                 // check if other range actions in rangeActionsSortedBySensitivity have same groupId.
                 for (RangeAction otherRa : rangeActionsSortedBySensitivity) {
-                    if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent() && otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
-                        raWithSameGroupId.add(otherRa);
-                        tsosToKeepIfAlignedPstAreKept.add(otherRa.getOperator());
+                    if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent()) {
+                        if (otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
+                            raWithSameGroupId.add(otherRa);
+                            tsosToKeepIfAlignedPstAreKept.add(otherRa.getOperator());
+                        }
                     }
                 }
                 raHasBeenExplored.addAll(raWithSameGroupId);
@@ -228,9 +230,11 @@ class RangeActionFilter {
                 List<RangeAction> raWithSameGroupId = Stream.of(ra).collect(Collectors.toList());
                 // check if other range actions in rangeActionsSortedBySensitivity have same groupId.
                 for (RangeAction otherRa : rangeActionsSortedBySensitivity) {
-                    if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent() && otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
-                        raWithSameGroupId.add(otherRa);
-                        countAlignedPst++;
+                    if (!raWithSameGroupId.contains(otherRa) && otherRa.getGroupId().isPresent()) {
+                        if (otherRa.getGroupId().get().equals(ra.getGroupId().get())) {
+                            raWithSameGroupId.add(otherRa);
+                            countAlignedPst++;
+                        }
                     }
                 }
                 raHasBeenExplored.addAll(raWithSameGroupId);
