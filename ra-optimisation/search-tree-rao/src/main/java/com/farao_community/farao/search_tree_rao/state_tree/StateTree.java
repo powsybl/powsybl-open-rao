@@ -117,8 +117,8 @@ public class StateTree {
 
     static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {
         return optimizedCurativeStates.stream().anyMatch(state ->
-            (crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
-                crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)))
+           crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
+                crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso))
         );
     }
 }
