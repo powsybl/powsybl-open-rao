@@ -26,6 +26,7 @@ import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.output.PerimeterResult;
+import com.farao_community.farao.search_tree_rao.state_tree.StateTree;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;

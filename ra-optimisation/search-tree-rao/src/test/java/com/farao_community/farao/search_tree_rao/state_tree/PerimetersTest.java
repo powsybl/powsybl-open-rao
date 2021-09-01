@@ -5,19 +5,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao;
+package com.farao_community.farao.search_tree_rao.state_tree;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.CracImpl;
+import com.farao_community.farao.search_tree_rao.state_tree.StateTree;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -92,9 +94,13 @@ public class PerimetersTest {
 
     @Test
     public void testCreatePerimetersWithNoRemedialActions() {
-        stateTree = new StateTree(crac, crac.getPreventiveState());
-        assertEquals(1, stateTree.getOptimizedStates().size());
-        assertEquals(7, stateTree.getPerimeter(crac.getPreventiveState()).size());
+        stateTree = new StateTree(crac);
+        assertTrue(stateTree.getContingencyScenarios().isEmpty());
+        BasecaseScenario basecaseScenario = stateTree.getBasecaseScenario();
+        assertNotNull(basecaseScenario);
+        assertEquals(crac.getPreventiveState(), basecaseScenario.getBasecaseState());
+        assertEquals(6, basecaseScenario.getOtherStates().size());
+        assertEquals(7, basecaseScenario.getAllStates().size());
     }
 
     @Test
@@ -106,10 +112,14 @@ public class PerimetersTest {
                 .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-1").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
-        stateTree = new StateTree(crac, crac.getPreventiveState());
-        assertEquals(2, stateTree.getOptimizedStates().size());
-        assertEquals(6, stateTree.getPerimeter(crac.getPreventiveState()).size());
-        assertEquals(1, stateTree.getPerimeter(crac.getState("contingency-1", Instant.CURATIVE)).size());
+        stateTree = new StateTree(crac);
+        assertEquals(6, stateTree.getBasecaseScenario().getAllStates().size());
+        assertEquals(1, stateTree.getContingencyScenarios().size());
+
+        ContingencyScenario contingencyScenario = stateTree.getContingencyScenarios().iterator().next();
+        assertEquals(crac.getContingency("contingency-1"), contingencyScenario.getContingency());
+        assertTrue(contingencyScenario.getAutomatonState().isEmpty());
+        assertEquals(crac.getState("contingency-1", Instant.CURATIVE), contingencyScenario.getCurativeState());
     }
 
     @Test
@@ -128,9 +138,9 @@ public class PerimetersTest {
                 .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
-        stateTree = new StateTree(crac, crac.getPreventiveState());
-        assertEquals(3, stateTree.getOptimizedStates().size());
-        assertEquals(5, stateTree.getPerimeter(crac.getPreventiveState()).size());
+        stateTree = new StateTree(crac);
+        assertEquals(5, stateTree.getBasecaseScenario().getAllStates().size());
+        assertEquals(2, stateTree.getContingencyScenarios().size());
     }
 
     @Test
@@ -149,8 +159,8 @@ public class PerimetersTest {
                 .withTapToAngleConversionMap(Map.of(1, 1., 2, 2.))
                 .newOnStateUsageRule().withContingency("contingency-2").withInstant(Instant.CURATIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
-        stateTree = new StateTree(crac, crac.getPreventiveState());
-        assertEquals(2, stateTree.getOptimizedStates().size());
-        assertEquals(6, stateTree.getPerimeter(crac.getPreventiveState()).size());
+        stateTree = new StateTree(crac);
+        assertEquals(6, stateTree.getBasecaseScenario().getAllStates().size());
+        assertEquals(1, stateTree.getContingencyScenarios().size());
     }
 }
