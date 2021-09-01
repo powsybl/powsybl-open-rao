@@ -76,6 +76,18 @@ public class RangeActionFilterTest {
         return rangeAction;
     }
 
+    private PstRangeAction addPstRangeActionWithGroupId(String operator, double prePerimeterSetPoint, double optimizedSetPoint, double sensitivity, Optional<String> groupId) {
+        PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
+        Mockito.when(rangeAction.getOperator()).thenReturn(operator);
+        Mockito.when(rangeAction.getGroupId()).thenReturn(groupId);
+        Mockito.when(leaf.getOptimizedSetPoint(rangeAction)).thenReturn(optimizedSetPoint);
+        prePerimeterSetPoints.put(rangeAction, prePerimeterSetPoint);
+        availableRangeActions.add(rangeAction);
+        leafRangeActions.add(rangeAction);
+        Mockito.when(leaf.getSensitivityValue(Mockito.any(), Mockito.eq(rangeAction), Mockito.any())).thenReturn(sensitivity);
+        return rangeAction;
+    }
+
     private NetworkAction addAppliedNetworkAction(String operator) {
         NetworkAction networkAction = Mockito.mock(NetworkAction.class);
         Mockito.when(networkAction.getOperator()).thenReturn(operator);
@@ -111,10 +123,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(3, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstfr3));
+        assertEquals(Set.of(pstfr1, pstfr2, pstfr3), filteredRangeActions);
     }
 
     @Test
@@ -129,10 +138,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(3, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstfr3));
+        assertEquals(Set.of(pstfr1, pstfr2, pstfr3), filteredRangeActions);
     }
 
     @Test
@@ -150,9 +156,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(2, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstfr4));
+        assertEquals(Set.of(pstfr2, pstfr4), filteredRangeActions);
     }
 
     @Test
@@ -174,9 +178,7 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterPstPerTso();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(2, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstfr4));
+        assertEquals(Set.of(pstfr2, pstfr4), filteredRangeActions);
     }
 
     @Test
@@ -201,13 +203,48 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterTsos();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(6, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr2));
-        assertTrue(filteredRangeActions.contains(pstbe1));
-        assertTrue(filteredRangeActions.contains(pstbe2));
-        assertTrue(filteredRangeActions.contains(pstde1));
-        assertTrue(filteredRangeActions.contains(pstde2));
+        assertEquals(Set.of(pstfr1, pstfr2, pstbe1, pstbe2, pstde1, pstde2), filteredRangeActions);
+    }
+
+    @Test
+    public void testFilterTsosWithAlignedPsts() {
+        // fr psts are kept because one pst is activated
+        // be psts are kept because one network action is activated
+        // de psts are kept because between de and nl, de has the highest sensitivity pst
+        PstRangeAction pstfr1 = addPstRangeActionWithGroupId("fr", 0, 3, 1, Optional.of("group_1"));
+        PstRangeAction pstfr2 = addPstRangeAction("fr", 0, 0, 2);
+        PstRangeAction pstbe1 = addPstRangeAction("be", 0, 0, 3);
+        PstRangeAction pstbe2 = addPstRangeActionWithGroupId("be", 0, 0, 4, Optional.of("group_1"));
+        PstRangeAction pstnl1 = addPstRangeAction("nl", 0, 0, 5);
+        PstRangeAction pstnl2 = addPstRangeAction("nl", 0, 0, 6);
+        PstRangeAction pstde1 = addPstRangeAction("de", 0, 0, 0);
+        PstRangeAction pstde2 = addPstRangeAction("de", 0, 0, 7);
+
+        addAppliedNetworkAction("be");
+
+        setTreeParameters(Integer.MAX_VALUE, 3, new HashMap<>(), new HashMap<>());
+
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterTsos();
+        Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
+
+        assertEquals(Set.of(pstfr1, pstfr2, pstbe1, pstbe2, pstde1, pstde2), filteredRangeActions);
+    }
+
+    @Test
+    public void testFilterTsosWithAlignedPsts2() {
+        // fr and be psts should be kept because they have same groupId, and pst fr has highest sensitivity
+        PstRangeAction pstfr = addPstRangeActionWithGroupId("fr", 0, 0, 3, Optional.of("group_1"));
+        PstRangeAction pstbe = addPstRangeActionWithGroupId("be", 0, 0, 1, Optional.of("group_1"));
+        PstRangeAction pstnl = addPstRangeAction("nl", 0, 0, 2);
+
+        setTreeParameters(Integer.MAX_VALUE, 2, new HashMap<>(), new HashMap<>());
+
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterTsos();
+        Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
+
+        assertEquals(Set.of(pstbe, pstfr), filteredRangeActions);
     }
 
     @Test
@@ -227,9 +264,34 @@ public class RangeActionFilterTest {
         rangeActionFilter.filterMaxRas();
         Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
 
-        assertEquals(2, filteredRangeActions.size());
-        assertTrue(filteredRangeActions.contains(pstfr1));
-        assertTrue(filteredRangeActions.contains(pstfr3));
+        assertEquals(Set.of(pstfr1, pstfr3), filteredRangeActions);
+    }
+
+    @Test
+    public void testFilterMaxRasWithAlignedPsts() {
+        // We can only keep 3 psts because one network action was activated
+        // pst1 is kept because it was activated
+        // aligned psts : group1 and group3 are kept
+        // pst9 is kept
+        PstRangeAction pstfr1 = addPstRangeAction("fr", 0, 3, 1);
+        PstRangeAction pstfr2 = addPstRangeActionWithGroupId("fr", 0, 0, 10, Optional.of("group_1"));
+        PstRangeAction pstfr3 = addPstRangeActionWithGroupId("fr", 0, 0, 1,  Optional.of("group_1"));
+        PstRangeAction pstfr4 = addPstRangeActionWithGroupId("fr", 0, 0, 2,  Optional.of("group_1"));
+        PstRangeAction pstfr5 = addPstRangeActionWithGroupId("fr", 0, 0, 6, Optional.of("group_2"));
+        PstRangeAction pstfr6 = addPstRangeActionWithGroupId("fr", 0, 0, 1,  Optional.of("group_2"));
+        PstRangeAction pstfr7 = addPstRangeActionWithGroupId("fr", 0, 0, 9,  Optional.of("group_3"));
+        PstRangeAction pstfr8 = addPstRangeActionWithGroupId("fr", 0, 0, 4,  Optional.of("group_3"));
+        PstRangeAction pstfr9 = addPstRangeAction("fr", 0, 0, 7);
+
+        addAppliedNetworkAction("fr");
+
+        setTreeParameters(8, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
+
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterMaxRas();
+        Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
+
+        assertEquals(Set.of(pstfr1, pstfr2, pstfr3, pstfr4, pstfr7, pstfr8, pstfr9), filteredRangeActions);
     }
 
     @Test
