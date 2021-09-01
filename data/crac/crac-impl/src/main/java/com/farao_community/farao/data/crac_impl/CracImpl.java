@@ -441,8 +441,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         Set<RangeAction> hvdcRangeActionsSet = hvdcRangeActions.values().stream()
                 .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
                 .collect(Collectors.toSet());
-        Set<RangeAction> rangeActionsSet = new HashSet<>(pstRangeActions.values());
-        rangeActionsSet.addAll(hvdcRangeActions.values());
+        Set<RangeAction> rangeActionsSet = new HashSet<>(pstRangeActionsSet);
+        rangeActionsSet.addAll(hvdcRangeActionsSet);
         return rangeActionsSet;
     }
 
