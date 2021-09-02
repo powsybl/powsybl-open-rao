@@ -43,27 +43,34 @@ public class HvdcRangeActionImpl extends AbstractRangeAction implements HvdcRang
 
     @Override
     public Set<NetworkElement> getNetworkElements() {
-        return Collections.singleton(networkElement); }
+        return Collections.singleton(networkElement);
+    }
 
-    /**
-     * Min angle value allowed by all ranges and the physical limitations of the PST itself
-     */
     @Override
     public double getMinAdmissibleSetpoint(double previousInstantSetPoint) {
+        if (ranges.size() == 0) {
+            return Double.MIN_VALUE;
+        }
         return ranges.stream().mapToDouble(HvdcRange::getMin).max().orElseThrow();
     }
 
-    /**
-     * Max angle value allowed by all ranges and the physical limitations of the PST itself
-     */
     @Override
     public double getMaxAdmissibleSetpoint(double previousInstantSetPoint) {
+        if (ranges.size() == 0) {
+            return Double.MAX_VALUE;
+        }
         return ranges.stream().mapToDouble(HvdcRange::getMax).min().orElseThrow();
     }
 
     @Override
     public void apply(Network network, double targetSetpoint) {
-        getHvdcLine(network).setActivePowerSetpoint(targetSetpoint);
+        if (targetSetpoint > 0) {
+            getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+
+        } else {
+            getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        }
+        getHvdcLine(network).setActivePowerSetpoint(Math.abs(targetSetpoint));
     }
 
     private HvdcLine getHvdcLine(Network network) {
