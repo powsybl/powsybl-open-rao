@@ -16,17 +16,17 @@ import java.io.IOException;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracCreatorParametersSerializer extends StdSerializer<CracCreatorParameters> {
+public class CracCreationParametersSerializer extends StdSerializer<CracCreationParameters> {
 
-    CracCreatorParametersSerializer() {
-        super(CracCreatorParameters.class);
+    CracCreationParametersSerializer() {
+        super(CracCreationParameters.class);
     }
 
     @Override
-    public void serialize(CracCreatorParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(CracCreationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("crac-factory", parameters.getCracFactoryName());
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonCracCreatorParameters.getExtensionSerializers());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonCracCreationParameters.getExtensionSerializers());
         jsonGenerator.writeEndObject();
     }
 }

@@ -11,10 +11,10 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracCreatorParametersJsonModule extends SimpleModule {
+public class CracCreationParametersJsonModule extends SimpleModule {
 
-    public CracCreatorParametersJsonModule() {
-        addDeserializer(CracCreatorParameters.class, new CracCreatorParametersDeserializer());
-        addSerializer(CracCreatorParameters.class, new CracCreatorParametersSerializer());
+    public CracCreationParametersJsonModule() {
+        addDeserializer(CracCreationParameters.class, new CracCreationParametersDeserializer());
+        addSerializer(CracCreationParameters.class, new CracCreationParametersSerializer());
     }
 }

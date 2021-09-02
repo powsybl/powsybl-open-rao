@@ -18,19 +18,19 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracCreatorParametersJsonTest {
+public class CracCreationParametersJsonTest {
 
     @Test
     public void testRoundTripJson() {
         // prepare parameters to export
-        CracCreatorParameters exportedParameters = new CracCreatorParameters();
+        CracCreationParameters exportedParameters = new CracCreationParameters();
         exportedParameters.setCracFactoryName("coucouFactory");
 
         // roundTrip
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        JsonCracCreatorParameters.write(exportedParameters, os);
+        JsonCracCreationParameters.write(exportedParameters, os);
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-        CracCreatorParameters importedParameters = JsonCracCreatorParameters.read(is);
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(is);
 
         // test re-imported parameters
         assertEquals("coucouFactory", importedParameters.getCracFactoryName());
@@ -38,13 +38,13 @@ public class CracCreatorParametersJsonTest {
 
     @Test
     public void importOkTest() {
-        CracCreatorParameters importedParameters = JsonCracCreatorParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-ok.json"));
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-ok.json"));
         assertNotNull(importedParameters);
         assertEquals("anotherCracFactory", importedParameters.getCracFactoryName());
     }
 
     @Test (expected = FaraoException.class)
     public void importNokTest() {
-        JsonCracCreatorParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json"));
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json"));
     }
 }

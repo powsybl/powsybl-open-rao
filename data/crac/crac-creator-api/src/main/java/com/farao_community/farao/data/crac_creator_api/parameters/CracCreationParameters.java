@@ -22,12 +22,12 @@ import java.util.function.Supplier;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracCreatorParameters extends AbstractExtendable<CracCreatorParameters> {
+public class CracCreationParameters extends AbstractExtendable<CracCreationParameters> {
 
     static final String MODULE_NAME = "crac-creation-parameters";
     private static final String DEFAULT_CRAC_FACTORY_NAME = CracFactory.findDefault().getName();
 
-    public static interface ConfigLoader<E extends Extension<CracCreatorParameters>> extends ExtensionConfigLoader<CracCreatorParameters, E> { }
+    public static interface ConfigLoader<E extends Extension<CracCreationParameters>> extends ExtensionConfigLoader<CracCreationParameters, E> { }
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> PARAMETERS_EXTENSIONS_SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, MODULE_NAME));
@@ -46,13 +46,13 @@ public class CracCreatorParameters extends AbstractExtendable<CracCreatorParamet
         return CracFactory.find(cracFactoryName);
     }
 
-    public static CracCreatorParameters load() {
+    public static CracCreationParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
 
-    public static CracCreatorParameters load(PlatformConfig platformConfig) {
+    public static CracCreationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        CracCreatorParameters parameters = new CracCreatorParameters();
+        CracCreationParameters parameters = new CracCreationParameters();
 
         platformConfig.getOptionalModuleConfig(MODULE_NAME)
                 .ifPresent(config -> {

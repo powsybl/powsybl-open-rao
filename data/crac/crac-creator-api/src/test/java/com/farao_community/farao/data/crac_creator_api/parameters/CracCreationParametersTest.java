@@ -20,18 +20,18 @@ import static org.mockito.ArgumentMatchers.*;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracCreatorParametersTest {
+public class CracCreationParametersTest {
 
     @Test
     public void defaultParametersTest() {
-        CracCreatorParameters parameters = new CracCreatorParameters();
+        CracCreationParameters parameters = new CracCreationParameters();
         assertEquals(CracFactory.findDefault().getName(), parameters.getCracFactoryName());
         assertEquals(CracFactory.findDefault().getName(), parameters.getCracFactory().getName());
     }
 
     @Test
     public void factoryTest() {
-        CracCreatorParameters parameters = new CracCreatorParameters();
+        CracCreationParameters parameters = new CracCreationParameters();
         parameters.setCracFactoryName("anotherCracFactory");
         assertEquals("anotherCracFactory", parameters.getCracFactoryName());
     }
@@ -44,7 +44,7 @@ public class CracCreatorParametersTest {
         Mockito.when(cracCreatorModuleConfig.getStringProperty(eq("crac-factory"), any())).thenReturn("coucouCracFactory");
         Mockito.when(platformConfig.getOptionalModuleConfig("crac-creation-parameters")).thenReturn(Optional.of(cracCreatorModuleConfig));
 
-        CracCreatorParameters parameters = CracCreatorParameters.load(platformConfig);
+        CracCreationParameters parameters = CracCreationParameters.load(platformConfig);
 
         assertEquals("coucouCracFactory", parameters.getCracFactoryName());
     }

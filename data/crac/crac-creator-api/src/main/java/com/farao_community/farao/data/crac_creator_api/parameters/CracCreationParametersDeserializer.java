@@ -21,21 +21,21 @@ import java.util.List;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CracCreatorParametersDeserializer extends StdDeserializer<CracCreatorParameters> {
+public class CracCreationParametersDeserializer extends StdDeserializer<CracCreationParameters> {
 
-    CracCreatorParametersDeserializer() {
-        super(CracCreatorParameters.class);
+    CracCreationParametersDeserializer() {
+        super(CracCreationParameters.class);
     }
 
     @Override
-    public CracCreatorParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        return deserialize(parser, deserializationContext, new CracCreatorParameters());
+    public CracCreationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        return deserialize(parser, deserializationContext, new CracCreationParameters());
     }
 
     @Override
-    public CracCreatorParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, CracCreatorParameters parameters) throws IOException {
+    public CracCreationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, CracCreationParameters parameters) throws IOException {
 
-        List<Extension<CracCreatorParameters>> extensions = Collections.emptyList();
+        List<Extension<CracCreationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "crac-factory":
@@ -44,9 +44,9 @@ public class CracCreatorParametersDeserializer extends StdDeserializer<CracCreat
                 case "extensions":
                     parser.nextToken();
                     if (parameters.getExtensions().isEmpty()) {
-                        extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonCracCreatorParameters.getExtensionSerializers());
+                        extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonCracCreationParameters.getExtensionSerializers());
                     } else {
-                        JsonUtil.updateExtensions(parser, deserializationContext, JsonCracCreatorParameters.getExtensionSerializers(), parameters);
+                        JsonUtil.updateExtensions(parser, deserializationContext, JsonCracCreationParameters.getExtensionSerializers(), parameters);
                     }
                     break;
                 default:
@@ -54,7 +54,7 @@ public class CracCreatorParametersDeserializer extends StdDeserializer<CracCreat
             }
         }
 
-        JsonCracCreatorParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        JsonCracCreationParameters.getExtensionSerializers().addExtensions(parameters, extensions);
         return parameters;
     }
 

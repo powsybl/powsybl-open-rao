@@ -24,16 +24,16 @@ import java.util.function.Supplier;
 import java.util.Objects;
 
 
-import static com.farao_community.farao.data.crac_creator_api.parameters.CracCreatorParameters.MODULE_NAME;
+import static com.farao_community.farao.data.crac_creator_api.parameters.CracCreationParameters.MODULE_NAME;
 
 /**
  * Provides methods to read and write CracCreatorParameters from and to JSON.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class JsonCracCreatorParameters {
+public final class JsonCracCreationParameters {
 
-    public interface ExtensionSerializer<E extends Extension<CracCreatorParameters>> extends ExtensionJsonSerializer<CracCreatorParameters, E> {
+    public interface ExtensionSerializer<E extends Extension<CracCreationParameters>> extends ExtensionJsonSerializer<CracCreationParameters, E> {
     }
 
     private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
@@ -43,18 +43,18 @@ public final class JsonCracCreatorParameters {
         return SUPPLIER.get();
     }
 
-    private JsonCracCreatorParameters() {
+    private JsonCracCreationParameters() {
     }
 
-    public static CracCreatorParameters read(Path jsonFile) {
-        return update(new CracCreatorParameters(), jsonFile);
+    public static CracCreationParameters read(Path jsonFile) {
+        return update(new CracCreationParameters(), jsonFile);
     }
 
-    public static CracCreatorParameters read(InputStream jsonStream) {
-        return update(new CracCreatorParameters(), jsonStream);
+    public static CracCreationParameters read(InputStream jsonStream) {
+        return update(new CracCreationParameters(), jsonStream);
     }
 
-    public static CracCreatorParameters update(CracCreatorParameters parameters, Path jsonFile) {
+    public static CracCreationParameters update(CracCreationParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -64,7 +64,7 @@ public final class JsonCracCreatorParameters {
         }
     }
 
-    public static CracCreatorParameters update(CracCreatorParameters parameters, InputStream jsonStream) {
+    public static CracCreationParameters update(CracCreationParameters parameters, InputStream jsonStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
@@ -73,7 +73,7 @@ public final class JsonCracCreatorParameters {
         }
     }
 
-    public static void write(CracCreatorParameters parameters, Path jsonFile) {
+    public static void write(CracCreationParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
@@ -83,7 +83,7 @@ public final class JsonCracCreatorParameters {
         }
     }
 
-    public static void write(CracCreatorParameters parameters, OutputStream outputStream) {
+    public static void write(CracCreationParameters parameters, OutputStream outputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
@@ -95,6 +95,6 @@ public final class JsonCracCreatorParameters {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new CracCreatorParametersJsonModule());
+                .registerModule(new CracCreationParametersJsonModule());
     }
 }
