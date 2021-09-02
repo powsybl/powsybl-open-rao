@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -39,6 +40,14 @@ public class CracCreatorParametersDeserializer extends StdDeserializer<CracCreat
             switch (parser.getCurrentName()) {
                 case "crac-factory":
                     parameters.setCracFactoryName(parser.nextTextValue());
+                    break;
+                case "extensions":
+                    parser.nextToken();
+                    if (parameters.getExtensions().isEmpty()) {
+                        extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonCracCreatorParameters.getExtensionSerializers());
+                    } else {
+                        JsonUtil.updateExtensions(parser, deserializationContext, JsonCracCreatorParameters.getExtensionSerializers(), parameters);
+                    }
                     break;
                 default:
                     throw new FaraoException("Unexpected field: " + parser.getCurrentName());
