@@ -372,13 +372,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         if (!Objects.isNull(remedialAction)) {
             return remedialAction;
         } else {
-            return getPstRangeAction(remedialActionId);
+            return getRangeAction(remedialActionId);
         }
     }
 
     @Override
     public void removeRemedialAction(String remedialActionId) {
-        removePstRangeAction(remedialActionId);
+        removeRangeAction(remedialActionId);
         removeNetworkAction(remedialActionId);
     }
 
@@ -453,6 +453,15 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             return hvdcRangeActions.get(id);
         } else {
             return pstRangeActions.get(id);
+        }
+    }
+
+    public void removeRangeAction(String id) {
+        // the only implementations of RangeAction are PstRangeAction and HvdcRangeAction
+        if (pstRangeActions.get(id) == null) {
+            removeHvdcRangeAction(id);
+        } else {
+            removePstRangeAction(id);
         }
     }
 
