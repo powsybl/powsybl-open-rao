@@ -27,10 +27,7 @@ import com.farao_community.farao.rao_commons.PrePerimeterSensitivityAnalysis;
 import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.ToolProvider;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.LoopFlowViolationCostEvaluator;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.MnecViolationCostEvaluator;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
-import com.farao_community.farao.rao_commons.objective_function_evaluator.SensitivityFallbackOvercostEvaluator;
+import com.farao_community.farao.rao_commons.objective_function_evaluator.*;
 import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.search_tree_rao.output.*;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
@@ -119,7 +116,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 raoInput.getCrac().getRangeActions(),
                 raoInput.getCrac().getFlowCnecs(),
                 toolProvider,
-                parameters
+                parameters,
+                basicLinearOptimizerBuilder(parameters).build()
         );
 
         PrePerimeterResult initialOutput;
@@ -266,7 +264,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED),
                 perimeterCnecs,
                 toolProvider,
-                raoParameters
+                raoParameters,
+                linearOptimizerParameters
         );
         PrePerimeterResult prePerimeterResult = prePerimeterSensitivityAnalysis.run(raoInput.getNetwork());
 
@@ -457,15 +456,25 @@ public class SearchTreeRaoProvider implements RaoProvider {
                                                      LinearOptimizerParameters linearOptimizerParameters,
                                                      ToolProvider toolProvider) {
         ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder = ObjectiveFunction.create();
-        ObjectiveFunctionHelper.addMinMarginObjectiveFunction(cnecs, prePerimeterFlowResult, objectiveFunctionBuilder, linearOptimizerParameters);
+        addMinMarginObjectiveFunction(cnecs, prePerimeterFlowResult, objectiveFunctionBuilder, linearOptimizerParameters);
 
-        if (raoParameters.isRaoWithMnecLimitation()) {
-            objectiveFunctionBuilder.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
-                    cnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                    initialFlowResult,
-                    raoParameters.getMnecParameters()
-            ));
-        }
+        addMnecVirtualCostEvaluator(cnecs, initialFlowResult, raoParameters, objectiveFunctionBuilder);
+        addLoopflowVirtualCostEvaluator(cnecs, initialFlowResult, raoParameters, toolProvider, objectiveFunctionBuilder);
+        addSensiFallbackVirtualCostEvaluator(raoParameters, objectiveFunctionBuilder);
+        return objectiveFunctionBuilder.build();
+    }
+
+    private static void addMinMarginObjectiveFunction(Set<FlowCnec> cnecs, FlowResult prePerimeterFlowResult, ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder, LinearOptimizerParameters linearOptimizerParameters) {
+        ObjectiveFunctionHelper.addMinMarginObjectiveFunction(cnecs, prePerimeterFlowResult, objectiveFunctionBuilder, linearOptimizerParameters.hasRelativeMargins(), linearOptimizerParameters.getUnoptimizedCnecParameters(), linearOptimizerParameters.getUnit());
+    }
+
+    private static void addSensiFallbackVirtualCostEvaluator(RaoParameters raoParameters, ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder) {
+        objectiveFunctionBuilder.withVirtualCostEvaluator(new SensitivityFallbackOvercostEvaluator(
+                raoParameters.getFallbackOverCost()
+        ));
+    }
+
+    private static void addLoopflowVirtualCostEvaluator(Set<FlowCnec> cnecs, FlowResult initialFlowResult, RaoParameters raoParameters, ToolProvider toolProvider, ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder) {
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             objectiveFunctionBuilder.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
                     toolProvider.getLoopFlowCnecs(cnecs),
@@ -473,10 +482,16 @@ public class SearchTreeRaoProvider implements RaoProvider {
                     raoParameters.getLoopFlowParameters()
             ));
         }
-        objectiveFunctionBuilder.withVirtualCostEvaluator(new SensitivityFallbackOvercostEvaluator(
-                raoParameters.getFallbackOverCost()
-        ));
-        return objectiveFunctionBuilder.build();
+    }
+
+    private static void addMnecVirtualCostEvaluator(Set<FlowCnec> cnecs, FlowResult initialFlowResult, RaoParameters raoParameters, ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder) {
+        if (raoParameters.isRaoWithMnecLimitation()) {
+            objectiveFunctionBuilder.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
+                    cnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
+                    initialFlowResult,
+                    raoParameters.getMnecParameters()
+            ));
+        }
     }
 
     public static Set<FlowCnec> computePerimeterCnecs(Crac crac, Set<State> perimeter) {
