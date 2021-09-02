@@ -75,15 +75,7 @@ final class SearchTreeRaoLogger {
         Unit unit = objectiveFunction.getUnit();
         boolean relativePositiveMargins = objectiveFunction.relativePositiveMargins();
 
-        List<FlowCnec> sortedCnecs;
-        if (states == null) {
-            sortedCnecs = objectiveFunctionResult.getMostLimitingElements(numberOfLoggedElements);
-        } else {
-            sortedCnecs = objectiveFunctionResult.getMostLimitingElements(Integer.MAX_VALUE)
-                .stream().filter(cnec -> states.contains(cnec.getState()))
-                .collect(Collectors.toList());
-            sortedCnecs = sortedCnecs.subList(0, Math.min(sortedCnecs.size(), numberOfLoggedElements));
-        }
+        List<FlowCnec> sortedCnecs = getMostLimitingElements(objectiveFunctionResult, states, numberOfLoggedElements);
 
         for (int i = 0; i < sortedCnecs.size(); i++) {
             FlowCnec cnec = sortedCnecs.get(i);
@@ -103,23 +95,6 @@ final class SearchTreeRaoLogger {
                 unit,
                 ptdfIfRelative);
         }
-    }
-
-    private static Map<FlowCnec, Double> getMostLimitingElementsAndMargins(OptimizationResult optimizationResult,
-                                                                           Set<State> states,
-                                                                           Unit unit,
-                                                                           boolean relativePositiveMargins,
-                                                                           int maxNumberOfElements) {
-        Map<FlowCnec, Double> mostLimitingElementsAndMargins = new HashMap<>();
-        List<FlowCnec> cnecs = optimizationResult.getMostLimitingElements(Integer.MAX_VALUE)
-            .stream().filter(cnec -> states.contains(cnec.getState()))
-            .collect(Collectors.toList());
-        cnecs = cnecs.subList(0, Math.min(cnecs.size(), maxNumberOfElements));
-        cnecs.forEach(cnec -> {
-            double cnecMargin = relativePositiveMargins ? optimizationResult.getRelativeMargin(cnec, unit) : optimizationResult.getMargin(cnec, unit);
-            mostLimitingElementsAndMargins.put(cnec, cnecMargin);
-        });
-        return mostLimitingElementsAndMargins;
     }
 
     public static void logMostLimitingElementsResults(BasecaseScenario basecaseScenario,
@@ -165,5 +140,33 @@ final class SearchTreeRaoLogger {
                 margin,
                 unit);
         }
+    }
+
+    private static List<FlowCnec> getMostLimitingElements(ObjectiveFunctionResult objectiveFunctionResult,
+                                                          Set<State> states,
+                                                          int maxNumberOfElements) {
+        if (states == null) {
+            return objectiveFunctionResult.getMostLimitingElements(maxNumberOfElements);
+        } else {
+            List<FlowCnec> cnecs = objectiveFunctionResult.getMostLimitingElements(Integer.MAX_VALUE)
+                .stream().filter(cnec -> states.contains(cnec.getState()))
+                .collect(Collectors.toList());
+            cnecs = cnecs.subList(0, Math.min(cnecs.size(), maxNumberOfElements));
+            return cnecs;
+        }
+    }
+
+    private static Map<FlowCnec, Double> getMostLimitingElementsAndMargins(OptimizationResult optimizationResult,
+                                                                           Set<State> states,
+                                                                           Unit unit,
+                                                                           boolean relativePositiveMargins,
+                                                                           int maxNumberOfElements) {
+        Map<FlowCnec, Double> mostLimitingElementsAndMargins = new HashMap<>();
+        List<FlowCnec> cnecs = getMostLimitingElements(optimizationResult, states, maxNumberOfElements);
+        cnecs.forEach(cnec -> {
+            double cnecMargin = relativePositiveMargins ? optimizationResult.getRelativeMargin(cnec, unit) : optimizationResult.getMargin(cnec, unit);
+            mostLimitingElementsAndMargins.put(cnec, cnecMargin);
+        });
+        return mostLimitingElementsAndMargins;
     }
 }
