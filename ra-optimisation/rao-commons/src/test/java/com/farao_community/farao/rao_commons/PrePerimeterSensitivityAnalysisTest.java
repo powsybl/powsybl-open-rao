@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.loopflow_computation.LoopFlowComputation;
+import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
@@ -25,7 +26,8 @@ import org.mockito.Mockito;
 
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -50,6 +52,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         Crac crac = CommonCracCreation.create();
         raoParameters = new RaoParameters();
         raoParameters.setLoopFlowApproximationLevel(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF);
+        LinearOptimizerParameters linearOptimizerParameters = Mockito.mock(LinearOptimizerParameters.class);
 
         cnec = Mockito.mock(FlowCnec.class);
 
@@ -61,13 +64,14 @@ public class PrePerimeterSensitivityAnalysisTest {
         when(toolProvider.getLoopFlowComputation()).thenReturn(Mockito.mock(LoopFlowComputation.class));
         when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(Mockito.mock(AbsolutePtdfSumsComputation.class));
 
-        prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac.getRangeActions(), crac.getFlowCnecs(), toolProvider, raoParameters);
+        prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac.getRangeActions(), crac.getFlowCnecs(), toolProvider, raoParameters, linearOptimizerParameters);
     }
 
     private void mockSystematicSensitivityInterface(boolean withPtdf, boolean withLf) {
         SystematicSensitivityResult sensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         SystematicSensitivityInterface sensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         when(sensitivityInterface.run(network)).thenReturn(sensitivityResult);
+        when(sensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
         when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any())).thenReturn(sensitivityInterface);
     }
 
