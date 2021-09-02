@@ -13,131 +13,137 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
+import com.farao_community.farao.search_tree_rao.output.PerimeterResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class AutomatonOptimizationResult implements OptimizationResult {
+/**
+ * Represents the optimization result of automatons
+ * Since optimizing automatons is only a simulation of RAs, we only need lists of activated RAs and a sensitivity result
+ *
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
+public class AutomatonOptimizationResult implements PerimeterResult {
+
+    private PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
+    private Set<NetworkAction> activatedNetworkActions;
+
+    public AutomatonOptimizationResult(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> activatedNetworkActions) {
+        this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
+        this.activatedNetworkActions = activatedNetworkActions;
+    }
+
+    public PrePerimeterResult getPostAutomatonSensitivityAnalysisOutput() {
+        return postAutomatonSensitivityAnalysisOutput;
+    }
+
     @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {
-        return 0;
-    }
-
-    @Override
-    public double getMargin(FlowCnec flowCnec, Unit unit) {
-        return 0;
-    }
-
-    @Override
-    public double getRelativeMargin(FlowCnec flowCnec, Unit unit) {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getFlow(flowCnec, unit);
     }
 
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
-        return 0;
-    }
-
-    @Override
-    public double getLoopFlow(FlowCnec flowCnec, Unit unit) {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getCommercialFlow(flowCnec, unit);
     }
 
     @Override
     public double getPtdfZonalSum(FlowCnec flowCnec) {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getPtdfZonalSum(flowCnec);
     }
 
     @Override
     public Map<FlowCnec, Double> getPtdfZonalSums() {
-        return null;
+        return postAutomatonSensitivityAnalysisOutput.getPtdfZonalSums();
+    }
+
+    @Override
+    public Set<RangeAction> getActivatedRangeActions() {
+        return Set.of();
     }
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {
-        return false;
+        return activatedNetworkActions.contains(networkAction);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
-        return null;
-    }
-
-    @Override
-    public double getCost() {
-        return 0;
+        return new HashSet<>(activatedNetworkActions);
     }
 
     @Override
     public double getFunctionalCost() {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getFunctionalCost();
     }
 
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
-        return null;
+        return postAutomatonSensitivityAnalysisOutput.getMostLimitingElements(number);
     }
 
     @Override
     public double getVirtualCost() {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getVirtualCost();
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return null;
+        return postAutomatonSensitivityAnalysisOutput.getVirtualCostNames();
     }
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getVirtualCost(virtualCostName);
     }
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
-        return null;
+        return postAutomatonSensitivityAnalysisOutput.getCostlyElements(virtualCostName, number);
     }
 
     @Override
     public Set<RangeAction> getRangeActions() {
-        return null;
+        return postAutomatonSensitivityAnalysisOutput.getRangeActions();
     }
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getOptimizedTap(pstRangeAction);
     }
 
     @Override
     public double getOptimizedSetPoint(RangeAction rangeAction) {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getOptimizedSetPoint(rangeAction);
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTaps() {
-        return null;
+        return postAutomatonSensitivityAnalysisOutput.getOptimizedTaps();
     }
 
     @Override
     public Map<RangeAction, Double> getOptimizedSetPoints() {
-        return null;
+        return postAutomatonSensitivityAnalysisOutput.getOptimizedSetPoints();
     }
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        return null;
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityStatus();
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, rangeAction, unit);
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
-        return 0;
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, linearGlsk, unit);
     }
 }
