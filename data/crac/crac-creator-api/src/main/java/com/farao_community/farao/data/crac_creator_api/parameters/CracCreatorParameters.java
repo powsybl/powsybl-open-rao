@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creator_api;
+package com.farao_community.farao.data.crac_creator_api.parameters;
 
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.google.common.base.Supplier;
@@ -24,7 +24,7 @@ import java.util.*;
  */
 public class CracCreatorParameters extends AbstractExtendable<CracCreatorParameters> {
 
-    private static final String MODULE_NAME = "crac-creation-parameters";
+    static final String MODULE_NAME = "crac-creation-parameters";
     private static final String DEFAULT_CRAC_FACTORY_NAME = CracFactory.findDefault().getName();
 
     public static interface ConfigLoader<E extends Extension<CracCreatorParameters>> extends ExtensionConfigLoader<CracCreatorParameters, E> { }

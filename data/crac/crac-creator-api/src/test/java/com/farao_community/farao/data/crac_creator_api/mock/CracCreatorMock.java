@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_creator_api.mock;
 
 import com.farao_community.farao.data.crac_creator_api.CracCreator;
-import com.farao_community.farao.data.crac_creator_api.CracCreatorParameters;
+import com.farao_community.farao.data.crac_creator_api.parameters.CracCreatorParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 

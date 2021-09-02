@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_creator_api;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_creator_api.parameters.CracCreatorParameters;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporters;
 import com.google.common.base.Suppliers;

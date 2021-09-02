@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_creator_api;
 
 import com.farao_community.farao.data.crac_creator_api.mock.CracCreatorMock;
 import com.farao_community.farao.data.crac_creator_api.mock.NativeCracMock;
+import com.farao_community.farao.data.crac_creator_api.parameters.CracCreatorParameters;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
