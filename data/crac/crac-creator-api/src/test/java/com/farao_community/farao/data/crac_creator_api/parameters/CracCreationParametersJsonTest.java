@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -46,5 +48,12 @@ public class CracCreationParametersJsonTest {
     @Test (expected = FaraoException.class)
     public void importNokTest() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/crac-creator-parameters-nok.json"));
+    }
+
+    @Test
+    public void importFromFile() throws URISyntaxException {
+        CracCreationParameters importedParameters = JsonCracCreationParameters.read(Paths.get(getClass().getResource("/parameters/crac-creator-parameters-ok.json").toURI()));
+        assertNotNull(importedParameters);
+        assertEquals("anotherCracFactory", importedParameters.getCracFactoryName());
     }
 }
