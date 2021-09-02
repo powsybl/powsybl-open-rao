@@ -16,6 +16,8 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
@@ -135,7 +137,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testAddRangeActionWithNoConflict() {
+    public void testAddPstRangeActionWithNoConflict() {
         PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(rangeAction.getId()).thenReturn("rangeAction");
         State state = Mockito.mock(State.class);
@@ -149,6 +151,26 @@ public class CracImplTest {
         assertEquals(0, crac.getRemedialActions().size());
         crac.addPstRangeAction(rangeAction);
         assertEquals(1, crac.getPstRangeActions().size());
+        assertEquals(1, crac.getRangeActions().size());
+        assertEquals(1, crac.getRemedialActions().size());
+        assertNotNull(crac.getRemedialAction("rangeAction"));
+    }
+
+    @Test
+    public void testAddHvdcRangeActionWithNoConflict() {
+        HvdcRangeAction rangeAction = Mockito.mock(HvdcRangeAction.class);
+        Mockito.when(rangeAction.getId()).thenReturn("rangeAction");
+        State state = Mockito.mock(State.class);
+        Instant instant = Mockito.mock(Instant.class);
+        Mockito.when(instant.toString()).thenReturn("preventive");
+        Mockito.when(state.getInstant()).thenReturn(instant);
+        Mockito.when(state.getContingency()).thenReturn(Optional.empty());
+
+        assertEquals(0, crac.getHvdcRangeActions().size());
+        assertEquals(0, crac.getRangeActions().size());
+        assertEquals(0, crac.getRemedialActions().size());
+        crac.addHvdcRangeAction(rangeAction);
+        assertEquals(1, crac.getHvdcRangeActions().size());
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(1, crac.getRemedialActions().size());
         assertNotNull(crac.getRemedialAction("rangeAction"));
@@ -520,7 +542,7 @@ public class CracImplTest {
     }
 
     @Test
-    public void testRemoveRangeAction() {
+    public void testRemovePstRangeAction() {
 
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
@@ -595,7 +617,74 @@ public class CracImplTest {
     }
 
     @Test
-    public void testFilterRangeActionUsageRules() {
+    public void testRemoveHvdcRangeAction() {
+
+        crac.newContingency().withId("co1").withNetworkElement("neCo").add();
+        crac.newContingency().withId("co2").withNetworkElement("neCo").add();
+
+        HvdcRangeAction ra1 = crac.newHvdcRangeAction()
+                .withId("ra1")
+                .withNetworkElement("ne1")
+                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .add();
+        HvdcRangeAction ra2 = crac.newHvdcRangeAction()
+                .withId("ra2")
+                .withNetworkElement("ne1")
+                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+                .add();
+        HvdcRangeAction ra3 = crac.newHvdcRangeAction()
+                .withId("ra3")
+                .withNetworkElement("ne2")
+                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .add();
+        HvdcRangeAction ra4 = crac.newHvdcRangeAction()
+                .withId("ra4")
+                .withNetworkElement("ne2")
+                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+                .add();
+
+        State state1 = crac.getState("co1", CURATIVE);
+        State state2 = crac.getState("co2", CURATIVE);
+
+        assertEquals(0, crac.getRangeActions(state1, FORCED).size());
+        assertEquals(2, crac.getRangeActions(state1, UsageMethod.AVAILABLE).size());
+        assertTrue(crac.getRangeActions(state1, UsageMethod.AVAILABLE).containsAll(Set.of(ra1, ra3)));
+        assertEquals(2, crac.getRangeActions(state2, FORCED).size());
+        assertTrue(crac.getRangeActions(state2, FORCED).containsAll(Set.of(ra2, ra4)));
+
+        assertEquals(4, crac.getHvdcRangeActions().size());
+        assertEquals(4, crac.getRangeActions().size());
+        assertEquals(4, crac.getRemedialActions().size());
+        crac.removeRemedialAction("doesnt exist 1");
+        crac.removeHvdcRangeAction("doesnt exist 2");
+        assertEquals(4, crac.getHvdcRangeActions().size());
+
+        crac.removeRemedialAction("ra1");
+        assertNull(crac.getRemedialAction("ra1"));
+        assertNotNull(crac.getNetworkElement("ne1")); // still used by ra2
+        assertNotNull(crac.getState("co1", CURATIVE)); // state1, still used by ra3
+
+        crac.removeHvdcRangeAction("ra2");
+        assertNull(crac.getRangeAction("ra2"));
+        assertNull(crac.getNetworkElement("ne1")); // unused
+        assertNotNull(crac.getState("co1", CURATIVE)); // state1, still used by ra3
+        assertNotNull(crac.getState("co2", CURATIVE)); // state2, still used by RA4
+
+        crac.removeHvdcRangeAction("ra3");
+        assertNull(crac.getHvdcRangeAction("ra3"));
+        assertNotNull(crac.getNetworkElement("ne2")); // still used by ra4
+        assertNull(crac.getState("co1", CURATIVE)); // unused
+        assertNotNull(crac.getState("co2", CURATIVE)); // state2, still used by ra4
+
+        crac.removeRemedialAction("ra4");
+        assertEquals(0, crac.getRemedialActions().size());
+        assertEquals(1, crac.getNetworkElements().size());
+        assertNotNull(crac.getNetworkElement("neCo"));
+        assertEquals(0, crac.getStates().size());
+    }
+
+    @Test
+    public void testFilterPstRangeActionUsageRules() {
         crac.newContingency().withId("co1").withNetworkElement("neCo").add();
         crac.newContingency().withId("co2").withNetworkElement("neCo").add();
 
@@ -627,6 +716,44 @@ public class CracImplTest {
             .withInitialTap(0)
             .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
             .add();
+
+        State state1 = crac.getState("co1", CURATIVE);
+        State state2 = crac.getState("co2", CURATIVE);
+
+        assertTrue(crac.getRangeActions(state1, TO_BE_EVALUATED).isEmpty());
+        assertEquals(Set.of(ra1), crac.getRangeActions(state1, AVAILABLE));
+        assertEquals(Set.of(ra3), crac.getRangeActions(state2, AVAILABLE));
+        assertEquals(Set.of(ra2), crac.getRangeActions(state1, FORCED));
+        assertEquals(Set.of(ra4), crac.getRangeActions(state2, FORCED));
+        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, AVAILABLE, FORCED));
+        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, AVAILABLE, FORCED));
+    }
+
+    @Test
+    public void testFilterHvdcRangeActionUsageRules() {
+        crac.newContingency().withId("co1").withNetworkElement("neCo").add();
+        crac.newContingency().withId("co2").withNetworkElement("neCo").add();
+
+        HvdcRangeAction ra1 = crac.newHvdcRangeAction()
+                .withId("ra1")
+                .withNetworkElement("ne1")
+                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
+                .add();
+        HvdcRangeAction ra2 = crac.newHvdcRangeAction()
+                .withId("ra2")
+                .withNetworkElement("ne1")
+                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
+                .add();
+        HvdcRangeAction ra3 = crac.newHvdcRangeAction()
+                .withId("ra3")
+                .withNetworkElement("ne2")
+                .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
+                .add();
+        HvdcRangeAction ra4 = crac.newHvdcRangeAction()
+                .withId("ra4")
+                .withNetworkElement("ne2")
+                .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
+                .add();
 
         State state1 = crac.getState("co1", CURATIVE);
         State state2 = crac.getState("co2", CURATIVE);
@@ -739,6 +866,13 @@ public class CracImplTest {
         PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction();
         assertTrue(pstRangeActionAdder instanceof PstRangeActionAdderImpl);
         assertSame(crac, ((PstRangeActionAdderImpl) pstRangeActionAdder).getCrac());
+    }
+
+    @Test
+    public void testHvdcRangeActionAdder() {
+        HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
+        assertTrue(hvdcRangeActionAdder instanceof HvdcRangeActionAdderImpl);
+        assertSame(crac, ((HvdcRangeActionAdderImpl) hvdcRangeActionAdder).getCrac());
     }
 
     @Test

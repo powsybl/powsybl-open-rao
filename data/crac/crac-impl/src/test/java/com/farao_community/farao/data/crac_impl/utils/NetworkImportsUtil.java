@@ -34,6 +34,10 @@ public final class NetworkImportsUtil {
         return Importers.loadNetwork("utils/TestCase12NodesWithSwitch.uct", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase12NodesWithSwitch.uct"));
     }
 
+    public static Network import16NodesNetworkWithHvdc() {
+        return Importers.loadNetwork("utils/TestCase16NodesWithHvdc.xiidm", NetworkImportsUtil.class.getResourceAsStream("/utils/TestCase16NodesWithHvdc.xiidm"));
+    }
+
     public static void addHvdcLine(Network network) {
         VoltageLevel vl1 = network.getVoltageLevel("BBE1AA1");
         vl1.getBusBreakerView().newBus().setId("B1").add();
