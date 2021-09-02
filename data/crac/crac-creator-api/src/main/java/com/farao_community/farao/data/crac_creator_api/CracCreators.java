@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_creator_api;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporters;
 import com.google.common.base.Suppliers;
@@ -42,17 +41,17 @@ public final class CracCreators {
      * @param nativeCrac native CRAC object
      * @param network network object required for the conversion of the NativeCrac into a Crac
      * @param offsetDateTime timestamp for which the Crac is creator (null values might be accepted by some creators)
-     * @param cracFactory the CracFactory to use to create the Crac
+     * @param cracCreatorParameters the configuration of the CRAC creation
      * @return the created {@link CracCreationContext} object
      */
-    public static CracCreationContext createCrac(NativeCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracFactory cracFactory) {
+    public static CracCreationContext createCrac(NativeCrac nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreatorParameters cracCreatorParameters) {
         CracCreator creator = findCreator(nativeCrac.getFormat());
 
         if (Objects.isNull(creator)) {
             throw new FaraoException(String.format("No CracCreator found for format %s", nativeCrac.getFormat()));
         }
 
-        return creator.createCrac(nativeCrac, network, offsetDateTime, cracFactory);
+        return creator.createCrac(nativeCrac, network, offsetDateTime, cracCreatorParameters);
     }
 
     /**
@@ -64,7 +63,7 @@ public final class CracCreators {
      * @return the created {@link CracCreationContext} object
      */
     public static CracCreationContext createCrac(NativeCrac nativeCrac, Network network, OffsetDateTime offsetDateTime) {
-        return createCrac(nativeCrac, network, offsetDateTime, CracFactory.findDefault());
+        return createCrac(nativeCrac, network, offsetDateTime, new CracCreatorParameters());
     }
 
     /**
