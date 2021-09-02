@@ -48,17 +48,11 @@ public class HvdcRangeActionImpl extends AbstractRangeAction implements HvdcRang
 
     @Override
     public double getMinAdmissibleSetpoint(double previousInstantSetPoint) {
-        if (ranges.size() == 0) {
-            return Double.MIN_VALUE;
-        }
         return ranges.stream().mapToDouble(HvdcRange::getMin).max().orElseThrow();
     }
 
     @Override
     public double getMaxAdmissibleSetpoint(double previousInstantSetPoint) {
-        if (ranges.size() == 0) {
-            return Double.MAX_VALUE;
-        }
         return ranges.stream().mapToDouble(HvdcRange::getMax).min().orElseThrow();
     }
 

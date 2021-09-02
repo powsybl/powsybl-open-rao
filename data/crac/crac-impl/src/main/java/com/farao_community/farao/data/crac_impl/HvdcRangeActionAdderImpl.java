@@ -74,7 +74,7 @@ public class HvdcRangeActionAdderImpl extends AbstractRemedialActionAdder<HvdcRa
 
         // Check ranges
         if (ranges.isEmpty()) {
-            LOGGER.warn("HvdcRangeAction {} does not contain any valid range, by default the range of the network will be used", id);
+            throw new FaraoException(String.format("HvdcRangeAction %s does not contain any range", id));
         }
 
         if (usageRules.isEmpty()) {

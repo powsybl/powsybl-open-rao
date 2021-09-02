@@ -83,10 +83,9 @@ public class HvdcRangeActionAdderImplTest {
     }
 
     @Test
-    public void testAddWithoutRangeAndUsageRule() {
+    public void testAddWithoutUsageRule() {
         /*
         This behaviour is considered admissible:
-            - without range, the default range will be defined by the min/max value of the network
             - without usage rule, the remedial action will never be available
 
         This test should however return two warnings
@@ -95,12 +94,16 @@ public class HvdcRangeActionAdderImplTest {
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
+                .newHvdcRange()
+                .withMin(-5)
+                .withMax(10)
+                .add()
                 .add();
 
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(networkElementId, hvdcRangeAction.getNetworkElements().iterator().next().getId());
         assertEquals("BE", hvdcRangeAction.getOperator());
-        assertEquals(0, hvdcRangeAction.getRanges().size());
+        assertEquals(1, hvdcRangeAction.getRanges().size());
         assertEquals(0, hvdcRangeAction.getUsageRules().size());
     }
 
