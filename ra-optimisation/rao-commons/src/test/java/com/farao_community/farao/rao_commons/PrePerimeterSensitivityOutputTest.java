@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -43,8 +44,9 @@ public class PrePerimeterSensitivityOutputTest {
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
+        ObjectiveFunctionResult objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
 
-        PrePerimeterSensitivityOutput output = new PrePerimeterSensitivityOutput(flowResult, sensitivityResult, rangeActionResult);
+        PrePerimeterSensitivityOutput output = new PrePerimeterSensitivityOutput(flowResult, sensitivityResult, rangeActionResult, objectiveFunctionResult);
 
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getSensitivityStatus());
@@ -107,9 +109,9 @@ public class PrePerimeterSensitivityOutputTest {
         assertEquals(0, output.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, output.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(0, output.getVirtualCost("mock"), DOUBLE_TOLERANCE);
-        assertNull(output.getMostLimitingElements(10));
-        assertNull(output.getVirtualCostNames());
-        assertNull(output.getCostlyElements("mock", 10));
+        assert output.getMostLimitingElements(10).isEmpty();
+        assert output.getVirtualCostNames().isEmpty();
+        assert output.getCostlyElements("mock", 10).isEmpty();
     }
 
 }

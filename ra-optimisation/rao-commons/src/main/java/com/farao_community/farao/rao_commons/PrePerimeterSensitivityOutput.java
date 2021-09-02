@@ -11,10 +11,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_commons.result_api.FlowResult;
-import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
-import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
-import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
+import com.farao_community.farao.rao_commons.result_api.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.*;
@@ -24,11 +21,13 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     private FlowResult flowResult;
     private SensitivityResult sensitivityResult;
     private RangeActionResult rangeActionResult;
+    private final ObjectiveFunctionResult objectiveFunctionResult;
 
-    public PrePerimeterSensitivityOutput(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
+    public PrePerimeterSensitivityOutput(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult, ObjectiveFunctionResult objectiveFunctionResult) {
         this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;
         this.rangeActionResult = rangeActionResult;
+        this.objectiveFunctionResult = objectiveFunctionResult;
     }
 
     @Override
@@ -111,31 +110,31 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
 
     @Override
     public double getFunctionalCost() {
-        return 0;
+        return objectiveFunctionResult.getFunctionalCost();
     }
 
     @Override
     public List<FlowCnec> getMostLimitingElements(int number) {
-        return null;
+        return objectiveFunctionResult.getMostLimitingElements(number);
     }
 
     @Override
     public double getVirtualCost() {
-        return 0;
+        return objectiveFunctionResult.getVirtualCost();
     }
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return null;
+        return objectiveFunctionResult.getVirtualCostNames();
     }
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return 0;
+        return objectiveFunctionResult.getVirtualCost(virtualCostName);
     }
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
-        return null;
+        return objectiveFunctionResult.getCostlyElements(virtualCostName, number);
     }
 }
