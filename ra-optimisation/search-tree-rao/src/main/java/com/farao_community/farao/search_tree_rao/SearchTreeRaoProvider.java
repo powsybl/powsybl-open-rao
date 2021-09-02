@@ -116,7 +116,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 raoInput.getCrac().getRangeActions(),
                 raoInput.getCrac().getFlowCnecs(),
                 toolProvider,
-                parameters
+                parameters,
+                basicLinearOptimizerBuilder(parameters).build()
         );
 
         PrePerimeterResult initialOutput;
@@ -263,7 +264,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED),
                 perimeterCnecs,
                 toolProvider,
-                raoParameters
+                raoParameters,
+                linearOptimizerParameters
         );
         PrePerimeterResult prePerimeterResult = prePerimeterSensitivityAnalysis.run(raoInput.getNetwork());
 
