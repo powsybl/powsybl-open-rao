@@ -7,7 +7,6 @@
 package com.farao_community.farao.data.crac_creator_api.parameters;
 
 import com.farao_community.farao.data.crac_api.CracFactory;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -16,6 +15,7 @@ import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Parameters related to the creation of a CRAC.

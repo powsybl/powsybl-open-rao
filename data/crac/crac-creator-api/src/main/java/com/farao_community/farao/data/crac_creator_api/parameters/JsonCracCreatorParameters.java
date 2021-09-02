@@ -8,7 +8,6 @@ package com.farao_community.farao.data.crac_creator_api.parameters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -21,7 +20,9 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 import java.util.Objects;
+
 
 import static com.farao_community.farao.data.crac_creator_api.parameters.CracCreatorParameters.MODULE_NAME;
 
