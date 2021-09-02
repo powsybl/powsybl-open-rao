@@ -264,7 +264,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree, perimeterCnecs);
 
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED),
+                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED),
                 perimeterCnecs,
                 toolProvider,
                 raoParameters
@@ -337,8 +337,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                             LOGGER.info("Optimizing scenario post-contingency {}.", optimizedScenario.getContingency().getId());
                             Optional<State> automatonState = optimizedScenario.getAutomatonState();
                             if (automatonState.isPresent()) {
-                                LOGGER.info("Optimizing automatons for state {}.", automatonState.get().getId());
-                                // TODO
+                                throw new FaraoException("Automatons are not supported yet");
                             }
                             State curativeState = optimizedScenario.getCurativeState();
                             LOGGER.info("Optimizing curative state {}.", curativeState.getId());
@@ -401,9 +400,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
         cnecs = isSecondPreventiveRao ? crac.getFlowCnecs() : computePerimeterCnecs(crac, perimeter);
         searchTreeInput.setFlowCnecs(cnecs);
         searchTreeInput.setOptimizedState(optimizedState);
-        searchTreeInput.setNetworkActions(crac.getNetworkActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED));
+        searchTreeInput.setNetworkActions(crac.getNetworkActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED));
 
-        Set<RangeAction> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED);
+        Set<RangeAction> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterOutput);
         removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterOutput);
         if (isSecondPreventiveRao) {
@@ -667,7 +666,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     }
 
     static boolean isRangeActionAvailableInState(RangeAction rangeAction, State state, Crac crac) {
-        Set<RangeAction> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED);
+        Set<RangeAction> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         if (rangeActionsForState.contains(rangeAction)) {
             return true;
         } else {

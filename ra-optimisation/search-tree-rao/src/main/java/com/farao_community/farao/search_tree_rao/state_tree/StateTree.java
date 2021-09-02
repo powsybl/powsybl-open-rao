@@ -103,8 +103,8 @@ public class StateTree {
     }
 
     private static boolean anyAvailableRemedialAction(Crac crac, State state) {
-        return !crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED).isEmpty() ||
-                !crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED).isEmpty();
+        return !crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).isEmpty() ||
+                !crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).isEmpty();
     }
 
     static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedCurativeStates) {
@@ -117,8 +117,8 @@ public class StateTree {
 
     static boolean tsoHasCra(String tso, Crac crac, Set<State> optimizedCurativeStates) {
         return optimizedCurativeStates.stream().anyMatch(state ->
-           crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
-                crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso))
+           crac.getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso)) ||
+                crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).stream().map(RemedialAction::getOperator).anyMatch(raTso -> raTso.equals(tso))
         );
     }
 }

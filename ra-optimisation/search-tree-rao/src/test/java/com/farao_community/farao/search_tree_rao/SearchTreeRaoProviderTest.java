@@ -199,8 +199,8 @@ public class SearchTreeRaoProviderTest {
         PrePerimeterResult initialOutput = Mockito.mock(PrePerimeterResult.class);
 
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        when(crac.getNetworkActions(state1, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED)).thenReturn(Set.of(na1));
-        when(crac.getRangeActions(state1, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED)).thenReturn(new HashSet<>(Set.of(ra1, ra2)));
+        when(crac.getNetworkActions(state1, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED)).thenReturn(Set.of(na1));
+        when(crac.getRangeActions(state1, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED)).thenReturn(new HashSet<>(Set.of(ra1, ra2)));
 
         SearchTreeInput searchTreeInput = SearchTreeRaoProvider.buildSearchTreeInput(crac,
                 network,
