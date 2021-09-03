@@ -7,8 +7,8 @@
 
 package com.farao_community.farao.data.crac_creator_api.mock;
 
-import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_creator_api.CracCreator;
+import com.farao_community.farao.data.crac_creator_api.parameters.CracCreationParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 
@@ -26,7 +26,7 @@ public class CracCreatorMock implements CracCreator<NativeCracMock, CracCreation
     }
 
     @Override
-    public CracCreationContextMock createCrac(NativeCracMock nativeCrac, Network network, OffsetDateTime offsetDateTime, CracFactory cracFactory) {
+    public CracCreationContextMock createCrac(NativeCracMock nativeCrac, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
         return new CracCreationContextMock(nativeCrac.isOk());
     }
 }
