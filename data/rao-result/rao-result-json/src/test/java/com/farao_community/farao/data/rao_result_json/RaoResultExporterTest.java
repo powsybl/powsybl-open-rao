@@ -27,8 +27,7 @@ import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.AMPERE;
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.AFTER_CRA;
-import static com.farao_community.farao.data.rao_result_api.OptimizationState.INITIAL;
+import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 import static org.junit.Assert.*;
 
 /**
@@ -107,6 +106,11 @@ public class RaoResultExporterTest {
         costResult.setFunctionalCost(100.);
         costResult.setVirtualCost("loopFlow", 0.);
         costResult.setVirtualCost("MNEC", 0.);
+
+        costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_ARA);
+        costResult.setFunctionalCost(-20.);
+        costResult.setVirtualCost("loopFlow", 15.);
+        costResult.setVirtualCost("MNEC", 20.);
 
         costResult = raoResult.getAndCreateIfAbsentCostResult(AFTER_CRA);
         costResult.setFunctionalCost(-50.);
@@ -238,6 +242,12 @@ public class RaoResultExporterTest {
         assertEquals(0., importedRaoResult.getVirtualCost(INITIAL, "MNEC"), DOUBLE_TOLERANCE);
         assertEquals(0., importedRaoResult.getVirtualCost(INITIAL), DOUBLE_TOLERANCE);
         assertEquals(100., importedRaoResult.getCost(INITIAL), DOUBLE_TOLERANCE);
+
+        assertEquals(-20., importedRaoResult.getFunctionalCost(AFTER_ARA), DOUBLE_TOLERANCE);
+        assertEquals(15., importedRaoResult.getVirtualCost(AFTER_ARA, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(20., importedRaoResult.getVirtualCost(AFTER_ARA, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(35., importedRaoResult.getVirtualCost(AFTER_ARA), DOUBLE_TOLERANCE);
+        assertEquals(15., importedRaoResult.getCost(AFTER_ARA), DOUBLE_TOLERANCE);
 
         assertEquals(-50., importedRaoResult.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
         assertEquals(10., importedRaoResult.getVirtualCost(AFTER_CRA, "loopFlow"), DOUBLE_TOLERANCE);
