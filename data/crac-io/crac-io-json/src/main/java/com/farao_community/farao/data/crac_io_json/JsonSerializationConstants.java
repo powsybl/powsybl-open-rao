@@ -45,6 +45,7 @@ public final class JsonSerializationConstants {
     public static final String NOMINAL_VOLTAGE = "nominalV";
 
     public static final String PST_RANGE_ACTIONS = "pstRangeActions";
+    public static final String HVDC_RANGE_ACTIONS = "hvdcRangeActions";
 
     public static final String NETWORK_ACTIONS = "networkActions";
     public static final String TOPOLOGICAL_ACTIONS = "topologicalActions";

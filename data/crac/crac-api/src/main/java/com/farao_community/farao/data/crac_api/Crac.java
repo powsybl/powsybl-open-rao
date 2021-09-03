@@ -14,9 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnecAdder;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import java.util.*;
@@ -261,6 +259,11 @@ public interface Crac extends Identifiable<Crac> {
     PstRangeActionAdder newPstRangeAction();
 
     /**
+     * Get a {@link HvdcRangeActionAdder}, to add a {@link HvdcRangeAction} to the crac
+     */
+    HvdcRangeActionAdder newHvdcRangeAction();
+
+    /**
      * Gather all the range actions present in the Crac. It returns a set because range
      * actions must not be duplicated and there is no defined order for range actions.
      */
@@ -283,14 +286,30 @@ public interface Crac extends Identifiable<Crac> {
     Set<PstRangeAction> getPstRangeActions();
 
     /**
+     * Gather all the HvdcRangeAction present in the Crac. It returns a set because remedial
+     * actions must not be duplicated and there is no defined order for remedial actions.
+     */
+    Set<HvdcRangeAction> getHvdcRangeActions();
+
+    /**
      * Find a PstRangeAction by its id, returns null if the remedial action does not exists
      */
     PstRangeAction getPstRangeAction(String pstRangeActionId);
 
     /**
+     * Find a HvdcRangeAction by its id, returns null if the remedial action does not exists
+     */
+    HvdcRangeAction getHvdcRangeAction(String hvdcRangeActionId);
+
+    /**
      * Remove a PstRangeAction - identified by its id - from the Crac
      */
     void removePstRangeAction(String id);
+
+    /**
+     * Remove a HvdcRangeAction - identified by its id - from the Crac
+     */
+    void removeHvdcRangeAction(String id);
 
     // Network actions management
 

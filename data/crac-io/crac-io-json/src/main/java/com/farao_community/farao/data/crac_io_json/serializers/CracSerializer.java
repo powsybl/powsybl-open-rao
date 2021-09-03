@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -47,6 +48,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         serializeContingencies(crac, gen);
         serializeFlowCnecs(crac, gen);
         serializePstRangeActions(crac, gen);
+        serializeHvdcRangeActions(crac, gen);
         serializeNetworkActions(crac, gen);
 
         JsonUtil.writeExtensions(crac, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
@@ -106,6 +108,17 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
                 .collect(Collectors.toList());
         for (PstRangeAction pstRangeAction : sortedListPsts) {
             gen.writeObject(pstRangeAction);
+        }
+        gen.writeEndArray();
+    }
+
+    private void serializeHvdcRangeActions(Crac crac, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(HVDC_RANGE_ACTIONS);
+        List<HvdcRangeAction> sortedListHvdcs = crac.getHvdcRangeActions().stream()
+                .sorted(Comparator.comparing(HvdcRangeAction::getId))
+                .collect(Collectors.toList());
+        for (HvdcRangeAction hvdcRangeAction : sortedListHvdcs) {
+            gen.writeObject(hvdcRangeAction);
         }
         gen.writeEndArray();
     }
