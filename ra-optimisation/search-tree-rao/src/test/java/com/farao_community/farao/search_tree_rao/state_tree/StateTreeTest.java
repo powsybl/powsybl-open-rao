@@ -221,7 +221,7 @@ public class StateTreeTest {
         setUpCustomCrac();
         Crac mockCrac = Mockito.spy(crac);
         State outageState = crac.getState("contingency-1", Instant.OUTAGE);
-        Mockito.when(mockCrac.getNetworkActions(Mockito.eq(outageState), Mockito.any()))
+        Mockito.when(mockCrac.getNetworkActions(outageState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED))
             .thenReturn(Set.of(Mockito.mock(NetworkAction.class)));
         assertThrows(FaraoException.class, () -> new StateTree(mockCrac));
     }

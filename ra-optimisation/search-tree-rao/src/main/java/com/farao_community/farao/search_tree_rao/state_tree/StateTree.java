@@ -10,8 +10,6 @@ package com.farao_community.farao.search_tree_rao.state_tree;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
 import java.util.HashSet;
@@ -109,8 +107,7 @@ public class StateTree {
 
     static Set<String> findOperatorsNotSharingCras(Crac crac, Set<State> optimizedCurativeStates) {
         Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
-        tsos.addAll(crac.getRangeActions().stream().map(RangeAction::getOperator).collect(Collectors.toSet()));
-        tsos.addAll(crac.getNetworkActions().stream().map(NetworkAction::getOperator).collect(Collectors.toSet()));
+        tsos.addAll(crac.getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
         // <!> If a CNEC's operator is null, filter it out of the list of operators not sharing CRAs
         return tsos.stream().filter(tso -> !Objects.isNull(tso) && !tsoHasCra(tso, crac, optimizedCurativeStates)).collect(Collectors.toSet());
     }
