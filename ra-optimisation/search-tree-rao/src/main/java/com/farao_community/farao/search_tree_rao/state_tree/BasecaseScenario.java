@@ -16,8 +16,9 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * This class represents the functional contingency scenario
- * It contains the auto and curative states that should be optimized after a given contingency
+ * This class represents the functional preventive scenario
+ * It contains the basecase state, as well as post-contingency states that should be optimized
+ * during preventive RAO (ie outage states and curative states that have no RAs)
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
