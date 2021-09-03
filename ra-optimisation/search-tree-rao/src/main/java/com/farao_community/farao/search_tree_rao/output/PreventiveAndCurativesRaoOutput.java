@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
@@ -75,14 +76,19 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         }
         switch (optimizationState) {
             case INITIAL:
-                if (state.getInstant() == Instant.PREVENTIVE) {
-                    return null;
-                } else {
-                    return postPreventiveResult;
-                }
+                throw new FaraoException("No PerimeterResult for INITIAL optimization state");
             case AFTER_PRA:
                 return postPreventiveResult;
             case AFTER_ARA:
+                if (state.getInstant().equals(Instant.CURATIVE)) {
+                    Optional<State> autoState = postContingencyResults.keySet().stream()
+                        .filter(optimizedState -> optimizedState.getInstant().equals(Instant.AUTO) && optimizedState.getContingency().equals(state.getContingency()))
+                        .findFirst();
+                    if (autoState.isPresent()) {
+                        return postContingencyResults.get(autoState.get());
+                    }
+                }
+                return postContingencyResults.get(state);
             case AFTER_CRA:
                 return postContingencyResults.get(state);
             default:
@@ -133,11 +139,11 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         if (optimizationState == OptimizationState.AFTER_PRA) {
             return postPreventiveResult.getVirtualCost();
         }
-        double virtualCostSum = 0;
-        for (PerimeterResult postCurativeResult : postContingencyResults.values()) {
-            virtualCostSum += postCurativeResult.getVirtualCost();
-        }
-        return virtualCostSum;
+        return postContingencyResults.entrySet().stream()
+            .filter(entry -> entry.getKey().getInstant().equals(optimizationState.getFirstInstant()))
+            .map(Map.Entry::getValue)
+            .mapToDouble(ObjectiveFunctionResult::getVirtualCost)
+            .sum();
     }
 
     @Override
@@ -164,11 +170,12 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         if (optimizationState == OptimizationState.AFTER_PRA) {
             return postPreventiveResult.getVirtualCost(virtualCostName);
         }
-        double virtualCostSum = 0;
-        for (PerimeterResult postCurativeResult : postContingencyResults.values()) {
-            virtualCostSum += postCurativeResult.getVirtualCost(virtualCostName);
-        }
-        return virtualCostSum;
+
+        return postContingencyResults.entrySet().stream()
+            .filter(entry -> entry.getKey().getInstant().equals(optimizationState.getFirstInstant()))
+            .map(Map.Entry::getValue)
+            .mapToDouble(perimeterResult -> perimeterResult.getVirtualCost(virtualCostName))
+            .sum();
     }
 
     @Override
