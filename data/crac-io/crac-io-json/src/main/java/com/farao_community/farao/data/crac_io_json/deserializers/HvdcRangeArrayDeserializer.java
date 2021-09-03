@@ -24,19 +24,20 @@ public final class HvdcRangeArrayDeserializer {
     private HvdcRangeArrayDeserializer() {
     }
 
+    //an HVDC range is implicitly of type "ABSOLUTE" : no RANGE_TYPE
     public static void deserialize(JsonParser jsonParser, HvdcRangeActionAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             HvdcRangeAdder adder = ownerAdder.newHvdcRange();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case MIN:
-                        adder.withMin(jsonParser.nextIntValue(Integer.MIN_VALUE));
+                        jsonParser.nextToken();
+                        adder.withMin(jsonParser.getDoubleValue());
                         break;
                     case MAX:
-                        adder.withMax(jsonParser.nextIntValue(Integer.MAX_VALUE));
+                        jsonParser.nextToken();
+                        adder.withMax(jsonParser.getDoubleValue());
                         break;
-                    case RANGE_TYPE:
-                        int debug = 0;
                     default:
                         throw new FaraoException("Unexpected field in HvdcRange: " + jsonParser.getCurrentName());
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -34,10 +34,7 @@ public class HvdcRangeAdderImplTest {
 
     @Test
     public void testOk() {
-        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newHvdcRange()
-                .withMin(-5)
-                .withMax(10)
-                .add()
+        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newHvdcRange().withMin(-5).withMax(10).add()
                 .add();
 
         assertEquals(1, hvdcRangeAction.getRanges().size());
@@ -47,39 +44,20 @@ public class HvdcRangeAdderImplTest {
         assertEquals(Unit.MEGAWATT, hvdcRangeAction.getRanges().get(0).getUnit());
     }
 
-    @Test
+    @Test (expected = FaraoException.class)
     public void testNoMin() {
-        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newHvdcRange()
-            .withMax(16)
-            .add()
+        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newHvdcRange().withMax(16).add()
             .add();
-
-        assertEquals(1, hvdcRangeAction.getRanges().size());
-        assertEquals(Double.MIN_VALUE, hvdcRangeAction.getRanges().get(0).getMin(), 1e-6);
-        assertEquals(16, hvdcRangeAction.getRanges().get(0).getMax(), 1e-6);
-        assertEquals(RangeType.ABSOLUTE, hvdcRangeAction.getRanges().get(0).getRangeType());
-        assertEquals(Unit.MEGAWATT, hvdcRangeAction.getRanges().get(0).getUnit());
     }
 
-    @Test
+    @Test (expected = FaraoException.class)
     public void testNoMax() {
-        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newHvdcRange()
-                .withMin(16)
-                .add()
+        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newHvdcRange().withMin(16).add()
                 .add();
-
-        assertEquals(1, hvdcRangeAction.getRanges().size());
-        assertEquals(Double.MAX_VALUE, hvdcRangeAction.getRanges().get(0).getMax(), 1e-6);
-        assertEquals(16, hvdcRangeAction.getRanges().get(0).getMin(), 1e-6);
-        assertEquals(RangeType.ABSOLUTE, hvdcRangeAction.getRanges().get(0).getRangeType());
-        assertEquals(Unit.MEGAWATT, hvdcRangeAction.getRanges().get(0).getUnit());
     }
 
     @Test (expected = FaraoException.class)
     public void testMinGreaterThanMax() {
-        hvdcRangeActionAdder.newHvdcRange()
-            .withMin(5)
-            .withMax(-10)
-            .add();
+        hvdcRangeActionAdder.newHvdcRange().withMin(10).withMax(-5).add();
     }
 }

@@ -1,6 +1,11 @@
-package com.farao_community.farao.data.crac_impl; /*
+/*
  * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
+package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -60,7 +65,6 @@ public class HvdcRangeActionImpl extends AbstractRangeAction implements HvdcRang
     public void apply(Network network, double targetSetpoint) {
         if (targetSetpoint > 0) {
             getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-
         } else {
             getHvdcLine(network).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         }
@@ -77,7 +81,11 @@ public class HvdcRangeActionImpl extends AbstractRangeAction implements HvdcRang
 
     @Override
     public double getCurrentSetpoint(Network network) {
-        return getHvdcLine(network).getActivePowerSetpoint();
+        if (getHvdcLine(network).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
+            return getHvdcLine(network).getActivePowerSetpoint();
+        } else {
+            return -getHvdcLine(network).getActivePowerSetpoint();
+        }
     }
 
 }

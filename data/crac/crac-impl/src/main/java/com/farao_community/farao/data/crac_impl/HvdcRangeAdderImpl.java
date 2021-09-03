@@ -45,6 +45,12 @@ public class HvdcRangeAdderImpl implements HvdcRangeAdder {
         AdderUtils.assertAttributeNotNull(min, CLASS_NAME, "min value", "withMin()");
         AdderUtils.assertAttributeNotNull(max, CLASS_NAME, "max value", "withMax()");
 
+        if (max == Double.MAX_VALUE) {
+            throw new FaraoException("HVDC max range was not defined.");
+        }
+        if (min == Double.MIN_VALUE) {
+            throw new FaraoException("HVDC min range was not defined.");
+        }
         if (max < min) {
             throw new FaraoException("Max setpoint of HvdcRange must be equal or greater than min setpoint.");
         }

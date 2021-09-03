@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -40,10 +40,7 @@ public class HvdcRangeActionAdderImplTest {
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
                 .withGroupId("groupId1")
-                .newHvdcRange()
-                .withMin(-10)
-                .withMax(10)
-                .add()
+                .newHvdcRange().withMin(-5).withMax(10).add()
                 .newFreeToUseUsageRule()
                 .withInstant(Instant.PREVENTIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -65,10 +62,7 @@ public class HvdcRangeActionAdderImplTest {
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
-                .newHvdcRange()
-                .withMin(-10)
-                .withMax(10)
-                .add()
+                .newHvdcRange().withMin(-5).withMax(10).add()
                 .newFreeToUseUsageRule()
                 .withInstant(Instant.PREVENTIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -94,10 +88,7 @@ public class HvdcRangeActionAdderImplTest {
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
-                .newHvdcRange()
-                .withMin(-5)
-                .withMax(10)
-                .add()
+                .newHvdcRange().withMin(-5).withMax(10).add()
                 .add();
 
         assertEquals(1, crac.getRangeActions().size());
@@ -112,10 +103,7 @@ public class HvdcRangeActionAdderImplTest {
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withNetworkElement(networkElementId)
-                .newHvdcRange()
-                .withMin(-10)
-                .withMax(10)
-                .add()
+                .newHvdcRange().withMin(-5).withMax(10).add()
                 .newFreeToUseUsageRule()
                 .withInstant(Instant.PREVENTIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
