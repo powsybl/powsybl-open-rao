@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.output;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -18,11 +19,15 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
+import com.farao_community.farao.search_tree_rao.state_tree.BasecaseScenario;
+import com.farao_community.farao.search_tree_rao.state_tree.ContingencyScenario;
+import com.farao_community.farao.search_tree_rao.state_tree.StateTree;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
@@ -55,6 +60,7 @@ public class PreventiveAndCurativesRaoOutputTest {
     PreventiveAndCurativesRaoOutput output;
     OptimizationResult curativeResult1;
     OptimizationResult curativeResult2;
+    StateTree stateTree;
 
     @Before
     public void setUp() {
@@ -71,6 +77,7 @@ public class PreventiveAndCurativesRaoOutputTest {
         when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
         when(state1.getInstant()).thenReturn(Instant.CURATIVE);
         when(state2.getInstant()).thenReturn(Instant.CURATIVE);
+        when(state3.getInstant()).thenReturn(Instant.CURATIVE);
 
         initialResult = mock(PrePerimeterResult.class);
         postPrevResult = mock(PerimeterResult.class);
@@ -202,10 +209,25 @@ public class PreventiveAndCurativesRaoOutputTest {
         when(preCurativeResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(1550.);
         when(preCurativeResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(800.);
 
-        output = new PreventiveAndCurativesRaoOutput(initialResult,
+        StateTree stateTree = mock(StateTree.class);
+        Contingency contingency1 = mock(Contingency.class);
+        when(state1.getContingency()).thenReturn(Optional.of(contingency1));
+        Contingency contingency2 = mock(Contingency.class);
+        when(state2.getContingency()).thenReturn(Optional.of(contingency2));
+        BasecaseScenario basecaseScenario = new BasecaseScenario(preventiveState, null);
+        Set<ContingencyScenario> contingencyScenarios = Set.of(
+            new ContingencyScenario(contingency1, null, state1),
+            new ContingencyScenario(contingency2, null, state2)
+        );
+        when(stateTree.getBasecaseScenario()).thenReturn(basecaseScenario);
+        when(stateTree.getContingencyScenarios()).thenReturn(contingencyScenarios);
+
+        output = new PreventiveAndCurativesRaoOutput(
+            stateTree,
+            initialResult,
             postPrevResult,
-                preCurativeResult,
-                Map.of(state1, curativeResult1, state2, curativeResult2));
+            preCurativeResult,
+            Map.of(state1, curativeResult1, state2, curativeResult2));
     }
 
     @Test

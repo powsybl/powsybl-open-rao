@@ -15,10 +15,16 @@ import com.farao_community.farao.data.crac_api.State;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public enum OptimizationState {
-    INITIAL,
-    AFTER_PRA,
-    AFTER_ARA,
-    AFTER_CRA;
+    INITIAL(Instant.PREVENTIVE),
+    AFTER_PRA(Instant.PREVENTIVE),
+    AFTER_ARA(Instant.AUTO),
+    AFTER_CRA(Instant.CURATIVE);
+
+    private final Instant firstInstant;
+
+    OptimizationState(Instant firstInstant) {
+        this.firstInstant = firstInstant;
+    }
 
     /**
      * Returns the OptimizationState that corresponds to the situation before optimizing a given instant
@@ -66,5 +72,13 @@ public enum OptimizationState {
      */
     public static OptimizationState afterOptimizing(State state) {
         return afterOptimizing(state.getInstant());
+    }
+
+    /**
+     * Returns the first instant for which the optimization state is relevant
+     * Instants coming before this first instant cannot be used with this optimization state
+     */
+    public Instant getFirstInstant() {
+        return firstInstant;
     }
 }

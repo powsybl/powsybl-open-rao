@@ -164,7 +164,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             mergedRaoResults = runSecondPreventiveRao(raoInput, parameters, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
         } else {
             LOGGER.info("Merging preventive and curative RAO results.");
-            mergedRaoResults = new PreventiveAndCurativesRaoOutput(initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
+            mergedRaoResults = new PreventiveAndCurativesRaoOutput(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
         }
 
         // log results
