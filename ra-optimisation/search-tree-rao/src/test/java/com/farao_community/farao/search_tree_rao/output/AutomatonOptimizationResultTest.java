@@ -120,8 +120,8 @@ public class AutomatonOptimizationResultTest {
 
     @Test
     public void testGetVirtualCostNames() {
-        when(postAutoSensitivity.getVirtualCostNames()).thenReturn(Set.of("lf","mnec"));
-        assertEquals(Set.of("lf","mnec"), result.getVirtualCostNames());
+        when(postAutoSensitivity.getVirtualCostNames()).thenReturn(Set.of("lf", "mnec"));
+        assertEquals(Set.of("lf", "mnec"), result.getVirtualCostNames());
     }
 
     @Test
