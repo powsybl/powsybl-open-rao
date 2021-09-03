@@ -167,12 +167,12 @@ final class PstRangeActionResultArraySerializer {
     }
 
     static boolean isRangeActionAvailableInState(RangeAction rangeAction, State state, Crac crac) {
-        Set<RangeAction> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED);
+        Set<RangeAction> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         return rangeActionsForState.contains(rangeAction);
     }
 
     static PstRangeAction getPreventivePstRangeActionAssociated(PstRangeAction pstRangeAction, Crac crac) {
-        Set<RangeAction> rangeActionsForState = crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED);
+        Set<RangeAction> rangeActionsForState = crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         return rangeActionsForState.stream()
                 .filter(PstRangeAction.class::isInstance)
                 .filter(otherRangeAction -> !otherRangeAction.equals(pstRangeAction))
