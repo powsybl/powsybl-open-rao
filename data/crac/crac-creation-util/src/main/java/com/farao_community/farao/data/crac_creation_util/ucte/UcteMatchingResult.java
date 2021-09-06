@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.ucte;
 
 import com.powsybl.iidm.network.Identifiable;
 
@@ -17,10 +17,10 @@ final class UcteMatchingResult {
     private static final UcteMatchingResult NOT_FOUND = new UcteMatchingResult(MatchStatus.NOT_FOUND, null, false, null);
     private static final UcteMatchingResult SEVERAL_MATCH = new UcteMatchingResult(MatchStatus.SEVERAL_MATCH, null, false, null);
 
-    private MatchStatus status;
-    private UcteConnectable.Side side;
+    private final MatchStatus status;
+    private final UcteConnectable.Side side;
     private boolean isInverted;
-    private Identifiable<?> iidmIdentifiable;
+    private final Identifiable<?> iidmIdentifiable;
 
     enum MatchStatus {
         OK(true),

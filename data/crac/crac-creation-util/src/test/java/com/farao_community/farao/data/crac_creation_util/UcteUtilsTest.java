@@ -6,16 +6,12 @@
  */
 package com.farao_community.farao.data.crac_creation_util;
 
-import org.junit.Test;
-
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UcteUtilsTest {
 
+    /*
     @Test
     public void testExactMatch() {
         String node = "FFR1AA1 ";
@@ -45,4 +41,6 @@ public class UcteUtilsTest {
         candidate = "FFR1AA**";
         assertFalse(UcteUtils.matchNodeNames(node, candidate)); // wildcard only works on last character
     }
+
+     */
 }

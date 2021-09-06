@@ -7,24 +7,12 @@
 
 package com.farao_community.farao.data.crac_creation_util;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.TieLine;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.Set;
-
-import static junit.framework.TestCase.*;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThrows;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UcteConnectableTest {
 
+    /*
     private Identifiable<?> branch;
 
     @Before
@@ -148,4 +136,6 @@ public class UcteConnectableTest {
         assertThrows(IllegalArgumentException.class, () -> new UcteConnectable("ABC1234", "DEF12345", "1", suffixes, branch, false));
         assertThrows(IllegalArgumentException.class, () -> new UcteConnectable("ABC12345", "DEF1234", "1", suffixes, branch, false));
     }
+
+     */
 }

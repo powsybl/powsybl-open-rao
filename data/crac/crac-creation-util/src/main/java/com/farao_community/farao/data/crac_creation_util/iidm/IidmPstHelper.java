@@ -4,8 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.iidm;
 
+import com.farao_community.farao.data.crac_creation_util.PstElementHelper;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -20,13 +21,14 @@ import java.util.Objects;
  *
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstHelper {
+public class IidmPstHelper implements PstElementHelper {
+
     public enum TapConvention {
         CENTERED_ON_ZERO, // Taps from -x to x
         STARTS_AT_ONE // Taps from 1 to y
     }
 
-    private String pstId;
+    private final String pstId;
 
     private boolean isPstValid = true;
     private String invalidPstReason;
@@ -35,23 +37,24 @@ public class PstHelper {
     private int initialTapPosition;
     private Map<Integer, Double> tapToAngleConversionMap;
 
-    public PstHelper(String pstId, Network network) {
+    public IidmPstHelper(String pstId, Network network) {
         this.pstId = pstId;
         interpretWithNetwork(network);
     }
 
-    /**
-     * Returns a boolean indicating whether or not the PST is considered valid in the network
-     */
-    public boolean isPstValid() {
+    @Override
+    public boolean isValid() {
         return isPstValid;
     }
 
-    /**
-     * If the PST is not valid, returns the reason why it is considered invalid
-     */
-    public String getInvalidPstReason() {
+    @Override
+    public String getInvalidReason() {
         return invalidPstReason;
+    }
+
+    @Override
+    public String getIdInNetwork() {
+        return pstId;
     }
 
     /**

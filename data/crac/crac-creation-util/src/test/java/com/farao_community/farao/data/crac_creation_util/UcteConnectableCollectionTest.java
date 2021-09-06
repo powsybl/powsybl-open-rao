@@ -6,19 +6,13 @@
  */
 package com.farao_community.farao.data.crac_creation_util;
 
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Network;
-import org.junit.Test;
-
-import static com.farao_community.farao.data.crac_creation_util.UcteMatchingResult.MatchStatus.*;
-import static junit.framework.TestCase.*;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
 public class UcteConnectableCollectionTest {
 
+    /*
     private Network network;
     private UcteConnectableCollection ucteConnectableCollection;
 
@@ -98,6 +92,7 @@ public class UcteConnectableCollectionTest {
         This is note the case for the other type of Branch, where terminal 1 and 2 match the id.
 
          */
+        /*
 
         // transformer with order code, from/to same as network
         UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("BBE2AA1 ", "BBE3AA1 ", "1");
@@ -346,4 +341,5 @@ public class UcteConnectableCollectionTest {
         assertFalse(result.hasMatched());
         assertEquals(SEVERAL_MATCH, result.getStatus());
     }
+    */
 }
