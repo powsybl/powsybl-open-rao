@@ -5,43 +5,50 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.iidm;
+
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PstHelperTest {
+public class IidmPstHelperTest {
 
-    /*
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Network network;
 
     @Before
     public void setUp() {
         network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes.uct"));
-        UcteAliasesCreation.createAliases(network);
     }
 
     @Test
     public void testInvalidPst() {
         IidmPstHelper pstHelper = new IidmPstHelper("BBE1AA1  BBE2AA1  1", network);
-        assertFalse(pstHelper.isPstValid());
-        assertTrue(pstHelper.getInvalidPstReason().contains("was not found in network"));
+        assertFalse(pstHelper.isValid());
+        assertTrue(pstHelper.getInvalidReason().contains("was not found in network"));
     }
 
     @Test
     public void testInvalidPst2() {
         IidmPstHelper pstHelper = new IidmPstHelper("FFR3AA1  FFR3AA2  1", network);
-        assertFalse(pstHelper.isPstValid());
-        assertTrue(pstHelper.getInvalidPstReason().contains("does not have a phase tap changer"));
+        assertFalse(pstHelper.isValid());
+        assertTrue(pstHelper.getInvalidReason().contains("does not have a phase tap changer"));
     }
 
     @Test
     public void testValidPst() {
         IidmPstHelper pstHelper = new IidmPstHelper("BBE2AA1  BBE3AA1  1", network);
 
-        assertTrue(pstHelper.isPstValid());
-        assertNull(pstHelper.getInvalidPstReason());
+        assertTrue(pstHelper.isValid());
+        assertNull(pstHelper.getInvalidReason());
         assertEquals(-16, pstHelper.getLowTapPosition());
         assertEquals(16, pstHelper.getHighTapPosition());
         assertEquals(0, pstHelper.getInitialTap());
@@ -89,6 +96,4 @@ public class PstHelperTest {
         assertEquals(5.839, conversionMap.get(15), DOUBLE_TOLERANCE);
         assertEquals(6.228, conversionMap.get(16), DOUBLE_TOLERANCE);
     }
-
-     */
 }

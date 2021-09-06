@@ -37,16 +37,13 @@ public class IidmCnecHelper implements CnecElementHelper {
     private boolean isHalfLine = false;
     private Branch.Side halfLineSide = null;
 
-    protected IidmCnecHelper(String branchId) {
-        this.branchId = branchId;
-    }
-
     public IidmCnecHelper(String iidmId, Network network) {
-        this.branchId = branchId;
-        if (Objects.isNull(branchId)) {
+        if (Objects.isNull(iidmId)) {
             invalidate("branchId must not be null");
             return;
         }
+
+        this.branchId = iidmId;
         interpretWithNetwork(network);
     }
 
@@ -106,7 +103,7 @@ public class IidmCnecHelper implements CnecElementHelper {
         }
     }
 
-    protected void interpretWithNetwork(Network network) {
+    private void interpretWithNetwork(Network network) {
 
         if (interpretAsNetworkIdentifiable(network)) {
             return;
@@ -163,12 +160,12 @@ public class IidmCnecHelper implements CnecElementHelper {
         return true;
     }
 
-    protected void checkBranchNominalVoltage(Branch branch) {
+    private void checkBranchNominalVoltage(Branch<?> branch) {
         this.nominalVoltageLeft = branch.getTerminal1().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = branch.getTerminal2().getVoltageLevel().getNominalV();
     }
 
-    protected void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
+    private void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
         this.nominalVoltageLeft = danglingLine.getTerminal().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = nominalVoltageLeft;
     }
@@ -185,7 +182,7 @@ public class IidmCnecHelper implements CnecElementHelper {
         }
     }
 
-    protected void checkBranchCurrentLimits(Branch branch) {
+    private void checkBranchCurrentLimits(Branch<?> branch) {
         if (!Objects.isNull(branch.getCurrentLimits1())) {
             this.currentLimitLeft = branch.getCurrentLimits1().getPermanentLimit();
         }
@@ -203,7 +200,7 @@ public class IidmCnecHelper implements CnecElementHelper {
         }
     }
 
-    protected void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
+    private void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
         if (!Objects.isNull(danglingLine.getCurrentLimits())) {
             this.currentLimitLeft = danglingLine.getCurrentLimits().getPermanentLimit();
             this.currentLimitRight = currentLimitLeft;
@@ -212,7 +209,7 @@ public class IidmCnecHelper implements CnecElementHelper {
         }
     }
 
-    protected void invalidate(String invalidReason) {
+    private void invalidate(String invalidReason) {
         this.isBranchValid = false;
         this.invalidBranchReason = invalidReason;
     }

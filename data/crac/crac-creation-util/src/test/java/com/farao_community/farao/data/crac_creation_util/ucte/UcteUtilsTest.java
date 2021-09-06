@@ -4,14 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.ucte;
+
+import org.junit.Test;
+
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UcteUtilsTest {
 
-    /*
     @Test
     public void testExactMatch() {
         String node = "FFR1AA1 ";
@@ -41,6 +45,4 @@ public class UcteUtilsTest {
         candidate = "FFR1AA**";
         assertFalse(UcteUtils.matchNodeNames(node, candidate)); // wildcard only works on last character
     }
-
-     */
 }
