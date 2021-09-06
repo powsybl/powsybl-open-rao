@@ -170,7 +170,6 @@ public class PerimeterOutputTest {
 
     @Test
     public void testGetOptimizedTap() {
-
         when(optimizationResult.getOptimizedTap(pst1)).thenReturn(10);
         when(optimizationResult.getOptimizedTap(pst2)).thenThrow(new FaraoException("absent mock"));
         when(prePerimeterRangeActionResult.getOptimizedTap(pst2)).thenReturn(3);
