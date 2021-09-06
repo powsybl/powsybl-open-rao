@@ -55,7 +55,6 @@ final class FlowCnecResultArraySerializer {
             serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_PRA, flowCnec, raoResult, jsonGenerator);
 
             if (!flowCnec.getState().isPreventive()) {
-                // TODO : check that this works for all non-preventive CNECs
                 serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_ARA, flowCnec, raoResult, jsonGenerator);
                 serializeFlowCnecResultForOptimizationState(OptimizationState.AFTER_CRA, flowCnec, raoResult, jsonGenerator);
             }
@@ -114,7 +113,6 @@ final class FlowCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.INITIAL) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_PRA);
         } else {
-            // TODO : check that this works for all non-preventive CNECs
             return containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.INITIAL) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_PRA) ||
                 containsAnyResultForOptimizationState(raoResult, flowCnec, OptimizationState.AFTER_ARA) ||
