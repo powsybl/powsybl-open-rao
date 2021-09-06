@@ -28,4 +28,22 @@ public class UcteTopologicalElementHelperTest {
         assertTrue(topoHelper.isValid());
         assertEquals("BBE1AA1  BBE4AA1  1", topoHelper.getIdInNetwork());
     }
+
+    @Test
+    public void testOtherValidTopologicalElements() {
+        setUp("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
+
+        assertTrue(new UcteTopogicalElementHelper("DDE1AA12", "DDE2AA11", "1", null, networkHelper).isValid());
+        assertTrue(new UcteTopogicalElementHelper("XBEFR321", "BBE1AA21", null, "TL BE1X", networkHelper).isValid());
+        assertTrue(new UcteTopogicalElementHelper("XDE2AL11", "DDE2AA11", null, "DL AL", networkHelper).isValid());
+        assertTrue(new UcteTopogicalElementHelper("FFR3AA11", "FFR3AA21", "1", null, networkHelper).isValid());
+        assertTrue(new UcteTopogicalElementHelper("BBE3AA12", "BBE2AA11", null, "PST BE", networkHelper).isValid());
+    }
+
+    @Test
+    public void testOtherConstructor() {
+        setUp("TestCase16Nodes_with_different_imax.uct");
+        assertTrue(new UcteTopogicalElementHelper("BBE1AA1 ", "BBE4AA1 ", "1", networkHelper).isValid());
+        assertTrue(new UcteTopogicalElementHelper("BBE1AA1  BBE4AA1  1", networkHelper).isValid());
+    }
 }

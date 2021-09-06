@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation_util.iidm;
 
-import com.farao_community.farao.data.crac_creation_util.PstElementHelper;
+import com.farao_community.farao.data.crac_creation_util.PstHelper;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -21,7 +21,7 @@ import java.util.Objects;
  *
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class IidmPstHelper implements PstElementHelper {
+public class IidmPstHelper implements PstHelper {
 
     public enum TapConvention {
         CENTERED_ON_ZERO, // Taps from -x to x

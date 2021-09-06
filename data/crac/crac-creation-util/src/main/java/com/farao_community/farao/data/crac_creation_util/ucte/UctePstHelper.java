@@ -1,6 +1,6 @@
 package com.farao_community.farao.data.crac_creation_util.ucte;
 
-import com.farao_community.farao.data.crac_creation_util.PstElementHelper;
+import com.farao_community.farao.data.crac_creation_util.PstHelper;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 import static java.lang.String.format;
 
-public class UctePstElementHelper extends AbstractUcteConnectableHelper implements PstElementHelper {
+public class UctePstHelper extends AbstractUcteConnectableHelper implements PstHelper {
 
     private int lowTapPosition;
     private int highTapPosition;
@@ -25,7 +25,7 @@ public class UctePstElementHelper extends AbstractUcteConnectableHelper implemen
      * @param suffix,              suffix of the branch, either an order code or an elementName
      * @param ucteNetworkAnalyzer, UcteNetworkAnalyzer object built upon the network
      */
-    public UctePstElementHelper(String fromNode, String toNode, String suffix, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UctePstHelper(String fromNode, String toNode, String suffix, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, suffix);
         if (isValid) {
             interpretWithNetworkAnalyzer(ucteNetworkAnalyzer);
@@ -42,7 +42,7 @@ public class UctePstElementHelper extends AbstractUcteConnectableHelper implemen
      * @param elementName,          element name of the branch
      * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
      */
-    public UctePstElementHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UctePstHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, orderCode, elementName);
         if (isValid) {
             interpretWithNetworkAnalyzer(ucteNetworkAnalyzer);
@@ -55,7 +55,7 @@ public class UctePstElementHelper extends AbstractUcteConnectableHelper implemen
      * @param ucteBranchId,         concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
      * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
      */
-    public UctePstElementHelper(String ucteBranchId, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UctePstHelper(String ucteBranchId, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(ucteBranchId);
         if (isValid) {
             interpretWithNetworkAnalyzer(ucteNetworkAnalyzer);

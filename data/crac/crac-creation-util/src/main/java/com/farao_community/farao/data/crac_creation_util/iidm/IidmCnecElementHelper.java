@@ -22,7 +22,7 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class IidmCnecHelper implements CnecElementHelper {
+public class IidmCnecElementHelper implements CnecElementHelper {
 
     protected String branchId;
 
@@ -37,7 +37,7 @@ public class IidmCnecHelper implements CnecElementHelper {
     private boolean isHalfLine = false;
     private Branch.Side halfLineSide = null;
 
-    public IidmCnecHelper(String iidmId, Network network) {
+    public IidmCnecElementHelper(String iidmId, Network network) {
         if (Objects.isNull(iidmId)) {
             invalidate("branchId must not be null");
             return;

@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UcteCnecHelperTest {
+public class UcteCnecElementHelperTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private UcteNetworkAnalyzer networkHelper;

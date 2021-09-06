@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class IidmCnecHelperTest {
+public class IidmCnecElementHelperTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private Network network;
@@ -31,7 +31,7 @@ public class IidmCnecHelperTest {
     @Test
     public void testValidBranch() {
         // internal branch
-        IidmCnecHelper cnecHelper = new IidmCnecHelper("BBE1AA1  BBE2AA1  1", network);
+        IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("BBE1AA1  BBE2AA1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE1AA1  BBE2AA1  1", cnecHelper.getIdInNetwork());
         assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
@@ -42,7 +42,7 @@ public class IidmCnecHelperTest {
         assertFalse(cnecHelper.isInvertedInNetwork());
 
         // tie-line with full id
-        cnecHelper = new IidmCnecHelper("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1", network);
+        cnecHelper = new IidmCnecElementHelper("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1", cnecHelper.getIdInNetwork());
         assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
@@ -56,13 +56,13 @@ public class IidmCnecHelperTest {
     @Test
     public void testInvalidInternalBranch() {
         // unknown from
-        assertFalse(new IidmCnecHelper("UNKNOW1 BBE1AA1 1", network).isValid());
+        assertFalse(new IidmCnecElementHelper("UNKNOW1 BBE1AA1 1", network).isValid());
 
         // unknown to
-        assertFalse(new IidmCnecHelper("BBE3AA1 UNKNOW1 1", network).isValid());
+        assertFalse(new IidmCnecElementHelper("BBE3AA1 UNKNOW1 1", network).isValid());
 
         // branch exists but not with this order code
-        assertFalse(new IidmCnecHelper("BBE1AA1  BBE2AA1  4", network).isValid());
+        assertFalse(new IidmCnecElementHelper("BBE1AA1  BBE2AA1  4", network).isValid());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class IidmCnecHelperTest {
          */
 
         // transformer with order code, from/to same as network
-        IidmCnecHelper cnecHelper = new IidmCnecHelper("BBE2AA1  BBE3AA1  1", network);
+        IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("BBE2AA1  BBE3AA1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE2AA1  BBE3AA1  1", cnecHelper.getIdInNetwork());
         assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
@@ -85,7 +85,7 @@ public class IidmCnecHelperTest {
         assertEquals(4500., cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
         assertEquals(4500., cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
-        cnecHelper = new IidmCnecHelper("FFR1AA2  FFR1AA1  5", network);
+        cnecHelper = new IidmCnecElementHelper("FFR1AA2  FFR1AA1  5", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("FFR1AA2  FFR1AA1  5", cnecHelper.getIdInNetwork());
         assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
@@ -93,7 +93,7 @@ public class IidmCnecHelperTest {
         assertEquals(1500. * 220 / 380, cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
         assertEquals(1500., cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
-        cnecHelper = new IidmCnecHelper("BBE2AA2  BBE2AA1  2", network);
+        cnecHelper = new IidmCnecElementHelper("BBE2AA2  BBE2AA1  2", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE2AA2  BBE2AA1  2", cnecHelper.getIdInNetwork());
         assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
@@ -106,17 +106,17 @@ public class IidmCnecHelperTest {
     public void testInvalidTransformer() {
 
         // transformer exists but not with this order code
-        assertFalse(new IidmCnecHelper("BBE2AA1  BBE3AA1  2", network).isValid());
+        assertFalse(new IidmCnecElementHelper("BBE2AA1  BBE3AA1  2", network).isValid());
 
         // transformer exists but not with this element name
-        assertFalse(new IidmCnecHelper("FFR1AA2  FFR1AA1  COUCOU", network).isValid());
+        assertFalse(new IidmCnecElementHelper("FFR1AA2  FFR1AA1  COUCOU", network).isValid());
     }
 
     @Test
     public void testValidDanglingLine() {
 
         // dangling-line with order code
-        IidmCnecHelper cnecHelper = new IidmCnecHelper("BBE2AA1  XBE2AL1  1", network);
+        IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("BBE2AA1  XBE2AL1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE2AA1  XBE2AL1  1", cnecHelper.getIdInNetwork());
         assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
@@ -124,7 +124,7 @@ public class IidmCnecHelperTest {
         assertEquals(1250, cnecHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
         assertEquals(1250, cnecHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
 
-        cnecHelper = new IidmCnecHelper("BBE2AA1  XBE2AL1  1", network);
+        cnecHelper = new IidmCnecElementHelper("BBE2AA1  XBE2AL1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("BBE2AA1  XBE2AL1  1", cnecHelper.getIdInNetwork());
     }
@@ -132,14 +132,14 @@ public class IidmCnecHelperTest {
     @Test
     public void testInvalidDanglingLine() {
         // dangling-line exists but not with this order code
-        assertFalse(new IidmCnecHelper("XBE2AL1  BBE2AA1  2", network).isValid());
+        assertFalse(new IidmCnecElementHelper("XBE2AL1  BBE2AA1  2", network).isValid());
     }
 
     @Test
     public void testValidHalfLine() {
 
         // if half-line is put in argument, the associated tie-line is recognized
-        IidmCnecHelper cnecHelper = new IidmCnecHelper("FFR3AA1  XBEFR11  1", network);
+        IidmCnecElementHelper cnecHelper = new IidmCnecElementHelper("FFR3AA1  XBEFR11  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1", cnecHelper.getIdInNetwork());
         assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
@@ -149,7 +149,7 @@ public class IidmCnecHelperTest {
         assertTrue(cnecHelper.isHalfLine());
         assertFalse(cnecHelper.isInvertedInNetwork());
 
-        cnecHelper = new IidmCnecHelper("XBEFR11  BBE2AA1  1", network);
+        cnecHelper = new IidmCnecElementHelper("XBEFR11  BBE2AA1  1", network);
         assertTrue(cnecHelper.isValid());
         assertEquals("FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1", cnecHelper.getIdInNetwork());
         assertEquals(380., cnecHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
@@ -162,6 +162,6 @@ public class IidmCnecHelperTest {
 
     @Test
     public void testInvalidConstructor() {
-        assertFalse(new IidmCnecHelper(null, network).isValid());
+        assertFalse(new IidmCnecElementHelper(null, network).isValid());
     }
 }
