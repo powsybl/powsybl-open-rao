@@ -210,10 +210,11 @@ public final class RaoResultJsonConstants {
     // state comparator
     public static final Comparator<State> STATE_COMPARATOR = (s1, s2) -> {
         if (s1.getInstant().getOrder() != s2.getInstant().getOrder()) {
-            return s1.compareTo(s2);
+            return Integer.compare(s1.getInstant().getOrder(), s2.getInstant().getOrder());
         } else if (s1.getInstant().equals(Instant.PREVENTIVE)) {
             return 0;
         } else {
+            // Since instant is not preventive, there is a contingency for sure
             return s1.getContingency().get().getId().compareTo(s2.getContingency().get().getId());
         }
     };

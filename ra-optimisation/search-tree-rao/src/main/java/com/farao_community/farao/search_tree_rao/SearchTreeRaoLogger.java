@@ -72,6 +72,16 @@ final class SearchTreeRaoLogger {
                                                        Set<State> states,
                                                        RaoParameters.ObjectiveFunction objectiveFunction,
                                                        int numberOfLoggedElements) {
+        getMostLimitingElementsResults(objectiveFunctionResult, flowResult, states, objectiveFunction, numberOfLoggedElements)
+            .forEach(SearchTree.LOGGER::info);
+    }
+
+    static List<String> getMostLimitingElementsResults(ObjectiveFunctionResult objectiveFunctionResult,
+                                                       FlowResult flowResult,
+                                                       Set<State> states,
+                                                       RaoParameters.ObjectiveFunction objectiveFunction,
+                                                       int numberOfLoggedElements) {
+        List<String> summary = new ArrayList<>();
         Unit unit = objectiveFunction.getUnit();
         boolean relativePositiveMargins = objectiveFunction.relativePositiveMargins();
 
@@ -84,25 +94,37 @@ final class SearchTreeRaoLogger {
             double cnecMargin = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, unit) : flowResult.getMargin(cnec, unit);
 
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
-            String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
-            String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format("(PTDF %f)", flowResult.getPtdfZonalSum(cnec)) : "";
-            SearchTree.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {} {}",
+            String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
+            String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec)) : "";
+            summary.add(String.format("Limiting element #%s: element %s at state %s with a%s margin of %s %s%s",
                 i + 1,
                 cnecNetworkElementName,
                 cnecStateId,
                 isRelativeMargin,
                 margin,
                 unit,
-                ptdfIfRelative);
+                ptdfIfRelative));
         }
+        return summary;
     }
 
-    public static void logMostLimitingElementsResults(BasecaseScenario basecaseScenario,
-                                                      OptimizationResult basecaseOptimResult,
-                                                      Set<ContingencyScenario> contingencyScenarios,
-                                                      Map<State, OptimizationResult> contingencyOptimizationResults,
-                                                      RaoParameters.ObjectiveFunction objectiveFunction,
-                                                      int numberOfLoggedElements) {
+    static void logMostLimitingElementsResults(BasecaseScenario basecaseScenario,
+                                               OptimizationResult basecaseOptimResult,
+                                               Set<ContingencyScenario> contingencyScenarios,
+                                               Map<State, OptimizationResult> contingencyOptimizationResults,
+                                               RaoParameters.ObjectiveFunction objectiveFunction,
+                                               int numberOfLoggedElements) {
+        getMostLimitingElementsResults(basecaseScenario, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunction, numberOfLoggedElements)
+            .forEach(SearchTree.LOGGER::info);
+    }
+
+    static List<String> getMostLimitingElementsResults(BasecaseScenario basecaseScenario,
+                                                       OptimizationResult basecaseOptimResult,
+                                                       Set<ContingencyScenario> contingencyScenarios,
+                                                       Map<State, OptimizationResult> contingencyOptimizationResults,
+                                                       RaoParameters.ObjectiveFunction objectiveFunction,
+                                                       int numberOfLoggedElements) {
+        List<String> summary = new ArrayList<>();
         Unit unit = objectiveFunction.getUnit();
         boolean relativePositiveMargins = objectiveFunction.relativePositiveMargins();
 
@@ -131,15 +153,16 @@ final class SearchTreeRaoLogger {
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
             String margin = new DecimalFormat("#0.00").format(cnecMargin);
-            String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? "relative " : "";
-            SearchTree.LOGGER.info("Limiting element #{}: element {} at state {} with a {}margin of {} {}",
+            String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
+            summary.add(String.format("Limiting element #%s: element %s at state %s with a%s margin of %s %s",
                 i + 1,
                 cnecNetworkElementName,
                 cnecStateId,
                 isRelativeMargin,
                 margin,
-                unit);
+                unit));
         }
+        return summary;
     }
 
     private static List<FlowCnec> getMostLimitingElements(ObjectiveFunctionResult objectiveFunctionResult,

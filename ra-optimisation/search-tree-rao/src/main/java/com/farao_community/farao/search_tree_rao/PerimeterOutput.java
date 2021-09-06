@@ -15,33 +15,29 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
-import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.farao_community.farao.search_tree_rao.output.PerimeterResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PerimeterOutput implements PerimeterResult {
 
     private OptimizationResult optimizationResult;
-    private RangeActionResult rangeActionResult;
+    private RangeActionResult prePerimeterRangeActionResult;
 
-    public PerimeterOutput(PrePerimeterResult prePerimeterResult, OptimizationResult optimizationResult) {
+    public PerimeterOutput(RangeActionResult prePerimeterRangeActionResult, OptimizationResult optimizationResult) {
         this.optimizationResult = optimizationResult;
-        this.rangeActionResult = prePerimeterResult;
-    }
-
-    public PerimeterOutput(OptimizationResult prePerimeterOptimizationResult, OptimizationResult optimizationResult) {
-        this.optimizationResult = optimizationResult;
-        this.rangeActionResult = prePerimeterOptimizationResult;
+        this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
     }
 
     @Override
     public Set<RangeAction> getActivatedRangeActions() {
         return optimizationResult.getRangeActions().stream()
-                .filter(rangeAction -> rangeActionResult.getOptimizedSetPoint(rangeAction) != optimizationResult.getOptimizedSetPoint(rangeAction))
+                .filter(rangeAction -> prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction) != optimizationResult.getOptimizedSetPoint(rangeAction))
                 .collect(Collectors.toSet());
     }
 
@@ -102,12 +98,12 @@ public class PerimeterOutput implements PerimeterResult {
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
-        return getCostlyElements(virtualCostName, number);
+        return optimizationResult.getCostlyElements(virtualCostName, number);
     }
 
     @Override
     public Set<RangeAction> getRangeActions() {
-        return rangeActionResult.getRangeActions();
+        return prePerimeterRangeActionResult.getRangeActions();
     }
 
     @Override
@@ -116,7 +112,7 @@ public class PerimeterOutput implements PerimeterResult {
         try {
             return optimizationResult.getOptimizedTap(pstRangeAction);
         } catch (FaraoException e) {
-            return rangeActionResult.getOptimizedTap(pstRangeAction);
+            return prePerimeterRangeActionResult.getOptimizedTap(pstRangeAction);
         }
     }
 
@@ -125,7 +121,7 @@ public class PerimeterOutput implements PerimeterResult {
         if (optimizationResult.getRangeActions().contains(rangeAction)) {
             return optimizationResult.getOptimizedSetPoint(rangeAction);
         } else {
-            return rangeActionResult.getOptimizedSetPoint(rangeAction);
+            return prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
         }
     }
 

@@ -54,4 +54,12 @@ public class OptimizationStateTest {
         assertEquals(AFTER_ARA, OptimizationState.beforeOptimizing(state));
         assertEquals(AFTER_CRA, OptimizationState.afterOptimizing(state));
     }
+
+    @Test
+    public void testGetFirstInstant() {
+        assertEquals(PREVENTIVE, INITIAL.getFirstInstant());
+        assertEquals(PREVENTIVE, AFTER_PRA.getFirstInstant());
+        assertEquals(AUTO, AFTER_ARA.getFirstInstant());
+        assertEquals(CURATIVE, AFTER_CRA.getFirstInstant());
+    }
 }
