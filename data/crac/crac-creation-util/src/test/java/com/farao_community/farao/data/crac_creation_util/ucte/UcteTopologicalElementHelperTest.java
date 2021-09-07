@@ -20,11 +20,11 @@ public class UcteTopologicalElementHelperTest {
     public void testSwitch() {
         setUp("TestCase16Nodes_with_different_imax.uct");
 
-        UcteTopogicalElementHelper topoHelper = new UcteTopogicalElementHelper("BBE1AA1", "BBE4AA1", "1", null, networkHelper);
+        UcteTopologicalElementHelper topoHelper = new UcteTopologicalElementHelper("BBE1AA1", "BBE4AA1", "1", null, networkHelper);
         assertTrue(topoHelper.isValid());
         assertEquals("BBE1AA1  BBE4AA1  1", topoHelper.getIdInNetwork());
 
-        topoHelper = new UcteTopogicalElementHelper("BBE4AA1", "BBE1AA1", "1", null, networkHelper);
+        topoHelper = new UcteTopologicalElementHelper("BBE4AA1", "BBE1AA1", "1", null, networkHelper);
         assertTrue(topoHelper.isValid());
         assertEquals("BBE1AA1  BBE4AA1  1", topoHelper.getIdInNetwork());
     }
@@ -33,17 +33,17 @@ public class UcteTopologicalElementHelperTest {
     public void testOtherValidTopologicalElements() {
         setUp("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
-        assertTrue(new UcteTopogicalElementHelper("DDE1AA12", "DDE2AA11", "1", null, networkHelper).isValid());
-        assertTrue(new UcteTopogicalElementHelper("XBEFR321", "BBE1AA21", null, "TL BE1X", networkHelper).isValid());
-        assertTrue(new UcteTopogicalElementHelper("XDE2AL11", "DDE2AA11", null, "DL AL", networkHelper).isValid());
-        assertTrue(new UcteTopogicalElementHelper("FFR3AA11", "FFR3AA21", "1", null, networkHelper).isValid());
-        assertTrue(new UcteTopogicalElementHelper("BBE3AA12", "BBE2AA11", null, "PST BE", networkHelper).isValid());
+        assertTrue(new UcteTopologicalElementHelper("DDE1AA12", "DDE2AA11", "1", null, networkHelper).isValid());
+        assertTrue(new UcteTopologicalElementHelper("XBEFR321", "BBE1AA21", null, "TL BE1X", networkHelper).isValid());
+        assertTrue(new UcteTopologicalElementHelper("XDE2AL11", "DDE2AA11", null, "DL AL", networkHelper).isValid());
+        assertTrue(new UcteTopologicalElementHelper("FFR3AA11", "FFR3AA21", "1", null, networkHelper).isValid());
+        assertTrue(new UcteTopologicalElementHelper("BBE3AA12", "BBE2AA11", null, "PST BE", networkHelper).isValid());
     }
 
     @Test
     public void testOtherConstructor() {
         setUp("TestCase16Nodes_with_different_imax.uct");
-        assertTrue(new UcteTopogicalElementHelper("BBE1AA1 ", "BBE4AA1 ", "1", networkHelper).isValid());
-        assertTrue(new UcteTopogicalElementHelper("BBE1AA1  BBE4AA1  1", networkHelper).isValid());
+        assertTrue(new UcteTopologicalElementHelper("BBE1AA1 ", "BBE4AA1 ", "1", networkHelper).isValid());
+        assertTrue(new UcteTopologicalElementHelper("BBE1AA1  BBE4AA1  1", networkHelper).isValid());
     }
 }

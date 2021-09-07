@@ -22,7 +22,7 @@ import static java.lang.String.format;
  *
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UcteTopogicalElementHelper extends AbstractUcteConnectableHelper implements ElementHelper {
+public class UcteTopologicalElementHelper extends AbstractUcteConnectableHelper implements ElementHelper {
 
     /**
      * Constructor, based on a separate fields.
@@ -32,7 +32,7 @@ public class UcteTopogicalElementHelper extends AbstractUcteConnectableHelper im
      * @param suffix,               suffix of the branch, either an order code or an elementName
      * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
      */
-    public UcteTopogicalElementHelper(String fromNode, String toNode, String suffix, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UcteTopologicalElementHelper(String fromNode, String toNode, String suffix, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, suffix);
         if (isValid) {
             interpretWithNetworkAnalyzer(ucteNetworkAnalyzer);
@@ -49,7 +49,7 @@ public class UcteTopogicalElementHelper extends AbstractUcteConnectableHelper im
      * @param elementName,          element name of the branch
      * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
      */
-    public UcteTopogicalElementHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UcteTopologicalElementHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, orderCode, elementName);
         if (isValid) {
             interpretWithNetworkAnalyzer(ucteNetworkAnalyzer);
@@ -62,7 +62,7 @@ public class UcteTopogicalElementHelper extends AbstractUcteConnectableHelper im
      * @param ucteBranchId,         concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
      * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
      */
-    public UcteTopogicalElementHelper(String ucteBranchId, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UcteTopologicalElementHelper(String ucteBranchId, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(ucteBranchId);
         if (isValid) {
             interpretWithNetworkAnalyzer(ucteNetworkAnalyzer);
