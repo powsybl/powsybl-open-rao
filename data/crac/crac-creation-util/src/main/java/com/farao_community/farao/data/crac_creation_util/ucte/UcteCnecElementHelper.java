@@ -171,7 +171,7 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
         }
     }
 
-    protected void checkBranchNominalVoltage(Branch branch) {
+    protected void checkBranchNominalVoltage(Branch<?> branch) {
         this.nominalVoltageLeft = branch.getTerminal1().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = branch.getTerminal2().getVoltageLevel().getNominalV();
     }
@@ -181,7 +181,7 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
         this.nominalVoltageRight = nominalVoltageLeft;
     }
 
-    protected void checkBranchCurrentLimits(Branch branch) {
+    protected void checkBranchCurrentLimits(Branch<?> branch) {
         if (!Objects.isNull(branch.getCurrentLimits1())) {
             this.currentLimitLeft = branch.getCurrentLimits1().getPermanentLimit();
         }

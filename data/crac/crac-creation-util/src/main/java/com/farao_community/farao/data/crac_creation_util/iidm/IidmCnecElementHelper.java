@@ -142,8 +142,8 @@ public class IidmCnecElementHelper implements CnecElementHelper {
 
     private boolean interpretAsHalfLine(Network network) {
         Optional<TieLine> tieLine = network.getBranchStream()
-                .filter(b -> b instanceof TieLine)
-                .map(b -> (TieLine) b)
+                .filter(TieLine.class::isInstance)
+                .map(TieLine.class::cast)
                 .filter(b -> b.getHalf1().getId().equals(branchId) || b.getHalf2().getId().equals(branchId))
                 .findAny();
 

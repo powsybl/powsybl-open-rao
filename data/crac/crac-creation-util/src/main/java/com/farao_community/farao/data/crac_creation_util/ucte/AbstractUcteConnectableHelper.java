@@ -5,7 +5,7 @@ import java.util.Objects;
 import static com.farao_community.farao.data.crac_creation_util.ucte.UcteUtils.*;
 import static java.lang.String.format;
 
-abstract public class AbstractUcteConnectableHelper {
+public abstract class AbstractUcteConnectableHelper {
 
     protected String connectableId;
     protected String from;
