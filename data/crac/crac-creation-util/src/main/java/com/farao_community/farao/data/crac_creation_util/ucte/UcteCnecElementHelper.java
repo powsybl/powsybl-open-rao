@@ -19,8 +19,8 @@ import static com.farao_community.farao.data.crac_creation_util.ucte.UcteConnect
 import static java.lang.String.format;
 
 /**
- * UcteBranchHelper is a utility class which manages branches defined with the UCTE convention
- * <p>
+ * UcteCnecElementHelper is a utility class which manages CNECs defined with the UCTE convention
+ *
  * This utility class has been designed so as to be used in CRAC creators whose format
  * is based on a UCTE network and whose CRAC identifies network elements with the following
  * information: a "from node", a "to node" and a suffix. Either identified in separate fields,

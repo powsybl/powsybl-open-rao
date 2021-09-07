@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.data.crac_creation_util.ucte;
 
 import com.farao_community.farao.data.crac_creation_util.ElementHelper;
@@ -5,6 +11,17 @@ import com.powsybl.iidm.network.Identifiable;
 
 import static java.lang.String.format;
 
+/**
+ * UcteTopogicalElementHelper is a utility class which manages elements from topological
+ * remedial actions, defined with the UCTE convention
+ *
+ * This utility class has been designed so as to be used in CRAC creators whose format
+ * is based on a UCTE network and whose CRAC identifies network elements with the following
+ * information: a "from node", a "to node" and a suffix. Either identified in separate fields,
+ * or in a common concatenated id such as "FROMNODE TO__NODE SUFFIX".
+ *
+ * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class UcteTopogicalElementHelper extends AbstractUcteConnectableHelper implements ElementHelper {
 
     /**
