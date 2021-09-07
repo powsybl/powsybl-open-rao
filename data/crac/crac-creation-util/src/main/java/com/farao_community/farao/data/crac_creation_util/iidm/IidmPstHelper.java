@@ -57,6 +57,11 @@ public class IidmPstHelper implements PstHelper {
         return pstId;
     }
 
+    @Override
+    public boolean isInvertedInNetwork() {
+        return true;
+    }
+
     /**
      * Returns the lowest tap position of the PST, as defined in the network. Convention is centered on zero.
      */

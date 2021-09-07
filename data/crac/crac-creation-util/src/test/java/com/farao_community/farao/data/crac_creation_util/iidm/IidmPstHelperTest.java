@@ -49,6 +49,7 @@ public class IidmPstHelperTest {
 
         assertTrue(pstHelper.isValid());
         assertNull(pstHelper.getInvalidReason());
+        assertTrue(pstHelper.isInvertedInNetwork());
         assertEquals(-16, pstHelper.getLowTapPosition());
         assertEquals(16, pstHelper.getHighTapPosition());
         assertEquals(0, pstHelper.getInitialTap());

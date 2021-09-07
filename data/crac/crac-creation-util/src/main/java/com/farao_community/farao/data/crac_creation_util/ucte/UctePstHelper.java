@@ -29,6 +29,7 @@ import static java.lang.String.format;
  */
 public class UctePstHelper extends AbstractUcteConnectableHelper implements PstHelper {
 
+    private boolean isInverted;
     private int lowTapPosition;
     private int highTapPosition;
     private int initialTapPosition;
@@ -80,6 +81,11 @@ public class UctePstHelper extends AbstractUcteConnectableHelper implements PstH
     }
 
     @Override
+    public boolean isInvertedInNetwork() {
+        return isInverted;
+    }
+
+    @Override
     public int getLowTapPosition() {
         return lowTapPosition;
     }
@@ -113,6 +119,7 @@ public class UctePstHelper extends AbstractUcteConnectableHelper implements PstH
             return;
         }
 
+        this.isInverted = ucteMatchingResult.isInverted();
         Identifiable<?> transformer = ucteMatchingResult.getIidmIdentifiable();
         this.connectableIdInNetwork = transformer.getId();
 
