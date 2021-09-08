@@ -6,8 +6,6 @@
  */
 package com.farao_community.farao.data.crac_creation_util;
 
-import com.farao_community.farao.data.crac_creation_util.iidm.IidmPstHelper;
-
 import java.util.Map;
 
 public interface PstHelper extends ElementHelper {
@@ -51,8 +49,8 @@ public interface PstHelper extends ElementHelper {
      * @param originalTapConvention the convention used for the original tap position
      * @return the normalized (centered on zero) tap position
      */
-    default int normalizeTap(int originalTap, IidmPstHelper.TapConvention originalTapConvention) {
-        if (originalTapConvention.equals(IidmPstHelper.TapConvention.CENTERED_ON_ZERO)) {
+    default int normalizeTap(int originalTap, TapConvention originalTapConvention) {
+        if (originalTapConvention.equals(TapConvention.CENTERED_ON_ZERO)) {
             return originalTap;
         } else {
             return getLowTapPosition() + originalTap - 1;
