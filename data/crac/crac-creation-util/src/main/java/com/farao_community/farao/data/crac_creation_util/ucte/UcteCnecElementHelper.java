@@ -84,11 +84,6 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
         }
     }
 
-    @Override
-    public String getIdInNetwork() {
-        return connectableIdInNetwork;
-    }
-
     /**
      * If the branch is valid, returns a boolean indicating whether or not the from/to are
      * inverted in the network, compared to the values originally used in the constructor
@@ -127,9 +122,9 @@ public class UcteCnecElementHelper extends AbstractUcteConnectableHelper impleme
         return halfLineSide;
     }
 
-    protected void interpretWithNetworkAnalyzer(UcteNetworkAnalyzer networkHelper) {
+    protected void interpretWithNetworkAnalyzer(UcteNetworkAnalyzer networkAnalyzer) {
 
-        UcteMatchingResult ucteMatchingResult = networkHelper.findCnecElement(from, to, suffix);
+        UcteMatchingResult ucteMatchingResult = networkAnalyzer.findCnecElement(from, to, suffix);
 
         if (ucteMatchingResult.getStatus() == UcteMatchingResult.MatchStatus.NOT_FOUND) {
             invalidate(format("branch was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));

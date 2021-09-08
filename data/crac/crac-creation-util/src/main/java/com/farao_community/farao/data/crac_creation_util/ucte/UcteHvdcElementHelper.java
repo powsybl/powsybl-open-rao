@@ -73,11 +73,6 @@ public class UcteHvdcElementHelper extends AbstractUcteConnectableHelper impleme
         }
     }
 
-    @Override
-    public String getIdInNetwork() {
-        return connectableIdInNetwork;
-    }
-
     /**
      * If the branch is valid, returns a boolean indicating whether or not the from/to are
      * inverted in the network, compared to the values originally used in the constructor
@@ -88,9 +83,9 @@ public class UcteHvdcElementHelper extends AbstractUcteConnectableHelper impleme
         return isInvertedInNetwork;
     }
 
-    protected void interpretWithNetworkAnalyzer(UcteNetworkAnalyzer networkHelper) {
+    protected void interpretWithNetworkAnalyzer(UcteNetworkAnalyzer networkAnalyzer) {
 
-        UcteMatchingResult ucteMatchingResult = networkHelper.findHvdcElement(from, to, suffix);
+        UcteMatchingResult ucteMatchingResult = networkAnalyzer.findHvdcElement(from, to, suffix);
 
         if (ucteMatchingResult.getStatus() == UcteMatchingResult.MatchStatus.NOT_FOUND) {
             invalidate(format("HVDC was not found in the Network (from: %s, to: %s, suffix: %s)", from, to, suffix));

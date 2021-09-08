@@ -23,11 +23,6 @@ import java.util.Objects;
  */
 public class IidmPstHelper implements PstHelper {
 
-    public enum TapConvention {
-        CENTERED_ON_ZERO, // Taps from -x to x
-        STARTS_AT_ONE // Taps from 1 to y
-    }
-
     private final String pstId;
 
     private boolean isPstValid = true;
@@ -88,21 +83,6 @@ public class IidmPstHelper implements PstHelper {
      */
     public Map<Integer, Double> getTapToAngleConversionMap() {
         return tapToAngleConversionMap;
-    }
-
-    /**
-     * Converts a tap position of the PST to the used convention (centered on zero).
-     * Has no effect if the original convetion is already centered on zero.
-     * @param originalTap the original tap position
-     * @param originalTapConvention the convention used for the original tap position
-     * @return the normalized (centered on zero) tap position
-     */
-    public int normalizeTap(int originalTap, TapConvention originalTapConvention) {
-        if (originalTapConvention.equals(TapConvention.CENTERED_ON_ZERO)) {
-            return originalTap;
-        } else {
-            return lowTapPosition + originalTap - 1;
-        }
     }
 
     private void interpretWithNetwork(Network network) {

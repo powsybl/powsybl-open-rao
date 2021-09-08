@@ -127,8 +127,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         if (cnecElement instanceof TieLine) {
             checkBranchNominalVoltage((Branch<?>) cnecElement);
             checkTieLineCurrentLimits((TieLine) cnecElement);
-        }
-        if (cnecElement instanceof Branch) {
+        } else if (cnecElement instanceof Branch) {
             checkBranchNominalVoltage((Branch<?>) cnecElement);
             checkBranchCurrentLimits((Branch<?>) cnecElement);
         } else if (cnecElement instanceof DanglingLine) {
