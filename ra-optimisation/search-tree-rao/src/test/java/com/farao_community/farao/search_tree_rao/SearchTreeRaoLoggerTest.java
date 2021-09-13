@@ -38,23 +38,23 @@ import static org.mockito.Mockito.when;
  */
 public class SearchTreeRaoLoggerTest {
 
-    ObjectiveFunctionResult objectiveFunctionResult;
-    FlowResult flowResult;
-    FlowCnec cnec1;
-    FlowCnec cnec2;
-    FlowCnec cnec3;
-    FlowCnec cnec4;
-    FlowCnec cnec5;
-    State statePreventive;
-    State stateCo1Auto;
-    State stateCo1Curative;
-    State stateCo2Curative;
-    String cnec1Id;
-    String cnec2Id;
-    String cnec3Id;
-    String cnec4Id;
-    String cnec5Id;
-    OptimizationResult basecaseOptimResult;
+    private ObjectiveFunctionResult objectiveFunctionResult;
+    private FlowResult flowResult;
+    private FlowCnec cnec1;
+    private FlowCnec cnec2;
+    private FlowCnec cnec3;
+    private FlowCnec cnec4;
+    private FlowCnec cnec5;
+    private State statePreventive;
+    private State stateCo1Auto;
+    private State stateCo1Curative;
+    private State stateCo2Curative;
+    private String cnec1Id;
+    private String cnec2Id;
+    private String cnec3Id;
+    private String cnec4Id;
+    private String cnec5Id;
+    private OptimizationResult basecaseOptimResult;
 
     @Before
     public void setUp() {
