@@ -60,25 +60,33 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
             throw new FaraoException("Network element " + this.getId() + " was not found in the network.");
         } else if (ne instanceof Branch) {
             Branch<?> branch = (Branch) ne;
-            Optional<Country> country1 = branch.getTerminal1().getVoltageLevel().getSubstation().getCountry();
-            Optional<Country> country2 = branch.getTerminal2().getVoltageLevel().getSubstation().getCountry();
+            Optional<Country> country1 = getSubstationCountry(branch.getTerminal1().getVoltageLevel().getSubstation());
+            Optional<Country> country2 = getSubstationCountry(branch.getTerminal2().getVoltageLevel().getSubstation());
             if (country1.equals(country2)) {
                 return Set.of(country1);
             } else {
                 return Set.of(country1, country2);
             }
         } else if (ne instanceof Switch) {
-            return Set.of(((Switch) ne).getVoltageLevel().getSubstation().getCountry());
+            return Set.of(getSubstationCountry(((Switch) ne).getVoltageLevel().getSubstation()));
         } else if (ne instanceof Injection) {
-            return Set.of(((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation().getCountry());
+            return Set.of(getSubstationCountry(((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation()));
         } else if (ne instanceof  Bus) {
-            return Set.of(((Bus) ne).getVoltageLevel().getSubstation().getCountry());
+            return Set.of(getSubstationCountry(((Bus) ne).getVoltageLevel().getSubstation()));
         } else if (ne instanceof VoltageLevel) {
-            return Set.of(((VoltageLevel) ne).getSubstation().getCountry());
+            return Set.of(getSubstationCountry(((VoltageLevel) ne).getSubstation()));
         } else if (ne instanceof Substation) {
             return Set.of(((Substation) ne).getCountry());
         }  else {
             throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
+        }
+    }
+
+    private Optional<Country> getSubstationCountry(Optional<Substation> substation) {
+        if (substation.isPresent()) {
+            return substation.get().getCountry();
+        } else {
+            return Optional.empty();
         }
     }
 }

@@ -8,6 +8,7 @@ package com.farao_community.farao.flowbased_computation;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -53,7 +54,12 @@ public final class NetworkUtil {
     }
 
     public static Country getBranchSideCountry(Branch branch, Branch.Side side) {
-        return branch.getTerminal(side).getVoltageLevel().getSubstation().getCountry().orElse(null);
+        Optional<Substation> substation = branch.getTerminal(side).getVoltageLevel().getSubstation();
+        if (substation.isPresent()) {
+            return substation.get().getNullableCountry();
+        } else {
+            return null;
+        }
     }
 
     public static Injection getInjectionFrom(Network network, String id) {
