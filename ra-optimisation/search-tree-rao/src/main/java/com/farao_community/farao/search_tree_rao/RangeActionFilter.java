@@ -99,22 +99,59 @@ class RangeActionFilter {
         Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
         activatedTsos.addAll(appliedRangeActions.stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
 
-        Set<String> tsosToKeep = new HashSet<>(activatedTsos);
+        Set<String> tsosToKeep = sortTsosToKeepBySensitivityAndGroupId(activatedTsos, maxTso);
 
-        List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToOptimize.stream()
-                .sorted((ra1, ra2) -> -compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
-                .collect(Collectors.toList());
-        for (RangeAction rangeAction : rangeActionsSortedBySensitivity) {
-            if (tsosToKeep.size() >= maxTso) {
-                break;
-            }
-            tsosToKeep.add(rangeAction.getOperator());
-        }
         Set<RangeAction> rangeActionsToRemove = rangeActionsToOptimize.stream().filter(rangeAction -> !tsosToKeep.contains(rangeAction.getOperator())).collect(Collectors.toSet());
         if (!rangeActionsToRemove.isEmpty()) {
             LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
+    }
+
+    Set<String> sortTsosToKeepBySensitivityAndGroupId(Set<String> activatedTsos, int maxTso) {
+        List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToOptimize.stream()
+                .sorted((ra1, ra2) -> -compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                .collect(Collectors.toList());
+
+        Set<String> tsosToKeep = new HashSet<>(activatedTsos);
+
+        // Look for aligned PSTs : PSTs sharing a groupId must be all kept, or all filtered out.
+        Set<String> groupIdHasBeenExplored = new HashSet<>();
+        for (RangeAction ra : rangeActionsSortedBySensitivity) {
+            // If ra potentially has aligned PSTs
+            Optional<String> raGroupId = ra.getGroupId();
+            if (raGroupId.isPresent()) {
+                // ra has already been explored.
+                if (groupIdHasBeenExplored.contains(raGroupId.get())) {
+                    continue;
+                }
+
+                Set<String> tsosToKeepIfAlignedPstAreKept = new HashSet<>(tsosToKeep);
+
+                Set<RangeAction> raWithSameGroupId =
+                        rangeActionsSortedBySensitivity.stream().filter(rangeAction -> {
+                            Optional<String> groupId = rangeAction.getGroupId();
+                            return groupId.isPresent() && groupId.get().equals(raGroupId.get());
+                        }).collect(Collectors.toSet());
+
+                tsosToKeepIfAlignedPstAreKept.addAll(raWithSameGroupId.stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
+                groupIdHasBeenExplored.add(raGroupId.get());
+
+                // remove aligned pst from range actions to optimize
+                if (tsosToKeepIfAlignedPstAreKept.size() > maxTso) {
+                    rangeActionsToOptimize.removeAll(raWithSameGroupId);
+                    LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos on aligned PSTs.", raWithSameGroupId.size());
+                } else {
+                    tsosToKeep = tsosToKeepIfAlignedPstAreKept;
+                }
+            } else {
+                if (tsosToKeep.size() >= maxTso) {
+                    continue;
+                }
+                tsosToKeep.add(ra.getOperator());
+            }
+        }
+        return tsosToKeep;
     }
 
     public void filterMaxRas() {
@@ -127,7 +164,6 @@ class RangeActionFilter {
             LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
-
     }
 
     private Set<RangeAction> computeRangeActionsToExclude(Set<RangeAction> rangeActions, int numberOfRangeActionsToKeep) {
@@ -158,19 +194,51 @@ class RangeActionFilter {
     /**
      * Removes from a set of RangeActions the ones with the biggest priority or sensitivity on the most limiting element
      *
-     * @param rangeActions the set of RangeActions to filter
-     * @param numberToRemove       the number of RangeActions to remove from the set
+     * @param rangeActions   the set of RangeActions to filter
+     * @param numberToRemove the number of RangeActions to remove from the set
      */
     private void removeRangeActionsWithBiggestImpact(Set<RangeAction> rangeActions, int numberToRemove) {
-        if (numberToRemove < 0) {
+        if (numberToRemove <= 0) {
             // Nothing to do
+            return;
         } else if (numberToRemove >= rangeActions.size()) {
             rangeActions.clear();
-        } else {
-            List<RangeAction> rangeActionsSortedBySensitivity = rangeActions.stream()
+            return;
+        }
+        List<RangeAction> rangeActionsSortedBySensitivity = rangeActions.stream()
                 .sorted((ra1, ra2) -> comparePrioritiesAndSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
                 .collect(Collectors.toList());
-            rangeActions.removeAll(rangeActionsSortedBySensitivity.subList(0, numberToRemove));
+
+        Set<String> groupIdHasBeenExplored = new HashSet<>();
+        int numberToRemoveLeft = numberToRemove;
+        // Look for aligned PSTs
+        for (RangeAction ra : rangeActionsSortedBySensitivity) {
+            if (numberToRemoveLeft == 0) {
+                return;
+            }
+            // If ra potentially has aligned PSTs
+            Optional<String> raGroupId = ra.getGroupId();
+            if (raGroupId.isPresent()) {
+                // ra has already been explored.
+                if (groupIdHasBeenExplored.contains(raGroupId.get())) {
+                    continue;
+                }
+                Set<RangeAction> raWithSameGroupId =
+                        rangeActionsSortedBySensitivity.stream().filter(rangeAction -> {
+                            Optional<String> groupId = rangeAction.getGroupId();
+                            return groupId.isPresent() && groupId.get().equals(raGroupId.get());
+                        }).collect(Collectors.toSet());
+
+                groupIdHasBeenExplored.add(raGroupId.get());
+                // Remove all ra with same groupId, or none
+                if (raWithSameGroupId.size() <= numberToRemoveLeft) {
+                    rangeActions.removeAll(raWithSameGroupId);
+                    numberToRemoveLeft -= raWithSameGroupId.size();
+                }
+            } else {
+                rangeActions.remove(ra);
+                numberToRemoveLeft -= 1;
+            }
         }
     }
 
@@ -180,7 +248,8 @@ class RangeActionFilter {
      * it will be considered greater.
      * If both RAs have the same priority, then absolute sensitivities will be compared.
      */
-    private int comparePrioritiesAndSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult sensitivityResult) {
+    private int comparePrioritiesAndSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec
+            cnec, SensitivityResult sensitivityResult) {
         if (!leastPriorityRangeActions.contains(ra1) && leastPriorityRangeActions.contains(ra2)) {
             return -1;
         } else if (leastPriorityRangeActions.contains(ra1) && !leastPriorityRangeActions.contains(ra2)) {
@@ -190,7 +259,8 @@ class RangeActionFilter {
         }
     }
 
-    private int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult sensitivityResult) {
+    private int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult
+            sensitivityResult) {
         Double sensi1 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra1, Unit.MEGAWATT));
         Double sensi2 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra2, Unit.MEGAWATT));
         return sensi1.compareTo(sensi2);

@@ -77,6 +77,8 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
             return Set.of(getSubstationCountry(((VoltageLevel) ne).getSubstation()));
         } else if (ne instanceof Substation) {
             return Set.of(((Substation) ne).getCountry());
+        } else if (ne instanceof HvdcLine) {
+            return Set.of(((HvdcLine) ne).getConverterStation1().getTerminal().getVoltageLevel().getSubstation().getCountry(), ((HvdcLine) ne).getConverterStation2().getTerminal().getVoltageLevel().getSubstation().getCountry());
         }  else {
             throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
         }

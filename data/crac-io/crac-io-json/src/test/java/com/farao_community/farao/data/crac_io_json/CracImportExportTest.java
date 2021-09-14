@@ -85,6 +85,16 @@ public class CracImportExportTest {
                 .withMonitored()
                 .add();
 
+        crac.newFlowCnec().withId("cnec3prevIdBis")
+                .withName("cnec3prevNameBis")
+                .withNetworkElement("ne2Id", "ne2Name")
+                .withInstant(Instant.PREVENTIVE)
+                .withOperator("operator3")
+                .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withRule(BranchThresholdRule.ON_LEFT_SIDE).add()
+                .withReliabilityMargin(20.)
+                .withMonitored()
+                .add();
+
         crac.newFlowCnec().withId("cnec4prevId")
                 .withName("cnec4prevName")
                 .withNetworkElement("ne3Id")
@@ -147,12 +157,29 @@ public class CracImportExportTest {
                 .newTapRange().withRangeType(RangeType.RELATIVE_TO_INITIAL_NETWORK).withMinTap(-3).withMaxTap(3).add()
                 .add();
 
+        crac.newHvdcRangeAction().withId("hvdcRangeId")
+                .withName("hvdcRangeName")
+                .withOperator("RTE")
+                .withNetworkElement("hvdc")
+                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newHvdcRange().withMin(1).withMax(7).add()
+                .add();
+
+        crac.newHvdcRangeAction().withId("hvdcRangeId2")
+                .withName("hvdcRangeName2")
+                .withOperator("RTE")
+                .withNetworkElement("hvdc2")
+                .withGroupId("group-1")
+                .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3prevIdBis").add()
+                .newHvdcRange().withMin(1).withMax(7).add()
+                .add();
+
         Crac importedCrac = RoundTripUtil.roundTrip(crac);
 
         assertEquals(3, importedCrac.getStates().size());
         assertEquals(2, importedCrac.getContingencies().size());
-        assertEquals(5, importedCrac.getFlowCnecs().size());
-        assertEquals(2, importedCrac.getRangeActions().size());
+        assertEquals(6, importedCrac.getFlowCnecs().size());
+        assertEquals(4, importedCrac.getRangeActions().size());
         assertEquals(3, importedCrac.getNetworkActions().size());
         assertEquals(4, importedCrac.getFlowCnec("cnec2prev").getThresholds().size());
         assertFalse(importedCrac.getFlowCnec("cnec3prevId").isOptimized());
@@ -163,7 +190,9 @@ public class CracImportExportTest {
         assertTrue(importedCrac.getNetworkAction("injectionSetpointRaId").getElementaryActions().iterator().next() instanceof InjectionSetpointImpl);
         assertEquals(2, importedCrac.getNetworkAction("complexNetworkActionId").getElementaryActions().size());
         assertEquals("group-1", importedCrac.getRangeAction("pstRangeId2").getGroupId().orElseThrow());
+        assertEquals("group-1", importedCrac.getRangeAction("hvdcRangeId2").getGroupId().orElseThrow());
         assertTrue(importedCrac.getRangeAction("pstRangeId").getGroupId().isEmpty());
+        assertTrue(importedCrac.getRangeAction("hvdcRangeId").getGroupId().isEmpty());
 
         assertEquals("operator1", importedCrac.getFlowCnec("cnec1prev").getOperator());
         assertEquals("operator1", importedCrac.getFlowCnec("cnec1cur").getOperator());
@@ -181,5 +210,11 @@ public class CracImportExportTest {
         OnFlowConstraint onFlowConstraint = (OnFlowConstraint) importedCrac.getPstRangeAction("pstRangeId2").getUsageRules().get(0);
         assertEquals(Instant.PREVENTIVE, onFlowConstraint.getInstant());
         assertSame(importedCrac.getCnec("cnec3prevId"), onFlowConstraint.getFlowCnec());
+
+        assertEquals(1, importedCrac.getHvdcRangeAction("hvdcRangeId2").getUsageRules().size());
+        assertTrue(importedCrac.getHvdcRangeAction("hvdcRangeId2").getUsageRules().get(0) instanceof OnFlowConstraintImpl);
+        OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) importedCrac.getHvdcRangeAction("hvdcRangeId2").getUsageRules().get(0);
+        assertEquals(Instant.PREVENTIVE, onFlowConstraint2.getInstant());
+        assertSame(importedCrac.getCnec("cnec3prevIdBis"), onFlowConstraint2.getFlowCnec());
     }
 }
