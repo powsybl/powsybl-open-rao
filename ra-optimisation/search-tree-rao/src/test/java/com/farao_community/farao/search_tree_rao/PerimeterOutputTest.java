@@ -35,17 +35,17 @@ import static org.mockito.Mockito.when;
 public class PerimeterOutputTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
-    PerimeterOutput perimeterOutput;
-    RangeActionResult prePerimeterRangeActionResult;
-    OptimizationResult optimizationResult;
-    RangeAction ra1;
-    RangeAction ra2;
-    FlowCnec flowCnec1;
-    FlowCnec flowCnec2;
-    NetworkAction na1;
-    NetworkAction na2;
-    PstRangeAction pst1;
-    PstRangeAction pst2;
+    private PerimeterOutput perimeterOutput;
+    private RangeActionResult prePerimeterRangeActionResult;
+    private OptimizationResult optimizationResult;
+    private RangeAction ra1;
+    private RangeAction ra2;
+    private FlowCnec flowCnec1;
+    private  FlowCnec flowCnec2;
+    private NetworkAction na1;
+    private NetworkAction na2;
+    private PstRangeAction pst1;
+    private PstRangeAction pst2;
 
     @Before
     public void setUp() {

@@ -10,6 +10,7 @@ package com.farao_community.farao.data.rao_result_json;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Optional;
 
@@ -96,8 +97,8 @@ public class RaoResultJsonConstantsTest {
 
     @Test
     public void testCompareStates() {
-        State state1 = mock(State.class);
-        State state2 = mock(State.class);
+        State state1 = Mockito.spy(State.class);
+        State state2 = Mockito.spy(State.class);
 
         when(state1.getInstant()).thenReturn(OUTAGE);
         when(state2.getInstant()).thenReturn(AUTO);

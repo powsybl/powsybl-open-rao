@@ -83,7 +83,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
                 if (state.getInstant().equals(Instant.CURATIVE)) {
                     Optional<State> autoState = postContingencyResults.keySet().stream()
                         .filter(optimizedState -> optimizedState.getInstant().equals(Instant.AUTO) && optimizedState.getContingency().equals(state.getContingency()))
-                        .findFirst();
+                        .findAny();
                     if (autoState.isPresent()) {
                         return postContingencyResults.get(autoState.get());
                     }
