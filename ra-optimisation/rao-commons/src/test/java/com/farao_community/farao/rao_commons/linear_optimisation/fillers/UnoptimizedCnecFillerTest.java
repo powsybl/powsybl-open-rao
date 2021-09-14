@@ -69,7 +69,8 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
                 Set.of(cnecNl, cnecFr),
                 Collections.emptySet(),
                 new RangeActionResultImpl(Collections.emptyMap()),
-                0.
+                0.,
+                false
         );
     }
 
