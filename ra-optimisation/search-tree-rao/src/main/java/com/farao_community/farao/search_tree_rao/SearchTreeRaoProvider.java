@@ -160,7 +160,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         RaoResult mergedRaoResults;
 
         // second preventive RAO
-        if (shouldRunSecondPreventiveRao(parameters, postContingencyResults)) {
+        if (shouldRunSecondPreventiveRao(parameters, preventiveResult, postContingencyResults)) {
             mergedRaoResults = runSecondPreventiveRao(raoInput, parameters, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
         } else {
             LOGGER.info("Merging preventive and curative RAO results.");
@@ -635,7 +635,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
      * This function decides if a 2nd preventive RAO should be run. It checks the user parameter first, then takes the
      * decision depending on the curative RAO results and the curative RAO stop criterion.
      */
-    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, Map<State, OptimizationResult> curativeRaoResults) {
+    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, OptimizationResult firstPreventiveResult, Map<State, OptimizationResult> curativeRaoResults) {
         if (raoParameters.getExtension(SearchTreeRaoParameters.class) == null
                 || !raoParameters.getExtension(SearchTreeRaoParameters.class).getWithSecondPreventiveOptimization()) {
             return false;
@@ -647,16 +647,32 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 return true;
             case SECURE:
                 // Run 2nd preventive RAO if one perimeter of the curative optimization is unsecure
-                return curativeRaoResults.values().stream().anyMatch(optimizationResult -> optimizationResult.getFunctionalCost() >= 0);
+                return isAnyResultUnsecure(curativeRaoResults.values());
             case PREVENTIVE_OBJECTIVE:
-                // TODO : Run 2nd preventive RAO if one perimeter of the curative optimization has a worst cost than the preventive perimeter
-                return false;
+                // Run 2nd preventive RAO if one perimeter of the curative optimization has a worse cost than the preventive perimeter
+                return isAnyCurativeWorseThanPreventive(raoParameters, firstPreventiveResult, curativeRaoResults.values());
             case PREVENTIVE_OBJECTIVE_AND_SECURE:
-                // TODO : Run 2nd preventive RAO if one perimeter of the curative optimization has a worst cost than the preventive perimeter or is unsecure
-                return false;
+                // Run 2nd preventive RAO if one perimeter of the curative optimization has a worse cost than the preventive perimeter or is unsecure
+                return isAnyResultUnsecure(curativeRaoResults.values()) || isAnyCurativeWorseThanPreventive(raoParameters, firstPreventiveResult, curativeRaoResults.values());
             default:
                 throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", curativeRaoStopCriterion));
         }
+    }
+
+    /**
+     * Returns true if any result has a positive functional cost
+     */
+    private static boolean isAnyResultUnsecure(Collection<OptimizationResult> results) {
+        return results.stream().anyMatch(optimizationResult -> optimizationResult.getFunctionalCost() >= 0);
+    }
+
+    /**
+     * Returns true if any curative result has an objective function value superior to the preventive's + the minimum
+     * needed improvement as per the RAO parameters
+     */
+    private static boolean isAnyCurativeWorseThanPreventive(RaoParameters raoParameters, OptimizationResult preventiveResult, Collection<OptimizationResult> curativeRaoResults) {
+        double minExpectedImprovement = raoParameters.getExtension(SearchTreeRaoParameters.class).getCurativeRaoMinObjImprovement();
+        return curativeRaoResults.stream().anyMatch(optimizationResult -> optimizationResult.getCost() > preventiveResult.getCost() - minExpectedImprovement);
     }
 
     /**
