@@ -62,6 +62,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static final String PREVENTIVE_SCENARIO = "PreventiveScenario";
     private static final String SECOND_PREVENTIVE_SCENARIO = "SecondPreventiveScenario";
     private static final String CONTINGENCY_SCENARIO = "ContingencyScenario";
+    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
 
     private StateTree stateTree;
     private ToolProvider toolProvider;
@@ -165,11 +166,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
         } else {
             LOGGER.info("Merging preventive and curative RAO results.");
             mergedRaoResults = new PreventiveAndCurativesRaoOutput(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
+            // log results
+            SearchTreeRaoLogger.logMostLimitingElementsResults(stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
 
-        // log results
-        // TODO: handle 2nd preventive in this final log
-        SearchTreeRaoLogger.logMostLimitingElementsResults(stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, parameters.getObjectiveFunction(), 10);
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
 
@@ -686,7 +686,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                                              PrePerimeterResult initialOutput,
                                              PerimeterResult firstPreventiveResult,
                                              PrePerimeterResult preCurativeSensitivityAnalysisOutput,
-                                             Map<State, OptimizationResult> curativeResults) {
+                                             Map<State, OptimizationResult> postContingencyResults) {
         LOGGER.info("Second preventive perimeter optimization [start]");
         Network network = raoInput.getNetwork();
         // Go back to the initial state of the network, saved in the SECOND_PREVENTIVE_STATE variant
@@ -696,7 +696,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         // optimality in their perimeters. These range actions will be excluded from 2nd preventive RAO.
         applyPreventiveResultsForCurativeRangeActions(network, firstPreventiveResult, raoInput.getCrac());
         // Get the applied remedial actions for every curative perimeter
-        AppliedRemedialActions appliedRemedialActions = getAppliedRemedialActionsInCurative(curativeResults, preCurativeSensitivityAnalysisOutput);
+        AppliedRemedialActions appliedRemedialActions = getAppliedRemedialActionsInCurative(postContingencyResults, preCurativeSensitivityAnalysisOutput);
         // Run a first sensitivity computation using initial network and applied CRAs
         PrePerimeterResult sensiWithCurativeRemedialActions = prePerimeterSensitivityAnalysis.run(network, appliedRemedialActions);
         // Run second preventive RAO
@@ -708,7 +708,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         LOGGER.info("Merging first, second preventive and curative RAO results.");
         Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
-        return new SecondPreventiveAndCurativesRaoOutput(initialOutput, firstPreventiveResult, secondPreventiveResult, updatedPreCurativeSensitivityAnalysisOutput, curativeResults, remedialActionsExcluded);
+
+        // log results
+        SearchTreeRaoLogger.logMostLimitingElementsResults(stateTree.getBasecaseScenario(), secondPreventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+
+        return new SecondPreventiveAndCurativesRaoOutput(initialOutput, firstPreventiveResult, secondPreventiveResult, updatedPreCurativeSensitivityAnalysisOutput, postContingencyResults, remedialActionsExcluded);
     }
 
     static AppliedRemedialActions getAppliedRemedialActionsInCurative(Map<State, OptimizationResult> curativeResults, PrePerimeterResult preCurativeResults) {
