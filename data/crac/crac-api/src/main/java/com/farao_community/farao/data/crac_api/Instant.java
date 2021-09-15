@@ -38,4 +38,8 @@ public enum Instant {
     public String toString() {
         return name;
     }
+
+    public boolean comesBefore(Instant otherInstant) {
+        return this.order < otherInstant.order;
+    }
 }

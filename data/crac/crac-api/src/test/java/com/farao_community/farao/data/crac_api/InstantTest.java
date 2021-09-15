@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_api;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static com.farao_community.farao.data.crac_api.Instant.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -43,5 +44,28 @@ public class InstantTest {
         Instant instant = Instant.CURATIVE;
         assertEquals(3, instant.getOrder());
         assertEquals("curative", instant.toString());
+    }
+
+    @Test
+    public void testComesBefore() {
+        assertFalse(PREVENTIVE.comesBefore(PREVENTIVE));
+        assertTrue(PREVENTIVE.comesBefore(OUTAGE));
+        assertTrue(PREVENTIVE.comesBefore(AUTO));
+        assertTrue(PREVENTIVE.comesBefore(CURATIVE));
+
+        assertFalse(OUTAGE.comesBefore(PREVENTIVE));
+        assertFalse(OUTAGE.comesBefore(OUTAGE));
+        assertTrue(OUTAGE.comesBefore(AUTO));
+        assertTrue(OUTAGE.comesBefore(CURATIVE));
+
+        assertFalse(AUTO.comesBefore(PREVENTIVE));
+        assertFalse(AUTO.comesBefore(OUTAGE));
+        assertFalse(AUTO.comesBefore(AUTO));
+        assertTrue(AUTO.comesBefore(CURATIVE));
+
+        assertFalse(CURATIVE.comesBefore(PREVENTIVE));
+        assertFalse(CURATIVE.comesBefore(OUTAGE));
+        assertFalse(CURATIVE.comesBefore(AUTO));
+        assertFalse(CURATIVE.comesBefore(CURATIVE));
     }
 }

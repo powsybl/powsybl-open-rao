@@ -36,6 +36,10 @@ final class CostResultMapDeserializer {
                     jsonParser.nextToken();
                     deserializeCostResult(jsonParser, raoResult, OptimizationState.AFTER_PRA);
                     break;
+                case AFTER_ARA_OPT_STATE:
+                    jsonParser.nextToken();
+                    deserializeCostResult(jsonParser, raoResult, OptimizationState.AFTER_ARA);
+                    break;
                 case AFTER_CRA_OPT_STATE:
                     jsonParser.nextToken();
                     deserializeCostResult(jsonParser, raoResult, OptimizationState.AFTER_CRA);

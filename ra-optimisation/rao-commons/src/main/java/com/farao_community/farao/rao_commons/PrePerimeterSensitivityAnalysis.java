@@ -16,7 +16,6 @@ import com.farao_community.farao.rao_commons.result.EmptyFlowResult;
 import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
-import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
@@ -69,23 +68,23 @@ public class PrePerimeterSensitivityAnalysis {
         return runAndGetResult(network, objectiveFunction);
     }
 
-    public PrePerimeterResult runBasedOn(Network network, OptimizationResult optimizationResult) {
+    public PrePerimeterResult runBasedOn(Network network, FlowResult flowResult) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             if (raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
             } else {
-                sensitivityComputerBuilder.withCommercialFlowsResults(optimizationResult);
+                sensitivityComputerBuilder.withCommercialFlowsResults(flowResult);
             }
         }
         if (raoParameters.getObjectiveFunction().doesRequirePtdf()) {
-            sensitivityComputerBuilder.withPtdfsResults(optimizationResult);
+            sensitivityComputerBuilder.withPtdfsResults(flowResult);
         }
         sensitivityComputer = sensitivityComputerBuilder.build();
         ObjectiveFunction.ObjectiveFunctionBuilder builder = new ObjectiveFunction.ObjectiveFunctionBuilder();
         ObjectiveFunctionHelper.addMinMarginObjectiveFunction(
             flowCnecs,
-            optimizationResult,
+            flowResult,
             builder,
             raoParameters.getObjectiveFunction().relativePositiveMargins(),
             linearOptimizerParameters.getUnoptimizedCnecParameters(),

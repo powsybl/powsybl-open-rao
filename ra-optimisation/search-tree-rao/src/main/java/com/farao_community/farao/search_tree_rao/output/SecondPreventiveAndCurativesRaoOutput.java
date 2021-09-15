@@ -103,6 +103,9 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
                 return initialResult.getFunctionalCost();
             case AFTER_PRA:
                 return preCurativeResult.getFunctionalCost();
+            case AFTER_ARA:
+                // for now, only export curative results
+                // TODO: update this with AUTO results
             case AFTER_CRA:
                 return postSecondPreventiveResult.getFunctionalCost();
             default:
@@ -117,6 +120,9 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
                 return initialResult.getMostLimitingElements(number);
             case AFTER_PRA:
                 return preCurativeResult.getMostLimitingElements(number);
+            case AFTER_ARA:
+                // for now, only export curative results
+                // TODO: update this with AUTO results
             case AFTER_CRA:
                 return postSecondPreventiveResult.getMostLimitingElements(number);
             default:
@@ -131,6 +137,9 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
                 return initialResult.getVirtualCost();
             case AFTER_PRA:
                 return preCurativeResult.getVirtualCost();
+            case AFTER_ARA:
+                // for now, only export curative results
+                // TODO: update this with AUTO results
             case AFTER_CRA:
                 return postSecondPreventiveResult.getVirtualCost();
             default:
@@ -150,6 +159,9 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
                 return initialResult.getVirtualCost(virtualCostName);
             case AFTER_PRA:
                 return preCurativeResult.getVirtualCost(virtualCostName);
+            case AFTER_ARA:
+                // for now, only export curative results
+                // TODO: update this with AUTO results
             case AFTER_CRA:
                 return postSecondPreventiveResult.getVirtualCost(virtualCostName);
             default:
@@ -164,6 +176,9 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
                 return initialResult.getCostlyElements(virtualCostName, number);
             case AFTER_PRA:
                 return preCurativeResult.getCostlyElements(virtualCostName, number);
+            case AFTER_ARA:
+                // for now, only export curative results
+                // TODO: update this with AUTO results
             case AFTER_CRA:
                 return postSecondPreventiveResult.getCostlyElements(virtualCostName, number);
             default:

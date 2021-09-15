@@ -29,6 +29,7 @@ final class CostResultMapSerializer {
         jsonGenerator.writeObjectFieldStart(COST_RESULTS);
         serializeCostResultForOptimizationState(OptimizationState.INITIAL, raoResult, jsonGenerator);
         serializeCostResultForOptimizationState(OptimizationState.AFTER_PRA, raoResult, jsonGenerator);
+        serializeCostResultForOptimizationState(OptimizationState.AFTER_ARA, raoResult, jsonGenerator);
         serializeCostResultForOptimizationState(OptimizationState.AFTER_CRA, raoResult, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
