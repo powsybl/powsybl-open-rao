@@ -8,19 +8,21 @@
 package com.farao_community.farao.search_tree_rao.output;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
+import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.PerimeterOutput;
+import com.farao_community.farao.search_tree_rao.state_tree.StateTree;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FAILURE;
 
@@ -30,20 +32,38 @@ import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FA
 public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     private PrePerimeterResult initialResult;
     private PerimeterResult postPreventiveResult;
-    private Map<State, PerimeterResult> postCurativeResults;
+    private Map<State, PerimeterResult> postContingencyResults;
 
-    public PreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult, PerimeterResult postPreventiveResult, PrePerimeterResult preCurativeResult, Map<State, OptimizationResult> postCurativeResults) {
+    public PreventiveAndCurativesRaoOutput(StateTree stateTree,
+                                           PrePerimeterResult initialResult,
+                                           PerimeterResult postPreventiveResult,
+                                           PrePerimeterResult preContingencyResult,
+                                           Map<State, OptimizationResult> postContingencyResults) {
         this.initialResult = initialResult;
         this.postPreventiveResult = postPreventiveResult;
-        this.postCurativeResults = postCurativeResults.entrySet().stream().collect(
-                Collectors.toMap(Map.Entry::getKey, entry -> new PerimeterOutput(preCurativeResult, entry.getValue())));
+        this.postContingencyResults = buildPostContingencyResults(stateTree, preContingencyResult, postContingencyResults);
+    }
+
+    private static Map<State, PerimeterResult> buildPostContingencyResults(StateTree stateTree, PrePerimeterResult preContingencyResult, Map<State, OptimizationResult> postContingencyResults) {
+        Map<State, PerimeterResult> results = new HashMap<>();
+        stateTree.getContingencyScenarios().forEach(contingencyScenario -> {
+            Optional<State> automatonState = contingencyScenario.getAutomatonState();
+            if (automatonState.isPresent()) {
+                OptimizationResult automatonResult = postContingencyResults.get(automatonState.get());
+                results.put(automatonState.get(), new PerimeterOutput(preContingencyResult, automatonResult));
+                results.put(contingencyScenario.getCurativeState(), new PerimeterOutput(automatonResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
+            } else {
+                results.put(contingencyScenario.getCurativeState(), new PerimeterOutput(preContingencyResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
+            }
+        });
+        return results;
     }
 
     @Override
     public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == FAILURE
                 || postPreventiveResult.getSensitivityStatus() == FAILURE
-                || postCurativeResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
+                || postContingencyResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
             return FAILURE;
         }
         // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
@@ -51,25 +71,29 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     }
 
     public PerimeterResult getPerimeterResult(OptimizationState optimizationState, State state) {
-
-        if (optimizationState == OptimizationState.INITIAL) {
-            if (state.getInstant() == Instant.PREVENTIVE) {
-                return null;
-            } else {
+        if (state.getInstant().comesBefore(optimizationState.getFirstInstant())) {
+            throw new FaraoException(String.format("Trying to access results for instant %s at optimization state %s is not allowed", state.getInstant(), optimizationState));
+        }
+        switch (optimizationState) {
+            case INITIAL:
+                throw new FaraoException("No PerimeterResult for INITIAL optimization state");
+            case AFTER_PRA:
                 return postPreventiveResult;
-            }
+            case AFTER_ARA:
+                if (state.getInstant().equals(Instant.CURATIVE)) {
+                    Optional<State> autoState = postContingencyResults.keySet().stream()
+                        .filter(optimizedState -> optimizedState.getInstant().equals(Instant.AUTO) && optimizedState.getContingency().equals(state.getContingency()))
+                        .findAny();
+                    if (autoState.isPresent()) {
+                        return postContingencyResults.get(autoState.get());
+                    }
+                }
+                return postContingencyResults.get(state);
+            case AFTER_CRA:
+                return postContingencyResults.get(state);
+            default:
+                throw new FaraoException(String.format("OptimizationState %s was not recognized", optimizationState));
         }
-        if (optimizationState == OptimizationState.AFTER_PRA) {
-            return postPreventiveResult;
-        }
-        if (optimizationState == OptimizationState.AFTER_CRA) {
-            if (state.getInstant() == Instant.PREVENTIVE) {
-                throw new FaraoException("Trying to access preventive results after cra is forbidden. Either get the preventive results after PRA, or the curative results after CRA.");
-            } else {
-                return postCurativeResults.get(state);
-            }
-        }
-        throw new FaraoException("OptimizationState was not recognized");
     }
 
     @Override
@@ -93,7 +117,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         double highestFunctionalCost = postPreventiveResult.getFunctionalCost();
         highestFunctionalCost = Math.max(
                 highestFunctionalCost,
-                postCurativeResults.values().stream()
+                postContingencyResults.values().stream()
                         .map(PerimeterResult::getFunctionalCost)
                         .max(Double::compareTo)
                         .orElseThrow(() -> new FaraoException("Should not happen"))
@@ -115,11 +139,11 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         if (optimizationState == OptimizationState.AFTER_PRA) {
             return postPreventiveResult.getVirtualCost();
         }
-        double virtualCostSum = 0;
-        for (PerimeterResult postCurativeResult : postCurativeResults.values()) {
-            virtualCostSum += postCurativeResult.getVirtualCost();
-        }
-        return virtualCostSum;
+        return postContingencyResults.entrySet().stream()
+            .filter(entry -> entry.getKey().getInstant().equals(optimizationState.getFirstInstant()))
+            .map(Map.Entry::getValue)
+            .mapToDouble(ObjectiveFunctionResult::getVirtualCost)
+            .sum();
     }
 
     @Override
@@ -131,7 +155,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         if (postPreventiveResult.getVirtualCostNames() != null) {
             virtualCostNames.addAll(postPreventiveResult.getVirtualCostNames());
         }
-        postCurativeResults.values().stream()
+        postContingencyResults.values().stream()
             .filter(perimeterResult -> perimeterResult.getVirtualCostNames() != null)
             .forEach(perimeterResult -> virtualCostNames.addAll(perimeterResult.getVirtualCostNames()));
 
@@ -146,11 +170,12 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         if (optimizationState == OptimizationState.AFTER_PRA) {
             return postPreventiveResult.getVirtualCost(virtualCostName);
         }
-        double virtualCostSum = 0;
-        for (PerimeterResult postCurativeResult : postCurativeResults.values()) {
-            virtualCostSum += postCurativeResult.getVirtualCost(virtualCostName);
-        }
-        return virtualCostSum;
+
+        return postContingencyResults.entrySet().stream()
+            .filter(entry -> entry.getKey().getInstant().equals(optimizationState.getFirstInstant()))
+            .map(Map.Entry::getValue)
+            .mapToDouble(perimeterResult -> perimeterResult.getVirtualCost(virtualCostName))
+            .sum();
     }
 
     @Override
@@ -172,8 +197,8 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedNetworkActions().contains(networkAction);
-        } else if (postCurativeResults.containsKey(state)) {
-            return postCurativeResults.get(state).getActivatedNetworkActions().contains(networkAction);
+        } else if (postContingencyResults.containsKey(state)) {
+            return postContingencyResults.get(state).getActivatedNetworkActions().contains(networkAction);
         } else {
             return false;
         }
@@ -183,8 +208,8 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedNetworkActions();
-        } else if (postCurativeResults.containsKey(state)) {
-            return postCurativeResults.get(state).getActivatedNetworkActions();
+        } else if (postContingencyResults.containsKey(state)) {
+            return postContingencyResults.get(state).getActivatedNetworkActions();
         } else {
             return new HashSet<>();
         }
@@ -194,8 +219,8 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedRangeActions().contains(rangeAction);
-        } else if (postCurativeResults.containsKey(state)) {
-            return postCurativeResults.get(state).getActivatedRangeActions().contains(rangeAction);
+        } else if (postContingencyResults.containsKey(state)) {
+            return postContingencyResults.get(state).getActivatedRangeActions().contains(rangeAction);
         } else {
             return false;
         }
@@ -205,7 +230,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getOptimizedTap(pstRangeAction);
-        } else if (postCurativeResults.containsKey(state)) {
+        } else if (postContingencyResults.containsKey(state)) {
             return postPreventiveResult.getOptimizedTap(pstRangeAction);
         } else {
             throw new FaraoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
@@ -214,10 +239,10 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
             return postPreventiveResult.getOptimizedTap(pstRangeAction);
         } else {
-            return postCurativeResults.get(state).getOptimizedTap(pstRangeAction);
+            return postContingencyResults.get(state).getOptimizedTap(pstRangeAction);
         }
     }
 
@@ -225,7 +250,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getOptimizedSetPoint(rangeAction);
-        } else if (postCurativeResults.containsKey(state)) {
+        } else if (postContingencyResults.containsKey(state)) {
             return postPreventiveResult.getOptimizedSetPoint(rangeAction);
         } else {
             throw new FaraoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
@@ -234,10 +259,10 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
-        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
             return postPreventiveResult.getOptimizedSetPoint(rangeAction);
         } else {
-            return postCurativeResults.get(state).getOptimizedSetPoint(rangeAction);
+            return postContingencyResults.get(state).getOptimizedSetPoint(rangeAction);
         }
     }
 
@@ -245,8 +270,8 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return postPreventiveResult.getActivatedRangeActions();
-        } else if (postCurativeResults.containsKey(state)) {
-            return postCurativeResults.get(state).getActivatedRangeActions();
+        } else if (postContingencyResults.containsKey(state)) {
+            return postContingencyResults.get(state).getActivatedRangeActions();
         } else {
             return new HashSet<>();
         }
@@ -254,19 +279,19 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
             return postPreventiveResult.getOptimizedTaps();
         } else {
-            return postCurativeResults.get(state).getOptimizedTaps();
+            return postContingencyResults.get(state).getOptimizedTaps();
         }
     }
 
     @Override
     public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
-        if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
+        if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
             return postPreventiveResult.getOptimizedSetPoints();
         } else {
-            return postCurativeResults.get(state).getOptimizedSetPoints();
+            return postContingencyResults.get(state).getOptimizedSetPoints();
         }
     }
 }
