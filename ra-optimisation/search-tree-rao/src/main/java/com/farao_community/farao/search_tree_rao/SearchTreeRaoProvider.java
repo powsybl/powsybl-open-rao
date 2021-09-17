@@ -700,7 +700,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         // Run a first sensitivity computation using initial network and applied CRAs
         PrePerimeterResult sensiWithCurativeRemedialActions = prePerimeterSensitivityAnalysis.run(network, appliedRemedialActions);
         // Run second preventive RAO
-        PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, sensiWithCurativeRemedialActions, appliedRemedialActions)
+        PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, initialOutput, sensiWithCurativeRemedialActions, appliedRemedialActions)
                 .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access OptimizationState.AFTER_PRA results
         PrePerimeterResult updatedPreCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, secondPreventiveResult);
@@ -710,7 +710,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
 
         // log results
-        SearchTreeRaoLogger.logMostLimitingElementsResults(stateTree.getBasecaseScenario(), secondPreventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(secondPreventiveResult, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
         return new SecondPreventiveAndCurativesRaoOutput(initialOutput, firstPreventiveResult, secondPreventiveResult, updatedPreCurativeSensitivityAnalysisOutput, postContingencyResults, remedialActionsExcluded);
     }
@@ -726,7 +726,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         return appliedRemedialActions;
     }
 
-    private CompletableFuture<SearchTreeRaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult, AppliedRemedialActions appliedRemedialActions) {
+    private CompletableFuture<SearchTreeRaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, AppliedRemedialActions appliedRemedialActions) {
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
@@ -734,7 +734,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 raoInput.getNetwork(),
                 raoInput.getCrac().getPreventiveState(),
                 stateTree.getBasecaseScenario().getAllStates(),
-                prePerimeterResult,
+                initialOutput,
                 prePerimeterResult,
                 preventiveTreeParameters,
                 raoParameters,
