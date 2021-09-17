@@ -4,16 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.ucte;
 
+import com.farao_community.farao.data.crac_creation_util.ElementHelper;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
-import static com.farao_community.farao.data.crac_creation_util.UcteNetworkHelperProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES;
-import static com.farao_community.farao.data.crac_creation_util.UcteUtils.UCTE_NODE_LENGTH;
-import static com.farao_community.farao.data.crac_creation_util.UcteUtils.WILDCARD_CHARACTER;
+import static com.farao_community.farao.data.crac_creation_util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES;
+import static com.farao_community.farao.data.crac_creation_util.ucte.UcteUtils.UCTE_NODE_LENGTH;
+import static com.farao_community.farao.data.crac_creation_util.ucte.UcteUtils.WILDCARD_CHARACTER;
 
 /**
  * UcteBusHelper is a utility class which manages buses defined with the UCTE convention
@@ -22,25 +23,25 @@ import static com.farao_community.farao.data.crac_creation_util.UcteUtils.WILDCA
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UcteBusHelper {
+public class UcteBusHelper implements ElementHelper {
 
     private String busIdInNetwork;
     private boolean isValid = false;
     private String invalidReason;
 
-    public UcteBusHelper(String nodeName, UcteNetworkHelper ucteNetworkHelper) {
+    public UcteBusHelper(String nodeName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
 
         // full id without wildcard
         if (nodeName.length() == UCTE_NODE_LENGTH && !nodeName.endsWith(WILDCARD_CHARACTER)) {
-            lookForBusWithIdInNetwork(nodeName, ucteNetworkHelper.getNetwork());
+            lookForBusWithIdInNetwork(nodeName, ucteNetworkAnalyzer.getNetwork());
             return;
         }
 
         String modNodeName = nodeName;
         // incomplete id, automatically complete id with...
         if (nodeName.length() < UCTE_NODE_LENGTH) { // blank spaces,
-            if (ucteNetworkHelper.getProperties().getBusIdMatchPolicy().equals(COMPLETE_WITH_WHITESPACES)) {
-                lookForBusWithIdInNetwork(String.format("%1$-8s", nodeName), ucteNetworkHelper.getNetwork());
+            if (ucteNetworkAnalyzer.getProperties().getBusIdMatchPolicy().equals(COMPLETE_WITH_WHITESPACES)) {
+                lookForBusWithIdInNetwork(String.format("%1$-8s", nodeName), ucteNetworkAnalyzer.getNetwork());
                 return;
             } else {  // or, with wildcards
                 modNodeName = String.format("%1$-7s", nodeName) + WILDCARD_CHARACTER;
@@ -48,7 +49,7 @@ public class UcteBusHelper {
         }
 
         // complex search with wildcard (either *, or incomplete ids)
-        for (Bus bus : ucteNetworkHelper.getNetwork().getBusBreakerView().getBuses()) {
+        for (Bus bus : ucteNetworkAnalyzer.getNetwork().getBusBreakerView().getBuses()) {
             if (UcteUtils.matchNodeNames(modNodeName, bus.getId())) {
                 if (Objects.isNull(busIdInNetwork)) {
                     isValid = true;
@@ -80,15 +81,18 @@ public class UcteBusHelper {
         }
     }
 
-    public String getBusIdInNetwork() {
-        return busIdInNetwork;
-    }
-
+    @Override
     public boolean isValid() {
         return isValid;
     }
 
+    @Override
     public String getInvalidReason() {
         return invalidReason;
+    }
+
+    @Override
+    public String getIdInNetwork() {
+        return busIdInNetwork;
     }
 }

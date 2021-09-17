@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-ucte-util</artifactId>
+            <artifactId>powsybl-iidm-xml-converter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.ucte;
 
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.data.crac_creation_util.UcteUtils.*;
+import static com.farao_community.farao.data.crac_creation_util.ucte.UcteUtils.*;
 
 /**
  * A utility class that reads the network and stores UCTE information in order
@@ -27,7 +27,8 @@ class UcteConnectableCollection {
     /*
         The key of the map is the fromNodeId of the Connectable
         The TreeMultiMap is stored by alphabetical order of the fromNodeId
-        One key can be associated to several values.
+        One key can be associated to several values, as several Connectables
+        can have the same fromNodeId.
      */
     private TreeMultimap<String, UcteConnectable> connectables;
 
@@ -36,9 +37,10 @@ class UcteConnectableCollection {
         addBranches(network);
         addDanglingLines(network);
         addSwitches(network);
+        addHvdcs(network);
     }
 
-    UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix) {
+    UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix, com.farao_community.farao.data.crac_creation_util.ConnectableType... connectableTypes) {
 
         /*
           priority is given to the search with the from/to direction given in argument
@@ -54,24 +56,24 @@ class UcteConnectableCollection {
           method returns the connectable with the id in the same order than the the ones given in argument of the method.
          */
 
-        UcteMatchingResult ucteMatchingResult = lookForMatch(fromNodeId, toNodeId, suffix);
+        UcteMatchingResult ucteMatchingResult = lookForMatch(fromNodeId, toNodeId, suffix, connectableTypes);
 
         if (!ucteMatchingResult.getStatus().equals(UcteMatchingResult.MatchStatus.NOT_FOUND)) {
             return ucteMatchingResult;
         }
 
         // if no result has been found in the direction in argument, look for an inverted one
-        ucteMatchingResult = lookForMatch(toNodeId, fromNodeId, suffix);
+        ucteMatchingResult = lookForMatch(toNodeId, fromNodeId, suffix, connectableTypes);
         return ucteMatchingResult.invert();
     }
 
-    private UcteMatchingResult lookForMatch(String fromNodeId, String toNodeId, String suffix) {
+    private UcteMatchingResult lookForMatch(String fromNodeId, String toNodeId, String suffix, com.farao_community.farao.data.crac_creation_util.ConnectableType... types) {
 
         if (!fromNodeId.endsWith(UcteUtils.WILDCARD_CHARACTER)) {
 
             // if the from node contains no wildcard, directly look for the entry of the TreeMultimap with the fromNode id
             Collection<UcteConnectable> ucteElements = connectables.asMap().getOrDefault(fromNodeId, Collections.emptyList());
-            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements);
+            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements, types);
 
         } else {
 
@@ -85,18 +87,18 @@ class UcteConnectableCollection {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements);
+            return lookForMatchWithinCollection(fromNodeId, toNodeId, suffix, ucteElements, types);
         }
     }
 
-    private UcteMatchingResult lookForMatchWithinCollection(String fromNodeId, String toNodeId, String suffix, Collection<UcteConnectable> ucteConnectables) {
+    private UcteMatchingResult lookForMatchWithinCollection(String fromNodeId, String toNodeId, String suffix, Collection<UcteConnectable> ucteConnectables, com.farao_community.farao.data.crac_creation_util.ConnectableType... connectableTypes) {
 
         if (fromNodeId.endsWith(WILDCARD_CHARACTER) || toNodeId.endsWith(WILDCARD_CHARACTER)) {
             // if the nodes contains wildCards, we have to look for all possible match
 
             List<UcteMatchingResult> matchedConnetables = ucteConnectables.stream()
-                .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix))
-                .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix))
+                .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix, connectableTypes))
+                .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
                 .collect(Collectors.toList());
 
             if (matchedConnetables.size() == 1) {
@@ -110,8 +112,8 @@ class UcteConnectableCollection {
 
             // if the nodes contains no wildCards, speed up the search by using findAny() instead of looking for all possible matches
             return ucteConnectables.stream()
-                .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix))
-                .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix))
+                .filter(ucteConnectable -> ucteConnectable.doesMatch(fromNodeId, toNodeId, suffix, connectableTypes))
+                .map(ucteConnectable -> ucteConnectable.getUcteMatchingResult(fromNodeId, toNodeId, suffix, connectableTypes))
                 .findAny().orElse(UcteMatchingResult.notFound());
         }
     }
@@ -172,6 +174,14 @@ class UcteConnectableCollection {
             String from = getNodeName(switchElement.getVoltageLevel().getBusBreakerView().getBus1(switchElement.getId()).getId());
             String to = getNodeName(switchElement.getVoltageLevel().getBusBreakerView().getBus2(switchElement.getId()).getId());
             connectables.put(from, new UcteConnectable(from, to, getOrderCode(switchElement), getElementNames(switchElement), switchElement, false));
+        });
+    }
+
+    private void addHvdcs(Network network) {
+        network.getHvdcLines().forEach(hvdcLine -> {
+            String from = getNodeName(hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus().getId());
+            String to = getNodeName(hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus().getId());
+            connectables.put(from, new UcteConnectable(from, to, getOrderCode(hvdcLine), getElementNames(hvdcLine), hvdcLine, false));
         });
     }
 

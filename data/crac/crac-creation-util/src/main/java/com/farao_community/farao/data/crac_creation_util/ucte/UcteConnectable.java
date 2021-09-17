@@ -5,31 +5,39 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.ucte;
 
+import com.farao_community.farao.data.crac_creation_util.ConnectableType;
 import com.powsybl.iidm.network.Identifiable;
 
+import java.util.Arrays;
 import java.util.Set;
 
-import static com.farao_community.farao.data.crac_creation_util.UcteUtils.UCTE_NODE_LENGTH;
+import static com.farao_community.farao.data.crac_creation_util.ucte.UcteUtils.UCTE_NODE_LENGTH;
 
 /**
- * Contains a Powsybl Identifiable, as well as UCTE information on this identifiable, such as
- * fromNode, toNode, orderCode and element names.
+ * A UcteConnectable refers to a network element which connect two buses of a UCTE network.
+ * For instance, tie-line, dangling-line, transformers and switch are UcteConnectables.
+ *
+ * The UcteConnectable class store the iidm Identifiable of the Connectable, as well as some
+ * UCTE information about this Identifiable (fromNode, toNode, orderCode,...).
+ *
+ * It is used within the {@link UcteConnectableCollection}
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class UcteConnectable implements Comparable<UcteConnectable> {
 
-    private Identifiable<?> iidmIdentifiable;
+    private final Identifiable<?> iidmIdentifiable;
 
-    private String ucteFromNode;
-    private String ucteToNode;
-    private String ucteOrderCode;
-    private Set<String> ucteElementNames; //a set is required here as tie-line in iidm format have two element names
+    private final String ucteFromNode;
+    private final String ucteToNode;
+    private final String ucteOrderCode;
+    private final Set<String> ucteElementNames; //a set is required here as tie-line in iidm format have two element names
 
-    private Side iidmSide;
-    private boolean isIidmConventionInverted; //transformer conventions between iidm and UCTE formats are inverted
+    private final Side iidmSide;
+    private final boolean isIidmConventionInverted; //transformer conventions between iidm and UCTE formats are inverted
+    private final ConnectableType type;
 
     enum Side {
         ONE,
@@ -52,14 +60,15 @@ class UcteConnectable implements Comparable<UcteConnectable> {
         this.iidmIdentifiable = iidmConnectable;
         this.isIidmConventionInverted = isIidmConventionInverted;
         this.iidmSide = side;
+        this.type = ConnectableType.getType(iidmConnectable);
     }
 
-    boolean doesMatch(String from, String to, String suffix) {
-        return matchSuffix(suffix) && matchFromTo(from, to);
+    boolean doesMatch(String from, String to, String suffix, ConnectableType... connectableTypes) {
+        return matchSuffix(suffix) && matchFromTo(from, to) && matchType(connectableTypes);
     }
 
-    UcteMatchingResult getUcteMatchingResult(String from, String to, String suffix) {
-        if (!matchSuffix(suffix) || !matchFromTo(from, to)) {
+    UcteMatchingResult getUcteMatchingResult(String from, String to, String suffix, ConnectableType... connectableTypes) {
+        if (!doesMatch(from, to, suffix, connectableTypes)) {
             return UcteMatchingResult.notFound();
         } else {
             return UcteMatchingResult.found(iidmSide, isIidmConventionInverted, iidmIdentifiable);
@@ -102,4 +111,9 @@ class UcteConnectable implements Comparable<UcteConnectable> {
     private boolean matchSuffix(String suffix) {
         return (suffix.equals(ucteOrderCode)) || (ucteElementNames != null && ucteElementNames.contains(suffix));
     }
+
+    private boolean matchType(ConnectableType... connectableTypes) {
+        return Arrays.stream(connectableTypes).anyMatch(cType -> cType.equals(type));
+    }
+
 }

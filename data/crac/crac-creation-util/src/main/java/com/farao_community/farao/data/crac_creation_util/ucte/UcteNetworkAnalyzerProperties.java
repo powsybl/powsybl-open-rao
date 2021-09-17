@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.ucte;
 
 /**
  * Properties to customize UcteNetworkHelper behavior
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UcteNetworkHelperProperties {
+public class UcteNetworkAnalyzerProperties {
 
     // For Bus IDs with 7 characters, either complete them with white spaces or wildcards
     public enum BusIdMatchPolicy {
@@ -22,7 +22,7 @@ public class UcteNetworkHelperProperties {
 
     private BusIdMatchPolicy busIdMatchPolicy;
 
-    public UcteNetworkHelperProperties(BusIdMatchPolicy busIdMatchPolicy) {
+    public UcteNetworkAnalyzerProperties(BusIdMatchPolicy busIdMatchPolicy) {
         this.busIdMatchPolicy = busIdMatchPolicy;
     }
 

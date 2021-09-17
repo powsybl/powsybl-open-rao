@@ -6,81 +6,41 @@
  */
 package com.farao_community.farao.data.crac_creation_util;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
-/**
- * Utility class to be used in Crac creators.
- * It exposes useful functions to import PST range actions.
- *
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
- */
-public class PstHelper {
-    public enum TapConvention {
+public interface PstHelper extends ElementHelper {
+
+    enum TapConvention {
         CENTERED_ON_ZERO, // Taps from -x to x
         STARTS_AT_ONE // Taps from 1 to y
     }
 
-    private String pstId;
-
-    private boolean isPstValid = true;
-    private String invalidPstReason;
-    private int lowTapPosition;
-    private int highTapPosition;
-    private int initialTapPosition;
-    private Map<Integer, Double> tapToAngleConversionMap;
-
-    public PstHelper(String pstId, Network network) {
-        this.pstId = pstId;
-        interpretWithNetwork(network);
-    }
-
     /**
-     * Returns a boolean indicating whether or not the PST is considered valid in the network
+     * If the PST element is valid, returns a boolean indicating whether or not the element is
+     * inverted in the network, compared to the orientation originally used in the constructor
+     * of the helper
      */
-    public boolean isPstValid() {
-        return isPstValid;
-    }
-
-    /**
-     * If the PST is not valid, returns the reason why it is considered invalid
-     */
-    public String getInvalidPstReason() {
-        return invalidPstReason;
-    }
+    boolean isInvertedInNetwork();
 
     /**
      * Returns the lowest tap position of the PST, as defined in the network. Convention is centered on zero.
      */
-    public int getLowTapPosition() {
-        return lowTapPosition;
-    }
+    int getLowTapPosition();
 
     /**
      * Returns the highest tap position of the PST, as defined in the network. Convention is centered on zero.
      */
-    public int getHighTapPosition() {
-        return highTapPosition;
-    }
+    int getHighTapPosition();
 
     /**
      * Returns the initial tap position of the PST, as defined in the network. Convention is centered on zero.
      */
-    public int getInitialTap() {
-        return initialTapPosition;
-    }
+    int getInitialTap();
 
     /**
      * Returns the tap to angle conversion map of the PST, as defined in the network. Convention for taps is centered on zero.
      */
-    public Map<Integer, Double> getTapToAngleConversionMap() {
-        return tapToAngleConversionMap;
-    }
+    Map<Integer, Double> getTapToAngleConversionMap();
 
     /**
      * Converts a tap position of the PST to the used convention (centered on zero).
@@ -89,41 +49,11 @@ public class PstHelper {
      * @param originalTapConvention the convention used for the original tap position
      * @return the normalized (centered on zero) tap position
      */
-    public int normalizeTap(int originalTap, TapConvention originalTapConvention) {
+    default int normalizeTap(int originalTap, TapConvention originalTapConvention) {
         if (originalTapConvention.equals(TapConvention.CENTERED_ON_ZERO)) {
             return originalTap;
         } else {
-            return lowTapPosition + originalTap - 1;
+            return getLowTapPosition() + originalTap - 1;
         }
-    }
-
-    private void interpretWithNetwork(Network network) {
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(pstId);
-        if (Objects.isNull(transformer)) {
-            invalidate(String.format("transformer with id %s was not found in network", pstId));
-            return;
-        }
-
-        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
-        if (Objects.isNull(phaseTapChanger)) {
-            invalidate(String.format("transformer with id %s does not have a phase tap changer", pstId));
-            return;
-        }
-
-        this.lowTapPosition = phaseTapChanger.getLowTapPosition();
-        this.highTapPosition = phaseTapChanger.getHighTapPosition();
-        this.initialTapPosition = phaseTapChanger.getTapPosition();
-
-        buildTapToAngleConversionMap(phaseTapChanger);
-    }
-
-    private void buildTapToAngleConversionMap(PhaseTapChanger phaseTapChanger) {
-        tapToAngleConversionMap = new HashMap<>();
-        phaseTapChanger.getAllSteps().forEach((tap, step) -> tapToAngleConversionMap.put(tap, step.getAlpha()));
-    }
-
-    private void invalidate(String reason) {
-        this.isPstValid = false;
-        this.invalidPstReason = reason;
     }
 }
