@@ -48,7 +48,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
                 Set.of(cnec1),
                 Set.of(rangeAction),
                 initialRangeActionResult,
-                0.
+                0.,
+                false
         );
         maxMinMarginParameters = new MaxMinMarginParameters(0.01);
     }

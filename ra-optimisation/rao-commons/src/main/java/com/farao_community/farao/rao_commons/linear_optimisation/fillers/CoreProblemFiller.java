@@ -34,17 +34,20 @@ public class CoreProblemFiller implements ProblemFiller {
     private final Set<RangeAction> rangeActions;
     private final RangeActionResult prePerimeterRangeActionResult;
     private final double pstSensitivityThreshold;
+    private final boolean relativePositiveMargins;
 
     public CoreProblemFiller(Network network,
                              Set<FlowCnec> flowCnecs,
                              Set<RangeAction> rangeActions,
                              RangeActionResult prePerimeterRangeActionResult,
-                             double pstSensitivityThreshold) {
+                             double pstSensitivityThreshold,
+                             boolean relativePositiveMargins) {
         this.network = network;
         this.flowCnecs = flowCnecs;
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
+        this.relativePositiveMargins = relativePositiveMargins;
     }
 
     private Set<RangeAction> getRangeActions() {
@@ -135,7 +138,7 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec);
+            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, cnec);
         });
     }
 
@@ -157,11 +160,11 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setLb(referenceFlow);
 
             //reset sensitivity coefficients
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec);
+            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, cnec);
         });
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, FlowCnec cnec) {
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
         MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
 
@@ -171,14 +174,14 @@ public class CoreProblemFiller implements ProblemFiller {
 
         getRangeActions().forEach(rangeAction -> {
             if (rangeAction instanceof PstRangeAction) {
-                addImpactOfPstOnCnec(linearProblem, sensitivityResult, rangeAction, cnec, flowConstraint);
+                addImpactOfPstOnCnec(linearProblem, sensitivityResult, flowResult, rangeAction, cnec, flowConstraint);
             } else {
                 throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
             }
         });
     }
 
-    private void addImpactOfPstOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
+    private void addImpactOfPstOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, RangeAction rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
         if (setPointVariable == null) {
             throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
@@ -186,7 +189,10 @@ public class CoreProblemFiller implements ProblemFiller {
 
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, rangeAction, Unit.MEGAWATT);
 
-        if (Math.abs(sensitivity) >= pstSensitivityThreshold) {
+        // If objective function uses relative positive margins, and if the margin on the cnec is positive,
+        // the sensi should be divided by the absolute PTDF sum
+        double sensiDivider = (relativePositiveMargins && flowResult.getMargin(cnec, Unit.MEGAWATT) > 0) ? flowResult.getPtdfZonalSum(cnec) : 1;
+        if (Math.abs(sensitivity) / sensiDivider >= pstSensitivityThreshold) {
             double currentSetPoint = rangeAction.getCurrentSetpoint(network);
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
@@ -194,6 +200,9 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setUb(flowConstraint.ub() - sensitivity * currentSetPoint);
 
             flowConstraint.setCoefficient(setPointVariable, -sensitivity);
+        } else {
+            // We need to do this in case of an update
+            flowConstraint.setCoefficient(setPointVariable, 0);
         }
     }
 
