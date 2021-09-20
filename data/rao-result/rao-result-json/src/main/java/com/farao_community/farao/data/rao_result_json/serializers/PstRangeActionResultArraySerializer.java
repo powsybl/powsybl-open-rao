@@ -62,6 +62,7 @@ final class PstRangeActionResultArraySerializer {
             jsonGenerator.writeNumberField(INITIAL_SETPOINT, initialSetpoint);
         }
 
+        // TODO : should we also do this for AUTO PSTs if they exist in curative too?
         addAfterPraValuesForPurelyCurativePsts(pstRangeAction, raoResult, crac, jsonGenerator);
 
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
