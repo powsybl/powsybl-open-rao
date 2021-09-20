@@ -16,6 +16,11 @@ public interface ElementaryCreationContext {
     boolean isImported();
 
     /**
+     * Indicates if element has been altered.
+     */
+    boolean isAltered();
+
+    /**
      * Returns status detailing import situation.
      */
     ImportStatus getImportStatus();
