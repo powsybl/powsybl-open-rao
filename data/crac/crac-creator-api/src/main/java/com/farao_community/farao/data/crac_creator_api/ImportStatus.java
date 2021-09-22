@@ -4,8 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.farao_community.farao.data.crac_creator_api;
 
+/**
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ */
 public enum ImportStatus {
     IMPORTED("Import OK."),
     ELEMENT_NOT_FOUND_IN_NETWORK("Not found in network."),

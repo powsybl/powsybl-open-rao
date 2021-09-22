@@ -33,25 +33,25 @@ public final class CracCreationReport {
     public void error(String errorReason) {
         String message = String.format("[ERROR] %s", errorReason);
         creationReport.add(message);
-        LOGGER.info(message);
+        LOGGER.error(message);
     }
 
     public void removed(String removedReason) {
         String message = String.format("[REMOVED] %s", removedReason);
         creationReport.add(message);
-        LOGGER.info(message);
+        LOGGER.warn(message);
     }
 
     public void altered(String alteredReason) {
         String message = String.format("[ALTERED] %s", alteredReason);
         creationReport.add(message);
-        LOGGER.info(message);
+        LOGGER.warn(message);
     }
 
     public void warn(String warnReason) {
         String message = String.format("[WARN] %s", warnReason);
         creationReport.add(message);
-        LOGGER.info(message);
+        LOGGER.warn(message);
     }
 
     public void info(String infoReason) {
