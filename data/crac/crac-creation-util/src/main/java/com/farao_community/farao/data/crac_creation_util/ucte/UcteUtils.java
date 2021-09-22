@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.ucte;
 
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
@@ -13,6 +13,7 @@ final class UcteUtils {
 
     static final int UCTE_NODE_LENGTH = 8;
     static final int ELEMENT_NAME_LENGTH = 12;
+    static final int MIN_BRANCH_ID_LENGTH = UCTE_NODE_LENGTH * 2 + 3;
     static final int MAX_BRANCH_ID_LENGTH = UCTE_NODE_LENGTH * 2 + ELEMENT_NAME_LENGTH + 3;
     static final String TIELINE_SEPARATOR = " + ";
     static final String WILDCARD_CHARACTER = "*";

@@ -5,11 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.iidm;
 
+import com.farao_community.farao.data.crac_creation_util.CnecElementHelper;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -20,48 +22,59 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class BranchHelper {
+public class IidmCnecElementHelper implements CnecElementHelper {
+
     protected String branchId;
+
     protected boolean isBranchValid = true;
     protected String invalidBranchReason;
+
     protected String branchIdInNetwork;
     protected Double nominalVoltageLeft;
     protected Double nominalVoltageRight;
     protected Double currentLimitLeft;
     protected Double currentLimitRight;
+    private boolean isHalfLine = false;
+    private Branch.Side halfLineSide = null;
 
-    protected BranchHelper(String branchId) {
-        this.branchId = branchId;
-    }
-
-    public BranchHelper(String branchId, Network network) {
-        this.branchId = branchId;
-        if (Objects.isNull(branchId)) {
+    public IidmCnecElementHelper(String iidmId, Network network) {
+        if (Objects.isNull(iidmId)) {
             invalidate("branchId must not be null");
             return;
         }
+
+        this.branchId = iidmId;
         interpretWithNetwork(network);
     }
 
-    /**
-     * Returns a boolean indicating whether or not the branch is considered valid in the network
-     */
-    public boolean isBranchValid() {
+    @Override
+    public boolean isValid() {
         return isBranchValid;
     }
 
-    /**
-     * If the branch is not valid, returns the reason why it is considered invalid
-     */
-    public String getInvalidBranchReason() {
+    @Override
+    public String getInvalidReason() {
         return invalidBranchReason;
     }
 
-    /**
-     * If the branch is valid, returns its corresponding id in the PowSyBl Network
-     */
-    public String getBranchIdInNetwork() {
+    @Override
+    public String getIdInNetwork() {
         return branchIdInNetwork;
+    }
+
+    @Override
+    public boolean isInvertedInNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isHalfLine() {
+        return isHalfLine;
+    }
+
+    @Override
+    public Branch.Side getHalfLineSide() {
+        return halfLineSide;
     }
 
     /**
@@ -90,42 +103,85 @@ public class BranchHelper {
         }
     }
 
-    protected void interpretWithNetwork(Network network) {
-        Identifiable<?> networkElement = findEquivalentElementInNetwork(network);
-        if (Objects.isNull(networkElement)) {
+    private void interpretWithNetwork(Network network) {
+
+        if (interpretAsNetworkIdentifiable(network)) {
             return;
         }
-        if (networkElement instanceof Branch) {
-            checkBranchNominalVoltage((Branch) networkElement);
-            checkBranchCurrentLimits((Branch) networkElement);
-        } else if (networkElement instanceof DanglingLine) {
-            checkDanglingLineNominalVoltage((DanglingLine) networkElement);
-            checkDanglingLineCurrentLimits((DanglingLine) networkElement);
+        if (interpretAsHalfLine(network)) {
+            return;
         }
+        invalidate(format("branch %s was not found in the Network", branchId));
+
     }
 
-    protected Identifiable findEquivalentElementInNetwork(Network network) {
-        Identifiable<?> branch = network.getIdentifiable(branchId);
-        if (!Objects.isNull(branch)) {
-            this.branchIdInNetwork = branch.getId();
-            return branch;
+    private boolean interpretAsNetworkIdentifiable(Network network) {
+
+        Identifiable<?> cnecElement = network.getIdentifiable(branchId);
+
+        if (Objects.isNull(cnecElement)) {
+            return false;
+        }
+        this.branchIdInNetwork = cnecElement.getId();
+
+        if (cnecElement instanceof TieLine) {
+            checkBranchNominalVoltage((Branch<?>) cnecElement);
+            checkTieLineCurrentLimits((TieLine) cnecElement);
+        } else if (cnecElement instanceof Branch) {
+            checkBranchNominalVoltage((Branch<?>) cnecElement);
+            checkBranchCurrentLimits((Branch<?>) cnecElement);
+        } else if (cnecElement instanceof DanglingLine) {
+            checkDanglingLineNominalVoltage((DanglingLine) cnecElement);
+            checkDanglingLineCurrentLimits((DanglingLine) cnecElement);
         } else {
-            invalidate(format("branch %s was not found in the Network", branchId));
-            return null;
+            invalidate(String.format("iidm element %s of class %s is not suited to be a Cnec", branchId, cnecElement.getClass()));
         }
+        return true;
     }
 
-    protected void checkBranchNominalVoltage(Branch branch) {
+    private boolean interpretAsHalfLine(Network network) {
+        Optional<TieLine> tieLine = network.getBranchStream()
+                .filter(TieLine.class::isInstance)
+                .map(TieLine.class::cast)
+                .filter(b -> b.getHalf1().getId().equals(branchId) || b.getHalf2().getId().equals(branchId))
+                .findAny();
+
+        if (tieLine.isEmpty()) {
+            return false;
+        }
+
+        this.branchIdInNetwork = tieLine.get().getId();
+        this.isHalfLine = true;
+        this.halfLineSide = tieLine.get().getHalf1().getId().equals(branchId) ? Branch.Side.ONE : Branch.Side.TWO;
+        checkBranchNominalVoltage(tieLine.get());
+        checkTieLineCurrentLimits(tieLine.get());
+        // todo: check if halfLine can be inverted in CGMES format
+        return true;
+    }
+
+    private void checkBranchNominalVoltage(Branch<?> branch) {
         this.nominalVoltageLeft = branch.getTerminal1().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = branch.getTerminal2().getVoltageLevel().getNominalV();
     }
 
-    protected void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
+    private void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
         this.nominalVoltageLeft = danglingLine.getTerminal().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = nominalVoltageLeft;
     }
 
-    protected void checkBranchCurrentLimits(Branch branch) {
+    private void checkTieLineCurrentLimits(TieLine tieLine) {
+        if (!Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE))) {
+            this.currentLimitLeft = tieLine.getCurrentLimits(Branch.Side.ONE).getPermanentLimit();
+        }
+        if (!Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
+            this.currentLimitRight = tieLine.getCurrentLimits(Branch.Side.TWO).getPermanentLimit();
+        }
+        if (Objects.isNull(tieLine.getCurrentLimits(Branch.Side.ONE)) && Objects.isNull(tieLine.getCurrentLimits(Branch.Side.TWO))) {
+            invalidate(String.format("couldn't identify current limits of tie-line (%s, networkTieLineId: %s)", branchId, tieLine.getId()));
+        }
+    }
+
+    private void checkBranchCurrentLimits(Branch<?> branch) {
         if (!Objects.isNull(branch.getCurrentLimits1())) {
             this.currentLimitLeft = branch.getCurrentLimits1().getPermanentLimit();
         }
@@ -143,7 +199,7 @@ public class BranchHelper {
         }
     }
 
-    protected void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
+    private void checkDanglingLineCurrentLimits(DanglingLine danglingLine) {
         if (!Objects.isNull(danglingLine.getCurrentLimits())) {
             this.currentLimitLeft = danglingLine.getCurrentLimits().getPermanentLimit();
             this.currentLimitRight = currentLimitLeft;
@@ -152,8 +208,9 @@ public class BranchHelper {
         }
     }
 
-    protected void invalidate(String invalidReason) {
+    private void invalidate(String invalidReason) {
         this.isBranchValid = false;
         this.invalidBranchReason = invalidReason;
     }
+
 }

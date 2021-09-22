@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.data.crac_creation_util;
+package com.farao_community.farao.data.crac_creation_util.ucte;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertFalse;
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 /**
