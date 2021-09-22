@@ -33,8 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -224,7 +223,6 @@ public class RangeActionSensitivityProviderTest {
         Mockito.when(hvdc.getId()).thenReturn("BBE2AA11 FFR3AA11 1");
         RangeAction mockHvdcRangeAction = Mockito.mock(RangeAction.class);
         Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(hvdc));
-        // TODO : replace this with a real HvdcRangeAction when implemented
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
@@ -235,5 +233,27 @@ public class RangeActionSensitivityProviderTest {
             || (factorList.get(1) instanceof BranchFlowPerHvdcSetpointIncrease && factorList.get(0) instanceof BranchIntensityPerHvdcSetpointIncrease));
         assertEquals("BBE2AA11 FFR3AA11 1", ((HvdcSetpointIncrease) factorList.get(0).getVariable()).getHvdcId());
         assertEquals("BBE2AA11 FFR3AA11 1", ((HvdcSetpointIncrease) factorList.get(1).getVariable()).getHvdcId());
+    }
+
+    @Test
+    public void testUnhandledElement() {
+        Crac crac = CracFactory.findDefault().create("test-crac");
+        FlowCnec flowCnec = crac.newFlowCnec()
+            .withId("cnec")
+            .withNetworkElement("BBE1AA11 FFR5AA11 1")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .add();
+
+        Network network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+
+        NetworkElement line = Mockito.mock(NetworkElement.class);
+        Mockito.when(line.getId()).thenReturn("BBE1AA11 BBE2AA11 1");
+        RangeAction mockHvdcRangeAction = Mockito.mock(RangeAction.class);
+        Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(line));
+
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+
+        assertThrows(SensitivityAnalysisException.class, () -> provider.getAdditionalFactors(network));
     }
 }
