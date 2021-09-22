@@ -26,6 +26,10 @@ public final class CracCreationReport {
         creationReport = new ArrayList<>();
     }
 
+    public CracCreationReport(CracCreationReport toCopy) {
+        this.creationReport = new ArrayList<>(toCopy.creationReport);
+    }
+
     public void error(String errorReason) {
         String message = String.format("[ERROR] %s", errorReason);
         creationReport.add(message);
