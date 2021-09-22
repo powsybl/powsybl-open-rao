@@ -66,12 +66,28 @@ public class CseGlskDocumentImporterTest {
         Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
 
         assertNotNull(reserveScalable);
-        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
 
-        reserveScalable.scale(network, -900.);
-        assertEquals(1400., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(1700., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(-900, reserveScalable.scale(network, -900), EPSILON);
+        assertEquals(1400, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(1700, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+    }
+
+    @Test
+    public void checkCseGlskDocumentImporterCorrectlyConvertReserveGskBlocksDownWithReachingLimits() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
+
+        assertNotNull(reserveScalable);
+        assertEquals(2000, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+
+        // 1000 MW missing for down-scaling
+        assertEquals(-3000, reserveScalable.scale(network, -4000), EPSILON);
+        assertEquals(0, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(1000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
     }
 
     @Test
@@ -81,12 +97,28 @@ public class CseGlskDocumentImporterTest {
         Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
 
         assertNotNull(reserveScalable);
-        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
 
-        reserveScalable.scale(network, 1000.);
-        assertEquals(2600., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(2400., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(1000, reserveScalable.scale(network, 1000), EPSILON);
+        assertEquals(2600, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2400, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+    }
+
+    @Test
+    public void checkCseGlskDocumentImporterCorrectlyConvertReserveGskBlocksUpWithReachingLimits() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
+
+        assertNotNull(reserveScalable);
+        assertEquals(2000, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+
+        // 1000 MW missing for up-scaling
+        assertEquals(5000, reserveScalable.scale(network, 6000), EPSILON);
+        assertEquals(5000, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(4000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
     }
 
     @Test

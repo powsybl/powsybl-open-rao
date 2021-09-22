@@ -6,8 +6,14 @@
  */
 package com.farao_community.farao.data.glsk.api.util.converters;
 
+import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -25,6 +31,62 @@ public final class NetworkUtil {
 
     static double pseudoP0(Load load) {
         return Math.max(MINIMAL_ABS_POWER_VALUE, Math.abs(load.getP0()));
+    }
+
+    static List<AbstractGlskRegisteredResource> getAvailableGeneratorsAsResources(List<AbstractGlskRegisteredResource> registeredResources, Network network) {
+        return registeredResources.stream()
+                .filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId()) != null)
+                .filter(generatorResource -> NetworkUtil.isCorrectGenerator(network.getGenerator(generatorResource.getGeneratorId())))
+                .filter(generatorResource -> {
+                    double targetP = network.getGenerator(generatorResource.getGeneratorId()).getTargetP();
+                    return targetP >= getMinimumGeneratorCapacity(generatorResource, network) && targetP <= getMaximumGeneratorCapacity(generatorResource, network);
+                })
+                .collect(Collectors.toList());
+    }
+
+    static double getMaximumGeneratorCapacity(AbstractGlskRegisteredResource resource, Network network) {
+        Generator generator = network.getGenerator(resource.getGeneratorId());
+        return resource.getMaximumCapacity().orElse(generator.getMaxP());
+    }
+
+    static double getMinimumGeneratorCapacity(AbstractGlskRegisteredResource resource, Network network) {
+        Generator generator = network.getGenerator(resource.getGeneratorId());
+        return resource.getMinimumCapacity().orElse(generator.getMinP());
+    }
+
+    static List<Generator> getAvailableGenerators(List<AbstractGlskRegisteredResource> registeredResources, Network network) {
+        return NetworkUtil.getAvailableGeneratorsAsResources(registeredResources, network).stream()
+                .map(AbstractGlskRegisteredResource::getGeneratorId)
+                .map(network::getGenerator)
+                .collect(Collectors.toList());
+    }
+
+    static List<Generator> getCountryGenerators(Country country, Network network) {
+        return network.getGeneratorStream()
+                .filter(generator -> country.equals(generator.getTerminal().getVoltageLevel().getSubstation().getNullableCountry()))
+                .filter(NetworkUtil::isCorrectGenerator)
+                .collect(Collectors.toList());
+    }
+
+    static List<AbstractGlskRegisteredResource> getAvailableLoadsAsResources(List<AbstractGlskRegisteredResource> registeredResources, Network network) {
+        return registeredResources.stream()
+                .filter(loadResource -> network.getLoad(loadResource.getLoadId()) != null)
+                .filter(loadResource -> NetworkUtil.isCorrectLoad(network.getLoad(loadResource.getLoadId())))
+                .collect(Collectors.toList());
+    }
+
+    static List<Load> getAvailableLoads(List<AbstractGlskRegisteredResource> registeredResources, Network network) {
+        return NetworkUtil.getAvailableLoadsAsResources(registeredResources, network).stream()
+                .map(AbstractGlskRegisteredResource::getLoadId)
+                .map(network::getLoad)
+                .collect(Collectors.toList());
+    }
+
+    static List<Load> getCountryLoads(Country country, Network network) {
+        return network.getLoadStream()
+                .filter(load -> country.equals(load.getTerminal().getVoltageLevel().getSubstation().getNullableCountry()))
+                .filter(NetworkUtil::isCorrectLoad)
+                .collect(Collectors.toList());
     }
 
     static boolean isCorrectGenerator(Generator generator) {
