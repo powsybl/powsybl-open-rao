@@ -65,6 +65,10 @@ public final class NetworkUtil {
         return network.getGeneratorStream()
                 .filter(generator -> country.equals(generator.getTerminal().getVoltageLevel().getSubstation().getNullableCountry()))
                 .filter(NetworkUtil::isCorrectGenerator)
+                .filter(generator -> {
+                    double targetP = generator.getTargetP();
+                    return targetP >= generator.getMinP() && targetP <= generator.getMaxP();
+                })
                 .collect(Collectors.toList());
     }
 
