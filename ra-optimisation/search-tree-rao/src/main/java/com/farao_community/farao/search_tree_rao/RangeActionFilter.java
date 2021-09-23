@@ -267,6 +267,6 @@ class RangeActionFilter {
     }
 
     boolean isRangeActionUsed(RangeAction rangeAction, Leaf leaf) {
-        return leaf.getRangeActions().contains(rangeAction) && Math.abs(leaf.getOptimizedSetPoint(rangeAction) - prePerimeterSetPoints.get(rangeAction)) >= 0.000001;
+        return leaf.getRangeActions().contains(rangeAction) && Math.abs(leaf.getOptimizedSetPoint(rangeAction) - prePerimeterSetPoints.get(rangeAction)) >= 1e-6;
     }
 }
