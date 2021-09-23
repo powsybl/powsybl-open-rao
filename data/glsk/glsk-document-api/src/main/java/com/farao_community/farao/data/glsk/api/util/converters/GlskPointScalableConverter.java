@@ -90,7 +90,7 @@ public final class GlskPointScalableConverter {
         double totalFactor = generatorResources.stream().mapToDouble(resource -> remainingCapacityFunction.apply(resource, network)).sum();
         generatorResources.forEach(generatorResource -> {
             percentages.add((float) (100 * glskShiftKey.getQuantity().floatValue() * remainingCapacityFunction.apply(generatorResource, network) / totalFactor));
-            scalables.add(createGeneratorScalable(generatorResource, network));
+            scalables.add(createGeneratorScalableWithLimits(generatorResource, network));
         });
         return Scalable.proportional(percentages, scalables);
     }
@@ -109,7 +109,7 @@ public final class GlskPointScalableConverter {
                 .sorted(Comparator.comparingInt(AbstractGlskShiftKey::getMeritOrderPosition))
                 .map(glskShiftKey -> {
                     AbstractGlskRegisteredResource generatorRegisteredResource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
-                    return createGeneratorScalable(generatorRegisteredResource, network);
+                    return createGeneratorScalableWithLimits(generatorRegisteredResource, network);
                 }).toArray(Scalable[]::new));
 
         Scalable downScalable = Scalable.stack(glskPoint.getGlskShiftKeys().stream()
@@ -117,7 +117,7 @@ public final class GlskPointScalableConverter {
                 .sorted(Comparator.comparingInt(AbstractGlskShiftKey::getMeritOrderPosition).reversed())
                 .map(glskShiftKey -> {
                     AbstractGlskRegisteredResource generatorRegisteredResource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
-                    return createGeneratorScalable(generatorRegisteredResource, network);
+                    return createGeneratorScalableWithLimits(generatorRegisteredResource, network);
                 }).toArray(Scalable[]::new));
         return Scalable.upDown(upScalable, downScalable);
     }
@@ -135,18 +135,11 @@ public final class GlskPointScalableConverter {
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GSK");
             List<Generator> generators = NetworkUtil.getCountryGenerators(country, network);
-            //calculate sum P of country's generators
-            double totalCountryP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
-            //calculate factor of each generator
-            generators.forEach(generator -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalCountryP));
-            generators.forEach(generator -> scalables.add(Scalable.onGenerator(generator.getId())));
+            addPercentagesAndScalablesFromGenerators(generators, glskShiftKey, percentages, scalables);
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) LSK");
             List<Load> loads = NetworkUtil.getCountryLoads(country, network);
-            //calculate sum P of country's loads
-            double totalCountryP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
-            loads.forEach(load -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalCountryP));
-            loads.forEach(load -> scalables.add(Scalable.onLoad(load.getId())));
+            addPercentagesAndScalablesFromLoads(loads, glskShiftKey, percentages, scalables);
         }
     }
 
@@ -160,20 +153,12 @@ public final class GlskPointScalableConverter {
     private static void convertExplicitProportional(Network network, AbstractGlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
-
             List<Generator> generators = NetworkUtil.getAvailableGenerators(glskShiftKey.getRegisteredResourceArrayList(), network);
-            double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
-
-            //calculate factor of each generator
-            generators.forEach(generator -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP));
-            generators.forEach(generator -> scalables.add(Scalable.onGenerator(generator.getId())));
+            addPercentagesAndScalablesFromGenerators(generators, glskShiftKey, percentages, scalables);
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
             List<Load> loads = NetworkUtil.getAvailableLoads(glskShiftKey.getRegisteredResourceArrayList(), network);
-            double totalP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
-
-            loads.forEach(load -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalP));
-            loads.forEach(load -> scalables.add(Scalable.onLoad(load.getId())));
+            addPercentagesAndScalablesFromLoads(loads, glskShiftKey, percentages, scalables);
         }
     }
 
@@ -212,10 +197,34 @@ public final class GlskPointScalableConverter {
         return Math.max(0, NetworkUtil.pseudoTargetP(generator) - minP);
     }
 
-    private static Scalable createGeneratorScalable(AbstractGlskRegisteredResource resource, Network network) {
+    private static Scalable createGeneratorScalableWithLimits(AbstractGlskRegisteredResource resource, Network network) {
         String generatorId = resource.getGeneratorId();
         double incomingMaxP = getMaximumGeneratorCapacity(resource, network);
         double incomingMinP = getMinimumGeneratorCapacity(resource, network);
         return Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
+    }
+
+    private static void addPercentagesAndScalablesFromGenerators(List<Generator> generators,
+                                                                 AbstractGlskShiftKey glskShiftKey,
+                                                                 List<Float> percentages,
+                                                                 List<Scalable> scalables) {
+        double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
+        //calculate factor of each generator
+        generators.forEach(generator -> percentages.add(
+                100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP)
+        );
+        generators.forEach(generator -> scalables.add(Scalable.onGenerator(generator.getId())));
+    }
+
+    private static void addPercentagesAndScalablesFromLoads(List<Load> loads,
+                                                            AbstractGlskShiftKey glskShiftKey,
+                                                            List<Float> percentages,
+                                                            List<Scalable> scalables) {
+        double totalP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
+        //calculate factor of each generator
+        loads.forEach(load -> percentages.add(
+                100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalP)
+        );
+        loads.forEach(load -> scalables.add(Scalable.onLoad(load.getId())));
     }
 }

@@ -23,7 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+
+import static com.farao_community.farao.data.glsk.api.util.converters.NetworkUtil.*;
 
 /**
  * Convert a single GlskPoint to LinearGlsk
@@ -92,20 +93,14 @@ public final class GlskPointLinearGlskConverter {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
-            List<Generator> generators = network.getGeneratorStream()
-                    .filter(generator -> country.equals(generator.getTerminal().getVoltageLevel().getSubstation().getNullableCountry()))
-                    .filter(NetworkUtil::isCorrectGenerator)
-                    .collect(Collectors.toList());
+            List<Generator> generators = getCountryGenerators(country, network);
             //calculate sum P of country's generators
             double totalCountryP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
             //calculate factor of each generator
             generators.forEach(generator -> linearGlskMap.put(generator.getId(), glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalCountryP));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
-            List<Load> loads = network.getLoadStream()
-                    .filter(load -> country.equals(load.getTerminal().getVoltageLevel().getSubstation().getNullableCountry()))
-                    .filter(NetworkUtil::isCorrectLoad)
-                    .collect(Collectors.toList());
+            List<Load> loads = getCountryLoads(country, network);
             double totalCountryLoad = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
             loads.forEach(load -> linearGlskMap.put(load.getId(), glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalCountryLoad));
         } else {
@@ -123,22 +118,12 @@ public final class GlskPointLinearGlskConverter {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
-            List<Generator> generators = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .map(AbstractGlskRegisteredResource::getGeneratorId)
-                    .filter(generatorId -> network.getGenerator(generatorId) != null)
-                    .map(network::getGenerator)
-                    .filter(NetworkUtil::isCorrectGenerator)
-                    .collect(Collectors.toList());
+            List<Generator> generators = getAvailableGenerators(glskShiftKey.getRegisteredResourceArrayList(), network);
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
             generators.forEach(generator -> linearGlskMap.put(generator.getId(), glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
-            List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .map(AbstractGlskRegisteredResource::getLoadId)
-                    .filter(loadId -> network.getLoad(loadId) != null)
-                    .map(network::getLoad)
-                    .filter(NetworkUtil::isCorrectLoad)
-                    .collect(Collectors.toList());
+            List<Load> loads = getAvailableLoads(glskShiftKey.getRegisteredResourceArrayList(), network);
             double totalLoad = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
             loads.forEach(load -> linearGlskMap.put(load.getId(), glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalLoad));
         } else {
@@ -156,19 +141,15 @@ public final class GlskPointLinearGlskConverter {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
-            List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId()) != null)
-                    .filter(generatorResource -> NetworkUtil.isCorrectGenerator(network.getGenerator(generatorResource.getGeneratorId())))
-                    .collect(Collectors.toList());
+            List<AbstractGlskRegisteredResource> generatorResources =
+                    getAvailableGeneratorsAsResources(glskShiftKey.getRegisteredResourceArrayList(), network);
             double totalFactor = generatorResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();
 
             generatorResources.forEach(generatorResource -> linearGlskMap.put(generatorResource.getGeneratorId(), glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
-            List<AbstractGlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(loadResource -> network.getLoad(loadResource.getLoadId()) != null)
-                    .filter(loadResource -> NetworkUtil.isCorrectLoad(network.getLoad(loadResource.getLoadId())))
-                    .collect(Collectors.toList());
+            List<AbstractGlskRegisteredResource> loadResources =
+                    getAvailableLoadsAsResources(glskShiftKey.getRegisteredResourceArrayList(), network);
             double totalFactor = loadResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();
 
             loadResources.forEach(loadResource -> linearGlskMap.put(loadResource.getLoadId(), glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor));
