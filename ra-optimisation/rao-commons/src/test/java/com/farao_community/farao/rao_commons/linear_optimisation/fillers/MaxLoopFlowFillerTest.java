@@ -8,7 +8,6 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;
 import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
@@ -53,9 +52,10 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
                 Set.of(cnec1),
                 Set.of(rangeAction),
                 initialRangeActionResult,
-                0.
+                0.,
+                false
         );
-        ((FlowCnec) cnec1).newExtension(LoopFlowThresholdAdder.class).withValue(100.).withUnit(Unit.MEGAWATT).add();
+        cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(100.).withUnit(Unit.MEGAWATT).add();
     }
 
     private void createMaxLoopFlowFiller(double initialLoopFlowValue) {
