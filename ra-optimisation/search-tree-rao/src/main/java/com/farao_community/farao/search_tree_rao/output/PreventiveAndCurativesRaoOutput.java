@@ -80,15 +80,14 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
             case AFTER_PRA:
                 return postPreventiveResult;
             case AFTER_ARA:
-                if (state.getInstant().equals(Instant.CURATIVE)) {
-                    Optional<State> autoState = postContingencyResults.keySet().stream()
-                        .filter(optimizedState -> optimizedState.getInstant().equals(Instant.AUTO) && optimizedState.getContingency().equals(state.getContingency()))
-                        .findAny();
-                    if (autoState.isPresent()) {
-                        return postContingencyResults.get(autoState.get());
-                    }
+                Optional<State> autoState = postContingencyResults.keySet().stream()
+                    .filter(optimizedState -> optimizedState.getInstant().equals(Instant.AUTO) && optimizedState.getContingency().equals(state.getContingency()))
+                    .findAny();
+                if (autoState.isPresent()) {
+                    return postContingencyResults.get(autoState.get());
+                } else {
+                    return null;
                 }
-                return postContingencyResults.get(state);
             case AFTER_CRA:
                 return postContingencyResults.get(state);
             default:
