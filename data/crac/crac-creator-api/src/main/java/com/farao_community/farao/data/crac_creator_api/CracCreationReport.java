@@ -69,6 +69,6 @@ public final class CracCreationReport {
     }
 
     public String toString() {
-        return String.join("/n", creationReport);
+        return String.join("\n", creationReport);
     }
 }
