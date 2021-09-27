@@ -29,7 +29,11 @@ public interface StandardCracCreationContext extends CracCreationContext {
 
     List<? extends BranchCnecCreationContext> getBranchCnecCreationContexts();
 
+    BranchCnecCreationContext getBranchCnecCreationContext(String brancCnecId);
+
     List<? extends RemedialActionCreationContext> getRemedialActionCreationContexts();
+
+    RemedialActionCreationContext getRemedialActionCreationContext(String remedialActionId);
 
     OffsetDateTime getTimeStamp();
 
