@@ -15,4 +15,8 @@ public interface HvdcRangeActionCreationContext extends RemedialActionCreationCo
      */
     boolean isInverted();
 
+    /**
+     * Get the ID of the element as present in the native CRAC file
+     */
+    String getNativeNetworkElementId();
 }

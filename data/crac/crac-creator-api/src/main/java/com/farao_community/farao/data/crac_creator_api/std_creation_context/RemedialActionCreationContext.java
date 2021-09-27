@@ -6,24 +6,12 @@
  */
 package com.farao_community.farao.data.crac_creator_api.std_creation_context;
 
+import com.farao_community.farao.data.crac_creator_api.ElementaryCreationContext;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface RemedialActionCreationContext {
-
-    /**
-     * Get the native id the remedial action
-     */
-    String getNativeRAId();
-
-    /**
-     * Get a boolean indicating whether or not the native remedial action has been imported
-     */
-    boolean isImported();
-
-    //idea: add here a method getStatus, which returns an enum with additional information on why the
-    //native RA was not imported
-
+public interface RemedialActionCreationContext extends ElementaryCreationContext {
     /**
      * Get the id of the created remedial action
      * Underlying assumption: one native RA has been converted into one created RA
