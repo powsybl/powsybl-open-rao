@@ -8,18 +8,24 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.factors.BranchFlowPerInjectionIncrease;
-import com.powsybl.sensitivity.factors.BranchFlowPerPSTAngle;
-import com.powsybl.sensitivity.factors.BranchIntensityPerPSTAngle;
+import com.powsybl.sensitivity.factors.*;
+import com.powsybl.sensitivity.factors.variables.HvdcSetpointIncrease;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.HashSet;
 import java.util.List;
@@ -63,11 +69,11 @@ public class RangeActionSensitivityProviderTest {
             .withId("generatorContingencyCnec")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
-                .withUnit(Unit.AMPERE)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
-                .withMin(-10.)
-                .withMax(10.)
-                .add()
+            .withUnit(Unit.AMPERE)
+            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withMin(-10.)
+            .withMax(10.)
+            .add()
             .withNominalVoltage(380.)
             .withInstant(Instant.CURATIVE)
             .withContingency("contingency-generator")
@@ -77,11 +83,11 @@ public class RangeActionSensitivityProviderTest {
             .withId("hvdcContingencyCnec")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
-                .withUnit(Unit.AMPERE)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
-                .withMin(-10.)
-                .withMax(10.)
-                .add()
+            .withUnit(Unit.AMPERE)
+            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withMin(-10.)
+            .withMax(10.)
+            .add()
             .withNominalVoltage(380.)
             .withInstant(Instant.CURATIVE)
             .withContingency("contingency-hvdc")
@@ -91,11 +97,11 @@ public class RangeActionSensitivityProviderTest {
             .withId("busbarContingencyCnec")
             .withNetworkElement("BBE2AA1  FFR3AA1  1")
             .newThreshold()
-                .withUnit(Unit.AMPERE)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
-                .withMin(-10.)
-                .withMax(10.)
-                .add()
+            .withUnit(Unit.AMPERE)
+            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withMin(-10.)
+            .withMax(10.)
+            .add()
             .withNominalVoltage(380.)
             .withInstant(Instant.CURATIVE)
             .withContingency("contingency-busbar-section")
@@ -144,17 +150,17 @@ public class RangeActionSensitivityProviderTest {
             .withId("failureCnec")
             .withNetworkElement("BBE1AA1  BBE3AA1  1")
             .newThreshold()
-                .withUnit(Unit.AMPERE)
-                .withRule(BranchThresholdRule.ON_LEFT_SIDE)
-                .withMin(-10.)
-                .withMax(10.)
-                .add()
+            .withUnit(Unit.AMPERE)
+            .withRule(BranchThresholdRule.ON_LEFT_SIDE)
+            .withMin(-10.)
+            .withMax(10.)
+            .add()
             .withInstant(Instant.CURATIVE)
             .withContingency("contingency-fail")
             .add();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(new HashSet<>(),
-                Set.of(crac.getFlowCnec("failureCnec")), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+            Set.of(crac.getFlowCnec("failureCnec")), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
         provider.getContingencies(network);
     }
 
@@ -163,8 +169,7 @@ public class RangeActionSensitivityProviderTest {
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(),
-                crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC (2 network elements) and 1 range action
         List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
@@ -179,7 +184,7 @@ public class RangeActionSensitivityProviderTest {
         Network network = NetworkImportsUtil.import12NodesNetwork();
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(),
-                crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+            crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
@@ -188,18 +193,67 @@ public class RangeActionSensitivityProviderTest {
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
     }
 
-    @Test (expected = FaraoException.class)
+    @Test(expected = FaraoException.class)
     public void cracWithoutRangeActionNorPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
 
-        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(),
-                crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC and 1 range action
         List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
         assertEquals(4, factorList.size());
         assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerInjectionIncrease).count());
         //assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerInjectionIncrease).count());
+    }
+
+    @Test
+    public void testHvdcSensi() {
+        Crac crac = CracFactory.findDefault().create("test-crac");
+        FlowCnec flowCnec = crac.newFlowCnec()
+            .withId("cnec")
+            .withNetworkElement("BBE1AA11 FFR5AA11 1")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .add();
+
+        Network network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+
+        NetworkElement hvdc = Mockito.mock(NetworkElement.class);
+        Mockito.when(hvdc.getId()).thenReturn("BBE2AA11 FFR3AA11 1");
+        RangeAction mockHvdcRangeAction = Mockito.mock(RangeAction.class);
+        Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(hvdc));
+
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+
+        List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
+
+        assertEquals(2, factorList.size());
+        assertTrue((factorList.get(0) instanceof BranchFlowPerHvdcSetpointIncrease && factorList.get(1) instanceof BranchIntensityPerHvdcSetpointIncrease)
+            || (factorList.get(1) instanceof BranchFlowPerHvdcSetpointIncrease && factorList.get(0) instanceof BranchIntensityPerHvdcSetpointIncrease));
+        assertEquals("BBE2AA11 FFR3AA11 1", ((HvdcSetpointIncrease) factorList.get(0).getVariable()).getHvdcId());
+        assertEquals("BBE2AA11 FFR3AA11 1", ((HvdcSetpointIncrease) factorList.get(1).getVariable()).getHvdcId());
+    }
+
+    @Test
+    public void testUnhandledElement() {
+        Crac crac = CracFactory.findDefault().create("test-crac");
+        FlowCnec flowCnec = crac.newFlowCnec()
+            .withId("cnec")
+            .withNetworkElement("BBE1AA11 FFR5AA11 1")
+            .withInstant(Instant.PREVENTIVE)
+            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withRule(BranchThresholdRule.ON_REGULATED_SIDE).add()
+            .add();
+
+        Network network = Importers.loadNetwork("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+
+        NetworkElement line = Mockito.mock(NetworkElement.class);
+        Mockito.when(line.getId()).thenReturn("BBE1AA11 BBE2AA11 1");
+        RangeAction mockHvdcRangeAction = Mockito.mock(RangeAction.class);
+        Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(line));
+
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+
+        assertThrows(SensitivityAnalysisException.class, () -> provider.getAdditionalFactors(network));
     }
 }

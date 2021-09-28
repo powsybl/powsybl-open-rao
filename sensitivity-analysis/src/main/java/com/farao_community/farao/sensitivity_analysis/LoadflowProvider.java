@@ -15,11 +15,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunction;
 import com.powsybl.sensitivity.SensitivityVariable;
-import com.powsybl.sensitivity.factors.BranchFlowPerInjectionIncrease;
-import com.powsybl.sensitivity.factors.BranchFlowPerPSTAngle;
-import com.powsybl.sensitivity.factors.BranchIntensityPerPSTAngle;
+import com.powsybl.sensitivity.factors.*;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
+import com.powsybl.sensitivity.factors.variables.HvdcSetpointIncrease;
 import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 
@@ -103,12 +102,16 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
                 return new BranchFlowPerPSTAngle((BranchFlow) function, (PhaseTapChangerAngle) variable);
             } else if (variable instanceof InjectionIncrease) {
                 return new BranchFlowPerInjectionIncrease((BranchFlow) function, (InjectionIncrease) variable);
+            } else if (variable instanceof HvdcSetpointIncrease) {
+                return new BranchFlowPerHvdcSetpointIncrease((BranchFlow) function, (HvdcSetpointIncrease) variable);
             } else {
                 throw new FaraoException(faraoExceptionSensitivityString(function, variable));
             }
         } else if (function instanceof BranchIntensity) {
             if (variable instanceof PhaseTapChangerAngle) {
                 return new BranchIntensityPerPSTAngle((BranchIntensity) function, (PhaseTapChangerAngle) variable);
+            } else if (variable instanceof HvdcSetpointIncrease) {
+                return new BranchIntensityPerHvdcSetpointIncrease((BranchIntensity) function, (HvdcSetpointIncrease) variable);
             } else {
                 throw new FaraoException(faraoExceptionSensitivityString(function, variable));
             }
