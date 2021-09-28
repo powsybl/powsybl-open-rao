@@ -261,7 +261,8 @@ public class SearchTree {
         Set<RangeAction> previousIterationRangeActions = null;
         Set<RangeAction> rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, false);
         // Iterate on optimizer until the list of range actions stops changing
-        while (!rangeActions.equals(previousIterationRangeActions)) {
+        while (!rangeActions.equals(previousIterationRangeActions) && Math.abs(previousCost - leaf.getCost()) >= 1e-6 && iteration < 10) {
+            previousCost = leaf.getCost();
             iteration++;
             if (iteration > 1) {
                 LOGGER.info("{}", leaf);
@@ -288,7 +289,6 @@ public class SearchTree {
             } else {
                 LOGGER.info("No range actions to optimize");
             }
-            previousCost = leaf.getCost();
             previousIterationRangeActions = rangeActions;
             rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, true);
         }

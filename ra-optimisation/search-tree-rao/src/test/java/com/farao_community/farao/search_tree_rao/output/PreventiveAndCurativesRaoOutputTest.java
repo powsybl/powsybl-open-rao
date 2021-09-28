@@ -546,8 +546,7 @@ public class PreventiveAndCurativesRaoOutputTest {
         assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
         perimeterResult = output.getPerimeterResult(AFTER_ARA, curativeState1);
         assertEquals(3., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
-        perimeterResult = output.getPerimeterResult(AFTER_ARA, curativeState2);
-        assertEquals(5., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        assertNull(output.getPerimeterResult(AFTER_ARA, curativeState2));
 
         // AFTER_CRA
         assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_CRA, preventiveState));
