@@ -10,7 +10,6 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.commons.CountryGraph;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.powsybl.iidm.network.Country;
@@ -229,7 +228,7 @@ final class SearchTreeBloomer {
 
         // get max number of network action which can still be activated, per Tso
         tsos.forEach(tso -> {
-            int activatedPstsForTso = (int) fromLeaf.getRangeActions().stream().filter(rangeAction -> rangeAction instanceof PstRangeAction && hasRangeActionChangedComparedToPrePerimeter(fromLeaf, rangeAction)).count();
+            int activatedPstsForTso = (int) fromLeaf.getRangeActions().stream().filter(rangeAction -> hasRangeActionChangedComparedToPrePerimeter(fromLeaf, rangeAction)).count();
             int activatedTopoForTso = (int) fromLeaf.getActivatedNetworkActions().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
 
             int limitationDueToMaxRa =  maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedPstsForTso - activatedTopoForTso;

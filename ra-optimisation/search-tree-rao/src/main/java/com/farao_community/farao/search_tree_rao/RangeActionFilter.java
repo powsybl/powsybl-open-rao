@@ -10,12 +10,15 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
+import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
+import com.google.common.hash.Hashing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -84,7 +87,8 @@ class RangeActionFilter {
         Map<String, Integer> maxPstPerTso = new HashMap<>(treeParameters.getMaxPstPerTso());
         treeParameters.getMaxRaPerTso().forEach((tso, raLimit) -> {
             int appliedNetworkActionsForTso = (int) leaf.getActivatedNetworkActions().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
-            int pstLimit = raLimit - appliedNetworkActionsForTso;
+            int appliedNonPstRangeActionsForTso = (int) rangeActionsToOptimize.stream().filter(ra -> ra.getOperator().equals(tso) && !(ra instanceof PstRangeAction) && isRangeActionUsed(ra, leaf)).count();
+            int pstLimit = raLimit - appliedNetworkActionsForTso - appliedNonPstRangeActionsForTso;
             maxPstPerTso.put(tso, Math.min(pstLimit, maxPstPerTso.getOrDefault(tso, Integer.MAX_VALUE)));
         });
         return maxPstPerTso;
@@ -110,7 +114,7 @@ class RangeActionFilter {
 
     Set<String> sortTsosToKeepBySensitivityAndGroupId(Set<String> activatedTsos, int maxTso) {
         List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToOptimize.stream()
-                .sorted((ra1, ra2) -> -compareAbsoluteSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                .sorted((ra1, ra2) -> -comparePotentialGain(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
                 .collect(Collectors.toList());
 
         Set<String> tsosToKeep = new HashSet<>(activatedTsos);
@@ -248,22 +252,47 @@ class RangeActionFilter {
      * it will be considered greater.
      * If both RAs have the same priority, then absolute sensitivities will be compared.
      */
-    private int comparePrioritiesAndSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec
-            cnec, SensitivityResult sensitivityResult) {
+    private int comparePrioritiesAndSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
         if (!leastPriorityRangeActions.contains(ra1) && leastPriorityRangeActions.contains(ra2)) {
             return -1;
         } else if (leastPriorityRangeActions.contains(ra1) && !leastPriorityRangeActions.contains(ra2)) {
             return 1;
         } else {
-            return -compareAbsoluteSensitivities(ra1, ra2, cnec, sensitivityResult);
+            return -comparePotentialGain(ra1, ra2, cnec, optimizationResult);
         }
     }
 
-    private int compareAbsoluteSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, SensitivityResult
-            sensitivityResult) {
-        Double sensi1 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra1, Unit.MEGAWATT));
-        Double sensi2 = Math.abs(sensitivityResult.getSensitivityValue(cnec, ra2, Unit.MEGAWATT));
-        return sensi1.compareTo(sensi2);
+    private int comparePotentialGain(RangeAction ra1, RangeAction ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
+        Double gain1 = computePotentialGain(ra1, cnec, optimizationResult);
+        Double gain2 = computePotentialGain(ra2, cnec, optimizationResult);
+        int comparison = gain1.compareTo(gain2);
+        return comparison != 0 ? comparison : orderRangeActionsRandomly(ra1, ra2);
+    }
+
+    private Double computePotentialGain(RangeAction rangeAction, FlowCnec cnec, OptimizationResult optimizationResult) {
+        double directMargin = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - optimizationResult.getFlow(cnec, Unit.MEGAWATT);
+        double oppositeMargin = optimizationResult.getFlow(cnec, Unit.MEGAWATT) - cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
+        double sensi = optimizationResult.getSensitivityValue(cnec, rangeAction, Unit.MEGAWATT);
+        double currentSetPoint = optimizationResult.getOptimizedSetPoint(rangeAction);
+        if (directMargin < oppositeMargin) {
+            if (sensi > 0) {
+                return sensi * (currentSetPoint - rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoints.get(rangeAction)));
+            } else {
+                return sensi * (currentSetPoint - rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoints.get(rangeAction)));
+            }
+        } else {
+            if (sensi > 0) {
+                return sensi * (rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoints.get(rangeAction)) - currentSetPoint);
+            } else {
+                return sensi * (rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoints.get(rangeAction)) - currentSetPoint);
+            }
+
+        }
+
+    }
+
+    private int orderRangeActionsRandomly(RangeAction ra1, RangeAction ra2) {
+        return Hashing.crc32().hashString(ra1.getId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getId(), StandardCharsets.UTF_8).hashCode();
     }
 
     boolean isRangeActionUsed(RangeAction rangeAction, Leaf leaf) {

@@ -16,6 +16,7 @@ import com.farao_community.farao.commons.Unit;
 public final class LinearOptimizerParameters {
     private RaoParameters.ObjectiveFunction objectiveFunction;
     private double pstSensitivityThreshold;
+    private double hvdcSensitivityThreshold;
     private MnecParameters mnecParameters;
     private MaxMinMarginParameters maxMinMarginParameters;
     private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
@@ -33,6 +34,7 @@ public final class LinearOptimizerParameters {
     public static class LinearOptimizerParametersBuilder {
         private RaoParameters.ObjectiveFunction objectiveFunction;
         private Double pstSensitivityThreshold;
+        private Double hvdcSensitivityThreshold;
         private MaxMinMarginParameters maxMinMarginParameters;
         private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
         private MnecParameters mnecParameters;
@@ -46,6 +48,11 @@ public final class LinearOptimizerParameters {
 
         public LinearOptimizerParametersBuilder withPstSensitivityThreshold(double pstSensitivityThreshold) {
             this.pstSensitivityThreshold = pstSensitivityThreshold;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withHvdcSensitivityThreshold(double hvdcSensitivityThreshold) {
+            this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
             return this;
         }
 
@@ -75,8 +82,8 @@ public final class LinearOptimizerParameters {
         }
 
         public LinearOptimizerParameters build() {
-            if (objectiveFunction == null || pstSensitivityThreshold == null) {
-                throw new FaraoException("Objective function and pst sensitivity threshold are mandatory parameters.");
+            if (objectiveFunction == null || pstSensitivityThreshold == null || hvdcSensitivityThreshold == null) {
+                throw new FaraoException("Objective function, pst sensitivity threshold and hvdc sensitivity threshold are mandatory parameters.");
             }
             if (objectiveFunction.relativePositiveMargins() && maxMinRelativeMarginParameters == null) {
                 throw new FaraoException("An objective function with relative margins requires parameters on relative margins.");
@@ -87,6 +94,7 @@ public final class LinearOptimizerParameters {
             LinearOptimizerParameters linearOptimizerParameters = new LinearOptimizerParameters();
             linearOptimizerParameters.objectiveFunction = objectiveFunction;
             linearOptimizerParameters.pstSensitivityThreshold = pstSensitivityThreshold;
+            linearOptimizerParameters.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
             linearOptimizerParameters.maxMinMarginParameters = maxMinMarginParameters;
             linearOptimizerParameters.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
             linearOptimizerParameters.mnecParameters = mnecParameters;
@@ -102,6 +110,10 @@ public final class LinearOptimizerParameters {
 
     public double getPstSensitivityThreshold() {
         return pstSensitivityThreshold;
+    }
+
+    public double getHvdcSensitivityThreshold() {
+        return hvdcSensitivityThreshold;
     }
 
     public Unit getUnit() {

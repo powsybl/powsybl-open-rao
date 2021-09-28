@@ -38,8 +38,7 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -266,6 +265,9 @@ public class SearchTreeTest {
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
+        Map<RangeAction, Double> prePerimeterRangeActionSetPoints = new HashMap<>();
+        availableRangeActions.forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, 0.));
+        searchTree.setPrePerimeterRangeActionSetPoints(prePerimeterRangeActionSetPoints);
         Set<RangeAction> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(rootLeaf, availableRangeActions, false);
 
         assert rangeActionsToOptimize.contains(rangeAction2);
@@ -287,6 +289,9 @@ public class SearchTreeTest {
 
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
+        Map<RangeAction, Double> prePerimeterRangeActionSetPoints = new HashMap<>();
+        availableRangeActions.forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, 0.));
+        searchTree.setPrePerimeterRangeActionSetPoints(prePerimeterRangeActionSetPoints);
         Set<RangeAction> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(rootLeaf, availableRangeActions, false);
 
         assertTrue(rangeActionsToOptimize.contains(rangeAction2));
@@ -321,6 +326,9 @@ public class SearchTreeTest {
         when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
+        Map<RangeAction, Double> prePerimeterRangeActionSetPoints = new HashMap<>();
+        availableRangeActions.forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, 0.));
+        searchTree.setPrePerimeterRangeActionSetPoints(prePerimeterRangeActionSetPoints);
         Set<RangeAction> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(childLeaf, availableRangeActions, false);
         assertEquals(1, rangeActionsToOptimize.size());
     }
@@ -345,10 +353,16 @@ public class SearchTreeTest {
         rangeAction2 = Mockito.mock(PstRangeAction.class);
         when(rangeAction1.getOperator()).thenReturn(tsoName);
         when(rangeAction1.getName()).thenReturn("PST1");
+        when(rangeAction1.getId()).thenReturn("PST1");
         when(rangeAction1.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(rangeAction1.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(5.);
+        when(rangeAction1.getMinAdmissibleSetpoint(anyDouble())).thenReturn(-5.);
         when(rangeAction2.getOperator()).thenReturn(tsoName);
         when(rangeAction2.getName()).thenReturn("PST2");
+        when(rangeAction2.getId()).thenReturn("PST2");
         when(rangeAction2.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(rangeAction2.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(5.);
+        when(rangeAction2.getMinAdmissibleSetpoint(anyDouble())).thenReturn(-5.);
         availableRangeActions.add(rangeAction1);
         availableRangeActions.add(rangeAction2);
 

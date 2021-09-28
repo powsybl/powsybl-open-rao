@@ -50,7 +50,7 @@ public class PstRangeActionResultTest {
     public void defaultValuesTest() {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
 
-        assertEquals("anyPstNetworkElement", pstRangeActionResult.getPstNetworkElementId());
+        assertEquals("anyPstNetworkElement", pstRangeActionResult.getNetworkElementId());
         assertEquals(Double.NaN, pstRangeActionResult.getPreOptimSetpoint());
 
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
@@ -66,10 +66,10 @@ public class PstRangeActionResultTest {
     @Test
     public void setPstNetworkElementTest() {
         PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
-        assertEquals("anyPstNetworkElement", pstRangeActionResult.getPstNetworkElementId());
+        assertEquals("anyPstNetworkElement", pstRangeActionResult.getNetworkElementId());
 
-        pstRangeActionResult.setPstNetworkElementId("anotherPstNetworkElement");
-        assertEquals("anotherPstNetworkElement", pstRangeActionResult.getPstNetworkElementId());
+        pstRangeActionResult.setNetworkElementId("anotherPstNetworkElement");
+        assertEquals("anotherPstNetworkElement", pstRangeActionResult.getNetworkElementId());
 
     }
 

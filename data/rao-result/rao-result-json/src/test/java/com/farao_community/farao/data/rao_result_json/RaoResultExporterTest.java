@@ -117,7 +117,7 @@ public class RaoResultExporterTest {
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE));
 
         // PST result
-        PstRangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentPstRangeActionResult(pst);
+        PstRangeActionResult pstRangeActionResult = (PstRangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pst);
         pstRangeActionResult.setPreOptimTap(3);
         pstRangeActionResult.setPreOptimSetPoint(2.3);
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -7, -3.2);

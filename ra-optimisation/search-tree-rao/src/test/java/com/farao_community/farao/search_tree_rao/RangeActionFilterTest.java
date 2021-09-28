@@ -68,6 +68,9 @@ public class RangeActionFilterTest {
     private PstRangeAction addPstRangeAction(String operator, double prePerimeterSetPoint, double optimizedSetPoint, double sensitivity) {
         PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(rangeAction.getOperator()).thenReturn(operator);
+        Mockito.when(rangeAction.getMaxAdmissibleSetpoint(Mockito.anyDouble())).thenReturn(5.);
+        Mockito.when(rangeAction.getMinAdmissibleSetpoint(Mockito.anyDouble())).thenReturn(-5.);
+        Mockito.when(rangeAction.getId()).thenReturn("pst");
         Mockito.when(leaf.getOptimizedSetPoint(rangeAction)).thenReturn(optimizedSetPoint);
         prePerimeterSetPoints.put(rangeAction, prePerimeterSetPoint);
         availableRangeActions.add(rangeAction);
@@ -80,6 +83,9 @@ public class RangeActionFilterTest {
         PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(rangeAction.getOperator()).thenReturn(operator);
         Mockito.when(rangeAction.getGroupId()).thenReturn(groupId);
+        Mockito.when(rangeAction.getMaxAdmissibleSetpoint(Mockito.anyDouble())).thenReturn(5.);
+        Mockito.when(rangeAction.getMinAdmissibleSetpoint(Mockito.anyDouble())).thenReturn(-5.);
+        Mockito.when(rangeAction.getId()).thenReturn("pst");
         Mockito.when(leaf.getOptimizedSetPoint(rangeAction)).thenReturn(optimizedSetPoint);
         prePerimeterSetPoints.put(rangeAction, prePerimeterSetPoint);
         availableRangeActions.add(rangeAction);
