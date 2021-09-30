@@ -110,16 +110,19 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();
         }
-        if (optimizationState == OptimizationState.AFTER_PRA) {
-            return postPreventiveResult.getFunctionalCost();
-        }
+        return getHighestFunctionalCostUntilInstant(optimizationState.getFirstInstant());
+    }
+
+    private double getHighestFunctionalCostUntilInstant(Instant instant) {
         double highestFunctionalCost = postPreventiveResult.getFunctionalCost();
         highestFunctionalCost = Math.max(
-                highestFunctionalCost,
-                postContingencyResults.values().stream()
-                        .map(PerimeterResult::getFunctionalCost)
-                        .max(Double::compareTo)
-                        .orElseThrow(() -> new FaraoException("Should not happen"))
+            highestFunctionalCost,
+            postContingencyResults.entrySet().stream()
+                .filter(entry -> entry.getKey().getInstant().comesBefore(instant) || entry.getKey().getInstant().equals(instant))
+                .map(Map.Entry::getValue)
+                .map(PerimeterResult::getFunctionalCost)
+                .max(Double::compareTo)
+                .orElse(-Double.MAX_VALUE)
         );
         return highestFunctionalCost;
     }
