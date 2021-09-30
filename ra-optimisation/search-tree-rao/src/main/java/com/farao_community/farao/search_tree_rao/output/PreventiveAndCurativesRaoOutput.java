@@ -33,6 +33,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     private PrePerimeterResult initialResult;
     private PerimeterResult postPreventiveResult;
     private Map<State, PerimeterResult> postContingencyResults;
+    private PrePerimeterResult preContingencyResult;
 
     public PreventiveAndCurativesRaoOutput(StateTree stateTree,
                                            PrePerimeterResult initialResult,
@@ -41,6 +42,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
                                            Map<State, OptimizationResult> postContingencyResults) {
         this.initialResult = initialResult;
         this.postPreventiveResult = postPreventiveResult;
+        this.preContingencyResult = preContingencyResult;
         this.postContingencyResults = buildPostContingencyResults(stateTree, preContingencyResult, postContingencyResults);
     }
 
@@ -109,22 +111,35 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     public double getFunctionalCost(OptimizationState optimizationState) {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getFunctionalCost();
+        } else if (optimizationState == OptimizationState.AFTER_PRA) {
+            // using postPreventiveResult would exclude curative CNECs
+            return preContingencyResult.getFunctionalCost();
+        } else {
+            return getHighestFunctionalForInstant(optimizationState.getFirstInstant());
         }
-        return getHighestFunctionalCostUntilInstant(optimizationState.getFirstInstant());
     }
 
-    private double getHighestFunctionalCostUntilInstant(Instant instant) {
+    private double getHighestFunctionalForInstant(Instant instant) {
         double highestFunctionalCost = postPreventiveResult.getFunctionalCost();
         highestFunctionalCost = Math.max(
             highestFunctionalCost,
             postContingencyResults.entrySet().stream()
-                .filter(entry -> entry.getKey().getInstant().comesBefore(instant) || entry.getKey().getInstant().equals(instant))
+                .filter(entry -> entry.getKey().getInstant().equals(instant))
                 .map(Map.Entry::getValue)
+                .filter(PreventiveAndCurativesRaoOutput::hasActualFunctionalCost)
                 .map(PerimeterResult::getFunctionalCost)
                 .max(Double::compareTo)
                 .orElse(-Double.MAX_VALUE)
         );
         return highestFunctionalCost;
+    }
+
+    /**
+     * Returns true if the perimeter has an actual functional cost, ie has CNECs
+     * (as opposed to a perimeter with pure MNECs only)
+     */
+    private static boolean hasActualFunctionalCost(PerimeterResult perimeterResult) {
+        return !perimeterResult.getMostLimitingElements(1).isEmpty();
     }
 
     @Override
