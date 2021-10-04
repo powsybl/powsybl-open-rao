@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
@@ -16,7 +17,10 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -97,7 +101,15 @@ public class IteratingLinearOptimizer {
     }
 
     static boolean hasRemedialActionsChanged(RangeActionResult newRangeActionResult, RangeActionResult oldRangeActionResult) {
-        return !newRangeActionResult.getOptimizedSetPoints().equals(oldRangeActionResult.getOptimizedSetPoints());
+        if (!(newRangeActionResult.getRangeActions().equals(oldRangeActionResult.getRangeActions()))) {
+            return true;
+        }
+        for (RangeAction rangeAction : newRangeActionResult.getRangeActions()) {
+            if (Math.abs(newRangeActionResult.getOptimizedSetPoint(rangeAction) - oldRangeActionResult.getOptimizedSetPoint(rangeAction)) >= 1e-6) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {
@@ -147,8 +159,14 @@ public class IteratingLinearOptimizer {
     }
 
     private RangeActionResult roundResult(RangeActionResult rangeActionResult, Network network, IteratingLinearOptimizerResult previousResult) {
+        Map<RangeAction, Double> roundedSetPoints = new HashMap<>(rangeActionResult.getOptimizedSetPoints());
+        // Round set points to the closest integer for non-pst range actions
+        for (RangeAction rangeAction : rangeActionResult.getOptimizedSetPoints().keySet().stream().filter(ra -> !(ra instanceof PstRangeAction)).collect(Collectors.toSet())) {
+            roundedSetPoints.put(rangeAction, (double) Math.round(rangeActionResult.getOptimizedSetPoint(rangeAction)));
+        }
+
         return BestTapFinder.find(
-                rangeActionResult,
+                roundedSetPoints,
                 network,
                 previousResult.getObjectiveFunctionResult().getMostLimitingElements(10),
                 previousResult.getBranchResult(),

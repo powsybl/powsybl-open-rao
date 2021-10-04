@@ -47,7 +47,7 @@ final class HvdcRangeActionResultArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
 
-                    case PST_NETWORKELEMENT_ID:
+                    case HVDC_NETWORKELEMENT_ID:
                         hvdcRangeActionResult.setNetworkElementId(jsonParser.nextTextValue());
                         break;
 
@@ -67,10 +67,10 @@ final class HvdcRangeActionResultArrayDeserializer {
                         break;
 
                     default:
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", PSTRANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", HVDCRANGEACTION_RESULTS, jsonParser.getCurrentName()));
                 }
             }
-            // Do this at the end: for PSTs with afterPraTap and afterPraSetpoint, initial tap/setpoint should be set to afterPra values
+            // Do this at the end: for HVDCs with afterPraSetpoint, initial setpoint should be set to afterPra values
             if (afterPraSetpoint != null) {
                 hvdcRangeActionResult.setPreOptimSetPoint(afterPraSetpoint);
             }
