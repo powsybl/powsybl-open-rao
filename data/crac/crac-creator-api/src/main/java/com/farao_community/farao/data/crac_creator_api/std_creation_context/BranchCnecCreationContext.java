@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creator_api.std_creation_context;
 
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_creator_api.ElementaryCreationContext;
 
 import java.util.Map;
 import java.util.Optional;
@@ -14,12 +15,7 @@ import java.util.Optional;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface BranchCnecCreationContext {
-
-    /**
-     * Get the native id the CNEC
-     */
-    String getNativeCnecId();
+public interface BranchCnecCreationContext extends ElementaryCreationContext {
 
     /**
      * Get the native branch definition of the CNEC
@@ -38,14 +34,6 @@ public interface BranchCnecCreationContext {
      * @return Optional of the contingency id, or empty Optional if isBaseCase()
      */
     Optional<String> getContingencyId();
-
-    /**
-     * Get a boolean indicating whether or not the native CNEC has been imported
-     */
-    boolean isImported();
-
-    //idea: add here a method getStatus, which returns an enum with additional information on why the
-    //native Cnec was not imported
 
     /**
      * Get a map of created CNECs id, whose key is the instant id on which the created CNEC is monitored
