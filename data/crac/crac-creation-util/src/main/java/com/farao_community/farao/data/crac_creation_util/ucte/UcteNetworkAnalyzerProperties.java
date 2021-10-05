@@ -17,7 +17,8 @@ public class UcteNetworkAnalyzerProperties {
     // For Bus IDs with 7 characters, either complete them with white spaces or wildcards
     public enum BusIdMatchPolicy {
         COMPLETE_WITH_WHITESPACES,
-        COMPLETE_WITH_WILDCARDS
+        COMPLETE_WITH_WILDCARDS,
+        REPLACE_8TH_CHARACTER_WITH_WILDCARD
     }
 
     private BusIdMatchPolicy busIdMatchPolicy;

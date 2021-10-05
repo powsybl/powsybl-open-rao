@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import static com.farao_community.farao.data.crac_creation_util.ConnectableType.*;
 import static com.farao_community.farao.data.crac_creation_util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
+import static com.farao_community.farao.data.crac_creation_util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD;
 
 /**
  * A utility class, that stores network information so as to speed up
@@ -67,7 +68,7 @@ public class UcteNetworkAnalyzer {
     private String completeNodeName(String nodeName) {
         if (nodeName.length() == UcteUtils.UCTE_NODE_LENGTH) {
             return nodeName;
-        } else if (properties.getBusIdMatchPolicy().equals(COMPLETE_WITH_WILDCARDS)) {
+        } else if (properties.getBusIdMatchPolicy().equals(COMPLETE_WITH_WILDCARDS) || properties.getBusIdMatchPolicy().equals(REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
             return String.format("%1$-7s", nodeName) + UcteUtils.WILDCARD_CHARACTER;
         } else {
             return String.format("%1$-8s", nodeName);

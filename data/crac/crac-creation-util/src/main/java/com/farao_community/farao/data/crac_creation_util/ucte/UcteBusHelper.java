@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Objects;
 
 import static com.farao_community.farao.data.crac_creation_util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES;
+import static com.farao_community.farao.data.crac_creation_util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD;
 import static com.farao_community.farao.data.crac_creation_util.ucte.UcteUtils.UCTE_NODE_LENGTH;
 import static com.farao_community.farao.data.crac_creation_util.ucte.UcteUtils.WILDCARD_CHARACTER;
 
@@ -34,17 +35,19 @@ public class UcteBusHelper implements ElementHelper {
         // full id without wildcard
         if (nodeName.length() == UCTE_NODE_LENGTH && !nodeName.endsWith(WILDCARD_CHARACTER)) {
             lookForBusWithIdInNetwork(nodeName, ucteNetworkAnalyzer.getNetwork());
-            return;
+            if (isValid || !ucteNetworkAnalyzer.getProperties().getBusIdMatchPolicy().equals(REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
+                return;
+            }
         }
 
         String modNodeName = nodeName;
         // incomplete id, automatically complete id with...
-        if (nodeName.length() < UCTE_NODE_LENGTH) { // blank spaces,
+        if (nodeName.length() < UCTE_NODE_LENGTH || ucteNetworkAnalyzer.getProperties().getBusIdMatchPolicy().equals(REPLACE_8TH_CHARACTER_WITH_WILDCARD)) { // blank spaces,
             if (ucteNetworkAnalyzer.getProperties().getBusIdMatchPolicy().equals(COMPLETE_WITH_WHITESPACES)) {
                 lookForBusWithIdInNetwork(String.format("%1$-8s", nodeName), ucteNetworkAnalyzer.getNetwork());
                 return;
             } else {  // or, with wildcards
-                modNodeName = String.format("%1$-7s", nodeName) + WILDCARD_CHARACTER;
+                modNodeName = String.format("%1$-7s", nodeName.substring(0, Math.min(nodeName.length(), 7))) + WILDCARD_CHARACTER;
             }
         }
 
@@ -52,6 +55,7 @@ public class UcteBusHelper implements ElementHelper {
         for (Bus bus : ucteNetworkAnalyzer.getNetwork().getBusBreakerView().getBuses()) {
             if (UcteUtils.matchNodeNames(modNodeName, bus.getId())) {
                 if (Objects.isNull(busIdInNetwork)) {
+                    invalidReason = null;
                     isValid = true;
                     busIdInNetwork = bus.getId();
                 } else {
