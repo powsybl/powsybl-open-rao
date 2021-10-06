@@ -63,7 +63,7 @@ class RangeActionFilter {
         if (maxPstPerTso.isEmpty()) {
             return;
         }
-        // Filter the psts from Tso present in the map depending on their sensitivity
+        // Filter the psts from Tso present in the map depending on their potential gain
         maxPstPerTso.forEach((tso, maxPst) -> {
             Set<RangeAction> pstsForTso = rangeActionsToOptimize.stream()
                     .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
@@ -103,7 +103,7 @@ class RangeActionFilter {
         Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
         activatedTsos.addAll(appliedRangeActions.stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
 
-        Set<String> tsosToKeep = sortTsosToKeepBySensitivityAndGroupId(activatedTsos, maxTso);
+        Set<String> tsosToKeep = sortTsosToKeepByPotentialGainAndGroupId(activatedTsos, maxTso);
 
         Set<RangeAction> rangeActionsToRemove = rangeActionsToOptimize.stream().filter(rangeAction -> !tsosToKeep.contains(rangeAction.getOperator())).collect(Collectors.toSet());
         if (!rangeActionsToRemove.isEmpty()) {
@@ -112,8 +112,8 @@ class RangeActionFilter {
         }
     }
 
-    Set<String> sortTsosToKeepBySensitivityAndGroupId(Set<String> activatedTsos, int maxTso) {
-        List<RangeAction> rangeActionsSortedBySensitivity = rangeActionsToOptimize.stream()
+    Set<String> sortTsosToKeepByPotentialGainAndGroupId(Set<String> activatedTsos, int maxTso) {
+        List<RangeAction> rangeActionsSortedByPotentialGain = rangeActionsToOptimize.stream()
                 .sorted((ra1, ra2) -> -comparePotentialGain(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
                 .collect(Collectors.toList());
 
@@ -121,7 +121,7 @@ class RangeActionFilter {
 
         // Look for aligned PSTs : PSTs sharing a groupId must be all kept, or all filtered out.
         Set<String> groupIdHasBeenExplored = new HashSet<>();
-        for (RangeAction ra : rangeActionsSortedBySensitivity) {
+        for (RangeAction ra : rangeActionsSortedByPotentialGain) {
             // If ra potentially has aligned PSTs
             Optional<String> raGroupId = ra.getGroupId();
             if (raGroupId.isPresent()) {
@@ -133,7 +133,7 @@ class RangeActionFilter {
                 Set<String> tsosToKeepIfAlignedPstAreKept = new HashSet<>(tsosToKeep);
 
                 Set<RangeAction> raWithSameGroupId =
-                        rangeActionsSortedBySensitivity.stream().filter(rangeAction -> {
+                        rangeActionsSortedByPotentialGain.stream().filter(rangeAction -> {
                             Optional<String> groupId = rangeAction.getGroupId();
                             return groupId.isPresent() && groupId.get().equals(raGroupId.get());
                         }).collect(Collectors.toSet());
@@ -196,7 +196,7 @@ class RangeActionFilter {
     }
 
     /**
-     * Removes from a set of RangeActions the ones with the biggest priority or sensitivity on the most limiting element
+     * Removes from a set of RangeActions the ones with the biggest priority or potential gain on the most limiting element
      *
      * @param rangeActions   the set of RangeActions to filter
      * @param numberToRemove the number of RangeActions to remove from the set
@@ -209,14 +209,14 @@ class RangeActionFilter {
             rangeActions.clear();
             return;
         }
-        List<RangeAction> rangeActionsSortedBySensitivity = rangeActions.stream()
-                .sorted((ra1, ra2) -> comparePrioritiesAndSensitivities(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+        List<RangeAction> rangeActionsSortedByPotentialGain = rangeActions.stream()
+                .sorted((ra1, ra2) -> comparePrioritiesAndPotentialGains(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
                 .collect(Collectors.toList());
 
         Set<String> groupIdHasBeenExplored = new HashSet<>();
         int numberToRemoveLeft = numberToRemove;
         // Look for aligned PSTs
-        for (RangeAction ra : rangeActionsSortedBySensitivity) {
+        for (RangeAction ra : rangeActionsSortedByPotentialGain) {
             if (numberToRemoveLeft == 0) {
                 return;
             }
@@ -228,7 +228,7 @@ class RangeActionFilter {
                     continue;
                 }
                 Set<RangeAction> raWithSameGroupId =
-                        rangeActionsSortedBySensitivity.stream().filter(rangeAction -> {
+                        rangeActionsSortedByPotentialGain.stream().filter(rangeAction -> {
                             Optional<String> groupId = rangeAction.getGroupId();
                             return groupId.isPresent() && groupId.get().equals(raGroupId.get());
                         }).collect(Collectors.toSet());
@@ -252,7 +252,7 @@ class RangeActionFilter {
      * it will be considered greater.
      * If both RAs have the same priority, then absolute sensitivities will be compared.
      */
-    private int comparePrioritiesAndSensitivities(RangeAction ra1, RangeAction ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
+    private int comparePrioritiesAndPotentialGains(RangeAction ra1, RangeAction ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
         if (!leastPriorityRangeActions.contains(ra1) && leastPriorityRangeActions.contains(ra2)) {
             return -1;
         } else if (leastPriorityRangeActions.contains(ra1) && !leastPriorityRangeActions.contains(ra2)) {

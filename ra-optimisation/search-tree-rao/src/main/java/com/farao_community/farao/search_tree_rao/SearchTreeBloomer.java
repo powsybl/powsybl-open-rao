@@ -228,10 +228,10 @@ final class SearchTreeBloomer {
 
         // get max number of network action which can still be activated, per Tso
         tsos.forEach(tso -> {
-            int activatedPstsForTso = (int) fromLeaf.getRangeActions().stream().filter(rangeAction -> hasRangeActionChangedComparedToPrePerimeter(fromLeaf, rangeAction)).count();
+            int activatedRangeActionsForTso = (int) fromLeaf.getRangeActions().stream().filter(rangeAction -> hasRangeActionChangedComparedToPrePerimeter(fromLeaf, rangeAction)).count();
             int activatedTopoForTso = (int) fromLeaf.getActivatedNetworkActions().stream().filter(networkAction -> networkAction.getOperator().equals(tso)).count();
 
-            int limitationDueToMaxRa =  maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedPstsForTso - activatedTopoForTso;
+            int limitationDueToMaxRa =  maxRaPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedRangeActionsForTso - activatedTopoForTso;
             int limitationDueToMaxTopo =  maxTopoPerTso.getOrDefault(tso, Integer.MAX_VALUE) - activatedTopoForTso;
 
             updatedMaxTopoPerTso.put(tso, Math.min(limitationDueToMaxRa, limitationDueToMaxTopo));

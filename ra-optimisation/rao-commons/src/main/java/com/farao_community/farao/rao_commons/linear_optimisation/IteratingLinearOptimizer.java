@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -159,11 +158,13 @@ public class IteratingLinearOptimizer {
     }
 
     private RangeActionResult roundResult(RangeActionResult rangeActionResult, Network network, IteratingLinearOptimizerResult previousResult) {
-        Map<RangeAction, Double> roundedSetPoints = new HashMap<>(rangeActionResult.getOptimizedSetPoints());
-        // Round set points to the closest integer for non-pst range actions
-        for (RangeAction rangeAction : rangeActionResult.getOptimizedSetPoints().keySet().stream().filter(ra -> !(ra instanceof PstRangeAction)).collect(Collectors.toSet())) {
-            roundedSetPoints.put(rangeAction, (double) Math.round(rangeActionResult.getOptimizedSetPoint(rangeAction)));
-        }
+        Map<RangeAction, Double> roundedSetPoints = new HashMap<>();
+        rangeActionResult.getOptimizedSetPoints().keySet().stream().filter(rangeAction -> !(rangeAction instanceof PstRangeAction)).forEach(
+            rangeAction -> roundedSetPoints.put(rangeAction, (double) Math.round(rangeActionResult.getOptimizedSetPoint(rangeAction)))
+        );
+        rangeActionResult.getOptimizedSetPoints().keySet().stream().filter(rangeAction -> rangeAction instanceof PstRangeAction).forEach(
+            rangeAction -> roundedSetPoints.put(rangeAction, rangeActionResult.getOptimizedSetPoint(rangeAction))
+        );
 
         return BestTapFinder.find(
                 roundedSetPoints,
