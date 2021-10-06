@@ -93,6 +93,7 @@ public class SearchTree {
     }
 
     void setPrePerimeterRangeActionSetPoints(Map<RangeAction, Double> prePerimeterRangeActionSetPoints) {
+        // TODO : try to remove this method by finding another way in unit tests
         this.prePerimeterRangeActionSetPoints = prePerimeterRangeActionSetPoints;
     }
 

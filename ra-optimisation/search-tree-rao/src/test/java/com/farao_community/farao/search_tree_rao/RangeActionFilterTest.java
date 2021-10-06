@@ -53,7 +53,7 @@ public class RangeActionFilterTest {
         leaf = Mockito.mock(Leaf.class);
         cnec = Mockito.mock(FlowCnec.class);
         Mockito.when(cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-1000.));
-        Mockito.when(cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        Mockito.when(cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
         Mockito.when(leaf.getMostLimitingElements(Mockito.anyInt())).thenReturn(Collections.singletonList(cnec));
         appliedNetworkActions = new HashSet<>();
         leafRangeActions = new HashSet<>();

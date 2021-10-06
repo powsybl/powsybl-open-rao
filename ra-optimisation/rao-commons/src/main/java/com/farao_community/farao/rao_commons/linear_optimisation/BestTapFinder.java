@@ -53,12 +53,7 @@ public final class BestTapFinder {
         Map<PstRangeAction, Integer> bestTaps = new HashMap<>();
         Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 
-        Set<PstRangeAction> pstRangeActions = new HashSet<>();
-        optimizedSetPoints.keySet().forEach(ra -> {
-            if (ra instanceof PstRangeAction) {
-                pstRangeActions.add((PstRangeAction) ra);
-            }
-        });
+        Set<PstRangeAction> pstRangeActions = optimizedSetPoints.keySet().stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toSet());
 
         pstRangeActions.forEach(pstRangeAction ->
                 minMarginPerTap.put(
