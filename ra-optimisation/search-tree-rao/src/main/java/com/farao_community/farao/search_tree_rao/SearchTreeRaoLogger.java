@@ -46,10 +46,18 @@ final class SearchTreeRaoLogger {
         rangeActionMsg.append("Range action(s): ");
         rangeActions.forEach(rangeAction -> {
             String rangeActionName = rangeAction.getName();
-            int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction);
-            rangeActionMsg
-                .append(format("%s: %d", rangeActionName, rangeActionTap))
-                .append(" , ");
+            if (rangeAction instanceof PstRangeAction) {
+                int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction);
+                rangeActionMsg
+                        .append(format("%s: %d", rangeActionName, rangeActionTap))
+                        .append(" , ");
+            } else {
+                double rangeActionSetPoint = leaf.getOptimizedSetPoint(rangeAction);
+                rangeActionMsg
+                        .append(format("%s: %.2f", rangeActionName, rangeActionSetPoint))
+                        .append(" , ");
+
+            }
         });
         String rangeActionsLog = rangeActionMsg.toString();
         SearchTree.LOGGER.info(rangeActionsLog);

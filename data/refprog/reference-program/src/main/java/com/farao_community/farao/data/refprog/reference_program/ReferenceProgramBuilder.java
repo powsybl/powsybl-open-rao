@@ -40,7 +40,7 @@ public final class ReferenceProgramBuilder {
                 LOGGER.warn(errorMsg);
             }
         } catch (PowsyblException e) {
-            LOGGER.warn(errorMsg);
+            LOGGER.warn(String.format("%s : %s", errorMsg, e.getMessage()));
         }
     }
 

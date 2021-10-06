@@ -112,7 +112,7 @@ public class BestTapFinderTest {
 
     private RangeActionResult computeUpdatedRangeActionResult() {
         return BestTapFinder.find(
-                rangeActionResult,
+                rangeActionResult.getOptimizedSetPoints(),
                 network,
                 List.of(cnec1, cnec2),
                 flowResult,

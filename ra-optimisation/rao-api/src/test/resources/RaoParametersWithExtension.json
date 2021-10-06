@@ -4,6 +4,8 @@
   "max-number-of-iterations" : 10,
   "pst-penalty-cost" : 0.01,
   "pst-sensitivity-threshold" : 0.0,
+  "hvdc-penalty-cost" : 0.001,
+  "hvdc-sensitivity-threshold" : 0.0,
   "sensitivity-fallback-over-cost" : 0.0,
   "rao-with-loop-flow-limitation" : false,
   "loop-flow-acceptable-augmentation" : 0.0,

@@ -44,7 +44,7 @@ public final class BestTapFinder {
      *
      * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
-    public static RangeActionResult find(RangeActionResult rangeActionResult,
+    public static RangeActionResult find(Map<RangeAction, Double> optimizedSetPoints,
                                          Network network,
                                          List<FlowCnec> mostLimitingCnecs,
                                          FlowResult flowResult,
@@ -53,7 +53,7 @@ public final class BestTapFinder {
         Map<PstRangeAction, Integer> bestTaps = new HashMap<>();
         Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 
-        Set<PstRangeAction> pstRangeActions = rangeActionResult.getOptimizedTaps().keySet();
+        Set<PstRangeAction> pstRangeActions = optimizedSetPoints.keySet().stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toSet());
 
         pstRangeActions.forEach(pstRangeAction ->
                 minMarginPerTap.put(
@@ -61,7 +61,7 @@ public final class BestTapFinder {
                         computeMinMarginsForBestTaps(
                                 network,
                                 pstRangeAction,
-                                rangeActionResult.getOptimizedSetPoint(pstRangeAction),
+                                optimizedSetPoints.get(pstRangeAction),
                                 mostLimitingCnecs,
                                 flowResult,
                                 sensitivityResult)));
@@ -78,7 +78,7 @@ public final class BestTapFinder {
             }
         }
 
-        Map<RangeAction, Double> roundedSetPoints = new HashMap<>(rangeActionResult.getOptimizedSetPoints());
+        Map<RangeAction, Double> roundedSetPoints = new HashMap<>(optimizedSetPoints);
         for (var entry : bestTaps.entrySet()) {
             roundedSetPoints.put(entry.getKey(), entry.getKey().convertTapToAngle(entry.getValue()));
         }

@@ -61,21 +61,22 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
-    private void initializeForPreventive(double pstSensitivityThreshold) {
-        initialize(cnec1, pstSensitivityThreshold, false);
+    private void initializeForPreventive(double pstSensitivityThreshold, double hvdcSensitivityThreshold) {
+        initialize(cnec1, pstSensitivityThreshold, hvdcSensitivityThreshold, false);
     }
 
     private void initializeForCurative() {
-        initialize(cnec2, 0, false);
+        initialize(cnec2, 0, 0, false);
     }
 
-    private void initialize(FlowCnec cnec, double pstSensitivityThreshold, boolean relativePositiveMargins) {
+    private void initialize(FlowCnec cnec, double pstSensitivityThreshold, double hvdcSensitivityThreshold, boolean relativePositiveMargins) {
         coreProblemFiller = new CoreProblemFiller(
                 network,
                 Set.of(cnec),
                 Set.of(rangeAction),
                 initialRangeActionResult,
                 pstSensitivityThreshold,
+                hvdcSensitivityThreshold,
                 relativePositiveMargins
         );
         buildLinearProblem();
@@ -83,7 +84,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillTestOnPreventive() {
-        initializeForPreventive(0);
+        initializeForPreventive(0, 0);
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
@@ -142,7 +143,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void fillTestOnPreventiveFiltered() {
-        initializeForPreventive(2.5);
+        initializeForPreventive(2.5, 2.5);
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
@@ -274,7 +275,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     public void updateTestOnPreventive() {
-        initializeForPreventive(0);
+        initializeForPreventive(0, 0);
         // update the problem with new data
         updateLinearProblem();
 
@@ -400,6 +401,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 Set.of(rangeAction, ra1, ra2),
                 new RangeActionResultImpl(Map.of(rangeAction, initialAlpha, ra1, 0., ra2, 0.)),
                 0.,
+                0.,
                 false
         );
         buildLinearProblem();
@@ -425,6 +427,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 Set.of(rangeAction),
                 initialRangeActionResult,
                 0.,
+                0.,
                 false
         );
         linearProblem = new LinearProblem(List.of(coreProblemFiller), mpSolver);
@@ -445,7 +448,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // Case 1: margin on cnec1 is negative
         // (sensi = 2) < 2.5 should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
-        initialize(cnec1, 2.5, true);
+        initialize(cnec1, 2.5, 2.5, true);
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
         rangeActionSetpoint = linearProblem.getRangeActionSetPointVariable(rangeAction);
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
@@ -478,7 +481,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // Case 1: margin on cnec1 is positive
         // (relative sensi = 2 / 0.5 = 4) > 2.5 should not be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(1.0);
-        initialize(cnec1, 2.5, true);
+        initialize(cnec1, 2.5, 2.5, true);
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
         rangeActionSetpoint = linearProblem.getRangeActionSetPointVariable(rangeAction);
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
@@ -511,7 +514,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // Case 1: margin on cnec1 is positive, but relativePositiveMargins is false
         // RA should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(1.0);
-        initialize(cnec1, 2.5, false);
+        initialize(cnec1, 2.5, 2.5, false);
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
         rangeActionSetpoint = linearProblem.getRangeActionSetPointVariable(rangeAction);
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);

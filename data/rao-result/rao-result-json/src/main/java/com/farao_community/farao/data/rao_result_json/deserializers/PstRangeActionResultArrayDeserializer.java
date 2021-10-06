@@ -42,14 +42,14 @@ final class PstRangeActionResultArrayDeserializer {
                 throw new FaraoException(String.format("Cannot deserialize RaoResult: cannot deserialize RaoResult: pstRangeAction with id %s does not exist in the Crac", pstRangeActionId));
             }
 
-            PstRangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentPstRangeActionResult(pstRangeAction);
+            PstRangeActionResult pstRangeActionResult = (PstRangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction);
             Integer afterPraTap = null;
             Double afterPraSetpoint = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
 
                     case PST_NETWORKELEMENT_ID:
-                        pstRangeActionResult.setPstNetworkElementId(jsonParser.nextTextValue());
+                        pstRangeActionResult.setNetworkElementId(jsonParser.nextTextValue());
                         break;
 
                     case INITIAL_TAP:
@@ -72,7 +72,7 @@ final class PstRangeActionResultArrayDeserializer {
                         afterPraSetpoint = jsonParser.getDoubleValue();
                         break;
 
-                    case STATES_ACTIVATED_NETWORKACTION:
+                    case STATES_ACTIVATED:
                         jsonParser.nextToken();
                         deserializeResultsPerStates(jsonParser, pstRangeActionResult, crac);
                         break;
