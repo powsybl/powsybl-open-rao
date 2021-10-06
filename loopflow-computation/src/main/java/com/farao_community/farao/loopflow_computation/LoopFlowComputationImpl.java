@@ -105,9 +105,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
 
         for (EICode area : referenceProgram.getListOfAreas()) {
             LinearGlsk glskForArea = glsk.getData(area.getAreaCode());
-            if (glskForArea == null) {
-                LOGGER.warn("No GLSK found for reference area {}", area.getAreaCode());
-            } else {
+            if (glskForArea != null) {
                 refProgGlskMap.put(area, glskForArea);
             }
         }
