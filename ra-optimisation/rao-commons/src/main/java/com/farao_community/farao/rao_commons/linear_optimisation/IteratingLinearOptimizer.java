@@ -159,11 +159,11 @@ public class IteratingLinearOptimizer {
 
     private RangeActionResult roundResult(RangeActionResult rangeActionResult, Network network, IteratingLinearOptimizerResult previousResult) {
         Map<RangeAction, Double> roundedSetPoints = new HashMap<>();
+        rangeActionResult.getOptimizedSetPoints().keySet().stream().filter(PstRangeAction.class::isInstance).forEach(
+            rangeAction -> roundedSetPoints.put(rangeAction, rangeActionResult.getOptimizedSetPoint(rangeAction))
+        );
         rangeActionResult.getOptimizedSetPoints().keySet().stream().filter(rangeAction -> !(rangeAction instanceof PstRangeAction)).forEach(
             rangeAction -> roundedSetPoints.put(rangeAction, (double) Math.round(rangeActionResult.getOptimizedSetPoint(rangeAction)))
-        );
-        rangeActionResult.getOptimizedSetPoints().keySet().stream().filter(rangeAction -> rangeAction instanceof PstRangeAction).forEach(
-            rangeAction -> roundedSetPoints.put(rangeAction, rangeActionResult.getOptimizedSetPoint(rangeAction))
         );
 
         return BestTapFinder.find(
