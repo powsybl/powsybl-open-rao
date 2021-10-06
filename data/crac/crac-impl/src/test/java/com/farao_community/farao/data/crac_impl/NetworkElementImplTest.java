@@ -9,10 +9,10 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Optional;
 import java.util.Set;
@@ -138,5 +138,19 @@ public class NetworkElementImplTest {
     public void testGetLocationOnUnsupportedType() {
         Network network = Importers.loadNetwork("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
         new NetworkElementImpl("TestCase12NodesWithSwitch").getLocation(network);
+    }
+
+    @Test
+    public void testGetLocationAbsentSubstation() {
+        Network network = Mockito.mock(Network.class);
+        Switch switchMock = Mockito.mock(Switch.class);
+        VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel.getSubstation()).thenReturn(Optional.empty());
+        Mockito.when(switchMock.getVoltageLevel()).thenReturn(voltageLevel);
+        Identifiable identifiable = (Identifiable) switchMock;
+        Mockito.when(network.getIdentifiable("switch")).thenReturn(identifiable);
+
+        NetworkElementImpl networkElement = new NetworkElementImpl("switch");
+        assertEquals(Set.of(Optional.empty()), networkElement.getLocation(network));
     }
 }

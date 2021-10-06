@@ -8,6 +8,8 @@ package com.farao_community.farao.commons;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +42,8 @@ public class CountryGraph {
 
         network.getBranchStream()
             .forEach(branch -> {
-                Optional<Country> country1 = branch.getTerminal1().getVoltageLevel().getSubstation().getCountry();
-                Optional<Country> country2 = branch.getTerminal2().getVoltageLevel().getSubstation().getCountry();
+                Optional<Country> country1 = getTerminalCountry(branch.getTerminal1());
+                Optional<Country> country2 = getTerminalCountry(branch.getTerminal2());
 
                 if (country1.isPresent() && country2.isPresent()) {
                     if (!country1.equals(country2)) {
@@ -51,6 +53,15 @@ public class CountryGraph {
                     LOGGER.debug("Countries are not defined in both sides of branch {}", branch.getId());
                 }
             });
+    }
+
+    private Optional<Country> getTerminalCountry(Terminal terminal) {
+        Optional<Substation> substation = terminal.getVoltageLevel().getSubstation();
+        if (substation.isPresent()) {
+            return substation.get().getCountry();
+        } else {
+            return Optional.empty();
+        }
     }
 
     public boolean areNeighbors(Country country1, Country country2) {
