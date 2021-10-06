@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class LoopFlowResult {
 
-    private Map<Cnec<?>, LoopFlow> loopFlowmap;
+    private Map<Cnec<?>, LoopFlow> loopFlowMap;
 
     private class LoopFlow {
         double loopFlowValue;
@@ -44,15 +44,15 @@ public class LoopFlowResult {
     }
 
     public LoopFlowResult() {
-        this.loopFlowmap = new HashMap<>();
+        this.loopFlowMap = new HashMap<>();
     }
 
     public void addCnecResult(Cnec<?> cnec, double loopFlowValue, double commercialFlowValue, double referenceFlowValue) {
-        loopFlowmap.put(cnec, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue));
+        loopFlowMap.put(cnec, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue));
     }
 
     public double getLoopFlow(Cnec<?> cnec) {
-        LoopFlow loopFlow = loopFlowmap.get(cnec);
+        LoopFlow loopFlow = loopFlowMap.get(cnec);
         if (loopFlow == null) {
             throw new FaraoException(String.format("No loop-flow value found for cnec %s", cnec.getId()));
         }
@@ -60,7 +60,7 @@ public class LoopFlowResult {
     }
 
     public double getCommercialFlow(Cnec<?> cnec) {
-        LoopFlow loopFlow = loopFlowmap.get(cnec);
+        LoopFlow loopFlow = loopFlowMap.get(cnec);
         if (loopFlow == null) {
             throw new FaraoException(String.format("No commercial flow value found for cnec %s", cnec.getId()));
         }
@@ -68,7 +68,7 @@ public class LoopFlowResult {
     }
 
     public double getReferenceFlow(Cnec<?> cnec) {
-        LoopFlow loopFlow = loopFlowmap.get(cnec);
+        LoopFlow loopFlow = loopFlowMap.get(cnec);
         if (loopFlow == null) {
             throw new FaraoException(String.format("No reference flow value found for cnec %s", cnec.getId()));
         }
@@ -76,6 +76,6 @@ public class LoopFlowResult {
     }
 
     public boolean containValues(Cnec<?> cnec) {
-        return loopFlowmap.get(cnec) != null;
+        return loopFlowMap.get(cnec) != null;
     }
 }
