@@ -71,6 +71,16 @@ public class JsonResultTest {
             .withTapToAngleConversionMap(Map.of(0, 0., 1, 1.))
             .add();
 
+        // add HvdcRangeAction
+        cracIn.newHvdcRangeAction()
+            .withId("hvdc1")
+            .withNetworkElement("hvdc1NetworkElement")
+            .newHvdcRange()
+                .withMin(-1000.)
+                .withMax(1000.)
+                .add()
+            .add();
+
         // add topological action
         cracIn.newNetworkAction()
             .withId("topoRaId")
@@ -120,15 +130,22 @@ public class JsonResultTest {
         String preventiveStateId = cracIn.getPreventiveState().getId();
 
         // PstRangeResult
-        RangeActionResultExtension rangeActionResultExtension = cracIn.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
+        RangeActionResultExtension pstRangeActionResultExtension = cracIn.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
         double pstRangeSetPointVariant1 = 4.0;
         double pstRangeSetPointVariant2 = 14.0;
         Integer pstRangeTapVariant1 = 2;
         Integer pstRangeTapVariant2 = 6;
-        rangeActionResultExtension.getVariant("variant1").setSetPoint(preventiveStateId, pstRangeSetPointVariant1);
-        ((PstRangeResult) rangeActionResultExtension.getVariant("variant1")).setTap(preventiveStateId, pstRangeTapVariant1);
-        rangeActionResultExtension.getVariant("variant2").setSetPoint(preventiveStateId, pstRangeSetPointVariant2);
-        ((PstRangeResult) rangeActionResultExtension.getVariant("variant2")).setTap(preventiveStateId, pstRangeTapVariant2);
+        pstRangeActionResultExtension.getVariant("variant1").setSetPoint(preventiveStateId, pstRangeSetPointVariant1);
+        ((PstRangeResult) pstRangeActionResultExtension.getVariant("variant1")).setTap(preventiveStateId, pstRangeTapVariant1);
+        pstRangeActionResultExtension.getVariant("variant2").setSetPoint(preventiveStateId, pstRangeSetPointVariant2);
+        ((PstRangeResult) pstRangeActionResultExtension.getVariant("variant2")).setTap(preventiveStateId, pstRangeTapVariant2);
+
+        // HvdcRangeResult
+        RangeActionResultExtension hvdcRangeActionResultExtension = cracIn.getRangeAction("hvdc1").getExtension(RangeActionResultExtension.class);
+        double hvdcRangeSetPointVariant1 = 1.0;
+        double hvdcRangeSetPointVariant2 = 150.0;
+        hvdcRangeActionResultExtension.getVariant("variant1").setSetPoint(preventiveStateId, hvdcRangeSetPointVariant1);
+        hvdcRangeActionResultExtension.getVariant("variant2").setSetPoint(preventiveStateId, hvdcRangeSetPointVariant2);
 
         // NetworkActionResult for topology
         NetworkActionResultExtension topologyResultExtension = cracIn.getNetworkAction("topoRaId").getExtension(NetworkActionResultExtension.class);
@@ -185,12 +202,19 @@ public class JsonResultTest {
 
         // assert that the PstWithRange has a RangeActionResultExtension with the expected content
         assertEquals(1, cracOut.getRangeAction("pst1").getExtensions().size());
-        RangeActionResultExtension rangeActionResultExtension1 = cracOut.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
-        assertNotNull(rangeActionResultExtension1);
-        assertEquals(pstRangeSetPointVariant1, rangeActionResultExtension1.getVariant("variant1").getSetPoint(preventiveStateId));
-        assertEquals(pstRangeTapVariant1, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant1")).getTap(preventiveStateId));
-        assertEquals(pstRangeSetPointVariant2, rangeActionResultExtension1.getVariant("variant2").getSetPoint(preventiveStateId));
-        assertEquals(pstRangeTapVariant2, ((PstRangeResult) rangeActionResultExtension1.getVariant("variant2")).getTap(preventiveStateId));
+        RangeActionResultExtension pstRangeActionResultExtension1 = cracOut.getRangeAction("pst1").getExtension(RangeActionResultExtension.class);
+        assertNotNull(pstRangeActionResultExtension1);
+        assertEquals(pstRangeSetPointVariant1, pstRangeActionResultExtension1.getVariant("variant1").getSetPoint(preventiveStateId));
+        assertEquals(pstRangeTapVariant1, ((PstRangeResult) pstRangeActionResultExtension1.getVariant("variant1")).getTap(preventiveStateId));
+        assertEquals(pstRangeSetPointVariant2, pstRangeActionResultExtension1.getVariant("variant2").getSetPoint(preventiveStateId));
+        assertEquals(pstRangeTapVariant2, ((PstRangeResult) pstRangeActionResultExtension1.getVariant("variant2")).getTap(preventiveStateId));
+
+        // assert that the HvdcRangeAction has a RangeActionResultExtension with the expected content
+        assertEquals(1, cracOut.getRangeAction("hvdc1").getExtensions().size());
+        RangeActionResultExtension hvdcRangeActionResultExtension1 = cracOut.getRangeAction("hvdc1").getExtension(RangeActionResultExtension.class);
+        assertNotNull(hvdcRangeActionResultExtension1);
+        assertEquals(hvdcRangeSetPointVariant1, hvdcRangeActionResultExtension1.getVariant("variant1").getSetPoint(preventiveStateId));
+        assertEquals(hvdcRangeSetPointVariant2, hvdcRangeActionResultExtension1.getVariant("variant2").getSetPoint(preventiveStateId));
 
         // assert that the TopologicalActionImpl has a NetworkActionResultExtension with the expected content
         assertEquals(1, cracOut.getNetworkAction("topoRaId").getExtensions().size());

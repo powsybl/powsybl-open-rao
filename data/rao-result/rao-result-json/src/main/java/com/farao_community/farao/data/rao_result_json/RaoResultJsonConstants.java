@@ -39,16 +39,20 @@ public final class RaoResultJsonConstants {
     public static final String LOOP_FLOW = "loopFlow";
     public static final String ZONAL_PTDF_SUM = "zonalPtdfSum";
 
+    // remedial action results
+    public static final String STATES_ACTIVATED = "activatedStates";
+
     // networkActionResults
     public static final String NETWORKACTION_RESULTS = "networkActionResults";
     public static final String NETWORKACTION_ID = "networkActionId";
-    public static final String STATES_ACTIVATED_NETWORKACTION = "activatedStates";
 
     // rangeActionResults
     public static final String PSTRANGEACTION_RESULTS = "pstRangeActionResults";
     public static final String PSTRANGEACTION_ID = "pstRangeActionId";
     public static final String PST_NETWORKELEMENT_ID = "pstNetworkElementId";
-    public static final String STATES_ACTIVATED_PSTRANGEACTION = "activatedStates";
+    public static final String HVDCRANGEACTION_RESULTS = "hvdcRangeActionResults";
+    public static final String HVDCRANGEACTION_ID = "hvdcRangeActionId";
+    public static final String HVDC_NETWORKELEMENT_ID = "hvdcNetworkElementId";
     public static final String INITIAL_TAP = "initialTap";
     public static final String INITIAL_SETPOINT = "initialSetpoint";
     public static final String AFTER_PRA_TAP = "afterPraTap";

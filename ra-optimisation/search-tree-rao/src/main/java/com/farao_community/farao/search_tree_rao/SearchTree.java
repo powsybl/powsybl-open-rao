@@ -92,6 +92,11 @@ public class SearchTree {
         availableRangeActions = rangeActions;
     }
 
+    void setPrePerimeterRangeActionSetPoints(Map<RangeAction, Double> prePerimeterRangeActionSetPoints) {
+        // TODO : try to remove this method by finding another way in unit tests
+        this.prePerimeterRangeActionSetPoints = prePerimeterRangeActionSetPoints;
+    }
+
     /**
      * If the allowed number of range actions (or RAs) is limited (by tso or globally), this function filters out
      * the range actions with the least impact

@@ -44,6 +44,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         FlowCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         PstRangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
+        HvdcRangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

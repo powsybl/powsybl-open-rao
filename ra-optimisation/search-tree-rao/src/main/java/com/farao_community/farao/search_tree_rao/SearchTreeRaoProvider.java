@@ -192,14 +192,16 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static LinearOptimizerParameters.LinearOptimizerParametersBuilder basicLinearOptimizerBuilder(RaoParameters raoParameters) {
         LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = LinearOptimizerParameters.create()
                 .withObjectiveFunction(raoParameters.getObjectiveFunction())
-                .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold());
+                .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
+                .withHvdcSensitivityThreshold(raoParameters.getHvdcSensitivityThreshold());
         if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE
                 || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
-            builder.withMaxMinMarginParameters(new MaxMinMarginParameters(raoParameters.getPstPenaltyCost()));
+            builder.withMaxMinMarginParameters(new MaxMinMarginParameters(raoParameters.getPstPenaltyCost(), raoParameters.getHvdcPenaltyCost()));
         } else if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE
                 || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) {
             MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = new MaxMinRelativeMarginParameters(
                     raoParameters.getPstPenaltyCost(),
+                    raoParameters.getHvdcPenaltyCost(),
                     raoParameters.getNegativeMarginObjectiveCoefficient(),
                     raoParameters.getPtdfSumLowerBound());
             builder.withMaxMinRelativeMarginParameters(maxMinRelativeMarginParameters);

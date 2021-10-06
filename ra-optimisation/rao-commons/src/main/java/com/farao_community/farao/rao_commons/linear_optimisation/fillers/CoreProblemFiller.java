@@ -10,6 +10,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -34,6 +35,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private final Set<RangeAction> rangeActions;
     private final RangeActionResult prePerimeterRangeActionResult;
     private final double pstSensitivityThreshold;
+    private final double hvdcSensitivityThreshold;
     private final boolean relativePositiveMargins;
 
     public CoreProblemFiller(Network network,
@@ -41,12 +43,14 @@ public class CoreProblemFiller implements ProblemFiller {
                              Set<RangeAction> rangeActions,
                              RangeActionResult prePerimeterRangeActionResult,
                              double pstSensitivityThreshold,
+                             double hvdcSensitivityThreshold,
                              boolean relativePositiveMargins) {
         this.network = network;
         this.flowCnecs = flowCnecs;
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
+        this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
         this.relativePositiveMargins = relativePositiveMargins;
     }
 
@@ -91,9 +95,10 @@ public class CoreProblemFiller implements ProblemFiller {
      * This variable describes the set point of the given RangeAction r, given :
      * <ul>
      *     <li>in DEGREE for PST range actions</li>
+     *     <li>in MEGAWATT for HVDC range actions</li>
      * </ul>
      *
-     * This set point of the a RangeAction is bounded between the min/max variations
+     * This set point of the RangeAction is bounded between the min/max variations
      * of the RangeAction :
      *
      * initialSetPoint[r] - maxNegativeVariation[r] <= S[r]
@@ -111,6 +116,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * and its initial value. It is given :
      * <ul>
      *     <li>in DEGREE for PST range actions</li>
+     *     <li>in MEGAWATT for HVDC range actions</li>
      * </ul>
      */
     private void buildRangeActionAbsoluteVariationVariables(LinearProblem linearProblem, RangeAction rangeAction) {
@@ -173,15 +179,15 @@ public class CoreProblemFiller implements ProblemFiller {
         }
 
         getRangeActions().forEach(rangeAction -> {
-            if (rangeAction instanceof PstRangeAction) {
-                addImpactOfPstOnCnec(linearProblem, sensitivityResult, flowResult, rangeAction, cnec, flowConstraint);
+            if (rangeAction instanceof PstRangeAction || rangeAction instanceof HvdcRangeAction) {
+                addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, rangeAction, cnec, flowConstraint);
             } else {
                 throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
             }
         });
     }
 
-    private void addImpactOfPstOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, RangeAction rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, RangeAction rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
         MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
         if (setPointVariable == null) {
             throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
@@ -192,7 +198,7 @@ public class CoreProblemFiller implements ProblemFiller {
         // If objective function uses relative positive margins, and if the margin on the cnec is positive,
         // the sensi should be divided by the absolute PTDF sum
         double sensiDivider = (relativePositiveMargins && flowResult.getMargin(cnec, Unit.MEGAWATT) > 0) ? flowResult.getPtdfZonalSum(cnec) : 1;
-        if (Math.abs(sensitivity) / sensiDivider >= pstSensitivityThreshold) {
+        if (isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity / sensiDivider))) {
             double currentSetPoint = rangeAction.getCurrentSetpoint(network);
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
@@ -203,6 +209,16 @@ public class CoreProblemFiller implements ProblemFiller {
         } else {
             // We need to do this in case of an update
             flowConstraint.setCoefficient(setPointVariable, 0);
+        }
+    }
+
+    private boolean isRangeActionSensitivityAboveThreshold(RangeAction rangeAction, double sensitivity) {
+        if (rangeAction instanceof PstRangeAction) {
+            return sensitivity >= pstSensitivityThreshold;
+        } else if (rangeAction instanceof HvdcRangeAction) {
+            return sensitivity >= hvdcSensitivityThreshold;
+        } else {
+            throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
         }
     }
 

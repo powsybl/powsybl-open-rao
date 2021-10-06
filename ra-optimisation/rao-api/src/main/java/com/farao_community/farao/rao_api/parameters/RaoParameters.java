@@ -78,12 +78,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_FALLBACK_OVER_COST = 0;
     public static final boolean DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION = false; //loop flow is for CORE D2CC, default value set to false
     public static final boolean DEFAULT_SECURITY_ANALYSIS_WITHOUT_RAO = false;
+    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
     public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
+    public static final double DEFAULT_HVDC_PENALTY_COST = 0.001;
+    public static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
     public static final double DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION = 0.0;
     public static final LoopFlowApproximationLevel DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL = LoopFlowApproximationLevel.FIXED_PTDF;
     public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
     public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
-    public static final double DEFAULT_PST_PENALTY_COST = 0.01;
     public static final boolean DEFAULT_RAO_WITH_MNEC_LIMITATION = false;
     public static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
     public static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
@@ -96,6 +98,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
     private double pstPenaltyCost = DEFAULT_PST_PENALTY_COST;
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
+    private double hvdcPenaltyCost = DEFAULT_HVDC_PENALTY_COST;
+    private double hvdcSensitivityThreshold = DEFAULT_HVDC_SENSITIVITY_THRESHOLD;
     private double fallbackOverCost = DEFAULT_FALLBACK_OVER_COST;
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
     private LoopFlowApproximationLevel loopFlowApproximationLevel = DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL;
@@ -153,6 +157,22 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public RaoParameters setPstSensitivityThreshold(double pstSensitivityThreshold) {
         this.pstSensitivityThreshold = pstSensitivityThreshold;
         return this;
+    }
+
+    public double getHvdcPenaltyCost() {
+        return hvdcPenaltyCost;
+    }
+
+    public void setHvdcPenaltyCost(double hvdcPenaltyCost) {
+        this.hvdcPenaltyCost = hvdcPenaltyCost;
+    }
+
+    public double getHvdcSensitivityThreshold() {
+        return hvdcSensitivityThreshold;
+    }
+
+    public void setHvdcSensitivityThreshold(double hvdcSensitivityThreshold) {
+        this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
     }
 
     public double getFallbackOverCost() {
@@ -389,6 +409,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setMaxIterations(config.getIntProperty("max-number-of-iterations", DEFAULT_MAX_ITERATIONS));
                 parameters.setPstPenaltyCost(config.getDoubleProperty("pst-penalty-cost", DEFAULT_PST_PENALTY_COST));
                 parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", DEFAULT_PST_SENSITIVITY_THRESHOLD));
+                parameters.setHvdcPenaltyCost(config.getDoubleProperty("hvdc-penalty-cost", DEFAULT_HVDC_PENALTY_COST));
+                parameters.setHvdcSensitivityThreshold(config.getDoubleProperty("hvdc-sensitivity-threshold", DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
                 parameters.setFallbackOverCost(config.getDoubleProperty("sensitivity-fallback-over-cost", DEFAULT_FALLBACK_OVER_COST));
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
                 parameters.setLoopFlowAcceptableAugmentation(config.getDoubleProperty("loop-flow-acceptable-augmentation", DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION));

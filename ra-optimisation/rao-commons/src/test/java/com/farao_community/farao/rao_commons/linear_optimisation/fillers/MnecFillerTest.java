@@ -81,6 +81,7 @@ public class MnecFillerTest extends AbstractFillerTest {
                 Collections.emptySet(),
                 new RangeActionResultImpl(Collections.emptyMap()),
                 0.,
+                0.,
                 false
         );
     }

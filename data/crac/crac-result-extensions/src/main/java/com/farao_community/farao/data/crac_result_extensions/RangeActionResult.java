@@ -7,6 +7,10 @@
 
 package com.farao_community.farao.data.crac_result_extensions;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,11 +18,13 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@JsonTypeName("range-action-result")
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class RangeActionResult implements Result {
 
     protected Map<String, Double> setPointPerStates;
 
-    public RangeActionResult(Map<String, Double> setPointPerStates) {
+    public RangeActionResult(@JsonProperty("setpointPerStates") Map<String, Double> setPointPerStates) {
         this.setPointPerStates = setPointPerStates;
     }
 

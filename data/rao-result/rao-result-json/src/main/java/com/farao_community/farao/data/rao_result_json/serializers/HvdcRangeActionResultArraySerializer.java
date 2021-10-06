@@ -10,7 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
@@ -27,47 +27,43 @@ import java.util.stream.Collectors;
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-final class PstRangeActionResultArraySerializer {
+final class HvdcRangeActionResultArraySerializer {
 
-    private PstRangeActionResultArraySerializer() {
+    private HvdcRangeActionResultArraySerializer() {
     }
 
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
-        List<PstRangeAction> sortedListOfRangeActions = crac.getPstRangeActions().stream()
+        List<HvdcRangeAction> sortedListOfRangeActions = crac.getHvdcRangeActions().stream()
                 .sorted(Comparator.comparing(RangeAction::getId))
                 .collect(Collectors.toList());
 
-        jsonGenerator.writeArrayFieldStart(PSTRANGEACTION_RESULTS);
-        for (PstRangeAction pstRangeAction : sortedListOfRangeActions) {
-            serializeRangeActionResult(pstRangeAction, raoResult, crac, jsonGenerator);
+        jsonGenerator.writeArrayFieldStart(HVDCRANGEACTION_RESULTS);
+        for (HvdcRangeAction hvdcRangeAction : sortedListOfRangeActions) {
+            serializeRangeActionResult(hvdcRangeAction, raoResult, crac, jsonGenerator);
         }
         jsonGenerator.writeEndArray();
     }
 
-    private static void serializeRangeActionResult(PstRangeAction pstRangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeRangeActionResult(HvdcRangeAction hvdcRangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField(PSTRANGEACTION_ID, pstRangeAction.getId());
-        jsonGenerator.writeStringField(PST_NETWORKELEMENT_ID, pstRangeAction.getNetworkElement().getId());
+        jsonGenerator.writeStringField(HVDCRANGEACTION_ID, hvdcRangeAction.getId());
+        jsonGenerator.writeStringField(HVDC_NETWORKELEMENT_ID, hvdcRangeAction.getNetworkElement().getId());
 
-        Integer initialTap = safeGetPreOptimizedTap(raoResult, crac.getPreventiveState(), pstRangeAction);
-        Double initialSetpoint = safeGetPreOptimizedSetpoint(raoResult, crac.getPreventiveState(), pstRangeAction);
+        Double initialSetpoint = safeGetPreOptimizedSetpoint(raoResult, crac.getPreventiveState(), hvdcRangeAction);
 
-        if (initialTap != null) {
-            jsonGenerator.writeNumberField(INITIAL_TAP, initialTap);
-        }
         if (!Double.isNaN(initialSetpoint)) {
             jsonGenerator.writeNumberField(INITIAL_SETPOINT, initialSetpoint);
         }
 
-        // TODO : should we also do this for AUTO PSTs if they exist in curative too?
-        addAfterPraValuesForPurelyCurativePsts(pstRangeAction, raoResult, crac, jsonGenerator);
+        // TODO : should we also do this for AUTO HVDCs if they exist in curative too?
+        addAfterPraValuesForPurelyCurativeHvdcs(hvdcRangeAction, raoResult, crac, jsonGenerator);
 
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
-                .filter(state -> safeIsActivatedDuringState(raoResult, state, pstRangeAction))
+                .filter(state -> safeIsActivatedDuringState(raoResult, state, hvdcRangeAction))
                 .sorted(STATE_COMPARATOR)
                 .collect(Collectors.toList());
 
@@ -81,12 +77,8 @@ final class PstRangeActionResultArraySerializer {
                 jsonGenerator.writeStringField(CONTINGENCY_ID, optContingency.get().getId());
             }
 
-            Integer tap = safeGetOptimizedTap(raoResult, state, pstRangeAction);
-            Double setpoint = safeGetOptimizedSetpoint(raoResult, state, pstRangeAction);
+            Double setpoint = safeGetOptimizedSetpoint(raoResult, state, hvdcRangeAction);
 
-            if (tap != null) {
-                jsonGenerator.writeNumberField(TAP, tap);
-            }
             if (!Double.isNaN(setpoint)) {
                 jsonGenerator.writeNumberField(SETPOINT, setpoint);
             }
@@ -96,43 +88,27 @@ final class PstRangeActionResultArraySerializer {
         jsonGenerator.writeEndObject();
     }
 
-    private static boolean safeIsActivatedDuringState(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
+    private static boolean safeIsActivatedDuringState(RaoResult raoResult, State state, HvdcRangeAction hvdcRangeAction) {
         // isActivatedDuringState might throw an exception, for instance if the RAO was run one one state only, and the
         // state in argument of this method is not the same state.
         try {
-            return raoResult.isActivatedDuringState(state, pstRangeAction);
+            return raoResult.isActivatedDuringState(state, hvdcRangeAction);
         } catch (FaraoException e) {
             return false;
         }
     }
 
-    private static Integer safeGetPreOptimizedTap(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
+    private static Double safeGetPreOptimizedSetpoint(RaoResult raoResult, State state, HvdcRangeAction hvdcRangeAction) {
         try {
-            return raoResult.getPreOptimizationTapOnState(state, pstRangeAction);
-        } catch (FaraoException e) {
-            return null;
-        }
-    }
-
-    private static Integer safeGetOptimizedTap(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
-        try {
-            return raoResult.getOptimizedTapOnState(state, pstRangeAction);
-        } catch (FaraoException e) {
-            return null;
-        }
-    }
-
-    private static Double safeGetPreOptimizedSetpoint(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
-        try {
-            return raoResult.getPreOptimizationSetPointOnState(state, pstRangeAction);
+            return raoResult.getPreOptimizationSetPointOnState(state, hvdcRangeAction);
         } catch (FaraoException e) {
             return Double.NaN;
         }
     }
 
-    private static Double safeGetOptimizedSetpoint(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
+    private static Double safeGetOptimizedSetpoint(RaoResult raoResult, State state, HvdcRangeAction hvdcRangeAction) {
         try {
-            return raoResult.getOptimizedSetPointOnState(state, pstRangeAction);
+            return raoResult.getOptimizedSetPointOnState(state, hvdcRangeAction);
         } catch (FaraoException e) {
             return Double.NaN;
         }
@@ -140,17 +116,13 @@ final class PstRangeActionResultArraySerializer {
 
     /**
      * If range action is purely curative, it might have an associated preventive RA on the same network element
-     * In this case, this method exports its post-pra tap and setpoint values
+     * In this case, this method exports its post-pra setpoint values
      */
-    static void addAfterPraValuesForPurelyCurativePsts(PstRangeAction pstRangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
-        if (isRangeActionCurative(pstRangeAction, crac) && !isRangeActionPreventive(pstRangeAction, crac)) {
-            PstRangeAction pra = getPreventivePstRangeActionAssociated(pstRangeAction, crac);
+    static void addAfterPraValuesForPurelyCurativeHvdcs(HvdcRangeAction hvdcRangeAction, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
+        if (isRangeActionCurative(hvdcRangeAction, crac) && !isRangeActionPreventive(hvdcRangeAction, crac)) {
+            HvdcRangeAction pra = getPreventiveHvdcRangeActionAssociated(hvdcRangeAction, crac);
             if (pra != null) {
-                Integer afterPraTap = safeGetOptimizedTap(raoResult, crac.getPreventiveState(), pra);
                 Double afterPraSetpoint = safeGetOptimizedSetpoint(raoResult, crac.getPreventiveState(), pra);
-                if (afterPraTap != null) {
-                    jsonGenerator.writeNumberField(AFTER_PRA_TAP, afterPraTap);
-                }
                 if (!Double.isNaN(afterPraSetpoint)) {
                     jsonGenerator.writeNumberField(AFTER_PRA_SETPOINT, afterPraSetpoint);
                 }
@@ -173,13 +145,13 @@ final class PstRangeActionResultArraySerializer {
         return rangeActionsForState.contains(rangeAction);
     }
 
-    static PstRangeAction getPreventivePstRangeActionAssociated(PstRangeAction pstRangeAction, Crac crac) {
+    static HvdcRangeAction getPreventiveHvdcRangeActionAssociated(HvdcRangeAction hvdcRangeAction, Crac crac) {
         Set<RangeAction> rangeActionsForState = crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         return rangeActionsForState.stream()
-                .filter(PstRangeAction.class::isInstance)
-                .filter(otherRangeAction -> !otherRangeAction.equals(pstRangeAction))
-                .filter(otherRangeAction -> otherRangeAction.getNetworkElements().equals(pstRangeAction.getNetworkElements()))
-                .map(PstRangeAction.class::cast)
+                .filter(HvdcRangeAction.class::isInstance)
+                .filter(otherRangeAction -> !otherRangeAction.equals(hvdcRangeAction))
+                .filter(otherRangeAction -> otherRangeAction.getNetworkElements().equals(hvdcRangeAction.getNetworkElements()))
+                .map(HvdcRangeAction.class::cast)
                 .findFirst().orElse(null);
     }
 }

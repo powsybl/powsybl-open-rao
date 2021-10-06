@@ -11,142 +11,56 @@ import com.farao_community.farao.data.crac_api.State;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PstRangeActionResult {
+public class PstRangeActionResult extends RangeActionResult {
 
-    private String pstNetworkElementId;
     private Integer preOptimTap;
-    private double preOptimSetpoint;
-    private Map<State, PstRangeActionResultPerState> activationPerState;
+    private Map<State, Integer> tapPerState;
 
-    private static class PstRangeActionResultPerState {
-        private Integer tap = null;
-        private double setpoint = Double.NaN;
-    }
-
-    public PstRangeActionResult(String pstNetworkElementId) {
-        this.pstNetworkElementId = pstNetworkElementId;
+    public PstRangeActionResult(String networkElementId) {
+        super(networkElementId);
         preOptimTap = null;
-        preOptimSetpoint = Double.NaN;
-        activationPerState = new HashMap<>();
-    }
-
-    public String getPstNetworkElementId() {
-        return pstNetworkElementId;
+        tapPerState = new HashMap<>();
     }
 
     public int getPreOptimTap() {
         return preOptimTap;
     }
 
-    public double getPreOptimSetpoint() {
-        return preOptimSetpoint;
+    public int getPreOptimizedTapOnState(State state) {
+        // does not handle RA applicable on OUTAGE instant
+        // does only handle RA applicable in PREVENTIVE and CURATIVE instant
+        if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState)) {
+            return tapPerState.get(preventiveState);
+        }
+        return preOptimTap;
     }
 
     public int getOptimizedTapOnState(State state) {
-
         // does not handle RA applicable on OUTAGE instant
         // does only handle RA applicable in PREVENTIVE and CURATIVE instant
-
-        if (activationPerState.containsKey(state)) {
-            return activationPerState.get(state).tap;
-        } else if (!state.getInstant().equals(Instant.PREVENTIVE)) {
-            Optional<PstRangeActionResultPerState> resultForPreventiveState = findActivationForPreventiveState();
-
-            if (resultForPreventiveState.isPresent()) {
-                return resultForPreventiveState.get().tap;
-            }
+        if (tapPerState.containsKey(state)) {
+            return tapPerState.get(state);
+        } else if (!state.getInstant().equals(Instant.PREVENTIVE) && Objects.nonNull(preventiveState)) {
+            return tapPerState.get(preventiveState);
         }
-
         return preOptimTap;
-    }
-
-    public double getOptimizedSetpointOnState(State state) {
-
-        // does not handle RA applicable on OUTAGE instant
-        // does only handle RA applicable in PREVENTIVE and CURATIVE instant
-
-        if (activationPerState.containsKey(state)) {
-            return activationPerState.get(state).setpoint;
-        } else if (!state.getInstant().equals(Instant.PREVENTIVE)) {
-            Optional<PstRangeActionResultPerState> resultForPreventiveState = findActivationForPreventiveState();
-
-            if (resultForPreventiveState.isPresent()) {
-                return resultForPreventiveState.get().setpoint;
-            }
-        }
-
-        return preOptimSetpoint;
-    }
-
-    public int getPreOptimizedTapOnState(State state) {
-
-        // does not handle RA applicable on OUTAGE instant
-        // does only handle RA applicable in PREVENTIVE and CURATIVE instant
-
-        if (!state.getInstant().equals(Instant.PREVENTIVE)) {
-            Optional<PstRangeActionResultPerState> resultForPreventiveState = findActivationForPreventiveState();
-
-            if (resultForPreventiveState.isPresent()) {
-                return resultForPreventiveState.get().tap;
-            }
-        }
-
-        return preOptimTap;
-    }
-
-    public double getPreOptimizedSetpointOnState(State state) {
-
-        // does not handle RA applicable on OUTAGE instant
-        // does only handle RA applicable in PREVENTIVE and CURATIVE instant
-
-        if (!state.getInstant().equals(Instant.PREVENTIVE)) {
-            Optional<PstRangeActionResultPerState> resultForPreventiveState = findActivationForPreventiveState();
-
-            if (resultForPreventiveState.isPresent()) {
-                return resultForPreventiveState.get().setpoint;
-            }
-        }
-
-        return preOptimSetpoint;
-    }
-
-    public boolean isActivatedDuringState(State state) {
-        return activationPerState.containsKey(state);
-    }
-
-    public Set<State> getStatesWithActivation() {
-        return activationPerState.keySet();
-    }
-
-    public void setPstNetworkElementId(String pstNetworkElementId) {
-        this.pstNetworkElementId = pstNetworkElementId;
     }
 
     public void setPreOptimTap(int preOptimTap) {
         this.preOptimTap = preOptimTap;
     }
 
-    public void setPreOptimSetPoint(double setpoint) {
-        this.preOptimSetpoint = setpoint;
-    }
-
     public void addActivationForState(State state, int tap, double setpoint) {
-        PstRangeActionResultPerState pstRangeActionResultPerState = new PstRangeActionResultPerState();
-        pstRangeActionResultPerState.tap = tap;
-        pstRangeActionResultPerState.setpoint = setpoint;
-        activationPerState.put(state, pstRangeActionResultPerState);
+        tapPerState.put(state, tap);
+        setpointPerState.put(state, setpoint);
+        if (state.isPreventive()) {
+            preventiveState = state;
+        }
     }
 
-    private Optional<PstRangeActionResultPerState> findActivationForPreventiveState() {
-        return activationPerState.entrySet().stream()
-            .filter(e -> e.getKey().isPreventive())
-            .map(Map.Entry::getValue)
-            .findAny();
-    }
 }

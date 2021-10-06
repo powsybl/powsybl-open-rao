@@ -54,7 +54,7 @@ final class NetworkActionResultArraySerializer {
             .sorted(STATE_COMPARATOR)
             .collect(Collectors.toList());
 
-        jsonGenerator.writeArrayFieldStart(STATES_ACTIVATED_NETWORKACTION);
+        jsonGenerator.writeArrayFieldStart(STATES_ACTIVATED);
         for (State state: statesWhenNetworkActionIsActivated) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(INSTANT, serializeInstant(state.getInstant()));

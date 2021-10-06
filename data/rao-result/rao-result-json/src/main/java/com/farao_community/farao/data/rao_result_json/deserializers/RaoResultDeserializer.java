@@ -66,6 +66,11 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     PstRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
                     break;
 
+                case HVDCRANGEACTION_RESULTS:
+                    jsonParser.nextToken();
+                    HvdcRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    break;
+
                 default:
                     throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", jsonParser.getCurrentName()));
             }
