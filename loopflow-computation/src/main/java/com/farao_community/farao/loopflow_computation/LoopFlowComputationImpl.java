@@ -64,14 +64,21 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     @Override
     public LoopFlowResult buildLoopFlowsFromReferenceFlowAndPtdf(SystematicSensitivityResult alreadyCalculatedPtdfAndFlows, Set<FlowCnec> flowCnecs) {
         LoopFlowResult results = new LoopFlowResult();
+        Map<LinearGlsk, Boolean> isInMainComponentMap = computeIsInMainComponentMap();
         for (FlowCnec flowCnec : flowCnecs) {
             double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec);
-            double commercialFLow = getGlskStream(flowCnec).filter(entry -> isInMainComponent(entry.getValue(), network))
+            double commercialFLow = getGlskStream(flowCnec).filter(entry -> isInMainComponentMap.get(entry.getValue()))
                 .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec) * referenceProgram.getGlobalNetPosition(entry.getKey()))
                 .sum();
             results.addCnecResult(flowCnec, refFlow - commercialFLow, commercialFLow, refFlow);
         }
         return results;
+    }
+
+    private Map<LinearGlsk, Boolean> computeIsInMainComponentMap() {
+        Map<LinearGlsk, Boolean> map = new HashMap<>();
+        buildRefProgGlskMap().values().forEach(linearGlsk -> map.putIfAbsent(linearGlsk, isInMainComponent(linearGlsk, network)));
+        return map;
     }
 
     static boolean isInMainComponent(LinearGlsk linearGlsk, Network network) {

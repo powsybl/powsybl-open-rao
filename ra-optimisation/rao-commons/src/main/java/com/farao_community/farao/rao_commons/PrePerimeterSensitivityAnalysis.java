@@ -17,6 +17,7 @@ import com.farao_community.farao.rao_commons.result.RangeActionResultImpl;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
+import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
@@ -103,17 +104,19 @@ public class PrePerimeterSensitivityAnalysis {
 
     private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction) {
         sensitivityComputer.compute(network);
-        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction);
+        FlowResult flowResult = sensitivityComputer.getBranchResult();
+        SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
+        ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, sensitivityResult);
         return new PrePerimeterSensitivityOutput(
-                sensitivityComputer.getBranchResult(),
-                sensitivityComputer.getSensitivityResult(),
+                flowResult,
+                sensitivityResult,
                 new RangeActionResultImpl(network, rangeActions),
                 objectiveFunctionResult
         );
     }
 
-    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction) {
-        return objectiveFunction.evaluate(sensitivityComputer.getBranchResult(), sensitivityComputer.getSensitivityResult().getSensitivityStatus());
+    private ObjectiveFunctionResult getResult(ObjectiveFunction objectiveFunction, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        return objectiveFunction.evaluate(flowResult, sensitivityResult.getSensitivityStatus());
     }
 
     private ObjectiveFunction getInitialMinMarginObjectiveFunction() {
