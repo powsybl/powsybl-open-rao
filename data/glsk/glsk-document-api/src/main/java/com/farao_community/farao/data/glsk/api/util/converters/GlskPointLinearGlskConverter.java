@@ -11,18 +11,12 @@ import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.AbstractGlskRegisteredResource;
 import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
 import com.farao_community.farao.data.glsk.api.GlskException;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -93,7 +87,7 @@ public final class GlskPointLinearGlskConverter {
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
             List<Generator> generators = network.getGeneratorStream()
-                    .filter(generator -> country.equals(generator.getTerminal().getVoltageLevel().getSubstation().getNullableCountry()))
+                    .filter(generator -> country.equals(getSubstationNullableCountry(generator.getTerminal().getVoltageLevel().getSubstation())))
                     .filter(NetworkUtil::isCorrectGenerator)
                     .collect(Collectors.toList());
             //calculate sum P of country's generators
@@ -103,7 +97,7 @@ public final class GlskPointLinearGlskConverter {
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<Load> loads = network.getLoadStream()
-                    .filter(load -> country.equals(load.getTerminal().getVoltageLevel().getSubstation().getNullableCountry()))
+                    .filter(load -> country.equals(getSubstationNullableCountry(load.getTerminal().getVoltageLevel().getSubstation())))
                     .filter(NetworkUtil::isCorrectLoad)
                     .collect(Collectors.toList());
             double totalCountryLoad = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
@@ -175,6 +169,14 @@ public final class GlskPointLinearGlskConverter {
         } else {
             //unknown PsrType
             throw new GlskException("convertParticipationFactor PsrType not supported");
+        }
+    }
+
+    private static Country getSubstationNullableCountry(Optional<Substation> substation) {
+        if (substation.isPresent()) {
+            return substation.get().getNullableCountry();
+        } else {
+            return null;
         }
     }
 }
