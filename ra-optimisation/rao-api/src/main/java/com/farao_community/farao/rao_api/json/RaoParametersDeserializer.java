@@ -63,6 +63,14 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setPstSensitivityThreshold(parser.getDoubleValue());
                     break;
+                case "hvdc-penalty-cost":
+                    parser.nextToken();
+                    parameters.setHvdcPenaltyCost(parser.getDoubleValue());
+                    break;
+                case "hvdc-sensitivity-threshold":
+                    parser.nextToken();
+                    parameters.setHvdcSensitivityThreshold(parser.getDoubleValue());
+                    break;
                 case "sensitivity-fallback-over-cost":
                     parser.nextToken();
                     parameters.setFallbackOverCost(parser.getDoubleValue());

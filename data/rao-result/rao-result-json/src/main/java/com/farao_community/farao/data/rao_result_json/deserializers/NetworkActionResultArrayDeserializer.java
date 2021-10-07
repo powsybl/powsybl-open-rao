@@ -44,7 +44,7 @@ final class NetworkActionResultArrayDeserializer {
 
             NetworkActionResult networkActionResult = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
             while (!jsonParser.nextToken().isStructEnd()) {
-                if (jsonParser.getCurrentName().equals(STATES_ACTIVATED_NETWORKACTION)) {
+                if (jsonParser.getCurrentName().equals(STATES_ACTIVATED)) {
                     jsonParser.nextToken();
                     deserializeStates(jsonParser, networkActionResult, crac);
                 } else {

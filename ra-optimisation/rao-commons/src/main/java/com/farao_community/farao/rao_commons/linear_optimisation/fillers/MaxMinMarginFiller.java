@@ -11,6 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -35,12 +36,14 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private final Set<RangeAction> rangeActions;
     private final Unit unit;
     protected double pstPenaltyCost;
+    protected double hvdcPenaltyCost;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.optimizedCnecs = optimizedCnecs;
         this.rangeActions = rangeActions;
         this.unit = unit;
         this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
+        this.hvdcPenaltyCost = maxMinMarginParameters.getHvdcPenaltyCost();
     }
 
     @Override
@@ -151,9 +154,11 @@ public class MaxMinMarginFiller implements ProblemFiller {
         rangeActions.forEach(rangeAction -> {
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
-            // If the PST has been filtered out, then absoluteVariationVariable is null
+            // If the range action has been filtered out, then absoluteVariationVariable is null
             if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
+            } else if (absoluteVariationVariable != null && rangeAction instanceof HvdcRangeAction) {
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
             }
         });
     }

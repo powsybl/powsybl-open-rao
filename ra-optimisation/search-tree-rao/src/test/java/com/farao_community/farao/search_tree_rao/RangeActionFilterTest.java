@@ -7,9 +7,11 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -36,6 +38,7 @@ public class RangeActionFilterTest {
     private Set<RangeAction> availableRangeActions;
     private TreeParameters treeParameters;
     private Map<RangeAction, Double> prePerimeterSetPoints;
+    private FlowCnec cnec;
 
     private Set<NetworkAction> appliedNetworkActions;
     private Set<RangeAction> leafRangeActions;
@@ -48,7 +51,10 @@ public class RangeActionFilterTest {
         setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, new HashMap<>(), new HashMap<>());
 
         leaf = Mockito.mock(Leaf.class);
-        Mockito.when(leaf.getMostLimitingElements(Mockito.anyInt())).thenReturn(Collections.singletonList(Mockito.mock(FlowCnec.class)));
+        cnec = Mockito.mock(FlowCnec.class);
+        Mockito.when(cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-1000.));
+        Mockito.when(cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        Mockito.when(leaf.getMostLimitingElements(Mockito.anyInt())).thenReturn(Collections.singletonList(cnec));
         appliedNetworkActions = new HashSet<>();
         leafRangeActions = new HashSet<>();
         Mockito.when(leaf.getActivatedNetworkActions()).thenReturn(appliedNetworkActions);
@@ -68,6 +74,9 @@ public class RangeActionFilterTest {
     private PstRangeAction addPstRangeAction(String operator, double prePerimeterSetPoint, double optimizedSetPoint, double sensitivity) {
         PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(rangeAction.getOperator()).thenReturn(operator);
+        Mockito.when(rangeAction.getMaxAdmissibleSetpoint(Mockito.anyDouble())).thenReturn(5.);
+        Mockito.when(rangeAction.getMinAdmissibleSetpoint(Mockito.anyDouble())).thenReturn(-5.);
+        Mockito.when(rangeAction.getId()).thenReturn("pst");
         Mockito.when(leaf.getOptimizedSetPoint(rangeAction)).thenReturn(optimizedSetPoint);
         prePerimeterSetPoints.put(rangeAction, prePerimeterSetPoint);
         availableRangeActions.add(rangeAction);
@@ -80,6 +89,9 @@ public class RangeActionFilterTest {
         PstRangeAction rangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(rangeAction.getOperator()).thenReturn(operator);
         Mockito.when(rangeAction.getGroupId()).thenReturn(groupId);
+        Mockito.when(rangeAction.getMaxAdmissibleSetpoint(Mockito.anyDouble())).thenReturn(5.);
+        Mockito.when(rangeAction.getMinAdmissibleSetpoint(Mockito.anyDouble())).thenReturn(-5.);
+        Mockito.when(rangeAction.getId()).thenReturn("pst");
         Mockito.when(leaf.getOptimizedSetPoint(rangeAction)).thenReturn(optimizedSetPoint);
         prePerimeterSetPoints.put(rangeAction, prePerimeterSetPoint);
         availableRangeActions.add(rangeAction);
@@ -147,6 +159,26 @@ public class RangeActionFilterTest {
         PstRangeAction pstfr2 = addPstRangeAction("fr", 0, 3, 2);
         PstRangeAction pstfr3 = addPstRangeAction("fr", 0, 0, 3);
         PstRangeAction pstfr4 = addPstRangeAction("fr", 0, 0, -4);
+
+        Map<String, Integer> maxPstPerTso = new HashMap<>();
+        maxPstPerTso.put("fr", 2);
+        setTreeParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, maxPstPerTso, new HashMap<>());
+
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterPstPerTso();
+        Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
+
+        assertEquals(Set.of(pstfr2, pstfr4), filteredRangeActions);
+    }
+
+    @Test
+    public void testFilterPstPerTsoKeepAppliedAndHighestAbsSensiCnecUpperBound() {
+        PstRangeAction pstfr1 = addPstRangeAction("fr", 0, 0, 1);
+        PstRangeAction pstfr2 = addPstRangeAction("fr", 0, 3, 2);
+        PstRangeAction pstfr3 = addPstRangeAction("fr", 0, 0, 3);
+        PstRangeAction pstfr4 = addPstRangeAction("fr", 0, 0, -4);
+
+        Mockito.when(cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(500.));
 
         Map<String, Integer> maxPstPerTso = new HashMap<>();
         maxPstPerTso.put("fr", 2);

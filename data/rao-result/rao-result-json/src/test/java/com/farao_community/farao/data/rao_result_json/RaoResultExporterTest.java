@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -40,6 +41,7 @@ public class RaoResultExporterTest {
     private Crac crac;
     private FlowCnec cnec;
     private PstRangeAction pst;
+    private HvdcRangeAction hvdc;
     private NetworkAction na;
 
     private void setUp() {
@@ -48,8 +50,23 @@ public class RaoResultExporterTest {
 
     private void setUp(String cnecId) {
         crac = CommonCracCreation.createWithCurativePstRange();
+
         cnec = crac.getFlowCnec(cnecId);
         pst = crac.getPstRangeAction("pst");
+        hvdc = crac.newHvdcRangeAction()
+            .withId("hvdc")
+            .withNetworkElement("FFR1AA1  FFR2AA1  1", "FFR1AA1  FFR2AA1  1")
+            .withOperator("operator1")
+            .newOnStateUsageRule()
+                .withInstant(Instant.CURATIVE)
+                .withContingency("Contingency FR1 FR3")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .newHvdcRange()
+                .withMin(-1000.)
+                .withMax(1000.)
+                .add()
+            .add();
         na = crac.newNetworkAction().withId("na-id")
             .newTopologicalAction().withNetworkElement("any").withActionType(ActionType.OPEN).add()
             .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
@@ -117,10 +134,15 @@ public class RaoResultExporterTest {
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", Instant.CURATIVE));
 
         // PST result
-        PstRangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentPstRangeActionResult(pst);
+        PstRangeActionResult pstRangeActionResult = (PstRangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pst);
         pstRangeActionResult.setPreOptimTap(3);
         pstRangeActionResult.setPreOptimSetPoint(2.3);
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -7, -3.2);
+
+        // HVDC result
+        RangeActionResult rangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(hvdc);
+        rangeActionResult.setPreOptimSetPoint(-10.);
+        rangeActionResult.addActivationForState(crac.getPreventiveState(), 235.);
 
         // CostResult at initial state
         CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(INITIAL);
@@ -234,15 +256,18 @@ public class RaoResultExporterTest {
     }
 
     @Test
-    public void testPstRangeActionResults() {
+    public void testRangeActionResults() {
         setUp();
         assertEquals(3, importedRaoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pst));
         assertEquals(2.3, importedRaoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
+        assertEquals(-10., importedRaoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), hvdc), DOUBLE_TOLERANCE);
         assertTrue(importedRaoResult.isActivatedDuringState(crac.getPreventiveState(), pst));
+        assertTrue(importedRaoResult.isActivatedDuringState(crac.getPreventiveState(), hvdc));
         assertEquals(-7, importedRaoResult.getOptimizedTapOnState(crac.getPreventiveState(), pst));
         assertEquals(Map.of(pst, -7), importedRaoResult.getOptimizedTapsOnState(crac.getPreventiveState()));
         assertEquals(-3.2, importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
-        assertEquals(Map.of(pst, -3.2), importedRaoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
+        assertEquals(235., importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), hvdc), DOUBLE_TOLERANCE);
+        assertEquals(Map.of(pst, -3.2, hvdc, 235.), importedRaoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
         assertEquals(Set.of(), importedRaoResult.getActivatedRangeActionsDuringState(crac.getState("Contingency FR1 FR3", Instant.AUTO)));
     }
 
