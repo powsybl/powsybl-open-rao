@@ -40,11 +40,13 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     protected ZonalData<LinearGlsk> glsk;
     protected ReferenceProgram referenceProgram;
     protected Network network;
+    protected Map<EICode, LinearGlsk> glskMap;
 
     public LoopFlowComputationImpl(ZonalData<LinearGlsk> glsk, ReferenceProgram referenceProgram, Network network) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
         this.network = network;
+        this.glskMap = buildRefProgGlskMap();
     }
 
     @Override
@@ -77,7 +79,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
 
     private Map<LinearGlsk, Boolean> computeIsInMainComponentMap() {
         Map<LinearGlsk, Boolean> map = new HashMap<>();
-        buildRefProgGlskMap().values().forEach(linearGlsk -> map.putIfAbsent(linearGlsk, isInMainComponent(linearGlsk, network)));
+        glskMap.values().forEach(linearGlsk -> map.putIfAbsent(linearGlsk, isInMainComponent(linearGlsk, network)));
         return map;
     }
 
@@ -103,7 +105,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     }
 
     protected Stream<Map.Entry<EICode, LinearGlsk>> getGlskStream(FlowCnec flowCnec) {
-        return buildRefProgGlskMap().entrySet().stream();
+        return glskMap.entrySet().stream();
     }
 
     protected Map<EICode, LinearGlsk> buildRefProgGlskMap() {
@@ -112,7 +114,9 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
 
         for (EICode area : referenceProgram.getListOfAreas()) {
             LinearGlsk glskForArea = glsk.getData(area.getAreaCode());
-            if (glskForArea != null) {
+            if (glskForArea == null) {
+                LOGGER.warn("No GLSK found for reference area {}", area.getAreaCode());
+            } else {
                 refProgGlskMap.put(area, glskForArea);
             }
         }
