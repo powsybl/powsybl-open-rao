@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CRACDocument DtdVersion="4" DtdRelease="3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="crac-document.xsd">
+    <DocumentIdentification v="20161215_0430_2D4_CRAC_FR"/>
+    <DocumentVersion v="1"/>
+    <DocumentType v="B15"/>
+    <ProcessType v="A40"/>
+    <SenderIdentification v="10XFR-RTE------Q" codingScheme="A01"/>
+    <SenderRole v="A04"/>
+    <ReceiverIdentification v="22XCORESO------S" codingScheme="A01"/>
+    <ReceiverRole v="A36"/>
+    <CreationDateTime v="2020-02-19T00:28:44Z"/>
+    <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+    <Domain v="10YDOM-1001A061T" codingScheme="A01"/>
+    <CRACSeries>
+        <Outages>
+            <Outage>
+                <Name v="fake_contingency_because_we_have_to"/>
+                <Branch>
+                    <FromNode v="AAAAAA11"/>
+                    <ToNode v="BBBBBB11"/>
+                    <Order v="1"/>
+                </Branch>
+            </Outage>
+        </Outages>
+        <RemedialActions>
+            <RemedialAction>
+                <Name v="PRA_HVDC"/>
+                <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+                <Operator v="FR"/>
+                <Application v="PREVENTIVE"/>
+                <SharedWith v="CSE"/>
+                <HVDCRange>
+                    <HVDCNode>
+                        <FromNode v="BBE2AA11"/>
+                        <ToNode v="FFR3AA11"/>
+                        <Order v="1"/>
+                    </HVDCNode>
+                    <VariationType v="ABSOLUTE"/>
+                    <Min v="-100"/>
+                    <Max v="2000"/>
+                </HVDCRange>
+            </RemedialAction>
+            <RemedialAction>
+                <Name v="CRA_HVDC"/>
+                <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+                <Operator v="FR"/>
+                <Application v="CURATIVE"/>
+                <SharedWith v="CSE"/>
+                <HVDCRange>
+                    <HVDCNode>
+                        <FromNode v="FFR3AA11"/>
+                        <ToNode v="BBE2AA11"/>
+                        <Order v="1"/>
+                    </HVDCNode>
+                    <VariationType v="ABSOLUTE"/>
+                    <Min v="-100"/>
+                    <Max v="2000"/>
+                </HVDCRange>
+            </RemedialAction>
+            <RemedialAction>
+                <Name v="CRA_HVDC_2"/>
+                <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+                <Operator v="FR"/>
+                <Application v="CURATIVE"/>
+                <SharedWith v="CSE"/>
+                <HVDCRange>
+                    <HVDCNode>
+                        <FromNode v="FFR3AA11"/>
+                        <ToNode v="BBE2AA11"/>
+                        <Order v="1"/>
+                    </HVDCNode>
+                    <VariationType v="ABSOLUTE"/>
+                    <Min v="-100"/>
+                    <Max v="2000"/>
+                </HVDCRange>
+            </RemedialAction>
+            <RemedialAction>
+                <Name v="WEIRD_HVDC_WITH_2_HVDCNODES"/>
+                <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+                <Operator v="FR"/>
+                <Application v="CURATIVE"/>
+                <SharedWith v="CSE"/>
+                <HVDCRange>
+                    <HVDCNode>
+                        <FromNode v="FFR3AA11"/>
+                        <ToNode v="BBE2AA11"/>
+                        <Order v="1"/>
+                    </HVDCNode>
+                    <HVDCNode>
+                        <FromNode v="BBE3AA11"/>
+                        <ToNode v="FFR3AA11"/>
+                        <Order v="1"/>
+                    </HVDCNode>
+                    <VariationType v="ABSOLUTE"/>
+                    <Min v="-100"/>
+                    <Max v="2000"/>
+                </HVDCRange>
+            </RemedialAction>
+            <RemedialAction>
+                <Name v="CRA_HVDC_fake"/>
+                <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+                <Operator v="FR"/>
+                <Application v="CURATIVE"/>
+                <SharedWith v="CSE"/>
+                <HVDCRange>
+                    <HVDCNode>
+                        <FromNode v="BBE2AA11"/>
+                        <ToNode v="FFR3AA11"/>
+                        <Order v="1"/>
+                    </HVDCNode>
+                    <VariationType v="RELATIVE"/>
+                    <Min v="-2000"/>
+                    <Max v="2000"/>
+                </HVDCRange>
+            </RemedialAction>
+        </RemedialActions>
+        <CriticalBranches>
+            <BaseCaseBranches>
+                <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+                <Branch>
+                    <Name v="be1_fr5_n"/>
+                    <FromNode v="BBE1AA11"/>
+                    <ToNode v="FFR5AA11"/>
+                    <Order v="1"/>
+                    <Imax unit="A" v="577"/>
+                    <Direction v="BIDIR"/>
+                </Branch>
+            </BaseCaseBranches>
+            <CriticalBranch>
+                <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+                <Outage></Outage>
+                <Branch>
+                    <Name v="fake_because_we_have_to"/>
+                    <FromNode v="AAAAAA11"/>
+                    <ToNode v="BBBBBB11"/>
+                    <Order v="1"/>
+                    <ImaxAfterOutage unit="A" v="9999"/>
+                    <ImaxAfterCRA unit="A" v="9999"/>
+                    <Direction v="DIRECT"/>
+                </Branch>
+            </CriticalBranch>
+        </CriticalBranches>
+    </CRACSeries>
+</CRACDocument>

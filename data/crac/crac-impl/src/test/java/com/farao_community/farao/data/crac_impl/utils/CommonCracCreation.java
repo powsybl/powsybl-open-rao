@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
-import com.farao_community.farao.data.crac_creation_util.iidm.IidmPstHelper;
+import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Network;
 
 import static com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil.import12NodesNetwork;

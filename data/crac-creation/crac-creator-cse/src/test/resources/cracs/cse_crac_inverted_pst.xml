@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CRACDocument DtdVersion="4" DtdRelease="3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="crac-document.xsd">
+    <DocumentIdentification v="2021_04_30_TEST_CSE_CRAC_1"/>
+    <DocumentVersion v="1"/>
+    <DocumentType v="Z03"/>
+    <ProcessType v="Z03"/>
+    <SenderIdentification v="unit_test_sender_identification" codingScheme="A01"/>
+    <SenderRole v="A36"/>
+    <ReceiverIdentification v="unit_test_receiver_identification" codingScheme="A01"/>
+    <ReceiverRole v="A04"/>
+    <CreationDateTime v="2021-04-30T16:00:00Z"/>
+    <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+    <Domain v="unit_test_domain" codingScheme="A01"/>
+    <CRACSeries>
+        <Outages>
+            <Outage>
+                <Name v="outage_1"/>
+                <Branch>
+                    <FromNode v="BBE1AA1 "/>
+                    <ToNode v="BBE2AA1 "/>
+                    <Order v="1"/>
+                </Branch>
+            </Outage>
+            <Outage>
+                <Name v="outage_2"/>
+                <Branch>
+                    <FromNode v="BBE1AA1 "/>
+                    <ToNode v="BBE3AA1 "/>
+                    <Order v="1"/>
+                </Branch>
+                <Branch>
+                    <FromNode v="BBE1AA1 "/>
+                    <ToNode v="BBE2AA1 "/>
+                    <Order v="1"/>
+                </Branch>
+            </Outage>
+            <Outage>
+                <Name v="outage_3"/>
+                <Branch>
+                    <FromNode v="BBE1AA1 "/>
+                    <ToNode v="BBE2ZZ1 "/>
+                    <Order v="1"/>
+                </Branch>
+            </Outage>
+        </Outages>
+        <RemedialActions>
+            <RemedialAction>
+                <Name v="ra_1"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Operator v="IT"/>
+                <Application v="PREVENTIVE"/>
+                <SharedWith v="CSE"/>
+                <PstRange>
+                    <Branch>
+                        <FromNode v="BBE2AA1 "/>
+                        <ToNode v="BBE3AA1 "/>
+                        <Order v="1"/>
+                    </Branch>
+                    <VariationType v="ABSOLUTE"/>
+                    <Min v="-2"/>
+                    <Max v="10"/>
+                </PstRange>
+            </RemedialAction>
+            <RemedialAction>
+                <Name v="ra_2"/>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Operator v="IT"/>
+                <Application v="PREVENTIVE"/>
+                <SharedWith v="CSE"/>
+                <PstRange>
+                    <Branch>
+                        <FromNode v="BBE3AA1 "/>
+                        <ToNode v="BBE2AA1 "/>
+                        <Order v="1"/>
+                    </Branch>
+                    <VariationType v="ABSOLUTE"/>
+                    <Min v="-2"/>
+                    <Max v="10"/>
+                </PstRange>
+            </RemedialAction>
+        </RemedialActions>
+        <CriticalBranches>
+            <BaseCaseBranches>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Branch>
+                    <Name v="basecase_branch_1"/>
+                    <FromNode v="NNL2AA1 "/>
+                    <ToNode v="NNL3AA1 "/>
+                    <Order v="1"/>
+                    <Imax unit="A" v="4000"/>
+                    <Direction v="DIRECT"/>
+                </Branch>
+                <Branch>
+                    <Name v="basecase_branch_2"/>
+                    <FromNode v="NNL1AA1 "/>
+                    <ToNode v="NNL3AA1 "/>
+                    <Order v="1"/>
+                    <Imax unit="A" v="4000"/>
+                    <Direction v="OPPOSITE"/>
+                </Branch>
+                <Branch>
+                    <Name v="basecase_branch_3"/>
+                    <FromNode v="NNL1AA1 "/>
+                    <ToNode v="NNL2AA1 "/>
+                    <Order v="1"/>
+                    <Imax unit="A" v="4500"/>
+                    <Direction v="OPPOSITE"/>
+                </Branch>
+            </BaseCaseBranches>
+            <CriticalBranch>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Outage v="outage_1"/>
+                <Branch>
+                    <Name v="Albertville - Grande Ile 1"/>
+                    <FromNode v="FFR1AA1 "/>
+                    <ToNode v="FFR2AA1 "/>
+                    <Order v="1"/>
+                    <ImaxAfterOutage unit="A" v="4318"/>
+                    <ImaxAfterCRA unit="A" v="3099"/>
+                    <Direction v="OPPOSITE"/>
+                    <RemedialActions>
+                        <Name v="CRA_1N_ALBERTVILLE"/>
+                        <Name v="CRA_2N_ALBERTVILLE"/>
+                        <Name v="CRA_PST_LA PRAZ"/>
+                        <Name v="CRA_PST_RONDISSONE1"/>
+                        <Name v="CRA_PST_RONDISSONE2"/>
+                        <Name v="CRA_STOPBISSORTE"/>
+                        <Name v="CRA_STOPCHEYLAS"/>
+                    </RemedialActions>
+                </Branch>
+            </CriticalBranch>
+            <CriticalBranch>
+                <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+                <Outage v="outage_2"/>
+                <Branch>
+                    <Name v="Albertville - La Coche"/>
+                    <FromNode v="FALBER11"/>
+                    <ToNode v="FCOCHE11"/>
+                    <Order v="1"/>
+                    <ImaxAfterOutage unit="A" v="3071"/>
+                    <ImaxAfterCRA unit="A" v="2585"/>
+                    <Direction v="DIRECT"/>
+                    <RemedialActions>
+                        <Name v="CRA_PST_LA PRAZ"/>
+                        <Name v="CRA_STOPBISSORTE"/>
+                    </RemedialActions>
+                </Branch>
+            </CriticalBranch>
+        </CriticalBranches>
+    </CRACSeries>
+</CRACDocument>
