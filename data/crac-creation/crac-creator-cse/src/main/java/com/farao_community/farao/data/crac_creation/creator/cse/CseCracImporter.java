@@ -33,9 +33,9 @@ import java.util.Objects;
 @AutoService(NativeCracImporter.class)
 public class CseCracImporter implements NativeCracImporter<CseCrac> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CseCracImporter.class);
-    private static final String CRAC_CSE_SCHEMA_FILE_LOCATION = "/com/rte_france/farao/data/crac/io/cse/xsd/crac-document_4_15.xsd";
-    private static final String ETSO_CORE_SCHEMA_FILE_LOCATION = "/com/rte_france/farao/data/crac/io/cse/xsd/etso-core-cmpts.xsd";
-    private static final String ETSO_CODES_SCHEMA_FILE_LOCATION = "/com/rte_france/farao/data/crac/io/cse/xsd/etso-code-lists.xsd";
+    private static final String CRAC_CSE_SCHEMA_FILE_LOCATION = "/com/farao_community/farao/data/crac_creation/creator/cse/xsd/crac-document_4_15.xsd";
+    private static final String ETSO_CORE_SCHEMA_FILE_LOCATION = "/com/farao_community/farao/data/crac_creation/creator/cse/xsd/etso-core-cmpts.xsd";
+    private static final String ETSO_CODES_SCHEMA_FILE_LOCATION = "/com/farao_community/farao/data/crac_creation/creator/cse/xsd/etso-code-lists.xsd";
 
     @Override
     public String getFormat() {
