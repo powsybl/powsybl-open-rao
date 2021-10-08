@@ -25,7 +25,7 @@ public class CseCracImporterTest {
 
     @Test
     public void importNativeCrac() {
-        InputStream is = getClass().getResourceAsStream("/CSE Common CRAC file.xml");
+        InputStream is = getClass().getResourceAsStream("/cracs/cse_crac_1.xml");
         CseCracImporter importer = new CseCracImporter();
         CseCrac cseCrac = importer.importNativeCrac(is);
         assertEquals("ruleToBeDefined", cseCrac.getCracDocument().getDocumentIdentification().getV());

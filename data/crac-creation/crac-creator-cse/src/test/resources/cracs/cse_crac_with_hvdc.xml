@@ -1,17 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<CRACDocument DtdVersion="4" DtdRelease="3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:noNamespaceSchemaLocation="crac-document.xsd">
-    <DocumentIdentification v="20161215_0430_2D4_CRAC_FR"/>
+<CRACDocument DtdVersion="4" DtdRelease="3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="crac-document.xsd">
+    <DocumentIdentification v="2021_04_30_TEST_CSE_CRAC_1"/>
     <DocumentVersion v="1"/>
-    <DocumentType v="B15"/>
-    <ProcessType v="A40"/>
-    <SenderIdentification v="10XFR-RTE------Q" codingScheme="A01"/>
-    <SenderRole v="A04"/>
-    <ReceiverIdentification v="22XCORESO------S" codingScheme="A01"/>
-    <ReceiverRole v="A36"/>
-    <CreationDateTime v="2020-02-19T00:28:44Z"/>
-    <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
-    <Domain v="10YDOM-1001A061T" codingScheme="A01"/>
+    <DocumentType v="Z03"/>
+    <ProcessType v="Z03"/>
+    <SenderIdentification v="unit_test_sender_identification" codingScheme="A01"/>
+    <SenderRole v="A36"/>
+    <ReceiverIdentification v="unit_test_receiver_identification" codingScheme="A01"/>
+    <ReceiverRole v="A04"/>
+    <CreationDateTime v="2021-04-30T16:00:00Z"/>
+    <TimeInterval v="2021-04-30T22:00Z/2021-04-30T23:00ZZ"/>
+    <Domain v="unit_test_domain" codingScheme="A01"/>
     <CRACSeries>
         <Outages>
             <Outage>

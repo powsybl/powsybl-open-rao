@@ -187,21 +187,21 @@ public class CseCracCreatorTest {
     @Test
     public void createCurativeCnecs() {
         setUp("/cracs/cse_crac_1.xml");
-        BranchCnecCreationContext cnec2context = cracCreationContext.getBranchCnecCreationContext("Albertville - Grande Ile 1");
+        BranchCnecCreationContext cnec2context = cracCreationContext.getBranchCnecCreationContext("French line 1");
         assertFalse(cnec2context.isBaseCase());
         assertTrue(cnec2context.isImported());
         assertFalse(cnec2context.isDirectionInvertedInNetwork());
         assertEquals("outage_1", cnec2context.getContingencyId().get());
         assertEquals(2, cnec2context.getCreatedCnecsIds().size());
-        assertEquals("Albertville - Grande Ile 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(Instant.OUTAGE));
-        assertEquals("Albertville - Grande Ile 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(Instant.CURATIVE));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage", cnec2context.getCreatedCnecsIds().get(Instant.OUTAGE));
+        assertEquals("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative", cnec2context.getCreatedCnecsIds().get(Instant.CURATIVE));
     }
 
     @Test
     public void doNotCreateAbsentFromNetworkCnec() {
         setUp("/cracs/cse_crac_1.xml");
         BranchCnecCreationContext cnec3context = cracCreationContext.getBranchCnecCreationContext("Albertville - La Coche");
-        assertCriticalBranchNotImported("Albertville - La Coche", ELEMENT_NOT_FOUND_IN_NETWORK);
+        assertCriticalBranchNotImported("French line 2", ELEMENT_NOT_FOUND_IN_NETWORK);
     }
 
     @Test
@@ -288,8 +288,8 @@ public class CseCracCreatorTest {
         State outageState = importedCrac.getState(importedCrac.getContingency("outage_1"), Instant.OUTAGE);
         State curativeState = importedCrac.getState(importedCrac.getContingency("outage_1"), Instant.CURATIVE);
 
-        FlowCnec outageCnec = importedCrac.getFlowCnec("Albertville - Grande Ile 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage");
-        FlowCnec curativeCnec = importedCrac.getFlowCnec("Albertville - Grande Ile 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative");
+        FlowCnec outageCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage");
+        FlowCnec curativeCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative");
 
         // PRA
         RemedialAction<?> ra = importedCrac.getRangeAction("PST_pra_3_BBE2AA1  BBE3AA1  1");
