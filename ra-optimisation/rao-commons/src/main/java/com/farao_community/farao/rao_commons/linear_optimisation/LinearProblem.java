@@ -74,7 +74,7 @@ public final class LinearProblem {
     }
 
     private LinearProblem(List<ProblemFiller> fillers) {
-        this(fillers, new MPSolver("linear rao", MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING));
+        this(fillers, new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
     }
 
     final List<ProblemFiller> getFillers() {
@@ -294,7 +294,7 @@ public final class LinearProblem {
 
     public LinearProblemStatus solve() {
         MPSolverParameters solveConfiguration = new MPSolverParameters();
-        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, 0.0001); //todo: test that it works + pass it through config
+        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, 0.001); //todo: test that it works + pass it through config
         status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }

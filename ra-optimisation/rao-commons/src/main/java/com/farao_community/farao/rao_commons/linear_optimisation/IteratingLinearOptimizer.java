@@ -59,19 +59,6 @@ public class IteratingLinearOptimizer {
 
             RangeActionResult currentRangeActionResult = roundResult(linearProblem.getResults(), network, bestResult);
 
-            // for MIP, re-run optimisation with updated tapToAngle conversion factors
-            linearProblem.update(bestResult.getBranchResult(), bestResult.getSensitivityResult(), currentRangeActionResult);
-            solveLinearProblem(linearProblem, iteration);
-            if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
-                LOGGER.error(LINEAR_OPTIMIZATION_FAILED, iteration);
-                if (iteration == 1) {
-                    return new FailedLinearOptimizationResult();
-                }
-                bestResult.setStatus(LinearProblemStatus.FEASIBLE);
-                return bestResult;
-            }
-            // end of for MIP
-
             if (!hasRemedialActionsChanged(currentRangeActionResult, bestResult)) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
                 LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
