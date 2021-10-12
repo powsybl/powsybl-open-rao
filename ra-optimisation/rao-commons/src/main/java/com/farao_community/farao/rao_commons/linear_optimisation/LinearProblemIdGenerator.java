@@ -20,6 +20,8 @@ public final class LinearProblemIdGenerator {
 
     private static final String FLOW = "flow";
     private static final String SET_POINT = "setpoint";
+    private static final String TAP_VARIATION = "tapvariation";
+    private static final String TAP_VARIATION_BINARY = "tapvariationbinary";
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
@@ -44,6 +46,14 @@ public final class LinearProblemIdGenerator {
 
     public static String rangeActionSetPointVariableId(RangeAction rangeAction) {
         return rangeAction.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String pstTapVariableVariationId(RangeAction rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
+        return rangeAction.getId() + SEPARATOR + TAP_VARIATION + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String pstTapBinaryVariationId(RangeAction rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
+        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
     public static String rangeActionGroupSetPointVariableId(String rangeActionGroupId) {

@@ -79,7 +79,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     }
 
     private void updateLinearProblem() {
-        linearProblem.update(flowResult, sensitivityResult);
+        linearProblem.update(flowResult, sensitivityResult, null);
     }
 
     @Test

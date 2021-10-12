@@ -270,7 +270,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         when(sensitivityResult.getSensitivityValue(cnec2, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
 
         // update the problem
-        linearProblem.update(flowResult, sensitivityResult);
+        linearProblem.update(flowResult, sensitivityResult, null);
     }
 
     @Test
@@ -458,7 +458,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // Case 2: margin on cnec1 is positive
         // (relative sensi = 2 / 0.5 = 4) > 2.5 should not be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(1.0);
-        linearProblem.update(flowResult, sensitivityResult);
+        linearProblem.update(flowResult, sensitivityResult, null);
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * 4, flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * 4, flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -466,7 +466,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // Case 3: margin on cnec1 is 0
         // should be filtered like in case 1
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(.0);
-        linearProblem.update(flowResult, sensitivityResult);
+        linearProblem.update(flowResult, sensitivityResult, null);
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -491,7 +491,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // Case 2: margin on cnec1 is negative
         // (sensi = 2) < 2.5 should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
-        linearProblem.update(flowResult, sensitivityResult);
+        linearProblem.update(flowResult, sensitivityResult, null);
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -499,7 +499,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // Case 3: margin on cnec1 is 0
         // should be filtered like in case 2
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(.0);
-        linearProblem.update(flowResult, sensitivityResult);
+        linearProblem.update(flowResult, sensitivityResult, null);
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.ub(), DOUBLE_TOLERANCE);

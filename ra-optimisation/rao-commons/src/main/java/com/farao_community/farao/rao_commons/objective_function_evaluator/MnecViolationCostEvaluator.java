@@ -47,6 +47,14 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     private double computeCost(FlowResult flowResult, FlowCnec mnec) {
         double initialMargin = initialFlowResult.getMargin(mnec, MEGAWATT);
         double currentMargin = flowResult.getMargin(mnec, MEGAWATT);
+
+        double x = Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDiminutionInMW) - currentMargin);
+
+        if (Double.isNaN(x)) {
+            System.out.println(String.format("MNEC excess is NaN for FlowCnec %s - initial margin: %.2f - current margin", mnec.getId(), initialMargin, currentMargin));
+            int a = 0;
+        }
+
         return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDiminutionInMW) - currentMargin);
     }
 

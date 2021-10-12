@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.result_api.LinearProblemStatus;
@@ -15,10 +16,7 @@ import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.farao_community.farao.util.NativeLibraryLoader;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPObjective;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.linearsolver.*;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +46,11 @@ public final class LinearProblem {
         NEGATIVE
     }
 
+    public enum VariationExtension {
+        UPWARD,
+        DOWNWARD
+    }
+
     public enum MarginExtension {
         BELOW_THRESHOLD,
         ABOVE_THRESHOLD
@@ -71,7 +74,7 @@ public final class LinearProblem {
     }
 
     private LinearProblem(List<ProblemFiller> fillers) {
-        this(fillers, new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
+        this(fillers, new MPSolver("linear rao", MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING));
     }
 
     final List<ProblemFiller> getFillers() {
@@ -88,6 +91,13 @@ public final class LinearProblem {
 
     public LinearProblemStatus getStatus() {
         return status;
+    }
+
+    public MPSolver getSolver() {
+        //todo: delete this metod and add wrapper
+
+        // made temporarily to code quicker
+        return solver;
     }
 
     private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
@@ -145,6 +155,24 @@ public final class LinearProblem {
 
     public MPVariable getRangeActionSetPointVariable(RangeAction rangeAction) {
         return solver.lookupVariableOrNull(rangeActionSetPointVariableId(rangeAction));
+    }
+
+    public MPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, VariationExtension variation) {
+        rangeActions.add(rangeAction);
+        return solver.makeIntVar(lb, ub, pstTapVariableVariationId(rangeAction, variation));
+    }
+
+    public MPVariable getPstTapVariationVariable(PstRangeAction rangeAction, VariationExtension variation) {
+        return solver.lookupVariableOrNull(pstTapVariableVariationId(rangeAction, variation));
+    }
+
+    public MPVariable addPstTapVariationBinary(PstRangeAction rangeAction, VariationExtension variation) {
+        rangeActions.add(rangeAction);
+        return solver.makeBoolVar(pstTapBinaryVariationId(rangeAction, variation));
+    }
+
+    public MPVariable getPstTapVariationBinary(PstRangeAction rangeAction, VariationExtension variation) {
+        return solver.lookupVariableOrNull(pstTapBinaryVariationId(rangeAction, variation));
     }
 
     public MPVariable addRangeActionGroupSetPointVariable(double lb, double ub, String rangeActionGroupId) {
@@ -265,7 +293,9 @@ public final class LinearProblem {
     }
 
     public LinearProblemStatus solve() {
-        status = convertResultStatus(solver.solve());
+        MPSolverParameters solveConfiguration = new MPSolverParameters();
+        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, 0.0001); //todo: test that it works + pass it through config
+        status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }
 
@@ -277,8 +307,8 @@ public final class LinearProblem {
         fillers.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult));
     }
 
-    public void update(FlowResult flowResult, SensitivityResult sensitivityResult) {
-        fillers.forEach(problemFiller -> problemFiller.update(this, flowResult, sensitivityResult));
+    public void update(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
+        fillers.forEach(problemFiller -> problemFiller.update(this, flowResult, sensitivityResult, rangeActionResult));
     }
 
     public static LinearProblemBuilder create() {
