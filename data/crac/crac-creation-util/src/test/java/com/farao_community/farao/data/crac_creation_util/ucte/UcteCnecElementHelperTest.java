@@ -21,10 +21,12 @@ public class UcteCnecElementHelperTest {
 
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private UcteNetworkAnalyzer networkHelper;
+    private UcteNetworkAnalyzer alternativeNetworkHelper;
 
     private void setUp(String networkFile) {
         Network network = Importers.loadNetwork(networkFile, getClass().getResourceAsStream("/" + networkFile));
         networkHelper = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS));
+        alternativeNetworkHelper = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD));
     }
 
     @Test
@@ -80,6 +82,64 @@ public class UcteCnecElementHelperTest {
         assertTrue(branchHelper.isInvertedInNetwork());
 
         branchHelper = new UcteCnecElementHelper("FFR3AA1 ", "FFR1AA1 ", null, "BR FR1FR3", networkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("FFR1AA1  FFR3AA1  2", branchHelper.getIdInNetwork());
+        assertTrue(branchHelper.isInvertedInNetwork());
+    }
+
+    @Test
+    public void testValidInternalBranchReplace8th() {
+        setUp("TestCase_severalVoltageLevels_Xnodes.uct");
+        // internal branch with order code, from/to same as network
+        UcteCnecElementHelper branchHelper = new UcteCnecElementHelper("BBE1AA18", "BBE2AA18", "1", null, alternativeNetworkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("BBE1AA1  BBE2AA1  1", branchHelper.getIdInNetwork());
+        assertFalse(branchHelper.isInvertedInNetwork());
+        assertFalse(branchHelper.isHalfLine());
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(380., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(5000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+
+        branchHelper = new UcteCnecElementHelper("FFR1AA18", "FFR3AA18", "2", null, alternativeNetworkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("FFR1AA1  FFR3AA1  2", branchHelper.getIdInNetwork());
+        assertFalse(branchHelper.isInvertedInNetwork());
+
+        // internal branch with element name, from/to same as network
+        branchHelper = new UcteCnecElementHelper("BBE1AA18", "BBE3AA18", null, "BR BE1BE3", alternativeNetworkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("BBE1AA1  BBE3AA1  1", branchHelper.getIdInNetwork());
+        assertFalse(branchHelper.isInvertedInNetwork());
+
+        branchHelper = new UcteCnecElementHelper("FFR1AA1 ", "FFR3AA1 ", null, "BR FR1FR3", alternativeNetworkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("FFR1AA1  FFR3AA1  2", branchHelper.getIdInNetwork());
+        assertFalse(branchHelper.isInvertedInNetwork());
+
+        // internal branch with order code, from/to different from network
+        branchHelper = new UcteCnecElementHelper("BBE2AA28", "BBE1AA28", "1", null, alternativeNetworkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("BBE1AA2  BBE2AA2  1", branchHelper.getIdInNetwork());
+        assertTrue(branchHelper.isInvertedInNetwork());
+        assertFalse(branchHelper.isHalfLine());
+        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(220., branchHelper.getNominalVoltage(Branch.Side.TWO), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.ONE), DOUBLE_TOLERANCE);
+        assertEquals(1000., branchHelper.getCurrentLimit(Branch.Side.TWO), DOUBLE_TOLERANCE);
+
+        branchHelper = new UcteCnecElementHelper("FFR3AA18", "FFR1AA18", "2", null, alternativeNetworkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("FFR1AA1  FFR3AA1  2", branchHelper.getIdInNetwork());
+        assertTrue(branchHelper.isInvertedInNetwork());
+
+        // internal branch with element name, from/to different from network
+        branchHelper = new UcteCnecElementHelper("BBE3AA18", "BBE1AA18", null, "BR BE1BE3", alternativeNetworkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("BBE1AA1  BBE3AA1  1", branchHelper.getIdInNetwork());
+        assertTrue(branchHelper.isInvertedInNetwork());
+
+        branchHelper = new UcteCnecElementHelper("FFR3AA18", "FFR1AA18", null, "BR FR1FR3", alternativeNetworkHelper);
         assertTrue(branchHelper.isValid());
         assertEquals("FFR1AA1  FFR3AA1  2", branchHelper.getIdInNetwork());
         assertTrue(branchHelper.isInvertedInNetwork());
