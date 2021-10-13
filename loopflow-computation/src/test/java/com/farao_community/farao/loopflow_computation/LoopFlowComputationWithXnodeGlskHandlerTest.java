@@ -57,12 +57,6 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
         Network network = mockNetwork();
         Mockito.when(xnodeGlskHandler.getNetwork()).thenReturn(network);
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputationWithXnodeGlskHandler(
-                glsk,
-                referenceProgram,
-                xnodeGlskHandler
-        );
-
         FlowCnec preventiveCnec = Mockito.mock(FlowCnec.class);
         FlowCnec cnecAfterClassicContingency = Mockito.mock(FlowCnec.class);
         FlowCnec cnecAfterDanglingContingency = Mockito.mock(FlowCnec.class);
@@ -93,6 +87,12 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
         Mockito.when(referenceProgram.getListOfAreas()).thenReturn(Set.of(frCode, alegroCode));
         Mockito.when(glsk.getData("FR--------------")).thenReturn(classicLinearGlsk);
         Mockito.when(glsk.getData("Alegro----------")).thenReturn(virtualHubLinearGlsk);
+
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationWithXnodeGlskHandler(
+                glsk,
+                referenceProgram,
+                xnodeGlskHandler
+        );
 
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(
                 systematicSensitivityResult,
