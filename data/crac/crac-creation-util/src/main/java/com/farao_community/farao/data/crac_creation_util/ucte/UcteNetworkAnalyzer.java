@@ -9,12 +9,8 @@ package com.farao_community.farao.data.crac_creation_util.ucte;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import static com.farao_community.farao.data.crac_creation_util.ConnectableType.*;
 import static com.farao_community.farao.data.crac_creation_util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
-import static com.farao_community.farao.data.crac_creation_util.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD;
 
 /**
  * A utility class, that stores network information so as to speed up
@@ -27,14 +23,12 @@ public class UcteNetworkAnalyzer {
     private final Network network;
     private final UcteConnectableCollection connectablesInNetwork;
     private final UcteNetworkAnalyzerProperties properties;
-    private final Set<String> networkNodeIds = new HashSet<>();
 
     public UcteNetworkAnalyzer(Network network, UcteNetworkAnalyzerProperties properties) {
         if (!network.getSourceFormat().equals("UCTE")) {
             throw new IllegalArgumentException("UcteNetworkHelper can only be used for an UCTE network");
         }
         this.network = network;
-        network.getSubstations().forEach(substation -> this.networkNodeIds.add(substation.getId()));
         this.properties = properties;
         this.connectablesInNetwork = new UcteConnectableCollection(network);
     }
@@ -48,43 +42,35 @@ public class UcteNetworkAnalyzer {
     }
 
     UcteMatchingResult findContingencyElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix,
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
                 INTERNAL_LINE, TIE_LINE, DANGLING_LINE, VOLTAGE_TRANSFORMER, PST, HVDC);
     }
 
     UcteMatchingResult findCnecElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix,
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
                 INTERNAL_LINE, TIE_LINE, DANGLING_LINE, VOLTAGE_TRANSFORMER, PST);
     }
 
     UcteMatchingResult findTopologicalElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix,
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
                 INTERNAL_LINE, TIE_LINE, DANGLING_LINE, VOLTAGE_TRANSFORMER, PST, SWITCH);
     }
 
     UcteMatchingResult findPstElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, PST);
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(), PST);
     }
 
     UcteMatchingResult findHvdcElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, HVDC);
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(), HVDC);
     }
 
     private String completeNodeName(String nodeName) {
-        if (properties.getBusIdMatchPolicy().equals(REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
-            if (networkNodeIds.contains(nodeName)) {
-                return nodeName;
-            } else {
-                return String.format("%1$-7s", nodeName).substring(0, 7) + UcteUtils.WILDCARD_CHARACTER;
-            }
+        if (nodeName.length() == UcteUtils.UCTE_NODE_LENGTH) {
+            return nodeName;
+        } else if (properties.getBusIdMatchPolicy().equals(COMPLETE_WITH_WILDCARDS)) {
+            return String.format("%1$-7s", nodeName) + UcteUtils.WILDCARD_CHARACTER;
         } else {
-            if (nodeName.length() == UcteUtils.UCTE_NODE_LENGTH) {
-                return nodeName;
-            } else if (properties.getBusIdMatchPolicy().equals(COMPLETE_WITH_WILDCARDS)) {
-                return String.format("%1$-7s", nodeName) + UcteUtils.WILDCARD_CHARACTER;
-            } else {
-                return String.format("%1$-8s", nodeName);
-            }
+            return String.format("%1$-8s", nodeName);
         }
     }
 }
