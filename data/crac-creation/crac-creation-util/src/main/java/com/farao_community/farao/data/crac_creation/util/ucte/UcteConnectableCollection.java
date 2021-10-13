@@ -39,7 +39,7 @@ class UcteConnectableCollection {
         addHvdcs(network);
     }
 
-    UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix, ConnectableType... connectableTypes) {
+    UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix, UcteNetworkAnalyzerProperties.BusIdMatchPolicy policy, ConnectableType... connectableTypes) {
 
         /*
           priority is given to the search with the from/to direction given in argument
@@ -63,6 +63,22 @@ class UcteConnectableCollection {
 
         // if no result has been found in the direction in argument, look for an inverted one
         ucteMatchingResult = lookForMatch(toNodeId, fromNodeId, suffix, connectableTypes);
+
+        if (ucteMatchingResult.getStatus().equals(UcteMatchingResult.MatchStatus.NOT_FOUND) && policy.equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
+
+            String fromWildcard = String.format("%1$-7s", fromNodeId).substring(0, 7) + UcteUtils.WILDCARD_CHARACTER;
+            String toWildcard = String.format("%1$-7s", toNodeId).substring(0, 7) + UcteUtils.WILDCARD_CHARACTER;
+
+            ucteMatchingResult = lookForMatch(fromWildcard, toWildcard, suffix, connectableTypes);
+
+            if (!ucteMatchingResult.getStatus().equals(UcteMatchingResult.MatchStatus.NOT_FOUND)) {
+                return ucteMatchingResult;
+            }
+
+            // if no result has been found in the direction in argument, look for an inverted one
+            ucteMatchingResult = lookForMatch(toWildcard, fromWildcard, suffix, connectableTypes);
+        }
+
         return ucteMatchingResult.invert();
     }
 
@@ -103,6 +119,10 @@ class UcteConnectableCollection {
             if (matchedConnetables.size() == 1) {
                 return matchedConnetables.get(0);
             } else if (matchedConnetables.size() > 1) {
+                List<UcteMatchingResult> fittingSubstring = matchedConnetables.stream().filter(connectable -> connectable.getIidmIdentifiable().getId().substring(18).contains(suffix)).collect(Collectors.toList());
+                if (fittingSubstring.size() == 1) {
+                    return fittingSubstring.get(0);
+                }
                 return UcteMatchingResult.severalPossibleMatch();
             } else {
                 return UcteMatchingResult.notFound();
