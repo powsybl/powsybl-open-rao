@@ -1,0 +1,27 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "CseCracCreatorParameters" : {
+      "bus-bar-change-switches" : [
+        {
+          "remedial-action-id" : "remedialAcion1",
+          "switches-to-open" : [
+            "switch1", "switch2", "switch3"
+          ],
+          "switches-to-close" : [
+            "switch4"
+          ]
+        },
+        {
+          "remedial-action-id" : "remedialAcion1",
+          "switches-to-open" : [
+            "switch8", "switch3", "switch1"
+          ],
+          "switches-to-close" : [
+            "switch6", "switch2"
+          ]
+        }
+      ]
+    }
+  }
+}

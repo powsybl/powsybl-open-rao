@@ -1,0 +1,49 @@
+{
+  "crac-factory": "CracImplFactory",
+  "extensions": {
+    "CseCracCreatorParameters": {
+      "bus-bar-change-switches": [
+        {
+          "remedial-action-id": "RA1",
+          "switches-to-open": [
+            "BBE1AA1X BBE1AA11 1"
+          ],
+          "switches-to-close": [
+            "BBE1AA1X BBE1AA12 1"
+          ]
+        },
+        {
+          "remedial-action-id": "RA2",
+          "switches-to-open": [
+            "BBE1AA1X BBE1AA12 1"
+          ],
+          "switches-to-close": [
+            "BBE1AA1X BBE1AA11 1"
+          ]
+        },
+        {
+          "remedial-action-id": "RA3",
+          "switches-to-open": [
+            "BBE1AA1Y BBE1AA11 1",
+            "BBE1AA1Z BBE1AA11 1"
+          ],
+          "switches-to-close": [
+            "BBE1AA1Y BBE1AA12 1",
+            "BBE1AA1Z BBE1AA12 1"
+          ]
+        },
+        {
+          "remedial-action-id": "RA4",
+          "switches-to-open": [
+            "BBE1AA1V BBE1AA11 1",
+            "BBE1AA1W BBE1AA11 1"
+          ],
+          "switches-to-close": [
+            "BBE1AA1V BBE1AA12 1",
+            "BBE1AA1W BBE1AA12 1"
+          ]
+        }
+      ]
+    }
+  }
+}
