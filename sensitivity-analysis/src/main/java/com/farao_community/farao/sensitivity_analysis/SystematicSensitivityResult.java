@@ -6,26 +6,33 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityFunction;
 import com.powsybl.sensitivity.SensitivityValue;
+import com.powsybl.sensitivity.SensitivityVariable;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.factors.functions.BusVoltage;
+import com.powsybl.sensitivity.factors.variables.*;
+import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
 public class SystematicSensitivityResult {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityResult.class);
 
     private static class StateResult {
         private final Map<String, Double> referenceFlows = new HashMap<>();
@@ -65,7 +72,7 @@ public class SystematicSensitivityResult {
         this.status = SensitivityComputationStatus.SUCCESS;
     }
 
-    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, boolean afterCra) {
+    public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Network network, List<Contingency> contingencies, boolean afterCra) {
 
         if (results == null || !results.isOk()) {
             this.status = SensitivityComputationStatus.FAILURE;
@@ -73,12 +80,22 @@ public class SystematicSensitivityResult {
         }
 
         Map<String, StateResult> contingencyResultsToFill = afterCra ? postCraResults : postContingencyResults;
-        results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult));
-        results.getSensitivityValuesContingencies().forEach((contingencyId, sensitivityValues) -> {
+        results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, network));
+        String initialVariantId = network.getVariantManager().getWorkingVariantId();
+        ComputationManager computationManager = LocalComputationManager.getDefault();
+        contingencies.forEach(contingency -> {
+            String contingencyVariantId = initialVariantId + contingency.getId();
+            network.getVariantManager().cloneVariant(initialVariantId, contingencyVariantId);
+            network.getVariantManager().setWorkingVariant(contingencyVariantId);
+            contingency.toTask().modify(network, computationManager);
+
             StateResult contingencyStateResult = new StateResult();
-            sensitivityValues.forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult));
-            contingencyResultsToFill.put(contingencyId, contingencyStateResult);
+            results.getSensitivityValuesContingencies().get(contingency.getId()).forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult, network));
+            contingencyResultsToFill.put(contingency.getId(), contingencyStateResult);
+
+            network.getVariantManager().removeVariant(contingencyVariantId);
         });
+        network.getVariantManager().setWorkingVariant(initialVariantId);
 
         return this;
     }
@@ -103,12 +120,14 @@ public class SystematicSensitivityResult {
         });
     }
 
-    private void fillIndividualValue(SensitivityValue value, StateResult stateResult) {
+    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, Network network) {
         double reference = value.getFunctionReference();
         double sensitivity = value.getValue();
 
         // TODO: remove this fix when reference function patched in case NaN and no divergence
-        if (Double.isNaN(reference) && !Double.isNaN(sensitivity)) {
+        if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
+            checkIfFunctionOrVariableIsDisconnected(value, network);
+            sensitivity = 0.;
             reference = 0.;
         }
 
@@ -121,6 +140,64 @@ public class SystematicSensitivityResult {
             stateResult.getIntensitySensitivities().computeIfAbsent(value.getFactor().getFunction().getId(), k -> new HashMap<>())
                     .putIfAbsent(value.getFactor().getVariable().getId(), sensitivity);
         }
+    }
+
+    private void checkIfFunctionOrVariableIsDisconnected(SensitivityValue value, Network network) {
+        SensitivityFunction function = value.getFactor().getFunction();
+        SensitivityVariable variable = value.getFactor().getVariable();
+
+        // Check function
+        if (function instanceof BranchFlow || function instanceof BranchIntensity) {
+            Branch<?> branch = network.getBranch(function.getId());
+            if (branch.getTerminals().stream().anyMatch(terminal -> !terminalConnectedAndInMainCC(terminal))) {
+                return;
+            }
+        }
+        if (function instanceof BusVoltage) {
+            throw new NotImplementedException("Bus voltages not implemented yet");
+        }
+
+        // Check variable
+        if (variable instanceof HvdcSetpointIncrease) {
+            HvdcLine hvdc = network.getHvdcLine(variable.getId());
+            if (!terminalConnectedAndInMainCC(hvdc.getConverterStation1().getTerminal())) {
+                return;
+            }
+            if (!terminalConnectedAndInMainCC(hvdc.getConverterStation2().getTerminal())) {
+                return;
+            }
+        }
+
+        if (variable instanceof LinearGlsk) {
+            LinearGlsk glsk = (LinearGlsk) variable;
+            for (String glskId : glsk.getGLSKs().keySet()) {
+                Connectable<?> glskConnectable = (Connectable<?>) network.getIdentifiable(glskId);
+                if (glskConnectable.getTerminals().stream().anyMatch(terminal -> !terminalConnectedAndInMainCC(terminal))) {
+                    return;
+                }
+            }
+        }
+
+        if (variable instanceof PhaseTapChangerAngle) {
+            TwoWindingsTransformer pst = network.getTwoWindingsTransformer(variable.getId());
+            if (pst.getTerminals().stream().anyMatch(terminal -> !terminalConnectedAndInMainCC(terminal))) {
+                return;
+            }
+        }
+
+        if (variable instanceof InjectionIncrease) {
+            throw new NotImplementedException("Injection increases not implemented yet");
+        }
+
+        if (variable instanceof TargetVoltage) {
+            throw new NotImplementedException("Target voltages not implemented yet");
+        }
+
+        LOGGER.warn("NaN returned by sensitivity tool, but variable and function both connected and in main cc.");
+    }
+
+    private boolean terminalConnectedAndInMainCC(Terminal terminal) {
+        return terminal.isConnected() && terminal.getBusBreakerView().getBus().isInMainConnectedComponent();
     }
 
     public boolean isSuccess() {
@@ -185,7 +262,7 @@ public class SystematicSensitivityResult {
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec) {
-        Optional<Contingency> optionalContingency = cnec.getState().getContingency();
+        Optional<com.farao_community.farao.data.crac_api.Contingency> optionalContingency = cnec.getState().getContingency();
         if (optionalContingency.isPresent()) {
             if (cnec.getState().getInstant().equals(Instant.CURATIVE) && postCraResults.containsKey(optionalContingency.get().getId())) {
                 return postCraResults.get(optionalContingency.get().getId());
