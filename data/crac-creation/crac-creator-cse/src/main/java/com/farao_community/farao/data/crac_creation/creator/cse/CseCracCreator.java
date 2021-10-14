@@ -14,6 +14,8 @@ import com.farao_community.farao.data.crac_creation.creator.cse.critical_branch.
 import com.farao_community.farao.data.crac_creation.creator.cse.outage.TOutageAdder;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.cse.remedial_action.TRemedialActionAdder;
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.CRACDocumentType;
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TCRACSeries;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzerProperties;
 import com.google.auto.service.AutoService;

@@ -7,6 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cse;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.CRACDocumentType;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
 import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;
