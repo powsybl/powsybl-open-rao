@@ -13,11 +13,13 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.auto.service.AutoService;
@@ -63,9 +65,29 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
         sortInstants(Arrays.asList(Instant.values()));
 
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+
+        if (raoResult == null) {
+            LOGGER.debug("RAO result is null: applying all network actions from CRAC.");
+            crac.getStates().forEach(state -> {
+                if (state.getInstant().equals(Instant.CURATIVE)) {
+                    appliedRemedialActions.addAppliedNetworkActions(state, getAllAvailableRemedialActionsForState(crac, state));
+                }
+            });
+        } else {
+            LOGGER.debug("RAO result is not null: applying remedial actions selected by the RAO.");
+            crac.getStates().forEach(state -> {
+                if (state.getInstant().equals(Instant.CURATIVE)) {
+                    appliedRemedialActions.addAppliedNetworkActions(state, getAppliedNetworkActionsForState(raoResult, state, crac.getNetworkActions()));
+                    appliedRemedialActions.addAppliedRangeActions(state, getAppliedRangeActionsForState(raoResult, state));
+                }
+            });
+        }
+
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
                 .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
+                .withAppliedRemedialActions(appliedRemedialActions)
                 .build();
 
         // Preventive perimeter
@@ -81,14 +103,6 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         }
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
-
-        // Curative perimeter
-        if (afterCraInstant != null) {
-            statesWithCras = findStatesWithCras(crac, raoResult);
-            crac.getStatesFromInstant(afterCraInstant).forEach(state -> handleCurativeState(state, network, crac, raoResult, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
-        } else {
-            LOGGER.info("No curative computation in flowbased because 2 or less instants are defined in crac.");
-        }
 
         // Restore initial variant at the end of the computation
         network.getVariantManager().setWorkingVariant(initialNetworkId);
@@ -298,6 +312,44 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             }
         });
         raoResult.getOptimizedSetPointsOnState(state).forEach((ra, setpoint) -> ra.apply(network, setpoint));
+    }
+
+    public static Set<NetworkAction> getAllAvailableRemedialActionsForState(Crac crac, State state) {
+        Set<NetworkAction> networkActionsAppl = new HashSet<>();
+
+        crac.getNetworkActions().forEach(na -> {
+            UsageMethod usageMethod = na.getUsageMethod(state);
+            if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                networkActionsAppl.add(na);
+            } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
+                LOGGER.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
+                /*
+                 * This method is only used in FlowbasedComputation.
+                 * We do not assess the availability of such remedial actions: they're not supposed to exist.
+                 * If it is needed in the future, we will have to loop around a sensitivity computation, followed by a
+                 * re-assessment of additional available RAs and applying them, then re-running sensitivity, etc
+                 * until the list of applied remedial actions stops changing
+                 */
+            }
+        });
+
+        return networkActionsAppl;
+    }
+
+    public static Set<NetworkAction> getAppliedNetworkActionsForState(RaoResult raoResult, State state, Set<NetworkAction> networkActions) {
+        Set<NetworkAction> networkActionsAppl = new HashSet<>();
+
+        networkActions.forEach(na -> {
+            if (raoResult.isActivated(state, na)) {
+                networkActionsAppl.add(na);
+            }
+        });
+
+        return networkActionsAppl;
+    }
+
+    public static Map<RangeAction, Double> getAppliedRangeActionsForState(RaoResult raoResult, State state) {
+        return new HashMap<>(raoResult.getOptimizedSetPointsOnState(state));
     }
 
     private double zeroIfNaN(double value) {
