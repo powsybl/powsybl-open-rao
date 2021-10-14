@@ -193,7 +193,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
         LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = LinearOptimizerParameters.create()
                 .withObjectiveFunction(raoParameters.getObjectiveFunction())
                 .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
-                .withHvdcSensitivityThreshold(raoParameters.getHvdcSensitivityThreshold());
+                .withHvdcSensitivityThreshold(raoParameters.getHvdcSensitivityThreshold())
+                .withSolver(raoParameters.getSolver())
+                .withRelativeMipGap(raoParameters.getRelativeMipGap())
+                .withPstOptimizationApproximation(raoParameters.getPstOptimizationApproximation());
+
         if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE
                 || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
             builder.withMaxMinMarginParameters(new MaxMinMarginParameters(raoParameters.getPstPenaltyCost(), raoParameters.getHvdcPenaltyCost()));

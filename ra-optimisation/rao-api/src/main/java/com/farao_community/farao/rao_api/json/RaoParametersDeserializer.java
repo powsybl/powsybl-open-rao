@@ -121,17 +121,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setNegativeMarginObjectiveCoefficient(parser.getDoubleValue());
                     break;
-                case "sensitivity-parameters":
-                    parser.nextToken();
-                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityAnalysisParameters());
-                    break;
-                case "fallback-sensitivity-parameters":
-                    parser.nextToken();
-                    if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
-                        parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
-                    }
-                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
-                    break;
                 case "relative-margin-ptdf-boundaries":
                     if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
                         List<String> boundaries = new ArrayList<>();
@@ -148,6 +137,27 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                 case "perimeters-in-parallel":
                     parser.nextToken();
                     parameters.setPerimetersInParallel(parser.getIntValue());
+                    break;
+                case "optimization-solver":
+                    parameters.setSolver(stringToSolver(parser.nextTextValue()));
+                    break;
+                case "relative-mip-gap":
+                    parser.nextToken();
+                    parameters.setRelativeMipGap(parser.getDoubleValue());
+                    break;
+                case "pst-optimization-approximation":
+                    parameters.setPstOptimizationApproximation(stringToPstApproximation(parser.nextTextValue()));
+                    break;
+                case "sensitivity-parameters":
+                    parser.nextToken();
+                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityAnalysisParameters());
+                    break;
+                case "fallback-sensitivity-parameters":
+                    parser.nextToken();
+                    if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
+                        parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
+                    }
+                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
                     break;
                 case "extensions":
                     parser.nextToken();
@@ -179,6 +189,22 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
             return RaoParameters.LoopFlowApproximationLevel.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new FaraoException(String.format("Unknown loopflow approximation level: %s", string));
+        }
+    }
+
+    private RaoParameters.Solver stringToSolver(String string) {
+        try {
+            return RaoParameters.Solver.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown solver: %s", string));
+        }
+    }
+
+    private RaoParameters.PstOptimizationApproximation stringToPstApproximation(String string) {
+        try {
+            return RaoParameters.PstOptimizationApproximation.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown loopflow: %s", string));
         }
     }
 }

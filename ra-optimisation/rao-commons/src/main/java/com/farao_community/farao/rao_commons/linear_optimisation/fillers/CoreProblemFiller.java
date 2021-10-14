@@ -67,10 +67,6 @@ public class CoreProblemFiller implements ProblemFiller {
             buildRangeActionSetPointVariables(linearProblem, rangeAction, prePerimeterSetpoint);
             buildRangeActionAbsoluteVariationVariables(linearProblem, rangeAction);
             buildRangeActionGroupConstraint(linearProblem, rangeAction);
-
-            if (rangeAction instanceof PstRangeAction) { // todo: add a parameter to define whether or not integer variables are used for PST
-                buildPstTapVariables(linearProblem, (PstRangeAction) rangeAction, prePerimeterSetpoint);
-            }
         });
 
         // add constraints
@@ -82,10 +78,6 @@ public class CoreProblemFiller implements ProblemFiller {
     public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints(linearProblem, flowResult, sensitivityResult);
-
-        //refine PST tap to angle conversion coefficients
-        getRangeActions().forEach(rangeAction -> refineTapToAngleConversionCoefficient(linearProblem, (PstRangeAction) rangeAction, rangeActionResult));
-
     }
 
     /**
@@ -116,95 +108,6 @@ public class CoreProblemFiller implements ProblemFiller {
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterValue);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterValue);
         linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
-    }
-
-    //todo: some javadoc
-    private void buildPstTapVariables(LinearProblem linearProblem, PstRangeAction pstRangeAction, double prePerimeterValue) {
-
-        // todo: put that in a dedicated filler
-
-        int minAdmissibleTap = Math.min(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterValue)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterValue)));
-        int maxAdmissibleTap = Math.max(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterValue)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterValue)));
-        int currentTap = pstRangeAction.getCurrentTapPosition(network);
-        double currentSetpoint = pstRangeAction.getCurrentSetpoint(network);
-        int maxDownVar = Math.max(0, currentTap - minAdmissibleTap);
-        int maxUpVar = Math.max(0, maxAdmissibleTap - currentTap);
-
-        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, maxDownVar, pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
-        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, maxUpVar, pstRangeAction, LinearProblem.VariationExtension.UPWARD);
-
-        MPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
-        MPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
-
-        MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(pstRangeAction);
-
-        if (setPointVariable == null) {
-            throw new FaraoException(format("Range action variable for %s has not been defined yet.", pstRangeAction.getId()));
-        }
-
-        //note : the conversion tap to angle is not strictly linear
-        // in the first MIP, we calibrate the 'constant tap to angle factor' with the extremities of the PST
-        //todo: make some clear doc about what is done here
-        //todo: test other conversion methods (??? maybe not necessary)
-
-        double angleToTapDownwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(currentTap) - pstRangeAction.getTapToAngleConversionMap().get(minAdmissibleTap)) / Math.max(1, maxDownVar);
-        double angleToTapUpwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(maxAdmissibleTap) - pstRangeAction.getTapToAngleConversionMap().get(currentTap)) / Math.max(1, maxUpVar);
-
-        // variation can only be upward or downward
-        MPConstraint upOrDownConstraint = linearProblem.getSolver().makeConstraint("upOrDownConstraint" + pstRangeAction.getId());
-        upOrDownConstraint.setCoefficient(pstTapDownwardVariationBinary, 1);
-        upOrDownConstraint.setCoefficient(pstTapUpwardVariationBinary, 1);
-        upOrDownConstraint.setUb(1);
-
-        // variation authorized only if binary is one
-        MPConstraint downAuthorization = linearProblem.getSolver().makeConstraint("downAuthorization" + pstRangeAction.getId());
-        MPConstraint upAuthorization = linearProblem.getSolver().makeConstraint("upAuthorization" + pstRangeAction.getId());
-
-        downAuthorization.setCoefficient(pstTapDownwardVariationVariable, 1);
-        downAuthorization.setCoefficient(pstTapDownwardVariationBinary, -maxDownVar);
-        downAuthorization.setUb(0);
-
-        upAuthorization.setCoefficient(pstTapUpwardVariationVariable, 1);
-        upAuthorization.setCoefficient(pstTapUpwardVariationBinary, -maxUpVar);
-        upAuthorization.setUb(0);
-
-        // tap to angle conversion constraint
-        MPConstraint tapToAngleConversionConstraint = linearProblem.getSolver().makeConstraint(currentSetpoint, currentSetpoint, "tapToAngleConversionConstraint" + pstRangeAction.getId());
-        tapToAngleConversionConstraint.setCoefficient(setPointVariable, 1);
-        tapToAngleConversionConstraint.setCoefficient(pstTapUpwardVariationVariable, -angleToTapUpwardConversionFactor);
-        tapToAngleConversionConstraint.setCoefficient(pstTapDownwardVariationVariable, angleToTapDownwardConversionFactor);
-    }
-
-    //todo: javadoc
-    private void refineTapToAngleConversionCoefficient(LinearProblem linearProblem, PstRangeAction pstRangeAction, RangeActionResult rangeActionResult) {
-
-        //note : the conversion tap to angle is not strictly linear
-        // in the second MIP and the next, we calibrate the 'constant tap to angle factor' with the a variation of one step
-        //todo: make some clear doc about what is done here
-        //todo: test other conversion methods (??? maybe not necessary)
-
-        MPConstraint tapToAngleConversionConstraint = linearProblem.getSolver().lookupConstraintOrNull("tapToAngleConversionConstraint" + pstRangeAction.getId());
-        MPVariable pstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
-        MPVariable pstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
-        // todo: check none is null
-
-        double newSetpoint = rangeActionResult.getOptimizedSetPoint(pstRangeAction);
-        int newTapPosition = rangeActionResult.getOptimizedTap(pstRangeAction);
-
-        tapToAngleConversionConstraint.setUb(newSetpoint);
-        tapToAngleConversionConstraint.setLb(newSetpoint);
-
-        Map<Integer, Double> tapToAngleConversionMap = pstRangeAction.getTapToAngleConversionMap();
-
-        if (tapToAngleConversionMap.containsKey(newTapPosition + 1)) {
-            double angleToTapUpwardConversionFactor = tapToAngleConversionMap.get(newTapPosition + 1) - tapToAngleConversionMap.get(newTapPosition);
-            tapToAngleConversionConstraint.setCoefficient(pstTapUpwardVariationVariable, -angleToTapUpwardConversionFactor);
-        }
-
-        if (tapToAngleConversionMap.containsKey(newTapPosition - 1)) {
-            double angleToTapDownwardConversionFactor = tapToAngleConversionMap.get(newTapPosition) - tapToAngleConversionMap.get(newTapPosition - 1);
-            tapToAngleConversionConstraint.setCoefficient(pstTapDownwardVariationVariable, angleToTapDownwardConversionFactor);
-        }
     }
 
     /**

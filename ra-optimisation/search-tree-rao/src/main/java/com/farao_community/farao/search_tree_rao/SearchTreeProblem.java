@@ -111,4 +111,12 @@ public class SearchTreeProblem {
                 linearOptimizerParameters.getUnoptimizedCnecParameters()
         );
     }
+
+    protected ProblemFiller createIntegerPstTapFiller(Network network, Set<RangeAction> rangeActions) {
+        return new IntegerPstTapFiller(
+                network,
+                rangeActions,
+                prePerimeterSetPoints
+        );
+    }
 }

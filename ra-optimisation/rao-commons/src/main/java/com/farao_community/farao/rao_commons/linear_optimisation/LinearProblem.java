@@ -7,9 +7,11 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.result_api.LinearProblemStatus;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
@@ -31,6 +33,7 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class LinearProblem {
+    private static final String OPT_PROBLEM_NAME = "range action opt problem";
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearProblem.class);
 
     static {
@@ -65,16 +68,36 @@ public final class LinearProblem {
     private final Set<FlowCnec> cnecs = new HashSet<>();
     private final Set<RangeAction> rangeActions = new HashSet<>();
     private final MPSolver solver;
+    private final double relativeMipGap;
     private LinearProblemStatus status;
 
     public LinearProblem(List<ProblemFiller> fillers, MPSolver mpSolver) {
         solver = mpSolver;
         solver.objective().setMinimization();
         this.fillers = fillers;
+        this.relativeMipGap = RaoParameters.DEFAULT_RELATIVE_MIP_GAP;
     }
 
-    private LinearProblem(List<ProblemFiller> fillers) {
-        this(fillers, new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
+    private LinearProblem(List<ProblemFiller> fillers, RaoParameters.Solver solver, double relativeMipGap) {
+        switch (solver) {
+            case CBC:
+                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
+                break;
+
+            case SCIP:
+                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING);
+                break;
+
+            case XPRESS:
+                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING);
+                break;
+
+            default:
+                throw new FaraoException(format("unknown solver %s in RAO parameters", solver));
+        }
+        this.solver.objective().setMinimization();
+        this.fillers = fillers;
+        this.relativeMipGap = relativeMipGap;
     }
 
     final List<ProblemFiller> getFillers() {
@@ -91,13 +114,6 @@ public final class LinearProblem {
 
     public LinearProblemStatus getStatus() {
         return status;
-    }
-
-    public MPSolver getSolver() {
-        //todo: delete this metod and add wrapper
-
-        // made temporarily to code quicker
-        return solver;
     }
 
     private static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
@@ -173,6 +189,33 @@ public final class LinearProblem {
 
     public MPVariable getPstTapVariationBinary(PstRangeAction rangeAction, VariationExtension variation) {
         return solver.lookupVariableOrNull(pstTapBinaryVariationId(rangeAction, variation));
+    }
+
+    public MPConstraint addTapToAngleConversionConstraint(double lb, double ub, PstRangeAction rangeAction) {
+        rangeActions.add(rangeAction);
+        return solver.makeConstraint(lb, ub, tapToAngleConversionConstraintId(rangeAction));
+    }
+
+    public MPConstraint getTapToAngleConversionConstraint(PstRangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(tapToAngleConversionConstraintId(rangeAction));
+    }
+
+    public MPConstraint addUpOrDownPstVariationConstraint(PstRangeAction rangeAction) {
+        rangeActions.add(rangeAction);
+        return solver.makeConstraint(upOrDownPstVariationConstraintId(rangeAction));
+    }
+
+    public MPConstraint getUpOrDownPstVariationConstraint(PstRangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(upOrDownPstVariationConstraintId(rangeAction));
+    }
+
+    public MPConstraint addIsVariationInDirectionConstraint(PstRangeAction rangeAction, VariationExtension variation) {
+        rangeActions.add(rangeAction);
+        return solver.makeConstraint(isVariationInDirectionConstraintId(rangeAction, variation));
+    }
+
+    public MPConstraint getIsVariationInDirectionConstraint(PstRangeAction rangeAction, VariationExtension variation) {
+        return solver.lookupConstraintOrNull(isVariationInDirectionConstraintId(rangeAction, variation));
     }
 
     public MPVariable addRangeActionGroupSetPointVariable(double lb, double ub, String rangeActionGroupId) {
@@ -294,7 +337,7 @@ public final class LinearProblem {
 
     public LinearProblemStatus solve() {
         MPSolverParameters solveConfiguration = new MPSolverParameters();
-        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, 0.001); //todo: test that it works + pass it through config
+        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
         status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }
@@ -319,6 +362,8 @@ public final class LinearProblem {
         private final List<ProblemFiller> problemFillers = new ArrayList<>();
         private FlowResult flowResult;
         private SensitivityResult sensitivityResult;
+        private RaoParameters.Solver solver = RaoParameters.DEFAULT_SOLVER;
+        private double relativeMipGap = RaoParameters.DEFAULT_RELATIVE_MIP_GAP;
 
         public LinearProblemBuilder withProblemFiller(ProblemFiller problemFiller) {
             problemFillers.add(problemFiller);
@@ -335,8 +380,18 @@ public final class LinearProblem {
             return this;
         }
 
+        public LinearProblemBuilder withSolver(RaoParameters.Solver solver) {
+            this.solver = solver;
+            return this;
+        }
+
+        public LinearProblemBuilder withRelativeMipGap(double relativeMipGap) {
+            this.relativeMipGap = relativeMipGap;
+            return this;
+        }
+
         public LinearProblem build() {
-            LinearProblem linearProblem = new LinearProblem(problemFillers);
+            LinearProblem linearProblem = new LinearProblem(problemFillers, solver, relativeMipGap);
             // TODO: add checks on fillers consistency
             linearProblem.fill(flowResult, sensitivityResult);
             return linearProblem;

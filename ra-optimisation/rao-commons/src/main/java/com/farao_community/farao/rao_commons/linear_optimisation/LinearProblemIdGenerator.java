@@ -21,7 +21,9 @@ public final class LinearProblemIdGenerator {
     private static final String FLOW = "flow";
     private static final String SET_POINT = "setpoint";
     private static final String TAP_VARIATION = "tapvariation";
-    private static final String TAP_VARIATION_BINARY = "tapvariationbinary";
+    private static final String TAP_VARIATION_BINARY = "isvariation";
+    private static final String TAP_TO_ANGLE_CONVERSION = "taptoangleconversion";
+    private static final String UP_OR_DOWN_VARIATION = "upordownvariation";
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
@@ -54,6 +56,18 @@ public final class LinearProblemIdGenerator {
 
     public static String pstTapBinaryVariationId(RangeAction rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
         return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String tapToAngleConversionConstraintId(RangeAction rangeAction) {
+        return rangeAction.getId() + SEPARATOR + TAP_TO_ANGLE_CONVERSION + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String upOrDownPstVariationConstraintId(RangeAction rangeAction) {
+        return rangeAction.getId() + SEPARATOR + UP_OR_DOWN_VARIATION + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String isVariationInDirectionConstraintId(RangeAction rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
+        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String rangeActionGroupSetPointVariableId(String rangeActionGroupId) {

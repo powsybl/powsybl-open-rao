@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
@@ -56,8 +57,16 @@ public class LeafProblem extends SearchTreeProblem {
         if (!Objects.isNull(linearOptimizerParameters.getUnoptimizedCnecParameters())) {
             linearProblemBuilder.withProblemFiller(createUnoptimizedCnecFiller(flowCnecs));
         }
-        linearProblemBuilder.withBranchResult(preOptimFlowResult);
-        linearProblemBuilder.withSensitivityResult(preOptimSensitivityResult);
+
+        if (linearOptimizerParameters.getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
+            linearProblemBuilder.withProblemFiller(createIntegerPstTapFiller(network, rangeActions));
+        }
+
+        linearProblemBuilder.withBranchResult(preOptimFlowResult)
+                .withSensitivityResult(preOptimSensitivityResult)
+                .withSolver(linearOptimizerParameters.getSolver())
+                .withRelativeMipGap(linearOptimizerParameters.getRelativeMipGap());
+
         return linearProblemBuilder.build();
     }
 }
