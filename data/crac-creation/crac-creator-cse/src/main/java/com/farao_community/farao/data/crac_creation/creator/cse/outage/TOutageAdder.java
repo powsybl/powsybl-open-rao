@@ -10,6 +10,10 @@ import com.farao_community.farao.data.crac_api.ContingencyAdder;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cse.*;
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TBranch;
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TCRACSeries;
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TOutage;
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TOutages;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteContingencyElementHelper;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 

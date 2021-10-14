@@ -37,8 +37,15 @@
                             <version>${maven.jvnet.jaxb2-basics.version}</version>
                         </plugin>
                     </plugins>
-                    <generatePackage>com.farao_community.farao.data.crac_creation.creator.cse</generatePackage>
+                    <generatePackage>com.farao_community.farao.data.crac_creation.creator.cse.xsd</generatePackage>
                     <schemaDirectory>src/main/resources/com/farao_community/farao/data/crac_creation/creator/cse/xsd</schemaDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <excludePackageNames>com.farao_community.farao.data.crac_creation.creator.cse.xsd</excludePackageNames>
                 </configuration>
             </plugin>
         </plugins>

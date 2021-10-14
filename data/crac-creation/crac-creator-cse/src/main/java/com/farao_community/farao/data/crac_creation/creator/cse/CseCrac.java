@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.cse;
 
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.CRACDocumentType;
 import com.farao_community.farao.data.native_crac_api.NativeCrac;
 
 /**

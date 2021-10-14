@@ -8,6 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.cse.critical_branch
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.cse.*;
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.*;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 
 import java.util.*;
