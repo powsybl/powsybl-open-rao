@@ -8,7 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.cse.remedial_action
 
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.cse.TRemedialAction;
+import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TRemedialAction;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
