@@ -5,7 +5,7 @@
     <parent>
         <artifactId>farao-rao-result</artifactId>
         <groupId>com.farao-community.farao</groupId>
-        <version>3.4.0-SNAPSHOT</version>
+        <version>3.3.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
