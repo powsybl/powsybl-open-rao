@@ -23,7 +23,6 @@ public class UcteBusHelperTest {
         Network network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
         UcteNetworkAnalyzer ucteNetworkAnalyzerWhiteSpaces = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES));
         UcteNetworkAnalyzer ucteNetworkAnalyzerWildCards = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS));
-        UcteNetworkAnalyzer ucteNetworkAnalyzerReplaceLast = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD));
 
         UcteBusHelper busHelper = new UcteBusHelper("DDE2AA1*", ucteNetworkAnalyzerWhiteSpaces);
         assertTrue(busHelper.isValid());
@@ -33,11 +32,6 @@ public class UcteBusHelperTest {
         busHelper = new UcteBusHelper("DDE2AA1", ucteNetworkAnalyzerWildCards);
         assertTrue(busHelper.isValid());
         assertEquals("DDE2AA11", busHelper.getIdInNetwork());
-        assertNull(busHelper.getInvalidReason());
-
-        busHelper = new UcteBusHelper("DDE3AA18", ucteNetworkAnalyzerReplaceLast);
-        assertTrue(busHelper.isValid());
-        assertEquals("DDE3AA11", busHelper.getIdInNetwork());
         assertNull(busHelper.getInvalidReason());
 
         busHelper = new UcteBusHelper("DDE2AA1", ucteNetworkAnalyzerWhiteSpaces);
