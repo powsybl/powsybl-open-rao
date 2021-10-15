@@ -67,6 +67,7 @@ public final class LinearProblem {
     public LinearProblem(List<ProblemFiller> fillers, MPSolver mpSolver) {
         solver = mpSolver;
         solver.objective().setMinimization();
+        solver.suppressOutput();
         this.fillers = fillers;
     }
 

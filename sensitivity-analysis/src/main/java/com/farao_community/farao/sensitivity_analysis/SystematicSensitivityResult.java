@@ -90,7 +90,9 @@ public class SystematicSensitivityResult {
             contingency.toTask().modify(network, computationManager);
 
             StateResult contingencyStateResult = new StateResult();
-            results.getSensitivityValuesContingencies().get(contingency.getId()).forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult, network));
+            if (results.getSensitivityValuesContingencies().containsKey(contingency.getId())) {
+                results.getSensitivityValuesContingencies().get(contingency.getId()).forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult, network));
+            }
             contingencyResultsToFill.put(contingency.getId(), contingencyStateResult);
 
             network.getVariantManager().removeVariant(contingencyVariantId);
@@ -217,7 +219,7 @@ public class SystematicSensitivityResult {
         if (stateResult == null) {
             return Double.NaN;
         }
-        return stateResult.getReferenceFlows().getOrDefault(cnec.getNetworkElement().getId(), Double.NaN);
+        return stateResult.getReferenceFlows().getOrDefault(cnec.getNetworkElement().getId(), 0.);
     }
 
     public double getReferenceIntensity(Cnec<?> cnec) {
@@ -225,17 +227,17 @@ public class SystematicSensitivityResult {
         if (stateResult == null) {
             return Double.NaN;
         }
-        return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), Double.NaN);
+        return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), 0.);
     }
 
     public double getSensitivityOnFlow(RangeAction rangeAction, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
         if (stateResult == null || !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
-            return Double.NaN;
+            return 0.;
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
-        return networkElements.stream().mapToDouble(netEl -> sensitivities.get(netEl.getId())).sum();
+        return networkElements.stream().mapToDouble(netEl -> sensitivities.getOrDefault(netEl.getId(), 0.)).sum();
     }
 
     public double getSensitivityOnFlow(LinearGlsk glsk, Cnec<?> cnec) {
