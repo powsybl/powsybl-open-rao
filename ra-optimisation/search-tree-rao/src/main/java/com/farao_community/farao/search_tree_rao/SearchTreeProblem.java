@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.rao_api.parameters.*;
@@ -112,11 +113,24 @@ public class SearchTreeProblem {
         );
     }
 
+    protected ProblemFiller createContinuousRangeActionGroupFiller(Set<RangeAction> rangeActions) {
+        return new ContinuousRangeActionGroupFiller(
+                rangeActions
+        );
+    }
+
     protected ProblemFiller createIntegerPstTapFiller(Network network, Set<RangeAction> rangeActions) {
         return new IntegerPstTapFiller(
                 network,
                 rangeActions,
                 prePerimeterSetPoints
+        );
+    }
+
+    protected ProblemFiller createDiscretePstGroupFiller(Network network, Set<PstRangeAction> pstRangeActions) {
+        return new DiscretePstGroupFiller(
+                network,
+                pstRangeActions
         );
     }
 }

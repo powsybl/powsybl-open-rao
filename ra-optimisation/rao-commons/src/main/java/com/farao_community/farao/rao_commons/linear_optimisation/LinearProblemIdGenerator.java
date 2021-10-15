@@ -25,6 +25,7 @@ public final class LinearProblemIdGenerator {
     private static final String TAP_TO_ANGLE_CONVERSION = "taptoangleconversion";
     private static final String UP_OR_DOWN_VARIATION = "upordownvariation";
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
+    private static final String VIRTUAL_TAP = "virtualtap";
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
     private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
@@ -74,8 +75,16 @@ public final class LinearProblemIdGenerator {
         return rangeActionGroupId + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
+    public static String rangeActionGroupTapVariableId(String rangeActionGroupId) {
+        return rangeActionGroupId + SEPARATOR + VIRTUAL_TAP + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
     public static String rangeActionGroupSetPointConstraintId(RangeAction rangeAction) {
         return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String pstRangeActionGroupTapConstraintId(RangeAction rangeAction) {
+        return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_TAP + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String absoluteRangeActionVariationVariableId(RangeAction rangeAction) {

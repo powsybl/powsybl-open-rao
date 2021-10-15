@@ -204,7 +204,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
         try {
             return RaoParameters.PstOptimizationApproximation.valueOf(string);
         } catch (IllegalArgumentException e) {
-            throw new FaraoException(String.format("Unknown loopflow: %s", string));
+            throw new FaraoException(String.format("Unknown pst approximation: %s", string));
         }
     }
 }

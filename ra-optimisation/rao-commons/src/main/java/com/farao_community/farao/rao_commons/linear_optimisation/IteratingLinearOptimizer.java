@@ -59,6 +59,34 @@ public class IteratingLinearOptimizer {
 
             RangeActionResult currentRangeActionResult = roundResult(linearProblem.getResults(), network, bestResult);
 
+            // 2nd mip
+            linearProblem.update(preOptimFlowResult, preOptimSensitivityResult, currentRangeActionResult);
+            solveLinearProblem(linearProblem, iteration);
+            if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
+                LOGGER.error(LINEAR_OPTIMIZATION_FAILED, iteration);
+                if (iteration == 1) {
+                    return new FailedLinearOptimizationResult();
+                }
+                bestResult.setStatus(LinearProblemStatus.FEASIBLE);
+                return bestResult;
+            }
+            currentRangeActionResult = roundResult(linearProblem.getResults(), network, bestResult);
+            // end of 2nd mip
+
+            // 3rd mip
+            linearProblem.update(preOptimFlowResult, preOptimSensitivityResult, currentRangeActionResult);
+            solveLinearProblem(linearProblem, iteration);
+            if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
+                LOGGER.error(LINEAR_OPTIMIZATION_FAILED, iteration);
+                if (iteration == 1) {
+                    return new FailedLinearOptimizationResult();
+                }
+                bestResult.setStatus(LinearProblemStatus.FEASIBLE);
+                return bestResult;
+            }
+            currentRangeActionResult = roundResult(linearProblem.getResults(), network, bestResult);
+            // end of 3rd mip
+
             if (!hasRemedialActionsChanged(currentRangeActionResult, bestResult)) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
                 LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);

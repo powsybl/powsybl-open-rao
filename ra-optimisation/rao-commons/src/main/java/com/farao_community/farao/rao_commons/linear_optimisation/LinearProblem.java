@@ -78,8 +78,8 @@ public final class LinearProblem {
         this.relativeMipGap = RaoParameters.DEFAULT_RELATIVE_MIP_GAP;
     }
 
-    private LinearProblem(List<ProblemFiller> fillers, RaoParameters.Solver solver, double relativeMipGap) {
-        switch (solver) {
+    private LinearProblem(List<ProblemFiller> fillers, RaoParameters.Solver solverName, double relativeMipGap) {
+        switch (solverName) {
             case CBC:
                 this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
                 break;
@@ -93,7 +93,7 @@ public final class LinearProblem {
                 break;
 
             default:
-                throw new FaraoException(format("unknown solver %s in RAO parameters", solver));
+                throw new FaraoException(format("unknown solver %s in RAO parameters", solverName));
         }
         this.solver.objective().setMinimization();
         this.fillers = fillers;
@@ -226,12 +226,28 @@ public final class LinearProblem {
         return solver.lookupVariableOrNull(rangeActionGroupSetPointVariableId(rangeActionGroupId));
     }
 
+    public MPVariable addRangeActionGroupTapVariable(double lb, double ub, String rangeActionGroupId) {
+        return solver.makeNumVar(lb, ub, rangeActionGroupTapVariableId(rangeActionGroupId));
+    }
+
+    public MPVariable getRangeActionGroupTapVariable(String rangeActionGroupId) {
+        return solver.lookupVariableOrNull(rangeActionGroupTapVariableId(rangeActionGroupId));
+    }
+
     public MPConstraint addRangeActionGroupSetPointConstraint(double lb, double ub, RangeAction rangeAction) {
         return solver.makeConstraint(lb, ub, rangeActionGroupSetPointConstraintId(rangeAction));
     }
 
     public MPConstraint getRangeActionGroupSetPointConstraint(RangeAction rangeAction) {
         return solver.lookupConstraintOrNull(rangeActionGroupSetPointConstraintId(rangeAction));
+    }
+
+    public MPConstraint addPstRangeActionGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction) {
+        return solver.makeConstraint(lb, ub, pstRangeActionGroupTapConstraintId(rangeAction));
+    }
+
+    public MPConstraint getPstRangeActionGroupTapConstraint(PstRangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(pstRangeActionGroupTapConstraintId(rangeAction));
     }
 
     public MPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction rangeAction) {
@@ -362,7 +378,7 @@ public final class LinearProblem {
         private final List<ProblemFiller> problemFillers = new ArrayList<>();
         private FlowResult flowResult;
         private SensitivityResult sensitivityResult;
-        private RaoParameters.Solver solver = RaoParameters.DEFAULT_SOLVER;
+        private RaoParameters.Solver solverName = RaoParameters.DEFAULT_SOLVER;
         private double relativeMipGap = RaoParameters.DEFAULT_RELATIVE_MIP_GAP;
 
         public LinearProblemBuilder withProblemFiller(ProblemFiller problemFiller) {
@@ -380,8 +396,8 @@ public final class LinearProblem {
             return this;
         }
 
-        public LinearProblemBuilder withSolver(RaoParameters.Solver solver) {
-            this.solver = solver;
+        public LinearProblemBuilder withSolver(RaoParameters.Solver solverName) {
+            this.solverName = solverName;
             return this;
         }
 
@@ -391,7 +407,7 @@ public final class LinearProblem {
         }
 
         public LinearProblem build() {
-            LinearProblem linearProblem = new LinearProblem(problemFillers, solver, relativeMipGap);
+            LinearProblem linearProblem = new LinearProblem(problemFillers, solverName, relativeMipGap);
             // TODO: add checks on fillers consistency
             linearProblem.fill(flowResult, sensitivityResult);
             return linearProblem;

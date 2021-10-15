@@ -72,8 +72,8 @@ public class IntegerPstTapFiller implements ProblemFiller {
         int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - currentTap);
 
         // create and get variables
-        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, maxDownwardTapVariation, pstRangeAction, DOWNWARD);
-        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, maxUpwardTapVariation, pstRangeAction, UPWARD);
+        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, LinearProblem.infinity(), pstRangeAction, DOWNWARD);
+        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, LinearProblem.infinity(), pstRangeAction, UPWARD);
 
         MPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, DOWNWARD);
         MPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, UPWARD);
@@ -132,8 +132,18 @@ public class IntegerPstTapFiller implements ProblemFiller {
             throw new FaraoException(format("PST Range action tap variables and/or constraints for %s has not been defined yet.", pstRangeAction.getId()));
         }
 
+        // delete and recreate variables
+        // (done to avoid a strange bug, in which integer variables bounded by [0,1] are automatically converted into binaries)
+
         double newAngle = rangeActionResult.getOptimizedSetPoint(pstRangeAction);
         int newTapPosition = rangeActionResult.getOptimizedTap(pstRangeAction);
+
+        double prePerimeterAngle = prePerimeterRangeActionResult.getOptimizedSetPoint(pstRangeAction);
+        int minAdmissibleTap = Math.min(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
+        int maxAdmissibleTap = Math.max(pstRangeAction.convertAngleToTap(pstRangeAction.getMinAdmissibleSetpoint(prePerimeterAngle)), pstRangeAction.convertAngleToTap(pstRangeAction.getMaxAdmissibleSetpoint(prePerimeterAngle)));
+
+        int maxDownwardTapVariation  = Math.max(0, newTapPosition - minAdmissibleTap);
+        int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - newTapPosition);
 
         // update second member of the constraint with the new current angle
         tapToAngleConversionConstraint.setUb(newAngle);
@@ -151,5 +161,13 @@ public class IntegerPstTapFiller implements ProblemFiller {
             double angleToTapDownwardConversionFactor = tapToAngleConversionMap.get(newTapPosition) - tapToAngleConversionMap.get(newTapPosition - 1);
             tapToAngleConversionConstraint.setCoefficient(pstTapDownwardVariationVariable, angleToTapDownwardConversionFactor);
         }
+
+        // update the coefficient on the min/max tap variations of the isVariationInDirectionConstraints
+        MPConstraint downAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, DOWNWARD);
+        MPConstraint upAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, UPWARD);
+        MPVariable pstTapDownwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, DOWNWARD);
+        MPVariable pstTapUpwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, UPWARD);
+        downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationBinary, -maxDownwardTapVariation);
+        upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
     }
 }
