@@ -120,7 +120,7 @@ public class SearchTreeProblem {
     }
 
     protected ProblemFiller createIntegerPstTapFiller(Network network, Set<RangeAction> rangeActions) {
-        return new IntegerPstTapFiller(
+        return new DiscretePstTapFiller(
                 network,
                 rangeActions,
                 prePerimeterSetPoints

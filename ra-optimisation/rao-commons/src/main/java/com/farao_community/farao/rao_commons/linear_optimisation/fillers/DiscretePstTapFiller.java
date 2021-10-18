@@ -28,14 +28,14 @@ import static java.lang.String.format;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class IntegerPstTapFiller implements ProblemFiller {
+public class DiscretePstTapFiller implements ProblemFiller {
     private final Network network;
     private final Set<RangeAction> rangeActions;
     private final RangeActionResult prePerimeterRangeActionResult;
 
-    public IntegerPstTapFiller(Network network,
-                               Set<RangeAction> rangeActions,
-                               RangeActionResult prePerimeterRangeActionResult) {
+    public DiscretePstTapFiller(Network network,
+                                Set<RangeAction> rangeActions,
+                                RangeActionResult prePerimeterRangeActionResult) {
         this.network = network;
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
@@ -72,8 +72,10 @@ public class IntegerPstTapFiller implements ProblemFiller {
         int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - currentTap);
 
         // create and get variables
-        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, LinearProblem.infinity(), pstRangeAction, DOWNWARD);
-        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, LinearProblem.infinity(), pstRangeAction, UPWARD);
+        // bounds should be at least equals to 2, otherwise integer variables are somehow automatically converted
+        // to binary by or-tools, which can cause errors in the update() methods
+        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, DOWNWARD);
+        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, UPWARD);
 
         MPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, DOWNWARD);
         MPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, UPWARD);
@@ -169,5 +171,6 @@ public class IntegerPstTapFiller implements ProblemFiller {
         MPVariable pstTapUpwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, UPWARD);
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationBinary, -maxDownwardTapVariation);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
+
     }
 }

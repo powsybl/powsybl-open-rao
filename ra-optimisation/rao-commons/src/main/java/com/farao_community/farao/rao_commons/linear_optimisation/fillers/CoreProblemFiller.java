@@ -66,7 +66,7 @@ public class CoreProblemFiller implements ProblemFiller {
             double prePerimeterSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
             buildRangeActionSetPointVariables(linearProblem, rangeAction, prePerimeterSetpoint);
             buildRangeActionAbsoluteVariationVariables(linearProblem, rangeAction);
-            buildRangeActionGroupConstraint(linearProblem, rangeAction);
+            //buildRangeActionGroupConstraint(linearProblem, rangeAction);
         });
 
         // add constraints

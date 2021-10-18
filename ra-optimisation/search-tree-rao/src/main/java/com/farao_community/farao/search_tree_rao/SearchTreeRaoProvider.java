@@ -507,7 +507,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 toolProvider
         );
         searchTreeInput.setObjectiveFunction(objectiveFunction);
-        searchTreeInput.setIteratingLinearOptimizer(new IteratingLinearOptimizer(objectiveFunction, raoParameters.getMaxIterations()));
+        searchTreeInput.setIteratingLinearOptimizer(new IteratingLinearOptimizer(objectiveFunction, raoParameters.getMaxIterations(), raoParameters.getPstOptimizationApproximation()));
 
         searchTreeInput.setSearchTreeProblem(new SearchTreeProblem(
                 initialOutput,
