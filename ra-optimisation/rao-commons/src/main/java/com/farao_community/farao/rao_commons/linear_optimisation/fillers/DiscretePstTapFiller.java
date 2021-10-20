@@ -69,8 +69,8 @@ public class DiscretePstTapFiller implements ProblemFiller {
         int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - currentTap);
 
         // create and get variables
-        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, DOWNWARD);
-        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, UPWARD);
+        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, DOWNWARD);
+        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, UPWARD);
 
         MPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, DOWNWARD);
         MPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, UPWARD);
@@ -92,13 +92,17 @@ public class DiscretePstTapFiller implements ProblemFiller {
         //
         // in the first MIP, we calibrate the 'constant tap to angle factor' with the extremities of the PST
         // when updating the MIP, the factors will be calibrated on a change of one tap (see update() method)
-        double angleToTapDownwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(currentTap) - pstRangeAction.getTapToAngleConversionMap().get(minAdmissibleTap)) / Math.max(1, maxDownwardTapVariation);
-        double angleToTapUpwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(maxAdmissibleTap) - pstRangeAction.getTapToAngleConversionMap().get(currentTap)) / Math.max(1, maxUpwardTapVariation);
-
         MPConstraint tapToAngleConversionConstraint = linearProblem.addTapToAngleConversionConstraint(currentAngle, currentAngle, pstRangeAction);
         tapToAngleConversionConstraint.setCoefficient(setPointVariable, 1);
-        tapToAngleConversionConstraint.setCoefficient(pstTapUpwardVariationVariable, -angleToTapUpwardConversionFactor);
-        tapToAngleConversionConstraint.setCoefficient(pstTapDownwardVariationVariable, angleToTapDownwardConversionFactor);
+
+        if (maxDownwardTapVariation > 0) {
+            double angleToTapDownwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(currentTap) - pstRangeAction.getTapToAngleConversionMap().get(minAdmissibleTap)) / maxDownwardTapVariation;
+            tapToAngleConversionConstraint.setCoefficient(pstTapDownwardVariationVariable, angleToTapDownwardConversionFactor);
+        }
+        if (maxUpwardTapVariation > 0) {
+            double angleToTapUpwardConversionFactor = (pstRangeAction.getTapToAngleConversionMap().get(maxAdmissibleTap) - pstRangeAction.getTapToAngleConversionMap().get(currentTap)) / maxUpwardTapVariation;
+            tapToAngleConversionConstraint.setCoefficient(pstTapUpwardVariationVariable, -angleToTapUpwardConversionFactor);
+        }
 
         // variation can only be upward or downward
         MPConstraint upOrDownConstraint = linearProblem.addUpOrDownPstVariationConstraint(pstRangeAction);
@@ -151,7 +155,6 @@ public class DiscretePstTapFiller implements ProblemFiller {
         // update second member of the tap-to-angle conversion constraint with the new current angle
         tapToAngleConversionConstraint.setUb(newAngle);
         tapToAngleConversionConstraint.setLb(newAngle);
-
 
         // update coefficients of the constraint with newly calculated ones, except if the tap is already at the limit of the PST range
         // when updating the MIP, the factors are calibrated on a change of one tap
