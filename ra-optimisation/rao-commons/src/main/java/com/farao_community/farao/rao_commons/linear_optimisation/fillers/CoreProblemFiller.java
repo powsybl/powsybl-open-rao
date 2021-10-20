@@ -66,7 +66,6 @@ public class CoreProblemFiller implements ProblemFiller {
             double prePerimeterSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
             buildRangeActionSetPointVariables(linearProblem, rangeAction, prePerimeterSetpoint);
             buildRangeActionAbsoluteVariationVariables(linearProblem, rangeAction);
-            //buildRangeActionGroupConstraint(linearProblem, rangeAction);
         });
 
         // add constraints
@@ -255,23 +254,5 @@ public class CoreProblemFiller implements ProblemFiller {
             varConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
             varConstraintPositive.setCoefficient(setPointVariable, 1);
         });
-    }
-
-    private void buildRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction rangeAction) {
-        Optional<String> optGroupId = rangeAction.getGroupId();
-        if (optGroupId.isPresent()) {
-            String groupId = optGroupId.get();
-            // For the first time the group ID is encountered a common variable for set point has to be created
-            if (linearProblem.getRangeActionGroupSetpointVariable(groupId) == null) {
-                linearProblem.addRangeActionGroupSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId);
-            }
-            addRangeActionGroupConstraint(linearProblem, rangeAction, groupId);
-        }
-    }
-
-    private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction rangeAction, String groupId) {
-        MPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(rangeAction), 1);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId), -1);
     }
 }
