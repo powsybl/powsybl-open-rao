@@ -47,7 +47,7 @@ public final class LinearProblemIdGenerator {
         return flowCnec.getId() + SEPARATOR + FLOW + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String rangeActionSetPointVariableId(RangeAction rangeAction) {
+    public static String rangeActionSetpointVariableId(RangeAction rangeAction) {
         return rangeAction.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
@@ -71,19 +71,19 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String rangeActionGroupSetPointVariableId(String rangeActionGroupId) {
+    public static String rangeActionGroupSetpointVariableId(String rangeActionGroupId) {
         return rangeActionGroupId + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String rangeActionGroupTapVariableId(String rangeActionGroupId) {
+    public static String pstGroupTapVariableId(String rangeActionGroupId) {
         return rangeActionGroupId + SEPARATOR + VIRTUAL_TAP + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String rangeActionGroupSetPointConstraintId(RangeAction rangeAction) {
+    public static String rangeActionGroupSetpointConstraintId(RangeAction rangeAction) {
         return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String pstRangeActionGroupTapConstraintId(RangeAction rangeAction) {
+    public static String pstGroupTapConstraintId(RangeAction rangeAction) {
         return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_TAP + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 

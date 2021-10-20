@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -17,16 +23,21 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 @RunWith(PowerMockRunner.class)
 public class DiscretePstTapFillerTest extends AbstractFillerTest {
 
     @Test
-    public void testFiller() {
+    public void testFillAndUpdateMethods() {
+
+        // prepare data
         init();
         PstRangeAction pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
         Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, initialAlpha));
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(this.pstRangeAction, initialAlpha));
 
         CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
                 network,
@@ -44,11 +55,12 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         LinearProblem linearProblem = new LinearProblem(List.of(coreProblemFiller, discretePstTapFiller), mpSolver);
 
+        // fill linear problem
         coreProblemFiller.fill(linearProblem, flowResult, sensitivityResult);
         discretePstTapFiller.fill(linearProblem, flowResult, sensitivityResult);
 
         // check that all constraints and variables exists
-        MPVariable setpointV = linearProblem.getRangeActionSetPointVariable(pstRangeAction);
+        MPVariable setpointV = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
         MPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
         MPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
         MPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
@@ -95,5 +107,26 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
         assertEquals(0, downVariationC.ub(), 1e-6);
         assertEquals(1, downVariationC.getCoefficient(variationDownV), 1e-6);
         assertEquals(-15, downVariationC.getCoefficient(binaryDownV), 1e-6);
+
+        // update linear problem, with a new PST tap equal to -4
+        double alphaBeforeUpdate = tapToAngle.get(-4);
+        RangeActionResult rangeActionResultBeforeUpdate = new RangeActionResultImpl(Map.of(this.pstRangeAction, alphaBeforeUpdate));
+        discretePstTapFiller.update(linearProblem, flowResult, sensitivityResult, rangeActionResultBeforeUpdate);
+
+        // check tap to angle conversion constraints
+        assertEquals(alphaBeforeUpdate, tapToAngleConversionC.lb(), 1e-6);
+        assertEquals(alphaBeforeUpdate, tapToAngleConversionC.ub(), 1e-6);
+        assertEquals(1, tapToAngleConversionC.getCoefficient(setpointV), 1e-6);
+        assertEquals(-(tapToAngle.get(-3) - tapToAngle.get(-4)), tapToAngleConversionC.getCoefficient(variationUpV), 1e-6);
+        assertEquals(-(tapToAngle.get(-5) - tapToAngle.get(-4)), tapToAngleConversionC.getCoefficient(variationDownV), 1e-6);
+
+        // check other constraints
+        assertEquals(0, upVariationC.ub(), 1e-6);
+        assertEquals(1, upVariationC.getCoefficient(variationUpV), 1e-6);
+        assertEquals(-19, upVariationC.getCoefficient(binaryUpV), 1e-6);
+
+        assertEquals(0, downVariationC.ub(), 1e-6);
+        assertEquals(1, downVariationC.getCoefficient(variationDownV), 1e-6);
+        assertEquals(-11, downVariationC.getCoefficient(binaryDownV), 1e-6);
     }
 }

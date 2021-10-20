@@ -164,13 +164,13 @@ public final class LinearProblem {
         return solver.lookupConstraintOrNull(flowConstraintId(cnec));
     }
 
-    public MPVariable addRangeActionSetPointVariable(double lb, double ub, RangeAction rangeAction) {
+    public MPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction rangeAction) {
         rangeActions.add(rangeAction);
-        return solver.makeNumVar(lb, ub, rangeActionSetPointVariableId(rangeAction));
+        return solver.makeNumVar(lb, ub, rangeActionSetpointVariableId(rangeAction));
     }
 
-    public MPVariable getRangeActionSetPointVariable(RangeAction rangeAction) {
-        return solver.lookupVariableOrNull(rangeActionSetPointVariableId(rangeAction));
+    public MPVariable getRangeActionSetpointVariable(RangeAction rangeAction) {
+        return solver.lookupVariableOrNull(rangeActionSetpointVariableId(rangeAction));
     }
 
     public MPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, VariationExtension variation) {
@@ -218,36 +218,36 @@ public final class LinearProblem {
         return solver.lookupConstraintOrNull(isVariationInDirectionConstraintId(rangeAction, variation));
     }
 
-    public MPVariable addRangeActionGroupSetPointVariable(double lb, double ub, String rangeActionGroupId) {
-        return solver.makeNumVar(lb, ub, rangeActionGroupSetPointVariableId(rangeActionGroupId));
+    public MPVariable addRangeActionGroupSetpointVariable(double lb, double ub, String rangeActionGroupId) {
+        return solver.makeNumVar(lb, ub, rangeActionGroupSetpointVariableId(rangeActionGroupId));
     }
 
-    public MPVariable getRangeActionGroupSetPointVariable(String rangeActionGroupId) {
-        return solver.lookupVariableOrNull(rangeActionGroupSetPointVariableId(rangeActionGroupId));
+    public MPVariable getRangeActionGroupSetpointVariable(String rangeActionGroupId) {
+        return solver.lookupVariableOrNull(rangeActionGroupSetpointVariableId(rangeActionGroupId));
     }
 
-    public MPVariable addRangeActionGroupTapVariable(double lb, double ub, String rangeActionGroupId) {
-        return solver.makeNumVar(lb, ub, rangeActionGroupTapVariableId(rangeActionGroupId));
+    public MPVariable addPstGroupTapVariable(double lb, double ub, String rangeActionGroupId) {
+        return solver.makeNumVar(lb, ub, pstGroupTapVariableId(rangeActionGroupId));
     }
 
-    public MPVariable getRangeActionGroupTapVariable(String rangeActionGroupId) {
-        return solver.lookupVariableOrNull(rangeActionGroupTapVariableId(rangeActionGroupId));
+    public MPVariable getPstGroupTapVariable(String rangeActionGroupId) {
+        return solver.lookupVariableOrNull(pstGroupTapVariableId(rangeActionGroupId));
     }
 
-    public MPConstraint addRangeActionGroupSetPointConstraint(double lb, double ub, RangeAction rangeAction) {
-        return solver.makeConstraint(lb, ub, rangeActionGroupSetPointConstraintId(rangeAction));
+    public MPConstraint addRangeActionGroupSetpointConstraint(double lb, double ub, RangeAction rangeAction) {
+        return solver.makeConstraint(lb, ub, rangeActionGroupSetpointConstraintId(rangeAction));
     }
 
-    public MPConstraint getRangeActionGroupSetPointConstraint(RangeAction rangeAction) {
-        return solver.lookupConstraintOrNull(rangeActionGroupSetPointConstraintId(rangeAction));
+    public MPConstraint getRangeActionGroupSetpointConstraint(RangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(rangeActionGroupSetpointConstraintId(rangeAction));
     }
 
-    public MPConstraint addPstRangeActionGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction) {
-        return solver.makeConstraint(lb, ub, pstRangeActionGroupTapConstraintId(rangeAction));
+    public MPConstraint addPstGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction) {
+        return solver.makeConstraint(lb, ub, pstGroupTapConstraintId(rangeAction));
     }
 
-    public MPConstraint getPstRangeActionGroupTapConstraint(PstRangeAction rangeAction) {
-        return solver.lookupConstraintOrNull(pstRangeActionGroupTapConstraintId(rangeAction));
+    public MPConstraint getPstGroupTapConstraint(PstRangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(pstGroupTapConstraintId(rangeAction));
     }
 
     public MPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction rangeAction) {

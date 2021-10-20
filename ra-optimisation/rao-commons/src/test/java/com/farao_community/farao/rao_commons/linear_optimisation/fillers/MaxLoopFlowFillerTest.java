@@ -46,11 +46,11 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     public void setUp() {
         init();
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, initialAlpha));
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
         coreProblemFiller = new CoreProblemFiller(
                 network,
                 Set.of(cnec1),
-                Set.of(rangeAction),
+                Set.of(pstRangeAction),
                 initialRangeActionResult,
                 0.,
                 0.,

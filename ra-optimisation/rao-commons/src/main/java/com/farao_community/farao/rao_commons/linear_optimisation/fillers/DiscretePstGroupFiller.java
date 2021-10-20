@@ -36,8 +36,8 @@ public class DiscretePstGroupFiller implements ProblemFiller {
         if (optGroupId.isPresent()) {
             String groupId = optGroupId.get();
             // For the first time the group ID is encountered a common variable for the tap has to be created
-            if (linearProblem.getRangeActionGroupTapVariable(groupId) == null) {
-                linearProblem.addRangeActionGroupTapVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId);
+            if (linearProblem.getPstGroupTapVariable(groupId) == null) {
+                linearProblem.addPstGroupTapVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId);
             }
             addRangeActionGroupConstraint(linearProblem, pstRangeAction, groupId);
         }
@@ -45,17 +45,17 @@ public class DiscretePstGroupFiller implements ProblemFiller {
 
     private void addRangeActionGroupConstraint(LinearProblem linearProblem, PstRangeAction pstRangeAction, String groupId) {
         double currentTap = pstRangeAction.getCurrentTapPosition(network);
-        MPConstraint groupSetPointConstraint = linearProblem.addPstRangeActionGroupTapConstraint(currentTap, currentTap, pstRangeAction);
+        MPConstraint groupSetPointConstraint = linearProblem.addPstGroupTapConstraint(currentTap, currentTap, pstRangeAction);
         groupSetPointConstraint.setCoefficient(linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.UPWARD), -1);
         groupSetPointConstraint.setCoefficient(linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD), 1);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupTapVariable(groupId), 1);
+        groupSetPointConstraint.setCoefficient(linearProblem.getPstGroupTapVariable(groupId), 1);
     }
 
     private void updateRangeActionGroupConstraint(LinearProblem linearProblem, PstRangeAction pstRangeAction, RangeActionResult rangeActionResult) {
         Optional<String> optGroupId = pstRangeAction.getGroupId();
         if (optGroupId.isPresent()) {
             double newTap = rangeActionResult.getOptimizedTap(pstRangeAction);
-            MPConstraint groupSetPointConstraint = linearProblem.getPstRangeActionGroupTapConstraint(pstRangeAction);
+            MPConstraint groupSetPointConstraint = linearProblem.getPstGroupTapConstraint(pstRangeAction);
             groupSetPointConstraint.setLb(newTap);
             groupSetPointConstraint.setUb(newTap);
         }

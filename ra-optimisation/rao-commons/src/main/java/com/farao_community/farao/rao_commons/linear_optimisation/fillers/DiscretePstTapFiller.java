@@ -80,7 +80,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
         MPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, DOWNWARD);
         MPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, UPWARD);
 
-        MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(pstRangeAction);
+        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
 
         if (setPointVariable == null) {
             throw new FaraoException(format("PST Range action variable for %s has not been defined yet.", pstRangeAction.getId()));
