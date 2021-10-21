@@ -24,15 +24,19 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSimpleSensitivityProvider.class);
 
     protected Set<FlowCnec> cnecs;
-    protected boolean factorsInMegawatt;
-    protected boolean factorsInAmpere;
+    protected boolean factorsInMegawatt = false;
+    protected boolean factorsInAmpere = false;
     protected boolean afterContingencyOnly = false;
 
     AbstractSimpleSensitivityProvider(Set<FlowCnec> cnecs, Set<Unit> requestedUnits) {
         this.cnecs = cnecs;
+        this.setRequestedUnits(requestedUnits);
+    }
+
+    @Override
+    public void setRequestedUnits(Set<Unit> requestedUnits) {
         factorsInMegawatt = false;
         factorsInAmpere = false;
-
         for (Unit unit : requestedUnits) {
             switch (unit) {
                 case MEGAWATT:
@@ -49,6 +53,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
         if (!factorsInAmpere && !factorsInMegawatt) {
             LOGGER.error("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
         }
+
     }
 
     public Set<FlowCnec> getFlowCnecs() {

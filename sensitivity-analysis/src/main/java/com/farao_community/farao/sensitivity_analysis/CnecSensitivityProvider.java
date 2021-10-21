@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.sensitivity.SensitivityFactorsProvider;
@@ -18,6 +19,8 @@ import java.util.Set;
 public interface CnecSensitivityProvider extends SensitivityFactorsProvider, ContingenciesProvider {
 
     Set<FlowCnec> getFlowCnecs();
+
+    void setRequestedUnits(Set<Unit> requestedUnits);
 
     void disableFactorsForBaseCaseSituation();
 }
