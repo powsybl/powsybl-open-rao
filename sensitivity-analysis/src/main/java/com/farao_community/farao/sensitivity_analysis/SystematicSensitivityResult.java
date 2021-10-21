@@ -128,8 +128,8 @@ public class SystematicSensitivityResult {
 
         // TODO: remove this fix when reference function patched in case NaN and no divergence
         if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
-            if (isfFunctionOrVariableIsDisconnected(value, network)) {
-                LOGGER.warn("NaN returned by sensitivity tool, but variable and function both connected and in main cc.");
+            if (!isfFunctionOrVariableDisconnected(value, network)) {
+                LOGGER.warn("NaN returned by sensitivity tool, while function {} and variable {} are both connected and in main cc.", value.getFactor().getFunction().getId(), value.getFactor().getVariable().getId());
             }
             sensitivity = 0.;
             reference = 0.;
@@ -146,7 +146,7 @@ public class SystematicSensitivityResult {
         }
     }
 
-    static boolean isfFunctionOrVariableIsDisconnected(SensitivityValue value, Network network) {
+    static boolean isfFunctionOrVariableDisconnected(SensitivityValue value, Network network) {
         SensitivityFunction function = value.getFactor().getFunction();
         SensitivityVariable variable = value.getFactor().getVariable();
 

@@ -151,17 +151,17 @@ public class SystematicSensitivityResultTest {
         );
 
         // branch and PST connected
-        assertFalse(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
+        assertFalse(SystematicSensitivityResult.isfFunctionOrVariableDisconnected(pstOnBranchFlow, network));
 
         // branch disconnected
         network.getBranch("FFR2AA1  FFR3AA1  1").getTerminal1().disconnect();
-        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
+        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableDisconnected(pstOnBranchFlow, network));
 
         // pst out of main component
         network = NetworkImportsUtil.import12NodesNetwork();
         network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().disconnect();
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal2().disconnect();
-        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
+        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableDisconnected(pstOnBranchFlow, network));
     }
 
     @Test
@@ -175,17 +175,17 @@ public class SystematicSensitivityResultTest {
         );
 
         // branch and GLSK connected
-        assertFalse(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
+        assertFalse(SystematicSensitivityResult.isfFunctionOrVariableDisconnected(pstOnBranchFlow, network));
 
         // branch disconnected
         network.getBranch("DDE2AA1  DDE3AA1  1").getTerminal1().disconnect();
-        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
+        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableDisconnected(pstOnBranchFlow, network));
 
         // GLSK out of main component
         network = NetworkImportsUtil.import12NodesNetwork();
         network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal2().disconnect();
         network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().disconnect();
-        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
+        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableDisconnected(pstOnBranchFlow, network));
     }
 
     @Test
@@ -206,14 +206,14 @@ public class SystematicSensitivityResultTest {
         );
 
         try {
-            SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(sensiOnBusVoltage, network);
+            SystematicSensitivityResult.isfFunctionOrVariableDisconnected(sensiOnBusVoltage, network);
             fail();
         } catch (NotImplementedException e) {
             // should throw
         }
 
         try {
-            SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(sensiOfInjectionIncrease, network);
+            SystematicSensitivityResult.isfFunctionOrVariableDisconnected(sensiOfInjectionIncrease, network);
             fail();
         } catch (NotImplementedException e) {
             // should throw
