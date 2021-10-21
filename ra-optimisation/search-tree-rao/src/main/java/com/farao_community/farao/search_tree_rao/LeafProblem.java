@@ -62,7 +62,7 @@ public class LeafProblem extends SearchTreeProblem {
 
         if (linearOptimizerParameters.getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
             linearProblemBuilder.withProblemFiller(createIntegerPstTapFiller(network, rangeActions));
-            linearProblemBuilder.withProblemFiller(createDiscretePstGroupFiller(network, rangeActions.stream().filter(ra -> ra instanceof PstRangeAction).map(ra -> (PstRangeAction) ra).collect(Collectors.toSet())));
+            linearProblemBuilder.withProblemFiller(createDiscretePstGroupFiller(network, rangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toSet())));
             linearProblemBuilder.withProblemFiller(createContinuousRangeActionGroupFiller(rangeActions.stream().filter(ra -> !(ra instanceof PstRangeAction)).collect(Collectors.toSet())));
         } else {
             linearProblemBuilder.withProblemFiller(createContinuousRangeActionGroupFiller(rangeActions));
