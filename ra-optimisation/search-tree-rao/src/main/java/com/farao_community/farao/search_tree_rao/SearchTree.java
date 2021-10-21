@@ -205,7 +205,8 @@ public class SearchTree {
             .forEach(ra -> ra.apply(network, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
         int leavesInParallel = Math.min(naCombinations.size(), treeParameters.getLeavesInParallel());
         LOGGER.debug("Evaluating {} leaves in parallel", leavesInParallel);
-        try (FaraoNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
+        FaraoNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel);
+        try {
             naCombinations.forEach(naCombination ->
                 networkPool.submit(() -> {
                     try {
@@ -223,6 +224,8 @@ public class SearchTree {
         } catch (InterruptedException e) {
             LOGGER.error("A computation thread was interrupted");
             Thread.currentThread().interrupt();
+        } finally {
+            networkPool.deleteAllNetworks();
         }
     }
 

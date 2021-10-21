@@ -84,6 +84,12 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
         networksQueue.put(networkToRelease);
     }
 
+    public void deleteAllNetworks() {
+        while (!networksQueue.isEmpty()) {
+            networksQueue.poll();
+        }
+    }
+
     @Override
     public void close() {
         shutdownNow();
