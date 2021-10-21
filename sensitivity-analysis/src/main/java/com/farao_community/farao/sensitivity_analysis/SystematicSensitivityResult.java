@@ -128,7 +128,9 @@ public class SystematicSensitivityResult {
 
         // TODO: remove this fix when reference function patched in case NaN and no divergence
         if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
-            checkIfFunctionOrVariableIsDisconnected(value, network);
+            if (isfFunctionOrVariableIsDisconnected(value, network)) {
+                LOGGER.warn("NaN returned by sensitivity tool, but variable and function both connected and in main cc.");
+            }
             sensitivity = 0.;
             reference = 0.;
         }
@@ -144,7 +146,7 @@ public class SystematicSensitivityResult {
         }
     }
 
-    private void checkIfFunctionOrVariableIsDisconnected(SensitivityValue value, Network network) {
+    static boolean isfFunctionOrVariableIsDisconnected(SensitivityValue value, Network network) {
         SensitivityFunction function = value.getFactor().getFunction();
         SensitivityVariable variable = value.getFactor().getVariable();
 
@@ -152,7 +154,7 @@ public class SystematicSensitivityResult {
         if (function instanceof BranchFlow || function instanceof BranchIntensity) {
             Branch<?> branch = network.getBranch(function.getId());
             if (branch.getTerminals().stream().anyMatch(terminal -> !terminalConnectedAndInMainCC(terminal))) {
-                return;
+                return true;
             }
         }
         if (function instanceof BusVoltage) {
@@ -163,10 +165,10 @@ public class SystematicSensitivityResult {
         if (variable instanceof HvdcSetpointIncrease) {
             HvdcLine hvdc = network.getHvdcLine(variable.getId());
             if (!terminalConnectedAndInMainCC(hvdc.getConverterStation1().getTerminal())) {
-                return;
+                return true;
             }
             if (!terminalConnectedAndInMainCC(hvdc.getConverterStation2().getTerminal())) {
-                return;
+                return true;
             }
         }
 
@@ -175,7 +177,7 @@ public class SystematicSensitivityResult {
             for (String glskId : glsk.getGLSKs().keySet()) {
                 Connectable<?> glskConnectable = (Connectable<?>) network.getIdentifiable(glskId);
                 if (glskConnectable.getTerminals().stream().anyMatch(terminal -> !terminalConnectedAndInMainCC(terminal))) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -183,7 +185,7 @@ public class SystematicSensitivityResult {
         if (variable instanceof PhaseTapChangerAngle) {
             TwoWindingsTransformer pst = network.getTwoWindingsTransformer(variable.getId());
             if (pst.getTerminals().stream().anyMatch(terminal -> !terminalConnectedAndInMainCC(terminal))) {
-                return;
+                return true;
             }
         }
 
@@ -194,11 +196,10 @@ public class SystematicSensitivityResult {
         if (variable instanceof TargetVoltage) {
             throw new NotImplementedException("Target voltages not implemented yet");
         }
-
-        LOGGER.warn("NaN returned by sensitivity tool, but variable and function both connected and in main cc.");
+        return false;
     }
 
-    private boolean terminalConnectedAndInMainCC(Terminal terminal) {
+    private static boolean terminalConnectedAndInMainCC(Terminal terminal) {
         return terminal.isConnected() && terminal.getBusBreakerView().getBus().isInMainConnectedComponent();
     }
 
