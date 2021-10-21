@@ -338,7 +338,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
         network.getVariantManager().cloneVariant(PREVENTIVE_SCENARIO, CONTINGENCY_SCENARIO);
         network.getVariantManager().setWorkingVariant(CONTINGENCY_SCENARIO);
         // Go through all contingency scenarios
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel())) {
+        FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel());
+        try {
             stateTree.getContingencyScenarios().forEach(optimizedScenario ->
                     networkPool.submit(() -> {
                         try {
@@ -375,6 +376,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
             networkPool.awaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } finally {
+            networkPool.deleteAllNetworks();
         }
         return contingencyScenarioResults;
     }
