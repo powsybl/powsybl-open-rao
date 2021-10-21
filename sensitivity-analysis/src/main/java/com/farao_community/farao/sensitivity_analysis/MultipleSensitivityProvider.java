@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
@@ -25,6 +26,13 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
 
     void addProvider(CnecSensitivityProvider cnecSensitivityProvider) {
         cnecSensitivityProviders.add(cnecSensitivityProvider);
+    }
+
+    @Override
+    public void setRequestedUnits(Set<Unit> requestedUnits) {
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            cnecSensitivityProvider.setRequestedUnits(requestedUnits);
+        }
     }
 
     public Set<FlowCnec> getFlowCnecs() {
