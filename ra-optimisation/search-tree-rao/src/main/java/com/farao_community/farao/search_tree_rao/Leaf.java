@@ -41,7 +41,8 @@ class Leaf implements OptimizationResult {
         CREATED("Created"),
         ERROR("Error"),
         EVALUATED("Evaluated"),
-        OPTIMIZED("Optimized");
+        OPTIMIZED("Optimized"),
+        FINALIZED("Finalized");
 
         private String message;
 
@@ -60,7 +61,7 @@ class Leaf implements OptimizationResult {
      * this leaf), can be empty for root leaf
      */
     private final Set<NetworkAction> networkActions;
-    private final Network network;
+    private Network network;
     private final RangeActionResult preOptimRangeActionResult;
 
     /**
@@ -144,7 +145,9 @@ class Leaf implements OptimizationResult {
     void optimize(IteratingLinearOptimizer iteratingLinearOptimizer,
                   SensitivityComputer sensitivityComputer,
                   LeafProblem leafProblem) {
-        if (status.equals(Status.OPTIMIZED)) {
+        if (status.equals(Status.FINALIZED)) {
+            LOGGER.warn("Cannot optimize leaf anymore since its data has been released");
+        } else if (status.equals(Status.OPTIMIZED)) {
             // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
             LOGGER.debug("Resetting range action setpoints to their pre-optim values");
             resetPreOptimRangeActionsSetpoints();
@@ -173,7 +176,7 @@ class Leaf implements OptimizationResult {
     }
 
     private void resetPreOptimRangeActionsSetpoints() {
-        preOptimRangeActionResult.getRangeActions().forEach(rangeAction ->  rangeAction.apply(network, preOptimRangeActionResult.getOptimizedSetPoint(rangeAction)));
+        preOptimRangeActionResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(network, preOptimRangeActionResult.getOptimizedSetPoint(rangeAction)));
     }
 
     @Override
@@ -399,5 +402,13 @@ class Leaf implements OptimizationResult {
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }
+    }
+
+    /**
+     * Releases data used in optimization to make leaf lighter
+     */
+    public void finalizeOptimization() {
+        this.network = null;
+        this.status = Status.FINALIZED;
     }
 }

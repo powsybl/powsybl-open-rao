@@ -113,7 +113,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {
-            return optimizeOneStateOnly(raoInput, parameters);
+            CompletableFuture<RaoResult> result = optimizeOneStateOnly(raoInput, parameters);
+            stateTree = null;
+            toolProvider = null;
+            return result;
         }
 
         // compute initial sensitivity on all CNECs
@@ -170,7 +173,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
             SearchTreeRaoLogger.logMostLimitingElementsResults(stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
 
-        return CompletableFuture.completedFuture(mergedRaoResults);
+        CompletableFuture<RaoResult> result = CompletableFuture.completedFuture(mergedRaoResults);
+        stateTree = null;
+        toolProvider = null;
+        return result;
     }
 
     private void applyRemedialActions(Network network, PerimeterResult perimeterResult) {

@@ -218,12 +218,20 @@ public class SearchTree {
                         Thread.currentThread().interrupt();
                     }
                 }));
+            System.out.println("Network pool : " + networkPool.toString());
             networkPool.shutdown();
             networkPool.awaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
             LOGGER.error("A computation thread was interrupted");
             Thread.currentThread().interrupt();
         }
+        System.out.println("=================");
+/*        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+        System.out.println("=================");
     }
 
     FaraoNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {
@@ -293,6 +301,7 @@ public class SearchTree {
             previousIterationRangeActions = rangeActions;
             rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, true);
         }
+        leaf.finalizeOptimization();
     }
 
     private SensitivityComputer getSensitivityComputerForEvaluationBasedOn(FlowResult flowResult, Set<RangeAction> rangeActions) {
