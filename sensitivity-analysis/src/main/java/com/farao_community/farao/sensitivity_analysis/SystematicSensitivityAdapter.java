@@ -37,7 +37,7 @@ final class SystematicSensitivityAdapter {
         LOGGER.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, cnecSensitivityProvider, cnecSensitivityProvider.getContingencies(network), sensitivityComputationParameters);
         LOGGER.debug("Systematic sensitivity analysis [end]");
-        return new SystematicSensitivityResult().completeData(result, false).postTreatIntensities();
+        return new SystematicSensitivityResult().completeData(result, network, cnecSensitivityProvider.getContingencies(network), false).postTreatIntensities();
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
@@ -64,7 +64,7 @@ final class SystematicSensitivityAdapter {
             .collect(Collectors.toList());
 
         SystematicSensitivityResult result = new SystematicSensitivityResult();
-        result.completeData(SensitivityAnalysis.run(network, cnecSensitivityProvider, contingenciesWithoutRa, sensitivityComputationParameters), false);
+        result.completeData(SensitivityAnalysis.run(network, cnecSensitivityProvider, contingenciesWithoutRa, sensitivityComputationParameters), network, contingenciesWithoutRa, false);
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
@@ -88,7 +88,7 @@ final class SystematicSensitivityAdapter {
 
             List<Contingency> contingencyList = Collections.singletonList(convertCracContingencyToPowsybl(optContingency.get(), network));
 
-            result.completeData(SensitivityAnalysis.run(network, variantForState, cnecSensitivityProvider, contingencyList, sensitivityComputationParameters), true);
+            result.completeData(SensitivityAnalysis.run(network, variantForState, cnecSensitivityProvider, contingencyList, sensitivityComputationParameters), network, contingencyList, true);
             network.getVariantManager().removeVariant(variantForState);
             counterForLogs++;
         }
