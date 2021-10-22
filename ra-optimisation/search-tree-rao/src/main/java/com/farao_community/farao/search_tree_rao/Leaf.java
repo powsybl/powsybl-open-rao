@@ -197,7 +197,7 @@ class Leaf implements OptimizationResult {
     public double getFlow(FlowCnec flowCnec, Unit unit) {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getFlow(flowCnec, unit);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getFlow(flowCnec, unit);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -208,7 +208,7 @@ class Leaf implements OptimizationResult {
     public double getCommercialFlow(FlowCnec flowCnec, Unit unit) {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getCommercialFlow(flowCnec, unit);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getCommercialFlow(flowCnec, unit);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -219,7 +219,7 @@ class Leaf implements OptimizationResult {
     public double getPtdfZonalSum(FlowCnec flowCnec) {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getPtdfZonalSum(flowCnec);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getPtdfZonalSum(flowCnec);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -230,7 +230,7 @@ class Leaf implements OptimizationResult {
     public Map<FlowCnec, Double> getPtdfZonalSums() {
         if (status == Status.EVALUATED) {
             return preOptimFlowResult.getPtdfZonalSums();
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getPtdfZonalSums();
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -251,7 +251,7 @@ class Leaf implements OptimizationResult {
     public double getFunctionalCost() {
         if (status == Status.EVALUATED) {
             return preOptimObjectiveFunctionResult.getFunctionalCost();
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getFunctionalCost();
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -262,7 +262,7 @@ class Leaf implements OptimizationResult {
     public List<FlowCnec> getMostLimitingElements(int number) {
         if (status == Status.EVALUATED) {
             return preOptimObjectiveFunctionResult.getMostLimitingElements(number);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getMostLimitingElements(number);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -273,7 +273,7 @@ class Leaf implements OptimizationResult {
     public double getVirtualCost() {
         if (status == Status.EVALUATED) {
             return preOptimObjectiveFunctionResult.getVirtualCost();
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getVirtualCost();
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -289,7 +289,7 @@ class Leaf implements OptimizationResult {
     public double getVirtualCost(String virtualCostName) {
         if (status == Status.EVALUATED) {
             return preOptimObjectiveFunctionResult.getVirtualCost(virtualCostName);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getVirtualCost(virtualCostName);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -300,7 +300,7 @@ class Leaf implements OptimizationResult {
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
         if (status == Status.EVALUATED) {
             return preOptimObjectiveFunctionResult.getCostlyElements(virtualCostName, number);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getCostlyElements(virtualCostName, number);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -311,7 +311,7 @@ class Leaf implements OptimizationResult {
     public Set<RangeAction> getRangeActions() {
         if (status == Status.EVALUATED) {
             return preOptimRangeActionResult.getRangeActions();
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getRangeActions();
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -322,7 +322,7 @@ class Leaf implements OptimizationResult {
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
         if (status == Status.EVALUATED) {
             return preOptimRangeActionResult.getOptimizedTap(pstRangeAction);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             try {
                 return postOptimResult.getOptimizedTap(pstRangeAction);
             } catch (FaraoException e) {
@@ -337,7 +337,7 @@ class Leaf implements OptimizationResult {
     public double getOptimizedSetPoint(RangeAction rangeAction) {
         if (status == Status.EVALUATED) {
             return preOptimRangeActionResult.getOptimizedSetPoint(rangeAction);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             try {
                 return postOptimResult.getOptimizedSetPoint(rangeAction);
             } catch (FaraoException e) {
@@ -352,7 +352,7 @@ class Leaf implements OptimizationResult {
     public Map<PstRangeAction, Integer> getOptimizedTaps() {
         if (status == Status.EVALUATED) {
             return preOptimRangeActionResult.getOptimizedTaps();
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getOptimizedTaps();
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -363,7 +363,7 @@ class Leaf implements OptimizationResult {
     public Map<RangeAction, Double> getOptimizedSetPoints() {
         if (status == Status.EVALUATED) {
             return preOptimRangeActionResult.getOptimizedSetPoints();
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getOptimizedSetPoints();
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -374,7 +374,7 @@ class Leaf implements OptimizationResult {
     public ComputationStatus getSensitivityStatus() {
         if (status == Status.EVALUATED) {
             return preOptimSensitivityResult.getSensitivityStatus();
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getSensitivityStatus();
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -384,9 +384,9 @@ class Leaf implements OptimizationResult {
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
         if (status == Status.EVALUATED ||
-            (status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction))) {
+            ((status == Status.OPTIMIZED || status == Status.FINALIZED) && !postOptimResult.getRangeActions().contains(rangeAction))) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, rangeAction, unit);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getSensitivityValue(flowCnec, rangeAction, unit);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -397,7 +397,7 @@ class Leaf implements OptimizationResult {
     public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
         if (status == Status.EVALUATED) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, linearGlsk, unit);
-        } else if (status == Status.OPTIMIZED) {
+        } else if (status == Status.OPTIMIZED || status == Status.FINALIZED) {
             return postOptimResult.getSensitivityValue(flowCnec, linearGlsk, unit);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
