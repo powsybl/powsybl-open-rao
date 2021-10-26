@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -37,10 +38,19 @@ public class AbsolutePtdfSumsComputation {
         List<EICode> eiCodesInPtdfs = zTozPtdfs.stream().flatMap(zToz -> zToz.getEiCodes().stream()).collect(Collectors.toList());
         for (FlowCnec flowCnec : flowCnecs) {
             Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(flowCnec, glskProvider, eiCodesInPtdfs, sensitivityResult);
-            double sumOfZToZPtdf = zTozPtdfs.stream().mapToDouble(zToz -> Math.abs(computeZToZPtdf(zToz, ptdfMap))).sum();
+            double sumOfZToZPtdf = zTozPtdfs.stream().mapToDouble(zToz -> Math.abs(computeZToZPtdf(zToz, ptdfMap, isAlegroDisconnected(flowCnec)))).sum();
             ptdfSums.put(flowCnec, sumOfZToZPtdf);
         }
         return ptdfSums;
+    }
+
+    private boolean isAlegroDisconnected(FlowCnec flowCnec) {
+        Optional<Contingency> contingency = flowCnec.getState().getContingency();
+        if (contingency.isEmpty()) {
+            return false;
+        } else {
+            return contingency.get().getNetworkElements().stream().anyMatch(ne -> ne.getId().contains("XLI_OB1A"));
+        }
     }
 
     private Map<EICode, Double> buildZoneToSlackPtdfMap(FlowCnec flowCnec, ZonalData<LinearGlsk> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult) {
@@ -55,10 +65,19 @@ public class AbsolutePtdfSumsComputation {
         return ptdfs;
     }
 
-    private double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
+    private double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap, boolean alegroDisconnected) {
         if (zToz.getZoneToSlackPtdfs().stream().anyMatch(zToS -> !zToSlackPtdfMap.containsKey(zToS.getEiCode()))) {
             // If one zone is missing its PTDF, ignore the boundary
             return 0;
+        }
+        if (zToz.getZoneToSlackPtdfs().stream().anyMatch(zToS -> zToS.getEiCode().getAreaCode().equals("22Y201903144---9"))) {
+            // Alegro temporary patch : remove alegro z2s if Alegro is disconnected
+            if (alegroDisconnected) {
+                return zToz.getZoneToSlackPtdfs().stream()
+                    .filter(zToS -> !zToS.getEiCode().getAreaCode().equals("22Y201903144---9") && !zToS.getEiCode().getAreaCode().equals("22Y201903145---4"))
+                    .mapToDouble(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
+                    .sum();
+            }
         }
         return zToz.getZoneToSlackPtdfs().stream()
             .mapToDouble(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
