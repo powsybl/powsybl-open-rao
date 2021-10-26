@@ -222,6 +222,12 @@
         <!-- Other dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-glsk</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-glsk-document-cim</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
