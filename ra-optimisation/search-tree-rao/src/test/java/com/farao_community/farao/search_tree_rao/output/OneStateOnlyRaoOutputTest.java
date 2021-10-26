@@ -21,10 +21,7 @@ import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -113,7 +110,11 @@ public class OneStateOnlyRaoOutputTest {
         when(postOptimizationResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(1500.);
         when(postOptimizationResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(750.);
 
-        output = new OneStateOnlyRaoOutput(optimizedState, initialResult, postOptimizationResult);
+        Set<FlowCnec> cnecs = new HashSet<>();
+        cnecs.add(cnec1);
+        cnecs.add(cnec2);
+
+        output = new OneStateOnlyRaoOutput(optimizedState, initialResult, postOptimizationResult, cnecs);
     }
 
     @Test
