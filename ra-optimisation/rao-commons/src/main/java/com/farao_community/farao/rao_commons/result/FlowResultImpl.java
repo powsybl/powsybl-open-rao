@@ -39,7 +39,7 @@ public class FlowResultImpl implements FlowResult {
             return systematicSensitivityResult.getReferenceFlow(flowCnec);
         } else if (unit == Unit.AMPERE) {
             double intensity = systematicSensitivityResult.getReferenceIntensity(flowCnec);
-            if (Double.isNaN(intensity)) {
+            if (Double.isNaN(intensity) || Math.abs(intensity) <= 1e-6) {
                 return systematicSensitivityResult.getReferenceFlow(flowCnec) * RaoUtil.getFlowUnitMultiplier(flowCnec, Side.LEFT, Unit.MEGAWATT, Unit.AMPERE);
             } else {
                 return intensity;
