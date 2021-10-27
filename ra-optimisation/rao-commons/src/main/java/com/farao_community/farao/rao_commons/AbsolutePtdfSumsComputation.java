@@ -73,7 +73,10 @@ public class AbsolutePtdfSumsComputation {
         if (zToz.getZoneToSlackPtdfs().stream().anyMatch(zToS -> zToS.getEiCode().getAreaCode().equals("22Y201903144---9"))) {
             // Alegro temporary patch : remove alegro z2s if Alegro is disconnected
             if (alegroDisconnected) {
-                return 0;
+                return zToz.getZoneToSlackPtdfs().stream()
+                    .filter(zToS -> !zToS.getEiCode().getAreaCode().equals("22Y201903144---9") && !zToS.getEiCode().getAreaCode().equals("22Y201903145---4"))
+                    .mapToDouble(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
+                    .sum();
             }
         }
         return zToz.getZoneToSlackPtdfs().stream()
