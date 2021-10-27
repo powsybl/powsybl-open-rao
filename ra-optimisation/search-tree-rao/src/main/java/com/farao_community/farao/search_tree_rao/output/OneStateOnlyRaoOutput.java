@@ -34,17 +34,17 @@ public class OneStateOnlyRaoOutput implements SearchTreeRaoResult {
     private State optimizedState;
     private PrePerimeterResult initialResult;
     private OptimizationResult postOptimizationResult;
-    private Set<FlowCnec> flowCnecs;
+    private Set<FlowCnec> optimizedFlowCnecs;
 
-    public OneStateOnlyRaoOutput(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> flowCnecs) {
+    public OneStateOnlyRaoOutput(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
         this.optimizedState = optimizedState;
         this.initialResult = initialResult;
         this.postOptimizationResult = postOptimizationResult;
-        this.flowCnecs = flowCnecs;
+        this.optimizedFlowCnecs = optimizedFlowCnecs;
     }
 
     private FlowResult getAppropriateResult(OptimizationState optimizationState, FlowCnec flowCnec) {
-        if (!flowCnecs.contains(flowCnec)) {
+        if (!optimizedFlowCnecs.contains(flowCnec)) {
             throw new FaraoException("Cnec not optimized in this perimeter.");
         }
         State state = flowCnec.getState();
