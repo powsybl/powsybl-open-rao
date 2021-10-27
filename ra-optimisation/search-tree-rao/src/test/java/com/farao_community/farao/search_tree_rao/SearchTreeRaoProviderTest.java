@@ -775,9 +775,4 @@ public class SearchTreeRaoProviderTest {
         assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
     }
-
-    @Test
-    public void testOptimizeOneStateOnly() {
-
-    }
 }

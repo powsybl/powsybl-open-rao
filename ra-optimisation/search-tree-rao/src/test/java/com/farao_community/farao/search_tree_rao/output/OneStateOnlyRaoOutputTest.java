@@ -233,7 +233,7 @@ public class OneStateOnlyRaoOutputTest {
         assertThrows(FaraoException.class, () -> output.getActivatedRangeActionsDuringState(otherState));
         assertThrows(FaraoException.class, () -> output.getOptimizedTapsOnState(otherState));
         assertThrows(FaraoException.class, () -> output.getOptimizedSetPointsOnState(otherState));
-        assertThrows(FaraoException.class, () -> output.getMargin(OptimizationState.AFTER_CRA, mock(FlowCnec.class), Unit.MEGAWATT));
+        assertThrows("Cnec not optimized in this perimeter.", FaraoException.class, () -> output.getMargin(OptimizationState.AFTER_CRA, mock(FlowCnec.class), Unit.MEGAWATT));
     }
 
     @Test
