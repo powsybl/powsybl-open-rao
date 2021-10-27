@@ -180,6 +180,7 @@ public class SearchTree {
             if (depth >= treeParameters.getMaximumSearchDepth()) {
                 LOGGER.info("End of search tree : maximum depth has been reached");
             }
+            System.gc();
         }
     }
 
