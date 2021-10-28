@@ -14,24 +14,14 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
-import com.powsybl.iidm.network.BusRef;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
-import com.powsybl.sensitivity.factors.*;
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.functions.BranchIntensity;
-import com.powsybl.sensitivity.factors.functions.BusVoltage;
-import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
-import com.powsybl.sensitivity.factors.variables.TargetVoltage;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -77,7 +67,7 @@ public class SystematicSensitivityResultTest {
     public void testPostTreatIntensities() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), rangeActionSensitivityProvider, ptdfSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, network, ptdfSensitivityProvider.getContingencies(network), false);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false);
 
         // Before postTreating intensities
         assertEquals(-20, result.getReferenceFlow(contingencyCnec), EPSILON);
@@ -93,7 +83,7 @@ public class SystematicSensitivityResultTest {
     public void testPstResultManipulation() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), rangeActionSensitivityProvider, rangeActionSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, network, rangeActionSensitivityProvider.getContingencies(network), false).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -115,7 +105,7 @@ public class SystematicSensitivityResultTest {
     public void testPtdfResultManipulation() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), ptdfSensitivityProvider, ptdfSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, network, ptdfSensitivityProvider.getContingencies(network), false).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -134,90 +124,10 @@ public class SystematicSensitivityResultTest {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
         Mockito.when(sensitivityAnalysisResult.isOk()).thenReturn(false);
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, network, new ArrayList<>(), false).postTreatIntensities();
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
 
         // Then
         assertFalse(result.isSuccess());
-    }
-
-    @Test
-    public void checkIfPstToBranchIntensityIsDisconnectedTest() {
-        BranchIntensity funcOnBranch = new BranchIntensity("FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1");
-        PhaseTapChangerAngle varOnPst = new PhaseTapChangerAngle("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1");
-
-        SensitivityValue pstOnBranchFlow = new SensitivityValue(
-                new BranchIntensityPerPSTAngle(funcOnBranch, varOnPst),
-                10., 10., 10.
-        );
-
-        // branch and PST connected
-        assertFalse(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
-
-        // branch disconnected
-        network.getBranch("FFR2AA1  FFR3AA1  1").getTerminal1().disconnect();
-        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
-
-        // pst out of main component
-        network = NetworkImportsUtil.import12NodesNetwork();
-        network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal1().disconnect();
-        network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal2().disconnect();
-        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
-    }
-
-    @Test
-    public void checkIfGlskToBranchFlowIsDisconnectedTest() {
-        BranchFlow funcOnBranch = new BranchFlow("DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1");
-        LinearGlsk varOnGlsk = new LinearGlsk("10YFR-RTE------C", "10YFR-RTE------C", linearGlsk.getGLSKs());
-
-        SensitivityValue pstOnBranchFlow = new SensitivityValue(
-                new BranchFlowPerLinearGlsk(funcOnBranch, varOnGlsk),
-                10., 10., 10.
-        );
-
-        // branch and GLSK connected
-        assertFalse(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
-
-        // branch disconnected
-        network.getBranch("DDE2AA1  DDE3AA1  1").getTerminal1().disconnect();
-        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
-
-        // GLSK out of main component
-        network = NetworkImportsUtil.import12NodesNetwork();
-        network.getBranch("BBE2AA1  FFR3AA1  1").getTerminal2().disconnect();
-        network.getBranch("FFR2AA1  DDE3AA1  1").getTerminal1().disconnect();
-        assertTrue(SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(pstOnBranchFlow, network));
-    }
-
-    @Test
-    public void uncoveredFunctionAndVariablesTest() {
-        BranchFlow funcOnBranch = new BranchFlow("DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1");
-        BusVoltage busVoltage = new BusVoltage("DDE2AA1", "DDE2AA1", Mockito.mock(BusRef.class));
-        TargetVoltage targetVoltage = new TargetVoltage("FFR3AA1", "FFR3AA1", "FFR3AA1");
-        InjectionIncrease injectionIncrease = new InjectionIncrease("FFR3AA1", "FFR3AA1", "FFR3AA1");
-
-        SensitivityValue sensiOnBusVoltage = new SensitivityValue(
-                new BusVoltagePerTargetV(busVoltage, targetVoltage),
-                10., 10., 10.
-        );
-
-        SensitivityValue sensiOfInjectionIncrease = new SensitivityValue(
-                new BranchFlowPerInjectionIncrease(funcOnBranch, injectionIncrease),
-                10., 10., 10.
-        );
-
-        try {
-            SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(sensiOnBusVoltage, network);
-            fail();
-        } catch (NotImplementedException e) {
-            // should throw
-        }
-
-        try {
-            SystematicSensitivityResult.isfFunctionOrVariableIsDisconnected(sensiOfInjectionIncrease, network);
-            fail();
-        } catch (NotImplementedException e) {
-            // should throw
-        }
     }
 
 }
