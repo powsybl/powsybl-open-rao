@@ -185,7 +185,7 @@ public class SearchTree {
                 if (depth >= treeParameters.getMaximumSearchDepth()) {
                     LOGGER.info("End of search tree : maximum depth has been reached");
                 }
-                System.gc();
+                System.gc(); // TODO : remove this after completing memory tests
             }
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
@@ -232,7 +232,10 @@ public class SearchTree {
             })
 
         );
-        latch.await(24, TimeUnit.HOURS);
+        boolean success = latch.await(24, TimeUnit.HOURS);
+        if (!success) {
+            throw new FaraoException("At least one network action combination could not be evaluated. This should not happen.");
+        }
     }
 
     FaraoNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {

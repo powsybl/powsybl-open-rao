@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ class SingleNetworkPool extends FaraoNetworkPool {
     protected void initAvailableNetworks(Network network) {
         this.networkInitialVariantId = network.getVariantManager().getWorkingVariantId();
         this.network = network;
-        this.baseNetworkVariantIds = network.getVariantManager().getVariantIds();
+        this.baseNetworkVariantIds = new HashSet<>(network.getVariantManager().getVariantIds());
         LOGGER.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant);
         network.getVariantManager().setWorkingVariant(targetVariant);
         network.getVariantManager().cloneVariant(networkInitialVariantId, Arrays.asList(stateSaveVariant, workingVariant), true);
