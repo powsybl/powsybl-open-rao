@@ -49,11 +49,11 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         init();
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, initialAlpha));
+        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
         coreProblemFiller = new CoreProblemFiller(
                 network,
                 Set.of(cnec1),
-                Set.of(rangeAction),
+                Set.of(pstRangeAction),
                 initialRangeActionResult,
                 0.,
                 0.,
@@ -68,7 +68,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
                 Set.of(cnec1),
                 initialFlowResult,
-                Set.of(rangeAction),
+                Set.of(pstRangeAction),
                 unit,
                 parameters
         );
@@ -85,7 +85,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         buildLinearProblem();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
-        MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
+        MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction);
 
         // check minimum margin variable
         MPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
@@ -129,7 +129,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         buildLinearProblem();
 
         MPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1);
-        MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
+        MPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction);
 
         // check minimum margin variable
         MPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
