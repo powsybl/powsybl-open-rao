@@ -23,7 +23,7 @@ public class FaraoNetworkPoolTest {
 
             assertNotNull(networkCopy);
             assertNotEquals(network, networkCopy);
-            assertEquals(otherVariant, networkCopy.getVariantManager().getWorkingVariantId());
+            assertTrue(networkCopy.getVariantManager().getWorkingVariantId().startsWith("FaraoNetworkPool working variant"));
 
             pool.releaseUsedNetwork(networkCopy);
         } catch (InterruptedException e) {
