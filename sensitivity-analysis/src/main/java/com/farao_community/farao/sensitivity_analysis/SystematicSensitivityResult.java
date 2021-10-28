@@ -128,7 +128,7 @@ public class SystematicSensitivityResult {
 
         // TODO: remove this fix when reference function patched in case NaN and no divergence
         if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
-            if (isfFunctionOrVariableIsDisconnected(value, network)) {
+            if (!isfFunctionOrVariableIsDisconnected(value, network)) {
                 LOGGER.warn("NaN returned by sensitivity tool, but variable and function both connected and in main cc.");
             }
             sensitivity = 0.;

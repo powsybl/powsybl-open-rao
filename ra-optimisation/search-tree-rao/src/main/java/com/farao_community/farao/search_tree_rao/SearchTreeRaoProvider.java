@@ -40,7 +40,6 @@ import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisExcepti
 import com.farao_community.farao.util.FaraoNetworkPool;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -340,7 +339,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         network.getVariantManager().cloneVariant(PREVENTIVE_SCENARIO, CONTINGENCY_SCENARIO);
         network.getVariantManager().setWorkingVariant(CONTINGENCY_SCENARIO);
         // Go through all contingency scenarios
-        try (FaraoNetworkPool networkPool = new FaraoNetworkPool(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel())) {
+        try (FaraoNetworkPool networkPool = FaraoNetworkPool.create(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel())) {
             stateTree.getContingencyScenarios().forEach(optimizedScenario ->
                     networkPool.submit(() -> {
                         try {
@@ -367,14 +366,13 @@ public class SearchTreeRaoProvider implements RaoProvider {
                             contingencyScenarioResults.put(curativeState, curativeResult);
                             // Release network copy
                             networkPool.releaseUsedNetwork(networkClone);
-                        } catch (InterruptedException | NotImplementedException | FaraoException | NullPointerException e) {
+                        } catch (Exception e) {
                             LOGGER.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
                             Thread.currentThread().interrupt();
                         }
                     })
             );
-            networkPool.shutdown();
-            networkPool.awaitTermination(24, TimeUnit.HOURS);
+            networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

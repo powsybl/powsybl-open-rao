@@ -27,11 +27,9 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -163,31 +161,43 @@ public class SearchTree {
     private void iterateOnTree() {
         int depth = 0;
         boolean hasImproved = true;
-        while (depth < treeParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
-            LOGGER.info("Research depth: {} - [start]", depth + 1);
-            previousDepthOptimalLeaf = optimalLeaf;
-            updateOptimalLeafWithNextDepthBestLeaf();
-            hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
-            if (hasImproved) {
-                LOGGER.info("Research depth: {} - [end]", depth + 1);
-                LOGGER.info("Best leaf so far - {}", optimalLeaf);
-                SearchTreeRaoLogger.logRangeActions(optimalLeaf, availableRangeActions, "Best leaf so far");
-                SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
-            } else {
-                LOGGER.info("End of search tree : no network action of depth {} improve the objective function", depth + 1);
+        int leavesInParallel = Math.min(availableNetworkActions.size(), treeParameters.getLeavesInParallel());
+        if (availableNetworkActions.isEmpty()) {
+            LOGGER.info("No more network action available");
+            return;
+        }
+        LOGGER.debug("Evaluating {} leaves in parallel", leavesInParallel);
+        try (FaraoNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
+            while (depth < treeParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
+                LOGGER.info("Research depth: {} - [start]", depth + 1);
+                previousDepthOptimalLeaf = optimalLeaf;
+                updateOptimalLeafWithNextDepthBestLeaf(networkPool);
+                hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
+                if (hasImproved) {
+                    LOGGER.info("Research depth: {} - [end]", depth + 1);
+                    LOGGER.info("Best leaf so far - {}", optimalLeaf);
+                    SearchTreeRaoLogger.logRangeActions(optimalLeaf, availableRangeActions, "Best leaf so far");
+                    SearchTreeRaoLogger.logMostLimitingElementsResults(optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+                } else {
+                    LOGGER.info("End of search tree : no network action of depth {} improve the objective function", depth + 1);
+                }
+                depth += 1;
+                if (depth >= treeParameters.getMaximumSearchDepth()) {
+                    LOGGER.info("End of search tree : maximum depth has been reached");
+                }
+                System.gc();
             }
-            depth += 1;
-            if (depth >= treeParameters.getMaximumSearchDepth()) {
-                LOGGER.info("End of search tree : maximum depth has been reached");
-            }
-            System.gc();
+            networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
+        } catch (InterruptedException e) {
+            LOGGER.error("A computation thread was interrupted");
+            Thread.currentThread().interrupt();
         }
     }
 
     /**
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf() {
+    private void updateOptimalLeafWithNextDepthBestLeaf(FaraoNetworkPool networkPool) throws InterruptedException {
         // Recompute the list of available network actions with last margin results
         Set<NetworkAction> availableActionsOnNewMargins = availableNetworkActions.stream().filter(na -> isRemedialActionAvailable(na, optimizedState, optimalLeaf)).collect(Collectors.toSet());
         // Bloom
@@ -199,36 +209,34 @@ public class SearchTree {
             LOGGER.info("Leaves to evaluate: {}", naCombinations.size());
         }
         AtomicInteger remainingLeaves = new AtomicInteger(naCombinations.size());
-        // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
-        // from previous optimal leaf starting point
-        // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
-        previousDepthOptimalLeaf.getRangeActions()
-            .forEach(ra -> ra.apply(network, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
-        int leavesInParallel = Math.min(naCombinations.size(), treeParameters.getLeavesInParallel());
-        LOGGER.debug("Evaluating {} leaves in parallel", leavesInParallel);
-        try (FaraoNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
-            naCombinations.forEach(naCombination ->
-                networkPool.submit(() -> {
-                    try {
-                        Network networkClone = networkPool.getAvailableNetwork();
-                        optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
-                        networkPool.releaseUsedNetwork(networkClone);
-                        LOGGER.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
-                    } catch (InterruptedException | NotImplementedException e) {
-                        LOGGER.error("Cannot apply remedial action combination {}", naCombination.getConcatenatedId());
-                        Thread.currentThread().interrupt();
-                    }
-                }));
-            networkPool.shutdown();
-            networkPool.awaitTermination(24, TimeUnit.HOURS);
-        } catch (InterruptedException e) {
-            LOGGER.error("A computation thread was interrupted");
-            Thread.currentThread().interrupt();
-        }
+        CountDownLatch latch = new CountDownLatch(naCombinations.size());
+        naCombinations.forEach(naCombination ->
+            networkPool.submit(() -> {
+                try {
+                    Network networkClone = networkPool.getAvailableNetwork();
+                    // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
+                    // from previous optimal leaf starting point
+                    // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
+                    previousDepthOptimalLeaf.getRangeActions()
+                        .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
+                    optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
+                    networkPool.releaseUsedNetwork(networkClone);
+                    LOGGER.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+                } catch (Exception e) {
+                    LOGGER.error("Cannot apply remedial action combination {}", naCombination.getConcatenatedId());
+                    LOGGER.error(e.getMessage());
+                    Thread.currentThread().interrupt();
+                } finally {
+                    latch.countDown();
+                }
+            })
+
+        );
+        latch.await(24, TimeUnit.HOURS);
     }
 
     FaraoNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {
-        return new FaraoNetworkPool(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel);
+        return FaraoNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel);
     }
 
     void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
