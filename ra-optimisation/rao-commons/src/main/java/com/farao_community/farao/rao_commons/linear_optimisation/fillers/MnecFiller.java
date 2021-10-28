@@ -14,6 +14,7 @@ import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_api.parameters.MnecParameters;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -55,7 +56,7 @@ public class MnecFiller implements ProblemFiller {
     }
 
     @Override
-    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
         // nothing to do
     }
 

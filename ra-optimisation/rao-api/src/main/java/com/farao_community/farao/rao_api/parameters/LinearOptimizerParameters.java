@@ -22,6 +22,9 @@ public final class LinearOptimizerParameters {
     private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
     private LoopFlowParameters loopFlowParameters;
     private UnoptimizedCnecParameters unoptimizedCnecParameters;
+    private RaoParameters.Solver solver;
+    private double relativeMipGap;
+    private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
 
     private LinearOptimizerParameters() {
         // Can be instantiated only by builder
@@ -40,6 +43,9 @@ public final class LinearOptimizerParameters {
         private MnecParameters mnecParameters;
         private LoopFlowParameters loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
+        private RaoParameters.Solver solver;
+        private double relativeMipGap;
+        private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
@@ -81,6 +87,21 @@ public final class LinearOptimizerParameters {
             return this;
         }
 
+        public LinearOptimizerParametersBuilder withSolver(RaoParameters.Solver solver) {
+            this.solver = solver;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withRelativeMipGap(double relativeMipGap) {
+            this.relativeMipGap = relativeMipGap;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withPstOptimizationApproximation(RaoParameters.PstOptimizationApproximation pstOptimizationApproximation) {
+            this.pstOptimizationApproximation = pstOptimizationApproximation;
+            return this;
+        }
+
         public LinearOptimizerParameters build() {
             if (objectiveFunction == null || pstSensitivityThreshold == null || hvdcSensitivityThreshold == null) {
                 throw new FaraoException("Objective function, pst sensitivity threshold and hvdc sensitivity threshold are mandatory parameters.");
@@ -100,6 +121,9 @@ public final class LinearOptimizerParameters {
             linearOptimizerParameters.mnecParameters = mnecParameters;
             linearOptimizerParameters.loopFlowParameters = loopFlowParameters;
             linearOptimizerParameters.unoptimizedCnecParameters = unoptimizedCnecParameters;
+            linearOptimizerParameters.solver = solver;
+            linearOptimizerParameters.relativeMipGap = relativeMipGap;
+            linearOptimizerParameters.pstOptimizationApproximation = pstOptimizationApproximation;
             return linearOptimizerParameters;
         }
     }
@@ -155,5 +179,17 @@ public final class LinearOptimizerParameters {
 
     public UnoptimizedCnecParameters getUnoptimizedCnecParameters() {
         return unoptimizedCnecParameters;
+    }
+
+    public RaoParameters.Solver getSolver() {
+        return solver;
+    }
+
+    public double getRelativeMipGap() {
+        return relativeMipGap;
+    }
+
+    public RaoParameters.PstOptimizationApproximation getPstOptimizationApproximation() {
+        return pstOptimizationApproximation;
     }
 }

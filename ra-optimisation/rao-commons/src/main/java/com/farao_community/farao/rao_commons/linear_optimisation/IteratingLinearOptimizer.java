@@ -9,7 +9,11 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.DiscretePstGroupFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.DiscretePstTapFiller;
+import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
@@ -32,10 +36,12 @@ public class IteratingLinearOptimizer {
 
     private final ObjectiveFunction objectiveFunction;
     private final int maxIterations;
+    private final RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
 
-    public IteratingLinearOptimizer(ObjectiveFunction objectiveFunction, int maxIterations) {
+    public IteratingLinearOptimizer(ObjectiveFunction objectiveFunction, int maxIterations, RaoParameters.PstOptimizationApproximation pstOptimizationApproximation) {
         this.objectiveFunction = objectiveFunction;
         this.maxIterations = maxIterations;
+        this.pstOptimizationApproximation = pstOptimizationApproximation;
     }
 
     public LinearOptimizationResult optimize(LinearProblem linearProblem,
@@ -58,6 +64,28 @@ public class IteratingLinearOptimizer {
             }
 
             RangeActionResult currentRangeActionResult = roundResult(linearProblem.getResults(), network, bestResult);
+
+            if (pstOptimizationApproximation.equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
+
+                // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
+                // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
+                // be more accurate in the neighboring of the previous solution
+
+                // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
+
+                for (ProblemFiller filler : linearProblem.getFillers()) {
+                    // a bit dirty, but computationally more efficient than updating all fillers
+                    // (cleaning idea: create two update methods in API)
+                    if (filler instanceof DiscretePstTapFiller || filler instanceof DiscretePstGroupFiller) {
+                        filler.update(linearProblem, preOptimFlowResult, preOptimSensitivityResult, currentRangeActionResult);
+                    }
+                }
+
+                solveLinearProblem(linearProblem, iteration);
+                if (linearProblem.getStatus() == LinearProblemStatus.OPTIMAL) {
+                    currentRangeActionResult = roundResult(linearProblem.getResults(), network, bestResult);
+                }
+            }
 
             if (!hasRemedialActionsChanged(currentRangeActionResult, bestResult)) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
@@ -87,7 +115,7 @@ public class IteratingLinearOptimizer {
 
             logBetterResult(iteration, currentResult);
             bestResult = currentResult;
-            linearProblem.update(bestResult.getBranchResult(), bestResult.getSensitivityResult());
+            linearProblem.update(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionResult());
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
         return bestResult;

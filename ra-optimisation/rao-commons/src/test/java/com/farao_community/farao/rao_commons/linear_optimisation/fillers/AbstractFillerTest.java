@@ -10,7 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
@@ -23,6 +24,8 @@ import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
@@ -61,7 +64,7 @@ abstract class AbstractFillerTest {
     MPSolver mpSolver;
     FlowCnec cnec1;
     FlowCnec cnec2;
-    RangeAction rangeAction;
+    PstRangeAction pstRangeAction;
     FlowResult flowResult;
     SensitivityResult sensitivityResult;
     Crac crac;
@@ -76,7 +79,7 @@ abstract class AbstractFillerTest {
         // get cnec and rangeAction
         cnec1 = crac.getFlowCnecs().stream().filter(c -> c.getId().equals(CNEC_1_ID)).findFirst().orElseThrow(FaraoException::new);
         cnec2 = crac.getFlowCnecs().stream().filter(c -> c.getId().equals(CNEC_2_ID)).findFirst().orElseThrow(FaraoException::new);
-        rangeAction = crac.getRangeAction(RANGE_ACTION_ID);
+        pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
 
         // MPSolver and linearRaoProblem
         mpSolver = new MPSolverMock();
@@ -88,7 +91,43 @@ abstract class AbstractFillerTest {
         when(flowResult.getFlow(cnec2, Unit.MEGAWATT)).thenReturn(REF_FLOW_CNEC2_IT1);
 
         sensitivityResult = Mockito.mock(SensitivityResult.class);
-        when(sensitivityResult.getSensitivityValue(cnec1, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
-        when(sensitivityResult.getSensitivityValue(cnec2, rangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
+        when(sensitivityResult.getSensitivityValue(cnec1, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC1_IT1);
+        when(sensitivityResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT1);
+    }
+
+    protected void addPstGroupInCrac() {
+        Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
+        crac.removePstRangeAction(RANGE_ACTION_ID);
+
+        crac.newPstRangeAction()
+                .withId("pst1-group1")
+                .withGroupId("group1")
+                .withNetworkElement("BBE2AA1  BBE3AA1  1")
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(tapToAngle)
+                .newTapRange()
+                .withRangeType(RangeType.ABSOLUTE)
+                .withMinTap(-2)
+                .withMaxTap(5)
+                .add()
+                .withOperator("RTE")
+                .add();
+        crac.newPstRangeAction()
+                .withId("pst2-group1")
+                .withGroupId("group1")
+                .withNetworkElement("BBE1AA1  BBE3AA1  1")
+                .withInitialTap(0)
+                .withTapToAngleConversionMap(tapToAngle)
+                .newTapRange()
+                .withRangeType(RangeType.ABSOLUTE)
+                .withMinTap(-5)
+                .withMaxTap(10)
+                .add()
+                .withOperator("RTE")
+                .add();
+    }
+
+    protected void useNetworkWithTwoPsts() {
+        network = NetworkImportsUtil.import12NodesWith2PstsNetwork();
     }
 }

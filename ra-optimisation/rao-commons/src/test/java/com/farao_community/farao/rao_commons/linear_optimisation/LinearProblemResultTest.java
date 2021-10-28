@@ -89,7 +89,7 @@ public class LinearProblemResultTest {
 
         rangeActions.forEach(rangeAction -> {
             MPVariable setPointVariable = setPointVariablePerRangeAction.get(rangeAction);
-            Mockito.when(linearProblem.getRangeActionSetPointVariable(rangeAction)).thenReturn(setPointVariable);
+            Mockito.when(linearProblem.getRangeActionSetpointVariable(rangeAction)).thenReturn(setPointVariable);
             Mockito.when(setPointVariable.solutionValue()).thenReturn(setPointPerRangeAction.get(rangeAction));
 
             MPVariable setPointVariationVariable = setPointVariationVariablePerRangeAction.get(rangeAction);

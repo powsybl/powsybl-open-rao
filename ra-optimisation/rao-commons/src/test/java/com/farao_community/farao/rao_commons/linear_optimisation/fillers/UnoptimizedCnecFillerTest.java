@@ -80,7 +80,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(
                 Set.of(cnecNl, cnecFr),
-                Set.of(rangeAction),
+                Set.of(pstRangeAction),
                 Unit.MEGAWATT,
                 maxMinMarginParameters
         );
@@ -108,7 +108,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
                 Set.of(cnecNl, cnecFr),
                 initialFlowResult,
-                Set.of(rangeAction),
+                Set.of(pstRangeAction),
                 Unit.MEGAWATT,
                 maxMinRelativeMarginParameters
         );

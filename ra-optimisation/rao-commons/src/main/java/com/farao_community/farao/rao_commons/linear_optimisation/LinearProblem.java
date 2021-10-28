@@ -7,18 +7,18 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
 import com.farao_community.farao.rao_commons.result_api.LinearProblemStatus;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.farao_community.farao.util.NativeLibraryLoader;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPObjective;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.linearsolver.*;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +33,7 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class LinearProblem {
+    private static final String OPT_PROBLEM_NAME = "range action opt problem";
     private static final Logger LOGGER = LoggerFactory.getLogger(LinearProblem.class);
 
     static {
@@ -46,6 +47,11 @@ public final class LinearProblem {
     public enum AbsExtension {
         POSITIVE,
         NEGATIVE
+    }
+
+    public enum VariationExtension {
+        UPWARD,
+        DOWNWARD
     }
 
     public enum MarginExtension {
@@ -62,16 +68,36 @@ public final class LinearProblem {
     private final Set<FlowCnec> cnecs = new HashSet<>();
     private final Set<RangeAction> rangeActions = new HashSet<>();
     private final MPSolver solver;
+    private final double relativeMipGap;
     private LinearProblemStatus status;
 
     public LinearProblem(List<ProblemFiller> fillers, MPSolver mpSolver) {
         solver = mpSolver;
         solver.objective().setMinimization();
         this.fillers = fillers;
+        this.relativeMipGap = RaoParameters.DEFAULT_RELATIVE_MIP_GAP;
     }
 
-    private LinearProblem(List<ProblemFiller> fillers) {
-        this(fillers, new MPSolver("linear rao", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING));
+    private LinearProblem(List<ProblemFiller> fillers, RaoParameters.Solver solverName, double relativeMipGap) {
+        switch (solverName) {
+            case CBC:
+                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
+                break;
+
+            case SCIP:
+                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING);
+                break;
+
+            case XPRESS:
+                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING);
+                break;
+
+            default:
+                throw new FaraoException(format("unknown solver %s in RAO parameters", solverName));
+        }
+        this.solver.objective().setMinimization();
+        this.fillers = fillers;
+        this.relativeMipGap = relativeMipGap;
     }
 
     final List<ProblemFiller> getFillers() {
@@ -138,29 +164,90 @@ public final class LinearProblem {
         return solver.lookupConstraintOrNull(flowConstraintId(cnec));
     }
 
-    public MPVariable addRangeActionSetPointVariable(double lb, double ub, RangeAction rangeAction) {
+    public MPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction rangeAction) {
         rangeActions.add(rangeAction);
-        return solver.makeNumVar(lb, ub, rangeActionSetPointVariableId(rangeAction));
+        return solver.makeNumVar(lb, ub, rangeActionSetpointVariableId(rangeAction));
     }
 
-    public MPVariable getRangeActionSetPointVariable(RangeAction rangeAction) {
-        return solver.lookupVariableOrNull(rangeActionSetPointVariableId(rangeAction));
+    public MPVariable getRangeActionSetpointVariable(RangeAction rangeAction) {
+        return solver.lookupVariableOrNull(rangeActionSetpointVariableId(rangeAction));
     }
 
-    public MPVariable addRangeActionGroupSetPointVariable(double lb, double ub, String rangeActionGroupId) {
-        return solver.makeNumVar(lb, ub, rangeActionGroupSetPointVariableId(rangeActionGroupId));
+    public MPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, VariationExtension variation) {
+        rangeActions.add(rangeAction);
+        return solver.makeIntVar(lb, ub, pstTapVariableVariationId(rangeAction, variation));
     }
 
-    public MPVariable getRangeActionGroupSetPointVariable(String rangeActionGroupId) {
-        return solver.lookupVariableOrNull(rangeActionGroupSetPointVariableId(rangeActionGroupId));
+    public MPVariable getPstTapVariationVariable(PstRangeAction rangeAction, VariationExtension variation) {
+        return solver.lookupVariableOrNull(pstTapVariableVariationId(rangeAction, variation));
     }
 
-    public MPConstraint addRangeActionGroupSetPointConstraint(double lb, double ub, RangeAction rangeAction) {
-        return solver.makeConstraint(lb, ub, rangeActionGroupSetPointConstraintId(rangeAction));
+    public MPVariable addPstTapVariationBinary(PstRangeAction rangeAction, VariationExtension variation) {
+        rangeActions.add(rangeAction);
+        return solver.makeBoolVar(pstTapBinaryVariationId(rangeAction, variation));
     }
 
-    public MPConstraint getRangeActionGroupSetPointConstraint(RangeAction rangeAction) {
-        return solver.lookupConstraintOrNull(rangeActionGroupSetPointConstraintId(rangeAction));
+    public MPVariable getPstTapVariationBinary(PstRangeAction rangeAction, VariationExtension variation) {
+        return solver.lookupVariableOrNull(pstTapBinaryVariationId(rangeAction, variation));
+    }
+
+    public MPConstraint addTapToAngleConversionConstraint(double lb, double ub, PstRangeAction rangeAction) {
+        rangeActions.add(rangeAction);
+        return solver.makeConstraint(lb, ub, tapToAngleConversionConstraintId(rangeAction));
+    }
+
+    public MPConstraint getTapToAngleConversionConstraint(PstRangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(tapToAngleConversionConstraintId(rangeAction));
+    }
+
+    public MPConstraint addUpOrDownPstVariationConstraint(PstRangeAction rangeAction) {
+        rangeActions.add(rangeAction);
+        return solver.makeConstraint(upOrDownPstVariationConstraintId(rangeAction));
+    }
+
+    public MPConstraint getUpOrDownPstVariationConstraint(PstRangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(upOrDownPstVariationConstraintId(rangeAction));
+    }
+
+    public MPConstraint addIsVariationInDirectionConstraint(PstRangeAction rangeAction, VariationExtension variation) {
+        rangeActions.add(rangeAction);
+        return solver.makeConstraint(isVariationInDirectionConstraintId(rangeAction, variation));
+    }
+
+    public MPConstraint getIsVariationInDirectionConstraint(PstRangeAction rangeAction, VariationExtension variation) {
+        return solver.lookupConstraintOrNull(isVariationInDirectionConstraintId(rangeAction, variation));
+    }
+
+    public MPVariable addRangeActionGroupSetpointVariable(double lb, double ub, String rangeActionGroupId) {
+        return solver.makeNumVar(lb, ub, rangeActionGroupSetpointVariableId(rangeActionGroupId));
+    }
+
+    public MPVariable getRangeActionGroupSetpointVariable(String rangeActionGroupId) {
+        return solver.lookupVariableOrNull(rangeActionGroupSetpointVariableId(rangeActionGroupId));
+    }
+
+    public MPVariable addPstGroupTapVariable(double lb, double ub, String rangeActionGroupId) {
+        return solver.makeNumVar(lb, ub, pstGroupTapVariableId(rangeActionGroupId));
+    }
+
+    public MPVariable getPstGroupTapVariable(String rangeActionGroupId) {
+        return solver.lookupVariableOrNull(pstGroupTapVariableId(rangeActionGroupId));
+    }
+
+    public MPConstraint addRangeActionGroupSetpointConstraint(double lb, double ub, RangeAction rangeAction) {
+        return solver.makeConstraint(lb, ub, rangeActionGroupSetpointConstraintId(rangeAction));
+    }
+
+    public MPConstraint getRangeActionGroupSetpointConstraint(RangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(rangeActionGroupSetpointConstraintId(rangeAction));
+    }
+
+    public MPConstraint addPstGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction) {
+        return solver.makeConstraint(lb, ub, pstGroupTapConstraintId(rangeAction));
+    }
+
+    public MPConstraint getPstGroupTapConstraint(PstRangeAction rangeAction) {
+        return solver.lookupConstraintOrNull(pstGroupTapConstraintId(rangeAction));
     }
 
     public MPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction rangeAction) {
@@ -265,7 +352,9 @@ public final class LinearProblem {
     }
 
     public LinearProblemStatus solve() {
-        status = convertResultStatus(solver.solve());
+        MPSolverParameters solveConfiguration = new MPSolverParameters();
+        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
+        status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }
 
@@ -277,8 +366,8 @@ public final class LinearProblem {
         fillers.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult));
     }
 
-    public void update(FlowResult flowResult, SensitivityResult sensitivityResult) {
-        fillers.forEach(problemFiller -> problemFiller.update(this, flowResult, sensitivityResult));
+    public void update(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
+        fillers.forEach(problemFiller -> problemFiller.update(this, flowResult, sensitivityResult, rangeActionResult));
     }
 
     public static LinearProblemBuilder create() {
@@ -289,6 +378,8 @@ public final class LinearProblem {
         private final List<ProblemFiller> problemFillers = new ArrayList<>();
         private FlowResult flowResult;
         private SensitivityResult sensitivityResult;
+        private RaoParameters.Solver solverName = RaoParameters.DEFAULT_SOLVER;
+        private double relativeMipGap = RaoParameters.DEFAULT_RELATIVE_MIP_GAP;
 
         public LinearProblemBuilder withProblemFiller(ProblemFiller problemFiller) {
             problemFillers.add(problemFiller);
@@ -305,8 +396,18 @@ public final class LinearProblem {
             return this;
         }
 
+        public LinearProblemBuilder withSolver(RaoParameters.Solver solverName) {
+            this.solverName = solverName;
+            return this;
+        }
+
+        public LinearProblemBuilder withRelativeMipGap(double relativeMipGap) {
+            this.relativeMipGap = relativeMipGap;
+            return this;
+        }
+
         public LinearProblem build() {
-            LinearProblem linearProblem = new LinearProblem(problemFillers);
+            LinearProblem linearProblem = new LinearProblem(problemFillers, solverName, relativeMipGap);
             // TODO: add checks on fillers consistency
             linearProblem.fill(flowResult, sensitivityResult);
             return linearProblem;

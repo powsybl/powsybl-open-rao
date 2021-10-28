@@ -23,6 +23,8 @@ import org.mockito.Mockito;
 import java.nio.file.FileSystem;
 import java.util.*;
 
+import static com.farao_community.farao.rao_api.parameters.RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS;
+import static com.farao_community.farao.rao_api.parameters.RaoParameters.Solver.XPRESS;
 import static org.junit.Assert.*;
 
 /**
@@ -161,6 +163,21 @@ public class RaoParametersTest {
     }
 
     @Test
+    public void checkSolverAndMipConfig() {
+        MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
+        moduleConfig.setStringProperty("pst-optimization-approximation", "APPROXIMATED_INTEGERS");
+        moduleConfig.setStringProperty("optimization-solver", "XPRESS");
+        moduleConfig.setStringProperty("relative-mip-gap", Objects.toString(1e-3));
+
+        RaoParameters parameters = new RaoParameters();
+        RaoParameters.load(parameters, platformCfg);
+
+        assertEquals(APPROXIMATED_INTEGERS, parameters.getPstOptimizationApproximation());
+        assertEquals(XPRESS, parameters.getSolver());
+        assertEquals(1e-3, parameters.getRelativeMipGap(), 1e-6);
+    }
+
+    @Test
     public void testUpdatePtdfWithTopo() {
         assertFalse(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF.shouldUpdatePtdfWithTopologicalChange());
         assertTrue(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithTopologicalChange());
@@ -172,38 +189,6 @@ public class RaoParametersTest {
         assertFalse(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF.shouldUpdatePtdfWithPstChange());
         assertFalse(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithPstChange());
         assertTrue(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO_AND_PST.shouldUpdatePtdfWithPstChange());
-    }
-
-    private static class DummyExtension extends AbstractExtension<RaoParameters> {
-
-        @Override
-        public String getName() {
-            return "dummyExtension";
-        }
-    }
-
-    @AutoService(RaoParameters.ConfigLoader.class)
-    public static class DummyLoader implements RaoParameters.ConfigLoader<DummyExtension> {
-
-        @Override
-        public DummyExtension load(PlatformConfig platformConfig) {
-            return new DummyExtension();
-        }
-
-        @Override
-        public String getExtensionName() {
-            return "dummyExtension";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "rao-parameters";
-        }
-
-        @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
-        }
     }
 
     @Test
@@ -250,4 +235,37 @@ public class RaoParametersTest {
         assertFalse(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE.relativePositiveMargins());
         assertFalse(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT.relativePositiveMargins());
     }
+
+    private static class DummyExtension extends AbstractExtension<RaoParameters> {
+
+        @Override
+        public String getName() {
+            return "dummyExtension";
+        }
+    }
+
+    @AutoService(RaoParameters.ConfigLoader.class)
+    public static class DummyLoader implements RaoParameters.ConfigLoader<DummyExtension> {
+
+        @Override
+        public DummyExtension load(PlatformConfig platformConfig) {
+            return new DummyExtension();
+        }
+
+        @Override
+        public String getExtensionName() {
+            return "dummyExtension";
+        }
+
+        @Override
+        public String getCategoryName() {
+            return "rao-parameters";
+        }
+
+        @Override
+        public Class<? super DummyExtension> getExtensionClass() {
+            return DummyExtension.class;
+        }
+    }
+
 }
