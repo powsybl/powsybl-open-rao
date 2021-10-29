@@ -193,7 +193,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
         LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = LinearOptimizerParameters.create()
                 .withObjectiveFunction(raoParameters.getObjectiveFunction())
                 .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
-                .withHvdcSensitivityThreshold(raoParameters.getHvdcSensitivityThreshold());
+                .withHvdcSensitivityThreshold(raoParameters.getHvdcSensitivityThreshold())
+                .withSolver(raoParameters.getSolver())
+                .withRelativeMipGap(raoParameters.getRelativeMipGap())
+                .withPstOptimizationApproximation(raoParameters.getPstOptimizationApproximation());
+
         if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE
                 || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
             builder.withMaxMinMarginParameters(new MaxMinMarginParameters(raoParameters.getPstPenaltyCost(), raoParameters.getHvdcPenaltyCost()));
@@ -297,7 +301,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetPoint(rangeAction)));
         optimizationResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getOptimizedState(), prePerimeterResult, optimizationResult));
+        return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getOptimizedState(), prePerimeterResult, optimizationResult, searchTreeInput.getFlowCnecs()));
     }
 
     private SearchTreeRaoResult optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
@@ -323,7 +327,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         perimeterResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), perimeterResult.getOptimizedSetPoint(rangeAction)));
         perimeterResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult);
+        return new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult, searchTreeInput.getFlowCnecs());
     }
 
     private Map<State, OptimizationResult> optimizeContingencyScenarios(Crac crac,
@@ -503,7 +507,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 toolProvider
         );
         searchTreeInput.setObjectiveFunction(objectiveFunction);
-        searchTreeInput.setIteratingLinearOptimizer(new IteratingLinearOptimizer(objectiveFunction, raoParameters.getMaxIterations()));
+        searchTreeInput.setIteratingLinearOptimizer(new IteratingLinearOptimizer(objectiveFunction, raoParameters.getMaxIterations(), raoParameters.getPstOptimizationApproximation()));
 
         searchTreeInput.setSearchTreeProblem(new SearchTreeProblem(
                 initialOutput,
@@ -751,7 +755,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         perimeterResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), perimeterResult.getOptimizedSetPoint(rangeAction)));
         perimeterResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult));
+        return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult, searchTreeInput.getFlowCnecs()));
     }
 
     /**

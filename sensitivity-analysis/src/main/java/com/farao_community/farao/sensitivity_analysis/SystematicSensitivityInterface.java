@@ -17,6 +17,7 @@ import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -154,6 +155,7 @@ public final class SystematicSensitivityInterface {
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
                 LOGGER.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
+                refreshRequestedUnits();
                 return run(network);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 throw new SensitivityAnalysisException("Sensitivity analysis failed with default parameters. No fallback parameters available.", e);
@@ -161,6 +163,16 @@ public final class SystematicSensitivityInterface {
                 throw new SensitivityAnalysisException("Sensitivity analysis failed with all available sensitivity parameters.", e);
             }
         }
+    }
+
+    private void refreshRequestedUnits() {
+        SensitivityAnalysisParameters sensitivityAnalysisParameters = fallbackMode ? fallbackParameters : defaultParameters;
+        Set<Unit> requestedUnits = new HashSet<>();
+        requestedUnits.add(Unit.MEGAWATT);
+        if (!sensitivityAnalysisParameters.getLoadFlowParameters().isDc()) {
+            requestedUnits.add(Unit.AMPERE);
+        }
+        cnecSensitivityProvider.setRequestedUnits(requestedUnits);
     }
 
     /**

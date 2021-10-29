@@ -66,7 +66,6 @@ public class CoreProblemFiller implements ProblemFiller {
             double prePerimeterSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
             buildRangeActionSetPointVariables(linearProblem, rangeAction, prePerimeterSetpoint);
             buildRangeActionAbsoluteVariationVariables(linearProblem, rangeAction);
-            buildRangeActionGroupConstraint(linearProblem, rangeAction);
         });
 
         // add constraints
@@ -75,7 +74,7 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     @Override
-    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints(linearProblem, flowResult, sensitivityResult);
     }
@@ -107,7 +106,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildRangeActionSetPointVariables(LinearProblem linearProblem, RangeAction rangeAction, double prePerimeterValue) {
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterValue);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterValue);
-        linearProblem.addRangeActionSetPointVariable(minSetPoint, maxSetPoint, rangeAction);
+        linearProblem.addRangeActionSetpointVariable(minSetPoint, maxSetPoint, rangeAction);
     }
 
     /**
@@ -188,7 +187,7 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, RangeAction rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
-        MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
+        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction);
         if (setPointVariable == null) {
             throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
         }
@@ -246,7 +245,7 @@ public class CoreProblemFiller implements ProblemFiller {
                     LinearProblem.AbsExtension.POSITIVE
             );
 
-            MPVariable setPointVariable = linearProblem.getRangeActionSetPointVariable(rangeAction);
+            MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction);
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
             varConstraintNegative.setCoefficient(absoluteVariationVariable, 1);
@@ -255,23 +254,5 @@ public class CoreProblemFiller implements ProblemFiller {
             varConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
             varConstraintPositive.setCoefficient(setPointVariable, 1);
         });
-    }
-
-    private void buildRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction rangeAction) {
-        Optional<String> optGroupId = rangeAction.getGroupId();
-        if (optGroupId.isPresent()) {
-            String groupId = optGroupId.get();
-            // For the first time the group ID is encountered a common variable for set point has to be created
-            if (linearProblem.getRangeActionGroupSetPointVariable(groupId) == null) {
-                linearProblem.addRangeActionGroupSetPointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId);
-            }
-            addRangeActionGroupConstraint(linearProblem, rangeAction, groupId);
-        }
-    }
-
-    private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction rangeAction, String groupId) {
-        MPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetPointConstraint(0, 0, rangeAction);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetPointVariable(rangeAction), 1);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetPointVariable(groupId), -1);
     }
 }
