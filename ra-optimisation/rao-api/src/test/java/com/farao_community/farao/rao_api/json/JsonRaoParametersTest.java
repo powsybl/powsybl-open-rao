@@ -73,6 +73,9 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
         parameters.setPtdfSumLowerBound(0.05);
         parameters.setPerimetersInParallel(15);
+        parameters.setSolver(RaoParameters.Solver.SCIP);
+        parameters.setRelativeMipGap(1e-5);
+        parameters.setPstOptimizationApproximation(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
 

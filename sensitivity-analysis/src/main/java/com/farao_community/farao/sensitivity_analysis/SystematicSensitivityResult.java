@@ -107,8 +107,7 @@ public class SystematicSensitivityResult {
         double reference = value.getFunctionReference();
         double sensitivity = value.getValue();
 
-        // TODO: remove this fix when reference function patched in case NaN and no divergence
-        if (Double.isNaN(reference) && !Double.isNaN(sensitivity)) {
+        if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
             reference = 0.;
         }
 
@@ -138,27 +137,27 @@ public class SystematicSensitivityResult {
     public double getReferenceFlow(Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null) {
-            return Double.NaN;
+            return 0.0;
         }
-        return stateResult.getReferenceFlows().getOrDefault(cnec.getNetworkElement().getId(), Double.NaN);
+        return stateResult.getReferenceFlows().getOrDefault(cnec.getNetworkElement().getId(), 0.0);
     }
 
     public double getReferenceIntensity(Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null) {
-            return Double.NaN;
+            return 0.0;
         }
-        return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), Double.NaN);
+        return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), 0.0);
     }
 
     public double getSensitivityOnFlow(RangeAction rangeAction, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
         if (stateResult == null || !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
-            return Double.NaN;
+            return 0.0;
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
-        return networkElements.stream().mapToDouble(netEl -> sensitivities.get(netEl.getId())).sum();
+        return networkElements.stream().mapToDouble(netEl -> sensitivities.getOrDefault(netEl.getId(), 0.0)).sum();
     }
 
     public double getSensitivityOnFlow(LinearGlsk glsk, Cnec<?> cnec) {
@@ -168,7 +167,7 @@ public class SystematicSensitivityResult {
     public double getSensitivityOnFlow(String variableId, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
         if (stateResult == null || !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
-            return Double.NaN;
+            return 0.0;
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
         return sensitivities.get(variableId);
@@ -178,7 +177,7 @@ public class SystematicSensitivityResult {
         StateResult stateResult = getCnecStateResult(cnec);
         Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
         if (stateResult == null || !stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId())) {
-            return Double.NaN;
+            return 0.0;
         }
         Map<String, Double> sensitivities = stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId());
         return networkElements.stream().mapToDouble(netEl -> sensitivities.get(netEl.getId())).sum();

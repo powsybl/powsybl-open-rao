@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.adapter.BranchResultAdapter;
 import com.farao_community.farao.rao_commons.adapter.SensitivityResultAdapter;
@@ -67,7 +68,8 @@ public class IteratingLinearOptimizerTest {
         SensitivityResultAdapter sensitivityResultAdapter = Mockito.mock(SensitivityResultAdapter.class);
         optimizer = new IteratingLinearOptimizer(
             objectiveFunction,
-            5
+            5,
+                RaoParameters.PstOptimizationApproximation.CONTINUOUS
         );
 
         linearProblem = Mockito.mock(LinearProblem.class);
