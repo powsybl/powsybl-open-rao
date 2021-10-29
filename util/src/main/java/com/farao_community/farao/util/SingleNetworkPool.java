@@ -51,6 +51,7 @@ class SingleNetworkPool extends FaraoNetworkPool {
     protected void cleanVariants(Network networkClone) {
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
             .filter(variantId -> !baseNetworkVariantIds.contains(variantId))
+            .filter(variantId -> !variantId.equals(stateSaveVariant))
             .collect(Collectors.toList());
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
@@ -64,6 +65,7 @@ class SingleNetworkPool extends FaraoNetworkPool {
 
     private void cleanBaseNetwork() {
         cleanVariants(network);
+        network.getVariantManager().removeVariant(stateSaveVariant);
         network.getVariantManager().setWorkingVariant(networkInitialVariantId);
     }
 }

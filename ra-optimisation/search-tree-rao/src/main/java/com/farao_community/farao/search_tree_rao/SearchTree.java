@@ -223,14 +223,12 @@ public class SearchTree {
                     networkPool.releaseUsedNetwork(networkClone);
                     LOGGER.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                 } catch (Exception e) {
-                    LOGGER.error("Cannot apply remedial action combination {}", naCombination.getConcatenatedId());
-                    LOGGER.error(e.getMessage());
+                    LOGGER.error("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
                     Thread.currentThread().interrupt();
                 } finally {
                     latch.countDown();
                 }
             })
-
         );
         boolean success = latch.await(24, TimeUnit.HOURS);
         if (!success) {
