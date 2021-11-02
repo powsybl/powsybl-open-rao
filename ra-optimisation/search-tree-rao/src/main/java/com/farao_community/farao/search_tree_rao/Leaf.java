@@ -72,9 +72,10 @@ class Leaf implements OptimizationResult {
     private LinearOptimizationResult postOptimResult;
 
     /**
-     * Presence of optimization data
+     * Flag indicating whether the data needed for optimization is present
+     * It is assumed that data is present initially and that it can be deleted afterwards
      */
-    private boolean dataHasBeenReleased = false;
+    private boolean optimizationDataPresent = true;
 
     Leaf(Network network,
          Set<NetworkAction> alreadyAppliedNetworkActions,
@@ -148,8 +149,8 @@ class Leaf implements OptimizationResult {
     void optimize(IteratingLinearOptimizer iteratingLinearOptimizer,
                   SensitivityComputer sensitivityComputer,
                   LeafProblem leafProblem) {
-        if (dataHasBeenReleased) {
-            throw new FaraoException("Cannot optimize leaf, because its data has been released");
+        if (!optimizationDataPresent) {
+            throw new FaraoException("Cannot optimize leaf, because optimization data has been deleted");
         }
         if (status.equals(Status.OPTIMIZED)) {
             // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
@@ -413,6 +414,6 @@ class Leaf implements OptimizationResult {
      */
     public void finalizeOptimization() {
         this.network = null;
-        this.dataHasBeenReleased = true;
+        this.optimizationDataPresent = false;
     }
 }
