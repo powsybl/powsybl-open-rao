@@ -159,6 +159,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     }
                     JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
                     break;
+                case "forbid-cost-increase":
+                    parser.nextToken();
+                    parameters.setForbidCostIncrease(parser.getBooleanValue());
+                    break;
                 case "extensions":
                     parser.nextToken();
                     if (parameters.getExtensions().isEmpty()) {

@@ -107,6 +107,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final Solver DEFAULT_SOLVER = Solver.CBC;
     public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;
     public static final PstOptimizationApproximation DEFAULT_PST_OPTIMIZATION_APPROXIMATION = PstOptimizationApproximation.CONTINUOUS;
+    public static final boolean DEFAULT_FORBID_COST_INCREASE = false;
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -134,6 +135,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private Solver solver = DEFAULT_SOLVER;
     private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
     private PstOptimizationApproximation pstOptimizationApproximation = DEFAULT_PST_OPTIMIZATION_APPROXIMATION;
+    private boolean forbidCostIncrease = DEFAULT_FORBID_COST_INCREASE; // fallback to initial solution if RAO caused cost to increase (ie in curative)
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
@@ -386,6 +388,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.pstOptimizationApproximation = pstOptimizationApproximation;
     }
 
+    public boolean getForbidCostIncrease() {
+        return forbidCostIncrease;
+    }
+
+    public void setForbidCostIncrease(boolean forbidCostIncrease) {
+        this.forbidCostIncrease = forbidCostIncrease;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -449,6 +459,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setSolver(config.getEnumProperty("optimization-solver", Solver.class, DEFAULT_SOLVER));
                 parameters.setRelativeMipGap(config.getDoubleProperty("relative-mip-gap", DEFAULT_RELATIVE_MIP_GAP));
                 parameters.setPstOptimizationApproximation(config.getEnumProperty("pst-optimization-approximation", PstOptimizationApproximation.class, DEFAULT_PST_OPTIMIZATION_APPROXIMATION));
+                parameters.setForbidCostIncrease(config.getBooleanProperty("forbid-cost-increase", DEFAULT_FORBID_COST_INCREASE));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

@@ -14,6 +14,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.google.auto.service.AutoService;
 
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -21,6 +22,11 @@ import java.util.concurrent.CompletableFuture;
  */
 @AutoService(RaoProvider.class)
 public class AnotherRaoProviderMock implements RaoProvider {
+
+    @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
+        return run(raoInput, parameters);
+    }
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
