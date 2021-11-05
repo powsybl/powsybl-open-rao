@@ -195,6 +195,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 .withHvdcSensitivityThreshold(raoParameters.getHvdcSensitivityThreshold())
                 .withSolver(raoParameters.getSolver())
                 .withRelativeMipGap(raoParameters.getRelativeMipGap())
+                .withSolverSpecificParameters(raoParameters.getSolverSpecificParameters())
                 .withPstOptimizationApproximation(raoParameters.getPstOptimizationApproximation());
 
         if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE

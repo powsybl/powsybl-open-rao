@@ -24,6 +24,7 @@ public final class LinearOptimizerParameters {
     private UnoptimizedCnecParameters unoptimizedCnecParameters;
     private RaoParameters.Solver solver;
     private double relativeMipGap;
+    private String solverSpecificParameters;
     private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
 
     private LinearOptimizerParameters() {
@@ -45,6 +46,7 @@ public final class LinearOptimizerParameters {
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private RaoParameters.Solver solver;
         private double relativeMipGap;
+        private String solverSpecificParameters;
         private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
@@ -97,6 +99,11 @@ public final class LinearOptimizerParameters {
             return this;
         }
 
+        public LinearOptimizerParametersBuilder withSolverSpecificParameters(String solverSpecificParameters) {
+            this.solverSpecificParameters = solverSpecificParameters;
+            return this;
+        }
+
         public LinearOptimizerParametersBuilder withPstOptimizationApproximation(RaoParameters.PstOptimizationApproximation pstOptimizationApproximation) {
             this.pstOptimizationApproximation = pstOptimizationApproximation;
             return this;
@@ -123,6 +130,7 @@ public final class LinearOptimizerParameters {
             linearOptimizerParameters.unoptimizedCnecParameters = unoptimizedCnecParameters;
             linearOptimizerParameters.solver = solver;
             linearOptimizerParameters.relativeMipGap = relativeMipGap;
+            linearOptimizerParameters.solverSpecificParameters = solverSpecificParameters;
             linearOptimizerParameters.pstOptimizationApproximation = pstOptimizationApproximation;
             return linearOptimizerParameters;
         }
@@ -187,6 +195,10 @@ public final class LinearOptimizerParameters {
 
     public double getRelativeMipGap() {
         return relativeMipGap;
+    }
+
+    public String getSolverSpecificParameters() {
+        return solverSpecificParameters;
     }
 
     public RaoParameters.PstOptimizationApproximation getPstOptimizationApproximation() {

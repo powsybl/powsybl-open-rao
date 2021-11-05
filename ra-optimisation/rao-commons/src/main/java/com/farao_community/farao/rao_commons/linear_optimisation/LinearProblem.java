@@ -69,6 +69,7 @@ public final class LinearProblem {
     private final Set<RangeAction> rangeActions = new HashSet<>();
     private final MPSolver solver;
     private final double relativeMipGap;
+    private final String solverSpecificParameters;
     private LinearProblemStatus status;
 
     public LinearProblem(List<ProblemFiller> fillers, MPSolver mpSolver) {
@@ -76,9 +77,10 @@ public final class LinearProblem {
         solver.objective().setMinimization();
         this.fillers = fillers;
         this.relativeMipGap = RaoParameters.DEFAULT_RELATIVE_MIP_GAP;
+        this.solverSpecificParameters = RaoParameters.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
     }
 
-    private LinearProblem(List<ProblemFiller> fillers, RaoParameters.Solver solverName, double relativeMipGap) {
+    private LinearProblem(List<ProblemFiller> fillers, RaoParameters.Solver solverName, double relativeMipGap, String solverSpecificParameters) {
         switch (solverName) {
             case CBC:
                 this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
@@ -98,6 +100,7 @@ public final class LinearProblem {
         this.solver.objective().setMinimization();
         this.fillers = fillers;
         this.relativeMipGap = relativeMipGap;
+        this.solverSpecificParameters = solverSpecificParameters;
     }
 
     final List<ProblemFiller> getFillers() {
@@ -354,6 +357,7 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         MPSolverParameters solveConfiguration = new MPSolverParameters();
         solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
+        this.solver.setSolverSpecificParametersAsString(solverSpecificParameters);
         status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }
@@ -380,6 +384,7 @@ public final class LinearProblem {
         private SensitivityResult sensitivityResult;
         private RaoParameters.Solver solverName = RaoParameters.DEFAULT_SOLVER;
         private double relativeMipGap = RaoParameters.DEFAULT_RELATIVE_MIP_GAP;
+        private String solverSpecificParameters = RaoParameters.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
 
         public LinearProblemBuilder withProblemFiller(ProblemFiller problemFiller) {
             problemFillers.add(problemFiller);
@@ -406,8 +411,13 @@ public final class LinearProblem {
             return this;
         }
 
+        public LinearProblemBuilder withSolverSpecificParameters(String solverSpecificParameters) {
+            this.solverSpecificParameters = solverSpecificParameters;
+            return this;
+        }
+
         public LinearProblem build() {
-            LinearProblem linearProblem = new LinearProblem(problemFillers, solverName, relativeMipGap);
+            LinearProblem linearProblem = new LinearProblem(problemFillers, solverName, relativeMipGap, solverSpecificParameters);
             // TODO: add checks on fillers consistency
             linearProblem.fill(flowResult, sensitivityResult);
             return linearProblem;
