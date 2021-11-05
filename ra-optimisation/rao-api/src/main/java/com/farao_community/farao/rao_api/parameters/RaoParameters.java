@@ -73,6 +73,17 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         }
     }
 
+    public enum Solver {
+        CBC,
+        SCIP,
+        XPRESS;
+    }
+
+    public enum PstOptimizationApproximation {
+        CONTINUOUS,
+        APPROXIMATED_INTEGERS;
+    }
+
     public static final ObjectiveFunction DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT;
     public static final int DEFAULT_MAX_ITERATIONS = 10;
     public static final double DEFAULT_FALLBACK_OVER_COST = 0;
@@ -93,7 +104,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
     public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     public static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
+    public static final Solver DEFAULT_SOLVER = Solver.CBC;
+    public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;
     public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
+    public static final PstOptimizationApproximation DEFAULT_PST_OPTIMIZATION_APPROXIMATION = PstOptimizationApproximation.CONTINUOUS;
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -118,12 +132,15 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private List<ZoneToZonePtdfDefinition> relativeMarginPtdfBoundaries = new ArrayList<>();
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
     private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
-    private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
 
     private LoopFlowParameters loopFlowParameters;
     private MnecParameters mnecParameters;
     private MaxMinMarginParameters maxMinMarginParameters;
     private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
+    private Solver solver = DEFAULT_SOLVER;
+    private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
+    private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
+    private PstOptimizationApproximation pstOptimizationApproximation = DEFAULT_PST_OPTIMIZATION_APPROXIMATION;
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
@@ -352,20 +369,28 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return new MnecParameters(mnecAcceptableMarginDiminution, mnecViolationCost, mnecConstraintAdjustmentCoefficient);
     }
 
-    public void setLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
-        this.loopFlowParameters = loopFlowParameters;
+    public Solver getSolver() {
+        return solver;
     }
 
-    public void setMnecParameters(MnecParameters mnecParameters) {
-        this.mnecParameters = mnecParameters;
+    public void setSolver(Solver solver) {
+        this.solver = solver;
     }
 
-    public void setMaxMinMarginParameters(MaxMinMarginParameters maxMinMarginParameters) {
-        this.maxMinMarginParameters = maxMinMarginParameters;
+    public double getRelativeMipGap() {
+        return relativeMipGap;
     }
 
-    public void setMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
-        this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
+    public void setRelativeMipGap(double relativeMipGap) {
+        this.relativeMipGap = relativeMipGap;
+    }
+
+    public PstOptimizationApproximation getPstOptimizationApproximation() {
+        return pstOptimizationApproximation;
+    }
+
+    public void setPstOptimizationApproximation(PstOptimizationApproximation pstOptimizationApproximation) {
+        this.pstOptimizationApproximation = pstOptimizationApproximation;
     }
 
     public String getSolverSpecificParameters() {
@@ -436,7 +461,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setRelativeMarginPtdfBoundariesFromString(config.getStringListProperty("relative-margin-ptdf-boundaries", new ArrayList<>()));
                 parameters.setPtdfSumLowerBound(config.getDoubleProperty("ptdf-sum-lower-bound", DEFAULT_PTDF_SUM_LOWER_BOUND));
                 parameters.setPerimetersInParallel(config.getIntProperty("perimeters-in-parallel", DEFAULT_PERIMETERS_IN_PARALLEL));
+                parameters.setSolver(config.getEnumProperty("optimization-solver", Solver.class, DEFAULT_SOLVER));
+                parameters.setRelativeMipGap(config.getDoubleProperty("relative-mip-gap", DEFAULT_RELATIVE_MIP_GAP));
                 parameters.setSolverSpecificParameters(config.getStringProperty("solver-specific-parameters", DEFAULT_SOLVER_SPECIFIC_PARAMETERS));
+                parameters.setPstOptimizationApproximation(config.getEnumProperty("pst-optimization-approximation", PstOptimizationApproximation.class, DEFAULT_PST_OPTIMIZATION_APPROXIMATION));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

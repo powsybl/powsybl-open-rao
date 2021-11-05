@@ -63,7 +63,10 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeEndArray();
         jsonGenerator.writeNumberField("ptdf-sum-lower-bound", parameters.getPtdfSumLowerBound());
         jsonGenerator.writeNumberField("perimeters-in-parallel", parameters.getPerimetersInParallel());
+        jsonGenerator.writeObjectField("optimization-solver", parameters.getSolver());
+        jsonGenerator.writeNumberField("relative-mip-gap", parameters.getRelativeMipGap());
         jsonGenerator.writeStringField("solver-specific-parameters", parameters.getSolverSpecificParameters());
+        jsonGenerator.writeObjectField("pst-optimization-approximation", parameters.getPstOptimizationApproximation());
         jsonGenerator.writeFieldName("sensitivity-parameters");
         JsonSensitivityAnalysisParameters.serialize(parameters.getDefaultSensitivityAnalysisParameters(), jsonGenerator, serializerProvider);
         if (parameters.getFallbackSensitivityAnalysisParameters() != null) {

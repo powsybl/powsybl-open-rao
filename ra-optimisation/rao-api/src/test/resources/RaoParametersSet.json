@@ -21,7 +21,10 @@
   "relative-margin-ptdf-boundaries" : [ "{FR}-{ES}", "{ES}-{PT}", "{BE}-{22Y201903144---9}-{DE}-{22Y201903145---4}" ],
   "ptdf-sum-lower-bound" : 0.05,
   "perimeters-in-parallel" : 15,
+  "optimization-solver" : "SCIP",
+  "relative-mip-gap" : 1.0E-5,
   "solver-specific-parameters" : "TREEMEMORYLIMIT 20",
+  "pst-optimization-approximation" : "APPROXIMATED_INTEGERS",
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
