@@ -185,7 +185,6 @@ public class SearchTree {
                 if (depth >= treeParameters.getMaximumSearchDepth()) {
                     LOGGER.info("End of search tree : maximum depth has been reached");
                 }
-                System.gc(); // TODO : remove this after completing memory tests
             }
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
