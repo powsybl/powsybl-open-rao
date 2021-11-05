@@ -149,6 +149,9 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setPerimetersInParallel(parser.getIntValue());
                     break;
+                case "solver-specific-parameters":
+                    parameters.setSolverSpecificParameters(parser.nextTextValue());
+                    break;
                 case "extensions":
                     parser.nextToken();
                     if (parameters.getExtensions().isEmpty()) {

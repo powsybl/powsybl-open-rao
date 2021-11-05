@@ -93,6 +93,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
     public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     public static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
+    public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -117,6 +118,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private List<ZoneToZonePtdfDefinition> relativeMarginPtdfBoundaries = new ArrayList<>();
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
     private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
+    private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
 
     private LoopFlowParameters loopFlowParameters;
     private MnecParameters mnecParameters;
@@ -366,6 +368,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
     }
 
+    public String getSolverSpecificParameters() {
+        return solverSpecificParameters;
+    }
+
+    public void setSolverSpecificParameters(String solverSpecificParameters) {
+        this.solverSpecificParameters = solverSpecificParameters;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -426,6 +436,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setRelativeMarginPtdfBoundariesFromString(config.getStringListProperty("relative-margin-ptdf-boundaries", new ArrayList<>()));
                 parameters.setPtdfSumLowerBound(config.getDoubleProperty("ptdf-sum-lower-bound", DEFAULT_PTDF_SUM_LOWER_BOUND));
                 parameters.setPerimetersInParallel(config.getIntProperty("perimeters-in-parallel", DEFAULT_PERIMETERS_IN_PARALLEL));
+                parameters.setSolverSpecificParameters(config.getStringProperty("solver-specific-parameters", DEFAULT_SOLVER_SPECIFIC_PARAMETERS));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

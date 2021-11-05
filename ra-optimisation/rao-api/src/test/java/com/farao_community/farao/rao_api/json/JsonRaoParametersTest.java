@@ -73,6 +73,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
         parameters.setPtdfSumLowerBound(0.05);
         parameters.setPerimetersInParallel(15);
+        parameters.setSolverSpecificParameters("TREEMEMORYLIMIT 20");
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
 
