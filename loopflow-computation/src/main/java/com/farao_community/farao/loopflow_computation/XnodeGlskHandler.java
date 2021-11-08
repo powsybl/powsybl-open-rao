@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class XnodeGlskHandler {
+public class XnodeGlskHandler {
 
     /*
     This class enables to filter LinearGlsk who acts on a virtual hub which has already been disconnected
@@ -38,6 +38,12 @@ class XnodeGlskHandler {
 
     Warn:
     - this class only works for UCTE data !
+
+    todo: fix this issue at its root: in the PTDF computation
+
+    In the example above, the PTDF of the GLSK of Alegro should be nul after the contingency on Alegro
+    This is actually currently not the case as the generator of the GLSK is located in the "real" node
+    connected to Alegro.
     */
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XnodeGlskHandler.class);
@@ -51,14 +57,14 @@ class XnodeGlskHandler {
         return network;
     }
 
-    XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<Contingency> contingencies, Network network) {
+    public XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<Contingency> contingencies, Network network) {
         this.glskZonalData = glskZonalData;
         this.contingencies = contingencies;
         this.network = network;
         this.invalidGlskPerContingency = buildInvalidGlskPerContingency();
     }
 
-    boolean isLinearGlskValidForCnec(FlowCnec cnec, LinearGlsk linearGlsk) {
+    public boolean isLinearGlskValidForCnec(FlowCnec cnec, LinearGlsk linearGlsk) {
 
         Optional<Contingency> optContingency = cnec.getState().getContingency();
         if (optContingency.isEmpty()) {
@@ -82,7 +88,7 @@ class XnodeGlskHandler {
 
         glskZonalData.getDataPerZone().forEach((k, linearGlsk) -> {
             if (!isGlskValid(linearGlsk, xNodesInContingency)) {
-                LOGGER.info("NetPosition of zone {} will not be shifted after contingency {}, as it acts on a Xnode which has already been disconnected by the contingency", linearGlsk.getId(), contingency.getId());
+                LOGGER.info("PTDF of zone {} will be replaced by 0 after contingency {}, as it acts on a Xnode which has been disconnected by the contingency", linearGlsk.getId(), contingency.getId());
                 invalidGlsk.add(linearGlsk.getId());
             }
         });
