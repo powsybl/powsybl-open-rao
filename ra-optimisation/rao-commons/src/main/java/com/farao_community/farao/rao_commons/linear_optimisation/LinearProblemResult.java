@@ -34,7 +34,7 @@ public class LinearProblemResult implements RangeActionResult {
         }
 
         linearProblem.getRangeActions().forEach(rangeAction ->
-                setPointPerRangeAction.put(rangeAction, linearProblem.getRangeActionSetPointVariable(rangeAction).solutionValue()));
+                setPointPerRangeAction.put(rangeAction, linearProblem.getRangeActionSetpointVariable(rangeAction).solutionValue()));
     }
 
     @Override
