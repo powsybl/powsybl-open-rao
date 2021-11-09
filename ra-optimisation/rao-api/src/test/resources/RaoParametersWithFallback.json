@@ -23,6 +23,7 @@
   "perimeters-in-parallel" : 1,
   "optimization-solver" : "CBC",
   "relative-mip-gap" : 1.0E-4,
+  "solver-specific-parameters" : null,
   "pst-optimization-approximation" : "CONTINUOUS",
   "sensitivity-parameters" : {
     "version" : "1.0",

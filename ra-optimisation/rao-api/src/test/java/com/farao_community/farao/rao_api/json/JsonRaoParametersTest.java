@@ -73,6 +73,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setRelativeMarginPtdfBoundariesFromString(stringBoundaries);
         parameters.setPtdfSumLowerBound(0.05);
         parameters.setPerimetersInParallel(15);
+        parameters.setSolverSpecificParameters("TREEMEMORYLIMIT 20");
         parameters.setSolver(RaoParameters.Solver.SCIP);
         parameters.setRelativeMipGap(1e-5);
         parameters.setPstOptimizationApproximation(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
