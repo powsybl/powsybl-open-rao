@@ -23,6 +23,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.ToolProvider;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.output.PerimeterResult;
@@ -386,30 +387,30 @@ public class SearchTreeRaoProviderTest {
         Map<State, OptimizationResult> curativeResults = Map.of(state1, optimizationResult1, state2, optimizationResult2);
 
         // No SearchTreeRaoParameters extension
-        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
 
         // Deactivated in parameters
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
-        searchTreeRaoParameters.setWithSecondPreventiveOptimization(false);
-        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.DISABLED);
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
 
         // CurativeRaoStopCriterion.MIN_OBJECTIVE
-        searchTreeRaoParameters.setWithSecondPreventiveOptimization(true);
+        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
-        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
 
         // CurativeRaoStopCriterion.SECURE, secure case
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.SECURE);
         Mockito.doReturn(-1.).when(optimizationResult1).getFunctionalCost();
         Mockito.doReturn(-10.).when(optimizationResult2).getFunctionalCost();
-        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
         // CurativeRaoStopCriterion.SECURE, unsecure case 1
         Mockito.doReturn(0.).when(optimizationResult1).getFunctionalCost();
-        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
         // CurativeRaoStopCriterion.SECURE, unsecure case 2
         Mockito.doReturn(5.).when(optimizationResult1).getFunctionalCost();
-        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
     }
 
     private void setCost(OptimizationResult optimizationResultMock, double cost) {
@@ -429,7 +430,7 @@ public class SearchTreeRaoProviderTest {
 
         SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
         parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
-        searchTreeRaoParameters.setWithSecondPreventiveOptimization(true);
+        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         searchTreeRaoParameters.setCurativeRaoMinObjImprovement(10.);
 
         // CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE
@@ -438,31 +439,85 @@ public class SearchTreeRaoProviderTest {
         setCost(optimizationResult1, -200.);
         setCost(optimizationResult2, -300.);
         // case 1 : all curatives are better than preventive (cost < preventive cost - minObjImprovement)
-        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
         // case 2 : one curative has cost = preventive cost - minObjImprovement
         setCost(optimizationResult1, -110.);
-        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
         // case 3 : one curative has cost > preventive cost - minObjImprovement
         setCost(optimizationResult1, -109.);
-        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
 
         // CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE
         searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
         // case 1 : all curatives are better than preventive (cost <= preventive cost - minObjImprovement), SECURE
         setCost(optimizationResult1, -200.);
-        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
         setCost(optimizationResult1, -110.);
-        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
         // case 2 : all curatives are better than preventive (cost < preventive cost - minObjImprovement), UNSECURE
         setCost(preventiveResult, 1000.);
         setCost(optimizationResult1, 0.);
-        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
         setCost(optimizationResult1, 10.);
-        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
         // case 3 : one curative has cost > preventive cost - minObjImprovement, SECURE
         setCost(preventiveResult, -100.);
         setCost(optimizationResult1, -109.);
-        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, preventiveResult, curativeResults));
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, null, 0));
+    }
+
+    @Test
+    public void testShouldRunSecondPreventiveRaoTime() {
+        RaoParameters parameters = new RaoParameters();
+        State state1 = Mockito.mock(State.class);
+        State state2 = Mockito.mock(State.class);
+        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
+        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimizationResult1, state2, optimizationResult2);
+
+        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
+        parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
+        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
+
+        // Enough time
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, java.time.Instant.now().plusSeconds(200), 100));
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, java.time.Instant.now().plusSeconds(200), 199));
+
+        // Not enough time
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, java.time.Instant.now().plusSeconds(200), 201));
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, null, preventiveResult, curativeResults, java.time.Instant.now().plusSeconds(200), 400));
+    }
+
+    @Test
+    public void testShouldRunSecondPreventiveRaoCostIncrease() {
+        RaoParameters parameters = new RaoParameters();
+        State state1 = Mockito.mock(State.class);
+        State state2 = Mockito.mock(State.class);
+        ObjectiveFunctionResult initialResult = Mockito.mock(ObjectiveFunctionResult.class);
+        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
+        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimizationResult1, state2, optimizationResult2);
+
+        SearchTreeRaoParameters searchTreeRaoParameters = new SearchTreeRaoParameters();
+        parameters.addExtension(SearchTreeRaoParameters.class, searchTreeRaoParameters);
+        searchTreeRaoParameters.setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE);
+        searchTreeRaoParameters.setCurativeRaoStopCriterion(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE);
+
+        when(initialResult.getCost()).thenReturn(-100.);
+        when(preventiveResult.getCost()).thenReturn(-10.);
+        when(optimizationResult1.getCost()).thenReturn(-120.);
+        when(optimizationResult2.getCost()).thenReturn(-130.);
+
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, initialResult, preventiveResult, curativeResults, null, 0));
+
+        when(optimizationResult2.getCost()).thenReturn(-100.);
+        assertFalse(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, initialResult, preventiveResult, curativeResults, null, 0));
+
+        when(optimizationResult2.getCost()).thenReturn(-95.);
+        assertTrue(SearchTreeRaoProvider.shouldRunSecondPreventiveRao(parameters, initialResult, preventiveResult, curativeResults, null, 0));
     }
 
     private void setUpCracWithRAs() {

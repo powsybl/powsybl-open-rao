@@ -35,6 +35,12 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         // TODO : we can add WORST_OBJECTIVE and WORST_OBJECTIVE_AND_SECURE if we want to use the worst curative perimeter objective as a stop criterion for other curative perimeters too
     }
 
+    public enum SecondPreventiveRaoCondition {
+        DISABLED, // do not run 2nd preventive RAO
+        POSSIBLE_CURATIVE_IMPROVEMENT, // run 2nd preventive RAO if curative results can be improved, taking into account the curative RAO stop criterion
+        COST_INCREASE // run 2nd preventive RAO if curative results can be improved + only if the overall cost has increased during RAO (ie if preventive RAO degraded a curative CNEC's margin or created a curative virtual cost)
+    }
+
     static final int DEFAULT_MAXIMUM_SEARCH_DEPTH = Integer.MAX_VALUE;
     static final double DEFAULT_NETWORK_ACTION_MINIMUM_IMPACT_THRESHOLD = 0;
     static final int DEFAULT_PREVENTIVE_LEAVES_IN_PARALLEL = 1;
@@ -50,7 +56,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_PST_PER_TSO = new HashMap<>();
     static final Map<String, Integer> DEFAULT_MAX_CURATIVE_RA_PER_TSO = new HashMap<>();
     static final boolean DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS = true;
-    static final boolean DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION = false;
+    static final SecondPreventiveRaoCondition DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION = SecondPreventiveRaoCondition.DISABLED;
     static final List<List<String>> DEFAULT_NETWORK_ACTION_ID_COMBINATIONS = new ArrayList<>();
 
     private int maximumSearchDepth = DEFAULT_MAXIMUM_SEARCH_DEPTH;
@@ -69,7 +75,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Map<String, Integer> maxCurativePstPerTso = DEFAULT_MAX_CURATIVE_PST_PER_TSO;
     private Map<String, Integer> maxCurativeRaPerTso = DEFAULT_MAX_CURATIVE_RA_PER_TSO;
     private boolean curativeRaoOptimizeOperatorsNotSharingCras = DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS;
-    private boolean withSecondPreventiveOptimization = DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION;
+    private SecondPreventiveRaoCondition secondPreventiveOptimizationCondition = DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION;
     private List<List<String>> networkActionIdCombinations = DEFAULT_NETWORK_ACTION_ID_COMBINATIONS;
     private List<NetworkActionCombination> networkActionCombinations = null;
 
@@ -244,12 +250,12 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         this.curativeRaoOptimizeOperatorsNotSharingCras = curativeRaoOptimizeOperatorsNotSharingCras;
     }
 
-    public boolean getWithSecondPreventiveOptimization() {
-        return withSecondPreventiveOptimization;
+    public SecondPreventiveRaoCondition getSecondPreventiveOptimizationCondition() {
+        return secondPreventiveOptimizationCondition;
     }
 
-    public void setWithSecondPreventiveOptimization(boolean withSecondPreventiveOptimization) {
-        this.withSecondPreventiveOptimization = withSecondPreventiveOptimization;
+    public void setSecondPreventiveOptimizationCondition(SecondPreventiveRaoCondition secondPreventiveOptimizationCondition) {
+        this.secondPreventiveOptimizationCondition = secondPreventiveOptimizationCondition;
     }
 
     public List<List<String>> getNetworkActionIdCombinations() {

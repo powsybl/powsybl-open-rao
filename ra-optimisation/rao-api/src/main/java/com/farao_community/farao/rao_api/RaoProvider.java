@@ -10,6 +10,7 @@ import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.Versionable;
 
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -23,4 +24,6 @@ public interface RaoProvider extends Versionable {
      * @return A completable future of a RaoComputationResult it gathers all the optimization results.
      */
     CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters);
+
+    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant);
 }

@@ -15,6 +15,7 @@ import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -47,26 +48,38 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
-            return provider.run(raoInput, parameters);
+            return provider.run(raoInput, parameters, targetEndInstant);
+        }
+
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
+            return runAsync(raoInput, parameters, null);
         }
 
         public CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
-            return runAsync(raoInput, RaoParameters.load());
+            return runAsync(raoInput, (Instant) null);
         }
 
-        public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
+        public CompletableFuture<RaoResult> runAsync(RaoInput raoInput, Instant targetEndInstant) {
+            return runAsync(raoInput, RaoParameters.load(), targetEndInstant);
+        }
+
+        public RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
-            return provider.run(raoInput, parameters).join();
+            return provider.run(raoInput, parameters, targetEndInstant).join();
+        }
+
+        public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
+            return run(raoInput, parameters, null);
         }
 
         public RaoResult run(RaoInput raoInput) {
-            return run(raoInput, RaoParameters.load());
+            return run(raoInput, RaoParameters.load(), null);
         }
 
         @Override
@@ -146,12 +159,16 @@ public final class Rao {
         return new Runner(provider);
     }
 
-    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters) {
-        return find().runAsync(raoInput, parameters);
+    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
+        return find().runAsync(raoInput, parameters, targetEndInstant);
     }
 
-    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput) {
-        return find().runAsync(raoInput);
+    public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, Instant targetEndInstant) {
+        return find().runAsync(raoInput, targetEndInstant);
+    }
+
+    public static RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
+        return find().run(raoInput, parameters, targetEndInstant);
     }
 
     public static RaoResult run(RaoInput raoInput, RaoParameters parameters) {

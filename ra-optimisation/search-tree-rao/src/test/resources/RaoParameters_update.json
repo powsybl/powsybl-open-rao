@@ -32,7 +32,7 @@
       "max-curative-pst-per-tso" : { "Amprion" : 0 },
       "max-curative-ra-per-tso" : { "Tennet" : 1 , "50Hz" : 9 },
       "curative-rao-optimize-operators-not-sharing-cras" : false,
-      "with-second-preventive-optimization" : true
+      "second-preventive-optimization-condition" : "COST_INCREASE"
     }
   }
 }
