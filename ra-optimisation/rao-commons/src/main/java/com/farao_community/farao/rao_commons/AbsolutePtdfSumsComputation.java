@@ -50,7 +50,7 @@ public class AbsolutePtdfSumsComputation {
 
         for (FlowCnec flowCnec : flowCnecs) {
             Map<EICode, Double> ptdfMap = buildZoneToSlackPtdfMap(flowCnec, glskProvider, eiCodesInPtdfs, sensitivityResult, xnodeGlskHandler);
-            double sumOfZToZPtdf = zTozPtdfs.stream().mapToDouble(zToz -> Math.abs(computeZToZPtdf(zToz, ptdfMap, xnodeGlskHandler))).sum();
+            double sumOfZToZPtdf = zTozPtdfs.stream().mapToDouble(zToz -> Math.abs(computeZToZPtdf(zToz, ptdfMap))).sum();
             ptdfSums.put(flowCnec, sumOfZToZPtdf);
         }
         return ptdfSums;
@@ -73,7 +73,7 @@ public class AbsolutePtdfSumsComputation {
         return ptdfs;
     }
 
-    private double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap, XnodeGlskHandler xnodeGlskHandler) {
+    private double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
         if (zToz.getZoneToSlackPtdfs().stream().anyMatch(zToS -> !zToSlackPtdfMap.containsKey(zToS.getEiCode()))) {
             // If one zone is missing its PTDF, ignore the boundary
             return 0;
