@@ -265,7 +265,4 @@
         <iidm:currentLimits1 permanentLimit="5000.0"/>
         <iidm:currentLimits2 permanentLimit="5000.0"/>
     </iidm:tieLine>
-    <iidm:extension id="XLI_OB1B_generator">
-        <farao:assignedVirtualHub code="code1" eic="22Y201903144---9" isMcParticipant="true" nodeName="XLI_OB1B" relatedMa="FR"/>
-    </iidm:extension>
 </iidm:network>

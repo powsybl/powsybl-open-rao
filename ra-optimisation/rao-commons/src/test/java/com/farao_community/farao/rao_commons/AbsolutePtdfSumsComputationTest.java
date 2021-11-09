@@ -144,7 +144,7 @@ public class AbsolutePtdfSumsComputationTest {
     public void testIgnoreGlskOnDisconnectedXnodes() {
 
         // prepare data
-        Network network = Importers.loadNetwork("network_with_virtual_hubs.xiidm", getClass().getResourceAsStream("/network_with_virtual_hubs.xiidm"));
+        Network network = Importers.loadNetwork("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network_with_alegro_hub.xiidm"));
         ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_with_virtual_hubs.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 

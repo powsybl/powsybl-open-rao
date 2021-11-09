@@ -47,6 +47,7 @@ public class XnodeGlskHandler {
     */
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XnodeGlskHandler.class);
+    private static final int N_CHARACTERS_IN_UCTE_NODE = 8;
 
     private Map<Contingency, List<String>> invalidGlskPerContingency;
     private ZonalData<LinearGlsk> glskZonalData;
@@ -103,17 +104,24 @@ public class XnodeGlskHandler {
             return true;
         }
 
-        // if the linearGlsk is on a virtualHub present in the contingency, the linearGlsk is invalid
+        // if the linearGlsk is on a Xnode present in the contingency, the linearGlsk is invalid
         String glskInjectionId = linearGlsk.getGLSKs().keySet().iterator().next();
 
         if (network.getIdentifiable(glskInjectionId) instanceof Injection<?>) {
             Injection<?> injection = (Injection) network.getIdentifiable(glskInjectionId);
             AssignedVirtualHub virtualHub = injection.getExtension(AssignedVirtualHub.class);
 
+            // if the injection contains a virtual hub extension which is tagging a xnode disconnected by the
+            // contingency, it is invalid
             if (virtualHub != null && xNodesInContingency.contains(virtualHub.getNodeName())) {
                 return false;
             }
 
+            // if the injection's id starts with a xnode disconnected by the contingency, it is invalid
+            String ucteNode = injection.getId().substring(0, N_CHARACTERS_IN_UCTE_NODE);
+            if (ucteNode.startsWith("X") && xNodesInContingency.contains(ucteNode)) {
+                return false;
+            }
         }
         return true;
     }
