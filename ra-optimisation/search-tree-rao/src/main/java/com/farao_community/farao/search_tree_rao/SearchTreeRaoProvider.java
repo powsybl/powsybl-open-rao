@@ -185,7 +185,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
      */
     private RaoResult postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, RaoParameters raoParameters) {
         if (raoParameters.getForbidCostIncrease() && raoResult.getCost(OptimizationState.AFTER_CRA) > initialResult.getCost()) {
-            LOGGER.warn("RAO has increased the overall cost from {} to {}. Falling back to initial solution:", initialResult.getCost(), raoResult.getCost(OptimizationState.AFTER_CRA));
+            LOGGER.warn("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
+                initialResult.getCost(), initialResult.getFunctionalCost(), initialResult.getVirtualCost(),
+                raoResult.getCost(OptimizationState.AFTER_CRA), raoResult.getFunctionalCost(OptimizationState.AFTER_CRA), raoResult.getVirtualCost(OptimizationState.AFTER_CRA));
             // log results
             SearchTreeRaoLogger.logMostLimitingElementsResults(initialResult, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
             return new UnoptimizedRaoOutput(initialResult);
