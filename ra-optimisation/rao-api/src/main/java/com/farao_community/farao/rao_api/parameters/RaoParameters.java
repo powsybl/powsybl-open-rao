@@ -106,6 +106,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
     public static final Solver DEFAULT_SOLVER = Solver.CBC;
     public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;
+    public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
     public static final PstOptimizationApproximation DEFAULT_PST_OPTIMIZATION_APPROXIMATION = PstOptimizationApproximation.CONTINUOUS;
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
@@ -131,8 +132,10 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private List<ZoneToZonePtdfDefinition> relativeMarginPtdfBoundaries = new ArrayList<>();
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
     private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
+
     private Solver solver = DEFAULT_SOLVER;
     private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
+    private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
     private PstOptimizationApproximation pstOptimizationApproximation = DEFAULT_PST_OPTIMIZATION_APPROXIMATION;
 
     public ObjectiveFunction getObjectiveFunction() {
@@ -386,6 +389,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.pstOptimizationApproximation = pstOptimizationApproximation;
     }
 
+    public String getSolverSpecificParameters() {
+        return solverSpecificParameters;
+    }
+
+    public void setSolverSpecificParameters(String solverSpecificParameters) {
+        this.solverSpecificParameters = solverSpecificParameters;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -448,6 +459,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setPerimetersInParallel(config.getIntProperty("perimeters-in-parallel", DEFAULT_PERIMETERS_IN_PARALLEL));
                 parameters.setSolver(config.getEnumProperty("optimization-solver", Solver.class, DEFAULT_SOLVER));
                 parameters.setRelativeMipGap(config.getDoubleProperty("relative-mip-gap", DEFAULT_RELATIVE_MIP_GAP));
+                parameters.setSolverSpecificParameters(config.getStringProperty("solver-specific-parameters", DEFAULT_SOLVER_SPECIFIC_PARAMETERS));
                 parameters.setPstOptimizationApproximation(config.getEnumProperty("pst-optimization-approximation", PstOptimizationApproximation.class, DEFAULT_PST_OPTIMIZATION_APPROXIMATION));
             });
 

@@ -71,7 +71,8 @@ public class LeafProblem extends SearchTreeProblem {
         linearProblemBuilder.withBranchResult(preOptimFlowResult)
                 .withSensitivityResult(preOptimSensitivityResult)
                 .withSolver(linearOptimizerParameters.getSolver())
-                .withRelativeMipGap(linearOptimizerParameters.getRelativeMipGap());
+                .withRelativeMipGap(linearOptimizerParameters.getRelativeMipGap())
+                .withSolverSpecificParameters(linearOptimizerParameters.getSolverSpecificParameters());
 
         return linearProblemBuilder.build();
     }
