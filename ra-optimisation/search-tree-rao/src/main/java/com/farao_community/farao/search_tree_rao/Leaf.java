@@ -42,7 +42,6 @@ class Leaf implements OptimizationResult {
         ERROR("Error"),
         EVALUATED("Evaluated"),
         OPTIMIZED("Optimized");
-
         private String message;
 
         Status(String message) {
@@ -60,7 +59,7 @@ class Leaf implements OptimizationResult {
      * this leaf), can be empty for root leaf
      */
     private final Set<NetworkAction> networkActions;
-    private final Network network;
+    private Network network;
     private final RangeActionResult preOptimRangeActionResult;
 
     /**
@@ -71,6 +70,12 @@ class Leaf implements OptimizationResult {
     private SensitivityResult preOptimSensitivityResult;
     private ObjectiveFunctionResult preOptimObjectiveFunctionResult;
     private LinearOptimizationResult postOptimResult;
+
+    /**
+     * Flag indicating whether the data needed for optimization is present
+     * It is assumed that data is present initially and that it can be deleted afterwards
+     */
+    private boolean optimizationDataPresent = true;
 
     Leaf(Network network,
          Set<NetworkAction> alreadyAppliedNetworkActions,
@@ -144,6 +149,9 @@ class Leaf implements OptimizationResult {
     void optimize(IteratingLinearOptimizer iteratingLinearOptimizer,
                   SensitivityComputer sensitivityComputer,
                   LeafProblem leafProblem) {
+        if (!optimizationDataPresent) {
+            throw new FaraoException("Cannot optimize leaf, because optimization data has been deleted");
+        }
         if (status.equals(Status.OPTIMIZED)) {
             // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
             LOGGER.debug("Resetting range action setpoints to their pre-optim values");
@@ -173,7 +181,7 @@ class Leaf implements OptimizationResult {
     }
 
     private void resetPreOptimRangeActionsSetpoints() {
-        preOptimRangeActionResult.getRangeActions().forEach(rangeAction ->  rangeAction.apply(network, preOptimRangeActionResult.getOptimizedSetPoint(rangeAction)));
+        preOptimRangeActionResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(network, preOptimRangeActionResult.getOptimizedSetPoint(rangeAction)));
     }
 
     @Override
@@ -399,5 +407,13 @@ class Leaf implements OptimizationResult {
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }
+    }
+
+    /**
+     * Releases data used in optimization to make leaf lighter
+     */
+    public void finalizeOptimization() {
+        this.network = null;
+        this.optimizationDataPresent = false;
     }
 }
