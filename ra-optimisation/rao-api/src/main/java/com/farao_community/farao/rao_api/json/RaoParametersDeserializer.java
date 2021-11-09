@@ -145,6 +145,9 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setRelativeMipGap(parser.getDoubleValue());
                     break;
+                case "solver-specific-parameters":
+                    parameters.setSolverSpecificParameters(parser.nextTextValue());
+                    break;
                 case "pst-optimization-approximation":
                     parameters.setPstOptimizationApproximation(stringToPstApproximation(parser.nextTextValue()));
                     break;

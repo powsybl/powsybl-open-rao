@@ -658,4 +658,15 @@ public class LeafTest {
         leaf.getSensitivityValue(flowCnec, linearGlsk, Unit.MEGAWATT);
     }
 
+    @Test
+    public void testFinalize() {
+        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
+        Mockito.when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
+        Leaf rootLeaf = new Leaf(network, prePerimeterResult);
+        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
+        rootLeaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
+        rootLeaf.finalizeOptimization();
+        assertThrows(FaraoException.class, () -> rootLeaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem));
+    }
 }

@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.util;
 
-import com.farao_community.farao.commons.RandomizedString;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -15,37 +14,20 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FaraoNetworkPool.class);
-    protected final BlockingQueue<Network> networksQueue;
-    private final String targetVariant;
+public class MultipleNetworkPool extends AbstractNetworkPool {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MultipleNetworkPool.class);
 
-    // State used to save initial content of target variant.
-    // Useful when targetVariant equals VariantManagerConstants.INITIAL_VARIANT_ID
-    private final String stateSaveVariant;
-
-    public FaraoNetworkPool(Network network, String targetVariant, int parallelism) {
-        super(parallelism);
-        Objects.requireNonNull(network);
-        this.targetVariant = Objects.requireNonNull(targetVariant);
-        this.stateSaveVariant = RandomizedString.getRandomizedString("FaraoNetworkPool state save ", network.getVariantManager().getVariantIds(), 5);
-        this.networksQueue = new ArrayBlockingQueue<>(getParallelism());
-        initAvailableNetworks(network);
+    protected MultipleNetworkPool(Network network, String targetVariant, int parallelism) {
+        super(network, targetVariant, parallelism);
     }
 
-    public FaraoNetworkPool(Network network, String targetVariant) {
-        this(network, targetVariant, Runtime.getRuntime().availableProcessors());
-    }
-
+    @Override
     protected void initAvailableNetworks(Network network) {
         LOGGER.info("Filling network pool with copies of network '{}' on variant '{}'", network.getId(), targetVariant);
         String initialVariant = network.getVariantManager().getWorkingVariantId();
@@ -55,7 +37,7 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
             Network copy = NetworkXml.copy(network);
             // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
             // in cloned network, so we need to copy it again.
-            copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, Arrays.asList(targetVariant, stateSaveVariant), true);
+            copy.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, Arrays.asList(stateSaveVariant, workingVariant), true);
             boolean isSuccess = networksQueue.offer(copy);
             if (!isSuccess) {
                 throw new AssertionError(String.format("Cannot offer copy n°'%d' in pool. Should not happen", i + 1));
@@ -64,13 +46,7 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
         network.getVariantManager().setWorkingVariant(initialVariant);
     }
 
-    public Network getAvailableNetwork() throws InterruptedException {
-        Network networkClone = networksQueue.take();
-        networkClone.getVariantManager().cloneVariant(stateSaveVariant, targetVariant, true);
-        networkClone.getVariantManager().setWorkingVariant(targetVariant);
-        return networkClone;
-    }
-
+    @Override
     protected void cleanVariants(Network networkClone) {
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
                 .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
@@ -79,13 +55,9 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
 
-    public void releaseUsedNetwork(Network networkToRelease) throws InterruptedException {
-        cleanVariants(networkToRelease);
-        networksQueue.put(networkToRelease);
-    }
-
     @Override
-    public void close() {
-        shutdownNow();
+    public void shutdownAndAwaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+        super.shutdown();
+        super.awaitTermination(timeout, unit);
     }
 }
