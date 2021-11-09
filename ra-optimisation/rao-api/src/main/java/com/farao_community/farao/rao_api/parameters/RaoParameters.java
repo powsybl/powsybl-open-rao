@@ -397,7 +397,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public void setForbidCostIncrease(boolean forbidCostIncrease) {
         this.forbidCostIncrease = forbidCostIncrease;
-      
+    }
+
     public String getSolverSpecificParameters() {
         return solverSpecificParameters;
     }

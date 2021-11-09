@@ -219,7 +219,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             .withSolver(raoParameters.getSolver())
             .withRelativeMipGap(raoParameters.getRelativeMipGap())
             .withSolverSpecificParameters(raoParameters.getSolverSpecificParameters())
-            .withPstOptimizationApproximation(raoParameters.getPstOptimizationApproximation())
+            .withPstOptimizationApproximation(raoParameters.getPstOptimizationApproximation());
 
         if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE
             || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
@@ -388,7 +388,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
                             preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
                         }
 
-                            // Optimize curative instant
+                        // Optimize curative instant
                         OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
                                 raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
                         contingencyScenarioResults.put(curativeState, curativeResult);
@@ -398,17 +398,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
                         LOGGER.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
                         Thread.currentThread().interrupt();
                     }
-
-                    // Optimize curative instant
-                    OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
-                        raoParameters, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
-                    contingencyScenarioResults.put(curativeState, curativeResult);
-                    // Release network copy
-                    networkPool.releaseUsedNetwork(networkClone);
-                } catch (InterruptedException | NotImplementedException | FaraoException | NullPointerException e) {
-                    LOGGER.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
-                    Thread.currentThread().interrupt();
-                }
                 })
             );
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
