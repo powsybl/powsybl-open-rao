@@ -18,15 +18,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FaraoNetworkPool.class);
+public class MultipleNetworkPool extends AbstractNetworkPool {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MultipleNetworkPool.class);
     protected final BlockingQueue<Network> networksQueue;
     protected final String targetVariant;
     protected final String workingVariant;
@@ -35,15 +34,7 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
     // Useful when targetVariant equals VariantManagerConstants.INITIAL_VARIANT_ID
     protected final String stateSaveVariant;
 
-    public static FaraoNetworkPool create(Network network, String targetVariant, int parallelism) {
-        if (parallelism == 1) {
-            return new SingleNetworkPool(network, targetVariant);
-        } else {
-            return new FaraoNetworkPool(network, targetVariant, parallelism);
-        }
-    }
-
-    protected FaraoNetworkPool(Network network, String targetVariant, int parallelism) {
+    protected MultipleNetworkPool(Network network, String targetVariant, int parallelism) {
         super(parallelism);
         Objects.requireNonNull(network);
         this.targetVariant = Objects.requireNonNull(targetVariant);
@@ -71,6 +62,7 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
         network.getVariantManager().setWorkingVariant(initialVariant);
     }
 
+    @Override
     public Network getAvailableNetwork() throws InterruptedException {
         Network networkClone = networksQueue.take();
         networkClone.getVariantManager().cloneVariant(stateSaveVariant, workingVariant, true);
@@ -86,18 +78,15 @@ public class FaraoNetworkPool extends ForkJoinPool implements AutoCloseable {
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
 
+    @Override
     public void releaseUsedNetwork(Network networkToRelease) throws InterruptedException {
         cleanVariants(networkToRelease);
         networksQueue.put(networkToRelease);
     }
 
+    @Override
     public void shutdownAndAwaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
         super.shutdown();
         super.awaitTermination(timeout, unit);
-    }
-
-    @Override
-    public void close() {
-        shutdownNow();
     }
 }

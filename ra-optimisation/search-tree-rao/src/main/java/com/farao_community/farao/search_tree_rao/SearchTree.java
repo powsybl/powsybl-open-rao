@@ -21,7 +21,7 @@ import com.farao_community.farao.rao_commons.objective_function_evaluator.Object
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
-import com.farao_community.farao.util.FaraoNetworkPool;
+import com.farao_community.farao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
@@ -167,7 +167,7 @@ public class SearchTree {
             return;
         }
         LOGGER.debug("Evaluating {} leaves in parallel", leavesInParallel);
-        try (FaraoNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
+        try (AbstractNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
             while (depth < treeParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 LOGGER.info("Research depth: {} - [start]", depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
@@ -196,7 +196,7 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use FaraoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(FaraoNetworkPool networkPool) throws InterruptedException {
+    private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
         // Recompute the list of available network actions with last margin results
         Set<NetworkAction> availableActionsOnNewMargins = availableNetworkActions.stream().filter(na -> isRemedialActionAvailable(na, optimizedState, optimalLeaf)).collect(Collectors.toSet());
         // Bloom
@@ -229,17 +229,18 @@ public class SearchTree {
                 }
             })
         );
+        // TODO : change the 24 hours to something more useful when a target end time is known by the RAO
         boolean success = latch.await(24, TimeUnit.HOURS);
         if (!success) {
-            throw new FaraoException("At least one network action combination could not be evaluated. This should not happen.");
+            throw new FaraoException("At least one network action combination could not be evaluated within the given time (24 hours). This should not happen.");
         }
     }
 
-    FaraoNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {
-        return FaraoNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel);
+    AbstractNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {
+        return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel);
     }
 
-    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, Network network, FaraoNetworkPool networkPool) throws InterruptedException {
+    void optimizeNextLeafAndUpdate(NetworkActionCombination naCombination, Network network, AbstractNetworkPool networkPool) throws InterruptedException {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf

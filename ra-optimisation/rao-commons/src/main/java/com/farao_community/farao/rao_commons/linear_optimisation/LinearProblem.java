@@ -357,7 +357,9 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         MPSolverParameters solveConfiguration = new MPSolverParameters();
         solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
-        this.solver.setSolverSpecificParametersAsString(solverSpecificParameters);
+        if (solverSpecificParameters != null) {
+            this.solver.setSolverSpecificParametersAsString(solverSpecificParameters);
+        }
         status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }

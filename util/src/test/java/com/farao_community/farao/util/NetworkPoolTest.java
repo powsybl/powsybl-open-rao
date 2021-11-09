@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FaraoNetworkPoolTest {
+public class NetworkPoolTest {
     private Network network;
     private String initialVariant;
     private String otherVariant = "otherVariant";
@@ -26,13 +26,13 @@ public class FaraoNetworkPoolTest {
 
     @Test
     public void testCreate() {
-        assertFalse(FaraoNetworkPool.create(network, otherVariant, 10) instanceof SingleNetworkPool);
-        assertTrue(FaraoNetworkPool.create(network, otherVariant, 1) instanceof SingleNetworkPool);
+        assertTrue(AbstractNetworkPool.create(network, otherVariant, 10) instanceof MultipleNetworkPool);
+        assertTrue(AbstractNetworkPool.create(network, otherVariant, 1) instanceof SingleNetworkPool);
     }
 
     @Test
     public void networkPoolUsageTest() {
-        try (FaraoNetworkPool pool = FaraoNetworkPool.create(network, otherVariant, 10)) {
+        try (AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 10)) {
             Network networkCopy = pool.getAvailableNetwork();
 
             assertNotNull(networkCopy);
@@ -48,7 +48,7 @@ public class FaraoNetworkPoolTest {
 
     @Test
     public void singleNetworkPoolUsageTest() throws InterruptedException {
-        FaraoNetworkPool pool = FaraoNetworkPool.create(network, otherVariant, 1);
+        AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 1);
         Network networkCopy = pool.getAvailableNetwork();
 
         assertNotNull(networkCopy);

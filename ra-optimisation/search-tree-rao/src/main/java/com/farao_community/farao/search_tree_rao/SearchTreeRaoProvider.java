@@ -37,7 +37,7 @@ import com.farao_community.farao.search_tree_rao.output.*;
 import com.farao_community.farao.search_tree_rao.state_tree.StateTree;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
-import com.farao_community.farao.util.FaraoNetworkPool;
+import com.farao_community.farao.util.AbstractNetworkPool;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
@@ -344,7 +344,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         network.getVariantManager().cloneVariant(PREVENTIVE_SCENARIO, CONTINGENCY_SCENARIO);
         network.getVariantManager().setWorkingVariant(CONTINGENCY_SCENARIO);
         // Go through all contingency scenarios
-        try (FaraoNetworkPool networkPool = FaraoNetworkPool.create(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel())) {
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel())) {
             stateTree.getContingencyScenarios().forEach(optimizedScenario ->
                     networkPool.submit(() -> {
                         try {

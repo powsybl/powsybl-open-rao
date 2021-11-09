@@ -133,10 +133,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND; // prevents relative margins from diverging to +infinity
     private int perimetersInParallel = DEFAULT_PERIMETERS_IN_PARALLEL;
 
-    private LoopFlowParameters loopFlowParameters;
-    private MnecParameters mnecParameters;
-    private MaxMinMarginParameters maxMinMarginParameters;
-    private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
     private Solver solver = DEFAULT_SOLVER;
     private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
     private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
