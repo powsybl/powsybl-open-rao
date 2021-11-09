@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * while correctly handling setup and cleanup of variants
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class SingleNetworkPool extends AbstractNetworkPool {
+class SingleNetworkPool extends MultipleNetworkPool {
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleNetworkPool.class);
     private String networkInitialVariantId;
     private Network network;
