@@ -45,7 +45,7 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
         jsonGenerator.writeObjectField("max-curative-pst-per-tso", searchTreeRaoParameters.getMaxCurativePstPerTso());
         jsonGenerator.writeObjectField("max-curative-ra-per-tso", searchTreeRaoParameters.getMaxCurativeRaPerTso());
         jsonGenerator.writeBooleanField("curative-rao-optimize-operators-not-sharing-cras", searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras());
-        jsonGenerator.writeBooleanField("with-second-preventive-optimization", searchTreeRaoParameters.getWithSecondPreventiveOptimization());
+        jsonGenerator.writeObjectField("second-preventive-optimization-condition", searchTreeRaoParameters.getSecondPreventiveOptimizationCondition());
 
         jsonGenerator.writeFieldName("network-action-combinations");
         jsonGenerator.writeStartArray();
@@ -122,8 +122,8 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
                 case "curative-rao-optimize-operators-not-sharing-cras":
                     parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(jsonParser.getValueAsBoolean());
                     break;
-                case "with-second-preventive-optimization":
-                    parameters.setWithSecondPreventiveOptimization(jsonParser.getValueAsBoolean());
+                case "second-preventive-optimization-condition":
+                    parameters.setSecondPreventiveOptimizationCondition(getSecondPreventiveRaoConditionFromString(jsonParser.nextTextValue()));
                     break;
                 case "network-action-combinations":
                     parameters.setNetworkActionIdCombinations(readListOfListOfString(jsonParser));
@@ -187,6 +187,14 @@ public class JsonSearchTreeRaoParameters implements JsonRaoParameters.ExtensionS
             return SearchTreeRaoParameters.CurativeRaoStopCriterion.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new FaraoException(String.format("Unknown curative RAO stop criterion: %s", string));
+        }
+    }
+
+    private SearchTreeRaoParameters.SecondPreventiveRaoCondition getSecondPreventiveRaoConditionFromString(String string) {
+        try {
+            return SearchTreeRaoParameters.SecondPreventiveRaoCondition.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new FaraoException(String.format("Unknown second preventive RAO stop criterion: %s", string));
         }
     }
 }

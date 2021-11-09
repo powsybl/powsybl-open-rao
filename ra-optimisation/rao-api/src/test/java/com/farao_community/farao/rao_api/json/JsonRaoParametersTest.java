@@ -77,6 +77,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setSolver(RaoParameters.Solver.SCIP);
         parameters.setRelativeMipGap(1e-5);
         parameters.setPstOptimizationApproximation(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
+        parameters.setForbidCostIncrease(true);
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
 
