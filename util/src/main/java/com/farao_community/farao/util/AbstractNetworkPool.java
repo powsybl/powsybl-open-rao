@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,7 +12,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCloseable {
     public static AbstractNetworkPool create(Network network, String targetVariant, int parallelism) {
@@ -27,11 +27,11 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
         super(parallelism);
     }
 
-    abstract public Network getAvailableNetwork() throws InterruptedException;
+    public abstract Network getAvailableNetwork() throws InterruptedException;
 
-    abstract public void releaseUsedNetwork(Network networkToRelease) throws InterruptedException;
+    public abstract void releaseUsedNetwork(Network networkToRelease) throws InterruptedException;
 
-    abstract public void shutdownAndAwaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
+    public abstract void shutdownAndAwaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
 
     @Override
     public void close() {
