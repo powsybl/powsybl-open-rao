@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.util;
 
-import com.farao_community.farao.commons.RandomizedString;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -15,9 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -26,24 +22,12 @@ import java.util.stream.Collectors;
  */
 public class MultipleNetworkPool extends AbstractNetworkPool {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipleNetworkPool.class);
-    protected final BlockingQueue<Network> networksQueue;
-    protected final String targetVariant;
-    protected final String workingVariant;
-
-    // State used to save initial content of target variant.
-    // Useful when targetVariant equals VariantManagerConstants.INITIAL_VARIANT_ID
-    protected final String stateSaveVariant;
 
     protected MultipleNetworkPool(Network network, String targetVariant, int parallelism) {
-        super(parallelism);
-        Objects.requireNonNull(network);
-        this.targetVariant = Objects.requireNonNull(targetVariant);
-        this.stateSaveVariant = RandomizedString.getRandomizedString("FaraoNetworkPool state save ", network.getVariantManager().getVariantIds(), 5);
-        this.workingVariant = RandomizedString.getRandomizedString("FaraoNetworkPool working variant ", network.getVariantManager().getVariantIds(), 5);
-        this.networksQueue = new ArrayBlockingQueue<>(getParallelism());
-        initAvailableNetworks(network);
+        super(network, targetVariant, parallelism);
     }
 
+    @Override
     protected void initAvailableNetworks(Network network) {
         LOGGER.info("Filling network pool with copies of network '{}' on variant '{}'", network.getId(), targetVariant);
         String initialVariant = network.getVariantManager().getWorkingVariantId();
@@ -63,25 +47,12 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
     }
 
     @Override
-    public Network getAvailableNetwork() throws InterruptedException {
-        Network networkClone = networksQueue.take();
-        networkClone.getVariantManager().cloneVariant(stateSaveVariant, workingVariant, true);
-        networkClone.getVariantManager().setWorkingVariant(workingVariant);
-        return networkClone;
-    }
-
     protected void cleanVariants(Network networkClone) {
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
                 .filter(variantId -> !variantId.equals(VariantManagerConstants.INITIAL_VARIANT_ID))
                 .filter(variantId -> !variantId.equals(stateSaveVariant))
                 .collect(Collectors.toList());
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
-    }
-
-    @Override
-    public void releaseUsedNetwork(Network networkToRelease) throws InterruptedException {
-        cleanVariants(networkToRelease);
-        networksQueue.put(networkToRelease);
     }
 
     @Override

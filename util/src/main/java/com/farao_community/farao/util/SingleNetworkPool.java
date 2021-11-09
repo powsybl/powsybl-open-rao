@@ -18,12 +18,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * A {@code FaraoNetworkPool} implementation that is used when parallelism = 1
+ * A {@code AbstractNetworkPool} implementation that is used when parallelism = 1
  * Instead of creating a (useless) copy of the network object, it uses the network object itself
  * while correctly handling setup and cleanup of variants
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class SingleNetworkPool extends MultipleNetworkPool {
+class SingleNetworkPool extends AbstractNetworkPool {
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleNetworkPool.class);
     private String networkInitialVariantId;
     private Network network;
