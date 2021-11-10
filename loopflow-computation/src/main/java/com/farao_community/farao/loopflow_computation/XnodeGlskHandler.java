@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class XnodeGlskHandler {
+public class XnodeGlskHandler {
 
     /*
     This class enables to filter LinearGlsk who acts on a virtual hub which has already been disconnected
@@ -38,9 +38,16 @@ class XnodeGlskHandler {
 
     Warn:
     - this class only works for UCTE data !
+
+    todo: fix this issue at its root: in the PTDF computation
+
+    In the example above, the PTDF of the GLSK of Alegro should be nul after the contingency on Alegro
+    This is actually currently not the case as the generator of the GLSK is located in the "real" node
+    connected to Alegro.
     */
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XnodeGlskHandler.class);
+    private static final int N_CHARACTERS_IN_UCTE_NODE = 8;
 
     private Map<Contingency, List<String>> invalidGlskPerContingency;
     private ZonalData<LinearGlsk> glskZonalData;
@@ -51,14 +58,14 @@ class XnodeGlskHandler {
         return network;
     }
 
-    XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<Contingency> contingencies, Network network) {
+    public XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<Contingency> contingencies, Network network) {
         this.glskZonalData = glskZonalData;
         this.contingencies = contingencies;
         this.network = network;
         this.invalidGlskPerContingency = buildInvalidGlskPerContingency();
     }
 
-    boolean isLinearGlskValidForCnec(FlowCnec cnec, LinearGlsk linearGlsk) {
+    public boolean isLinearGlskValidForCnec(FlowCnec cnec, LinearGlsk linearGlsk) {
 
         Optional<Contingency> optContingency = cnec.getState().getContingency();
         if (optContingency.isEmpty()) {
@@ -82,7 +89,7 @@ class XnodeGlskHandler {
 
         glskZonalData.getDataPerZone().forEach((k, linearGlsk) -> {
             if (!isGlskValid(linearGlsk, xNodesInContingency)) {
-                LOGGER.info("NetPosition of zone {} will not be shifted after contingency {}, as it acts on a Xnode which has already been disconnected by the contingency", linearGlsk.getId(), contingency.getId());
+                LOGGER.info("PTDF of zone {} will be replaced by 0 after contingency {}, as it acts on a Xnode which has been disconnected by the contingency", linearGlsk.getId(), contingency.getId());
                 invalidGlsk.add(linearGlsk.getId());
             }
         });
@@ -97,17 +104,24 @@ class XnodeGlskHandler {
             return true;
         }
 
-        // if the linearGlsk is on a virtualHub present in the contingency, the linearGlsk is invalid
+        // if the linearGlsk is on a Xnode present in the contingency, the linearGlsk is invalid
         String glskInjectionId = linearGlsk.getGLSKs().keySet().iterator().next();
 
         if (network.getIdentifiable(glskInjectionId) instanceof Injection<?>) {
             Injection<?> injection = (Injection) network.getIdentifiable(glskInjectionId);
             AssignedVirtualHub virtualHub = injection.getExtension(AssignedVirtualHub.class);
 
+            // if the injection contains a virtual hub extension which is tagging a xnode disconnected by the
+            // contingency, it is invalid
             if (virtualHub != null && xNodesInContingency.contains(virtualHub.getNodeName())) {
                 return false;
             }
 
+            // if the injection's id starts with a xnode disconnected by the contingency, it is invalid
+            String ucteNode = injection.getId().substring(0, N_CHARACTERS_IN_UCTE_NODE);
+            if (ucteNode.startsWith("X") && xNodesInContingency.contains(ucteNode)) {
+                return false;
+            }
         }
         return true;
     }
