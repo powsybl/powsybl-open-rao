@@ -42,10 +42,14 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public List<FlowCnec> getCostlyElements(FlowResult flowResult, int numberOfElements) {
+        Map<FlowCnec, Double> margins = new HashMap<>();
+        flowCnecs.stream().filter(Cnec::isOptimized).forEach(flowCnec -> {
+            margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, unit));
+        });
         List<FlowCnec> sortedElements = flowCnecs.stream()
-                .filter(Cnec::isOptimized)
-                .sorted(Comparator.comparing(flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit)))
-                .collect(Collectors.toList());
+            .filter(Cnec::isOptimized)
+            .sorted(Comparator.comparing(margins::get))
+            .collect(Collectors.toList());
 
         return sortedElements.subList(0, Math.min(sortedElements.size(), numberOfElements));
     }
