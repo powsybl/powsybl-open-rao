@@ -108,7 +108,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                 raoInput.getGlskProvider(),
                 new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
-                    parameters.getRelativeMarginPtdfBoundaries()
+                    parameters.getRelativeMarginPtdfBoundaries(),
+                    raoInput.getNetwork()
                 )
             );
         }
