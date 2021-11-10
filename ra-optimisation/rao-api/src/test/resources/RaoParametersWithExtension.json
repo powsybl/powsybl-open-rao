@@ -25,6 +25,7 @@
   "relative-mip-gap" : 1.0E-4,
   "solver-specific-parameters" : null,
   "pst-optimization-approximation" : "CONTINUOUS",
+  "forbid-cost-increase" : false,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {

@@ -29,10 +29,7 @@ import com.farao_community.farao.rao_commons.RaoUtil;
 import com.farao_community.farao.rao_commons.ToolProvider;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.*;
-import com.farao_community.farao.rao_commons.result_api.FlowResult;
-import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
-import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
-import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
+import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.search_tree_rao.output.*;
 import com.farao_community.farao.search_tree_rao.state_tree.StateTree;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
@@ -43,6 +40,8 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -81,32 +80,37 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
+        return run(raoInput, parameters, null);
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         RaoUtil.initData(raoInput, parameters);
 
         StateTree stateTree = new StateTree(raoInput.getCrac());
         ToolProvider.ToolProviderBuilder toolProviderBuilder = ToolProvider.create()
-                .withNetwork(raoInput.getNetwork())
-                .withRaoParameters(parameters);
+            .withNetwork(raoInput.getNetwork())
+            .withRaoParameters(parameters);
         if (raoInput.getReferenceProgram() != null) {
             toolProviderBuilder.withLoopFlowComputation(
-                    raoInput.getReferenceProgram(),
+                raoInput.getReferenceProgram(),
+                raoInput.getGlskProvider(),
+                new LoopFlowComputationWithXnodeGlskHandler(
                     raoInput.getGlskProvider(),
-                    new LoopFlowComputationWithXnodeGlskHandler(
-                            raoInput.getGlskProvider(),
-                            raoInput.getReferenceProgram(),
-                            raoInput.getCrac().getContingencies(),
-                            raoInput.getNetwork()
-                    )
+                    raoInput.getReferenceProgram(),
+                    raoInput.getCrac().getContingencies(),
+                    raoInput.getNetwork()
+                )
             );
         }
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
             toolProviderBuilder.withAbsolutePtdfSumsComputation(
+                raoInput.getGlskProvider(),
+                new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
-                    new AbsolutePtdfSumsComputation(
-                            raoInput.getGlskProvider(),
-                            parameters.getRelativeMarginPtdfBoundaries(),
-                            raoInput.getNetwork()
-                    )
+                    parameters.getRelativeMarginPtdfBoundaries(),
+                    raoInput.getNetwork()
+                )
             );
         }
         ToolProvider toolProvider = toolProviderBuilder.build();
@@ -119,11 +123,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
         // compute initial sensitivity on all CNECs
         // this is necessary to have initial flows for MNEC and loopflow constraints on CNECs, in preventive and curative perimeters
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                raoInput.getCrac().getRangeActions(),
-                raoInput.getCrac().getFlowCnecs(),
-                toolProvider,
-                parameters,
-                basicLinearOptimizerBuilder(parameters).build()
+            raoInput.getCrac().getRangeActions(),
+            raoInput.getCrac().getFlowCnecs(),
+            toolProvider,
+            parameters,
+            basicLinearOptimizerBuilder(parameters).build()
         );
 
         PrePerimeterResult initialOutput;
@@ -135,6 +139,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         }
 
         // optimize preventive perimeter
+        Instant preventiveRaoStartInstant = Instant.now();
         LOGGER.info("Preventive perimeter optimization [start]");
 
         Network network = raoInput.getNetwork();
@@ -148,6 +153,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         PerimeterResult preventiveResult = optimizePreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput).getPerimeterResult(OptimizationState.AFTER_PRA, raoInput.getCrac().getPreventiveState());
         LOGGER.info("Preventive perimeter optimization [end]");
+        Instant preventiveRaoEndInstant = Instant.now();
+        long preventiveRaoTime = ChronoUnit.SECONDS.between(preventiveRaoStartInstant, preventiveRaoEndInstant);
 
         // optimize contingency scenarios (auto + curative instants)
         double preventiveOptimalCost = preventiveResult.getCost();
@@ -161,7 +168,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         RaoResult mergedRaoResults;
 
         // second preventive RAO
-        if (shouldRunSecondPreventiveRao(parameters, preventiveResult, postContingencyResults)) {
+        if (shouldRunSecondPreventiveRao(parameters, initialOutput, preventiveResult, postContingencyResults, targetEndInstant, preventiveRaoTime)) {
             mergedRaoResults = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
         } else {
             LOGGER.info("Merging preventive and curative RAO results.");
@@ -170,7 +177,23 @@ public class SearchTreeRaoProvider implements RaoProvider {
             SearchTreeRaoLogger.logMostLimitingElementsResults(stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
 
-        return CompletableFuture.completedFuture(mergedRaoResults);
+        return CompletableFuture.completedFuture(postCheckResults(mergedRaoResults, initialOutput, parameters));
+    }
+
+    /**
+     * Return initial result if RAO has increased cost
+     */
+    private RaoResult postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, RaoParameters raoParameters) {
+        if (raoParameters.getForbidCostIncrease() && raoResult.getCost(OptimizationState.AFTER_CRA) > initialResult.getCost()) {
+            LOGGER.warn("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
+                initialResult.getCost(), initialResult.getFunctionalCost(), initialResult.getVirtualCost(),
+                raoResult.getCost(OptimizationState.AFTER_CRA), raoResult.getFunctionalCost(OptimizationState.AFTER_CRA), raoResult.getVirtualCost(OptimizationState.AFTER_CRA));
+            // log results
+            SearchTreeRaoLogger.logMostLimitingElementsResults(initialResult, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            return new UnoptimizedRaoOutput(initialResult);
+        } else {
+            return raoResult;
+        }
     }
 
     private void applyRemedialActions(Network network, PerimeterResult perimeterResult) {
@@ -185,30 +208,30 @@ public class SearchTreeRaoProvider implements RaoProvider {
      */
     static void applyPreventiveResultsForCurativeRangeActions(Network network, PerimeterResult perimeterResult, Crac crac) {
         perimeterResult.getActivatedRangeActions().stream()
-                .filter(rangeAction -> isRangeActionCurative(rangeAction, crac))
-                .forEach(rangeAction -> rangeAction.apply(network, perimeterResult.getOptimizedSetPoint(rangeAction)));
+            .filter(rangeAction -> isRangeActionCurative(rangeAction, crac))
+            .forEach(rangeAction -> rangeAction.apply(network, perimeterResult.getOptimizedSetPoint(rangeAction)));
     }
 
     private static LinearOptimizerParameters.LinearOptimizerParametersBuilder basicLinearOptimizerBuilder(RaoParameters raoParameters) {
         LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = LinearOptimizerParameters.create()
-                .withObjectiveFunction(raoParameters.getObjectiveFunction())
-                .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
-                .withHvdcSensitivityThreshold(raoParameters.getHvdcSensitivityThreshold())
-                .withSolver(raoParameters.getSolver())
-                .withRelativeMipGap(raoParameters.getRelativeMipGap())
-                .withSolverSpecificParameters(raoParameters.getSolverSpecificParameters())
-                .withPstOptimizationApproximation(raoParameters.getPstOptimizationApproximation());
+            .withObjectiveFunction(raoParameters.getObjectiveFunction())
+            .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
+            .withHvdcSensitivityThreshold(raoParameters.getHvdcSensitivityThreshold())
+            .withSolver(raoParameters.getSolver())
+            .withRelativeMipGap(raoParameters.getRelativeMipGap())
+            .withSolverSpecificParameters(raoParameters.getSolverSpecificParameters())
+            .withPstOptimizationApproximation(raoParameters.getPstOptimizationApproximation());
 
         if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE
-                || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
+            || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
             builder.withMaxMinMarginParameters(new MaxMinMarginParameters(raoParameters.getPstPenaltyCost(), raoParameters.getHvdcPenaltyCost()));
         } else if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE
-                || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) {
+            || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) {
             MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = new MaxMinRelativeMarginParameters(
-                    raoParameters.getPstPenaltyCost(),
-                    raoParameters.getHvdcPenaltyCost(),
-                    raoParameters.getNegativeMarginObjectiveCoefficient(),
-                    raoParameters.getPtdfSumLowerBound());
+                raoParameters.getPstPenaltyCost(),
+                raoParameters.getHvdcPenaltyCost(),
+                raoParameters.getNegativeMarginObjectiveCoefficient(),
+                raoParameters.getPtdfSumLowerBound());
             builder.withMaxMinRelativeMarginParameters(maxMinRelativeMarginParameters);
         } else {
             throw new FaraoException(String.format("Unhandled objective function %s", raoParameters.getObjectiveFunction()));
@@ -216,18 +239,18 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         if (raoParameters.isRaoWithMnecLimitation()) {
             MnecParameters mnecParameters = new MnecParameters(
-                    raoParameters.getMnecAcceptableMarginDiminution(),
-                    raoParameters.getMnecViolationCost(),
-                    raoParameters.getMnecConstraintAdjustmentCoefficient());
+                raoParameters.getMnecAcceptableMarginDiminution(),
+                raoParameters.getMnecViolationCost(),
+                raoParameters.getMnecConstraintAdjustmentCoefficient());
             builder.withMnecParameters(mnecParameters);
         }
 
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             LoopFlowParameters loopFlowParameters = new LoopFlowParameters(
-                    raoParameters.getLoopFlowApproximationLevel(),
-                    raoParameters.getLoopFlowAcceptableAugmentation(),
-                    raoParameters.getLoopFlowViolationCost(),
-                    raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
+                raoParameters.getLoopFlowApproximationLevel(),
+                raoParameters.getLoopFlowAcceptableAugmentation(),
+                raoParameters.getLoopFlowViolationCost(),
+                raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
             builder.withLoopFlowParameters(loopFlowParameters);
         }
         return builder;
@@ -242,8 +265,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
         SearchTreeRaoParameters parameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (parameters != null && !parameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(
-                    stateTree.getOperatorsNotSharingCras(),
-                    getLargestCnecThreshold(cnecs));
+                stateTree.getOperatorsNotSharingCras(),
+                getLargestCnecThreshold(cnecs));
             builder.withUnoptimizedCnecParameters(unoptimizedCnecParameters);
         }
         return builder.build();
@@ -269,32 +292,32 @@ public class SearchTreeRaoProvider implements RaoProvider {
     CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider) {
         Set<FlowCnec> perimeterCnecs = computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter());
         TreeParameters treeParameters = raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState()) ?
-                TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)) :
-                TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
+            TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)) :
+            TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
         LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree, perimeterCnecs);
 
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED),
-                perimeterCnecs,
-                toolProvider,
-                raoParameters,
-                linearOptimizerParameters
+            raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED),
+            perimeterCnecs,
+            toolProvider,
+            raoParameters,
+            linearOptimizerParameters
         );
         PrePerimeterResult prePerimeterResult = prePerimeterSensitivityAnalysis.run(raoInput.getNetwork());
 
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
-                raoInput.getCrac(),
-                raoInput.getNetwork(),
-                raoInput.getOptimizedState(),
-                raoInput.getPerimeter(),
-                prePerimeterResult,
-                prePerimeterResult,
-                treeParameters,
-                raoParameters,
-                linearOptimizerParameters,
-                toolProvider,
-                false,
-                null
+            raoInput.getCrac(),
+            raoInput.getNetwork(),
+            raoInput.getOptimizedState(),
+            raoInput.getPerimeter(),
+            prePerimeterResult,
+            prePerimeterResult,
+            treeParameters,
+            raoParameters,
+            linearOptimizerParameters,
+            toolProvider,
+            false,
+            null
         );
 
         OptimizationResult optimizationResult = new SearchTree().run(searchTreeInput, treeParameters, linearOptimizerParameters).join();
@@ -309,18 +332,18 @@ public class SearchTreeRaoProvider implements RaoProvider {
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
-                raoInput.getCrac(),
-                raoInput.getNetwork(),
-                raoInput.getCrac().getPreventiveState(),
-                stateTree.getBasecaseScenario().getAllStates(),
-                prePerimeterResult,
-                prePerimeterResult,
-                preventiveTreeParameters,
-                raoParameters,
-                linearOptimizerParameters,
-                toolProvider,
-                false,
-                null
+            raoInput.getCrac(),
+            raoInput.getNetwork(),
+            raoInput.getCrac().getPreventiveState(),
+            stateTree.getBasecaseScenario().getAllStates(),
+            prePerimeterResult,
+            prePerimeterResult,
+            preventiveTreeParameters,
+            raoParameters,
+            linearOptimizerParameters,
+            toolProvider,
+            false,
+            null
         );
 
         OptimizationResult perimeterResult = new SearchTree().run(searchTreeInput, preventiveTreeParameters, linearOptimizerParameters).join();
@@ -347,36 +370,36 @@ public class SearchTreeRaoProvider implements RaoProvider {
         // Go through all contingency scenarios
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, CONTINGENCY_SCENARIO, raoParameters.getPerimetersInParallel())) {
             stateTree.getContingencyScenarios().forEach(optimizedScenario ->
-                    networkPool.submit(() -> {
-                        try {
-                            // Create a network copy to work on
-                            Network networkClone = networkPool.getAvailableNetwork();
+                networkPool.submit(() -> {
+                    try {
+                        // Create a network copy to work on
+                        Network networkClone = networkPool.getAvailableNetwork();
 
-                            LOGGER.info("Optimizing scenario post-contingency {}.", optimizedScenario.getContingency().getId());
+                        LOGGER.info("Optimizing scenario post-contingency {}.", optimizedScenario.getContingency().getId());
 
-                            // Init variables
-                            Optional<State> automatonState = optimizedScenario.getAutomatonState();
-                            State curativeState = optimizedScenario.getCurativeState();
-                            PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
+                        // Init variables
+                        Optional<State> automatonState = optimizedScenario.getAutomatonState();
+                        State curativeState = optimizedScenario.getCurativeState();
+                        PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
 
-                            // Simulate automaton instant
-                            if (automatonState.isPresent()) {
-                                AutomatonOptimizationResult automatonResult = simulateAutomatonState(automatonState.get(), curativeState, crac, networkClone, raoParameters, toolProvider, prePerimeterSensitivityOutput);
-                                contingencyScenarioResults.put(automatonState.get(), automatonResult);
-                                preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
-                            }
-
-                            // Optimize curative instant
-                            OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
-                                    raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
-                            contingencyScenarioResults.put(curativeState, curativeResult);
-                            // Release network copy
-                            networkPool.releaseUsedNetwork(networkClone);
-                        } catch (Exception e) {
-                            LOGGER.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
-                            Thread.currentThread().interrupt();
+                        // Simulate automaton instant
+                        if (automatonState.isPresent()) {
+                            AutomatonOptimizationResult automatonResult = simulateAutomatonState(automatonState.get(), curativeState, crac, networkClone, raoParameters, toolProvider, prePerimeterSensitivityOutput);
+                            contingencyScenarioResults.put(automatonState.get(), automatonResult);
+                            preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
                         }
-                    })
+
+                        // Optimize curative instant
+                        OptimizationResult curativeResult = optimizeCurativeState(curativeState, crac, networkClone,
+                                raoParameters, stateTree, toolProvider, curativeTreeParameters, initialSensitivityOutput, preCurativeResult);
+                        contingencyScenarioResults.put(curativeState, curativeResult);
+                        // Release network copy
+                        networkPool.releaseUsedNetwork(networkClone);
+                    } catch (Exception e) {
+                        LOGGER.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
+                        Thread.currentThread().interrupt();
+                    }
+                })
             );
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
@@ -407,8 +430,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
         Set<NetworkAction> appliedNetworkActions = crac.getNetworkActions(automatonState, UsageMethod.FORCED);
         // Then add those with an OnFlowConstraint usage rule if their constraint is verified
         crac.getNetworkActions(automatonState, UsageMethod.TO_BE_EVALUATED).stream()
-                .filter(na -> SearchTree.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput))
-                .forEach(appliedNetworkActions::add);
+            .filter(na -> SearchTree.isRemedialActionAvailable(na, automatonState, prePerimeterSensitivityOutput))
+            .forEach(appliedNetworkActions::add);
         // Apply
         appliedNetworkActions.forEach(na -> {
             LOGGER.debug("Activating automaton {}.", na.getId());
@@ -422,11 +445,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         flowCnecs.addAll(crac.getFlowCnecs(curativeState));
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                curativeRangeActions,
-                flowCnecs,
-                toolProvider,
-                raoParameters,
-                basicLinearOptimizerBuilder(raoParameters).build()
+            curativeRangeActions,
+            flowCnecs,
+            toolProvider,
+            raoParameters,
+            basicLinearOptimizerBuilder(raoParameters).build()
         );
         // Run computation
         PrePerimeterResult postAutomatonSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, prePerimeterSensitivityOutput);
@@ -452,18 +475,18 @@ public class SearchTreeRaoProvider implements RaoProvider {
         LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree, cnecs);
 
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
-                crac,
-                network,
-                curativeState,
-                Collections.singleton(curativeState),
-                initialSensitivityOutput,
-                prePerimeterSensitivityOutput,
-                curativeTreeParameters,
-                raoParameters,
-                linearOptimizerParameters,
-                toolProvider,
-                false,
-                null
+            crac,
+            network,
+            curativeState,
+            Collections.singleton(curativeState),
+            initialSensitivityOutput,
+            prePerimeterSensitivityOutput,
+            curativeTreeParameters,
+            raoParameters,
+            linearOptimizerParameters,
+            toolProvider,
+            false,
+            null
         );
 
         OptimizationResult result = new SearchTree().run(searchTreeInput, curativeTreeParameters, linearOptimizerParameters).join();
@@ -504,44 +527,44 @@ public class SearchTreeRaoProvider implements RaoProvider {
         searchTreeInput.setRangeActions(rangeActions);
 
         ObjectiveFunction objectiveFunction = createObjectiveFunction(
-                cnecs,
-                initialOutput,
-                prePerimeterOutput,
-                raoParameters,
-                linearOptimizerParameters,
-                toolProvider
+            cnecs,
+            initialOutput,
+            prePerimeterOutput,
+            raoParameters,
+            linearOptimizerParameters,
+            toolProvider
         );
         searchTreeInput.setObjectiveFunction(objectiveFunction);
         searchTreeInput.setIteratingLinearOptimizer(new IteratingLinearOptimizer(objectiveFunction, raoParameters.getMaxIterations(), raoParameters.getPstOptimizationApproximation()));
 
         searchTreeInput.setSearchTreeProblem(new SearchTreeProblem(
-                initialOutput,
-                prePerimeterOutput,
-                prePerimeterOutput,
-                cnecs,
-                toolProvider.getLoopFlowCnecs(cnecs),
-                linearOptimizerParameters
+            initialOutput,
+            prePerimeterOutput,
+            prePerimeterOutput,
+            cnecs,
+            toolProvider.getLoopFlowCnecs(cnecs),
+            linearOptimizerParameters
         ));
 
         SearchTreeComputer.SearchTreeComputerBuilder searchTreeComputerBuilder = SearchTreeComputer.create()
-                .withToolProvider(toolProvider)
-                .withCnecs(cnecs)
-                .withAppliedRemedialActions(appliedRemedialActions);
+            .withToolProvider(toolProvider)
+            .withCnecs(cnecs)
+            .withAppliedRemedialActions(appliedRemedialActions);
         if (linearOptimizerParameters.hasRelativeMargins()) {
             searchTreeComputerBuilder.withPtdfsResults(initialOutput);
         }
         searchTreeInput.setSearchTreeComputer(searchTreeComputerBuilder.build());
 
         searchTreeInput.setSearchTreeBloomer(new SearchTreeBloomer(
-                network,
-                prePerimeterOutput,
-                treeParameters.getMaxRa(),
-                treeParameters.getMaxTso(),
-                treeParameters.getMaxTopoPerTso(),
-                treeParameters.getMaxRaPerTso(),
-                treeParameters.getSkipNetworkActionsFarFromMostLimitingElement(),
-                raoParameters.getExtension(SearchTreeRaoParameters.class).getMaxNumberOfBoundariesForSkippingNetworkActions(),
-                raoParameters.getExtension(SearchTreeRaoParameters.class).getNetworkActionCombinations(crac)
+            network,
+            prePerimeterOutput,
+            treeParameters.getMaxRa(),
+            treeParameters.getMaxTso(),
+            treeParameters.getMaxTopoPerTso(),
+            treeParameters.getMaxRaPerTso(),
+            treeParameters.getSkipNetworkActionsFarFromMostLimitingElement(),
+            raoParameters.getExtension(SearchTreeRaoParameters.class).getMaxNumberOfBoundariesForSkippingNetworkActions(),
+            raoParameters.getExtension(SearchTreeRaoParameters.class).getNetworkActionCombinations(crac)
         ));
         searchTreeInput.setPrePerimeterOutput(prePerimeterOutput);
 
@@ -569,16 +592,16 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
     private static void addSensiFallbackVirtualCostEvaluator(RaoParameters raoParameters, ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder) {
         objectiveFunctionBuilder.withVirtualCostEvaluator(new SensitivityFallbackOvercostEvaluator(
-                raoParameters.getFallbackOverCost()
+            raoParameters.getFallbackOverCost()
         ));
     }
 
     private static void addLoopflowVirtualCostEvaluator(Set<FlowCnec> cnecs, FlowResult initialFlowResult, RaoParameters raoParameters, ToolProvider toolProvider, ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder) {
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             objectiveFunctionBuilder.withVirtualCostEvaluator(new LoopFlowViolationCostEvaluator(
-                    toolProvider.getLoopFlowCnecs(cnecs),
-                    initialFlowResult,
-                    raoParameters.getLoopFlowParameters()
+                toolProvider.getLoopFlowCnecs(cnecs),
+                initialFlowResult,
+                raoParameters.getLoopFlowParameters()
             ));
         }
     }
@@ -586,9 +609,9 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static void addMnecVirtualCostEvaluator(Set<FlowCnec> cnecs, FlowResult initialFlowResult, RaoParameters raoParameters, ObjectiveFunction.ObjectiveFunctionBuilder objectiveFunctionBuilder) {
         if (raoParameters.isRaoWithMnecLimitation()) {
             objectiveFunctionBuilder.withVirtualCostEvaluator(new MnecViolationCostEvaluator(
-                    cnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                    initialFlowResult,
-                    raoParameters.getMnecParameters()
+                cnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
+                initialFlowResult,
+                raoParameters.getMnecParameters()
             ));
         }
     }
@@ -615,7 +638,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
             if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
                 LOGGER.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
-                        rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
+                    rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
                 rangeActionsToRemove.add(rangeAction);
             }
         }
@@ -627,7 +650,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
      */
     static void removeAlignedRangeActionsWithDifferentInitialSetpoints(Set<RangeAction> rangeActions, RangeActionResult prePerimeterSetPoints) {
         Set<String> groups = rangeActions.stream().map(RangeAction::getGroupId)
-                .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+            .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
         for (String group : groups) {
             Set<RangeAction> groupRangeActions = rangeActions.stream().filter(rangeAction -> rangeAction.getGroupId().isPresent() && rangeAction.getGroupId().get().equals(group)).collect(Collectors.toSet());
             double preperimeterSetPoint = prePerimeterSetPoints.getOptimizedSetPoint(groupRangeActions.iterator().next());
@@ -646,9 +669,20 @@ public class SearchTreeRaoProvider implements RaoProvider {
      * This function decides if a 2nd preventive RAO should be run. It checks the user parameter first, then takes the
      * decision depending on the curative RAO results and the curative RAO stop criterion.
      */
-    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, OptimizationResult firstPreventiveResult, Map<State, OptimizationResult> curativeRaoResults) {
+    static boolean shouldRunSecondPreventiveRao(RaoParameters raoParameters, ObjectiveFunctionResult initialObjectiveFunctionResult, OptimizationResult firstPreventiveResult, Map<State, OptimizationResult> curativeRaoResults, Instant targetEndInstant, long estimatedPreventiveRaoTimeInSeconds) {
         if (raoParameters.getExtension(SearchTreeRaoParameters.class) == null
-                || !raoParameters.getExtension(SearchTreeRaoParameters.class).getWithSecondPreventiveOptimization()) {
+            || raoParameters.getExtension(SearchTreeRaoParameters.class).getSecondPreventiveOptimizationCondition().equals(SearchTreeRaoParameters.SecondPreventiveRaoCondition.DISABLED)) {
+            return false;
+        }
+        if (!Objects.isNull(targetEndInstant) && ChronoUnit.SECONDS.between(Instant.now(), targetEndInstant) < estimatedPreventiveRaoTimeInSeconds) {
+            LOGGER.warn("There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)", targetEndInstant, estimatedPreventiveRaoTimeInSeconds);
+            return false;
+        }
+        if (raoParameters.getExtension(SearchTreeRaoParameters.class).getSecondPreventiveOptimizationCondition().equals(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE)
+            && curativeRaoResults.values().stream().noneMatch(optimizationResult -> optimizationResult.getCost() > initialObjectiveFunctionResult.getCost())) {
+            LOGGER.info("Cost has not increased during RAO, there is no need to run a 2nd preventive RAO.");
+            // it is not necessary to compare initial & post-preventive costs since the preventive RAO cannot increase its own cost
+            // only compare initial cost with the curative costs
             return false;
         }
         SearchTreeRaoParameters.CurativeRaoStopCriterion curativeRaoStopCriterion = raoParameters.getExtension(SearchTreeRaoParameters.class).getCurativeRaoStopCriterion();
@@ -714,7 +748,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         PrePerimeterResult sensiWithCurativeRemedialActions = prePerimeterSensitivityAnalysis.run(network, appliedRemedialActions);
         // Run second preventive RAO
         PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithCurativeRemedialActions, appliedRemedialActions)
-                .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
+            .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access OptimizationState.AFTER_PRA results
         PrePerimeterResult updatedPreCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, secondPreventiveResult);
         LOGGER.info("Second preventive perimeter optimization [end]");
@@ -733,8 +767,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
         curativeResults.forEach((state, optimizationResult) -> appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions()));
         // Add all range actions that were activated in curative, even if they are also preventive (they will be excluded from 2nd preventive)
         curativeResults.forEach((state, optimizationResult) ->
-                (new PerimeterOutput(preCurativeResults, optimizationResult)).getActivatedRangeActions()
-                        .forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetPoint(rangeAction)))
+            (new PerimeterOutput(preCurativeResults, optimizationResult)).getActivatedRangeActions()
+                .forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetPoint(rangeAction)))
         );
         return appliedRemedialActions;
     }
@@ -743,18 +777,18 @@ public class SearchTreeRaoProvider implements RaoProvider {
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
         LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
-                raoInput.getCrac(),
-                raoInput.getNetwork(),
-                raoInput.getCrac().getPreventiveState(),
-                stateTree.getBasecaseScenario().getAllStates(),
-                initialOutput,
-                prePerimeterResult,
-                preventiveTreeParameters,
-                raoParameters,
-                linearOptimizerParameters,
-                toolProvider,
-                true,
-                appliedRemedialActions
+            raoInput.getCrac(),
+            raoInput.getNetwork(),
+            raoInput.getCrac().getPreventiveState(),
+            stateTree.getBasecaseScenario().getAllStates(),
+            initialOutput,
+            prePerimeterResult,
+            preventiveTreeParameters,
+            raoParameters,
+            linearOptimizerParameters,
+            toolProvider,
+            true,
+            appliedRemedialActions
         );
 
         OptimizationResult perimeterResult = new SearchTree().run(searchTreeInput, preventiveTreeParameters, linearOptimizerParameters).join();
@@ -772,7 +806,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         Set<RangeAction> rangeActionsToRemove = new HashSet<>(rangeActions);
         rangeActionsToRemove.retainAll(getRangeActionsExcludedFromSecondPreventive(crac));
         rangeActionsToRemove.forEach(rangeAction ->
-                LOGGER.info("Range action {} will not be considered in 2nd preventive RAO as it is also curative (or its network element has an associated CRA)", rangeAction.getId())
+            LOGGER.info("Range action {} will not be considered in 2nd preventive RAO as it is also curative (or its network element has an associated CRA)", rangeAction.getId())
         );
         rangeActionsToRemove.forEach(rangeActions::remove);
     }
@@ -792,8 +826,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
     static boolean isRangeActionCurative(RangeAction rangeAction, Crac crac) {
         return crac.getStates().stream()
-                .filter(state -> !state.equals(crac.getPreventiveState()))
-                .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state, crac));
+            .filter(state -> !state.equals(crac.getPreventiveState()))
+            .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state, crac));
     }
 
     static boolean isRangeActionAvailableInState(RangeAction rangeAction, State state, Crac crac) {
@@ -802,7 +836,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             return true;
         } else {
             return rangeActionsForState.stream()
-                    .anyMatch(otherRangeAction -> otherRangeAction.getNetworkElements().equals(rangeAction.getNetworkElements()));
+                .anyMatch(otherRangeAction -> otherRangeAction.getNetworkElements().equals(rangeAction.getNetworkElements()));
         }
     }
 

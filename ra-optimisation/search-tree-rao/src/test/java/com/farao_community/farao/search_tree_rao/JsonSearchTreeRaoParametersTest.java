@@ -38,7 +38,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeTso(2);
         parameters.getExtension(SearchTreeRaoParameters.class).setMaxCurativeRaPerTso(Map.of("RTE", 5));
         parameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(false);
-        parameters.getExtension(SearchTreeRaoParameters.class).setWithSecondPreventiveOptimization(true);
+        parameters.getExtension(SearchTreeRaoParameters.class).setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getExtension(SearchTreeRaoParameters.class).setNetworkActionIdCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SearchTreeRaoParameters.json");
@@ -70,7 +70,7 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         assertTrue(extension.getSkipNetworkActionsFarFromMostLimitingElement());
         assertEquals(2, extension.getMaxNumberOfBoundariesForSkippingNetworkActions());
         assertFalse(extension.getCurativeRaoOptimizeOperatorsNotSharingCras());
-        assertTrue(extension.getWithSecondPreventiveOptimization());
+        assertEquals(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE, extension.getSecondPreventiveOptimizationCondition());
 
         assertEquals(2, extension.getMaxCurativeTopoPerTso().size());
         assertEquals(3, extension.getMaxCurativeTopoPerTso().get("RTE").intValue());
