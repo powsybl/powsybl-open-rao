@@ -73,6 +73,7 @@ public class RaoParametersTest {
         moduleConfig.setStringProperty("rao-with-loop-flow-limitation", Boolean.toString(false));
         moduleConfig.setStringProperty("loop-flow-constraint-adjustment-coefficient", Objects.toString(15.0));
         moduleConfig.setStringProperty("loop-flow-violation-cost", Objects.toString(10.0));
+        moduleConfig.setStringProperty("forbid-cost-increase", Boolean.toString(true));
 
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
@@ -81,6 +82,7 @@ public class RaoParametersTest {
         assertFalse(parameters.isRaoWithLoopFlowLimitation());
         assertEquals(15., parameters.getLoopFlowConstraintAdjustmentCoefficient(), 1e-6);
         assertEquals(10., parameters.getLoopFlowViolationCost(), 1e-6);
+        assertTrue(parameters.getForbidCostIncrease());
     }
 
     @Test

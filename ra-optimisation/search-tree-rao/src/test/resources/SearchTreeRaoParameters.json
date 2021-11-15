@@ -23,7 +23,9 @@
   "perimeters-in-parallel" : 1,
   "optimization-solver" : "CBC",
   "relative-mip-gap" : 1.0E-4,
+  "solver-specific-parameters" : null,
   "pst-optimization-approximation" : "CONTINUOUS",
+  "forbid-cost-increase" : false,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
@@ -64,7 +66,7 @@
         "RTE" : 5
       },
       "curative-rao-optimize-operators-not-sharing-cras" : false,
-      "with-second-preventive-optimization" : true,
+      "second-preventive-optimization-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
       "network-action-combinations" : [ [ "na-id-1", "na-id-2" ], [ "na-id-1", "na-id-3", "na-id-4" ] ]
     }
   }

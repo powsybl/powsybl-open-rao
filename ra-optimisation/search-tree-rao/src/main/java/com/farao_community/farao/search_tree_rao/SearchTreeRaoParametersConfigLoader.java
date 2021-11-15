@@ -48,7 +48,7 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
             logMapReadError(config, "max-curative-pst-per-tso");
             logMapReadError(config, "max-curative-ra-per-tso");
             parameters.setCurativeRaoOptimizeOperatorsNotSharingCras(config.getBooleanProperty("curative-rao-optimize-operators-not-sharing-cras", SearchTreeRaoParameters.DEFAULT_CURATIVE_RAO_OPTIMIZE_OPERATORS_NOT_SHARING_CRAS));
-            parameters.setWithSecondPreventiveOptimization(config.getBooleanProperty("with-second-preventive-optimization", SearchTreeRaoParameters.DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION));
+            parameters.setSecondPreventiveOptimizationCondition(config.getEnumProperty("second-preventive-optimization-condition", SearchTreeRaoParameters.SecondPreventiveRaoCondition.class, SearchTreeRaoParameters.DEFAULT_WITH_SECOND_PREVENTIVE_OPTIMIZATION));
 
         }
         return parameters;
