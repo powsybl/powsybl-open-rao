@@ -155,7 +155,9 @@ public final class GlskPointLinearGlskConverter {
                     .filter(generatorResource -> NetworkUtil.isCorrectGenerator(network.getGenerator(generatorResource.getGeneratorId())))
                     .collect(Collectors.toList());
             double totalFactor = generatorResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();
-
+            if (totalFactor < 1e-10) {
+                throw new GlskException("total factor is zero");
+            }
             generatorResources.forEach(generatorResource -> linearGlskMap.put(generatorResource.getGeneratorId(), glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
@@ -164,7 +166,9 @@ public final class GlskPointLinearGlskConverter {
                     .filter(loadResource -> NetworkUtil.isCorrectLoad(network.getLoad(loadResource.getLoadId())))
                     .collect(Collectors.toList());
             double totalFactor = loadResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();
-
+            if (totalFactor < 1e-10) {
+                throw new GlskException("total factor is zero");
+            }
             loadResources.forEach(loadResource -> linearGlskMap.put(loadResource.getLoadId(), glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor));
         } else {
             //unknown PsrType

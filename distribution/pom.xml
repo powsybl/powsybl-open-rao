@@ -89,6 +89,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>farao-glsk-document-ucte</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>farao-glsk-quality-check-ucte</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -229,12 +234,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>farao-glsk-document-cse</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>farao-glsk-document-ucte</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>

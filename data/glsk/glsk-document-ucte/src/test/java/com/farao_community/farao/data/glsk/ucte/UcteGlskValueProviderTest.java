@@ -164,4 +164,22 @@ public class UcteGlskValueProviderTest {
         assertEquals(0.7 * 0.3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
         assertEquals(0.7 * 0.7, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
     }
+
+    @Test
+    public void testZeroGsk() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Instant instant = Instant.parse("2016-07-29T10:00:00Z");
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestZeroGsk.xml"));
+        ZonalData<LinearGlsk> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
+        assertNull(ucteGlskProvider.getData("10YFR-RTE------C"));
+    }
+
+    @Test
+    public void testZeroLsk() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Instant instant = Instant.parse("2016-07-29T10:00:00Z");
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestZeroLsk.xml"));
+        ZonalData<LinearGlsk> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
+        assertNull(ucteGlskProvider.getData("10YFR-RTE------C"));
+    }
 }

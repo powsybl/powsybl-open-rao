@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.glsk.api.util.converters;
 
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
+import com.farao_community.farao.data.glsk.api.GlskException;
 import com.farao_community.farao.data.glsk.cim.CimGlskDocument;
 import com.google.common.math.DoubleMath;
 import com.powsybl.iidm.import_.Importers;
@@ -21,6 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
+import static org.junit.Assert.assertThrows;
+
 /**
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
@@ -31,12 +34,16 @@ public class GlskPointLinearGlskConverterTest {
     private static final String GLSKB42COUNTRYQUANTITY = "/GlskB42CountryQuantity.xml";
     private static final String GLSKB42EXPLICITGSKLSK = "/GlskB42ExplicitGskLsk.xml";
     private static final String GLSKB43GSKLSK = "/GlskB43ParticipationFactorGskLsk.xml";
+    private static final String GLSKB43GSKZERO = "/GlskB43ParticipationFactorGskZero.xml";
+    private static final String GLSKB43LSKZERO = "/GlskB43ParticipationFactorLskZero.xml";
 
     private Network testNetwork;
     private AbstractGlskPoint glskPointCountry;
     private AbstractGlskPoint glskPointCountryQuantity;
     private AbstractGlskPoint glskPointExplicitGskLsk;
     private AbstractGlskPoint glskPointParticipationFactorGskLsk;
+    private AbstractGlskPoint glskPointParticipationFactorGskZero;
+    private AbstractGlskPoint glskPointParticipationFactorLskZero;
 
     private InputStream getResourceAsStream(String resource) {
         return getClass().getResourceAsStream(resource);
@@ -50,6 +57,8 @@ public class GlskPointLinearGlskConverterTest {
         glskPointCountryQuantity = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42COUNTRYQUANTITY)).getGlskPoints().get(0);
         glskPointExplicitGskLsk = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42EXPLICITGSKLSK)).getGlskPoints().get(0);
         glskPointParticipationFactorGskLsk = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB43GSKLSK)).getGlskPoints().get(0);
+        glskPointParticipationFactorGskZero = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB43GSKZERO)).getGlskPoints().get(0);
+        glskPointParticipationFactorLskZero = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB43LSKZERO)).getGlskPoints().get(0);
     }
 
     /**
@@ -87,6 +96,12 @@ public class GlskPointLinearGlskConverterTest {
         linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Factor: " + k + "; factor = " + v)); //log
         double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
         Assert.assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
+    }
+
+    @Test
+    public void testConvertGlskPointToLinearGlskB43Zero() {
+        assertThrows(GlskException.class, () -> GlskPointLinearGlskConverter.convert(testNetwork, glskPointParticipationFactorGskZero));
+        assertThrows(GlskException.class, () -> GlskPointLinearGlskConverter.convert(testNetwork, glskPointParticipationFactorLskZero));
     }
 
 }
