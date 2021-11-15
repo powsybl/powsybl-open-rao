@@ -18,8 +18,7 @@ public class UcteNetworkAnalyzerProperties {
     public enum BusIdMatchPolicy {
         COMPLETE_WITH_WHITESPACES,
         COMPLETE_WITH_WILDCARDS,
-        REPLACE_8TH_CHARACTER_WITH_WILDCARD,
-        NONE
+        REPLACE_8TH_CHARACTER_WITH_WILDCARD
     }
 
     private BusIdMatchPolicy busIdMatchPolicy;

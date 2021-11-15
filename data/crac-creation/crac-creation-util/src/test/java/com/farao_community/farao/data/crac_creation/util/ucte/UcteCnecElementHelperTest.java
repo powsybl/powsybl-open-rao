@@ -146,6 +146,31 @@ public class UcteCnecElementHelperTest {
     }
 
     @Test
+    public void testValidInternalBranchReplace8thWithSeveralMatches() {
+        setUp("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
+
+        // if exact branch is found, we do not replace the 8th character
+        UcteCnecElementHelper branchHelper = new UcteCnecElementHelper("DDE1AA12", "DDE2AA11", "1", null, alternativeNetworkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("DDE1AA12 DDE2AA11 1", branchHelper.getIdInNetwork());
+        assertFalse(branchHelper.isInvertedInNetwork());
+
+        branchHelper = new UcteCnecElementHelper("DDE2AA11", "DDE1AA12", "1", null, alternativeNetworkHelper);
+        assertTrue(branchHelper.isValid());
+        assertEquals("DDE1AA12 DDE2AA11 1", branchHelper.getIdInNetwork());
+        assertTrue(branchHelper.isInvertedInNetwork());
+
+        // if exact branch is not found, 8th character is replaced, and case became ambiguous as several solutions are possible
+        branchHelper = new UcteCnecElementHelper("DDE1AA13", "DDE2AA11", "1", null, alternativeNetworkHelper);
+        assertFalse(branchHelper.isValid());
+        assertTrue(branchHelper.getInvalidReason().contains("several branches were found"));
+
+        branchHelper = new UcteCnecElementHelper("DDE2AA11", "DDE1AA13", "1", null, alternativeNetworkHelper);
+        assertFalse(branchHelper.isValid());
+        assertTrue(branchHelper.getInvalidReason().contains("several branches were found"));
+    }
+
+    @Test
     public void testInvalidInternalBranch() {
         setUp("TestCase_severalVoltageLevels_Xnodes.uct");
 

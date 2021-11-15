@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 public class UcteBusHelperTest {
 
     @Test
-    public void testWithNetwork() {
+    public void testReplaceWithWhiteSpacesOrWildcards() {
         Network network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
         UcteNetworkAnalyzer ucteNetworkAnalyzerWhiteSpaces = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES));
         UcteNetworkAnalyzer ucteNetworkAnalyzerWildCards = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS));
@@ -57,4 +57,34 @@ public class UcteBusHelperTest {
         assertNotNull(busHelper.getInvalidReason());
     }
 
+    @Test
+    public void testReplace8thByWildcard() {
+        Network network = Importers.loadNetwork("TestCase_severalVoltageLevels_Xnodes_8characters.uct", getClass().getResourceAsStream("/TestCase_severalVoltageLevels_Xnodes_8characters.uct"));
+        UcteNetworkAnalyzer ucteNetworkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD));
+
+        // bus found with exact name
+        UcteBusHelper busHelper = new UcteBusHelper("NNL2AA13", ucteNetworkAnalyzer);
+        assertTrue(busHelper.isValid());
+        assertEquals("NNL2AA13", busHelper.getIdInNetwork());
+
+        // bus found replacing the 8th character by wildcard
+        busHelper = new UcteBusHelper("NNL2AA18", ucteNetworkAnalyzer);
+        assertTrue(busHelper.isValid());
+        assertEquals("NNL2AA13", busHelper.getIdInNetwork());
+
+        // bus found with exact name, even if several bus exist with same first seven characters
+        busHelper = new UcteBusHelper("DDE1AA12", ucteNetworkAnalyzer);
+        assertTrue(busHelper.isValid());
+        assertEquals("DDE1AA12", busHelper.getIdInNetwork());
+
+        // bus not found when replacing 8th character by *, cause of too many matches
+        busHelper = new UcteBusHelper("DDE1AA13", ucteNetworkAnalyzer);
+        assertFalse(busHelper.isValid());
+        assertTrue(busHelper.getInvalidReason().contains("Too many buses"));
+
+        // bus not found, as no bus of the network match the 7th first character
+        busHelper = new UcteBusHelper("RANDOM12", ucteNetworkAnalyzer);
+        assertFalse(busHelper.isValid());
+        assertTrue(busHelper.getInvalidReason().contains("No bus"));
+    }
 }
