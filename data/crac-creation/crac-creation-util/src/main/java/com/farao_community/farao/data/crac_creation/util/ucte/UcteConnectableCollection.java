@@ -39,7 +39,7 @@ class UcteConnectableCollection {
         addHvdcs(network);
     }
 
-    UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix, ConnectableType... connectableTypes) {
+    UcteMatchingResult lookForConnectable(String fromNodeId, String toNodeId, String suffix, UcteNetworkAnalyzerProperties.BusIdMatchPolicy policy, ConnectableType... connectableTypes) {
 
         /*
           priority is given to the search with the from/to direction given in argument
@@ -63,7 +63,27 @@ class UcteConnectableCollection {
 
         // if no result has been found in the direction in argument, look for an inverted one
         ucteMatchingResult = lookForMatch(toNodeId, fromNodeId, suffix, connectableTypes);
-        return ucteMatchingResult.invert();
+
+        if (!ucteMatchingResult.getStatus().equals(UcteMatchingResult.MatchStatus.NOT_FOUND)
+            || !policy.equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
+            return ucteMatchingResult.invert();
+        }
+
+        // if no result has been found yet and busIdMatchPolicy is REPLACE_8TH_CHARACTER_WITH_WILDCARD, continue search
+        // by replacing last character with wildcard
+        String fromWildcard = String.format("%1$-7s", fromNodeId).substring(0, 7) + UcteUtils.WILDCARD_CHARACTER;
+        String toWildcard = String.format("%1$-7s", toNodeId).substring(0, 7) + UcteUtils.WILDCARD_CHARACTER;
+
+        // with the direction in argument ...
+        ucteMatchingResult = lookForMatch(fromWildcard, toWildcard, suffix, connectableTypes);
+
+        if (!ucteMatchingResult.getStatus().equals(UcteMatchingResult.MatchStatus.NOT_FOUND)) {
+            return ucteMatchingResult;
+        }
+
+        // or, if not found, with the inverted direction
+        return lookForMatch(toWildcard, fromWildcard, suffix, connectableTypes).invert();
+
     }
 
     private UcteMatchingResult lookForMatch(String fromNodeId, String toNodeId, String suffix, ConnectableType... types) {
