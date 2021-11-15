@@ -13,15 +13,19 @@ import com.farao_community.farao.data.glsk.api.GlskDocument;
 import com.farao_community.farao.data.glsk.api.GlskException;
 import com.farao_community.farao.data.glsk.api.util.converters.GlskPointToLinearDataConverter;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZonalDataFromGlskDocument.class);
 
     public ZonalDataFromGlskDocument(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
         super(new HashMap<>());
@@ -29,7 +33,11 @@ public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
             List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone).stream()
                 .filter(glskPoint -> glskPoint.getPointInterval().contains(instant))
                 .collect(Collectors.toList());
-            addLinearDataFromList(network, converter, glskPointList, zone);
+            try {
+                addLinearDataFromList(network, converter, glskPointList, zone);
+            } catch (GlskException e) {
+                LOGGER.warn(String.format("Could not create linear data for zone %s: %s", zone, e.getMessage()));
+            }
         }
     }
 
