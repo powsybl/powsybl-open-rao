@@ -51,6 +51,13 @@ public class AppliedRemedialActions {
         }
     }
 
+    public void addAppliedRangeActions(State state, Map<RangeAction, Double> rangeActions) {
+        if (!rangeActions.isEmpty()) {
+            checkState(state);
+            appliedRa.get(state).rangeActions.putAll(rangeActions);
+        }
+    }
+
     public boolean isEmpty() {
         return appliedRa.isEmpty();
     }

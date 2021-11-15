@@ -6,23 +6,23 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.flowbased_computation.*;
 import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +40,6 @@ import java.util.stream.Collectors;
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
-    private Instant afterCraInstant = null;
-    private Set<State> statesWithCras = new HashSet<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
@@ -61,34 +59,38 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         Objects.requireNonNull(glsk);
         Objects.requireNonNull(parameters);
 
-        sortInstants(Arrays.asList(Instant.values()));
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+
+        if (raoResult == null) {
+            LOGGER.debug("RAO result is null: applying all network actions from CRAC.");
+            crac.getStates().forEach(state -> {
+                if (state.getInstant().equals(Instant.CURATIVE)) {
+                    appliedRemedialActions.addAppliedNetworkActions(state, findAllAvailableRemedialActionsForState(crac, state));
+                }
+            });
+        } else {
+            LOGGER.debug("RAO result is not null: applying remedial actions selected by the RAO.");
+            crac.getStates().forEach(state -> {
+                if (state.getInstant().equals(Instant.CURATIVE)) {
+                    appliedRemedialActions.addAppliedNetworkActions(state, findAppliedNetworkActionsForState(raoResult, state, crac.getNetworkActions()));
+                    appliedRemedialActions.addAppliedRangeActions(state, findAppliedRangeActionsForState(raoResult, state));
+                }
+            });
+        }
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(parameters.getSensitivityAnalysisParameters())
                 .withPtdfSensitivities(glsk, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT))
+                .withAppliedRemedialActions(appliedRemedialActions)
                 .build();
 
         // Preventive perimeter
         String initialNetworkId = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().cloneVariant(initialNetworkId, INITIAL_STATE_WITH_PRA);
         network.getVariantManager().setWorkingVariant(INITIAL_STATE_WITH_PRA);
-        if (raoResult == null) {
-            LOGGER.debug("RAO result is null: applying all network actions from CRAC.");
-            applyAllAvailableRemedialActionsForState(network, crac, crac.getPreventiveState());
-        } else {
-            LOGGER.debug("RAO result is not null: applying remedial actions selected by the RAO.");
-            applyOptimalRemedialActionsForState(network, raoResult, crac.getPreventiveState(), crac.getNetworkActions());
-        }
+        applyPreventiveRemedialActions(raoResult, crac, network);
         SystematicSensitivityResult result = systematicSensitivityInterface.run(network);
         FlowbasedComputationResult flowBasedComputationResult = new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, buildFlowbasedDomain(crac, glsk, result));
-
-        // Curative perimeter
-        if (afterCraInstant != null) {
-            statesWithCras = findStatesWithCras(crac, raoResult);
-            crac.getStatesFromInstant(afterCraInstant).forEach(state -> handleCurativeState(state, network, crac, raoResult, glsk, parameters.getSensitivityAnalysisParameters(), flowBasedComputationResult.getFlowBasedDomain()));
-        } else {
-            LOGGER.info("No curative computation in flowbased because 2 or less instants are defined in crac.");
-        }
 
         // Restore initial variant at the end of the computation
         network.getVariantManager().setWorkingVariant(initialNetworkId);
@@ -97,96 +99,32 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         return CompletableFuture.completedFuture(flowBasedComputationResult);
     }
 
-    private void handleCurativeState(State state, Network network, Crac crac, RaoResult raoResult, ZonalData<LinearGlsk> glsk, SensitivityAnalysisParameters sensitivityAnalysisParameters, DataDomain flowbasedDomain) {
-        if (statesWithCras.contains(state)) {
-            if (raoResult == null) {
-                applyAllAvailableRemedialActionsForState(network, crac, state);
-            } else {
-                applyOptimalRemedialActionsForState(network, raoResult, state, crac.getNetworkActions());
-            }
-
-            SystematicSensitivityInterface newSystematicSensitivityInterface = SystematicSensitivityInterface.builder()
-                .withDefaultParameters(sensitivityAnalysisParameters)
-                .withPtdfSensitivities(glsk, crac.getFlowCnecs(state), Collections.singleton(Unit.MEGAWATT))
-                .build();
-            SystematicSensitivityResult sensitivityResult = newSystematicSensitivityInterface.run(network);
-            Optional<Contingency> contingencyOptional = state.getContingency();
-            String contingencyId;
-            if (contingencyOptional.isPresent()) {
-                contingencyId = contingencyOptional.get().getId();
-            } else {
-                throw new FaraoException("Contingency shouldn't be empty in curative.");
-            }
-
-            List<DataMonitoredBranch> dataMonitoredBranches = flowbasedDomain.findContingencyById(contingencyId).getDataMonitoredBranches();
-            dataMonitoredBranches.forEach(dataMonitoredBranch -> updateDataMonitoredBranch(dataMonitoredBranch, crac, sensitivityResult, glsk));
-        }
-    }
-
-    private void updateDataMonitoredBranch(DataMonitoredBranch dataMonitoredBranch, Crac crac, SystematicSensitivityResult sensitivityResult, ZonalData<LinearGlsk> glsk) {
-        if (dataMonitoredBranch.getInstantId().equals(afterCraInstant.toString())) {
-            FlowCnec cnec = crac.getFlowCnec(dataMonitoredBranch.getId());
-            dataMonitoredBranch.setFref(sensitivityResult.getReferenceFlow(cnec));
-            glsk.getDataPerZone().forEach((zone, zonalData) -> {
-                List<DataPtdfPerCountry> ptdfs = dataMonitoredBranch.getPtdfList().stream().filter(dataPtdfPerCountry -> dataPtdfPerCountry.getCountry().equals(zonalData.getId())).collect(Collectors.toList());
-                if (ptdfs.size() == 1) {
-                    double newPtdf = sensitivityResult.getSensitivityOnFlow(zonalData, cnec);
-                    if (!Double.isNaN(newPtdf)) {
-                        ptdfs.get(0).setPtdf(newPtdf);
-                    } else {
-                        ptdfs.get(0).setPtdf(0.0);
-                    }
-                } else {
-                    LOGGER.info(String.format("Incorrect ptdf size for zone %s on branch %s: %s", zone, dataMonitoredBranch.getBranchId(), ptdfs.size()));
-                }
-            });
-        }
-    }
-
-    private Set<State> findStatesWithCras(Crac crac, RaoResult raoResult) {
+    private void applyPreventiveRemedialActions(RaoResult raoResult, Crac crac, Network network) {
         if (raoResult == null) {
-            crac.getStates().forEach(state -> findAllStatesWithCraUsageMethod(state, crac.getNetworkActions()));
-        } else {
-            crac.getStates().forEach(state -> {
-                if (!raoResult.getOptimizedSetPointsOnState(state).isEmpty() || !raoResult.getActivatedNetworkActionsDuringState(state).isEmpty()) {
-                    statesWithCras.add(state);
+            LOGGER.debug("RAO result is null: applying all network actions from CRAC.");
+            crac.getNetworkActions().forEach(na -> {
+                UsageMethod usageMethod = na.getUsageMethod(crac.getPreventiveState());
+                if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
+                    na.apply(network);
+                } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
+                    LOGGER.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
+                    /*
+                     * This method is only used in FlowbasedComputation.
+                     * We do not assess the availability of such remedial actions: they're not supposed to exist.
+                     * If it is needed in the future, we will have to loop around a sensitivity computation, followed by a
+                     * re-assessment of additional available RAs and applying them, then re-running sensitivity, etc
+                     * until the list of applied remedial actions stops changing
+                     */
                 }
             });
-        }
-
-        LOGGER.debug("{} curative states with CRAs.", statesWithCras.size());
-        return statesWithCras;
-    }
-
-    private void findAllStatesWithCraUsageMethod(State state, Set<NetworkAction> networkActions) {
-        if (state.getInstant() == afterCraInstant) {
-            Optional<NetworkAction> fittingAction = networkActions.stream().filter(networkAction ->
-                networkAction.getUsageMethod(state) != null).findAny();
-            if (fittingAction.isPresent()) {
-                statesWithCras.add(state);
-            }
-        }
-    }
-
-    private void sortInstants(List<Instant> instants) {
-        Map<Integer, Instant> instantMap = new HashMap<>();
-
-        for (Instant instant : instants) {
-            instantMap.put(instant.getOrder(), instant);
-        }
-        List<Integer> seconds = new ArrayList<>(instantMap.keySet());
-        Collections.sort(seconds);
-
-        if (instants.size() == 1) {
-            LOGGER.info("Only Preventive instant is present for flowbased computation.");
-        } else if (instants.size() == 2) {
-            LOGGER.info("Only Preventive and On outage instants are present for flowbased computation.");
-        } else if (instants.size() >= 3) {
-            LOGGER.debug("All instants are defined for flowbased computation.");
-            // last instant
-            afterCraInstant = instantMap.get(seconds.get(seconds.size() - 1));
         } else {
-            throw new FaraoException("No instant defined for flowbased computation");
+            LOGGER.debug("RAO result is not null: applying remedial actions selected by the RAO.");
+            crac.getNetworkActions().forEach(na -> {
+                if (raoResult.isActivated(crac.getPreventiveState(), na)) {
+                    na.apply(network);
+                }
+            });
+            raoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()).forEach((ra, setpoint) -> ra.apply(network, setpoint));
         }
     }
 
@@ -260,17 +198,18 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     /**
-     * Apply all remedial actions saved in CRAC, on a given network, at a given state.
+     * Find all remedial actions saved in CRAC, on a given network, at a given state.
      *
-     * @param network Network on which remedial actions should be applied
      * @param crac CRAC that should contain result extension
      * @param state State for which the RAs should be applied
      */
-    public static void applyAllAvailableRemedialActionsForState(Network network, Crac crac, State state) {
+    public static Set<NetworkAction> findAllAvailableRemedialActionsForState(Crac crac, State state) {
+        Set<NetworkAction> networkActionsAppl = new HashSet<>();
+
         crac.getNetworkActions().forEach(na -> {
             UsageMethod usageMethod = na.getUsageMethod(state);
             if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
-                na.apply(network);
+                networkActionsAppl.add(na);
             } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
                 LOGGER.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
                 /*
@@ -282,22 +221,36 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                  */
             }
         });
+
+        return networkActionsAppl;
     }
 
     /**
-     * Apply remedial actions saved in CRAC result extension on current working variant of given network, at a given state.
+     * Find network actions saved in CRAC result extension on current working variant of given network, at a given state.
      *
-     * @param network Network on which remedial actions should be applied
+     * @param raoResult Result of Rao computation
+     * @param state State for which the RAs should be applied
+     * @param networkActions All network actions
+     */
+    public static Set<NetworkAction> findAppliedNetworkActionsForState(RaoResult raoResult, State state, Set<NetworkAction> networkActions) {
+        Set<NetworkAction> networkActionsAppl = new HashSet<>();
+
+        networkActions.forEach(na -> {
+            if (raoResult.isActivated(state, na)) {
+                networkActionsAppl.add(na);
+            }
+        });
+        return networkActionsAppl;
+    }
+
+    /**
+     * Find range actions saved in CRAC result extension on current working variant of given network, at a given state.
+     *
      * @param raoResult Result of Rao computation
      * @param state State for which the RAs should be applied
      */
-    public static void applyOptimalRemedialActionsForState(Network network, RaoResult raoResult, State state, Set<NetworkAction> networkActions) {
-        networkActions.forEach(na -> {
-            if (raoResult.isActivated(state, na)) {
-                na.apply(network);
-            }
-        });
-        raoResult.getOptimizedSetPointsOnState(state).forEach((ra, setpoint) -> ra.apply(network, setpoint));
+    public static Map<RangeAction, Double> findAppliedRangeActionsForState(RaoResult raoResult, State state) {
+        return new HashMap<>(raoResult.getOptimizedSetPointsOnState(state));
     }
 
     private double zeroIfNaN(double value) {
