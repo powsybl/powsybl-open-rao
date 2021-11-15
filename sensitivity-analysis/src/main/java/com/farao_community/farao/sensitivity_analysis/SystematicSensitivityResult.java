@@ -114,11 +114,11 @@ public class SystematicSensitivityResult {
         if (value.getFactor().getFunction() instanceof BranchFlow) {
             stateResult.getReferenceFlows().putIfAbsent(value.getFactor().getFunction().getId(), reference);
             stateResult.getFlowSensitivities().computeIfAbsent(value.getFactor().getFunction().getId(), k -> new HashMap<>())
-                    .putIfAbsent(value.getFactor().getVariable().getId(), sensitivity);
+                .putIfAbsent(value.getFactor().getVariable().getId(), sensitivity);
         } else if (value.getFactor().getFunction() instanceof BranchIntensity) {
             stateResult.getReferenceIntensities().putIfAbsent(value.getFactor().getFunction().getId(), reference);
             stateResult.getIntensitySensitivities().computeIfAbsent(value.getFactor().getFunction().getId(), k -> new HashMap<>())
-                    .putIfAbsent(value.getFactor().getVariable().getId(), sensitivity);
+                .putIfAbsent(value.getFactor().getVariable().getId(), sensitivity);
         }
     }
 
@@ -166,7 +166,9 @@ public class SystematicSensitivityResult {
 
     public double getSensitivityOnFlow(String variableId, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
-        if (stateResult == null || !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
+        if (stateResult == null ||
+            !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId()) ||
+            !stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId)) {
             return 0.0;
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());

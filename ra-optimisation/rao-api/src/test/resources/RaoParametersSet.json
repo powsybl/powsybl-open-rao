@@ -23,7 +23,9 @@
   "perimeters-in-parallel" : 15,
   "optimization-solver" : "SCIP",
   "relative-mip-gap" : 1.0E-5,
+  "solver-specific-parameters" : "TREEMEMORYLIMIT 20",
   "pst-optimization-approximation" : "APPROXIMATED_INTEGERS",
+  "forbid-cost-increase" : true,
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {

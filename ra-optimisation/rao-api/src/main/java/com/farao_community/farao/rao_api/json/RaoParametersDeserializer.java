@@ -145,6 +145,9 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setRelativeMipGap(parser.getDoubleValue());
                     break;
+                case "solver-specific-parameters":
+                    parameters.setSolverSpecificParameters(parser.nextTextValue());
+                    break;
                 case "pst-optimization-approximation":
                     parameters.setPstOptimizationApproximation(stringToPstApproximation(parser.nextTextValue()));
                     break;
@@ -158,6 +161,10 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                         parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
                     }
                     JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
+                    break;
+                case "forbid-cost-increase":
+                    parser.nextToken();
+                    parameters.setForbidCostIncrease(parser.getBooleanValue());
                     break;
                 case "extensions":
                     parser.nextToken();
