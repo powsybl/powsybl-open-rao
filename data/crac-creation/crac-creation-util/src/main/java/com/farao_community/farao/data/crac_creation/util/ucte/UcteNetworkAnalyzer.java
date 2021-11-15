@@ -40,32 +40,32 @@ public class UcteNetworkAnalyzer {
     }
 
     UcteMatchingResult findContingencyElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix,
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.HVDC);
     }
 
     UcteMatchingResult findCnecElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix,
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST);
     }
 
     UcteMatchingResult findTopologicalElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix,
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(),
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.SWITCH);
     }
 
     UcteMatchingResult findPstElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, ConnectableType.PST);
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(), ConnectableType.PST);
     }
 
     UcteMatchingResult findHvdcElement(String from, String to, String suffix) {
-        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, ConnectableType.HVDC);
+        return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties.getBusIdMatchPolicy(), ConnectableType.HVDC);
     }
 
     private String completeNodeName(String nodeName) {
         if (nodeName.length() == UcteUtils.UCTE_NODE_LENGTH) {
             return nodeName;
-        } else if (properties.getBusIdMatchPolicy().equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS) || properties.getBusIdMatchPolicy().equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
+        } else if (properties.getBusIdMatchPolicy().equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS)) {
             return String.format("%1$-7s", nodeName) + UcteUtils.WILDCARD_CHARACTER;
         } else {
             return String.format("%1$-8s", nodeName);
