@@ -23,9 +23,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.time.Instant;
 import java.util.*;
 
 import static com.farao_community.farao.rao_commons.linear_optimisation.LinearProblemIdGenerator.*;
