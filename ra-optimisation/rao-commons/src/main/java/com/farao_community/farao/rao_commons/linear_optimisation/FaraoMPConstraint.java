@@ -22,8 +22,8 @@ public class FaraoMPConstraint extends MPConstraint {
     }
 
     @Override
-    public void setCoefficient(MPVariable var, double coeff) {
-        super.setCoefficient(var, Math.round(coeff * precision) / precision);
+    public void setCoefficient(MPVariable variable, double coeff) {
+        super.setCoefficient(variable, Math.round(coeff * precision) / precision);
     }
 
     @Override
