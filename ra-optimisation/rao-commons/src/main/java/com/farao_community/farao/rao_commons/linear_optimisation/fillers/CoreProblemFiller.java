@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -46,8 +47,12 @@ public class CoreProblemFiller implements ProblemFiller {
                              double hvdcSensitivityThreshold,
                              boolean relativePositiveMargins) {
         this.network = network;
-        this.flowCnecs = flowCnecs;
-        this.rangeActions = rangeActions;
+        this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.flowCnecs.addAll(flowCnecs);
+        this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.rangeActions.addAll(rangeActions);
+        /*this.flowCnecs = flowCnecs;
+        this.rangeActions = rangeActions;*/
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;

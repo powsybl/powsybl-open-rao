@@ -23,6 +23,9 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.time.Instant;
 import java.util.*;
 
 import static com.farao_community.farao.rao_commons.linear_optimisation.LinearProblemIdGenerator.*;
@@ -83,15 +86,15 @@ public final class LinearProblem {
     private LinearProblem(List<ProblemFiller> fillers, RaoParameters.Solver solverName, double relativeMipGap, String solverSpecificParameters) {
         switch (solverName) {
             case CBC:
-                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
+                this.solver = new FaraoMPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
                 break;
 
             case SCIP:
-                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING);
+                this.solver = new FaraoMPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING);
                 break;
 
             case XPRESS:
-                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING);
+                this.solver = new FaraoMPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING);
                 break;
 
             default:
@@ -357,9 +360,17 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         MPSolverParameters solveConfiguration = new MPSolverParameters();
         solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
-        if (solverSpecificParameters != null) {
+        /*if (solverSpecificParameters != null) {
             this.solver.setSolverSpecificParametersAsString(solverSpecificParameters);
+        }*/
+        int i = Instant.now().getNano();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("mip" + i + ".mps"))) {
+            writer.write(solver.exportModelAsMpsFormat());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        this.solver.enableOutput();
+        this.solver.setSolverSpecificParametersAsString("THREADS 1 MAXNODE 100 MAXTIME 100");
         status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }

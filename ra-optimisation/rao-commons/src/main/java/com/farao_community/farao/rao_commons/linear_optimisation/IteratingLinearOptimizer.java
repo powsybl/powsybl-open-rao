@@ -54,7 +54,7 @@ public class IteratingLinearOptimizer {
 
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
             solveLinearProblem(linearProblem, iteration);
-            if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
+            if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL && linearProblem.getStatus() != LinearProblemStatus.FEASIBLE) {
                 LOGGER.error(LINEAR_OPTIMIZATION_FAILED, iteration);
                 if (iteration == 1) {
                     return new FailedLinearOptimizationResult();

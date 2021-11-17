@@ -29,7 +29,7 @@ public class LinearProblemResult implements RangeActionResult {
     private final Map<RangeAction, Double> setPointPerRangeAction = new HashMap<>();
 
     public LinearProblemResult(LinearProblem linearProblem) {
-        if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
+        if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL && linearProblem.getStatus() != LinearProblemStatus.FEASIBLE) {
             throw new FaraoException("Impossible to define results on non-optimal Linear problem.");
         }
 

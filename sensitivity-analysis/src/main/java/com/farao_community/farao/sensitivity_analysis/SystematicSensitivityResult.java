@@ -170,7 +170,7 @@ public class SystematicSensitivityResult {
             return 0.0;
         }
         Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
-        return sensitivities.get(variableId);
+        return sensitivities.getOrDefault(variableId, 0.0);
     }
 
     public double getSensitivityOnIntensity(RangeAction rangeAction, Cnec<?> cnec) {
