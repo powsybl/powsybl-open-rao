@@ -51,8 +51,6 @@ public class CoreProblemFiller implements ProblemFiller {
         this.flowCnecs.addAll(flowCnecs);
         this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.rangeActions.addAll(rangeActions);
-        /*this.flowCnecs = flowCnecs;
-        this.rangeActions = rangeActions;*/
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
