@@ -360,17 +360,9 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         MPSolverParameters solveConfiguration = new MPSolverParameters();
         solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
-        /*if (solverSpecificParameters != null) {
+        if (solverSpecificParameters != null) {
             this.solver.setSolverSpecificParametersAsString(solverSpecificParameters);
-        }*/
-        int i = Instant.now().getNano();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("mip" + i + ".mps"))) {
-            writer.write(solver.exportModelAsMpsFormat());
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        this.solver.enableOutput();
-        this.solver.setSolverSpecificParametersAsString("THREADS 1 MAXNODE 100 MAXTIME 100");
         status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }
