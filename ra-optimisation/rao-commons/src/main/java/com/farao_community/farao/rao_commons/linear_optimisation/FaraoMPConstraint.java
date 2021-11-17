@@ -14,7 +14,7 @@ import com.google.ortools.linearsolver.MPVariable;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class FaraoMPConstraint extends MPConstraint {
-    double precision;
+    private final double precision;
 
     protected FaraoMPConstraint(long cPtr, boolean cMemoryOwn, double precision) {
         super(cPtr, cMemoryOwn);

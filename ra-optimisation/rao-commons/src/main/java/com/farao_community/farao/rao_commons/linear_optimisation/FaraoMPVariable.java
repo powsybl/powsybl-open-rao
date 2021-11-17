@@ -13,7 +13,7 @@ import com.google.ortools.linearsolver.MPVariable;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class FaraoMPVariable extends MPVariable {
-    double precision;
+    private final double precision;
 
     protected FaraoMPVariable(long cPtr, boolean cMemoryOwn, double precision) {
         super(cPtr, cMemoryOwn);
