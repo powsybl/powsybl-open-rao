@@ -30,17 +30,22 @@ public class UcteBusHelper implements ElementHelper {
 
     public UcteBusHelper(String nodeName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
 
+        String modNodeName = nodeName;
+
         // full id without wildcard
         if (nodeName.length() == UCTE_NODE_LENGTH && !nodeName.endsWith(WILDCARD_CHARACTER)) {
             lookForBusWithIdInNetwork(nodeName, ucteNetworkAnalyzer.getNetwork());
-            if (isValid || !ucteNetworkAnalyzer.getProperties().getBusIdMatchPolicy().equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
+
+            if (!isValid && ucteNetworkAnalyzer.getProperties().getBusIdMatchPolicy().equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD)) {
+                // if no bus is found and policy is REPLACE_8TH_CHARACTER_WITH_WILDCARD, replace 8 character by *
+                modNodeName = String.format("%1$-7s", nodeName).substring(0, 7) + UcteUtils.WILDCARD_CHARACTER;
+            } else {
                 return;
             }
         }
 
-        String modNodeName = nodeName;
         // incomplete id, automatically complete id with...
-        if (nodeName.length() < UCTE_NODE_LENGTH || ucteNetworkAnalyzer.getProperties().getBusIdMatchPolicy().equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.REPLACE_8TH_CHARACTER_WITH_WILDCARD)) { // blank spaces,
+        if (nodeName.length() < UCTE_NODE_LENGTH) { // blank spaces,
             if (ucteNetworkAnalyzer.getProperties().getBusIdMatchPolicy().equals(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES)) {
                 lookForBusWithIdInNetwork(String.format("%1$-8s", nodeName), ucteNetworkAnalyzer.getNetwork());
                 return;
@@ -53,7 +58,6 @@ public class UcteBusHelper implements ElementHelper {
         for (Bus bus : ucteNetworkAnalyzer.getNetwork().getBusBreakerView().getBuses()) {
             if (UcteUtils.matchNodeNames(modNodeName, bus.getId())) {
                 if (Objects.isNull(busIdInNetwork)) {
-                    invalidReason = null;
                     isValid = true;
                     busIdInNetwork = bus.getId();
                 } else {

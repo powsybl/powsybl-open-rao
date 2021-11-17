@@ -54,7 +54,9 @@ public class IteratingLinearOptimizer {
 
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
             solveLinearProblem(linearProblem, iteration);
-            if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL && linearProblem.getStatus() != LinearProblemStatus.FEASIBLE) {
+            if (linearProblem.getStatus() == LinearProblemStatus.FEASIBLE) {
+                LOGGER.warn("The solver was interrupted. A feasible solution has been produced.");
+            } else if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
                 LOGGER.error(LINEAR_OPTIMIZATION_FAILED, iteration);
                 if (iteration == 1) {
                     return new FailedLinearOptimizationResult();
@@ -82,7 +84,7 @@ public class IteratingLinearOptimizer {
                 }
 
                 solveLinearProblem(linearProblem, iteration);
-                if (linearProblem.getStatus() == LinearProblemStatus.OPTIMAL) {
+                if (linearProblem.getStatus() == LinearProblemStatus.OPTIMAL || linearProblem.getStatus() == LinearProblemStatus.FEASIBLE) {
                     currentRangeActionResult = roundResult(linearProblem.getResults(), network, bestResult);
                 }
             }
@@ -101,10 +103,10 @@ public class IteratingLinearOptimizer {
             }
 
             IteratingLinearOptimizerResult currentResult = createResult(
-                    sensitivityComputer.getBranchResult(),
-                    sensitivityComputer.getSensitivityResult(),
-                    currentRangeActionResult,
-                    iteration
+                sensitivityComputer.getBranchResult(),
+                sensitivityComputer.getSensitivityResult(),
+                currentRangeActionResult,
+                iteration
             );
 
             if (currentResult.getCost() >= bestResult.getCost()) {
@@ -141,26 +143,26 @@ public class IteratingLinearOptimizer {
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {
         LOGGER.info(
-                BETTER_RESULT,
-                iteration,
-                currentObjectiveFunctionResult.getFunctionalCost(),
-                currentObjectiveFunctionResult.getCost());
+            BETTER_RESULT,
+            iteration,
+            currentObjectiveFunctionResult.getFunctionalCost(),
+            currentObjectiveFunctionResult.getCost());
     }
 
     private static void logWorseResult(int iteration, ObjectiveFunctionResult bestResult, ObjectiveFunctionResult currentResult) {
         LOGGER.info(
-                WORSE_RESULT,
-                iteration,
-                bestResult.getFunctionalCost(),
-                currentResult.getFunctionalCost(),
-                bestResult.getCost(),
-                currentResult.getCost());
+            WORSE_RESULT,
+            iteration,
+            bestResult.getFunctionalCost(),
+            currentResult.getFunctionalCost(),
+            bestResult.getCost(),
+            currentResult.getCost());
     }
 
     private void applyRangeActions(Set<RangeAction> rangeActions,
                                    RangeActionResult rangeActionResult,
                                    Network network) {
-        rangeActions.forEach(rangeAction ->  rangeAction.apply(network, rangeActionResult.getOptimizedSetPoint(rangeAction)));
+        rangeActions.forEach(rangeAction -> rangeAction.apply(network, rangeActionResult.getOptimizedSetPoint(rangeAction)));
     }
 
     private void applyRangeActionsAndRunSensitivityAnalysis(SensitivityComputer sensitivityComputer,
@@ -182,7 +184,7 @@ public class IteratingLinearOptimizer {
                                                         RangeActionResult rangeActionResult,
                                                         int nbOfIterations) {
         return new IteratingLinearOptimizerResult(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionResult, flowResult,
-                objectiveFunction.evaluate(flowResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
+            objectiveFunction.evaluate(flowResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
     }
 
     private RangeActionResult roundResult(RangeActionResult rangeActionResult, Network network, IteratingLinearOptimizerResult previousResult) {
@@ -195,11 +197,11 @@ public class IteratingLinearOptimizer {
         );
 
         return BestTapFinder.find(
-                roundedSetPoints,
-                network,
-                previousResult.getObjectiveFunctionResult().getMostLimitingElements(10),
-                previousResult.getBranchResult(),
-                previousResult.getSensitivityResult()
+            roundedSetPoints,
+            network,
+            previousResult.getObjectiveFunctionResult().getMostLimitingElements(10),
+            previousResult.getBranchResult(),
+            previousResult.getSensitivityResult()
         );
     }
 }
