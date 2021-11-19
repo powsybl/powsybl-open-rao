@@ -74,9 +74,17 @@ public class AbsolutePtdfSumsComputation {
     }
 
     private double computeZToZPtdf(ZoneToZonePtdfDefinition zToz, Map<EICode, Double> zToSlackPtdfMap) {
-        return zToz.getZoneToSlackPtdfs().stream()
+
+        List<Double> zoneToSlackPtdf =  zToz.getZoneToSlackPtdfs().stream()
             .filter(zToS -> zToSlackPtdfMap.containsKey(zToS.getEiCode()))
-            .mapToDouble(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
-            .sum();
+            .map(zToS -> zToS.getWeight() * zToSlackPtdfMap.get(zToS.getEiCode()))
+            .collect(Collectors.toList());
+
+        if (zoneToSlackPtdf.size() < 2) {
+            // the boundary should at least contains two zoneToSlack PTDFs
+            return 0.0;
+        } else {
+            return zoneToSlackPtdf.stream().mapToDouble(v -> v).sum();
+        }
     }
 }
