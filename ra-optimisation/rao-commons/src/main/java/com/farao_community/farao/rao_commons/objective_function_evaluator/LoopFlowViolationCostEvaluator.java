@@ -47,6 +47,11 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
+        Map<FlowCnec, Double> loopflowCosts = new HashMap<>();
+        loopflowCnecs.forEach(flowCnec -> loopflowCosts.put(flowCnec, getLoopFlowExcess(flowResult, flowCnec) * loopFlowViolationCost));
+        Set<FlowCnec> sortedLoopflows = new TreeSet<>((c1, c2) -> -loopflowCosts.get(c1).compareTo(loopflowCosts.get(c2)));
+        sortedLoopflows.addAll(loopflowCnecs);
+
         double cost = loopflowCnecs
                 .stream()
                 .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)

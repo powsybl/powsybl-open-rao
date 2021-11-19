@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -40,7 +41,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     public UnoptimizedCnecFiller(Set<FlowCnec> flowCnecs,
                                  FlowResult prePerimeterFlowResult,
                                  UnoptimizedCnecParameters unoptimizedCnecParameters) {
-        this.flowCnecs = flowCnecs;
+        this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.flowCnecs.addAll(flowCnecs);
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
         this.highestThresholdValue = unoptimizedCnecParameters.getHighestThresholdValue();
