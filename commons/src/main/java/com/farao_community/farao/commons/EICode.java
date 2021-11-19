@@ -9,6 +9,7 @@
 package com.farao_community.farao.commons;
 
 import com.powsybl.iidm.network.Country;
+import com.powsybl.glsk.commons.CountryEICode;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}

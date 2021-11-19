@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.glsk.virtual.hubs;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.commons.ZonalDataImpl;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;

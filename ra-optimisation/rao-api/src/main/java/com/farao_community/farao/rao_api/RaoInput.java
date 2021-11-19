@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.rao_api;
 
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;

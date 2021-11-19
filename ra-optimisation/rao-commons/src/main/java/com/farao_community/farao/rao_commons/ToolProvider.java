@@ -9,8 +9,8 @@ package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.commons.ZonalDataImpl;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
