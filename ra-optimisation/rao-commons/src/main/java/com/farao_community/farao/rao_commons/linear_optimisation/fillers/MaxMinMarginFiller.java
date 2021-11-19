@@ -9,6 +9,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -23,8 +24,10 @@ import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -40,8 +43,10 @@ public class MaxMinMarginFiller implements ProblemFiller {
     protected double hvdcPenaltyCost;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
-        this.optimizedCnecs = optimizedCnecs;
-        this.rangeActions = rangeActions;
+        this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.optimizedCnecs.addAll(optimizedCnecs);
+        this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.rangeActions.addAll(rangeActions);
         this.unit = unit;
         this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
         this.hvdcPenaltyCost = maxMinMarginParameters.getHvdcPenaltyCost();

@@ -83,15 +83,15 @@ public final class LinearProblem {
     private LinearProblem(List<ProblemFiller> fillers, RaoParameters.Solver solverName, double relativeMipGap, String solverSpecificParameters) {
         switch (solverName) {
             case CBC:
-                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
+                this.solver = new FaraoMPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
                 break;
 
             case SCIP:
-                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING);
+                this.solver = new FaraoMPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING);
                 break;
 
             case XPRESS:
-                this.solver = new MPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING);
+                this.solver = new FaraoMPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING);
                 break;
 
             default:
@@ -360,6 +360,7 @@ public final class LinearProblem {
         if (solverSpecificParameters != null) {
             this.solver.setSolverSpecificParametersAsString(solverSpecificParameters);
         }
+        this.solver.enableOutput();
         status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }

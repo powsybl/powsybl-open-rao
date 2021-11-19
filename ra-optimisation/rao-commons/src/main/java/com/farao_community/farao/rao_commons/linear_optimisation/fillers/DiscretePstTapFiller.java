@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
@@ -18,8 +19,10 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem.VariationExtension.DOWNWARD;
 import static com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem.VariationExtension.UPWARD;
@@ -37,7 +40,8 @@ public class DiscretePstTapFiller implements ProblemFiller {
                                 Set<RangeAction> rangeActions,
                                 RangeActionResult prePerimeterRangeActionResult) {
         this.network = network;
-        this.rangeActions = rangeActions;
+        this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.rangeActions.addAll(rangeActions);
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
     }
 

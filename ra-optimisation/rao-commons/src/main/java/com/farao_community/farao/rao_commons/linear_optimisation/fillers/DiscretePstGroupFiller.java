@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
@@ -15,8 +16,10 @@ import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -27,7 +30,8 @@ public class DiscretePstGroupFiller implements ProblemFiller {
     private final Network network;
 
     public DiscretePstGroupFiller(Network network, Set<PstRangeAction> pstRangeActions) {
-        this.pstRangeActions = pstRangeActions;
+        this.pstRangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.pstRangeActions.addAll(pstRangeActions);
         this.network = network;
     }
 

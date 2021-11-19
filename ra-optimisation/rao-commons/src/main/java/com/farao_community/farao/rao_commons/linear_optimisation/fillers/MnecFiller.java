@@ -8,6 +8,7 @@ package com.farao_community.farao.rao_commons.linear_optimisation.fillers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -19,8 +20,10 @@ import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -37,7 +40,8 @@ public class MnecFiller implements ProblemFiller {
 
     public MnecFiller(FlowResult initialFlowResult, Set<FlowCnec> monitoredCnecs, Unit unit, MnecParameters mnecParameters) {
         this.initialFlowResult = initialFlowResult;
-        this.monitoredCnecs = monitoredCnecs;
+        this.monitoredCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.monitoredCnecs.addAll(monitoredCnecs);
         this.unit = unit;
         this.mnecViolationCost = mnecParameters.getMnecViolationCost();
         this.mnecAcceptableMarginDiminution = mnecParameters.getMnecAcceptableMarginDiminution();
