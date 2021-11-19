@@ -30,7 +30,7 @@ public class LinearProblemResult implements RangeActionResult {
 
     public LinearProblemResult(LinearProblem linearProblem) {
         if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL && linearProblem.getStatus() != LinearProblemStatus.FEASIBLE) {
-            throw new FaraoException("Impossible to define results on non-optimal Linear problem.");
+            throw new FaraoException("Impossible to define results on non-optimal and non-feasible Linear problem.");
         }
 
         linearProblem.getRangeActions().forEach(rangeAction ->

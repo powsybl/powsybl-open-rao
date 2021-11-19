@@ -360,6 +360,7 @@ public final class LinearProblem {
         if (solverSpecificParameters != null) {
             this.solver.setSolverSpecificParametersAsString(solverSpecificParameters);
         }
+        this.solver.enableOutput();
         status = convertResultStatus(solver.solve(solveConfiguration));
         return status;
     }
