@@ -7,10 +7,10 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-data</artifactId>
-        <version>3.4.1</version>
+        <version>3.5.0-SNAPSHOT</version>
     </parent>
     <artifactId>farao-glsk</artifactId>
-    <version>3.4.1</version>
+    <version>3.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>GLSK related modules</name>
     <description>Module that regroups all features related to GLSK file</description>
