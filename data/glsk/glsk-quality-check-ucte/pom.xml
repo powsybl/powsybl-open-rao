@@ -7,11 +7,11 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-glsk</artifactId>
-        <version>3.5.0-SNAPSHOT</version>
+        <version>3.4.1</version>
     </parent>
 
     <artifactId>farao-glsk-quality-check-ucte</artifactId>
-    <version>3.5.0-SNAPSHOT</version>
+    <version>3.4.1</version>
     <packaging>jar</packaging>
     <name>GLSK quality check</name>
     <description>GLSK quality check module for UCTE formatted file</description>
