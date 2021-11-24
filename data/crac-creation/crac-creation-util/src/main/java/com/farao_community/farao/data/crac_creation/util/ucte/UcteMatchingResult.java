@@ -25,17 +25,17 @@ final class UcteMatchingResult {
     enum MatchStatus {
         OK(true),
         NOT_FOUND(false),
-        SEVERAL_MATCH(false);
+        SEVERAL_MATCH(true);
 
-        private boolean isOk;
+        private boolean hasMatched;
 
-        MatchStatus(boolean isOk) {
-            this.isOk = isOk;
+        MatchStatus(boolean hasMatched) {
+            this.hasMatched = hasMatched;
         }
     }
 
     boolean hasMatched() {
-        return status.isOk;
+        return status.hasMatched;
     }
 
     boolean isInverted() {
