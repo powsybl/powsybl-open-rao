@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -37,7 +38,7 @@ public class PerimeterOutput implements PerimeterResult {
     @Override
     public Set<RangeAction> getActivatedRangeActions() {
         return optimizationResult.getRangeActions().stream()
-                .filter(rangeAction -> prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction) != optimizationResult.getOptimizedSetPoint(rangeAction))
+                .filter(rangeAction -> Math.abs(prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction) - optimizationResult.getOptimizedSetPoint(rangeAction)) > 1e-6)
                 .collect(Collectors.toSet());
     }
 
@@ -120,6 +121,22 @@ public class PerimeterOutput implements PerimeterResult {
     public double getOptimizedSetPoint(RangeAction rangeAction) {
         if (optimizationResult.getRangeActions().contains(rangeAction)) {
             return optimizationResult.getOptimizedSetPoint(rangeAction);
+        }
+
+        // if rangeAction is not in perimeter, check if there is not another rangeAction
+        // on the same network element.
+        RangeAction rangeActionOnSameElement = null;
+        if (rangeAction.getNetworkElements().size() == 1) {
+            NetworkElement networkElement = rangeAction.getNetworkElements().iterator().next();
+            for (RangeAction ra : optimizationResult.getRangeActions()) {
+                if (ra.getNetworkElements().contains(networkElement)) {
+                    rangeActionOnSameElement = ra;
+                }
+            }
+        }
+
+        if (rangeActionOnSameElement != null) {
+            return optimizationResult.getOptimizedSetPoint(rangeActionOnSameElement);
         } else {
             return prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
         }
