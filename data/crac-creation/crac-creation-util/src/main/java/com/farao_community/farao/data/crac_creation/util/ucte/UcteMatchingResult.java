@@ -23,7 +23,7 @@ final class UcteMatchingResult {
     private final Identifiable<?> iidmIdentifiable;
 
     enum MatchStatus {
-        OK(true),
+        SINGLE_MATCH(true),
         NOT_FOUND(false),
         SEVERAL_MATCH(true);
 
@@ -58,7 +58,7 @@ final class UcteMatchingResult {
     }
 
     static UcteMatchingResult found(UcteConnectable.Side side, boolean isInverted, Identifiable<?> match) {
-        return new UcteMatchingResult(MatchStatus.OK, side, isInverted, match);
+        return new UcteMatchingResult(MatchStatus.SINGLE_MATCH, side, isInverted, match);
     }
 
     UcteMatchingResult invert() {

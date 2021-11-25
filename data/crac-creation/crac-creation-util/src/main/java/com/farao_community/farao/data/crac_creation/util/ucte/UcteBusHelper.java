@@ -56,6 +56,7 @@ public class UcteBusHelper implements ElementHelper {
             }
         }
 
+        // complex search with wildcard (either *, or incomplete ids)
         lookForBusIdMatches(modNodeName, ucteNetworkAnalyzer);
     }
 
