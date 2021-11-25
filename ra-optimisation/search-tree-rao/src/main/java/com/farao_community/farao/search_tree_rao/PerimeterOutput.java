@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.search_tree_rao;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -109,10 +108,28 @@ public class PerimeterOutput implements PerimeterResult {
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
-        // TODO: better handling in case of accessing of a tap that is not present in the results
-        try {
+
+        //test without try catch, if its not working, use a try/catch over a FaraoException instead
+        if (optimizationResult.getRangeActions().contains(pstRangeAction)) {
             return optimizationResult.getOptimizedTap(pstRangeAction);
-        } catch (FaraoException e) {
+        }
+
+        // if pstRangeAction is not in perimeter, check if there is not another rangeAction
+        // on the same network element.
+        PstRangeAction pstRangeActionOnSameElement = null;
+        NetworkElement networkElement = pstRangeAction.getNetworkElement();
+
+        for (RangeAction rangeAction : optimizationResult.getRangeActions()) {
+            if (rangeAction instanceof PstRangeAction && ((PstRangeAction) rangeAction).getNetworkElement() != null
+                    &&  ((PstRangeAction) rangeAction).getNetworkElement().equals(networkElement)) {
+                pstRangeActionOnSameElement = (PstRangeAction) rangeAction;
+                break;
+            }
+        }
+
+        if (pstRangeActionOnSameElement != null) {
+            return optimizationResult.getOptimizedTap(pstRangeActionOnSameElement);
+        } else {
             return prePerimeterRangeActionResult.getOptimizedTap(pstRangeAction);
         }
     }
@@ -131,6 +148,7 @@ public class PerimeterOutput implements PerimeterResult {
             for (RangeAction ra : optimizationResult.getRangeActions()) {
                 if (ra.getNetworkElements().contains(networkElement)) {
                     rangeActionOnSameElement = ra;
+                    break;
                 }
             }
         }
