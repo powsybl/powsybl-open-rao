@@ -100,8 +100,7 @@ final class PstRangeActionResultArraySerializer {
         // isActivatedDuringState might throw an exception, for instance if the RAO was run on one state only, and the
         // state in argument of this method is not the same state.
         try {
-            return raoResult.isActivatedDuringState(state, pstRangeAction)
-                    && raoResult.getOptimizedTapOnState(state, pstRangeAction) != raoResult.getPreOptimizationTapOnState(state, pstRangeAction);
+            return raoResult.isActivatedDuringState(state, pstRangeAction);
         } catch (FaraoException e) {
             return false;
         }
