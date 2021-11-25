@@ -109,7 +109,6 @@ public class PerimeterOutput implements PerimeterResult {
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction) {
 
-        //test without try catch, if its not working, use a try/catch over a FaraoException instead
         if (optimizationResult.getRangeActions().contains(pstRangeAction)) {
             return optimizationResult.getOptimizedTap(pstRangeAction);
         }
