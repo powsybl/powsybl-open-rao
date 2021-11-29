@@ -8,7 +8,7 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.rao_commons.RaoUtil;
-import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.ArrayList;
@@ -17,11 +17,11 @@ import java.util.List;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
-public class FaraoMPConstraint extends MPConstraint {
+public class FaraoMPObjective extends MPObjective {
     private final double precision;
     List<MPVariable> variables = new ArrayList<>();
 
-    protected FaraoMPConstraint(long cPtr, boolean cMemoryOwn, double precision) {
+    protected FaraoMPObjective(long cPtr, boolean cMemoryOwn, double precision) {
         super(cPtr, cMemoryOwn);
         this.precision = precision;
     }
@@ -34,20 +34,5 @@ public class FaraoMPConstraint extends MPConstraint {
 
     public List<MPVariable> getVariables() {
         return variables;
-    }
-
-    @Override
-    public void setLb(double lb) {
-        super.setLb(RaoUtil.roundDouble(lb, precision));
-    }
-
-    @Override
-    public void setUb(double ub) {
-        super.setUb(RaoUtil.roundDouble(ub, precision));
-    }
-
-    @Override
-    public void setBounds(double lb, double ub) {
-        super.setBounds(RaoUtil.roundDouble(lb, precision), RaoUtil.roundDouble(ub, precision));
     }
 }

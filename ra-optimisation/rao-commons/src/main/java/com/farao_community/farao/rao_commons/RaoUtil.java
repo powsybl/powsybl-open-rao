@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,5 +86,27 @@ public final class RaoUtil {
         } else {
             throw new FaraoException("Only conversions between MW and A are supported.");
         }
+    }
+
+    /* Method used to make sure the LP is reproducible. This basically rounds the least significant bits of a double.
+     Let's say a double has 10 precision bits (in reality, 52)
+     We take an initial double:
+       .............//////////.....
+     To which we add a "bigger" double :
+       .........\\\\\\\\\\..........
+      =>
+       .........\\\\||||||..........
+       (we "lose" the least significant bits of the first double because the sum double doesn't have enough precision to show them)
+     Then we substract the same "bigger" double:
+       .............//////..........
+       We get back our original bits for the most significant part, but the least significant bits are still gone.
+     */
+
+    public static double roundDouble(double value, double precision) {
+        if (value != MPSolver.infinity() && value != -MPSolver.infinity()) {
+            double t = value * precision;
+            return value - t + t;
+        }
+        return value;
     }
 }

@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.google.ortools.linearsolver.MPVariable;
 
 /**
@@ -22,16 +23,16 @@ public class FaraoMPVariable extends MPVariable {
 
     @Override
     public void setLb(double lb) {
-        super.setLb(Math.round(lb * precision) / precision);
+        super.setLb(RaoUtil.roundDouble(lb, precision));
     }
 
     @Override
     public void setUb(double ub) {
-        super.setUb(Math.round(ub * precision) / precision);
+        super.setUb(RaoUtil.roundDouble(ub, precision));
     }
 
     @Override
     public void setBounds(double lb, double ub) {
-        super.setBounds(Math.round(lb * precision) / precision, Math.round(ub * precision) / precision);
+        super.setBounds(RaoUtil.roundDouble(lb, precision), RaoUtil.roundDouble(ub, precision));
     }
 }

@@ -7,10 +7,11 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
-import com.google.ortools.linearsolver.mainJNI;
+import com.farao_community.farao.rao_commons.RaoUtil;
+import com.google.ortools.linearsolver.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
@@ -18,26 +19,74 @@ import com.google.ortools.linearsolver.mainJNI;
 public class FaraoMPSolver extends MPSolver {
 
     private static final double PRECISION = 1048576; //2^20
+    Map<String, FaraoMPConstraint> constraints = new HashMap<>();
+    Map<String, FaraoMPVariable> variables = new HashMap<>();
+    FaraoMPObjective objective;
+
+    public FaraoMPSolver(long cptr, boolean cMemoryOwn) {
+        super(cptr, cMemoryOwn);
+    }
 
     public FaraoMPSolver(String name, OptimizationProblemType problemType) {
         super(name, problemType);
     }
 
+    public FaraoMPConstraint getConstraint(String name) {
+        return constraints.get(name);
+    }
+
+    public FaraoMPVariable getVariable(String name) {
+        return variables.get(name);
+    }
+
+    public FaraoMPObjective getObjective() {
+        return objective;
+    }
+
+    @Override
+    public MPObjective objective() {
+        long cPtr = mainJNI.MPSolver_objective(getCPtr(this), this);
+        objective = cPtr == 0L ? null : new FaraoMPObjective(cPtr, false, PRECISION);
+        return objective;
+    }
+
     @Override
     public MPVariable makeNumVar(double lb, double ub, String name) {
-        long cPtr = mainJNI.MPSolver_makeNumVar(getCPtr(this), this, lb, ub, name);
-        return cPtr == 0L ? null : new FaraoMPVariable(cPtr, false, PRECISION);
+        long cPtr = mainJNI.MPSolver_makeNumVar(getCPtr(this), this, RaoUtil.roundDouble(lb, PRECISION), RaoUtil.roundDouble(ub, PRECISION), name);
+        FaraoMPVariable v = cPtr == 0L ? null : new FaraoMPVariable(cPtr, false, PRECISION);
+        variables.put(name, v);
+        return v;
     }
 
     @Override
     public MPVariable makeIntVar(double lb, double ub, String name) {
-        long cPtr = mainJNI.MPSolver_makeIntVar(getCPtr(this), this, lb, ub, name);
-        return cPtr == 0L ? null : new FaraoMPVariable(cPtr, false, PRECISION);
+        long cPtr = mainJNI.MPSolver_makeIntVar(getCPtr(this), this, RaoUtil.roundDouble(lb, PRECISION), RaoUtil.roundDouble(ub, PRECISION), name);
+        FaraoMPVariable v = cPtr == 0L ? null : new FaraoMPVariable(cPtr, false, PRECISION);
+        variables.put(name, v);
+        return v;
+    }
+
+    @Override
+    public MPVariable makeBoolVar(String name) {
+        long cPtr = mainJNI.MPSolver_makeBoolVar(getCPtr(this), this, name);
+        FaraoMPVariable v = cPtr == 0L ? null : new FaraoMPVariable(cPtr, false, PRECISION);
+        variables.put(name, v);
+        return v;
     }
 
     @Override
     public MPConstraint makeConstraint(double lb, double ub, String name) {
-        long cPtr = mainJNI.MPSolver_makeConstraint__SWIG_2(getCPtr(this), this, lb, ub, name);
-        return cPtr == 0L ? null : new FaraoMPConstraint(cPtr, false, PRECISION);
+        long cPtr = mainJNI.MPSolver_makeConstraint__SWIG_2(getCPtr(this), this, RaoUtil.roundDouble(lb, PRECISION), RaoUtil.roundDouble(ub, PRECISION), name);
+        FaraoMPConstraint c = cPtr == 0L ? null : new FaraoMPConstraint(cPtr, false, PRECISION);
+        constraints.put(name, c);
+        return c;
+    }
+
+    @Override
+    public MPConstraint makeConstraint(String name) {
+        long cPtr = mainJNI.MPSolver_makeConstraint__SWIG_3(getCPtr(this), this, name);
+        FaraoMPConstraint c = cPtr == 0L ? null : new FaraoMPConstraint(cPtr, false, PRECISION);
+        constraints.put(name, c);
+        return c;
     }
 }
