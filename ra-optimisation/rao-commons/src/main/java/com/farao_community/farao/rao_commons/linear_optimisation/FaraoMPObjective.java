@@ -18,18 +18,18 @@ import java.util.List;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class FaraoMPObjective extends MPObjective {
-    private final double precision;
+    private final int numberOfBitsToRoundOff;
     List<MPVariable> variables = new ArrayList<>();
 
-    protected FaraoMPObjective(long cPtr, boolean cMemoryOwn, double precision) {
+    protected FaraoMPObjective(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
         super(cPtr, cMemoryOwn);
-        this.precision = precision;
+        this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
     @Override
     public void setCoefficient(MPVariable variable, double coeff) {
         variables.add(variable);
-        super.setCoefficient(variable, RaoUtil.roundDouble(coeff, precision));
+        super.setCoefficient(variable, RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
     }
 
     public List<MPVariable> getVariables() {

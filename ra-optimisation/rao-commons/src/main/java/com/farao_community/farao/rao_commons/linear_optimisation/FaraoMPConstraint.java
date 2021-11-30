@@ -18,18 +18,18 @@ import java.util.List;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class FaraoMPConstraint extends MPConstraint {
-    private final double precision;
+    private final int numberOfBitsToRoundOff;
     List<MPVariable> variables = new ArrayList<>();
 
-    protected FaraoMPConstraint(long cPtr, boolean cMemoryOwn, double precision) {
+    protected FaraoMPConstraint(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
         super(cPtr, cMemoryOwn);
-        this.precision = precision;
+        this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
     @Override
     public void setCoefficient(MPVariable variable, double coeff) {
         variables.add(variable);
-        super.setCoefficient(variable, RaoUtil.roundDouble(coeff, precision));
+        super.setCoefficient(variable, RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
     }
 
     public List<MPVariable> getVariables() {
@@ -38,16 +38,16 @@ public class FaraoMPConstraint extends MPConstraint {
 
     @Override
     public void setLb(double lb) {
-        super.setLb(RaoUtil.roundDouble(lb, precision));
+        super.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
     }
 
     @Override
     public void setUb(double ub) {
-        super.setUb(RaoUtil.roundDouble(ub, precision));
+        super.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
     }
 
     @Override
     public void setBounds(double lb, double ub) {
-        super.setBounds(RaoUtil.roundDouble(lb, precision), RaoUtil.roundDouble(ub, precision));
+        super.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
     }
 }

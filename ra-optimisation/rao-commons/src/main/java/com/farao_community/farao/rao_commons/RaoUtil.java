@@ -102,9 +102,9 @@ public final class RaoUtil {
        We get back our original bits for the most significant part, but the least significant bits are still gone.
      */
 
-    public static double roundDouble(double value, double precision) {
+    public static double roundDouble(double value, int numberOfBitsToRoundOff) {
         if (value != MPSolver.infinity() && value != -MPSolver.infinity()) {
-            double t = value * precision;
+            double t = value * (1L << numberOfBitsToRoundOff);
             return value - t + t;
         }
         return value;

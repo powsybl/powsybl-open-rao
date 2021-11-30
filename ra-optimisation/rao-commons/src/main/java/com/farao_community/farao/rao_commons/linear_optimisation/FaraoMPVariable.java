@@ -14,25 +14,25 @@ import com.google.ortools.linearsolver.MPVariable;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class FaraoMPVariable extends MPVariable {
-    private final double precision;
+    private final int numberOfBitsToRoundOff;
 
-    protected FaraoMPVariable(long cPtr, boolean cMemoryOwn, double precision) {
+    protected FaraoMPVariable(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
         super(cPtr, cMemoryOwn);
-        this.precision = precision;
+        this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
     @Override
     public void setLb(double lb) {
-        super.setLb(RaoUtil.roundDouble(lb, precision));
+        super.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
     }
 
     @Override
     public void setUb(double ub) {
-        super.setUb(RaoUtil.roundDouble(ub, precision));
+        super.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
     }
 
     @Override
     public void setBounds(double lb, double ub) {
-        super.setBounds(RaoUtil.roundDouble(lb, precision), RaoUtil.roundDouble(ub, precision));
+        super.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
     }
 }
