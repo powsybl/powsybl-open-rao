@@ -97,7 +97,7 @@ final class PstRangeActionResultArraySerializer {
     }
 
     private static boolean safeIsActivatedDuringState(RaoResult raoResult, State state, PstRangeAction pstRangeAction) {
-        // isActivatedDuringState might throw an exception, for instance if the RAO was run one one state only, and the
+        // isActivatedDuringState might throw an exception, for instance if the RAO was run on one state only, and the
         // state in argument of this method is not the same state.
         try {
             return raoResult.isActivatedDuringState(state, pstRangeAction);

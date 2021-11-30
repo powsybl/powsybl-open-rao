@@ -64,9 +64,9 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
         if (!postCurativeResults.containsKey(state) || !postCurativeResults.get(state).getRangeActions().contains(rangeAction)) {
             return false;
         } else if (postFirstPreventiveResult.getRangeActions().contains(rangeAction)) {
-            return postCurativeResults.get(state).getOptimizedSetPoint(rangeAction) != postFirstPreventiveResult.getOptimizedSetPoint(rangeAction);
+            return Math.abs(postCurativeResults.get(state).getOptimizedSetPoint(rangeAction) - postFirstPreventiveResult.getOptimizedSetPoint(rangeAction)) > 1e-6;
         } else {
-            return postCurativeResults.get(state).getOptimizedSetPoint(rangeAction) != initialResult.getOptimizedSetPoint(rangeAction);
+            return Math.abs(postCurativeResults.get(state).getOptimizedSetPoint(rangeAction) - initialResult.getOptimizedSetPoint(rangeAction)) > 1e-6;
         }
     }
 

@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -19,6 +20,7 @@ import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Map;
@@ -170,12 +172,28 @@ public class PerimeterOutputTest {
 
     @Test
     public void testGetOptimizedTap() {
+        when(optimizationResult.getRangeActions()).thenReturn(Set.of(pst1));
+
         when(optimizationResult.getOptimizedTap(pst1)).thenReturn(10);
         when(optimizationResult.getOptimizedTap(pst2)).thenThrow(new FaraoException("absent mock"));
         when(prePerimeterRangeActionResult.getOptimizedTap(pst2)).thenReturn(3);
 
         assertEquals(10, perimeterOutput.getOptimizedTap(pst1));
         assertEquals(3, perimeterOutput.getOptimizedTap(pst2));
+    }
+
+    @Test
+    public void testGetOptimizedTapOfRaOnSamePst() {
+        when(optimizationResult.getRangeActions()).thenReturn(Set.of(pst1));
+
+        when(optimizationResult.getOptimizedTap(pst1)).thenReturn(-10);
+        when(optimizationResult.getOptimizedTap(pst2)).thenThrow(new FaraoException("absent mock"));
+        NetworkElement ne = Mockito.mock(NetworkElement.class);
+        when(pst1.getNetworkElement()).thenReturn(ne);
+        when(pst2.getNetworkElement()).thenReturn(ne);
+
+        assertEquals(-10, perimeterOutput.getOptimizedTap(pst1));
+        assertEquals(-10, perimeterOutput.getOptimizedTap(pst2));
     }
 
     @Test
@@ -186,6 +204,20 @@ public class PerimeterOutputTest {
 
         assertEquals(10.7, perimeterOutput.getOptimizedSetPoint(ra1), DOUBLE_TOLERANCE);
         assertEquals(3.5, perimeterOutput.getOptimizedSetPoint(ra2), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testGetOptimizedSetPointOfRaOnSamePst() {
+        when(optimizationResult.getRangeActions()).thenReturn(Set.of(pst1));
+
+        when(optimizationResult.getOptimizedSetPoint(pst1)).thenReturn(5.2);
+        when(optimizationResult.getOptimizedSetPoint(pst2)).thenThrow(new FaraoException("absent mock"));
+        NetworkElement ne = Mockito.mock(NetworkElement.class);
+        when(pst1.getNetworkElements()).thenReturn(Set.of(ne));
+        when(pst2.getNetworkElements()).thenReturn(Set.of(ne));
+
+        assertEquals(5.2, perimeterOutput.getOptimizedSetPoint(pst1), 1e-4);
+        assertEquals(5.2, perimeterOutput.getOptimizedSetPoint(pst2), 1e-4);
     }
 
     @Test
