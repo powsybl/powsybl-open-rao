@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class FaraoMPSolver extends MPSolver {
 
-    private static final double PRECISION = 1048576; //2^20
+    private static final double PRECISION = 1073741824; //2^30
     Map<String, FaraoMPConstraint> constraints = new HashMap<>();
     Map<String, FaraoMPVariable> variables = new HashMap<>();
     FaraoMPObjective objective;
