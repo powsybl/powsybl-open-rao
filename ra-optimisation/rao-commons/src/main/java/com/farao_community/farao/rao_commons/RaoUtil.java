@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.google.ortools.linearsolver.MPSolver;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,8 +102,8 @@ public final class RaoUtil {
      */
 
     public static double roundDouble(double value, int numberOfBitsToRoundOff) {
-        if (value != MPSolver.infinity() && value != -MPSolver.infinity()) {
-            double t = value * (1L << numberOfBitsToRoundOff);
+        double t = value * (1L << numberOfBitsToRoundOff);
+        if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
             return value - t + t;
         }
         return value;
