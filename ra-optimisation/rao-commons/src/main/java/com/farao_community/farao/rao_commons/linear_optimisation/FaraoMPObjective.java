@@ -8,31 +8,31 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.rao_commons.RaoUtil;
+import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPVariable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
-public class FaraoMPVariable extends MPVariable {
+public class FaraoMPObjective extends MPObjective {
     private final int numberOfBitsToRoundOff;
+    List<MPVariable> variables = new ArrayList<>();
 
-    protected FaraoMPVariable(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
+    protected FaraoMPObjective(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
         super(cPtr, cMemoryOwn);
         this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
     @Override
-    public void setLb(double lb) {
-        super.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
+    public void setCoefficient(MPVariable variable, double coeff) {
+        variables.add(variable);
+        super.setCoefficient(variable, RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
     }
 
-    @Override
-    public void setUb(double ub) {
-        super.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
-    }
-
-    @Override
-    public void setBounds(double lb, double ub) {
-        super.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
+    public List<MPVariable> getVariables() {
+        return variables;
     }
 }

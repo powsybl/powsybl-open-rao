@@ -29,8 +29,7 @@ import java.util.Arrays;
 
 import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
 import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -121,5 +120,24 @@ public class RaoUtilTest {
         assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.LEFT, Unit.KILOVOLT, Unit.MEGAWATT));
         assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.AMPERE, Unit.TAP));
         assertThrows(FaraoException.class, () -> RaoUtil.getFlowUnitMultiplier(cnec, Side.RIGHT, Unit.DEGREE, Unit.AMPERE));
+    }
+
+    @Test
+    public void testRounding() {
+        double d1 = 1.;
+
+        // big enough deltas are not rounded out by the rounding method
+        double eps = 1e-6;
+        double d2 = d1 + eps;
+        for (int i = 0; i <= 30; i++) {
+            assertNotEquals(RaoUtil.roundDouble(d1, i), RaoUtil.roundDouble(d2, i), 1e-20);
+        }
+
+        // small deltas are rounded out as long as we round enough bits
+        eps = 1e-15;
+        d2 = d1 + eps;
+        for (int i = 20; i <= 30; i++) {
+            assertEquals(RaoUtil.roundDouble(d1, i), RaoUtil.roundDouble(d2, i), 1e-20);
+        }
     }
 }

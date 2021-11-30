@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.rao_commons.linear_optimisation.FaraoMPSolver;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
@@ -61,7 +62,7 @@ abstract class AbstractFillerTest {
     static final String RANGE_ACTION_ID = "PRA_PST_BE";
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
 
-    MPSolver mpSolver;
+    FaraoMPSolver mpSolver;
     FlowCnec cnec1;
     FlowCnec cnec2;
     PstRangeAction pstRangeAction;

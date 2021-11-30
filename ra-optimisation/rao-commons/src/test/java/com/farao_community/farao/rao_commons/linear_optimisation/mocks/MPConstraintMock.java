@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.rao_commons.linear_optimisation.mocks;
 
-import com.google.ortools.linearsolver.MPConstraint;
+import com.farao_community.farao.rao_commons.linear_optimisation.FaraoMPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MPConstraintMock extends MPConstraint {
+public class MPConstraintMock extends FaraoMPConstraint {
 
     private String name;
     private double lb;
@@ -23,7 +23,7 @@ public class MPConstraintMock extends MPConstraint {
     private Map<String, Double> coefficients;
 
     public MPConstraintMock(String pName, double pLb, double pUb) {
-        super(0, false);
+        super(0, false, 0);
         this.name = pName;
         this.lb = pLb;
         this.ub = pUb;

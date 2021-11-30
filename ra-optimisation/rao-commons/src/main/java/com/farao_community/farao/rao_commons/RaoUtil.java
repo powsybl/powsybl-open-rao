@@ -86,4 +86,26 @@ public final class RaoUtil {
             throw new FaraoException("Only conversions between MW and A are supported.");
         }
     }
+
+    /* Method used to make sure the LP is reproducible. This basically rounds the least significant bits of a double.
+     Let's say a double has 10 precision bits (in reality, 52)
+     We take an initial double:
+       .............//////////.....
+     To which we add a "bigger" double :
+       .........\\\\\\\\\\..........
+      =>
+       .........\\\\||||||..........
+       (we "lose" the least significant bits of the first double because the sum double doesn't have enough precision to show them)
+     Then we substract the same "bigger" double:
+       .............//////..........
+       We get back our original bits for the most significant part, but the least significant bits are still gone.
+     */
+
+    public static double roundDouble(double value, int numberOfBitsToRoundOff) {
+        double t = value * (1L << numberOfBitsToRoundOff);
+        if (t != Double.POSITIVE_INFINITY && value != Double.NEGATIVE_INFINITY && !Double.isNaN(t)) {
+            return value - t + t;
+        }
+        return value;
+    }
 }

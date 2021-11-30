@@ -6,12 +6,12 @@
  */
 package com.farao_community.farao.rao_commons.linear_optimisation.mocks;
 
-import com.google.ortools.linearsolver.MPVariable;
+import com.farao_community.farao.rao_commons.linear_optimisation.FaraoMPVariable;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MPVariableMock extends MPVariable {
+public class MPVariableMock extends FaraoMPVariable {
 
     private String name;
     private double lb;
@@ -20,11 +20,11 @@ public class MPVariableMock extends MPVariable {
     private double solutionValue;
 
     protected MPVariableMock() {
-        super(0, false);
+        super(0, false, 0);
     }
 
     public MPVariableMock(String pName, double pLb, double pUb, boolean pIsIntVariable) {
-        super(0, false);
+        super(0, false, 0);
         this.name = pName;
         this.lb = pLb;
         this.ub = pUb;

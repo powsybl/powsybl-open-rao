@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.rao_commons.linear_optimisation.mocks;
 
-import com.google.ortools.linearsolver.MPSolver;
+import com.farao_community.farao.rao_commons.linear_optimisation.FaraoMPSolver;
 import com.google.ortools.linearsolver.MPVariable;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import static org.junit.Assert.assertFalse;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class MPSolverMock extends MPSolver {
+public class MPSolverMock extends FaraoMPSolver {
 
     private MPObjectiveMock objective;
     private List<MPConstraintMock> constraints;
@@ -96,7 +96,7 @@ public class MPSolverMock extends MPSolver {
     }
 
     @Override
-    public MPVariableMock lookupVariableOrNull(String varName) {
+    public MPVariableMock getVariable(String varName) {
         List<MPVariableMock> variablesWithSameName = variables.stream().filter(v -> v.name().equals(varName)).collect(Collectors.toList());
         if (variablesWithSameName.size() == 0) {
             return null;
@@ -105,12 +105,12 @@ public class MPSolverMock extends MPSolver {
     }
 
     @Override
-    public MPObjectiveMock objective() {
+    public MPObjectiveMock getObjective() {
         return objective;
     }
 
     @Override
-    public MPConstraintMock lookupConstraintOrNull(String constraintName) {
+    public MPConstraintMock getConstraint(String constraintName) {
         List<MPConstraintMock> constraintsWithSameName = constraints.stream().filter(v -> v.name().equals(constraintName)).collect(Collectors.toList());
         if (constraintsWithSameName.size() == 0) {
             return null;

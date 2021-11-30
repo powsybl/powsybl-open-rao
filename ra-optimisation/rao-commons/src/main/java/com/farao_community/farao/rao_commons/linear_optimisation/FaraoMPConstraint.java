@@ -7,37 +7,47 @@
 
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
+import com.farao_community.farao.rao_commons.RaoUtil;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class FaraoMPConstraint extends MPConstraint {
-    private final double precision;
+    private final int numberOfBitsToRoundOff;
+    List<MPVariable> variables = new ArrayList<>();
 
-    protected FaraoMPConstraint(long cPtr, boolean cMemoryOwn, double precision) {
+    protected FaraoMPConstraint(long cPtr, boolean cMemoryOwn, int numberOfBitsToRoundOff) {
         super(cPtr, cMemoryOwn);
-        this.precision = precision;
+        this.numberOfBitsToRoundOff = numberOfBitsToRoundOff;
     }
 
     @Override
     public void setCoefficient(MPVariable variable, double coeff) {
-        super.setCoefficient(variable, Math.round(coeff * precision) / precision);
+        variables.add(variable);
+        super.setCoefficient(variable, RaoUtil.roundDouble(coeff, numberOfBitsToRoundOff));
+    }
+
+    public List<MPVariable> getVariables() {
+        return variables;
     }
 
     @Override
     public void setLb(double lb) {
-        super.setLb(Math.round(lb * precision) / precision);
+        super.setLb(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff));
     }
 
     @Override
     public void setUb(double ub) {
-        super.setUb(Math.round(ub * precision) / precision);
+        super.setUb(RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
     }
 
     @Override
     public void setBounds(double lb, double ub) {
-        super.setBounds(Math.round(lb * precision) / precision, Math.round(ub * precision) / precision);
+        super.setBounds(RaoUtil.roundDouble(lb, numberOfBitsToRoundOff), RaoUtil.roundDouble(ub, numberOfBitsToRoundOff));
     }
 }
