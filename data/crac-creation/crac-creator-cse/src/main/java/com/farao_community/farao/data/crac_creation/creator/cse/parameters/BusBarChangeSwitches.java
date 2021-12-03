@@ -15,24 +15,18 @@ import java.util.List;
  */
 public class BusBarChangeSwitches {
     private final String remedialActionId;
-    private final List<String> switchesToOpen;
-    private final List<String> switchesToClose;
+    private final List<SwitchPairId> switchPairs;
 
-    public BusBarChangeSwitches(String remedialActionId, List<String> switchesToOpen, List<String> switchesToClose) {
+    public BusBarChangeSwitches(String remedialActionId, List<SwitchPairId> switchPairs) {
         this.remedialActionId = remedialActionId;
-        this.switchesToOpen = switchesToOpen;
-        this.switchesToClose = switchesToClose;
+        this.switchPairs = switchPairs;
     }
 
     public String getRemedialActionId() {
         return remedialActionId;
     }
 
-    public List<String> getSwitchesToOpen() {
-        return switchesToOpen;
-    }
-
-    public List<String> getSwitchesToClose() {
-        return switchesToClose;
+    public List<SwitchPairId> getSwitchPairs() {
+        return switchPairs;
     }
 }

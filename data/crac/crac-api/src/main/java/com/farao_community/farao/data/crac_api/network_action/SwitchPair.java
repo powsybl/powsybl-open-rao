@@ -8,7 +8,6 @@
 package com.farao_community.farao.data.crac_api.network_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.powsybl.iidm.network.Switch;
 
 /***
  * A SwitchPair action is an Elementary Action which consists in changing

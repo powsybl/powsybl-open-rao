@@ -2,9 +2,14 @@
   "crac-factory" : "CracImplFactory",
   "extensions" : {
     "CseCracCreatorParameters" : {
+      "range-action-groups" : [ "rangeAction3 + rangeAction4", "hvdc1 + hvdc2" ],
       "bus-bar-change-switches" : [
         {
+          "remedial-action-id" : "remedialAction1",
           "switch-pairs" : [
+            {
+              "open" : "switch5"
+            }
           ]
         }
       ]
