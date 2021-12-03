@@ -35,8 +35,8 @@ public class NetworkActionImplTest {
         mockedUsageRule2 = Mockito.mock(UsageRule.class);
         mockedElementaryAction1 = Mockito.mock(ElementaryAction.class);
         mockedElementaryAction2 = Mockito.mock(ElementaryAction.class);
-        Mockito.when(mockedElementaryAction1.getNetworkElement()).thenReturn(new NetworkElementImpl("ne1"));
-        Mockito.when(mockedElementaryAction2.getNetworkElement()).thenReturn(new NetworkElementImpl("ne2"));
+        Mockito.when(mockedElementaryAction1.getNetworkElements()).thenReturn(Set.of(new NetworkElementImpl("ne1")));
+        Mockito.when(mockedElementaryAction2.getNetworkElements()).thenReturn(Set.of(new NetworkElementImpl("ne2")));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class NetworkActionImplTest {
         assertEquals("operator", networkAction.getOperator());
         assertEquals(1, networkAction.getUsageRules().size());
         assertEquals(1, networkAction.getElementaryActions().size());
-        assertEquals("ne1", networkAction.getElementaryActions().iterator().next().getNetworkElement().getId());
+        assertEquals("ne1", networkAction.getElementaryActions().iterator().next().getNetworkElements().iterator().next().getId());
     }
 
     @Test
