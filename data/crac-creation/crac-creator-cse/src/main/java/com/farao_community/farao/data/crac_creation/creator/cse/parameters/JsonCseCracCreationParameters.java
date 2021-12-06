@@ -124,7 +124,7 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
         Set<BusBarChangeSwitches> set = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String remedialActionId = null;
-            List<SwitchPairId> switchPairs = new ArrayList<>();
+            Set<SwitchPairId> switchPairs = new HashSet<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case REMEDIAL_ACTION_ID:
@@ -150,8 +150,8 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
         return set;
     }
 
-    private List<SwitchPairId> deserializeSwitchPairIds(JsonParser jsonParser) throws IOException {
-        List<SwitchPairId> switchPairs = new ArrayList<>();
+    private Set<SwitchPairId> deserializeSwitchPairIds(JsonParser jsonParser) throws IOException {
+        Set<SwitchPairId> switchPairs = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String switchToOpen = null;
             String switchToClose = null;
