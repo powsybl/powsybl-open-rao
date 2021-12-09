@@ -669,4 +669,18 @@ public class LeafTest {
         rootLeaf.finalizeOptimization();
         assertThrows(FaraoException.class, () -> rootLeaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem));
     }
+
+    @Test
+    public void testNonapplicableNa() {
+        NetworkActionCombination naCombinationToApply = Mockito.mock(NetworkActionCombination.class);
+        NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        NetworkAction na2 = Mockito.mock(NetworkAction.class);
+        Mockito.when(na1.apply(any())).thenReturn(true);
+        Mockito.when(na2.apply(any())).thenReturn(false);
+        Mockito.when(naCombinationToApply.getNetworkActionSet()).thenReturn(Set.of(na1, na2));
+        Network network = Mockito.mock(Network.class);
+        RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
+        Set<NetworkAction> alreadyAppliedNetworkActions = Set.of();
+        assertThrows(FaraoException.class, () -> new Leaf(network, alreadyAppliedNetworkActions, naCombinationToApply, rangeActionResult));
+    }
 }
