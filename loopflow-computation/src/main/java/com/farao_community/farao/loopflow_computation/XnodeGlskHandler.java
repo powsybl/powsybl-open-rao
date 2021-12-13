@@ -12,7 +12,8 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class XnodeGlskHandler {
     private static final int N_CHARACTERS_IN_UCTE_NODE = 8;
 
     private Map<Contingency, List<String>> invalidGlskPerContingency;
-    private ZonalData<LinearGlsk> glskZonalData;
+    private ZonalData<SensitivityVariableSet> glskZonalData;
     private Set<Contingency> contingencies;
     private Network network;
 
@@ -58,14 +59,14 @@ public class XnodeGlskHandler {
         return network;
     }
 
-    public XnodeGlskHandler(ZonalData<LinearGlsk> glskZonalData, Set<Contingency> contingencies, Network network) {
+    public XnodeGlskHandler(ZonalData<SensitivityVariableSet> glskZonalData, Set<Contingency> contingencies, Network network) {
         this.glskZonalData = glskZonalData;
         this.contingencies = contingencies;
         this.network = network;
         this.invalidGlskPerContingency = buildInvalidGlskPerContingency();
     }
 
-    public boolean isLinearGlskValidForCnec(FlowCnec cnec, LinearGlsk linearGlsk) {
+    public boolean isLinearGlskValidForCnec(FlowCnec cnec, SensitivityVariableSet linearGlsk) {
 
         Optional<Contingency> optContingency = cnec.getState().getContingency();
         if (optContingency.isEmpty()) {
@@ -97,15 +98,15 @@ public class XnodeGlskHandler {
         return invalidGlsk;
     }
 
-    private boolean isGlskValid(LinearGlsk linearGlsk, List<String> xNodesInContingency) {
+    private boolean isGlskValid(SensitivityVariableSet linearGlsk, List<String> xNodesInContingency) {
 
         // if the linearGlsk is not related to only one, the linearGlsk is considered valid
-        if (linearGlsk.getGLSKs().size() > 1) {
+        if (linearGlsk.getVariables().size() > 1) {
             return true;
         }
 
         // if the linearGlsk is on a Xnode present in the contingency, the linearGlsk is invalid
-        String glskInjectionId = linearGlsk.getGLSKs().keySet().iterator().next();
+        String glskInjectionId = linearGlsk.getVariables().stream().map(WeightedSensitivityVariable::getId).iterator().next();
 
         if (network.getIdentifiable(glskInjectionId) instanceof Injection<?>) {
             Injection<?> injection = (Injection) network.getIdentifiable(glskInjectionId);

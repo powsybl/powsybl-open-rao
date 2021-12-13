@@ -11,9 +11,10 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +86,7 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
-        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<LinearGlsk> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
+        public SystematicSensitivityInterfaceBuilder withPtdfSensitivities(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
             return this.withSensitivityProvider(new PtdfSensitivityProvider(glsk, cnecs, units));
         }
 
@@ -137,14 +138,14 @@ public final class SystematicSensitivityInterface {
      *
      * Throw a SensitivityAnalysisException if the computation fails.
      */
-    public SystematicSensitivityResult run(Network network) {
+    public SystematicSensitivityResult run(Network network, ComputationManager computationManager) {
         SensitivityAnalysisParameters sensitivityAnalysisParameters = fallbackMode ? fallbackParameters : defaultParameters;
         if (Objects.isNull(cnecSensitivityProvider)) {
             throw new SensitivityAnalysisException("Sensitivity provider was not defined.");
         }
 
         try {
-            SystematicSensitivityResult result = runWithConfig(network, sensitivityAnalysisParameters);
+            SystematicSensitivityResult result = runWithConfig(network, sensitivityAnalysisParameters, computationManager);
             if (fallbackMode) {
                 result.setStatus(SystematicSensitivityResult.SensitivityComputationStatus.FALLBACK);
             }
@@ -156,7 +157,7 @@ public final class SystematicSensitivityInterface {
                 LOGGER.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
                 refreshRequestedUnits();
-                return run(network);
+                return run(network, computationManager);
             } else if (!fallbackMode) { // no fallback mode available, throw an exception
                 throw new SensitivityAnalysisException("Sensitivity analysis failed with default parameters. No fallback parameters available.", e);
             } else { // fallback mode fails, throw an exception
@@ -179,10 +180,10 @@ public final class SystematicSensitivityInterface {
      * Run the systematic sensitivity analysis with given SensitivityComputationParameters, throw a
      * SensitivityComputationException is the computation fails.
      */
-    private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
+    private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager) {
         try {
             SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters);
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, computationManager);
 
             if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityAnalysisException("Some output data of the sensitivity analysis are missing.");

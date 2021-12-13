@@ -12,6 +12,7 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -24,11 +25,11 @@ import java.util.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
-    private final ZonalData<LinearGlsk> glsk;
+    private final ZonalData<SensitivityVariableSet> glsk;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PtdfSensitivityProvider.class);
 
-    PtdfSensitivityProvider(ZonalData<LinearGlsk> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
+    PtdfSensitivityProvider(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
 
         // todo : handle PTDFs in AMPERE

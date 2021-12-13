@@ -9,7 +9,7 @@ package com.farao_community.farao.data.glsk.cim;
 import com.farao_community.farao.commons.ZonalData;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,18 +35,18 @@ public class CimGlskTest {
 
     @Test
     public void run() {
-        ZonalData<LinearGlsk> zonalGlsks = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+        ZonalData<SensitivityVariableSet> zonalGlsks = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
             .getZonalGlsks(testNetwork, instant);
-        Map<String, LinearGlsk> map = zonalGlsks.getDataPerZone();
+        Map<String, SensitivityVariableSet> map = zonalGlsks.getDataPerZone();
         Assert.assertFalse(map.isEmpty());
 
-        LinearGlsk linearGlsk = zonalGlsks.getData("10YBE----------2");
-        Assert.assertFalse(linearGlsk.getGLSKs().isEmpty());
+        SensitivityVariableSet linearGlsk = zonalGlsks.getData("10YBE----------2");
+        Assert.assertFalse(linearGlsk.getVariables().isEmpty());
     }
 
     @Test
     public void runWithInvalidCountry() {
-        ZonalData<LinearGlsk> zonalGlsks = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+        ZonalData<SensitivityVariableSet> zonalGlsks = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
             .getZonalGlsks(testNetwork, instant);
         Assert.assertNull(zonalGlsks.getData("fake-area"));
     }

@@ -14,7 +14,7 @@ import com.farao_community.farao.loopflow_computation.XnodeGlskHandler;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
  *  @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class AbsolutePtdfSumsComputation {
-    private final ZonalData<LinearGlsk> glskProvider;
+    private final ZonalData<SensitivityVariableSet> glskProvider;
     private final List<ZoneToZonePtdfDefinition> zTozPtdfs;
     private final Network network;
 
-    public AbsolutePtdfSumsComputation(ZonalData<LinearGlsk> glskProvider, List<ZoneToZonePtdfDefinition> zTozPtdfs, Network network) {
+    public AbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, List<ZoneToZonePtdfDefinition> zTozPtdfs, Network network) {
         this.glskProvider = glskProvider;
         this.zTozPtdfs = zTozPtdfs;
         this.network = network;
@@ -56,10 +56,10 @@ public class AbsolutePtdfSumsComputation {
         return ptdfSums;
     }
 
-    private Map<EICode, Double> buildZoneToSlackPtdfMap(FlowCnec flowCnec, ZonalData<LinearGlsk> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult, XnodeGlskHandler xnodeGlskHandler) {
+    private Map<EICode, Double> buildZoneToSlackPtdfMap(FlowCnec flowCnec, ZonalData<SensitivityVariableSet> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult, XnodeGlskHandler xnodeGlskHandler) {
         Map<EICode, Double> ptdfs = new HashMap<>();
         for (EICode eiCode : eiCodesInBoundaries) {
-            LinearGlsk linearGlsk = glsks.getData(eiCode.getAreaCode());
+            SensitivityVariableSet linearGlsk = glsks.getData(eiCode.getAreaCode());
             if (linearGlsk != null) {
                 double ptdfValue;
                 if (xnodeGlskHandler.isLinearGlskValidForCnec(flowCnec, linearGlsk)) {

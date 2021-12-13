@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -35,7 +35,7 @@ public final class RaoInput {
         private State optimizedState;
         private Set<State> perimeter;
         private ReferenceProgram referenceProgram;
-        private ZonalData<LinearGlsk> glsk;
+        private ZonalData<SensitivityVariableSet> glsk;
 
         private RaoInputBuilder() {
         }
@@ -70,7 +70,7 @@ public final class RaoInput {
             return this;
         }
 
-        public RaoInputBuilder withGlskProvider(ZonalData<LinearGlsk> glsk) {
+        public RaoInputBuilder withGlskProvider(ZonalData<SensitivityVariableSet> glsk) {
             this.glsk = glsk;
             return this;
         }
@@ -100,7 +100,7 @@ public final class RaoInput {
     private Network network;
     private String networkVariantId;
     private ReferenceProgram referenceProgram;
-    private ZonalData<LinearGlsk> glsk;
+    private ZonalData<SensitivityVariableSet> glsk;
 
     private RaoInput() {
     }
@@ -146,7 +146,7 @@ public final class RaoInput {
         this.referenceProgram = referenceProgram;
     }
 
-    public ZonalData<LinearGlsk> getGlskProvider() {
+    public ZonalData<SensitivityVariableSet> getGlskProvider() {
         return glsk;
     }
 }
