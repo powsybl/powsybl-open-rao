@@ -143,6 +143,16 @@ public class CracImportExportTest {
                 .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
                 .add();
 
+        // network action with two switch pairs
+        crac.newNetworkAction().withId("switchPairRaId2")
+            .withName("switchPairRaName2")
+            .withOperator("RTE")
+            .newSwitchPair().withSwitchToOpen("to-open").withSwitchToClose("to-close", "to-close-name").add()
+            .newSwitchPair().withSwitchToOpen("to-open-2").withSwitchToClose("to-close-2", "to-close-name-2").add()
+            .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+            .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
+            .add();
+
         // range actions
         crac.newPstRangeAction().withId("pstRangeId")
                 .withName("pstRangeName")
@@ -190,7 +200,7 @@ public class CracImportExportTest {
         assertEquals(2, importedCrac.getContingencies().size());
         assertEquals(6, importedCrac.getFlowCnecs().size());
         assertEquals(4, importedCrac.getRangeActions().size());
-        assertEquals(4, importedCrac.getNetworkActions().size());
+        assertEquals(5, importedCrac.getNetworkActions().size());
         assertEquals(4, importedCrac.getFlowCnec("cnec2prev").getThresholds().size());
         assertFalse(importedCrac.getFlowCnec("cnec3prevId").isOptimized());
         assertTrue(importedCrac.getFlowCnec("cnec4prevId").isMonitored());
@@ -234,5 +244,7 @@ public class CracImportExportTest {
         assertEquals("to-open", switchPair.getSwitchToOpen().getName());
         assertEquals("to-close", switchPair.getSwitchToClose().getId());
         assertEquals("to-close-name", switchPair.getSwitchToClose().getName());
+
+        assertEquals(2, crac.getNetworkAction("switchPairRaId2").getElementaryActions().size());
     }
 }

@@ -66,6 +66,8 @@ public class LeafTest {
         // network actions
         na1 = Mockito.mock(NetworkAction.class);
         na2 = Mockito.mock(NetworkAction.class);
+        Mockito.when(na1.apply(any())).thenReturn(true);
+        Mockito.when(na2.apply(any())).thenReturn(true);
 
         // rao parameters
         RaoParameters raoParameters = new RaoParameters();
@@ -145,6 +147,7 @@ public class LeafTest {
     }
 
     private Leaf prepareLeafForEvaluation(NetworkAction networkAction, ComputationStatus expectedSensitivityStatus, FlowResult expectedFlowResult, double expectedCost, List<FlowCnec> mostLimitingCnecs) {
+        Mockito.when(networkAction.apply(any())).thenReturn(true);
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         Leaf rootLeaf = new Leaf(network, prePerimeterResult);
         RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
@@ -381,6 +384,7 @@ public class LeafTest {
     @Test
     public void getVirtualCostAfterEvaluation() {
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
+        Mockito.when(na1.apply(any())).thenReturn(true);
         ComputationStatus expectedSensitivityStatus = Mockito.mock(ComputationStatus.class);
         FlowResult expectedFlowResult = Mockito.mock(FlowResult.class);
         double expectedCost = 5.;
