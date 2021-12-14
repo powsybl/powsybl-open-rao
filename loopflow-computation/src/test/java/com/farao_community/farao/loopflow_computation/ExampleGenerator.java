@@ -6,8 +6,8 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
-import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.commons.ZonalDataImpl;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.CracImplFactory;

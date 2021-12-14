@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.tools;
 
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_util.CracAliasesCreator;
@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.crac_util.CracCleaningFeature;
 import com.farao_community.farao.data.crac_util.UcteNodeMatchingRule;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
-import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
+import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;

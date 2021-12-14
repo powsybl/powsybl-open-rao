@@ -7,7 +7,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.loopflow_computation.XnodeGlskHandler;

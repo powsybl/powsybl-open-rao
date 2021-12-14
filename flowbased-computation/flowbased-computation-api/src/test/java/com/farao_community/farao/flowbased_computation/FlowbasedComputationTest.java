@@ -6,8 +6,8 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
-import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.commons.ZonalDataImpl;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;

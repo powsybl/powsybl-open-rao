@@ -7,7 +7,7 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdImpl;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;

@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation;
 
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.powsybl.commons.Versionable;
