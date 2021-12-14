@@ -7,7 +7,6 @@
 
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
