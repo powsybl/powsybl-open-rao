@@ -148,7 +148,7 @@ public class CracImportExportTest {
             .withName("switchPairRaName2")
             .withOperator("RTE")
             .newSwitchPair().withSwitchToOpen("to-open").withSwitchToClose("to-close", "to-close-name").add()
-            .newSwitchPair().withSwitchToOpen("to-open-2").withSwitchToClose("to-close-2", "to-close-name-2").add()
+            .newSwitchPair().withSwitchToOpen("to-open-2", "to-open-name-2").withSwitchToClose("to-close-2").add()
             .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
             .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
             .add();

@@ -80,9 +80,11 @@ public class SwitchPairImplTest {
 
     @Test
     public void testEquals() {
+        assertNotEquals(new SwitchPairImpl(switch1, switch2), null);
         assertNotEquals(new SwitchPairImpl(switch1, switch2), Mockito.mock(TopologicalAction.class));
         assertNotEquals(new SwitchPairImpl(switch1, switch2), new SwitchPairImpl(switch2, switch1));
         assertEquals(new SwitchPairImpl(switch1, switch2), new SwitchPairImpl(switch1, switch2));
+        assertNotEquals(new SwitchPairImpl(switch1, switch2), new SwitchPairImpl(switch1, new NetworkElementImpl("other")));
         SwitchPairImpl switchPairImpl = new SwitchPairImpl(switch1, switch2);
         assertEquals(switchPairImpl, switchPairImpl);
     }
