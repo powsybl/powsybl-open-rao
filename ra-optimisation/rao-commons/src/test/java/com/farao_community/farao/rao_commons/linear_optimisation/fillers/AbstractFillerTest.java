@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
+import com.farao_community.farao.rao_commons.linear_optimisation.FaraoMPSolver;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.*;
 @PrepareForTest(MPSolver.class)
 @PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
 abstract class AbstractFillerTest {
-    static final double DOUBLE_TOLERANCE = 0.01;
+    static final double DOUBLE_TOLERANCE = 0.1;
 
     // data related to the two Cnecs
     static final double MIN_FLOW_1 = -750.0;
@@ -61,7 +62,7 @@ abstract class AbstractFillerTest {
     static final String RANGE_ACTION_ID = "PRA_PST_BE";
     static final String RANGE_ACTION_ELEMENT_ID = "BBE2AA1  BBE3AA1  1";
 
-    MPSolver mpSolver;
+    FaraoMPSolver mpSolver;
     FlowCnec cnec1;
     FlowCnec cnec2;
     PstRangeAction pstRangeAction;

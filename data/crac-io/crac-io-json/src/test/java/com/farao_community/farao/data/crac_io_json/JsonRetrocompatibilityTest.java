@@ -34,8 +34,9 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class CracImporterVersioningTest {
+public class JsonRetrocompatibilityTest {
 
     /*
     The goal of this test class is to ensure that former JSON CRAC files are still
@@ -53,10 +54,10 @@ public class CracImporterVersioningTest {
      */
 
     @Test
-    public void importV1BaseTest() {
+    public void importV1Point0Test() {
 
         // JSON file of farao-core v3.4.3
-        InputStream cracFile = getClass().getResourceAsStream("/importer_versioning/v1/crac-v1_1.json");
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.0.json");
 
         Crac crac = new JsonImport().importCrac(cracFile);
 
@@ -69,11 +70,11 @@ public class CracImporterVersioningTest {
     }
 
     @Test
-    public void importV1SwitchPairTest() {
+    public void importV1Point1Test() {
 
         // JSON file of farao-core v3.5
         // addition of switch pairs
-        InputStream cracFile = getClass().getResourceAsStream("/importer_versioning/v1/crac-v1_2.json");
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.1.json");
 
         Crac crac = new JsonImport().importCrac(cracFile);
 

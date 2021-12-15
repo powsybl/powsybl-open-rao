@@ -14,6 +14,9 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -21,6 +24,8 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 public final class JsonSerializationConstants {
 
     private JsonSerializationConstants() { }
+
+    public static final String CRAC_IO_VERSION = "1.1";
 
     // field
     public static final String NETWORK_ELEMENTS_IDS = "networkElementsIds";
@@ -114,6 +119,25 @@ public final class JsonSerializationConstants {
     // action types
     public static final String OPEN_ACTION = "open";
     public static final String CLOSE_ACTION = "close";
+
+    // manipulate version
+    public static int getPrimaryVersionNumber(String fullVersion) {
+        return Integer.parseInt(divideVersionNumber(fullVersion)[0]);
+    }
+
+    public static int getSubVersionNumber(String fullVersion) {
+        return Integer.parseInt(divideVersionNumber(fullVersion)[1]);
+    }
+
+    private static String[] divideVersionNumber(String fullVersion) {
+        String[] dividedV = fullVersion.split("\\.");
+        if (dividedV.length != 2 || !Arrays.stream(dividedV).allMatch(StringUtils::isNumeric)) {
+            throw new FaraoException("json CRAC version number must be of the form vX.Y");
+        }
+        return dividedV;
+    }
+
+    // serialization of enums
 
     public static String serializeInstant(Instant instant) {
         switch (instant) {

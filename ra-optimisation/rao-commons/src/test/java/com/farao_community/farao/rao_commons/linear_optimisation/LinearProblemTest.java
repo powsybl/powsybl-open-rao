@@ -10,7 +10,6 @@ package com.farao_community.farao.rao_commons.linear_optimisation;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.rao_commons.linear_optimisation.mocks.MPSolverMock;
-import com.google.ortools.linearsolver.MPSolver;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -42,7 +41,7 @@ public class LinearProblemTest {
 
     @Before
     public void setUp() {
-        MPSolver solver = new MPSolverMock();
+        FaraoMPSolver solver = new MPSolverMock();
         linearProblem = new LinearProblem(Collections.emptyList(), solver);
 
         rangeAction = Mockito.mock(PstRangeAction.class);

@@ -11,12 +11,15 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
+import com.farao_community.farao.data.crac_io_json.serializers.CracSerializer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,6 +34,8 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
  */
 public class CracDeserializer extends JsonDeserializer<Crac> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CracSerializer.class);
+
     private CracFactory cracFactory;
 
     private CracDeserializer() {
@@ -42,13 +47,17 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
     @Override
     public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+
         jsonParser.nextToken();
-        while (!jsonParser.getCurrentName().equals(ID)) {
-            if (jsonParser.nextToken() == JsonToken.END_OBJECT) {
-                throw new FaraoException(String.format("The JSON Crac must contain an %s field", ID));
-            }
-            jsonParser.nextToken();
-        }
+
+        // check version
+        scrollJsonUntilField(jsonParser, VERSION);
+        String cracVersion = jsonParser.nextTextValue();
+        jsonParser.nextToken();
+        checkVersion(cracVersion);
+
+        // get id and name
+        scrollJsonUntilField(jsonParser, ID);
         String id = jsonParser.nextTextValue();
         jsonParser.nextToken();
         if (!jsonParser.getCurrentName().equals(NAME)) {
@@ -103,5 +112,29 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             }
         }
         return crac;
+    }
+
+    private void scrollJsonUntilField(JsonParser jsonParser, String field) throws IOException {
+        while (!jsonParser.getCurrentName().equals(field)) {
+            if (jsonParser.nextToken() == JsonToken.END_OBJECT) {
+                throw new FaraoException(String.format("The JSON Crac must contain an %s field", field));
+            }
+            jsonParser.nextToken();
+        }
+    }
+
+    private void checkVersion(String cracVersion) {
+
+        if (getPrimaryVersionNumber(CRAC_IO_VERSION) > getPrimaryVersionNumber(cracVersion)) {
+            throw new FaraoException(String.format("CRAC importer %s is no longer compatible with json CRAC version %s", CRAC_IO_VERSION, cracVersion));
+        }
+        if (getPrimaryVersionNumber(CRAC_IO_VERSION) < getPrimaryVersionNumber(cracVersion)) {
+            throw new FaraoException(String.format("CRAC importer %s cannot handle json CRAC version %s, consider upgrading farao-core version", CRAC_IO_VERSION, cracVersion));
+        }
+        if (getSubVersionNumber(CRAC_IO_VERSION) < getSubVersionNumber(cracVersion)) {
+            LOGGER.warn("CRAC importer {} might not be compatible with json CRAC version {}, consider upgrading farao-core version", CRAC_IO_VERSION, cracVersion);
+        }
+
+        // otherwise, all is good !
     }
 }
