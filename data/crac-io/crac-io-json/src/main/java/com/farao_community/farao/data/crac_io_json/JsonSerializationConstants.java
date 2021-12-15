@@ -51,6 +51,7 @@ public final class JsonSerializationConstants {
     public static final String TOPOLOGICAL_ACTIONS = "topologicalActions";
     public static final String PST_SETPOINTS = "pstSetpoints";
     public static final String INJECTION_SETPOINTS = "injectionSetpoints";
+    public static final String SWITCH_PAIRS = "switchPairs";
 
     public static final String USAGE_METHOD = "usageMethod";
     public static final String FREE_TO_USE_USAGE_RULES = "freeToUseUsageRules";

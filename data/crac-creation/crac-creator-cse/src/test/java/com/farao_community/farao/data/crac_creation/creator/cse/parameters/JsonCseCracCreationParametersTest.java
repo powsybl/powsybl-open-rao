@@ -24,11 +24,10 @@ import static org.junit.Assert.assertNotNull;
  */
 public class JsonCseCracCreationParametersTest {
 
-    private void checkBusBarChangeSwitchesContent(CseCracCreationParameters parameters, String remedialActionId, List<String> switchesToOpen, List<String> switchesToClose) {
+    private void checkBusBarChangeSwitchesContent(CseCracCreationParameters parameters, String remedialActionId, Set<SwitchPairId> switchPairs) {
         assertNotNull(parameters.getBusBarChangeSwitches(remedialActionId));
         assertEquals(remedialActionId, parameters.getBusBarChangeSwitches(remedialActionId).getRemedialActionId());
-        assertEquals(switchesToOpen, parameters.getBusBarChangeSwitches(remedialActionId).getSwitchesToOpen());
-        assertEquals(switchesToClose, parameters.getBusBarChangeSwitches(remedialActionId).getSwitchesToClose());
+        assertEquals(switchPairs, parameters.getBusBarChangeSwitches(remedialActionId).getSwitchPairs());
     }
 
     @Test
@@ -39,9 +38,9 @@ public class JsonCseCracCreationParametersTest {
         exportedCseParameters.setRangeActionGroupsAsString(List.of("rangeAction3 + rangeAction4", "hvdc1 + hvdc2"));
 
         exportedCseParameters.setBusBarChangeSwitchesSet(Set.of(
-            new BusBarChangeSwitches("ra1", List.of("s1", "s2"), List.of("s3", "s4", "s5")),
-            new BusBarChangeSwitches("ra2", List.of(), List.of("s1")),
-            new BusBarChangeSwitches("ra3", List.of("s2"), List.of())
+            new BusBarChangeSwitches("ra1", Set.of(new SwitchPairId("s1", "s2"), new SwitchPairId("s3", "s4"))),
+            new BusBarChangeSwitches("ra2", Set.of()),
+            new BusBarChangeSwitches("ra3", Set.of(new SwitchPairId("s1", "s2")))
         ));
 
         exportedParameters.addExtension(CseCracCreationParameters.class, exportedCseParameters);
@@ -60,9 +59,9 @@ public class JsonCseCracCreationParametersTest {
         assertEquals("hvdc1 + hvdc2", cseCracCreationParameters.getRangeActionGroupsAsString().get(1));
 
         assertEquals(3, cseCracCreationParameters.getBusBarChangeSwitchesSet().size());
-        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "ra1", List.of("s1", "s2"), List.of("s3", "s4", "s5"));
-        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "ra2", List.of(), List.of("s1"));
-        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "ra3", List.of("s2"), List.of());
+        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "ra1", Set.of(new SwitchPairId("s1", "s2"), new SwitchPairId("s3", "s4")));
+        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "ra2", Set.of());
+        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "ra3", Set.of(new SwitchPairId("s1", "s2")));
     }
 
     @Test
@@ -77,9 +76,9 @@ public class JsonCseCracCreationParametersTest {
         assertEquals("hvdc1 + hvdc2", cseCracCreationParameters.getRangeActionGroupsAsString().get(1));
 
         assertEquals(3, cseCracCreationParameters.getBusBarChangeSwitchesSet().size());
-        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "remedialAction1", List.of("switch1", "switch2", "switch3"), List.of("switch4"));
-        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "remedialAction2", List.of(), List.of("switch6", "switch2"));
-        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "remedialAction3", List.of("switch8", "switch3", "switch1"), List.of());
+        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "remedialAction1", Set.of(new SwitchPairId("switch1", "switch2"), new SwitchPairId("switch3", "switch4")));
+        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "remedialAction2", Set.of(new SwitchPairId("switch5", "switch6")));
+        checkBusBarChangeSwitchesContent(cseCracCreationParameters, "remedialAction3", Set.of());
     }
 
     @Test (expected = FaraoException.class)
@@ -95,5 +94,15 @@ public class JsonCseCracCreationParametersTest {
     @Test (expected = FaraoException.class)
     public void importNokTest3() {
         JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok3.json"));
+    }
+
+    @Test (expected = FaraoException.class)
+    public void importMissingSwitch1() {
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok4.json"));
+    }
+
+    @Test (expected = FaraoException.class)
+    public void importMissingSwitch2() {
+        JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/cse-crac-creation-parameters-nok5.json"));
     }
 }

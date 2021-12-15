@@ -27,8 +27,10 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
 
     /**
      * Apply the action on a given network.
+     * @param network the Network to apply the network action upon
+     * @return true if the network action was applied, false if not (eg if it was already applied)
      */
-    void apply(Network network);
+    boolean apply(Network network);
 
     /**
      * Get the set of the elementary actions constituting then network action

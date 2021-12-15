@@ -13,9 +13,8 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
+import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
@@ -40,12 +39,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -260,8 +254,8 @@ public class CseCracCreatorTest {
         assertTrue(raContext.isImported());
         NetworkAction na = cracCreationContext.getCrac().getNetworkAction("cra_4");
         assertEquals(2, na.getNetworkElements().size());
-        assertTrue(na.getElementaryActions().stream().anyMatch(ea -> ea.getNetworkElement().getId().equals("FFR3AA1 _generator")));
-        assertTrue(na.getElementaryActions().stream().anyMatch(ea -> ea.getNetworkElement().getId().equals("FFR2AA1 _generator")));
+        assertTrue(na.getElementaryActions().stream().anyMatch(ea -> ea.getNetworkElements().iterator().next().getId().equals("FFR3AA1 _generator")));
+        assertTrue(na.getElementaryActions().stream().anyMatch(ea -> ea.getNetworkElements().iterator().next().getId().equals("FFR2AA1 _generator")));
     }
 
     @Test
@@ -419,24 +413,18 @@ public class CseCracCreatorTest {
         assertTrue(cracCreationContext.getRemedialActionCreationContext("RA2").isImported());
 
         NetworkAction ra1 = importedCrac.getNetworkAction("RA1");
-        assertEquals(2, ra1.getElementaryActions().size());
-        assertTrue(ra1.getElementaryActions().stream().allMatch(elementaryAction -> elementaryAction instanceof TopologicalAction));
-        assertTrue(ra1.getElementaryActions().stream().anyMatch(elementaryAction ->
-            ((TopologicalAction) elementaryAction).getActionType().equals(ActionType.OPEN) && elementaryAction.getNetworkElement().getId().equals("BBE1AA1X BBE1AA11 1")
-        ));
-        assertTrue(ra1.getElementaryActions().stream().anyMatch(elementaryAction ->
-            ((TopologicalAction) elementaryAction).getActionType().equals(ActionType.CLOSE) && elementaryAction.getNetworkElement().getId().equals("BBE1AA1X BBE1AA12 1")
-        ));
+        assertEquals(1, ra1.getElementaryActions().size());
+        assertTrue(ra1.getElementaryActions().iterator().next() instanceof SwitchPair);
+        SwitchPair switchPair = (SwitchPair) ra1.getElementaryActions().iterator().next();
+        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToOpen().getId());
+        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToClose().getId());
 
         NetworkAction ra2 = importedCrac.getNetworkAction("RA2");
-        assertEquals(2, ra2.getElementaryActions().size());
-        assertTrue(ra2.getElementaryActions().stream().allMatch(elementaryAction -> elementaryAction instanceof TopologicalAction));
-        assertTrue(ra2.getElementaryActions().stream().anyMatch(elementaryAction ->
-            ((TopologicalAction) elementaryAction).getActionType().equals(ActionType.OPEN) && elementaryAction.getNetworkElement().getId().equals("BBE1AA1X BBE1AA12 1")
-        ));
-        assertTrue(ra2.getElementaryActions().stream().anyMatch(elementaryAction ->
-            ((TopologicalAction) elementaryAction).getActionType().equals(ActionType.CLOSE) && elementaryAction.getNetworkElement().getId().equals("BBE1AA1X BBE1AA11 1")
-        ));
+        assertEquals(1, ra2.getElementaryActions().size());
+        assertTrue(ra2.getElementaryActions().iterator().next() instanceof SwitchPair);
+        switchPair = (SwitchPair) ra2.getElementaryActions().iterator().next();
+        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToOpen().getId());
+        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToClose().getId());
     }
 
     @Test

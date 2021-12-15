@@ -16,6 +16,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * Topological remedial action: open or close a network element.
  *
@@ -58,6 +61,12 @@ public final class TopologicalActionImpl implements TopologicalAction {
     }
 
     @Override
+    public boolean canBeApplied(Network network) {
+        // TODO : we can return false if the network element is already at the target state
+        return true;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -72,6 +81,11 @@ public final class TopologicalActionImpl implements TopologicalAction {
     @Override
     public NetworkElement getNetworkElement() {
         return networkElement;
+    }
+
+    @Override
+    public Set<NetworkElement> getNetworkElements() {
+        return Collections.singleton(networkElement);
     }
 
     @Override

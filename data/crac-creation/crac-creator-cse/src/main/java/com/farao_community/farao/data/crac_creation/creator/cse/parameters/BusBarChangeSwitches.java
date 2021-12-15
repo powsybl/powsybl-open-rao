@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.cse.parameters;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * A class that maps BuBarChange remedial actions to switches that were added to the network
@@ -15,24 +15,18 @@ import java.util.List;
  */
 public class BusBarChangeSwitches {
     private final String remedialActionId;
-    private final List<String> switchesToOpen;
-    private final List<String> switchesToClose;
+    private final Set<SwitchPairId> switchPairs;
 
-    public BusBarChangeSwitches(String remedialActionId, List<String> switchesToOpen, List<String> switchesToClose) {
+    public BusBarChangeSwitches(String remedialActionId, Set<SwitchPairId> switchPairs) {
         this.remedialActionId = remedialActionId;
-        this.switchesToOpen = switchesToOpen;
-        this.switchesToClose = switchesToClose;
+        this.switchPairs = switchPairs;
     }
 
     public String getRemedialActionId() {
         return remedialActionId;
     }
 
-    public List<String> getSwitchesToOpen() {
-        return switchesToOpen;
-    }
-
-    public List<String> getSwitchesToClose() {
-        return switchesToClose;
+    public Set<SwitchPairId> getSwitchPairs() {
+        return switchPairs;
     }
 }

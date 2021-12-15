@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
@@ -41,6 +42,8 @@ public class TopologicalActionImplTest {
     public void basicMethods() {
         assertEquals(ActionType.OPEN, topologyOpen.getActionType());
         assertEquals("FFR2AA1  DDE3AA1  1", topologyOpen.getNetworkElement().getId());
+        assertEquals(1, topologyOpen.getNetworkElements().size());
+        assertTrue(topologyOpen.canBeApplied(Mockito.mock(Network.class)));
     }
 
     @Test

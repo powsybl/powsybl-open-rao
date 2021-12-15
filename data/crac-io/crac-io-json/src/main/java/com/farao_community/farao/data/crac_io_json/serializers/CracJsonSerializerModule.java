@@ -9,10 +9,7 @@ package com.farao_community.farao.data.crac_io_json.serializers;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
-import com.farao_community.farao.data.crac_api.network_action.TopologicalAction;
+import com.farao_community.farao.data.crac_api.network_action.*;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRange;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -45,5 +42,6 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(TopologicalAction.class, new TopologicalActionSerializer());
         this.addSerializer(PstSetpoint.class, new PstSetpointSerializer());
         this.addSerializer(InjectionSetpoint.class, new InjectionSetpointSerializer());
+        this.addSerializer(SwitchPair.class, new SwitchPairSerializer());
     }
 }

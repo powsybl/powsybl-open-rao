@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.data.crac_api.network_action;
 
+import com.farao_community.farao.data.crac_api.NetworkElement;
+
 /***
  * A topological action is an Elementary Action which consists in changing
  * the topology of the network, by opening or closing one of its element.
@@ -18,4 +20,9 @@ public interface TopologicalAction extends ElementaryAction {
      * Get the {@link ActionType} that will be applied on the network element of the action
      */
     ActionType getActionType();
+
+    /**
+     * Get the Network Element associated to the elementary action
+     */
+    NetworkElement getNetworkElement();
 }

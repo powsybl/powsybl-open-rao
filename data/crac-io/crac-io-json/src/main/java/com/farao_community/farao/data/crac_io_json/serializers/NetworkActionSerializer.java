@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.farao_community.farao.data.crac_api.network_action.*;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -31,6 +32,7 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
         serializeElementaryActions(value, TopologicalAction.class, TOPOLOGICAL_ACTIONS, gen);
         serializeElementaryActions(value, PstSetpoint.class, PST_SETPOINTS, gen);
         serializeElementaryActions(value, InjectionSetpoint.class, INJECTION_SETPOINTS, gen);
+        serializeElementaryActions(value, SwitchPair.class, SWITCH_PAIRS, gen);
 
         JsonUtil.writeExtensions(value, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
 
@@ -39,7 +41,7 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
 
     private void serializeElementaryActions(NetworkAction networkAction, Class<? extends ElementaryAction> elementaryActionType, String arrayName, JsonGenerator gen) throws IOException {
         List<ElementaryAction> actions = networkAction.getElementaryActions().stream().filter(action -> elementaryActionType.isAssignableFrom(action.getClass()))
-                .sorted(Comparator.comparing(elementaryAction -> elementaryAction.getNetworkElement().getId())).collect(Collectors.toList());
+                .sorted(Comparator.comparing(this::buildElementaryActionId)).collect(Collectors.toList());
         if (!actions.isEmpty()) {
             gen.writeArrayFieldStart(arrayName);
             for (ElementaryAction ea : actions) {
@@ -47,5 +49,10 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
             }
             gen.writeEndArray();
         }
+    }
+
+    private String buildElementaryActionId(ElementaryAction elementaryAction) {
+        List<String> sortedElements = elementaryAction.getNetworkElements().stream().map(Identifiable::getId).sorted(String::compareTo).collect(Collectors.toList());
+        return String.join(" + ", sortedElements);
     }
 }

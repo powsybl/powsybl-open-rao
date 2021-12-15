@@ -2,23 +2,33 @@
   "crac-factory" : "CracImplFactory",
   "extensions" : {
     "CseCracCreatorParameters" : {
+      "range-action-groups" : [ "rangeAction3 + rangeAction4", "hvdc1 + hvdc2" ],
       "bus-bar-change-switches" : [
         {
-          "remedial-action-id" : "remedialAcion1",
-          "switches-to-open" : [
-            "switch1", "switch2", "switch3"
-          ],
-          "switches-to-close" : [
-            "switch4"
+          "remedial-action-id" : "remedialAction1",
+          "switch-pairs" : [
+            {
+              "open" : "switch1",
+              "close" : "switch2"
+            },
+            {
+              "open" : "switch3",
+              "close" : "switch4"
+            }
           ]
         },
         {
-          "remedial-action-id" : "remedialAcion1",
-          "switches-to-open" : [
-            "switch8", "switch3", "switch1"
-          ],
-          "switches-to-close" : [
-            "switch6", "switch2"
+          "remedial-action-id" : "remedialAction2",
+          "switch-pairs" : [
+            {
+              "open" : "switch5",
+              "close" : "switch6"
+            }
+          ]
+        },
+        {
+          "remedial-action-id" : "remedialAction2",
+          "switch-pairs" : [
           ]
         }
       ]

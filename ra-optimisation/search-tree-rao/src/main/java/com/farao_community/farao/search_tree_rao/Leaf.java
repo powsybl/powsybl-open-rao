@@ -89,7 +89,12 @@ class Leaf implements OptimizationResult {
         }
 
         // apply Network Actions on initial network
-        networkActions.forEach(na -> na.apply(network));
+        for (NetworkAction na : networkActions) {
+            boolean applicationSuccess = na.apply(network);
+            if (!applicationSuccess) {
+                throw new FaraoException(String.format("%s could not be applied on the network", na.getId()));
+            }
+        }
         status = Status.CREATED;
     }
 

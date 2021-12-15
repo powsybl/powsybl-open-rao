@@ -8,10 +8,14 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -22,11 +26,13 @@ public class PstSetpointImplTest {
 
     @Test
     public void basicMethods() {
-        PstSetpointImpl pstSetpoint = new PstSetpointImpl(
-            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
-            12);
+        NetworkElement ne = new NetworkElementImpl("BBE2AA1  BBE3AA1  1");
+        PstSetpointImpl pstSetpoint = new PstSetpointImpl(ne, 12);
 
         assertEquals(12, pstSetpoint.getSetpoint(), 0);
+        assertEquals(ne, pstSetpoint.getNetworkElement());
+        assertEquals(Set.of(ne), pstSetpoint.getNetworkElements());
+        assertTrue(pstSetpoint.canBeApplied(Mockito.mock(Network.class)));
     }
 
     @Test
@@ -44,8 +50,8 @@ public class PstSetpointImplTest {
     public void applyOutOfBoundStartsAtOne() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
-                new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
-                17);
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
+            17);
         try {
             pstSetpoint.apply(network);
             fail();
@@ -58,8 +64,8 @@ public class PstSetpointImplTest {
     public void applyOutOfBoundCenteredOnZero() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
         PstSetpointImpl pstSetpoint = new PstSetpointImpl(
-                new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
-                50);
+            new NetworkElementImpl("BBE2AA1  BBE3AA1  1"),
+            50);
         try {
             pstSetpoint.apply(network);
             fail();

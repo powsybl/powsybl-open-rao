@@ -38,14 +38,19 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     }
 
     @Override
-    public void apply(Network network) {
-        elementaryActions.forEach(action -> action.apply(network));
+    public boolean apply(Network network) {
+        if (elementaryActions.stream().anyMatch(elementaryAction -> !elementaryAction.canBeApplied(network))) {
+            return false;
+        } else {
+            elementaryActions.forEach(action -> action.apply(network));
+            return true;
+        }
     }
 
     @Override
     public Set<NetworkElement> getNetworkElements() {
         Set<NetworkElement> networkElements = new HashSet<>();
-        elementaryActions.forEach(action -> networkElements.add(action.getNetworkElement()));
+        elementaryActions.forEach(action -> networkElements.addAll(action.getNetworkElements()));
         return networkElements;
     }
 

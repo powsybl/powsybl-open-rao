@@ -390,8 +390,14 @@ public class TRemedialActionAdder {
             .withId(raId)
             .withOperator(tRemedialAction.getOperator().getV());
         try {
-            addElementaryTopoActions(networkActionAdder, busBarChangeSwitches.getSwitchesToOpen(), ActionType.OPEN);
-            addElementaryTopoActions(networkActionAdder, busBarChangeSwitches.getSwitchesToClose(), ActionType.CLOSE);
+            busBarChangeSwitches.getSwitchPairs().forEach(switchPairId -> {
+                assertIsSwitch(switchPairId.getSwitchToOpenId());
+                assertIsSwitch(switchPairId.getSwitchToCloseId());
+                networkActionAdder.newSwitchPair()
+                    .withSwitchToOpen(switchPairId.getSwitchToOpenId())
+                    .withSwitchToClose(switchPairId.getSwitchToCloseId())
+                    .add();
+            });
         } catch (FaraoException e) {
             cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, e.getMessage()));
             return;
@@ -401,16 +407,13 @@ public class TRemedialActionAdder {
         cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.imported(tRemedialAction, raId, false, null));
     }
 
-    private void addElementaryTopoActions(NetworkActionAdder networkActionAdder, List<String> switchIds, ActionType actionType) {
-        for (String switchId : switchIds) {
-            UcteTopologicalElementHelper topoHelper = new UcteTopologicalElementHelper(switchId, ucteNetworkAnalyzer);
-            if (!topoHelper.isValid()) {
-                throw new FaraoException(topoHelper.getInvalidReason());
-            }
-            networkActionAdder.newTopologicalAction()
-                .withNetworkElement(topoHelper.getIdInNetwork())
-                .withActionType(actionType)
-                .add();
+    private void assertIsSwitch(String switchId) {
+        UcteTopologicalElementHelper topoHelper = new UcteTopologicalElementHelper(switchId, ucteNetworkAnalyzer);
+        if (!topoHelper.isValid()) {
+            throw new FaraoException(topoHelper.getInvalidReason());
+        }
+        if (network.getSwitch(topoHelper.getIdInNetwork()) == null) {
+            throw new FaraoException(String.format("%s is not a switch", switchId));
         }
     }
 }
