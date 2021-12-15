@@ -11,7 +11,6 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
-import com.farao_community.farao.data.crac_io_json.serializers.CracSerializer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -34,7 +33,7 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
  */
 public class CracDeserializer extends JsonDeserializer<Crac> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CracSerializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CracDeserializer.class);
 
     private CracFactory cracFactory;
 
