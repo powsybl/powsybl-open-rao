@@ -28,7 +28,7 @@ public class JsonRetrocompatibilityTest {
     }
 
     @Test
-    public void testImportV1_0() {
+    public void testImportV1Point0() {
         Crac importedCrac = importCrac("1_0.json");
 
         assertEquals(3, importedCrac.getStates().size());
