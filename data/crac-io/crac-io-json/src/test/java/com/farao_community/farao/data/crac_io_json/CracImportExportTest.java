@@ -237,14 +237,14 @@ public class CracImportExportTest {
         assertEquals(Instant.PREVENTIVE, onFlowConstraint2.getInstant());
         assertSame(importedCrac.getCnec("cnec3prevIdBis"), onFlowConstraint2.getFlowCnec());
 
-        assertEquals(1, crac.getNetworkAction("switchPairRaId").getElementaryActions().size());
-        assertTrue(crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next() instanceof SwitchPair);
-        SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
+        assertEquals(1, importedCrac.getNetworkAction("switchPairRaId").getElementaryActions().size());
+        assertTrue(importedCrac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next() instanceof SwitchPair);
+        SwitchPair switchPair = (SwitchPair) importedCrac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
         assertEquals("to-open", switchPair.getSwitchToOpen().getId());
         assertEquals("to-open", switchPair.getSwitchToOpen().getName());
         assertEquals("to-close", switchPair.getSwitchToClose().getId());
         assertEquals("to-close-name", switchPair.getSwitchToClose().getName());
 
-        assertEquals(2, crac.getNetworkAction("switchPairRaId2").getElementaryActions().size());
+        assertEquals(2, importedCrac.getNetworkAction("switchPairRaId2").getElementaryActions().size());
     }
 }
