@@ -30,8 +30,9 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
     private static final String RANGE_ACTION_GROUPS = "range-action-groups";
     private static final String BUS_BAR_CHANGE_SWITCHES = "bus-bar-change-switches";
     private static final String REMEDIAL_ACTION_ID = "remedial-action-id";
-    private static final String SWITCHES_TO_OPEN = "switches-to-open";
-    private static final String SWITCHES_TO_CLOSE = "switches-to-close";
+    private static final String SWITCH_PAIRS = "switch-pairs";
+    private static final String OPEN = "open";
+    private static final String CLOSE = "close";
 
     @Override
     public void serialize(CseCracCreationParameters cseParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -97,8 +98,14 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
     private void serializeBusBarChangeSwitches(BusBarChangeSwitches busBarChangeSwitches, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(REMEDIAL_ACTION_ID, busBarChangeSwitches.getRemedialActionId());
-        serializeStringArray(SWITCHES_TO_OPEN, busBarChangeSwitches.getSwitchesToOpen(), jsonGenerator);
-        serializeStringArray(SWITCHES_TO_CLOSE, busBarChangeSwitches.getSwitchesToClose(), jsonGenerator);
+        jsonGenerator.writeArrayFieldStart(SWITCH_PAIRS);
+        for (SwitchPairId switchPairId : busBarChangeSwitches.getSwitchPairs()) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField(OPEN, switchPairId.getSwitchToOpenId());
+            jsonGenerator.writeStringField(CLOSE, switchPairId.getSwitchToCloseId());
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
         jsonGenerator.writeEndObject();
     }
 
@@ -117,20 +124,15 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
         Set<BusBarChangeSwitches> set = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             String remedialActionId = null;
-            List<String> switchesToOpen = new ArrayList<>();
-            List<String> switchesToClose = new ArrayList<>();
+            Set<SwitchPairId> switchPairs = new HashSet<>();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case REMEDIAL_ACTION_ID:
                         remedialActionId = jsonParser.nextTextValue();
                         break;
-                    case SWITCHES_TO_OPEN:
+                    case SWITCH_PAIRS:
                         jsonParser.nextToken();
-                        switchesToOpen = jsonParser.readValueAs(ArrayList.class);
-                        break;
-                    case SWITCHES_TO_CLOSE:
-                        jsonParser.nextToken();
-                        switchesToClose = jsonParser.readValueAs(ArrayList.class);
+                        switchPairs = deserializeSwitchPairIds(jsonParser);
                         break;
                     default:
                         throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
@@ -143,8 +145,33 @@ public class JsonCseCracCreationParameters implements JsonCracCreationParameters
                 throw new FaraoException(String.format("Remedial action %s has two or more associated %s lists", remedialActionId, BUS_BAR_CHANGE_SWITCHES));
             }
             ids.add(remedialActionId);
-            set.add(new BusBarChangeSwitches(remedialActionId, switchesToOpen, switchesToClose));
+            set.add(new BusBarChangeSwitches(remedialActionId, switchPairs));
         }
         return set;
+    }
+
+    private Set<SwitchPairId> deserializeSwitchPairIds(JsonParser jsonParser) throws IOException {
+        Set<SwitchPairId> switchPairs = new HashSet<>();
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            String switchToOpen = null;
+            String switchToClose = null;
+            while (!jsonParser.nextToken().isStructEnd()) {
+                switch (jsonParser.getCurrentName()) {
+                    case OPEN:
+                        switchToOpen = jsonParser.nextTextValue();
+                        break;
+                    case CLOSE:
+                        switchToClose = jsonParser.nextTextValue();
+                        break;
+                    default:
+                        throw new FaraoException("Unexpected field: " + jsonParser.getCurrentName());
+                }
+            }
+            if (switchToOpen == null || switchToClose == null) {
+                throw new FaraoException("Missing switch to open or switch to close in switch pair");
+            }
+            switchPairs.add(new SwitchPairId(switchToOpen, switchToClose));
+        }
+        return switchPairs;
     }
 }
