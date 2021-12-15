@@ -1,5 +1,6 @@
 {
-  "type": "simple-crac",
+  "type" : "CRAC",
+  "version" : "1.0",
   "id": "LS_unsecure",
   "name": "LS_unsecure",
   "networkElements": [
