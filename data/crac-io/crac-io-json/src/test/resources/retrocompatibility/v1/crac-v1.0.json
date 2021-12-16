@@ -78,7 +78,7 @@
     } ]
   }, {
     "id" : "cnec3autoId",
-    "name" : "cnec3curBis",
+    "name" : "cnec3autoName",
     "networkElementId" : "ne2Id",
     "operator" : "operator3",
     "instant" : "auto",
@@ -93,7 +93,7 @@
     } ]
   }, {
     "id" : "cnec3curId",
-    "name" : "cnec3curBis",
+    "name" : "cnec3curId",
     "networkElementId" : "ne2Id",
     "operator" : "operator3",
     "instant" : "curative",

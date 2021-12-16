@@ -94,7 +94,7 @@ public final class ExhaustiveCracCreation {
                 .add();
 
         crac.newFlowCnec().withId("cnec3autoId")
-                .withName("cnec3curBis")
+                .withName("cnec3autoName")
                 .withNetworkElement("ne2Id", "ne2Name")
                 .withInstant(Instant.AUTO)
                 .withContingency(contingency2Id)
@@ -105,7 +105,6 @@ public final class ExhaustiveCracCreation {
                 .add();
 
         crac.newFlowCnec().withId("cnec3curId")
-                .withName("cnec3curBis")
                 .withNetworkElement("ne2Id", "ne2Name")
                 .withInstant(Instant.CURATIVE)
                 .withContingency(contingency2Id)

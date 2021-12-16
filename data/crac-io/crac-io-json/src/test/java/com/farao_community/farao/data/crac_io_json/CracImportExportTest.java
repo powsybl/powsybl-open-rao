@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 public class CracImportExportTest {
 
     @Test
-    public void cracTest() {
+    public void roundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
 
         Crac importedCrac = RoundTripUtil.roundTrip(crac);

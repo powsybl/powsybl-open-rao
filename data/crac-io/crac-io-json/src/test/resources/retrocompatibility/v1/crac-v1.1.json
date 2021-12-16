@@ -6,8 +6,7 @@
   "name" : "exhaustiveCracName",
   "networkElementsNamePerId" : {
     "ne5Id" : "ne5Name",
-    "ne2Id" : "ne2Name",
-    "to-close" : "to-close-name"
+    "ne2Id" : "ne2Name"
   },
   "contingencies" : [ {
     "id" : "contingency1Id",
@@ -78,7 +77,7 @@
     } ]
   }, {
     "id" : "cnec3autoId",
-    "name" : "cnec3curBis",
+    "name" : "cnec3autoName",
     "networkElementId" : "ne2Id",
     "operator" : "operator3",
     "instant" : "auto",
@@ -93,7 +92,7 @@
     } ]
   }, {
     "id" : "cnec3curId",
-    "name" : "cnec3curBis",
+    "name" : "cnec3curId",
     "networkElementId" : "ne2Id",
     "operator" : "operator3",
     "instant" : "curative",
