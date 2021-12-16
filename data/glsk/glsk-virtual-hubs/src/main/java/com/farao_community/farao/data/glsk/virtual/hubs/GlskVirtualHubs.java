@@ -15,14 +15,12 @@ import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +43,7 @@ public final class GlskVirtualHubs {
      * @return one LinearGlsk for each virtual hub given in the referenceProgram and found
      * in the network
      */
-    public static ZonalData<LinearGlsk> getVirtualHubGlsks(Network network, ReferenceProgram referenceProgram) {
+    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(Network network, ReferenceProgram referenceProgram) {
         List<String> countryCodes = referenceProgram.getListOfAreas().stream()
             .filter(eiCode -> !eiCode.isCountryCode())
             .map(EICode::getAreaCode)
@@ -62,8 +60,8 @@ public final class GlskVirtualHubs {
      *
      * @return one LinearGlsk for each virtual hub given in eiCodes and found in the network
      */
-    public static ZonalData<LinearGlsk> getVirtualHubGlsks(Network network, List<String> eiCodes) {
-        Map<String, LinearGlsk> glsks = new HashMap<>();
+    public static ZonalData<SensitivityVariableSet> getVirtualHubGlsks(Network network, List<String> eiCodes) {
+        Map<String, SensitivityVariableSet> glsks = new HashMap<>();
         Map<String, Load> virtualLoads = buildVirtualLoadMap(network);
 
         eiCodes.forEach(eiCode -> {
@@ -72,7 +70,7 @@ public final class GlskVirtualHubs {
                 LOGGER.warn("No load found for virtual hub {}", eiCode);
             } else {
                 LOGGER.debug("Load {} found for virtual hub {}", virtualLoads.get(eiCode).getId(), eiCode);
-                Optional<LinearGlsk> virtualHubGlsk = createGlskFromVirtualHub(virtualLoads.get(eiCode));
+                Optional<SensitivityVariableSet> virtualHubGlsk = createGlskFromVirtualHub(virtualLoads.get(eiCode));
                 virtualHubGlsk.ifPresent(linearGlsk -> glsks.put(eiCode, linearGlsk));
             }
         });
@@ -89,12 +87,12 @@ public final class GlskVirtualHubs {
         return virtualLoads;
     }
 
-    private static Optional<LinearGlsk> createGlskFromVirtualHub(Load virtualLoad) {
-        Map<String, Float> glskMap = new HashMap<>();
+    private static Optional<SensitivityVariableSet> createGlskFromVirtualHub(Load virtualLoad) {
+        List<WeightedSensitivityVariable> glskList = new ArrayList<>();
         try {
-            glskMap.put(virtualLoad.getId(), 1.0F);
+            glskList.add(new WeightedSensitivityVariable(virtualLoad.getId(), 1.0F));
             String eiCode = virtualLoad.getExtension(AssignedVirtualHub.class).getEic();
-            return Optional.of(new LinearGlsk(eiCode, eiCode, glskMap));
+            return Optional.of(new SensitivityVariableSet(eiCode, glskList));
         } catch (FaraoException e) {
             return Optional.empty();
         }

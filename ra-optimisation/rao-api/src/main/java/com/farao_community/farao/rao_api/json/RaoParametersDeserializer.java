@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
+import com.powsybl.sensitivity.json.SensitivityJson;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -153,14 +153,14 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     break;
                 case "sensitivity-parameters":
                     parser.nextToken();
-                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityAnalysisParameters());
+                    parameters.setDefaultSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readValue(parser, SensitivityAnalysisParameters.class));
                     break;
                 case "fallback-sensitivity-parameters":
                     parser.nextToken();
                     if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
                         parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
                     }
-                    JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getFallbackSensitivityAnalysisParameters());
+                    parameters.setFallbackSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readValue(parser, SensitivityAnalysisParameters.class));
                     break;
                 case "forbid-cost-increase":
                     parser.nextToken();

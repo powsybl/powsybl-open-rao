@@ -9,7 +9,7 @@ package com.farao_community.farao.data.glsk.virtual.hubs;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -31,21 +31,21 @@ public class GlskVirtualHubsTest {
         Network network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Arrays.asList("17YXTYUDHGKAAAAS", "15XGDYRHKLKAAAAS");
 
-        ZonalData<LinearGlsk> glsks = GlskVirtualHubs.getVirtualHubGlsks(network, virtualHubEiCodes);
+        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(network, virtualHubEiCodes);
 
         assertEquals(2, glsks.getDataPerZone().size());
 
         // check data for virtual hub on generator
         assertNotNull(glsks.getData("15XGDYRHKLKAAAAS"));
-        assertEquals(1, glsks.getData("15XGDYRHKLKAAAAS").getGLSKs().size());
-        assertTrue(glsks.getData("15XGDYRHKLKAAAAS").getGLSKs().containsKey("NNL3AA1 _load"));
-        assertEquals(1., glsks.getData("15XGDYRHKLKAAAAS").getGLSKs().get("NNL3AA1 _load").doubleValue(), DOUBLE_TOLERANCE);
+        assertEquals(1, glsks.getData("15XGDYRHKLKAAAAS").getVariables().size());
+        assertTrue(glsks.getData("15XGDYRHKLKAAAAS").getVariablesById().containsKey("NNL3AA1 _load"));
+        assertEquals(1., glsks.getData("15XGDYRHKLKAAAAS").getVariablesById().get("NNL3AA1 _load").getWeight(), DOUBLE_TOLERANCE);
 
         // check data for virtual hub on dangling line
         assertNotNull(glsks.getData("17YXTYUDHGKAAAAS"));
-        assertEquals(1, glsks.getData("17YXTYUDHGKAAAAS").getGLSKs().size());
-        assertTrue(glsks.getData("17YXTYUDHGKAAAAS").getGLSKs().containsKey("FFR1AA1 _load"));
-        assertEquals(1., glsks.getData("17YXTYUDHGKAAAAS").getGLSKs().get("FFR1AA1 _load").doubleValue(), DOUBLE_TOLERANCE);
+        assertEquals(1, glsks.getData("17YXTYUDHGKAAAAS").getVariables().size());
+        assertTrue(glsks.getData("17YXTYUDHGKAAAAS").getVariablesById().containsKey("FFR1AA1 _load"));
+        assertEquals(1., glsks.getData("17YXTYUDHGKAAAAS").getVariablesById().get("FFR1AA1 _load").getWeight(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class GlskVirtualHubsTest {
         Network network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
         List<String> virtualHubEiCodes = Collections.singletonList("UNKNOWN_EICODE");
 
-        ZonalData<LinearGlsk> glsks = GlskVirtualHubs.getVirtualHubGlsks(network, virtualHubEiCodes);
+        ZonalData<SensitivityVariableSet> glsks = GlskVirtualHubs.getVirtualHubGlsks(network, virtualHubEiCodes);
 
         assertEquals(0, glsks.getDataPerZone().size());
     }

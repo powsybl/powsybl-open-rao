@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 
 import java.io.IOException;
 
@@ -69,10 +68,10 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeObjectField("pst-optimization-approximation", parameters.getPstOptimizationApproximation());
         jsonGenerator.writeBooleanField("forbid-cost-increase", parameters.getForbidCostIncrease());
         jsonGenerator.writeFieldName("sensitivity-parameters");
-        JsonSensitivityAnalysisParameters.serialize(parameters.getDefaultSensitivityAnalysisParameters(), jsonGenerator, serializerProvider);
+        serializerProvider.defaultSerializeValue(parameters.getDefaultSensitivityAnalysisParameters(), jsonGenerator);
         if (parameters.getFallbackSensitivityAnalysisParameters() != null) {
             jsonGenerator.writeFieldName("fallback-sensitivity-parameters");
-            JsonSensitivityAnalysisParameters.serialize(parameters.getFallbackSensitivityAnalysisParameters(), jsonGenerator, serializerProvider);
+            serializerProvider.defaultSerializeValue(parameters.getFallbackSensitivityAnalysisParameters(), jsonGenerator);
         }
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonRaoParameters.getExtensionSerializers());
         jsonGenerator.writeEndObject();

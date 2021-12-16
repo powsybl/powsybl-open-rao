@@ -7,6 +7,7 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.Crac;
@@ -14,7 +15,8 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +31,7 @@ public class PtdfSensitivityProviderTest {
 
     Network network;
     Crac crac;
-    ZonalData<LinearGlsk> glskMock;
+    ZonalData<SensitivityVariableSet> glskMock;
 
     @Before
     public void setUp() {
@@ -38,27 +40,27 @@ public class PtdfSensitivityProviderTest {
         glskMock = glsk();
     }
 
-    private static ZonalData<LinearGlsk> glsk() {
-        Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
-        glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
+    private static ZonalData<SensitivityVariableSet> glsk() {
+        Map<String, SensitivityVariableSet> glsks = new HashMap<>();
+        glsks.put("FR", new SensitivityVariableSet("10YFR-RTE------C", List.of(new WeightedSensitivityVariable("Generator FR", 1.f))));
+        glsks.put("BE", new SensitivityVariableSet("10YBE----------2", List.of(new WeightedSensitivityVariable("Generator BE", 1.f))));
+        glsks.put("DE", new SensitivityVariableSet("10YCB-GERMANY--8", List.of(new WeightedSensitivityVariable("Generator DE", 1.f))));
+        glsks.put("NL", new SensitivityVariableSet("10YNL----------L", List.of(new WeightedSensitivityVariable("Generator NL", 1.f))));
         return new ZonalDataImpl<>(glsks);
     }
 
     @Test
     public void getFactorsOnCommonCrac() {
         PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
-        List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getAdditionalFactors(network);
+        List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getBasecaseFactors(network);
         assertEquals(8, sensitivityFactors.size());
-        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
-                                                                          && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
+        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
+                                                                          && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
 
-        sensitivityFactors = ptdfSensitivityProvider.getAdditionalFactors(network, crac.getContingencies().iterator().next().getId());
+        sensitivityFactors = ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency(crac.getContingencies().iterator().next().getId(), new ArrayList<>())));
         assertEquals(8, sensitivityFactors.size());
-        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunction().getId().contains("FFR2AA1  DDE3AA1  1")
-            && sensitivityFactor.getVariable().getId().contains("10YCB-GERMANY--8")));
+        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
+            && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
     }
 
     @Test
@@ -66,14 +68,14 @@ public class PtdfSensitivityProviderTest {
         PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
 
         // factors with basecase and contingency
-        assertEquals(8, ptdfSensitivityProvider.getAdditionalFactors(network).size());
-        assertEquals(8, ptdfSensitivityProvider.getAdditionalFactors(network, "Contingency FR1 FR3").size());
+        assertEquals(8, ptdfSensitivityProvider.getBasecaseFactors(network).size());
+        assertEquals(8, ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
 
         ptdfSensitivityProvider.disableFactorsForBaseCaseSituation();
 
         // factors after disabling basecase
-        assertEquals(0, ptdfSensitivityProvider.getAdditionalFactors(network).size());
-        assertEquals(8, ptdfSensitivityProvider.getAdditionalFactors(network, "Contingency FR1 FR3").size());
+        assertEquals(0, ptdfSensitivityProvider.getBasecaseFactors(network).size());
+        assertEquals(8, ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
     }
 
     @Test

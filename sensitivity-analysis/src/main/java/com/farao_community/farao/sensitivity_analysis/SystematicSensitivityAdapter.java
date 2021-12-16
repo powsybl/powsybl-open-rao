@@ -39,7 +39,7 @@ final class SystematicSensitivityAdapter {
         LOGGER.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network,
             network.getVariantManager().getWorkingVariantId(),
-            cnecSensitivityProvider.getFactors(network),
+            cnecSensitivityProvider.getBasecaseFactors(network),
             cnecSensitivityProvider.getContingencies(network),
             cnecSensitivityProvider.getVariableSets(),
             sensitivityComputationParameters,
@@ -75,7 +75,7 @@ final class SystematicSensitivityAdapter {
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         result.completeData(SensitivityAnalysis.run(network,
             network.getVariantManager().getWorkingVariantId(),
-            cnecSensitivityProvider.getFactors(network, contingenciesWithoutRa),
+            cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa),
             contingenciesWithoutRa,
             cnecSensitivityProvider.getVariableSets(),
             sensitivityComputationParameters,
@@ -105,7 +105,7 @@ final class SystematicSensitivityAdapter {
 
             result.completeData(SensitivityAnalysis.run(network,
                 network.getVariantManager().getWorkingVariantId(),
-                cnecSensitivityProvider.getFactors(network, contingencyList),
+                cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
                 contingenciesWithoutRa,
                 cnecSensitivityProvider.getVariableSets(),
                 sensitivityComputationParameters,

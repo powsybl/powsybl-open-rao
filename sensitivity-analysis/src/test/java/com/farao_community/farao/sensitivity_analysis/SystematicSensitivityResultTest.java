@@ -7,6 +7,7 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -16,12 +17,12 @@ import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,7 +39,7 @@ public class SystematicSensitivityResultTest {
     private FlowCnec nStateCnec;
     private FlowCnec contingencyCnec;
     private RangeAction rangeAction;
-    private LinearGlsk linearGlsk;
+    private SensitivityVariableSet linearGlsk;
 
     private RangeActionSensitivityProvider rangeActionSensitivityProvider;
     private PtdfSensitivityProvider ptdfSensitivityProvider;
@@ -48,7 +49,7 @@ public class SystematicSensitivityResultTest {
         network = NetworkImportsUtil.import12NodesNetwork();
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
 
-        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
+        ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes.xml"))
             .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         // Ra Provider
@@ -66,7 +67,13 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testPostTreatIntensities() {
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), rangeActionSensitivityProvider, ptdfSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network,
+            network.getVariantManager().getWorkingVariantId(),
+            rangeActionSensitivityProvider.getAllFactors(network),
+            ptdfSensitivityProvider.getContingencies(network),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load(),
+            Mockito.mock(ComputationManager.class));
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false);
 
         // Before postTreating intensities
@@ -82,7 +89,13 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testPstResultManipulation() {
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), rangeActionSensitivityProvider, rangeActionSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network,
+            network.getVariantManager().getWorkingVariantId(),
+            rangeActionSensitivityProvider.getAllFactors(network),
+            rangeActionSensitivityProvider.getContingencies(network),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load(),
+            Mockito.mock(ComputationManager.class));
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
 
         // Then
@@ -104,7 +117,13 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testPtdfResultManipulation() {
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), ptdfSensitivityProvider, ptdfSensitivityProvider.getContingencies(network), SensitivityAnalysisParameters.load());
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network,
+            network.getVariantManager().getWorkingVariantId(),
+            ptdfSensitivityProvider.getAllFactors(network),
+            ptdfSensitivityProvider.getContingencies(network),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load(),
+            Mockito.mock(ComputationManager.class));
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
 
         // Then
@@ -123,7 +142,7 @@ public class SystematicSensitivityResultTest {
     public void testNokSensiResult() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
-        Mockito.when(sensitivityAnalysisResult.isOk()).thenReturn(false);
+        //Mockito.when(sensitivityAnalysisResult.isOk()).thenReturn(false);
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
 
         // Then

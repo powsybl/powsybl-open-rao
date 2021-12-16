@@ -13,11 +13,11 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Map;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
@@ -51,7 +51,7 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
 
     @Test
     public void testCommercialFlowsWithCnecAfterDanglingLineContingency() {
-        ZonalData<LinearGlsk> glsk = Mockito.mock(ZonalData.class);
+        ZonalData<SensitivityVariableSet> glsk = Mockito.mock(ZonalData.class);
         ReferenceProgram referenceProgram = Mockito.mock(ReferenceProgram.class);
         XnodeGlskHandler xnodeGlskHandler = Mockito.mock(XnodeGlskHandler.class);
         Network network = mockNetwork();
@@ -60,8 +60,8 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
         FlowCnec preventiveCnec = Mockito.mock(FlowCnec.class);
         FlowCnec cnecAfterClassicContingency = Mockito.mock(FlowCnec.class);
         FlowCnec cnecAfterDanglingContingency = Mockito.mock(FlowCnec.class);
-        LinearGlsk classicLinearGlsk = Mockito.mock(LinearGlsk.class);
-        LinearGlsk virtualHubLinearGlsk = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet classicLinearGlsk = Mockito.mock(SensitivityVariableSet.class);
+        SensitivityVariableSet virtualHubLinearGlsk = Mockito.mock(SensitivityVariableSet.class);
         Mockito.when(xnodeGlskHandler.isLinearGlskValidForCnec(preventiveCnec, classicLinearGlsk)).thenReturn(true);
         Mockito.when(xnodeGlskHandler.isLinearGlskValidForCnec(preventiveCnec, virtualHubLinearGlsk)).thenReturn(true);
         Mockito.when(xnodeGlskHandler.isLinearGlskValidForCnec(cnecAfterClassicContingency, classicLinearGlsk)).thenReturn(true);
@@ -77,8 +77,8 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
         Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(classicLinearGlsk, cnecAfterDanglingContingency)).thenReturn(1.5);
         Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(virtualHubLinearGlsk, cnecAfterDanglingContingency)).thenReturn(4.2);
 
-        Mockito.when(classicLinearGlsk.getGLSKs()).thenReturn(Map.of("gen", 10f));
-        Mockito.when(virtualHubLinearGlsk.getGLSKs()).thenReturn(Map.of("load", 10f));
+        Mockito.when(classicLinearGlsk.getVariables()).thenReturn(Set.of(new WeightedSensitivityVariable("gen", 10f)));
+        Mockito.when(virtualHubLinearGlsk.getVariables()).thenReturn(Set.of(new WeightedSensitivityVariable("load", 10f)));
 
         EICode frCode = new EICode("FR--------------");
         EICode alegroCode = new EICode("Alegro----------");

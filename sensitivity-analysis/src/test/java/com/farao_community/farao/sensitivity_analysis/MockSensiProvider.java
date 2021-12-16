@@ -7,15 +7,12 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.sensitivity.*;
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.functions.BranchIntensity;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 
 import java.util.Collections;
 import java.util.List;
@@ -118,5 +115,10 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
     @Override
     public String getVersion() {
         return "0";
+    }
+
+    @Override
+    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityValueWriter sensitivityValueWriter, List<Contingency> list, List<SensitivityVariableSet> list1, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
+        return null;
     }
 }

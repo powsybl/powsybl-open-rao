@@ -13,12 +13,13 @@ import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdI
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,7 +57,7 @@ public class LoopFlowComputationImplTest {
 
     @Test
     public void calculateLoopFlowTest() {
-        ZonalData<LinearGlsk> glsk = ExampleGenerator.glskProvider();
+        ZonalData<SensitivityVariableSet> glsk = ExampleGenerator.glskProvider();
         ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(crac, glsk);
 
@@ -92,15 +93,19 @@ public class LoopFlowComputationImplTest {
 
     @Test
     public void testIsInMainComponent() {
-        LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         Network network = Mockito.mock(Network.class);
 
-        Mockito.doReturn(Map.of("gen1", 5f)).when(linearGlsk).getGLSKs();
+        Mockito.doReturn(Set.of(new WeightedSensitivityVariable("gen1", 5f))).when(linearGlsk).getVariables();
         Mockito.doReturn(null).when(network).getGenerator("gen1");
         Mockito.doReturn(null).when(network).getLoad("gen1");
         assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
-        Mockito.doReturn(Map.of("gen1", 5f, "load1", 6f, "load2", 6f)).when(linearGlsk).getGLSKs();
+        Mockito.doReturn(Set.of(
+            new WeightedSensitivityVariable("gen1", 5f),
+            new WeightedSensitivityVariable("load1", 6f),
+            new WeightedSensitivityVariable("load2", 6f)))
+            .when(linearGlsk).getVariables();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);
         Load load2 = Mockito.mock(Load.class);
@@ -144,7 +149,7 @@ public class LoopFlowComputationImplTest {
 
     @Test
     public void testIsInMainComponentNullBus() {
-        LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         Network network = Mockito.mock(Network.class);
 
         Terminal.BusView busView = Mockito.mock(Terminal.BusView.class);
@@ -152,7 +157,10 @@ public class LoopFlowComputationImplTest {
         Terminal terminal = Mockito.mock(Terminal.class);
         Mockito.doReturn(busView).when(terminal).getBusView();
 
-        Mockito.doReturn(Map.of("gen1", 5f, "load1", 6f)).when(linearGlsk).getGLSKs();
+        Mockito.doReturn(Set.of(
+            new WeightedSensitivityVariable("gen1", 5f),
+            new WeightedSensitivityVariable("load1", 6f)))
+            .when(linearGlsk).getVariables();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);
         Mockito.doReturn(gen1).when(network).getGenerator("gen1");
@@ -169,7 +177,7 @@ public class LoopFlowComputationImplTest {
 
     @Test
     public void testComputeLoopFlowsWithIsolatedGlsk() {
-        ZonalData<LinearGlsk> glsk = ExampleGenerator.glskProvider();
+        ZonalData<SensitivityVariableSet> glsk = ExampleGenerator.glskProvider();
         ReferenceProgram referenceProgram = ExampleGenerator.referenceProgram();
         SystematicSensitivityResult ptdfsAndFlows = ExampleGenerator.systematicSensitivityResult(crac, glsk);
 

@@ -11,16 +11,15 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFunction;
-import com.powsybl.sensitivity.SensitivityVariable;
-import com.powsybl.sensitivity.factors.*;
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.functions.BranchIntensity;
-import com.powsybl.sensitivity.factors.variables.HvdcSetpointIncrease;
-import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
-import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.SensitivityVariableType;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,27 +39,49 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getCommonFactors(Network network) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<SensitivityFactor> getAdditionalFactors(Network network) {
+    public List<SensitivityFactor> getBasecaseFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
         if (afterContingencyOnly) {
             return factors;
         }
-        SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
-        getSensitivityFunctions(network, null).forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
+        Map<String, SensitivityVariableType> sensitivityVariables = new LinkedHashMap<>();
+        addDefaultSensitivityVariable(network, sensitivityVariables);
+
+        List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = getSensitivityFunctions(network, null);
+
+        //According to ContingencyContext doc, contingencyId should be null for preContingency context
+        ContingencyContext preContingencyContext = new ContingencyContext(null, ContingencyContextType.NONE);
+        sensitivityFunctions.forEach(function -> {
+            sensitivityVariables.entrySet().forEach(variable -> {
+                factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(), false, preContingencyContext));
+            });
+        });
         return factors;
     }
 
     @Override
-    public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
+    public List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies) {
         List<SensitivityFactor> factors = new ArrayList<>();
-        SensitivityVariable defaultSensitivityVariable = defaultSensitivityVariable(network);
-        getSensitivityFunctions(network, contingencyId).forEach(fun -> factors.add(sensitivityFactorMapping(fun, defaultSensitivityVariable)));
+        for (Contingency contingency : contingencies) {
+            String contingencyId = contingency.getId();
+            Map<String, SensitivityVariableType> sensitivityVariables = new LinkedHashMap<>();
+            addDefaultSensitivityVariable(network, sensitivityVariables);
+
+            List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = getSensitivityFunctions(network, contingencyId);
+
+            ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
+            sensitivityFunctions.forEach(function -> {
+                sensitivityVariables.entrySet().forEach(variable -> {
+                    factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(), false, contingencyContext));
+                });
+            });
+        }
         return factors;
+    }
+
+    @Override
+    public List<SensitivityVariableSet> getVariableSets() {
+        return new ArrayList<>();
     }
 
     private boolean willBeKeptInSensi(TwoWindingsTransformer twoWindingsTransformer) {
@@ -73,15 +94,15 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         return gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    SensitivityVariable defaultSensitivityVariable(Network network) {
+    void addDefaultSensitivityVariable(Network network, Map<String, SensitivityVariableType> sensitivityVariables) {
         // First try to get a PST angle
         Optional<TwoWindingsTransformer> optionalPst = network.getTwoWindingsTransformerStream()
             .filter(this::willBeKeptInSensi)
             .findAny();
 
         if (optionalPst.isPresent()) {
-            TwoWindingsTransformer pst = optionalPst.get();
-            return new PhaseTapChangerAngle(pst.getId(), pst.getNameOrId(), pst.getId());
+            sensitivityVariables.put(optionalPst.get().getId(), SensitivityVariableType.TRANSFORMER_PHASE);
+            return;
         }
 
         // If no one found, pick a Generator injection
@@ -90,41 +111,13 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
             .findAny();
 
         if (optionalGen.isPresent()) {
-            Generator gen = optionalGen.get();
-            return new InjectionIncrease(gen.getId(), gen.getNameOrId(), gen.getId());
+            sensitivityVariables.put(optionalGen.get().getId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            return;
         }
         throw new FaraoException(String.format("Unable to create sensitivity factors. Did not find any varying element in network '%s'.", network.getId()));
     }
 
-    SensitivityFactor sensitivityFactorMapping(SensitivityFunction function, SensitivityVariable variable) {
-        if (function instanceof BranchFlow) {
-            if (variable instanceof PhaseTapChangerAngle) {
-                return new BranchFlowPerPSTAngle((BranchFlow) function, (PhaseTapChangerAngle) variable);
-            } else if (variable instanceof InjectionIncrease) {
-                return new BranchFlowPerInjectionIncrease((BranchFlow) function, (InjectionIncrease) variable);
-            } else if (variable instanceof HvdcSetpointIncrease) {
-                return new BranchFlowPerHvdcSetpointIncrease((BranchFlow) function, (HvdcSetpointIncrease) variable);
-            } else {
-                throw new FaraoException(faraoExceptionSensitivityString(function, variable));
-            }
-        } else if (function instanceof BranchIntensity) {
-            if (variable instanceof PhaseTapChangerAngle) {
-                return new BranchIntensityPerPSTAngle((BranchIntensity) function, (PhaseTapChangerAngle) variable);
-            } else if (variable instanceof HvdcSetpointIncrease) {
-                return new BranchIntensityPerHvdcSetpointIncrease((BranchIntensity) function, (HvdcSetpointIncrease) variable);
-            } else {
-                throw new FaraoException(faraoExceptionSensitivityString(function, variable));
-            }
-        } else {
-            throw new FaraoException(faraoExceptionSensitivityString(function, variable));
-        }
-    }
-
-    private String  faraoExceptionSensitivityString(SensitivityFunction function, SensitivityVariable variable) {
-        return "Unable to create sensitivity factor for function of type " + function.getClass().getTypeName() + " and variable of type " + variable.getClass().getTypeName();
-    }
-
-    List<SensitivityFunction> getSensitivityFunctions(Network network, String contingencyId) {
+    List<Pair<String, SensitivityFunctionType> > getSensitivityFunctions(Network network, String contingencyId) {
         Set<NetworkElement> networkElements;
         if (Objects.isNull(contingencyId)) {
             networkElements = cnecs.stream()
@@ -137,24 +130,22 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
                 .map(Cnec::getNetworkElement)
                 .collect(Collectors.toSet());
         }
-        return networkElements.stream()
-            .map(networkElement -> cnecToSensitivityFunctions(network, networkElement))
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+        List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = new ArrayList<>();
+        networkElements.forEach(networkElement -> sensitivityFunctions.addAll(cnecToSensitivityFunctions(network, networkElement)));
+        return sensitivityFunctions;
     }
 
-    private List<SensitivityFunction> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
+    private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, NetworkElement networkElement) {
         String id = networkElement.getId();
-        String name = networkElement.getName();
         Identifiable<?> networkIdentifiable = network.getIdentifiable(id);
 
         if (networkIdentifiable instanceof Branch) {
-            List<SensitivityFunction> sensitivityFunctions = new ArrayList<>();
+            List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = new ArrayList<>();
             if (factorsInMegawatt) {
-                sensitivityFunctions.add(new BranchFlow(id, name, id));
+                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_ACTIVE_POWER));
             }
             if (factorsInAmpere) {
-                sensitivityFunctions.add(new BranchIntensity(id, name, id));
+                sensitivityFunctions.add(Pair.of(id, SensitivityFunctionType.BRANCH_CURRENT));
             }
             return sensitivityFunctions;
         } else {

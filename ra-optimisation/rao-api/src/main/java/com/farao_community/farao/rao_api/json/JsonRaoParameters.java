@@ -19,6 +19,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.sensitivity.json.SensitivityJsonModule;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -170,6 +171,7 @@ public final class JsonRaoParameters {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new RaoParametersJsonModule());
+                .registerModule(new RaoParametersJsonModule())
+                .registerModule(new SensitivityJsonModule());
     }
 }

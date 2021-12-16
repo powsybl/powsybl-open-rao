@@ -17,7 +17,8 @@ import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.mockito.Mockito;
 
 import java.util.*;
@@ -371,16 +372,17 @@ final class ExampleGenerator {
         return crac;
     }
 
-    static ZonalData<LinearGlsk> glskProvider() {
-        HashMap<String, Float> glskBe = new HashMap<>();
-        glskBe.put("Generator BE 1", 0.5f);
-        glskBe.put("Generator BE 2", 0.5f);
+    static ZonalData<SensitivityVariableSet> glskProvider() {
+        List<WeightedSensitivityVariable> glskBe = new ArrayList<>();
+        glskBe.add(new WeightedSensitivityVariable("Generator BE 1", 0.5f));
+        glskBe.add(new WeightedSensitivityVariable("Generator BE 2", 0.5f));
 
-        Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("10YFR-RTE------C", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("10YBE----------2", new LinearGlsk("10YBE----------2", "BE", glskBe));
-        glsks.put("10YCB-GERMANY--8", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("10YNL----------L", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
+        Map<String, SensitivityVariableSet> glsks = new HashMap<>();
+        glsks.put("10YFR-RTE------C",
+            new SensitivityVariableSet("10YFR-RTE------C", List.of(new WeightedSensitivityVariable("Generator FR", 1.))));
+        glsks.put("10YBE----------2", new SensitivityVariableSet("10YBE----------2", glskBe));
+        glsks.put("10YCB-GERMANY--8", new SensitivityVariableSet("10YCB-GERMANY--8", List.of(new WeightedSensitivityVariable("Generator DE", 1.))));
+        glsks.put("10YNL----------L", new SensitivityVariableSet("10YNL----------L", List.of(new WeightedSensitivityVariable("Generator NL", 1.))));
         return new ZonalDataImpl<>(glsks);
     }
 
@@ -397,7 +399,7 @@ final class ExampleGenerator {
         return new ReferenceProgram(exchangeDataList);
     }
 
-    static SystematicSensitivityResult systematicSensitivityResult(Crac crac, ZonalData<LinearGlsk> glsk) {
+    static SystematicSensitivityResult systematicSensitivityResult(Crac crac, ZonalData<SensitivityVariableSet> glsk) {
         SystematicSensitivityResult sensisResults = Mockito.mock(SystematicSensitivityResult.class);
 
         // flow results
@@ -408,10 +410,10 @@ final class ExampleGenerator {
         Mockito.when(sensisResults.getReferenceFlow(crac.getBranchCnec("DE-NL"))).thenReturn(170.);
 
         // sensi results
-        LinearGlsk glskFr = glsk.getData("10YFR-RTE------C");
-        LinearGlsk glskBe = glsk.getData("10YBE----------2");
-        LinearGlsk glskDe = glsk.getData("10YCB-GERMANY--8");
-        LinearGlsk glskNl = glsk.getData("10YNL----------L");
+        SensitivityVariableSet glskFr = glsk.getData("10YFR-RTE------C");
+        SensitivityVariableSet glskBe = glsk.getData("10YBE----------2");
+        SensitivityVariableSet glskDe = glsk.getData("10YCB-GERMANY--8");
+        SensitivityVariableSet glskNl = glsk.getData("10YNL----------L");
 
         Mockito.when(sensisResults.getSensitivityOnFlow(glskFr, crac.getBranchCnec("FR-BE1"))).thenReturn(0.);
         Mockito.when(sensisResults.getSensitivityOnFlow(glskBe, crac.getBranchCnec("FR-BE1"))).thenReturn(-1.5);

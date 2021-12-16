@@ -106,7 +106,7 @@ public class XnodeGlskHandler {
         }
 
         // if the linearGlsk is on a Xnode present in the contingency, the linearGlsk is invalid
-        String glskInjectionId = linearGlsk.getVariables().stream().map(WeightedSensitivityVariable::getId).iterator().next();
+        String glskInjectionId = linearGlsk.getVariablesById().keySet().iterator().next();
 
         if (network.getIdentifiable(glskInjectionId) instanceof Injection<?>) {
             Injection<?> injection = (Injection) network.getIdentifiable(glskInjectionId);

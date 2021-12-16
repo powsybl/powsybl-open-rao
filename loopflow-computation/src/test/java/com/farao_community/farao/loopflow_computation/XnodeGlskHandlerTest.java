@@ -7,14 +7,14 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.Unit;
-import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
 
 import java.util.Set;
@@ -33,7 +33,7 @@ public class XnodeGlskHandlerTest {
         String glskFileName = "glsk_with_virtual_hubs.xml";
 
         Network network = Importers.loadNetwork(networkFileName, getClass().getResourceAsStream("/" + networkFileName));
-        ZonalData<LinearGlsk> glskZonalData = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/" + glskFileName)).getZonalGlsks(network, java.time.Instant.parse("2016-07-28T22:30:00Z"));
+        ZonalData<SensitivityVariableSet> glskZonalData = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/" + glskFileName)).getZonalGlsks(network, java.time.Instant.parse("2016-07-28T22:30:00Z"));
 
         Crac crac = CracFactory.findDefault().create("cracId");
 

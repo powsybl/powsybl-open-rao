@@ -50,20 +50,28 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network) {
+    public List<SensitivityFactor> getBasecaseFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
         for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
-            factors.addAll(cnecSensitivityProvider.getFactors(network));
+            factors.addAll(cnecSensitivityProvider.getBasecaseFactors(network));
         }
         return new ArrayList<>(factors);
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network, List<Contingency> contingencies) {
+    public List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies) {
         List<SensitivityFactor> factors = new ArrayList<>();
         for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
-            factors.addAll(cnecSensitivityProvider.getFactors(network, contingencies));
+            factors.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingencies));
         }
+        return new ArrayList<>(factors);
+    }
+
+    @Override
+    public List<SensitivityFactor> getAllFactors(Network network) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        factors.addAll(getBasecaseFactors(network));
+        factors.addAll(getContingencyFactors(network, getContingencies(network)));
         return new ArrayList<>(factors);
     }
 
