@@ -6,7 +6,8 @@
   "name" : "exhaustiveCracName",
   "networkElementsNamePerId" : {
     "ne5Id" : "ne5Name",
-    "ne2Id" : "ne2Name"
+    "ne2Id" : "ne2Name",
+    "to-close" : "to-close-name"
   },
   "contingencies" : [ {
     "id" : "contingency1Id",
