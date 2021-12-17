@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Set;
+
 import static org.junit.Assert.*;
 
 /**
@@ -23,10 +25,13 @@ import static org.junit.Assert.*;
 public class InjectionSetpointImplTest {
 
     @Test
-    public void getSetpoint() {
+    public void basicMethods() {
         NetworkElement mockedNetworkElement = Mockito.mock(NetworkElement.class);
         InjectionSetpointImpl injectionSetpoint = new InjectionSetpointImpl(mockedNetworkElement, 10.);
         assertEquals(10., injectionSetpoint.getSetpoint(), 1e-3);
+        assertEquals(mockedNetworkElement, injectionSetpoint.getNetworkElement());
+        assertEquals(Set.of(mockedNetworkElement), injectionSetpoint.getNetworkElements());
+        assertTrue(injectionSetpoint.canBeApplied(Mockito.mock(Network.class)));
     }
 
     @Test

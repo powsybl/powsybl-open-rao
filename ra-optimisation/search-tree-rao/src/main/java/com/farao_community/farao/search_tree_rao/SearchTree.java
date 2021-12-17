@@ -245,6 +245,9 @@ public class SearchTree {
         try {
             // We get initial range action results from the previous optimal leaf
             leaf = createChildLeaf(network, naCombination);
+        } catch (FaraoException e) {
+            LOGGER.warn("Could not create child leaf with network action combination {}, the combination will be skipped: {}", naCombination.getConcatenatedId(), e.getMessage());
+            return;
         } catch (NotImplementedException e) {
             networkPool.releaseUsedNetwork(network);
             throw e;

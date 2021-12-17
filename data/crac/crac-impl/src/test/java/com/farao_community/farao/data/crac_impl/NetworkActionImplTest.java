@@ -7,14 +7,17 @@
 
 package com.farao_community.farao.data.crac_impl;
 
+import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.network_action.ElementaryAction;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
+import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -30,13 +33,12 @@ public class NetworkActionImplTest {
 
     @Before
     public void setUp() {
-
         mockedUsageRule1 = Mockito.mock(UsageRule.class);
         mockedUsageRule2 = Mockito.mock(UsageRule.class);
         mockedElementaryAction1 = Mockito.mock(ElementaryAction.class);
         mockedElementaryAction2 = Mockito.mock(ElementaryAction.class);
-        Mockito.when(mockedElementaryAction1.getNetworkElement()).thenReturn(new NetworkElementImpl("ne1"));
-        Mockito.when(mockedElementaryAction2.getNetworkElement()).thenReturn(new NetworkElementImpl("ne2"));
+        Mockito.when(mockedElementaryAction1.getNetworkElements()).thenReturn(Set.of(new NetworkElementImpl("ne1")));
+        Mockito.when(mockedElementaryAction2.getNetworkElements()).thenReturn(Set.of(new NetworkElementImpl("ne2"), new NetworkElementImpl("ne3")));
     }
 
     @Test
@@ -54,7 +56,7 @@ public class NetworkActionImplTest {
         assertEquals("operator", networkAction.getOperator());
         assertEquals(1, networkAction.getUsageRules().size());
         assertEquals(1, networkAction.getElementaryActions().size());
-        assertEquals("ne1", networkAction.getElementaryActions().iterator().next().getNetworkElement().getId());
+        assertEquals("ne1", networkAction.getElementaryActions().iterator().next().getNetworkElements().iterator().next().getId());
     }
 
     @Test
@@ -72,5 +74,28 @@ public class NetworkActionImplTest {
         assertEquals("operator", networkAction.getOperator());
         assertEquals(2, networkAction.getUsageRules().size());
         assertEquals(2, networkAction.getElementaryActions().size());
+        assertEquals(Set.of("ne1", "ne2", "ne3"), networkAction.getNetworkElements().stream().map(Identifiable::getId).collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void testApply() {
+        Network network = Mockito.mock(Network.class);
+        NetworkAction networkAction = new NetworkActionImpl(
+            "id",
+            "name",
+            "operator",
+            List.of(mockedUsageRule1, mockedUsageRule2),
+            Set.of(mockedElementaryAction1, mockedElementaryAction2)
+        );
+
+        Mockito.when(mockedElementaryAction1.canBeApplied(Mockito.any())).thenReturn(false);
+        Mockito.when(mockedElementaryAction2.canBeApplied(Mockito.any())).thenReturn(false);
+        assertFalse(networkAction.apply(network));
+
+        Mockito.when(mockedElementaryAction1.canBeApplied(Mockito.any())).thenReturn(true);
+        assertFalse(networkAction.apply(network));
+
+        Mockito.when(mockedElementaryAction2.canBeApplied(Mockito.any())).thenReturn(true);
+        assertTrue(networkAction.apply(network));
     }
 }
