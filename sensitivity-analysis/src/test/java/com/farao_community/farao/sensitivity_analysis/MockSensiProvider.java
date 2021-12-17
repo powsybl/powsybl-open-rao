@@ -10,15 +10,14 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.sensitivity.*;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -27,85 +26,92 @@ import java.util.stream.Collectors;
 public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<SensitivityAnalysisResult> run(Network network, String s, SensitivityFactorsProvider sensitivityFactorsProvider, List<Contingency> contingencies, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager) {
+    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityValueWriter sensitivityValueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
+        return CompletableFuture.runAsync(() -> {
+            TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
+            if (pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) {
+                // used for most of the tests
+                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityValueWriter, contingencies);
+            } else {
+                // used for tests with already applied RangeActions in Curative states
+                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityValueWriter, contingencies);
+            }
+        }, computationManager.getExecutor());
+    }
 
-        TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
+    private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies) {
+        AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
+        factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
+            if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
+                if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                    valueWriter.write(factorIndex.get(), -1, 0.5, 10);
+                } else if (functionType == SensitivityFunctionType.BRANCH_CURRENT && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                    valueWriter.write(factorIndex.get(), -1, 0.25, 25);
+                } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
+                    valueWriter.write(factorIndex.get(), -1, 0.14, 10);
+                } else {
+                    throw new AssertionError();
+                }
+            }
+            factorIndex.set(factorIndex.get() + 1);
+        });
 
-        if (pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) {
-            // used for most of the tests
-            return getResultsIfPstIsAtNeutralTap(network, sensitivityFactorsProvider, contingencies);
-        } else {
-            // used for tests with already applied RangeActions in Curative states
-            return getResultsIfPstIsNotAtNeutralTap(network, sensitivityFactorsProvider, contingencies);
+        for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
+            int finalContingencyIndex = contingencyIndex;
+            AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
+            factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
+                if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
+                    if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, -5, -20);
+                    } else if (functionType == SensitivityFunctionType.BRANCH_CURRENT && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 5, 200);
+                    } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
+                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 6, -20);
+                    } else {
+                        throw new AssertionError();
+                    }
+                }
+                factorIndexContingency.set(factorIndexContingency.get() + 1);
+            });
         }
     }
 
-    private CompletableFuture<SensitivityAnalysisResult> getResultsIfPstIsAtNeutralTap(Network network, SensitivityFactorsProvider sensitivityFactorsProvider, List<Contingency> contingencies) {
-        List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getAdditionalFactors(network).stream()
-            .map(factor -> {
-                if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                    return new SensitivityValue(factor, 0.5, 10, 0);
-                } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                    return new SensitivityValue(factor, 0.25, 25, 0);
-                } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
-                    return new SensitivityValue(factor, 0.140, 10, 0);
+    private void writeResultsIfPstIsNotAtNeutralTap(SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies) {
+        AtomicReference<Integer> factorIndex = new AtomicReference<>(0);
+        factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
+            if (contingencyContext.getContextType() == ContingencyContextType.NONE || contingencyContext.getContextType() == ContingencyContextType.ALL) {
+                if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                    valueWriter.write(factorIndex.get(), -1, 1.5, 110);
+                } else if (functionType == SensitivityFunctionType.BRANCH_CURRENT && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                    valueWriter.write(factorIndex.get(), -1, 1.25, 1100);
+                } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
+                    valueWriter.write(factorIndex.get(), -1, 1.14, 110);
                 } else {
                     throw new AssertionError();
                 }
-            })
-            .collect(Collectors.toList());
-        Map<String, List<SensitivityValue>> contingenciesValues = contingencies.stream()
-            .collect(Collectors.toMap(
-                Contingency::getId,
-                contingency -> sensitivityFactorsProvider.getAdditionalFactors(network, contingency.getId()).stream()
-                    .map(factor -> {
-                        if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                            return new SensitivityValue(factor, -5, -20, 0);
-                        } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                            return new SensitivityValue(factor, 5, 200, 0);
-                        } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
-                            return new SensitivityValue(factor, 6, -20, 0);
-                        } else {
-                            throw new AssertionError();
-                        }
-                    })
-                    .collect(Collectors.toList())
-            ));
-        return CompletableFuture.completedFuture(new SensitivityAnalysisResult(true, Collections.emptyMap(), "", nStateValues, contingenciesValues));
-    }
+            }
+            factorIndex.set(factorIndex.get() + 1);
+        });
 
-    private CompletableFuture<SensitivityAnalysisResult> getResultsIfPstIsNotAtNeutralTap(Network network, SensitivityFactorsProvider sensitivityFactorsProvider, List<Contingency> contingencies) {
-        List<SensitivityValue> nStateValues = sensitivityFactorsProvider.getAdditionalFactors(network).stream()
-            .map(factor -> {
-                if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                    return new SensitivityValue(factor, 1.5, 110, 0);
-                } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                    return new SensitivityValue(factor, 1.25, 1100, 0);
-                } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
-                    return new SensitivityValue(factor, 1.140, 110, 0);
-                } else {
-                    throw new AssertionError();
+        for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
+            int finalContingencyIndex = contingencyIndex;
+            AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
+            factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
+                if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
+                    if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, -2.5, -40);
+                    } else if (functionType == SensitivityFunctionType.BRANCH_CURRENT && variableType == SensitivityVariableType.TRANSFORMER_PHASE) {
+                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 4.5, 180);
+                    } else if (functionType == SensitivityFunctionType.BRANCH_ACTIVE_POWER && variableType == SensitivityVariableType.INJECTION_ACTIVE_POWER) {
+                        valueWriter.write(factorIndexContingency.get(), finalContingencyIndex, 6.6, -40);
+                    } else {
+                        throw new AssertionError();
+                    }
                 }
-            })
-            .collect(Collectors.toList());
-        Map<String, List<SensitivityValue>> contingenciesValues = contingencies.stream()
-            .collect(Collectors.toMap(
-                Contingency::getId,
-                contingency -> sensitivityFactorsProvider.getAdditionalFactors(network, contingency.getId()).stream()
-                    .map(factor -> {
-                        if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                            return new SensitivityValue(factor, -2.5, -40, 0);
-                        } else if (factor.getFunction() instanceof BranchIntensity && factor.getVariable() instanceof PhaseTapChangerAngle) {
-                            return new SensitivityValue(factor, 4.5, 180, 0);
-                        } else if (factor.getFunction() instanceof BranchFlow && factor.getVariable() instanceof LinearGlsk) {
-                            return new SensitivityValue(factor, 6.6, -40, 0);
-                        } else {
-                            throw new AssertionError();
-                        }
-                    })
-                    .collect(Collectors.toList())
-            ));
-        return CompletableFuture.completedFuture(new SensitivityAnalysisResult(true, Collections.emptyMap(), "", nStateValues, contingenciesValues));    }
+                factorIndexContingency.set(factorIndexContingency.get() + 1);
+            });
+        }
+    }
 
     @Override
     public String getName() {
@@ -117,8 +123,4 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
         return "0";
     }
 
-    @Override
-    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityValueWriter sensitivityValueWriter, List<Contingency> list, List<SensitivityVariableSet> list1, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, Reporter reporter) {
-        return null;
-    }
 }

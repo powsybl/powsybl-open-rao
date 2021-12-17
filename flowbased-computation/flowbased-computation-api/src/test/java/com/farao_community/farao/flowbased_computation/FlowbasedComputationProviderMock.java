@@ -12,7 +12,7 @@ import com.farao_community.farao.data.flowbased_domain.DataDomain;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.mockito.Mockito;
 
 import java.util.concurrent.CompletableFuture;
@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 public class FlowbasedComputationProviderMock implements FlowbasedComputationProvider {
 
     @Override
-    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, RaoResult raoResult, ZonalData<LinearGlsk> glsk, FlowbasedComputationParameters parameters) {
+    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters) {
         return CompletableFuture.completedFuture(new FlowbasedComputationResultImpl(FlowbasedComputationResult.Status.SUCCESS, Mockito.mock(DataDomain.class)));
     }
 

@@ -27,7 +27,7 @@ import com.farao_community.farao.rao_commons.objective_function_evaluator.Object
 import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -610,7 +610,7 @@ public class LeafTest {
 
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
-        LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         double expectedSensi = 3.;
 
         Mockito.when(prePerimeterResult.getSensitivityValue(flowCnec, rangeAction, Unit.MEGAWATT)).thenReturn(expectedSensi);
@@ -631,7 +631,7 @@ public class LeafTest {
 
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         RangeAction rangeAction = Mockito.mock(RangeAction.class);
-        LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         double expectedSensi = 3.;
 
         Mockito.when(linearOptimizationResult.getSensitivityValue(flowCnec, rangeAction, Unit.MEGAWATT)).thenReturn(expectedSensi);
@@ -654,7 +654,7 @@ public class LeafTest {
     public void getSensitivityValueOnLinearGlskBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
-        LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         leaf.getSensitivityValue(flowCnec, linearGlsk, Unit.MEGAWATT);
     }
 

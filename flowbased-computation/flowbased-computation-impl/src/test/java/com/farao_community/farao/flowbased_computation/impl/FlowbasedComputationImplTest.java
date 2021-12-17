@@ -22,7 +22,7 @@ import com.farao_community.farao.flowbased_computation.FlowbasedComputationParam
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationProvider;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class FlowbasedComputationImplTest {
     private FlowbasedComputationProvider flowBasedComputationProvider;
     private Network network;
     private Crac crac;
-    private ZonalData<LinearGlsk> glsk;
+    private ZonalData<SensitivityVariableSet> glsk;
     private FlowbasedComputationParameters parameters;
 
     @Before

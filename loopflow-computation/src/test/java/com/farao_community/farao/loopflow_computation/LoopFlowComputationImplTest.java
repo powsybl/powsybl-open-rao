@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -96,16 +97,16 @@ public class LoopFlowComputationImplTest {
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         Network network = Mockito.mock(Network.class);
 
-        Mockito.doReturn(Set.of(new WeightedSensitivityVariable("gen1", 5f))).when(linearGlsk).getVariables();
+        Mockito.doReturn(Map.of("gen1", new WeightedSensitivityVariable("gen1", 5f))).when(linearGlsk).getVariablesById();
         Mockito.doReturn(null).when(network).getGenerator("gen1");
         Mockito.doReturn(null).when(network).getLoad("gen1");
         assertThrows(FaraoException.class, () -> LoopFlowComputationImpl.isInMainComponent(linearGlsk, network));
 
-        Mockito.doReturn(Set.of(
-            new WeightedSensitivityVariable("gen1", 5f),
-            new WeightedSensitivityVariable("load1", 6f),
-            new WeightedSensitivityVariable("load2", 6f)))
-            .when(linearGlsk).getVariables();
+        Mockito.doReturn(Map.of(
+            "gen1", new WeightedSensitivityVariable("gen1", 5f),
+            "load1", new WeightedSensitivityVariable("load1", 6f),
+            "load2", new WeightedSensitivityVariable("load2", 6f)))
+            .when(linearGlsk).getVariablesById();
         Generator gen1 = Mockito.mock(Generator.class);
         Load load1 = Mockito.mock(Load.class);
         Load load2 = Mockito.mock(Load.class);

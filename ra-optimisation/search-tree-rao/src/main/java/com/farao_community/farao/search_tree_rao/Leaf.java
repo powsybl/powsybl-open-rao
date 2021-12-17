@@ -19,7 +19,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.rao_commons.result_api.*;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -399,7 +399,7 @@ class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
         if (status == Status.EVALUATED) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, linearGlsk, unit);
         } else if (status == Status.OPTIMIZED) {

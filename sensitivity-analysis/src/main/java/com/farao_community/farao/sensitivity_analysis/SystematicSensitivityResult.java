@@ -64,6 +64,8 @@ public class SystematicSensitivityResult {
             this.status = SensitivityComputationStatus.FAILURE;
             return this;
         }
+        // status set to failure initially, and set to success if we find at least one non NaN value;
+        this.status =  SensitivityComputationStatus.FAILURE;
 
         Map<String, StateResult> contingencyResultsToFill = afterCra ? postCraResults : postContingencyResults;
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors()));
@@ -105,6 +107,8 @@ public class SystematicSensitivityResult {
 
         if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
             reference = 0.;
+        } else {
+            this.status = SensitivityComputationStatus.SUCCESS;
         }
 
         if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER)) {

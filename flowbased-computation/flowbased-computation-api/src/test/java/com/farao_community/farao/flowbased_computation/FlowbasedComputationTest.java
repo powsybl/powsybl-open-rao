@@ -10,7 +10,7 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,7 +28,7 @@ public class FlowbasedComputationTest {
 
     private Crac crac;
 
-    private ZonalData<LinearGlsk> glsk;
+    private ZonalData<SensitivityVariableSet> glsk;
 
     @Before
     public void setUp() {
@@ -49,7 +49,7 @@ public class FlowbasedComputationTest {
         assertNotNull(resultAsync);
     }
 
-    static ZonalData<LinearGlsk> glskProvider() {
+    static ZonalData<SensitivityVariableSet> glskProvider() {
         return new ZonalDataImpl<>(new HashMap<>());
     }
 }

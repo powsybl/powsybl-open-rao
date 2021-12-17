@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import static java.lang.String.format;
 
@@ -53,7 +53,7 @@ public class SensitivityResultImpl implements SensitivityResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, flowCnec);
         } else {

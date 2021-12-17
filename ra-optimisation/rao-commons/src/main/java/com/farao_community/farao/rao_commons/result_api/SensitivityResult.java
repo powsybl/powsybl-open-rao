@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -22,5 +22,5 @@ public interface SensitivityResult {
 
     double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit);
 
-    double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit);
+    double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit);
 }

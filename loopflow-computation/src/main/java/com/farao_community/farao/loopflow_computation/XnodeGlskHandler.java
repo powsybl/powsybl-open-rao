@@ -13,7 +13,6 @@ import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualH
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -79,7 +79,7 @@ public class SystematicSensitivityInterfaceTest {
             .withDefaultParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .build();
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, computationManager);
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -108,7 +108,7 @@ public class SystematicSensitivityInterfaceTest {
 
         // run - expected failure
         try {
-            systematicSensitivityInterface.run(network, computationManager);
+            systematicSensitivityInterface.run(network);
             fail();
         } catch (SensitivityAnalysisException e) {
             assertTrue(e.getMessage().contains("Sensitivity analysis failed with default parameters. No fallback parameters available."));
@@ -118,10 +118,10 @@ public class SystematicSensitivityInterfaceTest {
     @Test
     public void testRunDefaultConfigFailsButFallbackOk() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
@@ -131,7 +131,7 @@ public class SystematicSensitivityInterfaceTest {
             .build();
 
         // run
-        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network, computationManager);
+        SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
 
         // assert results
         assertNotNull(systematicSensitivityAnalysisResult);
@@ -150,10 +150,10 @@ public class SystematicSensitivityInterfaceTest {
     @Test
     public void testRunDefaultConfigAndFallbackFail() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
@@ -164,7 +164,7 @@ public class SystematicSensitivityInterfaceTest {
 
         // run - expected failure
         try {
-            systematicSensitivityInterface.run(network, computationManager);
+            systematicSensitivityInterface.run(network);
             fail();
         } catch (SensitivityAnalysisException e) {
             assertTrue(e.getMessage().contains("Sensitivity analysis failed with all available sensitivity parameters."));

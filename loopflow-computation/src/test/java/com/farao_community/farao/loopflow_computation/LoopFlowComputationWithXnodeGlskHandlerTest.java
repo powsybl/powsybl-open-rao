@@ -18,6 +18,7 @@ import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Map;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
@@ -77,8 +78,8 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
         Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(classicLinearGlsk, cnecAfterDanglingContingency)).thenReturn(1.5);
         Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(virtualHubLinearGlsk, cnecAfterDanglingContingency)).thenReturn(4.2);
 
-        Mockito.when(classicLinearGlsk.getVariables()).thenReturn(Set.of(new WeightedSensitivityVariable("gen", 10f)));
-        Mockito.when(virtualHubLinearGlsk.getVariables()).thenReturn(Set.of(new WeightedSensitivityVariable("load", 10f)));
+        Mockito.when(classicLinearGlsk.getVariablesById()).thenReturn(Map.of("gen", new WeightedSensitivityVariable("gen", 10f)));
+        Mockito.when(virtualHubLinearGlsk.getVariablesById()).thenReturn(Map.of("load", new WeightedSensitivityVariable("load", 10f)));
 
         EICode frCode = new EICode("FR--------------");
         EICode alegroCode = new EICode("Alegro----------");

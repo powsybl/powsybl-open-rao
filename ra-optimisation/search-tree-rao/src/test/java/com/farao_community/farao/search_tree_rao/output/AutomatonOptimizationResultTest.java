@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -185,7 +185,7 @@ public class AutomatonOptimizationResultTest {
 
     @Test
     public void testGetSensitivityOnLinearGlsk() {
-        LinearGlsk linearGlsk = mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk = mock(SensitivityVariableSet.class);
         when(postAutoSensitivity.getSensitivityValue(cnec1, linearGlsk, MEGAWATT)).thenReturn(100.);
         when(postAutoSensitivity.getSensitivityValue(cnec1, linearGlsk, AMPERE)).thenReturn(1000.);
         when(postAutoSensitivity.getSensitivityValue(cnec2, linearGlsk, MEGAWATT)).thenReturn(200.);

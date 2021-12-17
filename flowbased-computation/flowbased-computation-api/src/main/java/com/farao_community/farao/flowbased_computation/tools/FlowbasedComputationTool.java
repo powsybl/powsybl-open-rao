@@ -24,7 +24,7 @@ import com.google.auto.service.AutoService;
 
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -168,7 +168,7 @@ public class FlowbasedComputationTool implements Tool {
             cracCleaner.enableFeature(CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES);
             cracCleaner.cleanCrac(crac, network);
         }
-        ZonalData<LinearGlsk> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);
+        ZonalData<SensitivityVariableSet> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             JsonFlowbasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));

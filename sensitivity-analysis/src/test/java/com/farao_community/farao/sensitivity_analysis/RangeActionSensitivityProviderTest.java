@@ -203,7 +203,6 @@ public class RangeActionSensitivityProviderTest {
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
     }
 
-    @Test(expected = FaraoException.class)
     public void cracWithoutRangeActionNorPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();

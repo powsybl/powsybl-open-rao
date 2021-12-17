@@ -20,7 +20,6 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -61,7 +59,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
             .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
             .build();
 
-        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network, computationManager);
+        SystematicSensitivityResult ptdfsAndRefFlows = systematicSensitivityInterface.run(network);
 
         return buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndRefFlows, flowCnecs);
     }

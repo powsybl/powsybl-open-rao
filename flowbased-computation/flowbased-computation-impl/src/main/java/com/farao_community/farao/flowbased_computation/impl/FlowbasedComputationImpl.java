@@ -23,7 +23,8 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInter
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
     }
 
     @Override
-    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, RaoResult raoResult, ZonalData<LinearGlsk> glsk, FlowbasedComputationParameters parameters) {
+    public CompletableFuture<FlowbasedComputationResult> run(Network network, Crac crac, RaoResult raoResult, ZonalData<SensitivityVariableSet> glsk, FlowbasedComputationParameters parameters) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(crac);
         Objects.requireNonNull(glsk);
@@ -128,7 +129,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         }
     }
 
-    private DataDomain buildFlowbasedDomain(Crac crac, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
+    private DataDomain buildFlowbasedDomain(Crac crac, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
         return DataDomain.builder()
                 .id(RandomizedString.getRandomizedString())
                 .name("FlowBased results")
@@ -140,38 +141,38 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 .build();
     }
 
-    private List<DataGlskFactors> buildDataGlskFactors(ZonalData<LinearGlsk> glsk) {
+    private List<DataGlskFactors> buildDataGlskFactors(ZonalData<SensitivityVariableSet> glsk) {
         List<DataGlskFactors> glskFactors = new ArrayList<>();
-        glsk.getDataPerZone().forEach((s, linearGlsk) -> glskFactors.add(new DataGlskFactors(s, linearGlsk.getGLSKs())));
+        glsk.getDataPerZone().forEach((s, linearGlsk) -> glskFactors.add(new DataGlskFactors(s, linearGlsk.getVariables().stream().collect(Collectors.toMap(WeightedSensitivityVariable::getId, variable -> (float) variable.getWeight(), (o1, o2) -> o1)))));
         return glskFactors;
     }
 
-    private List<DataPostContingency> buildDataPostContingencies(Crac crac, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
+    private List<DataPostContingency> buildDataPostContingencies(Crac crac, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
         List<DataPostContingency> postContingencyList = new ArrayList<>();
         crac.getContingencies().forEach(contingency -> postContingencyList.add(buildDataPostContingency(crac, contingency, glsk, result)));
         return postContingencyList;
     }
 
-    private DataPostContingency buildDataPostContingency(Crac crac, Contingency contingency, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
+    private DataPostContingency buildDataPostContingency(Crac crac, Contingency contingency, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
         return DataPostContingency.builder()
                 .contingencyId(contingency.getId())
                 .dataMonitoredBranches(buildDataMonitoredBranches(crac, crac.getStates(contingency), glsk, result))
                 .build();
     }
 
-    private DataPreContingency buildDataPreContingency(Crac crac, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
+    private DataPreContingency buildDataPreContingency(Crac crac, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
         return DataPreContingency.builder()
                 .dataMonitoredBranches(buildDataMonitoredBranches(crac, Set.of(crac.getPreventiveState()), glsk, result))
                 .build();
     }
 
-    private List<DataMonitoredBranch> buildDataMonitoredBranches(Crac crac, Set<State> states, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
+    private List<DataMonitoredBranch> buildDataMonitoredBranches(Crac crac, Set<State> states, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
         List<DataMonitoredBranch> branchResultList = new ArrayList<>();
         states.forEach(state -> crac.getFlowCnecs(state).forEach(cnec -> branchResultList.add(buildDataMonitoredBranch(cnec, glsk, result))));
         return branchResultList;
     }
 
-    private DataMonitoredBranch buildDataMonitoredBranch(FlowCnec cnec, ZonalData<LinearGlsk> glsk, SystematicSensitivityResult result) {
+    private DataMonitoredBranch buildDataMonitoredBranch(FlowCnec cnec, ZonalData<SensitivityVariableSet> glsk, SystematicSensitivityResult result) {
         double maxThreshold = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY);
         double minThreshold = cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         return new DataMonitoredBranch(
@@ -186,8 +187,8 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         );
     }
 
-    private List<DataPtdfPerCountry> buildDataPtdfPerCountry(FlowCnec cnec, ZonalData<LinearGlsk> glskProvider, SystematicSensitivityResult result) {
-        Map<String, LinearGlsk> glsks = glskProvider.getDataPerZone();
+    private List<DataPtdfPerCountry> buildDataPtdfPerCountry(FlowCnec cnec, ZonalData<SensitivityVariableSet> glskProvider, SystematicSensitivityResult result) {
+        Map<String, SensitivityVariableSet> glsks = glskProvider.getDataPerZone();
         return glsks.values().stream()
                 .map(glsk ->
                         new DataPtdfPerCountry(

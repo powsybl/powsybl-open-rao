@@ -12,7 +12,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 
 import java.util.*;
 
@@ -261,12 +262,12 @@ final class ExampleGenerator {
         return CracImporters.importCrac(fileName, ExampleGenerator.class.getResourceAsStream("/" + fileName));
     }
 
-    static ZonalData<LinearGlsk> glskProvider() {
-        Map<String, LinearGlsk> glsks = new HashMap<>();
-        glsks.put("FR", new LinearGlsk("10YFR-RTE------C", "FR", Collections.singletonMap("Generator FR", 1.f)));
-        glsks.put("BE", new LinearGlsk("10YBE----------2", "BE", Collections.singletonMap("Generator BE", 1.f)));
-        glsks.put("DE", new LinearGlsk("10YCB-GERMANY--8", "DE", Collections.singletonMap("Generator DE", 1.f)));
-        glsks.put("NL", new LinearGlsk("10YNL----------L", "NL", Collections.singletonMap("Generator NL", 1.f)));
+    static ZonalData<SensitivityVariableSet> glskProvider() {
+        Map<String, SensitivityVariableSet> glsks = new HashMap<>();
+        glsks.put("FR", new SensitivityVariableSet("10YFR-RTE------C", List.of(new WeightedSensitivityVariable("Generator FR", 1.f))));
+        glsks.put("BE", new SensitivityVariableSet("10YBE----------2", List.of(new WeightedSensitivityVariable("Generator BE", 1.f))));
+        glsks.put("DE", new SensitivityVariableSet("10YCB-GERMANY--8", List.of(new WeightedSensitivityVariable("Generator DE", 1.f))));
+        glsks.put("NL", new SensitivityVariableSet("10YNL----------L", List.of(new WeightedSensitivityVariable("Generator NL", 1.f))));
         return new ZonalDataImpl<>(glsks);
     }
 

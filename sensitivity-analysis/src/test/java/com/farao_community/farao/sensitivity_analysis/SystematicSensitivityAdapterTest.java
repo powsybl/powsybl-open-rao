@@ -12,11 +12,9 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.Set;
 
@@ -33,7 +31,7 @@ public class SystematicSensitivityAdapterTest {
         Crac crac = CommonCracCreation.createWithPreventivePstRange();
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), Mockito.mock(ComputationManager.class));
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters());
 
         // "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase")), 1e-3);
@@ -77,7 +75,7 @@ public class SystematicSensitivityAdapterTest {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", Instant.CURATIVE), crac.getPstRangeAction("pst"), -3.1);
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters(), Mockito.mock(ComputationManager.class));
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, new SensitivityAnalysisParameters());
 
         // after initial state or contingency without CRA, "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase")), 1e-3);

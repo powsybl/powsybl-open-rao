@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -54,7 +54,7 @@ public class SensitivityResultImplTest {
                 systematicSensitivityResult
         );
 
-        LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec)).thenReturn(8.);
 

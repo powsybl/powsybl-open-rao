@@ -19,7 +19,7 @@ import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -55,7 +55,7 @@ public class RaoUtilTest {
     }
 
     private void addGlskProvider() {
-        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+        ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
                 .getZonalGlsks(network);
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
                 .withNetworkVariantId(variantId)

@@ -17,7 +17,7 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.farao_community.farao.search_tree_rao.output.PerimeterResult;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.List;
 import java.util.Map;
@@ -180,7 +180,7 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
         return 0;
     }
 }

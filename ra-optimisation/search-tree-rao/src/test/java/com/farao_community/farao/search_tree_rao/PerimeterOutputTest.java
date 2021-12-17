@@ -17,7 +17,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -250,7 +250,7 @@ public class PerimeterOutputTest {
 
     @Test
     public void testGetSensitivityValueOnGlsk() {
-        assertEquals(0., perimeterOutput.getSensitivityValue(flowCnec1, mock(LinearGlsk.class), Unit.MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(0., perimeterOutput.getSensitivityValue(flowCnec1, mock(LinearGlsk.class), Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(0., perimeterOutput.getSensitivityValue(flowCnec1, mock(SensitivityVariableSet.class), Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(0., perimeterOutput.getSensitivityValue(flowCnec1, mock(SensitivityVariableSet.class), Unit.AMPERE), DOUBLE_TOLERANCE);
     }
 }

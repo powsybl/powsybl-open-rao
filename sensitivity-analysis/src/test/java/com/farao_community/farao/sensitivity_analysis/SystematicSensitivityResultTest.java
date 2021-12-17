@@ -7,7 +7,6 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -67,13 +66,11 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testPostTreatIntensities() {
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network,
-            network.getVariantManager().getWorkingVariantId(),
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
             ptdfSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
-            SensitivityAnalysisParameters.load(),
-            Mockito.mock(ComputationManager.class));
+            SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false);
 
         // Before postTreating intensities
@@ -89,13 +86,11 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testPstResultManipulation() {
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network,
-            network.getVariantManager().getWorkingVariantId(),
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
             rangeActionSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
-            SensitivityAnalysisParameters.load(),
-            Mockito.mock(ComputationManager.class));
+            SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
 
         // Then
@@ -117,13 +112,11 @@ public class SystematicSensitivityResultTest {
     @Test
     public void testPtdfResultManipulation() {
         // When
-        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.run(network,
-            network.getVariantManager().getWorkingVariantId(),
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             ptdfSensitivityProvider.getAllFactors(network),
             ptdfSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
-            SensitivityAnalysisParameters.load(),
-            Mockito.mock(ComputationManager.class));
+            SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
 
         // Then
