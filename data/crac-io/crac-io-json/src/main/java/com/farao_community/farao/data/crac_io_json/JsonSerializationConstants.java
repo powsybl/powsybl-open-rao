@@ -138,7 +138,6 @@ public final class JsonSerializationConstants {
     }
 
     // serialization of enums
-
     public static String serializeInstant(Instant instant) {
         switch (instant) {
             case PREVENTIVE:

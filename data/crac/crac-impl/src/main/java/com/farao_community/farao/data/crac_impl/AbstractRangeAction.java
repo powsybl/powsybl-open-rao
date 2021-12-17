@@ -44,7 +44,8 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
         AbstractRangeAction otherAbstractRangeAction = (AbstractRangeAction) o;
 
         return super.equals(o)
-                && groupId.equals(otherAbstractRangeAction.getGroupId().orElse(null));
+                && ((groupId == null && otherAbstractRangeAction.getGroupId().isEmpty())
+                || groupId.equals(otherAbstractRangeAction.getGroupId().orElse(null)));
     }
 
     @Override

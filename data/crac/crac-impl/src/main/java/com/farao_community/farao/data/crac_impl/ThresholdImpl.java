@@ -53,4 +53,34 @@ public class ThresholdImpl implements Threshold {
         // So that it returns Optional.empty() if max value is null or NaN
         return Optional.ofNullable(Double.isNaN(getMax()) ? null : max);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ThresholdImpl otherT = (ThresholdImpl) o;
+        return ((unit == null && otherT.getUnit() == null) || (unit.equals(otherT.getUnit())))
+                && equalsDouble(max, otherT.getMax())
+                && equalsDouble(min, otherT.getMin());
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash = 31 * hash + unit.hashCode();
+        hash = 31 * hash + (Double.isNaN(getMin()) ? 0 : (int) getMin());
+        hash = 31 * hash + (Double.isNaN(getMax()) ? 0 : (int) getMax());
+        return hash;
+    }
+
+    private boolean equalsDouble(Double d1, Double d2) {
+        if (d1 == null || Double.isNaN(d1)) {
+            return d2 == null || Double.isNaN(d2);
+        }
+        return d1 - d2 < 1e-6;
+    }
 }
