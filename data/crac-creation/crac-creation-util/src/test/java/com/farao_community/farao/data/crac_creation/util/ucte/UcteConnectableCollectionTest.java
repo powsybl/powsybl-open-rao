@@ -377,11 +377,11 @@ public class UcteConnectableCollectionTest {
         init("TestCase_severalVoltageLevels_Xnodes_8characters.uct");
 
         UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "1", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
-        assertFalse(result.hasMatched());
+        assertTrue(result.hasMatched());
         Assert.assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
 
         result = ucteConnectableCollection.lookForConnectable("DDE1AA1*", "DDE2AA1*", "E_NAME_1", COMPLETE_WITH_WHITESPACES, ConnectableType.INTERNAL_LINE);
-        assertFalse(result.hasMatched());
+        assertTrue(result.hasMatched());
         Assert.assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
     }
 }
