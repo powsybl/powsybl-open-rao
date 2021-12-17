@@ -74,6 +74,10 @@ public final class NetworkActionArrayDeserializer {
                         jsonParser.nextToken();
                         InjectionSetpointArrayDeserializer.deserialize(jsonParser, adder, networkElementsNamesPerId);
                         break;
+                    case SWITCH_PAIRS:
+                        jsonParser.nextToken();
+                        SwitchPairArrayDeserializer.deserialize(jsonParser, adder, networkElementsNamesPerId);
+                        break;
                     case EXTENSIONS:
                         jsonParser.nextToken();
                         extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());

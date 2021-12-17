@@ -12,6 +12,9 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * Injection setpoint remedial action: set a load or generator at a given value.
  *
@@ -30,6 +33,12 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public double getSetpoint() {
         return setpoint;
+    }
+
+    @Override
+    public boolean canBeApplied(Network network) {
+        // TODO : we can return false if the network element is already at the target setpoint
+        return true;
     }
 
     @Override
@@ -52,6 +61,11 @@ public final class InjectionSetpointImpl implements InjectionSetpoint {
     @Override
     public NetworkElement getNetworkElement() {
         return networkElement;
+    }
+
+    @Override
+    public Set<NetworkElement> getNetworkElements() {
+        return Collections.singleton(networkElement);
     }
 
     @Override

@@ -51,6 +51,11 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
     }
 
     @Override
+    public SwitchPairAdder newSwitchPair() {
+        return new SwitchPairAdderImpl(this);
+    }
+
+    @Override
     public NetworkAction add() {
         checkId();
 

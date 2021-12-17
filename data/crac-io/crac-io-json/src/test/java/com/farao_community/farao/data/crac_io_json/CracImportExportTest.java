@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
 import com.farao_community.farao.data.crac_api.range_action.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
@@ -133,6 +134,25 @@ public class CracImportExportTest {
                 .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
                 .add();
 
+        // network action with one switch pair
+        crac.newNetworkAction().withId("switchPairRaId")
+                .withName("switchPairRaName")
+                .withOperator("RTE")
+                .newSwitchPair().withSwitchToOpen("to-open").withSwitchToClose("to-close", "to-close-name").add()
+                .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+                .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
+                .add();
+
+        // network action with two switch pairs
+        crac.newNetworkAction().withId("switchPairRaId2")
+            .withName("switchPairRaName2")
+            .withOperator("RTE")
+            .newSwitchPair().withSwitchToOpen("to-open").withSwitchToClose("to-close", "to-close-name").add()
+            .newSwitchPair().withSwitchToOpen("to-open-2", "to-open-name-2").withSwitchToClose("to-close-2").add()
+            .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+            .newOnStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency(contingency1Id).withInstant(Instant.CURATIVE).add()
+            .add();
+
         // range actions
         crac.newPstRangeAction().withId("pstRangeId")
                 .withName("pstRangeName")
@@ -180,7 +200,7 @@ public class CracImportExportTest {
         assertEquals(2, importedCrac.getContingencies().size());
         assertEquals(6, importedCrac.getFlowCnecs().size());
         assertEquals(4, importedCrac.getRangeActions().size());
-        assertEquals(3, importedCrac.getNetworkActions().size());
+        assertEquals(5, importedCrac.getNetworkActions().size());
         assertEquals(4, importedCrac.getFlowCnec("cnec2prev").getThresholds().size());
         assertFalse(importedCrac.getFlowCnec("cnec3prevId").isOptimized());
         assertTrue(importedCrac.getFlowCnec("cnec4prevId").isMonitored());
@@ -216,5 +236,15 @@ public class CracImportExportTest {
         OnFlowConstraint onFlowConstraint2 = (OnFlowConstraint) importedCrac.getHvdcRangeAction("hvdcRangeId2").getUsageRules().get(0);
         assertEquals(Instant.PREVENTIVE, onFlowConstraint2.getInstant());
         assertSame(importedCrac.getCnec("cnec3prevIdBis"), onFlowConstraint2.getFlowCnec());
+
+        assertEquals(1, importedCrac.getNetworkAction("switchPairRaId").getElementaryActions().size());
+        assertTrue(importedCrac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next() instanceof SwitchPair);
+        SwitchPair switchPair = (SwitchPair) importedCrac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
+        assertEquals("to-open", switchPair.getSwitchToOpen().getId());
+        assertEquals("to-open", switchPair.getSwitchToOpen().getName());
+        assertEquals("to-close", switchPair.getSwitchToClose().getId());
+        assertEquals("to-close-name", switchPair.getSwitchToClose().getName());
+
+        assertEquals(2, importedCrac.getNetworkAction("switchPairRaId2").getElementaryActions().size());
     }
 }
