@@ -10,10 +10,13 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteBusHelper;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
+ * Utility to look for a generator using a bus name
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class GeneratorHelper {
@@ -30,36 +33,34 @@ public class GeneratorHelper {
             detail = busHelper.getInvalidReason();
             return;
         }
-        Identifiable<?> busId = ucteNetworkAnalyzer.getNetwork().getIdentifiable(busHelper.getIdInNetwork());
-        if (busId instanceof Bus) {
-            Bus bus = (Bus) busId;
+        findBusWithGenerator(busHelper.getBusMatchesInNetwork(), busIdInCrac);
+    }
+
+    private void findBusWithGenerator(Set<Bus> matchedBuses, String busIdInCrac) {
+        for (Bus bus : matchedBuses) {
+            if (bus.getGeneratorStream().count() > 0 && generatorId != null) {
+                importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
+                detail = String.format("Too many generators match node name %s", busIdInCrac);
+                generatorId = null;
+                return;
+            }
             // 1 generator connected to bus
             if (bus.getGeneratorStream().count() == 1) {
                 importStatus = ImportStatus.IMPORTED;
                 generatorId = bus.getGenerators().iterator().next().getId();
-                return;
             }
             // > 1  generator connected to bus : return 1st generator + warning
             if (bus.getGeneratorStream().count() > 1) {
                 importStatus = ImportStatus.IMPORTED;
                 isAltered = true;
-                detail = "More than 1 generator associated to {}. Load first generator.";
-                generatorId = bus.getGenerators().iterator().next().getId();
-                return;
-            }
-            // 0  generator connected to bus :
-            if (bus.getGeneratorStream().count() == 0) {
-                importStatus = ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
-                detail = String.format("No generator associated to %s, filter RA", busId);
-                return;
+                detail = String.format("More than 1 generator associated to %s. First generator is selected.", busIdInCrac);
+                generatorId = bus.getGeneratorStream().map(Identifiable::getId).sorted().collect(Collectors.toList()).get(0);
             }
         }
-        if (busId instanceof Generator) {
-            importStatus = ImportStatus.IMPORTED;
-            generatorId = busId.getId();
+        if (generatorId == null) {
+            importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
+            detail = String.format("Buses matching %s in the network do not hold generators.", busIdInCrac);
         }
-        importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
-        detail = String.format("BusId %s is neither a Bus nor a Generator.", busId);
     }
 
     public boolean isValid() {
