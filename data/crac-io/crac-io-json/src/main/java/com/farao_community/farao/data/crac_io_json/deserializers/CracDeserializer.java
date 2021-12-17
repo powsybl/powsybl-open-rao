@@ -58,6 +58,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             throw new FaraoException(String.format("%s must contain a %s in its second field", CRAC_TYPE, VERSION));
         }
         checkVersion(jsonParser.nextTextValue());
+        jsonParser.nextToken();
 
         // get id and name
         scrollJsonUntilField(jsonParser, ID);
