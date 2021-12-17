@@ -29,7 +29,6 @@ import static org.junit.Assert.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class ImporterRetrocompatibilityTest {
 
