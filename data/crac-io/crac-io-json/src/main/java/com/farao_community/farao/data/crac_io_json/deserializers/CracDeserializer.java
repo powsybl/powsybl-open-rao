@@ -47,13 +47,17 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
     @Override
     public Crac deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
-        jsonParser.nextToken();
-
-        // check version
-        scrollJsonUntilField(jsonParser, VERSION);
-        String cracVersion = jsonParser.nextTextValue();
-        jsonParser.nextToken();
-        checkVersion(cracVersion);
+        // check header
+        if (!jsonParser.nextFieldName().equals(TYPE)) {
+            throw new FaraoException(String.format("json CRAC must start with field %s", TYPE));
+        }
+        if (!jsonParser.nextTextValue().equals(CRAC_TYPE)) {
+            throw new FaraoException(String.format("type of document must be %s", CRAC_TYPE));
+        }
+        if (!jsonParser.nextFieldName().equals(VERSION)) {
+            throw new FaraoException(String.format("%s must contain a %s in its second field", CRAC_TYPE, VERSION));
+        }
+        checkVersion(jsonParser.nextTextValue());
 
         // get id and name
         scrollJsonUntilField(jsonParser, ID);
@@ -63,10 +67,10 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
             throw new FaraoException(String.format("The JSON Crac must contain a %s field after the %s field", NAME, ID));
         }
         String name = jsonParser.nextTextValue();
-
         Crac crac = cracFactory.create(id, name);
 
         Map<String, String> deserializedNetworkElementsNamesPerId = null;
+
         // deserialize the following lines of the Crac
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
