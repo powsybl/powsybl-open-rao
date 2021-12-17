@@ -12,6 +12,8 @@ import com.farao_community.farao.data.crac_api.threshold.Threshold;
 
 import java.util.Optional;
 
+import static java.lang.Math.abs;
+
 /**
  * Generic threshold (flow, voltage, etc.) in the CRAC file.
  *
@@ -63,7 +65,7 @@ public class ThresholdImpl implements Threshold {
             return false;
         }
         ThresholdImpl otherT = (ThresholdImpl) o;
-        return ((unit == null && otherT.getUnit() == null) || (unit.equals(otherT.getUnit())))
+        return ((unit == null && otherT.getUnit() == null) || (unit != null && unit.equals(otherT.getUnit())))
                 && equalsDouble(max, otherT.getMax())
                 && equalsDouble(min, otherT.getMin());
     }
@@ -78,9 +80,8 @@ public class ThresholdImpl implements Threshold {
     }
 
     private boolean equalsDouble(Double d1, Double d2) {
-        if (d1 == null || Double.isNaN(d1)) {
-            return d2 == null || Double.isNaN(d2);
-        }
-        return d1 - d2 < 1e-6;
+        boolean isD1null = d1 == null || Double.isNaN(d1);
+        boolean isD2null = d2 == null || Double.isNaN(d2);
+        return (isD1null && isD2null) || (!isD1null && !isD2null && abs(d1 - d2) < 1e-6);
     }
 }
