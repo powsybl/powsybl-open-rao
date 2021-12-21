@@ -4,24 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.farao_community.farao.data.crac_api.range_action;
 
+import com.farao_community.farao.data.crac_api.NetworkElement;
+
+import java.util.Map;
+
 /**
- * Interface dedicated to the definition of the ranges of HVDC
- *
- * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface HvdcRange extends Range {
-    /**
-     * Get the minimum of the range
-     */
-    double getMin();
+public interface InjectionShiftRangeAction extends StandardRangeAction<InjectionShiftRangeAction> {
 
-    /**
-     * Get the maximum of the range
-     */
-    double getMax();
+    Map<NetworkElement, Double> getInjectionShiftKeys();
 
 }

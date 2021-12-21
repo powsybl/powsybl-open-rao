@@ -4,22 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.farao_community.farao.data.crac_api.range_action;
 
+import com.farao_community.farao.data.crac_api.RemedialActionAdder;
 import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 
 /**
- * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface HvdcRangeActionAdder extends StandardRangeActionAdder<HvdcRangeActionAdder> {
+public interface StandardRangeActionAdder<T extends StandardRangeActionAdder<T>> extends RemedialActionAdder<T> {
 
-    HvdcRangeActionAdder withNetworkElement(String networkElementId);
+    StandardRangeAdder<T> newRange();
 
-    HvdcRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
+    T withGroupId(String groupId);
 
-    StandardRangeAdder<HvdcRangeActionAdder> newRange();
-
-    HvdcRangeAction add();
 }

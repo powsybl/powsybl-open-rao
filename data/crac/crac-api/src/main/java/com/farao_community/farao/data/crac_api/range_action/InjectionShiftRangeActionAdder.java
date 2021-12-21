@@ -4,22 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.farao_community.farao.data.crac_api.range_action;
 
 import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 
 /**
- * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface HvdcRangeActionAdder extends StandardRangeActionAdder<HvdcRangeActionAdder> {
+public interface InjectionShiftRangeActionAdder extends StandardRangeActionAdder<InjectionShiftRangeActionAdder> {
 
-    HvdcRangeActionAdder withNetworkElement(String networkElementId);
+    InjectionShiftRangeActionAdder withNetworkElementAndKey(double key, String networkElementId);
 
-    HvdcRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
+    InjectionShiftRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName);
 
-    StandardRangeAdder<HvdcRangeActionAdder> newRange();
+    StandardRangeAdder<InjectionShiftRangeActionAdder> newRange();
 
-    HvdcRangeAction add();
+    InjectionShiftRangeAction add();
 }

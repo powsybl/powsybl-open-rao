@@ -1,0 +1,43 @@
+/*
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.farao_community.farao.data.crac_impl;
+
+import com.farao_community.farao.data.crac_api.range.StandardRange;
+import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
+import com.farao_community.farao.data.crac_api.range_action.StandardRangeActionAdder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeActionAdder<T>>  extends AbstractRemedialActionAdder<T> implements StandardRangeActionAdder<T> {
+
+    protected String groupId;
+    protected List<StandardRange> ranges;
+
+    AbstractStandardRangeActionAdder(CracImpl crac) {
+        super(crac);
+        this.ranges = new ArrayList<>();
+    }
+
+    @Override
+    public T withGroupId(String groupId) {
+        this.groupId = groupId;
+        return (T) this;
+    }
+
+    @Override
+    public StandardRangeAdder<T> newRange() {
+        return new StandardRangeAdderImpl<T>(this);
+    }
+
+    void addRange(StandardRange standardRange) {
+        ranges.add(standardRange);
+    }
+}

@@ -39,6 +39,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
     private final Map<String, PstRangeAction> pstRangeActions = new HashMap<>();
     private final Map<String, HvdcRangeAction> hvdcRangeActions = new HashMap<>();
+    private final Map<String, InjectionShiftRangeAction> injectionShiftRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
 
     public CracImpl(String id, String name) {
@@ -358,17 +359,18 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     // ========================================
 
     @Override
-    public Set<RemedialAction> getRemedialActions() {
-        Set<RemedialAction> remedialActions = new HashSet<>();
+    public Set<RemedialAction<?>> getRemedialActions() {
+        Set<RemedialAction<?>> remedialActions = new HashSet<>();
         remedialActions.addAll(pstRangeActions.values());
         remedialActions.addAll(hvdcRangeActions.values());
+        remedialActions.addAll(injectionShiftRangeActions.values());
         remedialActions.addAll(networkActions.values());
         return remedialActions;
     }
 
     @Override
-    public RemedialAction getRemedialAction(String remedialActionId) {
-        RemedialAction remedialAction = getNetworkAction(remedialActionId);
+    public RemedialAction<?> getRemedialAction(String remedialActionId) {
+        RemedialAction<?> remedialAction = getNetworkAction(remedialActionId);
         if (!Objects.isNull(remedialAction)) {
             return remedialAction;
         } else {
@@ -405,6 +407,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public InjectionShiftRangeActionAdder newInjectionShiftRangeAction() {
+        return new InjectionShiftRangeActionAdderImpl(this);
+    }
+
+    @Override
     public Set<PstRangeAction> getPstRangeActions() {
         return new HashSet<>(pstRangeActions.values());
     }
@@ -412,6 +419,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<HvdcRangeAction> getHvdcRangeActions() {
         return new HashSet<>(hvdcRangeActions.values());
+    }
+
+    @Override
+    public Set<InjectionShiftRangeAction> getInjectionShiftRangeActions() {
+        return new HashSet<>(injectionShiftRangeActions.values());
     }
 
     @Override
@@ -425,43 +437,53 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
-        // the only implementations of RangeAction are PstRangeAction and HvdcRangeAction
-        Set<RangeAction> rangeActionsSet = new HashSet<>(pstRangeActions.values());
+    public InjectionShiftRangeAction getInjectionShiftRangeAction(String injectionShiftRangActionId) {
+        return injectionShiftRangeActions.get(injectionShiftRangActionId);
+    }
+
+    @Override
+    public Set<RangeAction<?>> getRangeActions() {
+        Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActions.values());
         rangeActionsSet.addAll(hvdcRangeActions.values());
+        rangeActionsSet.addAll(injectionShiftRangeActions.values());
         return rangeActionsSet;
     }
 
     @Override
-    public Set<RangeAction> getRangeActions(State state, UsageMethod... usageMethods) {
-        // the only implementations of RangeAction are PstRangeAction and HvdcRangeAction
-        Set<RangeAction> pstRangeActionsSet = pstRangeActions.values().stream()
+    public Set<RangeAction<?>> getRangeActions(State state, UsageMethod... usageMethods) {
+        Set<RangeAction<?>> pstRangeActionsSet = pstRangeActions.values().stream()
                 .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
                 .collect(Collectors.toSet());
-        Set<RangeAction> hvdcRangeActionsSet = hvdcRangeActions.values().stream()
+        Set<RangeAction<?>> hvdcRangeActionsSet = hvdcRangeActions.values().stream()
                 .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
                 .collect(Collectors.toSet());
-        Set<RangeAction> rangeActionsSet = new HashSet<>(pstRangeActionsSet);
+        Set<RangeAction<?>> injectionShiftRangeActionSet = injectionShiftRangeActions.values().stream()
+                .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
+                .collect(Collectors.toSet());
+        Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActionsSet);
         rangeActionsSet.addAll(hvdcRangeActionsSet);
+        rangeActionsSet.addAll(injectionShiftRangeActionSet);
         return rangeActionsSet;
     }
 
     @Override
-    public RangeAction getRangeAction(String id) {
-        // the only implementations of RangeAction are PstRangeAction and HvdcRangeAction
-        if (pstRangeActions.get(id) == null) {
+    public RangeAction<?> getRangeAction(String id) {
+        if (pstRangeActions.get(id) != null) {
+            return pstRangeActions.get(id);
+        } else if (hvdcRangeActions.get(id) != null) {
             return hvdcRangeActions.get(id);
         } else {
-            return pstRangeActions.get(id);
+            return injectionShiftRangeActions.get(id);
         }
     }
 
     public void removeRangeAction(String id) {
-        // the only implementations of RangeAction are PstRangeAction and HvdcRangeAction
-        if (pstRangeActions.get(id) == null) {
+        if (pstRangeActions.get(id) != null) {
+            removePstRangeAction(id);
+        } else if (hvdcRangeActions.get(id) != null) {
             removeHvdcRangeAction(id);
         } else {
-            removePstRangeAction(id);
+            removeInjectionShiftRangeAction(id);
         }
     }
 
@@ -498,12 +520,32 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     }
 
+    @Override
+    public void removeInjectionShiftRangeAction(String id) {
+        InjectionShiftRangeAction rangeActionToRemove = injectionShiftRangeActions.get(id);
+        if (Objects.isNull(rangeActionToRemove)) {
+            return;
+        }
+
+        Set<String> associatedNetworkElementsIds = rangeActionToRemove.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> associatedStatesIds = getAssociatedStates(rangeActionToRemove).stream().map(State::getId).collect(Collectors.toSet());
+
+        injectionShiftRangeActions.remove(id);
+
+        safeRemoveNetworkElements(associatedNetworkElementsIds);
+        safeRemoveStates(associatedStatesIds);
+    }
+
     void addPstRangeAction(PstRangeAction pstRangeAction) {
         pstRangeActions.put(pstRangeAction.getId(), pstRangeAction);
     }
 
     void addHvdcRangeAction(HvdcRangeAction hvdcRangeAction) {
         hvdcRangeActions.put(hvdcRangeAction.getId(), hvdcRangeAction);
+    }
+
+    void addInjectionShiftRangeAction(InjectionShiftRangeAction injectionShiftRangeAction) {
+        injectionShiftRangeActions.put(injectionShiftRangeAction.getId(), injectionShiftRangeAction);
     }
 
     // endregion

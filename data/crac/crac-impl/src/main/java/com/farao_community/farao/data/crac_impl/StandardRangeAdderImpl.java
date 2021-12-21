@@ -8,56 +8,58 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.range.StandardRange;
+import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 import com.farao_community.farao.data.crac_api.range_action.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class HvdcRangeAdderImpl implements HvdcRangeAdder {
+public class StandardRangeAdderImpl<T extends StandardRangeActionAdder<T>> implements StandardRangeAdder<T> {
+
+    private static final String CLASS_NAME = "StandardRange";
+    private final AbstractStandardRangeActionAdder<T> ownerAdder;
 
     private Double min;
     private Double max;
-    private static final String CLASS_NAME = "HvdcRange";
 
-    private HvdcRangeActionAdderImpl ownerAdder;
-
-    HvdcRangeAdderImpl(HvdcRangeActionAdderImpl ownerAdder) {
+    StandardRangeAdderImpl(AbstractStandardRangeActionAdder<T> ownerAdder) {
         this.ownerAdder = ownerAdder;
         this.min = Double.MIN_VALUE;
         this.max = Double.MAX_VALUE;
     }
 
     @Override
-    public HvdcRangeAdder withMin(double minSetpoint) {
+    public StandardRangeAdder<T> withMin(double minSetpoint) {
         this.min = minSetpoint;
         return this;
     }
 
     @Override
-    public HvdcRangeAdder withMax(double maxSetpoint) {
+    public StandardRangeAdder<T> withMax(double maxSetpoint) {
         this.max = maxSetpoint;
         return this;
     }
 
     @Override
-    public HvdcRangeActionAdder add() {
+    public T add() {
         AdderUtils.assertAttributeNotNull(min, CLASS_NAME, "min value", "withMin()");
         AdderUtils.assertAttributeNotNull(max, CLASS_NAME, "max value", "withMax()");
 
         if (max == Double.MAX_VALUE) {
-            throw new FaraoException("HVDC max range was not defined.");
+            throw new FaraoException("StandardRange max value was not defined.");
         }
         if (min == Double.MIN_VALUE) {
-            throw new FaraoException("HVDC min range was not defined.");
+            throw new FaraoException("StandardRange min value was not defined.");
         }
         if (max < min) {
-            throw new FaraoException("Max setpoint of HvdcRange must be equal or greater than min setpoint.");
+            throw new FaraoException("Max value of StandardRange must be equal or greater than min value.");
         }
 
-        HvdcRange hvdcRange = new HvdcRangeImpl(min, max);
+        StandardRange standardRange = new StandardRangeImpl(min, max);
 
-        ownerAdder.addRange(hvdcRange);
-        return ownerAdder;
+        ownerAdder.addRange(standardRange);
+        return (T) ownerAdder;
     }
 }

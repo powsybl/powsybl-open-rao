@@ -7,8 +7,8 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.range_action.Range;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.Range;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}

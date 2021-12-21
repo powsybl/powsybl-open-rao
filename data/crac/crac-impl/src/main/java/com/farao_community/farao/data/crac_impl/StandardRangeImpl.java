@@ -8,19 +8,19 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRange;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.StandardRange;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class HvdcRangeImpl extends AbstractRange implements HvdcRange {
+public class StandardRangeImpl extends AbstractRange implements StandardRange {
 
-    private double min;
-    private double max;
+    private final double min;
+    private final double max;
 
-    HvdcRangeImpl(double min, double max) {
+    StandardRangeImpl(double min, double max) {
         super(RangeType.ABSOLUTE, Unit.MEGAWATT);
         this.min = min;
         this.max = max;
@@ -44,7 +44,7 @@ public class HvdcRangeImpl extends AbstractRange implements HvdcRange {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        HvdcRangeImpl otherRange = (HvdcRangeImpl) o;
+        StandardRangeImpl otherRange = (StandardRangeImpl) o;
         return super.equals(otherRange)
             && max == otherRange.getMax()
             && min == otherRange.getMin();

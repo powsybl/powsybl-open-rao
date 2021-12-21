@@ -5,22 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_api.range_action;
-
-import com.farao_community.farao.data.crac_api.NetworkElement;
+package com.farao_community.farao.data.crac_api.range;
 
 /**
- * A range action interface specifying an action on a HVDC
- *
+ * Interface dedicated to the definition of the ranges of HVDC
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface HvdcRangeAction extends StandardRangeAction<HvdcRangeAction> {
+public interface StandardRange extends Range {
+    /**
+     * Get the minimum of the range
+     */
+    double getMin();
 
     /**
-     * Get the HVDC Network Element on which the remedial action applies
+     * Get the maximum of the range
      */
-    NetworkElement getNetworkElement();
-
+    double getMax();
 }

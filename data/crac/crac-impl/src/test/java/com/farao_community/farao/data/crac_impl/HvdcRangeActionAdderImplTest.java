@@ -40,7 +40,7 @@ public class HvdcRangeActionAdderImplTest {
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
                 .withGroupId("groupId1")
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .newFreeToUseUsageRule()
                 .withInstant(Instant.PREVENTIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -62,7 +62,7 @@ public class HvdcRangeActionAdderImplTest {
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .newFreeToUseUsageRule()
                 .withInstant(Instant.PREVENTIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -88,7 +88,7 @@ public class HvdcRangeActionAdderImplTest {
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .add();
 
         assertEquals(1, crac.getRangeActions().size());
@@ -103,7 +103,7 @@ public class HvdcRangeActionAdderImplTest {
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withNetworkElement(networkElementId)
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .newFreeToUseUsageRule()
                 .withInstant(Instant.PREVENTIVE)
                 .withUsageMethod(UsageMethod.AVAILABLE)
