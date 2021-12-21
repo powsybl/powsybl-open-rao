@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -182,7 +182,7 @@ public class CracImportExportTest {
                 .withOperator("RTE")
                 .withNetworkElement("hvdc")
                 .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
-                .newHvdcRange().withMin(1).withMax(7).add()
+                .newRange().withMin(1).withMax(7).add()
                 .add();
 
         crac.newHvdcRangeAction().withId("hvdcRangeId2")
@@ -191,7 +191,7 @@ public class CracImportExportTest {
                 .withNetworkElement("hvdc2")
                 .withGroupId("group-1")
                 .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3prevIdBis").add()
-                .newHvdcRange().withMin(1).withMax(7).add()
+                .newRange().withMin(1).withMax(7).add()
                 .add();
 
         Crac importedCrac = RoundTripUtil.roundTrip(crac);

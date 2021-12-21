@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAdder;
+import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -27,7 +27,7 @@ public final class HvdcRangeArrayDeserializer {
     //an HVDC range is implicitly of type "ABSOLUTE" : no RANGE_TYPE
     public static void deserialize(JsonParser jsonParser, HvdcRangeActionAdder ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            HvdcRangeAdder adder = ownerAdder.newHvdcRange();
+            StandardRangeAdder adder = ownerAdder.newRange();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case MIN:

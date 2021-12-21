@@ -56,7 +56,7 @@ public class SearchTree {
     private Network network;
     private State optimizedState;
     private Set<NetworkAction> availableNetworkActions;
-    private Set<RangeAction> availableRangeActions;
+    private Set<RangeAction<?>> availableRangeActions;
     private PrePerimeterResult prePerimeterOutput;
     private SearchTreeComputer searchTreeComputer;
     private SearchTreeProblem searchTreeProblem;
@@ -64,7 +64,7 @@ public class SearchTree {
     private ObjectiveFunction objectiveFunction;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
 
-    private Map<RangeAction, Double> prePerimeterRangeActionSetPoints;
+    private Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints;
 
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
@@ -86,11 +86,11 @@ public class SearchTree {
         treeParameters = parameters;
     }
 
-    void setAvailableRangeActions(Set<RangeAction> rangeActions) {
+    void setAvailableRangeActions(Set<RangeAction<?>> rangeActions) {
         availableRangeActions = rangeActions;
     }
 
-    void setPrePerimeterRangeActionSetPoints(Map<RangeAction, Double> prePerimeterRangeActionSetPoints) {
+    void setPrePerimeterRangeActionSetPoints(Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints) {
         // TODO : try to remove this method by finding another way in unit tests
         this.prePerimeterRangeActionSetPoints = prePerimeterRangeActionSetPoints;
     }
@@ -99,7 +99,7 @@ public class SearchTree {
      * If the allowed number of range actions (or RAs) is limited (by tso or globally), this function filters out
      * the range actions with the least impact
      */
-    Set<RangeAction> applyRangeActionsFilters(Leaf leaf, Set<RangeAction> fromRangeActions, boolean deprioritizeIgnoredRangeActions) {
+    Set<RangeAction<?>> applyRangeActionsFilters(Leaf leaf, Set<RangeAction<?>> fromRangeActions, boolean deprioritizeIgnoredRangeActions) {
         RangeActionFilter filter = new RangeActionFilter(leaf, fromRangeActions, optimizedState, treeParameters, prePerimeterRangeActionSetPoints, deprioritizeIgnoredRangeActions);
         filter.filterUnavailableRangeActions();
         filter.filterPstPerTso();
@@ -272,8 +272,8 @@ public class SearchTree {
     private void optimizeLeaf(Leaf leaf, FlowResult baseFlowResult) {
         int iteration = 0;
         double previousCost = Double.MAX_VALUE;
-        Set<RangeAction> previousIterationRangeActions = null;
-        Set<RangeAction> rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, false);
+        Set<RangeAction<?>> previousIterationRangeActions = null;
+        Set<RangeAction<?>> rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, false);
         // Iterate on optimizer until the list of range actions stops changing
         while (!rangeActions.equals(previousIterationRangeActions) && Math.abs(previousCost - leaf.getCost()) >= 1e-6 && iteration < 10) {
             previousCost = leaf.getCost();
@@ -309,7 +309,7 @@ public class SearchTree {
         leaf.finalizeOptimization();
     }
 
-    private SensitivityComputer getSensitivityComputerForEvaluationBasedOn(FlowResult flowResult, Set<RangeAction> rangeActions) {
+    private SensitivityComputer getSensitivityComputerForEvaluationBasedOn(FlowResult flowResult, Set<RangeAction<?>> rangeActions) {
         if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
             if (linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
                 return searchTreeComputer.getSensitivityComputerWithComputedCommercialFlows(rangeActions);
@@ -321,7 +321,7 @@ public class SearchTree {
         }
     }
 
-    private SensitivityComputer getSensitivityComputerForOptimizationBasedOn(FlowResult flowResult, Set<RangeAction> rangeActions) {
+    private SensitivityComputer getSensitivityComputerForOptimizationBasedOn(FlowResult flowResult, Set<RangeAction<?>> rangeActions) {
         if (linearOptimizerParameters.isRaoWithLoopFlowLimitation()) {
             if (linearOptimizerParameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
                 return searchTreeComputer.getSensitivityComputerWithComputedCommercialFlows(rangeActions);

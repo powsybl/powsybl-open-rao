@@ -249,7 +249,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
      * @param raoResult Result of Rao computation
      * @param state State for which the RAs should be applied
      */
-    public static Map<RangeAction, Double> findAppliedRangeActionsForState(RaoResult raoResult, State state) {
+    public static Map<RangeAction<?>, Double> findAppliedRangeActionsForState(RaoResult raoResult, State state) {
         return new HashMap<>(raoResult.getOptimizedSetPointsOnState(state));
     }
 

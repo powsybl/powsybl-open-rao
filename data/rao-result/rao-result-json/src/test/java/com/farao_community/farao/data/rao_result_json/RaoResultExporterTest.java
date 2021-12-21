@@ -62,7 +62,7 @@ public class RaoResultExporterTest {
                 .withContingency("Contingency FR1 FR3")
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
-            .newHvdcRange()
+            .newRange()
                 .withMin(-1000.)
                 .withMax(1000.)
                 .add()

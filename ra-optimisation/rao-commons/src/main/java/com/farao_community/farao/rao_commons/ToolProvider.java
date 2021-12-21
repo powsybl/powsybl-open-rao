@@ -124,14 +124,14 @@ public final class ToolProvider {
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
-                                                                            Set<RangeAction> rangeActions,
+                                                                            Set<RangeAction<?>> rangeActions,
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows) {
         return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
-                                                                            Set<RangeAction> rangeActions,
+                                                                            Set<RangeAction<?>> rangeActions,
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows,
                                                                             AppliedRemedialActions appliedRemedialActions) {

@@ -66,7 +66,7 @@ public final class LinearProblem {
 
     private final List<ProblemFiller> fillers;
     private final Set<FlowCnec> cnecs = new HashSet<>();
-    private final Set<RangeAction> rangeActions = new HashSet<>();
+    private final Set<RangeAction<?>> rangeActions = new HashSet<>();
     private final FaraoMPSolver solver;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
@@ -103,15 +103,15 @@ public final class LinearProblem {
         this.solverSpecificParameters = solverSpecificParameters;
     }
 
-    final List<ProblemFiller> getFillers() {
+    List<ProblemFiller> getFillers() {
         return Collections.unmodifiableList(fillers);
     }
 
-    public final Set<FlowCnec> getCnecs() {
+    public Set<FlowCnec> getCnecs() {
         return Collections.unmodifiableSet(cnecs);
     }
 
-    public final Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         return Collections.unmodifiableSet(rangeActions);
     }
 
@@ -167,12 +167,12 @@ public final class LinearProblem {
         return solver.getConstraint(flowConstraintId(cnec));
     }
 
-    public MPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction rangeAction) {
+    public MPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction<?> rangeAction) {
         rangeActions.add(rangeAction);
         return solver.makeNumVar(lb, ub, rangeActionSetpointVariableId(rangeAction));
     }
 
-    public MPVariable getRangeActionSetpointVariable(RangeAction rangeAction) {
+    public MPVariable getRangeActionSetpointVariable(RangeAction<?> rangeAction) {
         return solver.getVariable(rangeActionSetpointVariableId(rangeAction));
     }
 
@@ -237,11 +237,11 @@ public final class LinearProblem {
         return solver.getVariable(pstGroupTapVariableId(rangeActionGroupId));
     }
 
-    public MPConstraint addRangeActionGroupSetpointConstraint(double lb, double ub, RangeAction rangeAction) {
+    public MPConstraint addRangeActionGroupSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction) {
         return solver.makeConstraint(lb, ub, rangeActionGroupSetpointConstraintId(rangeAction));
     }
 
-    public MPConstraint getRangeActionGroupSetpointConstraint(RangeAction rangeAction) {
+    public MPConstraint getRangeActionGroupSetpointConstraint(RangeAction<?> rangeAction) {
         return solver.getConstraint(rangeActionGroupSetpointConstraintId(rangeAction));
     }
 
@@ -253,19 +253,19 @@ public final class LinearProblem {
         return solver.getConstraint(pstGroupTapConstraintId(rangeAction));
     }
 
-    public MPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction rangeAction) {
+    public MPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction<?> rangeAction) {
         return solver.makeNumVar(lb, ub, absoluteRangeActionVariationVariableId(rangeAction));
     }
 
-    public MPVariable getAbsoluteRangeActionVariationVariable(RangeAction rangeAction) {
+    public MPVariable getAbsoluteRangeActionVariationVariable(RangeAction<?> rangeAction) {
         return solver.getVariable(absoluteRangeActionVariationVariableId(rangeAction));
     }
 
-    public MPConstraint addAbsoluteRangeActionVariationConstraint(double lb, double ub, RangeAction rangeAction, AbsExtension positiveOrNegative) {
+    public MPConstraint addAbsoluteRangeActionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, AbsExtension positiveOrNegative) {
         return solver.makeConstraint(lb, ub, absoluteRangeActionVariationConstraintId(rangeAction, positiveOrNegative));
     }
 
-    public MPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction rangeAction, AbsExtension positiveOrNegative) {
+    public MPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction<?> rangeAction, AbsExtension positiveOrNegative) {
         return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, positiveOrNegative));
     }
 

@@ -58,12 +58,12 @@ public class SearchTreeRaoProviderTest {
     private State state1;
     private State state2;
     private State state3;
-    private RangeAction ra1;
-    private RangeAction ra2;
-    private RangeAction ra3;
-    private RangeAction ra4;
-    private RangeAction ra5;
-    private RangeAction ra6;
+    private RangeAction<?> ra1;
+    private RangeAction<?> ra2;
+    private RangeAction<?> ra3;
+    private RangeAction<?> ra4;
+    private RangeAction<?> ra5;
+    private RangeAction<?> ra6;
     private NetworkAction na1;
     private PrePerimeterResult prePerimeterResult;
 
@@ -112,7 +112,7 @@ public class SearchTreeRaoProviderTest {
 
     @Test
     public void testRemoveRangeActionsWithWrongInitialSetpoint() {
-        Set<RangeAction> rangeActions = new HashSet<>(Set.of(ra1, ra2));
+        Set<RangeAction<?>> rangeActions = new HashSet<>(Set.of(ra1, ra2));
         SearchTreeRaoProvider.removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterResult);
         assertEquals(Set.of(ra1), rangeActions);
         when(prePerimeterResult.getOptimizedSetPoint(any())).thenReturn(-3.);
@@ -353,15 +353,15 @@ public class SearchTreeRaoProviderTest {
 
     @Test
     public void testFilterOutGroup() {
-        RangeAction ra1 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra1 = Mockito.mock(RangeAction.class);
         Mockito.doReturn(Optional.empty()).when(ra1).getGroupId();
-        RangeAction ra2 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra2 = Mockito.mock(RangeAction.class);
         Mockito.doReturn(Optional.of("group1")).when(ra2).getGroupId();
-        RangeAction ra3 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra3 = Mockito.mock(RangeAction.class);
         Mockito.doReturn(Optional.of("group2")).when(ra3).getGroupId();
-        RangeAction ra4 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra4 = Mockito.mock(RangeAction.class);
         Mockito.doReturn(Optional.of("group2")).when(ra4).getGroupId();
-        RangeAction ra5 = Mockito.mock(RangeAction.class);
+        RangeAction<?> ra5 = Mockito.mock(RangeAction.class);
         Mockito.doReturn(Optional.of("group2")).when(ra5).getGroupId();
 
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
@@ -371,7 +371,7 @@ public class SearchTreeRaoProviderTest {
         Mockito.doReturn(2.).when(prePerimeterResult).getOptimizedSetPoint(ra4);
         Mockito.doReturn(6.).when(prePerimeterResult).getOptimizedSetPoint(ra5);
 
-        Set<RangeAction> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
+        Set<RangeAction<?>> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
         SearchTreeRaoProvider.removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterResult);
         assertEquals(Set.of(ra1, ra2), rangeActions);
     }
@@ -674,7 +674,7 @@ public class SearchTreeRaoProviderTest {
     @Test
     public void testRemoveRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
-        Set<RangeAction> rangeActions = new HashSet<>(Set.of(ra1, ra2, ra3, ra4, ra5));
+        Set<RangeAction<?>> rangeActions = Set.of(ra1, ra2, ra3, ra4, ra5);
         SearchTreeRaoProvider.removeRangeActionsExcludedFromSecondPreventive(rangeActions, crac);
         assertEquals(Set.of(ra1, ra2), rangeActions);
     }

@@ -229,7 +229,7 @@ public class PerimeterOutputTest {
 
     @Test
     public void testGetOptimizedSetPoints() {
-        Map<RangeAction, Double> map = Map.of(pst1, 10.6, pst2, 5.8, ra1, 52.5, ra2, 100.6);
+        Map<RangeAction<?>, Double> map = Map.of(pst1, 10.6, pst2, 5.8, ra1, 52.5, ra2, 100.6);
         when(optimizationResult.getOptimizedSetPoints()).thenReturn(map);
         assertEquals(map, perimeterOutput.getOptimizedSetPoints());
     }

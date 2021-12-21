@@ -34,11 +34,11 @@ final class SearchTreeRaoLogger {
     private SearchTreeRaoLogger() {
     }
 
-    static void logRangeActions(Leaf leaf, Set<RangeAction> rangeActions) {
+    static void logRangeActions(Leaf leaf, Set<RangeAction<?>> rangeActions) {
         logRangeActions(leaf, rangeActions, null);
     }
 
-    static void logRangeActions(Leaf leaf, Set<RangeAction> rangeActions, String prefix) {
+    static void logRangeActions(Leaf leaf, Set<RangeAction<?>> rangeActions, String prefix) {
         StringBuilder rangeActionMsg = new StringBuilder();
         if (prefix != null) {
             rangeActionMsg.append(prefix).append(" - ");

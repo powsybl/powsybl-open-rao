@@ -64,7 +64,7 @@ public final class SensitivityComputer {
     public static final class SensitivityComputerBuilder {
         private ToolProvider toolProvider;
         private Set<FlowCnec> flowCnecs;
-        private Set<RangeAction> rangeActions;
+        private Set<RangeAction<?>> rangeActions;
         private FlowResult fixedPtdfs;
         private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
         private FlowResult fixedCommercialFlows;
@@ -82,7 +82,7 @@ public final class SensitivityComputer {
             return this;
         }
 
-        public SensitivityComputerBuilder withRangeActions(Set<RangeAction> rangeActions) {
+        public SensitivityComputerBuilder withRangeActions(Set<RangeAction<?>> rangeActions) {
             this.rangeActions = rangeActions;
             return this;
         }
