@@ -23,19 +23,19 @@ final class UcteMatchingResult {
     private final Identifiable<?> iidmIdentifiable;
 
     enum MatchStatus {
-        OK(true),
+        SINGLE_MATCH(true),
         NOT_FOUND(false),
-        SEVERAL_MATCH(false);
+        SEVERAL_MATCH(true);
 
-        private boolean isOk;
+        private boolean hasMatched;
 
-        MatchStatus(boolean isOk) {
-            this.isOk = isOk;
+        MatchStatus(boolean hasMatched) {
+            this.hasMatched = hasMatched;
         }
     }
 
     boolean hasMatched() {
-        return status.isOk;
+        return status.hasMatched;
     }
 
     boolean isInverted() {
@@ -58,7 +58,7 @@ final class UcteMatchingResult {
     }
 
     static UcteMatchingResult found(UcteConnectable.Side side, boolean isInverted, Identifiable<?> match) {
-        return new UcteMatchingResult(MatchStatus.OK, side, isInverted, match);
+        return new UcteMatchingResult(MatchStatus.SINGLE_MATCH, side, isInverted, match);
     }
 
     UcteMatchingResult invert() {
