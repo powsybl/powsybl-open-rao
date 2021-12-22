@@ -668,7 +668,11 @@ public class SearchTreeRaoProviderTest {
     public void testGetRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
         // detect range actions that are preventive and curative
-        assertEquals(Set.of(ra3, ra4, ra5, ra6), SearchTreeRaoProvider.getRangeActionsExcludedFromSecondPreventive(crac));
+        Set<RangeAction<?>> rangeActionsExcludedFrom2P = SearchTreeRaoProvider.getRangeActionsExcludedFromSecondPreventive(crac);
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra3));
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra4));
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra5));
+        assertTrue(rangeActionsExcludedFrom2P.contains(ra6));
     }
 
     @Test
