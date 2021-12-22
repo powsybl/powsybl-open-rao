@@ -264,9 +264,9 @@ public interface Crac extends Identifiable<Crac> {
     HvdcRangeActionAdder newHvdcRangeAction();
 
     /**
-     * Get a {@link InjectionShiftRangeActionAdder}, to add an {@link InjectionShiftRangeAction} to the crac
+     * Get a {@link InjectionRangeActionAdder}, to add an {@link InjectionRangeAction} to the crac
      */
-    InjectionShiftRangeActionAdder newInjectionShiftRangeAction();
+    InjectionRangeActionAdder newInjectionRangeAction();
 
     /**
      * Gather all the range actions present in the Crac. It returns a set because range
@@ -297,10 +297,10 @@ public interface Crac extends Identifiable<Crac> {
     Set<HvdcRangeAction> getHvdcRangeActions();
 
     /**
-     * Gather all the InjectionShiftRangeAction present in the Crac. It returns a set because remedial
+     * Gather all the InjectionRangeAction present in the Crac. It returns a set because remedial
      * actions must not be duplicated and there is no defined order for remedial actions.
      */
-    Set<InjectionShiftRangeAction> getInjectionShiftRangeActions();
+    Set<InjectionRangeAction> getInjectionRangeActions();
 
     /**
      * Find a PstRangeAction by its id, returns null if the remedial action does not exists
@@ -313,9 +313,9 @@ public interface Crac extends Identifiable<Crac> {
     HvdcRangeAction getHvdcRangeAction(String hvdcRangeActionId);
 
     /**
-     * Find an InjectionShiftRangeAction by its id, returns null if the remedial action does not exists
+     * Find an InjectionRangeAction by its id, returns null if the remedial action does not exists
      */
-    InjectionShiftRangeAction getInjectionShiftRangeAction(String injectionShiftRangeActionId);
+    InjectionRangeAction getInjectionRangeAction(String injectionRangeActionId);
 
     /**
      * Remove a PstRangeAction - identified by its id - from the Crac
@@ -328,9 +328,9 @@ public interface Crac extends Identifiable<Crac> {
     void removeHvdcRangeAction(String id);
 
     /**
-     * Remove an InjectionShiftRangeAction - identified by its id - from the Crac
+     * Remove an InjectionRangeAction - identified by its id - from the Crac
      */
-    void removeInjectionShiftRangeAction(String id);
+    void removeInjectionRangeAction(String id);
 
 
     // Network actions management

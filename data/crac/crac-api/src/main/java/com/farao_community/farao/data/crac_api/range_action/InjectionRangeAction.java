@@ -13,8 +13,7 @@ import java.util.Map;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface InjectionShiftRangeAction extends StandardRangeAction<InjectionShiftRangeAction> {
+public interface InjectionRangeAction extends StandardRangeAction<InjectionRangeAction> {
 
-    Map<NetworkElement, Double> getInjectionShiftKeys();
-
+    Map<NetworkElement, Double> getInjectionDistributionKeys();
 }

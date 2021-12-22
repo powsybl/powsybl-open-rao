@@ -11,13 +11,13 @@ import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface InjectionShiftRangeActionAdder extends StandardRangeActionAdder<InjectionShiftRangeActionAdder> {
+public interface InjectionRangeActionAdder extends StandardRangeActionAdder<InjectionRangeActionAdder> {
 
-    InjectionShiftRangeActionAdder withNetworkElementAndKey(double key, String networkElementId);
+    InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId);
 
-    InjectionShiftRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName);
+    InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName);
 
-    StandardRangeAdder<InjectionShiftRangeActionAdder> newRange();
+    StandardRangeAdder<InjectionRangeActionAdder> newRange();
 
-    InjectionShiftRangeAction add();
+    InjectionRangeAction add();
 }

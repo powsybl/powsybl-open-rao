@@ -808,7 +808,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         rangeActionsToRemove.forEach(rangeAction ->
             LOGGER.info("Range action {} will not be considered in 2nd preventive RAO as it is also curative (or its network element has an associated CRA)", rangeAction.getId())
         );
-        rangeActionsToRemove.forEach(rangeActions::remove);
+        rangeActions.removeAll(rangeActionsToRemove);
     }
 
     /**
