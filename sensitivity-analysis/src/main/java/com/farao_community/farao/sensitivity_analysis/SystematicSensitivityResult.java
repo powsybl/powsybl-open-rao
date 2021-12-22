@@ -10,6 +10,9 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityValue;
@@ -150,14 +153,28 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), 0.0);
     }
 
-    public double getSensitivityOnFlow(RangeAction rangeAction, Cnec<?> cnec) {
+    public double getSensitivityOnFlow(RangeAction<?> rangeAction, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
-        Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
         if (stateResult == null || !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
             return 0.0;
         }
-        Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
-        return networkElements.stream().mapToDouble(netEl -> sensitivities.getOrDefault(netEl.getId(), 0.0)).sum();
+
+        if (rangeAction instanceof PstRangeAction) {
+            Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
+            return sensitivities.getOrDefault(((PstRangeAction) rangeAction).getNetworkElement().getId(), 0.0);
+        } else if (rangeAction instanceof HvdcRangeAction) {
+            Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
+            return sensitivities.getOrDefault(((HvdcRangeAction) rangeAction).getNetworkElement().getId(), 0.0);
+        } else if (rangeAction instanceof InjectionRangeAction) {
+
+            // todo: ensure that it works, not sure it is that easy, notably not sure that GLSK handle negative
+            //  values in Hades. We might have to build two LinearGlsk, one for positive generator/negative load,
+            //  and one for negative generator/positive load
+            return getSensitivityOnFlow(rangeAction.getId(), cnec);
+
+        } else {
+            throw new SensitivityAnalysisException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
+        }
     }
 
     public double getSensitivityOnFlow(LinearGlsk glsk, Cnec<?> cnec) {
@@ -175,14 +192,27 @@ public class SystematicSensitivityResult {
         return sensitivities.getOrDefault(variableId, 0.0);
     }
 
-    public double getSensitivityOnIntensity(RangeAction rangeAction, Cnec<?> cnec) {
+    public double getSensitivityOnIntensity(RangeAction<?> rangeAction, Cnec<?> cnec) {
         StateResult stateResult = getCnecStateResult(cnec);
-        Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
         if (stateResult == null || !stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId())) {
             return 0.0;
         }
-        Map<String, Double> sensitivities = stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId());
-        return networkElements.stream().mapToDouble(netEl -> sensitivities.get(netEl.getId())).sum();
+
+        if (rangeAction instanceof PstRangeAction) {
+            Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
+            return sensitivities.getOrDefault(((PstRangeAction) rangeAction).getNetworkElement().getId(), 0.0);
+        } else if (rangeAction instanceof HvdcRangeAction) {
+            Map<String, Double> sensitivities = stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId());
+            return sensitivities.getOrDefault(((HvdcRangeAction) rangeAction).getNetworkElement().getId(), 0.0);
+        } else if (rangeAction instanceof InjectionRangeAction) {
+
+            // will not work for now, as Intensity on LinearGLsk sensitivities do not exist yet in Hades
+            // todo: do something cleaner
+            throw new UnsupportedOperationException();
+
+        } else {
+            throw new SensitivityAnalysisException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
+        }
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec) {
