@@ -12,7 +12,6 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 /**
  * A range action interface specifying an action on a HVDC
  *
- *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */

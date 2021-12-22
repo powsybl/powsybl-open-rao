@@ -11,9 +11,28 @@ import com.farao_community.farao.data.crac_api.NetworkElement;
 import java.util.Map;
 
 /**
+ * A range action interface specifying an action on one or several Injections
+ *
+ * Injections can be Generator and/or Loads (DanglingLine are not yet taken into
+ * account in that object).
+ *
+ * The InjectionRangeAction can affect several Injections, the conversion between
+ * the setpoint of the RangeAction and the value - in megawatt - of each injection
+ * can be defined with distribution keys.
+ *
+ * For instance, this implementation of RangeAction can be used to represent actions
+ * on HVDCs, when HVDCs are modelled in the network with 2 Generators. In that case,
+ * the appropriate InjectionRangeAction to represent the HVDC would be an action on
+ * the two Generators, with distribution keys of 1 and -1.
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface InjectionRangeAction extends StandardRangeAction<InjectionRangeAction> {
 
+    /**
+     * Get the map of the NetworkElement (injections) on which the rangeAction applies,
+     * alongside with the distribution key which define how each injection NetworkElement
+     * is impacted by a change of setpoint of the RangeAction
+     */
     Map<NetworkElement, Double> getInjectionDistributionKeys();
 }
