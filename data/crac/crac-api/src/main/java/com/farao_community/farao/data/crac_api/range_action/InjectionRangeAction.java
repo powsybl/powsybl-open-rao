@@ -25,6 +25,10 @@ import java.util.Map;
  * the appropriate InjectionRangeAction to represent the HVDC would be an action on
  * the two Generators, with distribution keys of 1 and -1.
  *
+ * The 'generator convention' is used to represent the injections. A positive injection
+ * is a positive generation or a negative load, and a negative injection is a negative
+ * generation or a positive load.
+ *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface InjectionRangeAction extends StandardRangeAction<InjectionRangeAction> {
