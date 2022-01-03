@@ -19,6 +19,7 @@ import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.state_tree.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.state_tree.ContingencyScenario;
+import org.slf4j.Logger;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -30,15 +31,15 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 final class SearchTreeRaoLogger {
-
     private SearchTreeRaoLogger() {
     }
 
-    static void logRangeActions(Leaf leaf, Set<RangeAction> rangeActions) {
-        logRangeActions(leaf, rangeActions, null);
+    static void logRangeActions(Logger logger,
+                                Leaf leaf, Set<RangeAction> rangeActions) {
+        logRangeActions(logger, leaf, rangeActions, null);
     }
 
-    static void logRangeActions(Leaf leaf, Set<RangeAction> rangeActions, String prefix) {
+    static void logRangeActions(Logger logger, Leaf leaf, Set<RangeAction> rangeActions, String prefix) {
         StringBuilder rangeActionMsg = new StringBuilder();
         if (prefix != null) {
             rangeActionMsg.append(prefix).append(" - ");
@@ -49,39 +50,40 @@ final class SearchTreeRaoLogger {
             if (rangeAction instanceof PstRangeAction) {
                 int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction);
                 rangeActionMsg
-                        .append(format("%s: %d", rangeActionName, rangeActionTap))
-                        .append(" , ");
+                    .append(format("%s: %d", rangeActionName, rangeActionTap))
+                    .append(" , ");
             } else {
                 double rangeActionSetPoint = leaf.getOptimizedSetPoint(rangeAction);
                 rangeActionMsg
-                        .append(format("%s: %.2f", rangeActionName, rangeActionSetPoint))
-                        .append(" , ");
+                    .append(format("%s: %.2f", rangeActionName, rangeActionSetPoint))
+                    .append(" , ");
 
             }
         });
         String rangeActionsLog = rangeActionMsg.toString();
-        SearchTree.LOGGER.info(rangeActionsLog);
+        logger.info(rangeActionsLog);
     }
 
-    static void logMostLimitingElementsResults(OptimizationResult optimizationResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
-        logMostLimitingElementsResults(optimizationResult, optimizationResult, null, objectiveFunction, numberOfLoggedElements);
+    static void logMostLimitingElementsResults(Logger logger, OptimizationResult optimizationResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
+        logMostLimitingElementsResults(logger, optimizationResult, optimizationResult, null, objectiveFunction, numberOfLoggedElements);
     }
 
-    static void logMostLimitingElementsResults(PrePerimeterResult prePerimeterResult, Set<State> states, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
-        logMostLimitingElementsResults(prePerimeterResult, prePerimeterResult, states, objectiveFunction, numberOfLoggedElements);
+    static void logMostLimitingElementsResults(Logger logger, PrePerimeterResult prePerimeterResult, Set<State> states, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
+        logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, states, objectiveFunction, numberOfLoggedElements);
     }
 
-    static void logMostLimitingElementsResults(PrePerimeterResult prePerimeterResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
-        logMostLimitingElementsResults(prePerimeterResult, prePerimeterResult, null, objectiveFunction, numberOfLoggedElements);
+    static void logMostLimitingElementsResults(Logger logger, PrePerimeterResult prePerimeterResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
+        logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, null, objectiveFunction, numberOfLoggedElements);
     }
 
-    private static void logMostLimitingElementsResults(ObjectiveFunctionResult objectiveFunctionResult,
+    private static void logMostLimitingElementsResults(Logger logger,
+                                                       ObjectiveFunctionResult objectiveFunctionResult,
                                                        FlowResult flowResult,
                                                        Set<State> states,
                                                        RaoParameters.ObjectiveFunction objectiveFunction,
                                                        int numberOfLoggedElements) {
         getMostLimitingElementsResults(objectiveFunctionResult, flowResult, states, objectiveFunction, numberOfLoggedElements)
-            .forEach(SearchTree.LOGGER::info);
+            .forEach(logger::info);
     }
 
     static List<String> getMostLimitingElementsResults(ObjectiveFunctionResult objectiveFunctionResult,
@@ -116,14 +118,15 @@ final class SearchTreeRaoLogger {
         return summary;
     }
 
-    static void logMostLimitingElementsResults(BasecaseScenario basecaseScenario,
+    static void logMostLimitingElementsResults(Logger logger,
+                                               BasecaseScenario basecaseScenario,
                                                OptimizationResult basecaseOptimResult,
                                                Set<ContingencyScenario> contingencyScenarios,
                                                Map<State, OptimizationResult> contingencyOptimizationResults,
                                                RaoParameters.ObjectiveFunction objectiveFunction,
                                                int numberOfLoggedElements) {
         getMostLimitingElementsResults(basecaseScenario, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunction, numberOfLoggedElements)
-            .forEach(SearchTree.LOGGER::info);
+            .forEach(logger::info);
     }
 
     static List<String> getMostLimitingElementsResults(BasecaseScenario basecaseScenario,

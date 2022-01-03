@@ -130,7 +130,7 @@ public class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
-        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
         assertEquals(rootLeaf, result);
     }
 
@@ -145,7 +145,7 @@ public class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
-        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
         assertEquals(rootLeaf, result);
         assertEquals(leafCost, result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -162,7 +162,7 @@ public class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
-        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -175,7 +175,7 @@ public class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(4., 2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
-        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -211,7 +211,7 @@ public class SearchTreeTest {
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, new NetworkActionCombination(networkAction));
 
-        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
         assertEquals(rootLeaf, result);
         assertEquals(4., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -228,7 +228,7 @@ public class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
         assertEquals(childLeaf, result);
     }
 
@@ -244,7 +244,7 @@ public class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
         assertEquals(rootLeaf, result);
     }
 
@@ -311,7 +311,7 @@ public class SearchTreeTest {
         mockRootLeafCost(5.);
         when(rootLeaf.getOptimizedSetPoint(rangeAction2)).thenReturn(3.);
 
-        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters).get();
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
         assertEquals(3., result.getOptimizedSetPoint(rangeAction2), DOUBLE_TOLERANCE);
     }
 

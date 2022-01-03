@@ -192,15 +192,22 @@ class Leaf implements OptimizationResult {
     @Override
     public String toString() {
         String info = isRoot() ? "Root leaf" :
-            "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+            "Evaluate network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
         try {
+            long nRangeActions = getNumberOfActivatedRangeActions();
+            info += String.format(", %s range actions activated", nRangeActions > 0 ? nRangeActions : "no");
             info += String.format(", Cost: %.2f", getCost());
             info += String.format(" (Functional: %.2f", getFunctionalCost());
             info += String.format(", Virtual: %.2f)", getVirtualCost());
         } catch (FaraoException ignored) {
         }
-        info += ", Status: " + status.getMessage();
         return info;
+    }
+
+    private long getNumberOfActivatedRangeActions() {
+        return getOptimizedSetPoints().entrySet().stream().filter(entry ->
+            Math.abs(entry.getValue() - preOptimRangeActionResult.getOptimizedSetPoints().get(entry.getKey())) > 1e-6
+        ).count();
     }
 
     @Override
