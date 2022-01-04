@@ -119,6 +119,10 @@ public class SearchTreeTest {
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         when(searchTreeInput.getIteratingLinearOptimizer()).thenReturn(iteratingLinearOptimizer);
+        State optimizedState = Mockito.mock(State.class);
+        when(optimizedState.getContingency()).thenReturn(Optional.empty());
+        when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        when(searchTreeInput.getOptimizedState()).thenReturn(optimizedState);
         rootLeaf = Mockito.mock(Leaf.class);
         when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNaCombinations);
     }
