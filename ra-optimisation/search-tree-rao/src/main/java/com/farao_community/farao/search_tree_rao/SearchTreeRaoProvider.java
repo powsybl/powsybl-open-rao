@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
-import static com.farao_community.farao.util.FaraoLogger.*;
+import static com.farao_community.farao.commons.FaraoLogger.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -58,7 +58,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
     private static final String PREVENTIVE_SCENARIO = "PreventiveScenario";
     private static final String SECOND_PREVENTIVE_SCENARIO = "SecondPreventiveScenario";
     private static final String CONTINGENCY_SCENARIO = "ContingencyScenario";
-    private static final int NUMBER_LOGGED_ELEMENTS_BEGINNING_RAO = 5;
+    private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
 
     // Do not store any big object in this class as it is a static RaoProvider
@@ -136,8 +136,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
             BUSINESS_LOGS.error("Initial sensitivity analysis failed :", e);
             return CompletableFuture.completedFuture(new FailedRaoOutput());
         }
-        BUSINESS_LOGS.info("Initial systematic analysis: cost = {}", initialOutput.getCost());
-        SearchTreeRaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialOutput, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_BEGINNING_RAO);
+        BUSINESS_LOGS.info("Initial sensitivity analysis: functional cost = {}", initialOutput.getCost());
+        SearchTreeRaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialOutput, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
         // optimize preventive perimeter
         Instant preventiveRaoStartInstant = Instant.now();
@@ -163,8 +163,12 @@ public class SearchTreeRaoProvider implements RaoProvider {
         applyRemedialActions(network, preventiveResult);
 
         PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, preventiveResult);
+        BUSINESS_LOGS.info("Systematic sensitivity analysis after preventive remedial actions: functional cost = {}", preCurativeSensitivityAnalysisOutput.getCost());
+        SearchTreeRaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
+        BUSINESS_LOGS.info("Post-contingency perimeters optimization [start]");
         Map<State, OptimizationResult> postContingencyResults = optimizeContingencyScenarios(raoInput.getCrac(), parameters, stateTree, toolProvider, curativeTreeParameters, network, initialOutput, preCurativeSensitivityAnalysisOutput);
+        BUSINESS_LOGS.info("Post-contingency perimeters optimization [end]");
 
         RaoResult mergedRaoResults;
 
@@ -172,7 +176,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         if (shouldRunSecondPreventiveRao(parameters, initialOutput, preventiveResult, postContingencyResults, targetEndInstant, preventiveRaoTime)) {
             mergedRaoResults = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
         } else {
-            BUSINESS_LOGS.info("Merging preventive and curative RAO results.");
+            BUSINESS_LOGS.info("Merging preventive and curative RAO results:");
             mergedRaoResults = new PreventiveAndCurativesRaoOutput(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
             // log results
             SearchTreeRaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
@@ -388,7 +392,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
                             AutomatonOptimizationResult automatonResult = simulateAutomatonState(automatonState.get(), curativeState, crac, networkClone, raoParameters, toolProvider, prePerimeterSensitivityOutput);
                             contingencyScenarioResults.put(automatonState.get(), automatonResult);
                             preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
-                            logPostContingencyResult(optimizedScenario.getContingency().getName(), automatonResult.getActivatedNetworkActions().size(), automatonResult.getActivatedRangeActions().size(), automatonResult.getCost(), OptimizationState.AFTER_ARA);
                         }
 
                         // Optimize curative instant
@@ -397,8 +400,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
                         contingencyScenarioResults.put(curativeState, curativeResult);
                         // Release network copy
                         networkPool.releaseUsedNetwork(networkClone);
-
-                        logPostContingencyResult(optimizedScenario.getContingency().getName(), curativeResult.getActivatedNetworkActions().size(), getNumberOfActivatedRangeActions(prePerimeterSensitivityOutput, curativeResult), curativeResult.getCost(), OptimizationState.AFTER_CRA);
                     } catch (Exception e) {
                         BUSINESS_LOGS.error("Scenario post-contingency {} could not be optimized.", optimizedScenario.getContingency().getId(), e);
                         Thread.currentThread().interrupt();
@@ -410,20 +411,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
             Thread.currentThread().interrupt();
         }
         return contingencyScenarioResults;
-    }
-
-    private long getNumberOfActivatedRangeActions(PrePerimeterResult prePerimeterResult, OptimizationResult optimizationResult) {
-        return optimizationResult.getOptimizedSetPoints().entrySet().stream().filter(entry ->
-            Math.abs(entry.getValue() - prePerimeterResult.getOptimizedSetPoints().get(entry.getKey())) > 1e-6
-        ).count();
-    }
-
-    private void logPostContingencyResult(String contingencyName, long activatedNetworkActions, long activatedRangeActions, double cost, OptimizationState optimizationState) {
-        String raType = optimizationState.equals(OptimizationState.AFTER_ARA) ? "automatic" : "curative";
-        String raResult = (activatedRangeActions + activatedNetworkActions > 0) ?
-            String.format("%s %s network actions and %s %s range actions activated", activatedNetworkActions, raType, activatedRangeActions, raType) :
-            String.format("no %s remedial actions activated", raType);
-        BUSINESS_LOGS.info("Scenario {}: {}, cost {} = {}", contingencyName, raResult, optimizationState.name(), cost);
     }
 
     private AutomatonOptimizationResult simulateAutomatonState(State automatonState,
@@ -441,7 +428,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             BUSINESS_WARNS.warn("CRAC has network action automatons with usage method AVAILABLE. These are not supported.");
         }
         TECHNICAL_LOGS.info("Initial situation:");
-        SearchTreeRaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, prePerimeterSensitivityOutput, Set.of(automatonState, curativeState), raoParameters.getObjectiveFunction(), 5);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, prePerimeterSensitivityOutput, Set.of(automatonState, curativeState), raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
         // Apply network actions
         // First get forced network actions
@@ -471,11 +458,14 @@ public class SearchTreeRaoProvider implements RaoProvider {
         );
         // Run computation
         PrePerimeterResult postAutomatonSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, prePerimeterSensitivityOutput);
-        SearchTreeRaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, postAutomatonSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), 5);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, postAutomatonSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
         // Build and return optimization result
         AutomatonOptimizationResult automatonOptimizationResult = new AutomatonOptimizationResult(postAutomatonSensitivityAnalysisOutput, appliedNetworkActions);
         TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
+
+        SearchTreeRaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonOptimizationResult.getActivatedNetworkActions().size(), automatonOptimizationResult.getActivatedRangeActions().size(), null, null, automatonOptimizationResult);
+
         return automatonOptimizationResult;
     }
 
@@ -752,7 +742,6 @@ public class SearchTreeRaoProvider implements RaoProvider {
                                              PerimeterResult firstPreventiveResult,
                                              PrePerimeterResult preCurativeSensitivityAnalysisOutput,
                                              Map<State, OptimizationResult> postContingencyResults) {
-        BUSINESS_LOGS.info("Second preventive perimeter optimization [start]");
         Network network = raoInput.getNetwork();
         // Go back to the initial state of the network, saved in the SECOND_PREVENTIVE_STATE variant
         network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO);
@@ -762,16 +751,21 @@ public class SearchTreeRaoProvider implements RaoProvider {
         applyPreventiveResultsForCurativeRangeActions(network, firstPreventiveResult, raoInput.getCrac());
         // Get the applied remedial actions for every curative perimeter
         AppliedRemedialActions appliedRemedialActions = getAppliedRemedialActionsInCurative(postContingencyResults, preCurativeSensitivityAnalysisOutput);
+
         // Run a first sensitivity computation using initial network and applied CRAs
         PrePerimeterResult sensiWithCurativeRemedialActions = prePerimeterSensitivityAnalysis.run(network, appliedRemedialActions);
+        BUSINESS_LOGS.info("Systematic sensitivity analysis after curative remedial actions: functional cost = {}", sensiWithCurativeRemedialActions.getCost());
+        SearchTreeRaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, sensiWithCurativeRemedialActions, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+
         // Run second preventive RAO
+        BUSINESS_LOGS.info("Second preventive perimeter optimization [start]");
         PerimeterResult secondPreventiveResult = optimizeSecondPreventivePerimeter(raoInput, parameters, stateTree, toolProvider, initialOutput, sensiWithCurativeRemedialActions, appliedRemedialActions)
             .join().getPerimeterResult(OptimizationState.AFTER_CRA, raoInput.getCrac().getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access OptimizationState.AFTER_PRA results
         PrePerimeterResult updatedPreCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, secondPreventiveResult);
         BUSINESS_LOGS.info("Second preventive perimeter optimization [end]");
 
-        BUSINESS_LOGS.info("Merging first, second preventive and curative RAO results.");
+        BUSINESS_LOGS.info("Merging first, second preventive and curative RAO results:");
         Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
 
         // log results

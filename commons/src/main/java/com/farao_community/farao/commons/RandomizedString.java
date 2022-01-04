@@ -6,9 +6,6 @@
  */
 package com.farao_community.farao.commons;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -20,7 +17,6 @@ import java.util.UUID;
 public final class RandomizedString {
     private static final String DEFAULT_PREFIX = "";
     private static final int DEFAULT_MAX_TRY = 2;
-    private static final Logger LOGGER = LoggerFactory.getLogger(RandomizedString.class);
 
     private RandomizedString() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -45,7 +41,7 @@ public final class RandomizedString {
     public static String getRandomizedString(String prefix, Collection<String> invalidStrings, int maxTry) {
         Objects.requireNonNull(prefix);
         if (maxTry < 1) {
-            LOGGER.error("There should at least be one try to generate randomized string.");
+            FaraoLogger.TECHNICAL_LOGS.error("There should at least be one try to generate randomized string.");
             throw new IllegalArgumentException("There should at least be one try to generate randomized string.");
         }
         for (int tryNum = 0; tryNum < maxTry; tryNum++) {
@@ -54,7 +50,7 @@ public final class RandomizedString {
                 return randomizedString;
             }
         }
-        LOGGER.error("Failed to create a randomized string with prefix '{}' in {} {}.", prefix, maxTry, maxTry > 1 ? "tries" : "try");
+        FaraoLogger.TECHNICAL_LOGS.error("Failed to create a randomized string with prefix '{}' in {} {}.", prefix, maxTry, maxTry > 1 ? "tries" : "try");
         throw new FaraoException(String.format("Failed to create a randomized string with prefix '%s' in %d %s.", prefix, maxTry, maxTry > 1 ? "tries" : "try"));
     }
 }

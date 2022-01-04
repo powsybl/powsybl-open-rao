@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Terminal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -21,8 +19,6 @@ import java.util.Set;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CountryGraph {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CountryGraph.class);
     private final Set<CountryBoundary> boundaries;
 
     /**
@@ -50,7 +46,7 @@ public class CountryGraph {
                         boundaries.add(new CountryBoundary(country1.get(), country2.get()));
                     }
                 } else {
-                    LOGGER.debug("Countries are not defined in both sides of branch {}", branch.getId());
+                    FaraoLogger.TECHNICAL_LOGS.debug("Countries are not defined in both sides of branch {}", branch.getId());
                 }
             });
     }

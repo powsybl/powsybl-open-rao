@@ -10,18 +10,16 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
+
+import static com.farao_community.farao.commons.FaraoLogger.BUSINESS_WARNS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeRaoParameters.class);
-
     public enum PreventiveRaoStopCriterion {
         MIN_OBJECTIVE,
         SECURE
@@ -106,10 +104,10 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setRelativeNetworkActionMinimumImpactThreshold(double relativeNetworkActionMinimumImpactThreshold) {
         if (relativeNetworkActionMinimumImpactThreshold < 0) {
-            LOGGER.warn("The value {} provided for relative network action minimum impact threshold is smaller than 0. It will be set to 0.", relativeNetworkActionMinimumImpactThreshold);
+            BUSINESS_WARNS.warn("The value {} provided for relative network action minimum impact threshold is smaller than 0. It will be set to 0.", relativeNetworkActionMinimumImpactThreshold);
             this.relativeNetworkActionMinimumImpactThreshold = 0;
         } else if (relativeNetworkActionMinimumImpactThreshold > 1) {
-            LOGGER.warn("The value {} provided for relative network action minimum impact threshold is greater than 1. It will be set to 1.", relativeNetworkActionMinimumImpactThreshold);
+            BUSINESS_WARNS.warn("The value {} provided for relative network action minimum impact threshold is greater than 1. It will be set to 1.", relativeNetworkActionMinimumImpactThreshold);
             this.relativeNetworkActionMinimumImpactThreshold = 1;
         } else {
             this.relativeNetworkActionMinimumImpactThreshold = relativeNetworkActionMinimumImpactThreshold;
@@ -154,7 +152,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setMaxNumberOfBoundariesForSkippingNetworkActions(int maxNumberOfBoundariesForSkippingNetworkActions) {
         if (maxNumberOfBoundariesForSkippingNetworkActions < 0) {
-            LOGGER.warn("The value {} provided for max number of boundaries for skipping network actions is smaller than 0. It will be set to 0.", maxNumberOfBoundariesForSkippingNetworkActions);
+            BUSINESS_WARNS.warn("The value {} provided for max number of boundaries for skipping network actions is smaller than 0. It will be set to 0.", maxNumberOfBoundariesForSkippingNetworkActions);
             this.maxNumberOfBoundariesForSkippingNetworkActions = 0;
         } else {
             this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
@@ -175,7 +173,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setCurativeRaoMinObjImprovement(double curativeRaoMinObjImprovement) {
         if (curativeRaoMinObjImprovement < 0) {
-            LOGGER.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
+            BUSINESS_WARNS.warn("The value {} provided for curative RAO minimum objective improvement is smaller than 0. It will be set to + {}", curativeRaoMinObjImprovement, -curativeRaoMinObjImprovement);
         }
         this.curativeRaoMinObjImprovement = Math.abs(curativeRaoMinObjImprovement);
     }
@@ -186,7 +184,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setMaxCurativeRa(int maxCurativeRa) {
         if (maxCurativeRa < 0) {
-            LOGGER.warn("The value {} provided for max number of curative RAs is smaller than 0. It will be set to 0 instead.", maxCurativeRa);
+            BUSINESS_WARNS.warn("The value {} provided for max number of curative RAs is smaller than 0. It will be set to 0 instead.", maxCurativeRa);
             this.maxCurativeRa = 0;
         } else {
             this.maxCurativeRa = maxCurativeRa;
@@ -199,7 +197,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
 
     public void setMaxCurativeTso(int maxCurativeTso) {
         if (maxCurativeTso < 0) {
-            LOGGER.warn("The value {} provided for max number of curative TSOs is smaller than 0. It will be set to 0 instead.", maxCurativeTso);
+            BUSINESS_WARNS.warn("The value {} provided for max number of curative TSOs is smaller than 0. It will be set to 0 instead.", maxCurativeTso);
             this.maxCurativeTso = 0;
         } else {
             this.maxCurativeTso = maxCurativeTso;
@@ -280,7 +278,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Optional<NetworkActionCombination> getNetworkActionCombinationFromIds(List<String> networkActionIds, Crac crac) {
 
         if (networkActionIds.size() < 2) {
-            LOGGER.warn("A network-action-combination should at least contains 2 NetworkAction ids");
+            BUSINESS_WARNS.warn("A network-action-combination should at least contains 2 NetworkAction ids");
             return Optional.empty();
         }
 
@@ -288,7 +286,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
         for (String naId : networkActionIds) {
             NetworkAction na = crac.getNetworkAction(naId);
             if (na == null) {
-                LOGGER.warn("Unknown network action id in network-action-combinations parameter: {}", naId);
+                BUSINESS_WARNS.warn("Unknown network action id in network-action-combinations parameter: {}", naId);
                 return Optional.empty();
             }
             networkActions.add(na);

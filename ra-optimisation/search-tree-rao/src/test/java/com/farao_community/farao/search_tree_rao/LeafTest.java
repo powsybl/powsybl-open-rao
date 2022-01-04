@@ -26,6 +26,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinear
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
+import com.farao_community.farao.commons.FaraoLogger;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
@@ -199,7 +200,7 @@ public class LeafTest {
 
         leaf1.evaluate(costEvaluatorMock, sensitivityComputer);
 
-        ListAppender<ILoggingEvent> listAppender = getLeafLogs();
+        ListAppender<ILoggingEvent> listAppender = getTechnicalLogs();
 
         leaf1.evaluate(costEvaluatorMock, sensitivityComputer);
         List<ILoggingEvent> logsList = listAppender.list;
@@ -208,12 +209,20 @@ public class LeafTest {
 
     }
 
-    private ListAppender<ILoggingEvent> getLeafLogs() {
-        Logger logger = (Logger) LoggerFactory.getLogger(Leaf.class);
+    private ListAppender<ILoggingEvent> getLogs(String name) {
+        Logger logger = (Logger) LoggerFactory.getLogger(name);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
         logger.addAppender(listAppender);
         return listAppender;
+    }
+
+    private ListAppender<ILoggingEvent> getTechnicalLogs() {
+        return getLogs(FaraoLogger.TECHNICAL_LOGS.getName());
+    }
+
+    private ListAppender<ILoggingEvent> getBusinessWarns() {
+        return getLogs(FaraoLogger.BUSINESS_WARNS.getName());
     }
 
     @Test
@@ -232,7 +241,7 @@ public class LeafTest {
         Leaf rootLeaf = buildNotEvaluatedRootLeaf();
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
         LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
-        ListAppender<ILoggingEvent> listAppender = getLeafLogs();
+        ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
         rootLeaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation has not been performed", rootLeaf);
@@ -245,7 +254,7 @@ public class LeafTest {
         Mockito.doThrow(new FaraoException()).when(sensitivityComputer).compute(network);
         rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer);
         LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
-        ListAppender<ILoggingEvent> listAppender = getLeafLogs();
+        ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
         rootLeaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation failed", rootLeaf);

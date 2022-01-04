@@ -8,12 +8,16 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.FaraoLogger;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.range_action.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRange;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAdder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
@@ -22,8 +26,6 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class HvdcRangeActionAdderImpl extends AbstractRemedialActionAdder<HvdcRangeActionAdder> implements HvdcRangeActionAdder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(HvdcRangeActionAdderImpl.class);
 
     private String networkElementId;
     private String networkElementName;
@@ -78,7 +80,7 @@ public class HvdcRangeActionAdderImpl extends AbstractRemedialActionAdder<HvdcRa
         }
 
         if (usageRules.isEmpty()) {
-            LOGGER.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            FaraoLogger.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);

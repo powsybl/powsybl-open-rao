@@ -7,8 +7,7 @@
 package com.farao_community.farao.util;
 
 import com.farao_community.farao.commons.FaraoException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.farao_community.farao.commons.FaraoLogger;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,7 +17,6 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class NativeLibraryLoader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NativeLibraryLoader.class);
     private static final Set<String> NATIVE_LIBRARIES_LOADED = Collections.synchronizedSet(new HashSet<>());
 
     private NativeLibraryLoader() {
@@ -31,11 +29,10 @@ public final class NativeLibraryLoader {
     public static synchronized void loadNativeLibrary(String libraryName) {
         if (!alreadyLoaded(libraryName)) {
             try {
-                LOGGER.info("Loading library '{}'", libraryName);
+                FaraoLogger.TECHNICAL_LOGS.info("Loading library '{}'", libraryName);
                 System.loadLibrary(libraryName);
                 NATIVE_LIBRARIES_LOADED.add(libraryName);
             } catch (UnsatisfiedLinkError e) {
-                LOGGER.error("Failed to load library '{}'", libraryName);
                 throw new FaraoException(String.format("Failed to load library '%s'", libraryName), e);
             }
         }

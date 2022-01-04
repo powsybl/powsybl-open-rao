@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_result_extensions;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -192,14 +192,5 @@ public class ResultVariantManager extends AbstractExtension<Crac> {
         for (String variantId : variantIds) {
             deleteVariant(variantId);
         }
-    }
-
-    /**
-     * Computes a string with a prefix that is not present in the set, creates a new variant from that string, and returns the string.
-     */
-    public synchronized String createNewUniqueVariantId(String prefix) {
-        String uniqueId = RandomizedString.getRandomizedString(prefix + "-", variants, 10);
-        createVariant(uniqueId);
-        return uniqueId;
     }
 }

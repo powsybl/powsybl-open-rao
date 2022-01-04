@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.util.FaraoLogger.*;
+import static com.farao_community.farao.commons.FaraoLogger.*;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -62,6 +62,8 @@ public class SearchTree {
     private Set<NetworkAction> availableNetworkActions;
     private Set<RangeAction> availableRangeActions;
     private PrePerimeterResult prePerimeterOutput;
+    private double preOptimFunctionalCost;
+    private double preOptimVirtualCost;
     private SearchTreeComputer searchTreeComputer;
     private SearchTreeProblem searchTreeProblem;
     private SearchTreeBloomer bloomer;
@@ -133,21 +135,29 @@ public class SearchTree {
 
         TECHNICAL_LOGS.info("Evaluate root leaf");
         rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, availableRangeActions));
-        TECHNICAL_LOGS.info("{}", rootLeaf);
+        this.preOptimFunctionalCost = rootLeaf.getFunctionalCost();
+        this.preOptimVirtualCost = rootLeaf.getVirtualCost();
+
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
+            topLevelLogger.info("{}", rootLeaf);
+            logOptimizationSummary(rootLeaf);
             return CompletableFuture.completedFuture(rootLeaf);
         } else if (stopCriterionReached(rootLeaf)) {
+            topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
             SearchTreeRaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+            logOptimizationSummary(rootLeaf);
             return CompletableFuture.completedFuture(rootLeaf);
-        } else {
-            SearchTreeRaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
         }
+
+        TECHNICAL_LOGS.info("{}", rootLeaf);
+        SearchTreeRaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         TECHNICAL_LOGS.info("Linear optimization on root leaf");
         optimizeLeaf(rootLeaf, prePerimeterOutput);
+
         topLevelLogger.info("{}", rootLeaf);
-        SearchTreeRaoLogger.logRangeActions(topLevelLogger, optimalLeaf, availableRangeActions);
+        SearchTreeRaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, availableRangeActions);
         SearchTreeRaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         if (stopCriterionReached(rootLeaf)) {
@@ -156,11 +166,23 @@ public class SearchTree {
 
         iterateOnTree();
 
-        topLevelLogger.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
-        topLevelLogger.info("Best leaf - {}", optimalLeaf);
-        SearchTreeRaoLogger.logRangeActions(topLevelLogger, optimalLeaf, availableRangeActions, "Best leaf");
-        SearchTreeRaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+        TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
+        TECHNICAL_LOGS.info("Best leaf - {}", optimalLeaf);
+        SearchTreeRaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, availableRangeActions, "Best leaf");
+        SearchTreeRaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+
+        logOptimizationSummary(optimalLeaf);
         return CompletableFuture.completedFuture(optimalLeaf);
+    }
+
+    private void logOptimizationSummary(Leaf leaf) {
+        SearchTreeRaoLogger.logOptimizationSummary(BUSINESS_LOGS, optimizedState, leaf.getActivatedNetworkActions().size(), getNumberOfActivatedRangeActions(leaf), preOptimFunctionalCost, preOptimVirtualCost, leaf);
+    }
+
+    private long getNumberOfActivatedRangeActions(Leaf leaf) {
+        return leaf.getOptimizedSetPoints().entrySet().stream().filter(entry ->
+            Math.abs(entry.getValue() - prePerimeterRangeActionSetPoints.get(entry.getKey())) > 1e-6
+        ).count();
     }
 
     private void iterateOnTree() {
@@ -168,27 +190,27 @@ public class SearchTree {
         boolean hasImproved = true;
         int leavesInParallel = Math.min(availableNetworkActions.size(), treeParameters.getLeavesInParallel());
         if (availableNetworkActions.isEmpty()) {
-            TECHNICAL_LOGS.info("No more network action available");
+            topLevelLogger.info("No network action available");
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (AbstractNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
             while (depth < treeParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
-                topLevelLogger.info("Research depth: {} - [start]", depth + 1);
+                TECHNICAL_LOGS.info("Research depth: {} - [start]", depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
                 updateOptimalLeafWithNextDepthBestLeaf(networkPool);
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
-                    topLevelLogger.info("Research depth: {} - [end]", depth + 1);
-                    topLevelLogger.info("Best leaf so far - {}", optimalLeaf);
-                    SearchTreeRaoLogger.logRangeActions(topLevelLogger, optimalLeaf, availableRangeActions, "Best leaf so far");
+                    TECHNICAL_LOGS.info("Research depth: {} - [end]", depth + 1);
+                    topLevelLogger.info("Search depth {}: {}", depth + 1, optimalLeaf);
+                    SearchTreeRaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, availableRangeActions, "Best leaf so far");
                     SearchTreeRaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
                 } else {
-                    topLevelLogger.info("End of search tree : no network action of depth {} improve the objective function", depth + 1);
+                    topLevelLogger.info("no better result found in search depth {}, exiting search tree", depth + 1);
                 }
                 depth += 1;
                 if (depth >= treeParameters.getMaximumSearchDepth()) {
-                    topLevelLogger.info("End of search tree : maximum depth has been reached");
+                    topLevelLogger.info("maximum search depth has been reached, exiting search tree");
                 }
             }
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
@@ -259,12 +281,12 @@ public class SearchTree {
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
         leaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(previousDepthOptimalLeaf, availableRangeActions));
-        TECHNICAL_LOGS.debug("{}", leaf);
+        TECHNICAL_LOGS.debug("Evaluate pre-optim {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
             if (!stopCriterionReached(leaf)) {
                 // We base the results on the results of the evaluation of the leaf in case something has been updated
                 optimizeLeaf(leaf, leaf.getPreOptimBranchResult());
-                TECHNICAL_LOGS.info("{}", leaf);
+                topLevelLogger.info("Evaluate {}", leaf);
             }
             updateOptimalLeaf(leaf);
         }

@@ -9,31 +9,29 @@ package com.farao_community.farao.util;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.FaraoLogger.TECHNICAL_LOGS;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class MultipleNetworkPool extends AbstractNetworkPool {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MultipleNetworkPool.class);
-
     protected MultipleNetworkPool(Network network, String targetVariant, int parallelism) {
         super(network, targetVariant, parallelism);
     }
 
     @Override
     protected void initAvailableNetworks(Network network) {
-        LOGGER.info("Filling network pool with copies of network '{}' on variant '{}'", network.getId(), targetVariant);
+        TECHNICAL_LOGS.info("Filling network pool with copies of network '{}' on variant '{}'", network.getId(), targetVariant);
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().setWorkingVariant(targetVariant);
         for (int i = 0; i < getParallelism(); i++) {
-            LOGGER.info("Copy n°{}", i + 1);
+            TECHNICAL_LOGS.info("Copy n°{}", i + 1);
             Network copy = NetworkXml.copy(network);
             // The initial network working variant is VariantManagerConstants.INITIAL_VARIANT_ID
             // in cloned network, so we need to copy it again.

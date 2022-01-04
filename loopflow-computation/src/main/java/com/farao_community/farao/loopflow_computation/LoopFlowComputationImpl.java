@@ -6,10 +6,7 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
-import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.ZonalData;
+import com.farao_community.farao.commons.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -19,8 +16,6 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,8 +30,6 @@ import static java.util.Objects.requireNonNull;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LoopFlowComputationImpl implements LoopFlowComputation {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowComputationImpl.class);
-
     protected ZonalData<LinearGlsk> glsk;
     protected ReferenceProgram referenceProgram;
     protected Network network;
@@ -115,7 +108,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         for (EICode area : referenceProgram.getListOfAreas()) {
             LinearGlsk glskForArea = glsk.getData(area.getAreaCode());
             if (glskForArea == null) {
-                LOGGER.warn("No GLSK found for reference area {}", area.getAreaCode());
+                FaraoLogger.BUSINESS_WARNS.warn("No GLSK found for reference area {}", area.getAreaCode());
             } else {
                 refProgGlskMap.put(area, glskForArea);
             }

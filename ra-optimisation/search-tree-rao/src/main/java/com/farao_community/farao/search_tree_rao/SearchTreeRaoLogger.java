@@ -8,10 +8,12 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.ObjectiveFunctionResult;
@@ -202,5 +204,24 @@ final class SearchTreeRaoLogger {
             mostLimitingElementsAndMargins.put(cnec, cnecMargin);
         });
         return mostLimitingElementsAndMargins;
+    }
+
+    public static void logOptimizationSummary(Logger logger, State optimizedState, long activatedNetworkActions, long activatedRangeActions, Double initialFunctionalCost, Double initialVirtualCost, ObjectiveFunctionResult finalObjective) {
+        String raType = optimizedState.getInstant().toString();
+        Optional<Contingency> optionalContingency = optimizedState.getContingency();
+        String scenarioName = optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
+        String raResult = "";
+        if (activatedNetworkActions + activatedRangeActions == 0) {
+            raResult = String.format("no %s remedial actions activated", raType);
+        } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
+            raResult = String.format("%s %s network action(s) activated", activatedNetworkActions, raType);
+        } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
+            raResult = String.format("%s %s range action(s) activated", activatedRangeActions, raType);
+        } else {
+            raResult = String.format("%s %s network action(s) and %s %s range action(s) activated", activatedNetworkActions, raType, activatedRangeActions, raType);
+        }
+        String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
+            String.format("initial cost = %s (functional: %s, virtual: %s), ", initialFunctionalCost + initialVirtualCost, initialFunctionalCost, initialVirtualCost);
+        logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState), finalObjective.getCost(), finalObjective.getFunctionalCost(), finalObjective.getVirtualCost());
     }
 }

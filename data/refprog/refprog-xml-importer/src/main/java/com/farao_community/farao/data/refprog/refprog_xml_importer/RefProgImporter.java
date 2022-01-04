@@ -6,12 +6,10 @@
  */
 package com.farao_community.farao.data.refprog.refprog_xml_importer;
 
+import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceExchangeData;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.commons.EICode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -27,21 +25,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.FaraoLogger.*;
+
 /**
  * RefProg xml file importer
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class RefProgImporter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RefProgImporter.class);
-
     private RefProgImporter() {
     }
 
     public static ReferenceProgram importRefProg(InputStream inputStream, OffsetDateTime dateTime) {
         PublicationDocument document = importXmlDocument(inputStream);
         if (!isValidDocumentInterval(document, dateTime)) {
-            LOGGER.error("RefProg file is not valid for this date {}", dateTime);
+            BUSINESS_LOGS.error("RefProg file is not valid for this date {}", dateTime);
             throw new FaraoException("RefProg file is not valid for this date " + dateTime);
         }
         List<ReferenceExchangeData> exchangeDataList = new ArrayList<>();
@@ -53,7 +51,7 @@ public final class RefProgImporter {
             double flow = getFlow(dateTime, timeSeries);
             exchangeDataList.add(new ReferenceExchangeData(outArea, inArea, flow));
         });
-        LOGGER.info("RefProg file was imported");
+        TECHNICAL_LOGS.info("RefProg file was imported");
         return new ReferenceProgram(exchangeDataList);
     }
 
@@ -83,7 +81,7 @@ public final class RefProgImporter {
             OffsetDateTime endDateTime = OffsetDateTime.parse(interval.substring(sepPosition + 1), DateTimeFormatter.ISO_DATE_TIME);
             return !dateTime.isBefore(startDateTime) && dateTime.isBefore(endDateTime);
         } else {
-            LOGGER.error("Cannot import RefProg file because its publication time interval is unknown");
+            BUSINESS_LOGS.error("Cannot import RefProg file because its publication time interval is unknown");
             throw new FaraoException("Cannot import RefProg file because its publication time interval is unknown");
         }
     }
@@ -103,7 +101,7 @@ public final class RefProgImporter {
         if (validIntervals.isEmpty()) {
             String outArea = timeSeries.getOutArea().getV();
             String inArea = timeSeries.getInArea().getV();
-            LOGGER.warn("Flow value between {} and {} is not found for this date {}", outArea, inArea, dateTime);
+            BUSINESS_WARNS.warn("Flow value between {} and {} is not found for this date {}", outArea, inArea, dateTime);
         } else {
             IntervalType validInterval = validIntervals.get(0);
             flow = validInterval.getQty().getV().doubleValue();
