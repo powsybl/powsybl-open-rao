@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 
@@ -187,7 +187,7 @@ public final class ExhaustiveCracCreation {
                 .withName("hvdcRange1Name")
                 .withOperator("RTE")
                 .withNetworkElement("hvdc")
-                .newHvdcRange().withMin(-1000).withMax(1000).add()
+                .newRange().withMin(-1000).withMax(1000).add()
                 .newFreeToUseUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
                 .add();
 
@@ -196,8 +196,16 @@ public final class ExhaustiveCracCreation {
                 .withOperator("RTE")
                 .withNetworkElement("hvdc2")
                 .withGroupId("group-1-hvdc")
-                .newHvdcRange().withMin(-1000).withMax(1000).add()
+                .newRange().withMin(-1000).withMax(1000).add()
                 .newOnFlowConstraintUsageRule().withInstant(Instant.PREVENTIVE).withFlowCnec("cnec3curId").add()
+                .add();
+
+        crac.newInjectionRangeAction().withId("injectionRange1Id")
+                .withName("injectionRange1Name")
+                .withNetworkElementAndKey(1., "generator1Id")
+                .withNetworkElementAndKey(-1., "generator2Id", "generator2Name")
+                .newRange().withMin(-500).withMax(500).add()
+                .newOnStateUsageRule().withInstant(Instant.CURATIVE).withContingency("contingency1Id").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 
         return crac;
