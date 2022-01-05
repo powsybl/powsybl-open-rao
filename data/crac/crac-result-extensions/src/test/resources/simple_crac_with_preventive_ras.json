@@ -1,5 +1,6 @@
 {
-  "type": "simple-crac",
+  "type" : "CRAC",
+  "version" : "1.0",
   "id": "17XTSO-CS------W-20190108-F301v1",
   "name": "17XTSO-CS------W-20190108-F301v1",
   "networkElementsNamePerId": {},

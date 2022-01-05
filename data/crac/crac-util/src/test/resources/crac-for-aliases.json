@@ -1,5 +1,6 @@
 {
-  "type" : "simple-crac",
+  "type" : "CRAC",
+  "version" : "1.0",
   "id" : "LS_parade_pst_direct",
   "name" : "LS_parade_pst_direct",
   "networkElementsNamePerId": { },
