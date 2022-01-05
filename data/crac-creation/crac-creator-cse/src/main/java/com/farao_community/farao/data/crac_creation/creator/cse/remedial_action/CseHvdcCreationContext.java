@@ -8,37 +8,58 @@ package com.farao_community.farao.data.crac_creation.creator.cse.remedial_action
 
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.HvdcRangeActionCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.InjectionRangeActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.TRemedialAction;
+
+import java.util.Map;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class CseHvdcCreationContext extends CseRemedialActionCreationContext implements HvdcRangeActionCreationContext {
+public final class CseHvdcCreationContext extends CseRemedialActionCreationContext implements InjectionRangeActionCreationContext {
 
-    private final String nativeNetworkElementId;
-    private final boolean isInverted;
+    private final String nativeFromGeneratorId;
+    private final String nativeToGeneratorId;
+    private final String powsyblFromGeneratorId;
+    private final String powsyblToGeneratorId;
 
-    private CseHvdcCreationContext(TRemedialAction tRemedialAction, String nativeNetworkElementId, String createdRaId, ImportStatus importStatus, boolean isInverted, String importStatusDetail) {
+    private CseHvdcCreationContext(TRemedialAction tRemedialAction,
+                                   String createdRaId,
+                                   ImportStatus importStatus,
+                                   String importStatusDetail,
+                                   String nativeFromGeneratorId,
+                                   String powsyblFromGeneratorId,
+                                   String nativeToGeneratorId,
+                                   String powsyblToGeneratorId) {
+
         super(tRemedialAction, createdRaId, importStatus, false, importStatusDetail);
-        this.nativeNetworkElementId = nativeNetworkElementId;
-        this.isInverted = isInverted;
+        this.nativeFromGeneratorId = nativeFromGeneratorId;
+        this.nativeToGeneratorId = nativeToGeneratorId;
+        this.powsyblFromGeneratorId = powsyblFromGeneratorId;
+        this.powsyblToGeneratorId = powsyblToGeneratorId;
     }
 
-    public static CseHvdcCreationContext imported(TRemedialAction tRemedialAction, String nativeNetworkElementId, String createdRAId, boolean isInverted) {
-        return new CseHvdcCreationContext(tRemedialAction, nativeNetworkElementId, createdRAId, ImportStatus.IMPORTED, isInverted, null);
+    public static CseHvdcCreationContext imported(TRemedialAction tRemedialAction,
+                                                  String createdRAId,
+                                                  String nativeFromGeneratorId,
+                                                  String powsyblFromGeneratorId,
+                                                  String nativeToGeneratorId,
+                                                  String powsyblToGeneratorId) {
+
+        return new CseHvdcCreationContext(tRemedialAction, createdRAId, ImportStatus.IMPORTED, null, nativeFromGeneratorId, powsyblFromGeneratorId, nativeToGeneratorId, powsyblToGeneratorId);
     }
 
-    public static CseHvdcCreationContext notImported(TRemedialAction tRemedialAction, String nativeNetworkElementId, ImportStatus importStatus, String importStatusDetail) {
-        return new CseHvdcCreationContext(tRemedialAction, nativeNetworkElementId, null, importStatus, false, importStatusDetail);
+    public static CseHvdcCreationContext notImported(TRemedialAction tRemedialAction,
+                                                     ImportStatus importStatus,
+                                                     String importStatusDetail,
+                                                     String nativeFromGeneratorId,
+                                                     String nativeToGeneratorId) {
+        return new CseHvdcCreationContext(tRemedialAction, null, importStatus, importStatusDetail, nativeFromGeneratorId, null, nativeToGeneratorId, null);
     }
 
     @Override
-    public boolean isInverted() {
-        return isInverted;
-    }
-
-    @Override
-    public String getNativeNetworkElementId() {
-        return nativeNetworkElementId;
+    public Map<String, String> getNativeNetworkElementIds() {
+        return Map.of(nativeFromGeneratorId, powsyblFromGeneratorId, nativeToGeneratorId, powsyblToGeneratorId);
     }
 }
