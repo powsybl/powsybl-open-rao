@@ -26,6 +26,7 @@ public final class JsonSerializationConstants {
     public static final String NETWORK_ELEMENTS_IDS = "networkElementsIds";
     public static final String NETWORK_ELEMENT_ID = "networkElementId";
     public static final String NETWORK_ELEMENTS_NAME_PER_ID = "networkElementsNamePerId";
+    public static final String NETWORK_ELEMENT_IDS_AND_KEYS = "networkElementIdsAndKeys";
 
     public static final String GROUP_ID = "groupId";
 
@@ -46,6 +47,7 @@ public final class JsonSerializationConstants {
 
     public static final String PST_RANGE_ACTIONS = "pstRangeActions";
     public static final String HVDC_RANGE_ACTIONS = "hvdcRangeActions";
+    public static final String INJECTION_RANGE_ACTIONS = "injectionRangeActions";
 
     public static final String NETWORK_ACTIONS = "networkActions";
     public static final String TOPOLOGICAL_ACTIONS = "topologicalActions";

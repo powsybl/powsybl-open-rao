@@ -87,6 +87,11 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
                     HvdcRangeActionArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);
                     break;
 
+                case INJECTION_RANGE_ACTIONS:
+                    jsonParser.nextToken();
+                    InjectionRangeActionArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);
+                    break;
+
                 case NETWORK_ACTIONS:
                     jsonParser.nextToken();
                     NetworkActionArrayDeserializer.deserialize(jsonParser, deserializationContext, crac, deserializedNetworkElementsNamesPerId);

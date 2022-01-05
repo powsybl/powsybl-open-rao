@@ -9,7 +9,8 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonParser;
@@ -26,19 +27,20 @@ import java.util.Map;
 import static com.farao_community.farao.data.crac_io_json.JsonSerializationConstants.*;
 
 /**
- * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class HvdcRangeActionArrayDeserializer {
-    private HvdcRangeActionArrayDeserializer() {
+public final class InjectionRangeActionArrayDeserializer {
+    private InjectionRangeActionArrayDeserializer() {
     }
 
     public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
         if (networkElementsNamesPerId == null) {
-            throw new FaraoException(String.format("Cannot deserialize %s before %s", HVDC_RANGE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
+            throw new FaraoException(String.format("Cannot deserialize %s before %s", INJECTION_RANGE_ACTIONS, NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            HvdcRangeActionAdder adder = crac.newHvdcRangeAction();
-            List<Extension<RangeAction>> extensions = new ArrayList<>();
+            InjectionRangeActionAdder adder = crac.newInjectionRangeAction();
+            List<Extension<RangeAction<?>>> extensions = new ArrayList<>();
+
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case ID:
@@ -62,13 +64,8 @@ public final class HvdcRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
                         break;
-                    case NETWORK_ELEMENT_ID:
-                        String networkElementId = jsonParser.nextTextValue();
-                        if (networkElementsNamesPerId.containsKey(networkElementId)) {
-                            adder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
-                        } else {
-                            adder.withNetworkElement(networkElementId);
-                        }
+                    case NETWORK_ELEMENT_IDS_AND_KEYS:
+                        deserializeInjectionDistributionKeys(jsonParser, adder, networkElementsNamesPerId);
                         break;
                     case GROUP_ID:
                         adder.withGroupId(jsonParser.nextTextValue());
@@ -85,9 +82,23 @@ public final class HvdcRangeActionArrayDeserializer {
                         throw new FaraoException("Unexpected field in HvdcRangeAction: " + jsonParser.getCurrentName());
                 }
             }
-            RangeAction hvdcRangeAction = adder.add();
+            RangeAction injectionRangeAction = adder.add();
             if (!extensions.isEmpty()) {
-                ExtensionsHandler.getExtensionsSerializers().addExtensions(hvdcRangeAction, extensions);
+                ExtensionsHandler.getExtensionsSerializers().addExtensions(injectionRangeAction, extensions);
+            }
+        }
+    }
+
+    private static void deserializeInjectionDistributionKeys(JsonParser jsonParser, InjectionRangeActionAdder adder, Map<String, String> networkElementsNamesPerId) throws IOException {
+
+        while (jsonParser.nextToken().isStructEnd()) {
+            String networkElementId = jsonParser.getCurrentName();
+            jsonParser.nextToken();
+            double key = jsonParser.getDoubleValue();
+            if (networkElementsNamesPerId.containsKey(networkElementId)) {
+                adder.withNetworkElementAndKey(key, networkElementId, networkElementsNamesPerId.get(networkElementId));
+            } else {
+                adder.withNetworkElementAndKey(key, networkElementId);
             }
         }
     }

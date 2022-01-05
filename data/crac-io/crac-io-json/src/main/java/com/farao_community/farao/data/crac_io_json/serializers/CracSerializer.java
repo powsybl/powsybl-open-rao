@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -49,6 +50,7 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
         serializeFlowCnecs(crac, gen);
         serializePstRangeActions(crac, gen);
         serializeHvdcRangeActions(crac, gen);
+        serializeInjectionRangeActions(crac, gen);
         serializeNetworkActions(crac, gen);
 
         JsonUtil.writeExtensions(crac, gen, serializers, ExtensionsHandler.getExtensionsSerializers());
@@ -119,6 +121,17 @@ public class CracSerializer extends AbstractJsonSerializer<Crac> {
                 .collect(Collectors.toList());
         for (HvdcRangeAction hvdcRangeAction : sortedListHvdcs) {
             gen.writeObject(hvdcRangeAction);
+        }
+        gen.writeEndArray();
+    }
+
+    private void serializeInjectionRangeActions(Crac crac, JsonGenerator gen) throws IOException {
+        gen.writeArrayFieldStart(INJECTION_RANGE_ACTIONS);
+        List<InjectionRangeAction> sortedInjectionRangeActionList = crac.getInjectionRangeActions().stream()
+                .sorted(Comparator.comparing(InjectionRangeAction::getId))
+                .collect(Collectors.toList());
+        for (InjectionRangeAction injectionRangeAction : sortedInjectionRangeActionList) {
+            gen.writeObject(injectionRangeAction);
         }
         gen.writeEndArray();
     }

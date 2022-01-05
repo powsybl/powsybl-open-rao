@@ -18,7 +18,7 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class HvdcRangeSerializer extends AbstractJsonSerializer<StandardRange> {
+public class StandardRangeSerializer extends AbstractJsonSerializer<StandardRange> {
     @Override
     public void serialize(StandardRange value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
