@@ -18,7 +18,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import java.util.*;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
-import static com.farao_community.farao.commons.FaraoLogger.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

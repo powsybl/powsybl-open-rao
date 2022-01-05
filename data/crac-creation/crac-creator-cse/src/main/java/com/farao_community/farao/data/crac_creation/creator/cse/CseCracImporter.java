@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.cse;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.CRACDocumentType;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
 import com.google.auto.service.AutoService;
@@ -69,12 +69,12 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
             });
 
             schema.newValidator().validate(xmlFile);
-            FaraoLogger.BUSINESS_LOGS.info("CSE CRAC document is valid");
+            FaraoLoggerProvider.BUSINESS_LOGS.info("CSE CRAC document is valid");
             return FilenameUtils.getExtension(s).equals("xml");
         } catch (MalformedURLException e) {
             throw new FaraoException("URL error");
         } catch (SAXException e) {
-            FaraoLogger.TECHNICAL_LOGS.debug("CSE CRAC document is NOT valid. Reason: {}", e.getMessage());
+            FaraoLoggerProvider.TECHNICAL_LOGS.debug("CSE CRAC document is NOT valid. Reason: {}", e.getMessage());
             return false;
         } catch (IOException e) {
             throw new UncheckedIOException(e);

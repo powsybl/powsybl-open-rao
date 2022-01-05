@@ -7,6 +7,7 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.*;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -108,7 +109,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         for (EICode area : referenceProgram.getListOfAreas()) {
             LinearGlsk glskForArea = glsk.getData(area.getAreaCode());
             if (glskForArea == null) {
-                FaraoLogger.BUSINESS_WARNS.warn("No GLSK found for reference area {}", area.getAreaCode());
+                FaraoLoggerProvider.BUSINESS_WARNS.warn("No GLSK found for reference area {}", area.getAreaCode());
             } else {
                 refProgGlskMap.put(area, glskForArea);
             }

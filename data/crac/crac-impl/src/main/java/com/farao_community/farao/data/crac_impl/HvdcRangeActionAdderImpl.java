@@ -8,7 +8,7 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRange;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
@@ -80,7 +80,7 @@ public class HvdcRangeActionAdderImpl extends AbstractRemedialActionAdder<HvdcRa
         }
 
         if (usageRules.isEmpty()) {
-            FaraoLogger.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            FaraoLoggerProvider.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);

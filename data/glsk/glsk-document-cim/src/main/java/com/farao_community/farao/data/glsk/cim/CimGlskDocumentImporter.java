@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.glsk.cim;
 
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
 import com.farao_community.farao.data.glsk.api.io.AbstractGlskDocumentImporter;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporter;
@@ -35,10 +35,10 @@ public class CimGlskDocumentImporter extends AbstractGlskDocumentImporter implem
         }
 
         if ("GLSK_MarketDocument".equals(document.getDocumentElement().getTagName())) {
-            FaraoLogger.TECHNICAL_LOGS.info("CIM GLSK importer could import this document.");
+            FaraoLoggerProvider.TECHNICAL_LOGS.info("CIM GLSK importer could import this document.");
             return true;
         } else {
-            FaraoLogger.TECHNICAL_LOGS.info("CIM GLSK importer could not import this document.");
+            FaraoLoggerProvider.TECHNICAL_LOGS.info("CIM GLSK importer could not import this document.");
             document = null; // As document is not recognized ensure document is null, in case import method is called afterwards
             return false;
         }

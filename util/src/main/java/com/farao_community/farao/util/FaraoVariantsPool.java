@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.util;
 
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.powsybl.iidm.network.Network;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -41,7 +41,7 @@ public class FaraoVariantsPool extends ForkJoinPool implements AutoCloseable {
         try {
             for (int i = 0; i < getParallelism(); i++) {
                 String variantId = getVariantIdByIndex(i);
-                FaraoLogger.TECHNICAL_LOGS.info("Filling variants pool with variant '{}'", variantId);
+                FaraoLoggerProvider.TECHNICAL_LOGS.info("Filling variants pool with variant '{}'", variantId);
                 network.getVariantManager().cloneVariant(initialVariant, variantId);
                 boolean isSuccess = variantsQueue.offer(variantId);
                 if (!isSuccess) {

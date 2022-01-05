@@ -35,8 +35,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.FaraoLogger.BUSINESS_WARNS;
-import static com.farao_community.farao.commons.FaraoLogger.TECHNICAL_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Flowbased computation implementation

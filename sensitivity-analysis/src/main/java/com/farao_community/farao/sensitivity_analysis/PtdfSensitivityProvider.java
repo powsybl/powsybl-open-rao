@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -30,7 +30,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
 
         // todo : handle PTDFs in AMPERE
         if (factorsInAmpere || !factorsInMegawatt) {
-            FaraoLogger.BUSINESS_WARNS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
+            FaraoLoggerProvider.BUSINESS_WARNS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
             factorsInMegawatt = true;
             factorsInAmpere = false;
         }

@@ -7,7 +7,7 @@
 package com.farao_community.farao.util;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ public final class NativeLibraryLoader {
     public static synchronized void loadNativeLibrary(String libraryName) {
         if (!alreadyLoaded(libraryName)) {
             try {
-                FaraoLogger.TECHNICAL_LOGS.info("Loading library '{}'", libraryName);
+                FaraoLoggerProvider.TECHNICAL_LOGS.info("Loading library '{}'", libraryName);
                 System.loadLibrary(libraryName);
                 NATIVE_LIBRARIES_LOADED.add(libraryName);
             } catch (UnsatisfiedLinkError e) {

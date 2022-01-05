@@ -13,7 +13,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 
 import java.util.*;
 
-import static com.farao_community.farao.commons.FaraoLogger.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

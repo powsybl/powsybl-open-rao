@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.logs.FaraoLogger;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -24,7 +25,6 @@ import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
-import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.FaraoLogger.*;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -53,7 +53,7 @@ import static com.farao_community.farao.commons.FaraoLogger.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SearchTree {
-    private Logger topLevelLogger;
+    private FaraoLogger topLevelLogger;
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
 

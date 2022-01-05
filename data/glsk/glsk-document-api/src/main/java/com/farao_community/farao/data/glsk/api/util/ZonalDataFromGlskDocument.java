@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.glsk.api.util;
 
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.ZonalDataImpl;
 import com.farao_community.farao.data.glsk.api.AbstractGlskPoint;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
@@ -33,7 +33,7 @@ public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
             try {
                 addLinearDataFromList(network, converter, glskPointList, zone);
             } catch (GlskException e) {
-                FaraoLogger.BUSINESS_WARNS.warn("Could not create linear data for zone {}: {}", zone, e.getMessage());
+                FaraoLoggerProvider.BUSINESS_WARNS.warn("Could not create linear data for zone {}: {}", zone, e.getMessage());
             }
         }
     }

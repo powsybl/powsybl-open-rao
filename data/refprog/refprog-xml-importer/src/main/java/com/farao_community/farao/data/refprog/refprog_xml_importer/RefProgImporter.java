@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.FaraoLogger.*;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * RefProg xml file importer

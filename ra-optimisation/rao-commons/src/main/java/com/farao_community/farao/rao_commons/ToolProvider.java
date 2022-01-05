@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.*;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -174,7 +175,7 @@ public final class ToolProvider {
         for (String eiCode : listEicCode) {
             LinearGlsk linearGlsk = glskProvider.getData(eiCode);
             if (Objects.isNull(linearGlsk)) {
-                FaraoLogger.BUSINESS_WARNS.warn("No GLSK found for CountryEICode {}", eiCode);
+                FaraoLoggerProvider.BUSINESS_WARNS.warn("No GLSK found for CountryEICode {}", eiCode);
             } else {
                 glskBoundaries.put(eiCode, linearGlsk);
             }

@@ -10,7 +10,7 @@ package com.farao_community.farao.data.crac_creation.creator.api;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.farao_community.farao.commons.FaraoLogger.*;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * Common methods used in CRAC creation reports

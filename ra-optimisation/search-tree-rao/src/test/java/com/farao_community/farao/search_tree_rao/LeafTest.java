@@ -26,7 +26,7 @@ import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinear
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
@@ -209,8 +209,8 @@ public class LeafTest {
 
     }
 
-    private ListAppender<ILoggingEvent> getLogs(String name) {
-        Logger logger = (Logger) LoggerFactory.getLogger(name);
+    private ListAppender<ILoggingEvent> getLogs(Class clazz) {
+        Logger logger = (Logger) LoggerFactory.getLogger(clazz);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
         logger.addAppender(listAppender);
@@ -218,11 +218,11 @@ public class LeafTest {
     }
 
     private ListAppender<ILoggingEvent> getTechnicalLogs() {
-        return getLogs(FaraoLogger.TECHNICAL_LOGS.getName());
+        return getLogs(FaraoLoggerProvider.TECHNICAL_LOGS.getClass());
     }
 
     private ListAppender<ILoggingEvent> getBusinessWarns() {
-        return getLogs(FaraoLogger.BUSINESS_WARNS.getName());
+        return getLogs(FaraoLoggerProvider.BUSINESS_WARNS.getClass());
     }
 
     @Test

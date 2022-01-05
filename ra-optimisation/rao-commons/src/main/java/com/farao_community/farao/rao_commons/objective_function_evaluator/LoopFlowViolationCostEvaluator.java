@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
@@ -50,7 +50,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
                 .sum();
 
         if (cost > 0) {
-            FaraoLogger.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
+            FaraoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
         }
 
         return cost;

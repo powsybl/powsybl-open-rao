@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -147,9 +147,9 @@ public final class SystematicSensitivityInterface {
             return result;
 
         } catch (SensitivityAnalysisException e) {
-            FaraoLogger.TECHNICAL_LOGS.debug("Exception occurred during sensitivity analysis", e);
+            FaraoLoggerProvider.TECHNICAL_LOGS.debug("Exception occurred during sensitivity analysis", e);
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
-                FaraoLogger.BUSINESS_WARNS.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
+                FaraoLoggerProvider.BUSINESS_WARNS.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
                 refreshRequestedUnits();
                 return run(network);

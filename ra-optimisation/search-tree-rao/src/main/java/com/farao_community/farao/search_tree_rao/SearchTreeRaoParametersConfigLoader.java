@@ -7,7 +7,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -53,7 +53,7 @@ public class SearchTreeRaoParametersConfigLoader implements RaoParameters.Config
 
     private void logMapReadError(ModuleConfig config, String property) {
         if (config.hasProperty(property)) {
-            FaraoLogger.BUSINESS_WARNS.warn("ModuleConfig cannot read maps. The parameter {} you set will not be read. Set it in a json file instead.", property);
+            FaraoLoggerProvider.BUSINESS_WARNS.warn("ModuleConfig cannot read maps. The parameter {} you set will not be read. Set it in a json file instead.", property);
         }
     }
 

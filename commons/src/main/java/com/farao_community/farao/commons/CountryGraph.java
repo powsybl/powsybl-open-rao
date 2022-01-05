@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.commons;
 
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
@@ -46,7 +47,7 @@ public class CountryGraph {
                         boundaries.add(new CountryBoundary(country1.get(), country2.get()));
                     }
                 } else {
-                    FaraoLogger.TECHNICAL_LOGS.debug("Countries are not defined in both sides of branch {}", branch.getId());
+                    FaraoLoggerProvider.TECHNICAL_LOGS.debug("Countries are not defined in both sides of branch {}", branch.getId());
                 }
             });
     }

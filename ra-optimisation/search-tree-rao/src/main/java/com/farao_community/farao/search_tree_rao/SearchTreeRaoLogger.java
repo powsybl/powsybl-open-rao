@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.logs.FaraoLogger;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -21,7 +22,6 @@ import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.state_tree.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.state_tree.ContingencyScenario;
-import org.slf4j.Logger;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -36,12 +36,12 @@ final class SearchTreeRaoLogger {
     private SearchTreeRaoLogger() {
     }
 
-    static void logRangeActions(Logger logger,
+    static void logRangeActions(FaraoLogger logger,
                                 Leaf leaf, Set<RangeAction> rangeActions) {
         logRangeActions(logger, leaf, rangeActions, null);
     }
 
-    static void logRangeActions(Logger logger, Leaf leaf, Set<RangeAction> rangeActions, String prefix) {
+    static void logRangeActions(FaraoLogger logger, Leaf leaf, Set<RangeAction> rangeActions, String prefix) {
         String rangeActionSetpoints = rangeActions.stream().map(rangeAction -> {
             if (rangeAction instanceof PstRangeAction) {
                 int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction);
@@ -54,19 +54,19 @@ final class SearchTreeRaoLogger {
         logger.info("{}range action(s): {}", prefix == null ? "" : prefix, rangeActionSetpoints);
     }
 
-    static void logMostLimitingElementsResults(Logger logger, OptimizationResult optimizationResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
+    static void logMostLimitingElementsResults(FaraoLogger logger, OptimizationResult optimizationResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, optimizationResult, optimizationResult, null, objectiveFunction, numberOfLoggedElements);
     }
 
-    static void logMostLimitingElementsResults(Logger logger, PrePerimeterResult prePerimeterResult, Set<State> states, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
+    static void logMostLimitingElementsResults(FaraoLogger logger, PrePerimeterResult prePerimeterResult, Set<State> states, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, states, objectiveFunction, numberOfLoggedElements);
     }
 
-    static void logMostLimitingElementsResults(Logger logger, PrePerimeterResult prePerimeterResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
+    static void logMostLimitingElementsResults(FaraoLogger logger, PrePerimeterResult prePerimeterResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, null, objectiveFunction, numberOfLoggedElements);
     }
 
-    private static void logMostLimitingElementsResults(Logger logger,
+    private static void logMostLimitingElementsResults(FaraoLogger logger,
                                                        ObjectiveFunctionResult objectiveFunctionResult,
                                                        FlowResult flowResult,
                                                        Set<State> states,
@@ -108,7 +108,7 @@ final class SearchTreeRaoLogger {
         return summary;
     }
 
-    static void logMostLimitingElementsResults(Logger logger,
+    static void logMostLimitingElementsResults(FaraoLogger logger,
                                                BasecaseScenario basecaseScenario,
                                                OptimizationResult basecaseOptimResult,
                                                Set<ContingencyScenario> contingencyScenarios,
@@ -194,7 +194,7 @@ final class SearchTreeRaoLogger {
         return mostLimitingElementsAndMargins;
     }
 
-    public static void logOptimizationSummary(Logger logger, State optimizedState, long activatedNetworkActions, long activatedRangeActions, Double initialFunctionalCost, Double initialVirtualCost, ObjectiveFunctionResult finalObjective) {
+    public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, long activatedNetworkActions, long activatedRangeActions, Double initialFunctionalCost, Double initialVirtualCost, ObjectiveFunctionResult finalObjective) {
         String raType = optimizedState.getInstant().toString();
         Optional<Contingency> optionalContingency = optimizedState.getContingency();
         String scenarioName = optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();

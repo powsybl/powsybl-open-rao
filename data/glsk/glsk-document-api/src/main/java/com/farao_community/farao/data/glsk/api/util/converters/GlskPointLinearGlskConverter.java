@@ -17,7 +17,7 @@ import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.FaraoLogger.TECHNICAL_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Convert a single GlskPoint to LinearGlsk

@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.glsk.virtual.hubs;
 
 import com.farao_community.farao.commons.*;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
 import com.powsybl.iidm.network.Load;
@@ -61,9 +62,9 @@ public final class GlskVirtualHubs {
         eiCodes.forEach(eiCode -> {
 
             if (!virtualLoads.containsKey(eiCode)) {
-                FaraoLogger.BUSINESS_WARNS.warn("No load found for virtual hub {}", eiCode);
+                FaraoLoggerProvider.BUSINESS_WARNS.warn("No load found for virtual hub {}", eiCode);
             } else {
-                FaraoLogger.TECHNICAL_LOGS.debug("Load {} found for virtual hub {}", virtualLoads.get(eiCode).getId(), eiCode);
+                FaraoLoggerProvider.TECHNICAL_LOGS.debug("Load {} found for virtual hub {}", virtualLoads.get(eiCode).getId(), eiCode);
                 Optional<LinearGlsk> virtualHubGlsk = createGlskFromVirtualHub(virtualLoads.get(eiCode));
                 virtualHubGlsk.ifPresent(linearGlsk -> glsks.put(eiCode, linearGlsk));
             }

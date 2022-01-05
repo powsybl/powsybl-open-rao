@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.sensitivity_analysis;
 
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.*;
@@ -42,12 +42,12 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
                     factorsInAmpere = true;
                     break;
                 default:
-                    FaraoLogger.TECHNICAL_LOGS.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
+                    FaraoLoggerProvider.TECHNICAL_LOGS.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
             }
         }
 
         if (!factorsInAmpere && !factorsInMegawatt) {
-            FaraoLogger.BUSINESS_LOGS.error("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
+            FaraoLoggerProvider.BUSINESS_LOGS.error("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
         }
 
     }

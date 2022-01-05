@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
-import com.farao_community.farao.commons.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -87,7 +87,7 @@ public class XnodeGlskHandler {
 
         glskZonalData.getDataPerZone().forEach((k, linearGlsk) -> {
             if (!isGlskValid(linearGlsk, xNodesInContingency)) {
-                FaraoLogger.TECHNICAL_LOGS.info("PTDF of zone {} will be replaced by 0 after contingency {}, as it acts on a Xnode which has been disconnected by the contingency", linearGlsk.getId(), contingency.getId());
+                FaraoLoggerProvider.TECHNICAL_LOGS.info("PTDF of zone {} will be replaced by 0 after contingency {}, as it acts on a Xnode which has been disconnected by the contingency", linearGlsk.getId(), contingency.getId());
                 invalidGlsk.add(linearGlsk.getId());
             }
         });
