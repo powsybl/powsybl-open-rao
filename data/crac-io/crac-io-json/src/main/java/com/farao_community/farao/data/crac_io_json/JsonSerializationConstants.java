@@ -25,7 +25,11 @@ public final class JsonSerializationConstants {
 
     private JsonSerializationConstants() { }
 
-    public static final String CRAC_IO_VERSION = "1.1";
+    public static final String CRAC_IO_VERSION = "1.2";
+    /*
+    v1.1: addition of switchPairs
+    v1.2: addition of injectionRangeAction
+     */
 
     // headers
     public static final String TYPE = "type";

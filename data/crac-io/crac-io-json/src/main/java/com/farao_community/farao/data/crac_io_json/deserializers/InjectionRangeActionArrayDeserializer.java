@@ -9,7 +9,6 @@ package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
@@ -65,6 +64,7 @@ public final class InjectionRangeActionArrayDeserializer {
                         OnFlowConstraintArrayDeserializer.deserialize(jsonParser, adder);
                         break;
                     case NETWORK_ELEMENT_IDS_AND_KEYS:
+                        jsonParser.nextToken();
                         deserializeInjectionDistributionKeys(jsonParser, adder, networkElementsNamesPerId);
                         break;
                     case GROUP_ID:
@@ -79,7 +79,7 @@ public final class InjectionRangeActionArrayDeserializer {
                         extensions = JsonUtil.readExtensions(jsonParser, deserializationContext, ExtensionsHandler.getExtensionsSerializers());
                         break;
                     default:
-                        throw new FaraoException("Unexpected field in HvdcRangeAction: " + jsonParser.getCurrentName());
+                        throw new FaraoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
                 }
             }
             RangeAction injectionRangeAction = adder.add();
@@ -91,7 +91,7 @@ public final class InjectionRangeActionArrayDeserializer {
 
     private static void deserializeInjectionDistributionKeys(JsonParser jsonParser, InjectionRangeActionAdder adder, Map<String, String> networkElementsNamesPerId) throws IOException {
 
-        while (jsonParser.nextToken().isStructEnd()) {
+        while (!jsonParser.nextToken().isStructEnd()) {
             String networkElementId = jsonParser.getCurrentName();
             jsonParser.nextToken();
             double key = jsonParser.getDoubleValue();

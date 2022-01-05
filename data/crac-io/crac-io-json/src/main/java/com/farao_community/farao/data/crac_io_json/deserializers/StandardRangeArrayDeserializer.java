@@ -8,9 +8,7 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
-import com.farao_community.farao.data.crac_api.range_action.StandardRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.StandardRangeActionAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;

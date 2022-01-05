@@ -205,6 +205,7 @@ public final class ExhaustiveCracCreation {
                 .withNetworkElementAndKey(1., "generator1Id")
                 .withNetworkElementAndKey(-1., "generator2Id", "generator2Name")
                 .newRange().withMin(-500).withMax(500).add()
+                .newRange().withMin(-1000).withMax(1000).add()
                 .newOnStateUsageRule().withInstant(Instant.CURATIVE).withContingency("contingency1Id").withUsageMethod(UsageMethod.AVAILABLE).add()
                 .add();
 

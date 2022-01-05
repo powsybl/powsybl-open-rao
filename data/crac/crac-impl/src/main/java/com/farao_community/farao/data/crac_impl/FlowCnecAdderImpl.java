@@ -30,11 +30,11 @@ import static java.lang.String.format;
  */
 public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> implements FlowCnecAdder {
 
-    private Set<BranchThresholdImpl> thresholds = new HashSet<>();
-    private Double iMaxLeft = null;
-    private Double iMaxRight = null;
-    private Double nominalVLeft = null;
-    private Double nominalVRight = null;
+    private final Set<BranchThresholdImpl> thresholds = new HashSet<>();
+    private Double iMaxLeft = Double.NaN;
+    private Double iMaxRight = Double.NaN;
+    private Double nominalVLeft = Double.NaN;
+    private Double nominalVRight = Double.NaN;
 
     FlowCnecAdderImpl(CracImpl owner) {
         super(owner);
@@ -141,7 +141,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
             I do not think that nominalVoltage are absolutely required with thresholds in MEGAWATT, but I'm not 100% sure.
              */
 
-            if (Objects.isNull(nominalVRight) || Objects.isNull(nominalVLeft)) {
+            if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight) || Double.isNaN(nominalVLeft) || Double.isNaN(nominalVRight)) {
                 throw new FaraoException(String.format("nominal voltages on both side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", id));
             }
         }
@@ -167,7 +167,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
                 branchThreshold.setSide(Side.RIGHT);
                 break;
             case ON_LOW_VOLTAGE_LEVEL:
-                if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight)) {
+                if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight) || Double.isNaN(nominalVLeft) || Double.isNaN(nominalVRight)) {
                     throw new FaraoException("ON_LOW_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
                 }
                 if (nominalVLeft <= nominalVRight) {
@@ -177,7 +177,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
                 }
                 break;
             case ON_HIGH_VOLTAGE_LEVEL:
-                if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight)) {
+                if (Objects.isNull(nominalVLeft) || Objects.isNull(nominalVRight) || Double.isNaN(nominalVLeft) || Double.isNaN(nominalVRight)) {
                     throw new FaraoException("ON_HIGH_VOLTAGE_LEVEL thresholds can only be defined on FlowCnec whose nominalVoltages have been set on both sides");
                 }
                 if (nominalVLeft < nominalVRight) {
@@ -195,13 +195,13 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
 
         if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
             && branchThreshold.getSide().equals(Side.LEFT)
-            && iMaxLeft == null) {
+            && (iMaxLeft == null || Double.isNaN(iMaxLeft))) {
             throw new FaraoException(String.format("iMax on left side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()", id));
         }
 
         if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
             && branchThreshold.getSide().equals(Side.RIGHT)
-            && iMaxRight == null) {
+            && (iMaxRight == null || Double.isNaN(iMaxRight))) {
             throw new FaraoException(String.format("iMax on right side of FlowCnec %s must be defined, as one of its threshold is on PERCENT_IMAX on the right side. Please use withIMax()", id));
         }
     }
