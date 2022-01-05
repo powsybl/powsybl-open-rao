@@ -31,6 +31,11 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
     public void serialize(RaoResult raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
+        // type and version
+        jsonGenerator.writeStringField(TYPE, RAO_RESULT_TYPE);
+        jsonGenerator.writeStringField(VERSION, RAO_RESULT_IO_VERSION);
+        jsonGenerator.writeStringField(INFO, RAO_RESULT_INFO);
+
         // computation status
         ComputationStatus computationStatus = raoResult.getComputationStatus();
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));

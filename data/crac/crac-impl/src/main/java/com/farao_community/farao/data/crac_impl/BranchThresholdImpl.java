@@ -53,4 +53,25 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
     public BranchThresholdRule getRule() {
         return rule;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BranchThresholdImpl otherT = (BranchThresholdImpl) o;
+
+        return super.equals(otherT)
+                && rule.equals(otherT.getRule());
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode()
+                + 31 * rule.hashCode();
+    }
 }
