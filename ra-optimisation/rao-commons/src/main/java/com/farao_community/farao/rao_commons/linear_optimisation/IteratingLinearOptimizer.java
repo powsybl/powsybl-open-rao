@@ -30,9 +30,6 @@ import static com.farao_community.farao.commons.FaraoLogger.TECHNICAL_LOGS;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class IteratingLinearOptimizer {
-    private static final String BETTER_RESULT = "Iteration {} - Better solution found with a functional cost of {} (optimisation criterion : {})";
-    private static final String WORSE_RESULT = "Iteration {} - Linear Optimization found a worse result than previous iteration, with a functional cost from {} to {} (optimisation criterion : from {} to {})";
-
     private final ObjectiveFunction objectiveFunction;
     private final int maxIterations;
     private final RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
@@ -90,7 +87,7 @@ public class IteratingLinearOptimizer {
 
             if (!hasRemedialActionsChanged(currentRangeActionResult, bestResult)) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
-                TECHNICAL_LOGS.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
+                TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
                 return bestResult;
             }
 
@@ -123,9 +120,9 @@ public class IteratingLinearOptimizer {
     }
 
     private static void solveLinearProblem(LinearProblem linearProblem, int iteration) {
-        TECHNICAL_LOGS.debug("Iteration {} - linear optimization [start]", iteration);
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
         linearProblem.solve();
-        TECHNICAL_LOGS.debug("Iteration {} - linear optimization [end]", iteration);
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
     }
 
     static boolean hasRemedialActionsChanged(RangeActionResult newRangeActionResult, RangeActionResult oldRangeActionResult) {
@@ -142,20 +139,20 @@ public class IteratingLinearOptimizer {
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {
         TECHNICAL_LOGS.info(
-            BETTER_RESULT,
+            "Iteration {}: better solution found with a cost of {} (functional: {})",
             iteration,
-            currentObjectiveFunctionResult.getFunctionalCost(),
-            currentObjectiveFunctionResult.getCost());
+            currentObjectiveFunctionResult.getCost(),
+            currentObjectiveFunctionResult.getFunctionalCost());
     }
 
     private static void logWorseResult(int iteration, ObjectiveFunctionResult bestResult, ObjectiveFunctionResult currentResult) {
         TECHNICAL_LOGS.info(
-            WORSE_RESULT,
+            "Iteration {}: linear optimization found a worse result than previous iteration, with a cost increasing from {} to {} (functional: from {} to {})",
             iteration,
-            bestResult.getFunctionalCost(),
-            currentResult.getFunctionalCost(),
             bestResult.getCost(),
-            currentResult.getCost());
+            currentResult.getCost(),
+            bestResult.getFunctionalCost(),
+            currentResult.getFunctionalCost());
     }
 
     private void applyRangeActions(Set<RangeAction> rangeActions,

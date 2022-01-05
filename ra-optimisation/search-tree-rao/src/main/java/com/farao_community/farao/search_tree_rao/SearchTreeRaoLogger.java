@@ -42,28 +42,16 @@ final class SearchTreeRaoLogger {
     }
 
     static void logRangeActions(Logger logger, Leaf leaf, Set<RangeAction> rangeActions, String prefix) {
-        StringBuilder rangeActionMsg = new StringBuilder();
-        if (prefix != null) {
-            rangeActionMsg.append(prefix).append(" - ");
-        }
-        rangeActionMsg.append("Range action(s): ");
-        rangeActions.forEach(rangeAction -> {
-            String rangeActionName = rangeAction.getName();
+        String rangeActionSetpoints = rangeActions.stream().map(rangeAction -> {
             if (rangeAction instanceof PstRangeAction) {
                 int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction);
-                rangeActionMsg
-                    .append(format("%s: %d", rangeActionName, rangeActionTap))
-                    .append(" , ");
+                return format("%s: %d", rangeAction.getName(), rangeActionTap);
             } else {
                 double rangeActionSetPoint = leaf.getOptimizedSetPoint(rangeAction);
-                rangeActionMsg
-                    .append(format("%s: %.2f", rangeActionName, rangeActionSetPoint))
-                    .append(" , ");
-
+                return format("%s: %.2f", rangeAction.getName(), rangeActionSetPoint);
             }
-        });
-        String rangeActionsLog = rangeActionMsg.toString();
-        logger.info(rangeActionsLog);
+        }).collect(Collectors.joining(", "));
+        logger.info("{}range action(s): {}", prefix == null ? "" : prefix, rangeActionSetpoints);
     }
 
     static void logMostLimitingElementsResults(Logger logger, OptimizationResult optimizationResult, RaoParameters.ObjectiveFunction objectiveFunction, int numberOfLoggedElements) {

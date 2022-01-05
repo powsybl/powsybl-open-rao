@@ -176,7 +176,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         if (shouldRunSecondPreventiveRao(parameters, initialOutput, preventiveResult, postContingencyResults, targetEndInstant, preventiveRaoTime)) {
             mergedRaoResults = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
         } else {
-            BUSINESS_LOGS.info("Merging preventive and curative RAO results:");
+            BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
             mergedRaoResults = new PreventiveAndCurativesRaoOutput(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
             // log results
             SearchTreeRaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
@@ -765,7 +765,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         PrePerimeterResult updatedPreCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, secondPreventiveResult);
         BUSINESS_LOGS.info("Second preventive perimeter optimization [end]");
 
-        BUSINESS_LOGS.info("Merging first, second preventive and curative RAO results:");
+        BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
         Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
 
         // log results

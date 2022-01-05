@@ -38,9 +38,7 @@ public final class SensitivityComputer {
 
     public void compute(Network network) {
         try {
-            TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
             result = systematicSensitivityInterface.run(network);
-            TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
         } catch (SensitivityAnalysisException e) {
             TECHNICAL_LOGS.warn("Systematic sensitivity computation failed on {} mode: {}", systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage());
             throw e;
