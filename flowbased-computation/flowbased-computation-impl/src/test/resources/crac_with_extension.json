@@ -151,50 +151,7 @@
           "networkElementId": "FR-BE",
           "actionType": "close"
         }
-      ],
-      "extensions" : {
-        "NetworkActionResultExtension" : {
-          "resultsPerVariant" : {
-            "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
-              "type" : "network-action-result",
-              "activationMap" : {
-                "preventive" : true,
-                "N-1 FR-BE - outage" : false,
-                "N-1 FR-BE - curative" : false
-              }
-            },
-            "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
-              "type" : "network-action-result",
-              "activationMap" : {
-                "preventive" : false,
-                "N-1 FR-BE - outage" : false,
-                "N-1 FR-BE - curative" : false
-              }
-            }
-          }
-        }
-      }
+      ]
     }
-  ],
-  "extensions" : {
-    "ResultVariantManager" : {
-      "variantIds" : [ "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e", "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" ]
-    },
-    "CracResultExtension" : {
-      "resultsPerVariant" : {
-        "preOptimisationResults-eea6969d-0a58-4723-8320-0e06eafbed8e" : {
-          "type" : "crac-result",
-          "networkSecurityStatus" : "SECURED",
-          "functionalCost" : -25.64197836348194,
-          "virtualCost" : 0.0
-        },
-        "preOptimisationResults-2ad0d908-b660-48cf-9f1a-f3add0d6f005" : {
-          "type" : "crac-result",
-          "networkSecurityStatus" : "UNSECURED",
-          "functionalCost" : 549.7274064021431,
-          "virtualCost" : 0.0
-        }
-      }
-    }
-  }
+  ]
 }
