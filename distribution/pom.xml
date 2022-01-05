@@ -49,11 +49,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-crac-result-extensions</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>farao-crac-util</artifactId>
             <version>${project.version}</version>
         </dependency>
