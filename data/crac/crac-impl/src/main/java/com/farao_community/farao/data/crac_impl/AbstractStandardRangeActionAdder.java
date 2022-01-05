@@ -34,7 +34,7 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
 
     @Override
     public StandardRangeAdder<T> newRange() {
-        return new StandardRangeAdderImpl<T>(this);
+        return new StandardRangeAdderImpl<>(this);
     }
 
     void addRange(StandardRange standardRange) {

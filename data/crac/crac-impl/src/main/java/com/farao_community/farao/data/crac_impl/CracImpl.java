@@ -89,7 +89,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         } else if (getRemedialActions().stream()
             .map(RemedialAction::getNetworkElements)
             .flatMap(Set::stream)
-            .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))) {
+            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
             return true;
         }
 
