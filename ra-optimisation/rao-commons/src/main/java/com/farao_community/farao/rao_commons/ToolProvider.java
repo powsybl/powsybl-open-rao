@@ -136,17 +136,15 @@ public final class ToolProvider {
                                                                             boolean computeLoopFlows,
                                                                             AppliedRemedialActions appliedRemedialActions) {
 
-        Set<Unit> flowUnits = new HashSet<>();
-        flowUnits.add(Unit.MEGAWATT);
-        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
-            flowUnits.add(Unit.AMPERE);
-        }
-
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
                 .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
                 .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
-                .withRangeActionSensitivities(rangeActions, cnecs, flowUnits)
+                .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
                 .withAppliedRemedialActions(appliedRemedialActions);
+
+        if (!raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters().isDc()) {
+            builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
+        }
 
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();
