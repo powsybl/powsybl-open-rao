@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-flowbased-computation</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>farao-flowbased-computation-impl</artifactId>
