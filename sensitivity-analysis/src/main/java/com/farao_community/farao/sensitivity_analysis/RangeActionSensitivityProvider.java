@@ -7,6 +7,7 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
@@ -86,7 +87,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         } else if (rangeAction instanceof InjectionRangeAction) {
             // todo: if InjectionRangeAction only create one variable, make this method return a SensitivityVariable
             //      and not a List<SensitivityVariable>
-            return Collections.singletonList(injectionRangeActionToSensitivityVariable(network, (InjectionRangeAction) rangeAction));
+            return injectionRangeActionToSensitivityVariable(network, (InjectionRangeAction) rangeAction);
         } else {
             throw new SensitivityAnalysisException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
         }
@@ -112,16 +113,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         }
     }
 
-    private SensitivityVariable injectionRangeActionToSensitivityVariable(Network network, InjectionRangeAction injectionRangeAction) {
-        Map<String, Float> glskMap = new HashMap<>();
-        injectionRangeAction.getInjectionDistributionKeys().forEach((key, value) -> {
-            Identifiable<?> networkIdentifiable = network.getIdentifiable(key.getId());
-            if (networkIdentifiable instanceof Load || networkIdentifiable instanceof Generator) {
-                glskMap.put(key.getId(), value.floatValue());
-            } else {
-                throw new SensitivityAnalysisException(String.format("Unable to create sensitivity variable for InjectionRangeAction %s, on element %s", injectionRangeAction.getId(), key.getId()));
-            }
-        });
+    private List<SensitivityVariable> injectionRangeActionToSensitivityVariable(Network network, InjectionRangeAction injectionRangeAction) {
 
         // todo: ensure that it works, not sure it is that easy, notably not sure that GLSK handle negative
         //  values in Hades. We might have to build two LinearGlsk, one for positive generator/negative load,
@@ -133,6 +125,50 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         // + care-update: not sure it is absolutely necessary to make this dev, we just need the sensi in MEGAWATT,
         // only the reference flows can be useful in AMPERE
 
-        return new LinearGlsk(injectionRangeAction.getId(), injectionRangeAction.getId(), glskMap);
+        List<SensitivityVariable> sensitivityVariables = new ArrayList<>();
+
+        // GLSK which concatenate the change of all injections
+
+        Map<String, Float> glskMap = new HashMap<>();
+        Map<String, Float> glskMap1 = new HashMap<>();
+        Map<String, Float> glskMap2 = new HashMap<>();
+        Map<String, Float> glskMap1abs = new HashMap<>();
+        Map<String, Float> glskMap2abs = new HashMap<>();
+        Map<String, Float> glskMap1demi = new HashMap<>();
+
+        int i = 1;
+        for (Map.Entry<NetworkElement, Double> entry : injectionRangeAction.getInjectionDistributionKeys().entrySet()) {
+            NetworkElement key = entry.getKey();
+            Double value = entry.getValue();
+            Identifiable<?> networkIdentifiable = network.getIdentifiable(key.getId());
+            if (networkIdentifiable instanceof Load || networkIdentifiable instanceof Generator) {
+                glskMap.put(key.getId(), value.floatValue());
+                if (i == 1) {
+                    glskMap1.put(key.getId(), value.floatValue());
+                    glskMap1abs.put(key.getId(), Math.abs(value.floatValue()));
+                    glskMap1demi.put(key.getId(), Math.abs(value.floatValue()) / 2);
+
+                } else if (i == 2) {
+                    glskMap2.put(key.getId(), value.floatValue());
+                    glskMap2abs.put(key.getId(), Math.abs(value.floatValue()));
+                }
+                i++;
+            } else {
+                throw new SensitivityAnalysisException(String.format("Unable to create sensitivity variable for InjectionRangeAction %s, on element %s", injectionRangeAction.getId(), key.getId()));
+            }
+        }
+
+        sensitivityVariables.add(new LinearGlsk(injectionRangeAction.getId(), injectionRangeAction.getId(), glskMap));
+
+        // for test: glsk on first generator
+        sensitivityVariables.add(new LinearGlsk(injectionRangeAction.getId() + "-gen1", injectionRangeAction.getId() + "-gen1", glskMap1));
+        sensitivityVariables.add(new LinearGlsk(injectionRangeAction.getId() + "-gen1abs", injectionRangeAction.getId() + "-gen1abs", glskMap1abs));
+        sensitivityVariables.add(new LinearGlsk(injectionRangeAction.getId() + "-gen1absdemi", injectionRangeAction.getId() + "-gen1absdemi", glskMap1demi));
+
+        // for test: glsk on second generator
+        sensitivityVariables.add(new LinearGlsk(injectionRangeAction.getId() + "-gen2", injectionRangeAction.getId() + "-gen2", glskMap2));
+        sensitivityVariables.add(new LinearGlsk(injectionRangeAction.getId() + "-gen2abs", injectionRangeAction.getId() + "-gen2abs", glskMap2abs));
+
+        return sensitivityVariables;
     }
 }
