@@ -77,7 +77,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         if (!optimizedCnecs.isEmpty()) {
             linearProblem.addMinimumRelativeMarginVariable(-LinearProblem.infinity(), LinearProblem.infinity());
         } else {
-            // if there is no Cnecs, the minMarginVariable is forced to zero.
+            // if there is no Cnecs, the minRelativeMarginVariable is forced to zero.
             // otherwise it would be unbounded in the LP
             linearProblem.addMinimumRelativeMarginVariable(0.0, 0.0);
         }
