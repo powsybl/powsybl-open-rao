@@ -24,8 +24,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -399,6 +398,34 @@ public class RangeActionFilterTest {
         rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
         rangeActionFilter.filterMaxRas();
         assertEquals(availableRangeActions, rangeActionFilter.getRangeActionsToOptimize());
+    }
+
+    @Test
+    public void testGetWorstElement() {
+        FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
+        FlowCnec cnec3 = Mockito.mock(FlowCnec.class);
+
+        // case where we have a limiting cnec
+        assertEquals(cnec, RangeActionFilter.getWorstElement(leaf));
+
+        // case where we dont have a limiting cnec nor a virtual cost
+        when(leaf.getMostLimitingElements(anyInt())).thenReturn(new ArrayList<>());
+        when(leaf.getVirtualCostNames()).thenReturn(new HashSet<>());
+        assertNull(RangeActionFilter.getWorstElement(leaf));
+
+        // case where we dont have a limiting cnec but have a costly cnec
+        when(leaf.getVirtualCostNames()).thenReturn(Set.of("vc1", "vc2", "vc3"));
+        when(leaf.getVirtualCost("vc1")).thenReturn(100.);
+        when(leaf.getVirtualCost("vc2")).thenReturn(50.);
+        when(leaf.getVirtualCost("vc3")).thenReturn(160.);
+        when(leaf.getCostlyElements(eq("vc1"), anyInt())).thenReturn(Collections.singletonList(cnec));
+        when(leaf.getCostlyElements(eq("vc2"), anyInt())).thenReturn(Collections.singletonList(cnec2));
+        when(leaf.getCostlyElements(eq("vc3"), anyInt())).thenReturn(Collections.singletonList(cnec3));
+        assertEquals(cnec3, RangeActionFilter.getWorstElement(leaf));
+
+        // case where we dont have a limiting cnec nor a costly cnec
+        when(leaf.getCostlyElements(eq("vc3"), anyInt())).thenReturn(new ArrayList<>());
+        assertNull(RangeActionFilter.getWorstElement(leaf));
     }
 
 }
