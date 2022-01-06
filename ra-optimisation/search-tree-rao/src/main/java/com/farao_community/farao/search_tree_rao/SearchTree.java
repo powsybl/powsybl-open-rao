@@ -64,7 +64,7 @@ public class SearchTree {
     private SearchTreeBloomer bloomer;
     private ObjectiveFunction objectiveFunction;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
-    private boolean purelyVirtual;
+    private boolean purelyVirtual = false;
 
     private Map<RangeAction, Double> prePerimeterRangeActionSetPoints;
 
