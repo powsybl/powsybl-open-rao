@@ -1,5 +1,8 @@
 package com.farao_community.farao.util;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -7,6 +10,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -65,13 +69,25 @@ public class NetworkPoolTest {
     }
 
     @Test
-    public void checkMDCIsCopied() {
-        MDC.put("extra-field", "value from caller");
-        AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 2);
-        pool.submit(() -> {
-            LoggerFactory.getLogger("LOGGER").info("Hello from forked thread");
-            assertEquals("value from caller", MDC.get("extra-field"));
-        });
+    public void checkMDCIsCopied() throws InterruptedException {
+        Logger logger = (Logger) LoggerFactory.getLogger("LOGGER");
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
 
+        MDC.put("extrafield", "value from caller");
+        AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 20);
+        for (int i = 0 ; i < 20; i++) {
+            pool.submit(() -> {
+                LoggerFactory.getLogger("LOGGER").info("Hello from forked thread");
+            });
+        }
+        pool.shutdownAndAwaitTermination(1, TimeUnit.SECONDS);
+
+        List<ILoggingEvent> logsList = listAppender.list;
+        for (int i = 0 ; i < 20; i++) {
+            assertTrue(logsList.get(i).getMDCPropertyMap().containsKey("extrafield"));
+            assertEquals("value from caller", logsList.get(i).getMDCPropertyMap().get("extrafield"));
+        }
     }
 }
