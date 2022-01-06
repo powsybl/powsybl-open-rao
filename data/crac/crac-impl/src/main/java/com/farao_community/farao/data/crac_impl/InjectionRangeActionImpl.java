@@ -118,4 +118,29 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
             throw new FaraoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        return this.injectionDistributionKeys.equals(((InjectionRangeAction) o).getInjectionDistributionKeys())
+                && this.ranges.equals(((InjectionRangeAction) o).getRanges());
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = super.hashCode();
+        for (StandardRange range : ranges) {
+            hashCode += 31 * range.hashCode();
+        }
+        hashCode += 31 * injectionDistributionKeys.hashCode();
+        return hashCode;
+    }
 }

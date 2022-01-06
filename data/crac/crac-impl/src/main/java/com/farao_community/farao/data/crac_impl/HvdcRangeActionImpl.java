@@ -89,4 +89,30 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        return this.networkElement.equals(((HvdcRangeAction) o).getNetworkElement())
+                && this.ranges.equals(((HvdcRangeAction) o).getRanges());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = super.hashCode();
+        for (StandardRange range : ranges) {
+            hashCode += 31 * range.hashCode();
+        }
+        hashCode += 31 * networkElement.hashCode();
+        return hashCode;
+    }
 }
