@@ -77,7 +77,7 @@ public class NetworkPoolTest {
 
         MDC.put("extrafield", "value from caller");
         AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 20);
-        for (int i = 0 ; i < 20; i++) {
+        for (int i = 0; i < 20; i++) {
             pool.submit(() -> {
                 LoggerFactory.getLogger("LOGGER").info("Hello from forked thread");
             });
@@ -85,7 +85,7 @@ public class NetworkPoolTest {
         pool.shutdownAndAwaitTermination(1, TimeUnit.SECONDS);
 
         List<ILoggingEvent> logsList = listAppender.list;
-        for (int i = 0 ; i < 20; i++) {
+        for (int i = 0; i < 20; i++) {
             assertTrue(logsList.get(i).getMDCPropertyMap().containsKey("extrafield"));
             assertEquals("value from caller", logsList.get(i).getMDCPropertyMap().get("extrafield"));
         }
