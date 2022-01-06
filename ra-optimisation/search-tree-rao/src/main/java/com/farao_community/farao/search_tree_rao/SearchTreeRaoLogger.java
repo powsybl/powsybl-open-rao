@@ -93,17 +93,17 @@ final class SearchTreeRaoLogger {
             String cnecStateId = cnec.getState().getId();
             double cnecMargin = relativePositiveMargins ? flowResult.getRelativeMargin(cnec, unit) : flowResult.getMargin(cnec, unit);
 
-            String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec)) : "";
-            summary.add(String.format("Limiting element #%s: element %s at state %s with a%s margin of %s %s%s",
+            summary.add(String.format("Limiting element #%s:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
+                isRelativeMargin,
+                cnecMargin,
+                unit,
+                ptdfIfRelative,
                 cnecNetworkElementName,
                 cnecStateId,
-                isRelativeMargin,
-                margin,
-                unit,
-                ptdfIfRelative));
+                cnec.getId()));
         }
         return summary;
     }
@@ -153,15 +153,15 @@ final class SearchTreeRaoLogger {
             String cnecStateId = cnec.getState().getId();
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
-            String margin = new DecimalFormat("#0.00").format(cnecMargin);
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            summary.add(String.format("Limiting element #%s: element %s at state %s with a%s margin of %s %s",
+            summary.add(String.format("Limiting element #%s:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
+                isRelativeMargin,
+                cnecMargin,
+                unit,
                 cnecNetworkElementName,
                 cnecStateId,
-                isRelativeMargin,
-                margin,
-                unit));
+                cnec.getId()));
         }
         return summary;
     }
@@ -209,7 +209,12 @@ final class SearchTreeRaoLogger {
             raResult = String.format("%s %s network action(s) and %s %s range action(s) activated", activatedNetworkActions, raType, activatedRangeActions, raType);
         }
         String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
-            String.format("initial cost = %s (functional: %s, virtual: %s), ", initialFunctionalCost + initialVirtualCost, initialFunctionalCost, initialVirtualCost);
-        logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState), finalObjective.getCost(), finalObjective.getFunctionalCost(), finalObjective.getVirtualCost());
+            String.format("initial cost = %.2f (functional: %.2f, virtual: %.2f), ", initialFunctionalCost + initialVirtualCost, initialFunctionalCost, initialVirtualCost);
+        logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
+            formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()));
+    }
+
+    public static String formatDouble(double value) {
+        return new DecimalFormat("#0.00").format(value);
     }
 }

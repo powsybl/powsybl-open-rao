@@ -193,14 +193,9 @@ class Leaf implements OptimizationResult {
     public String toString() {
         String info = isRoot() ? "Root leaf" :
             "network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
-        if (status.equals(Status.EVALUATED)) {
-            info += ", range actions not optimized yet";
-        }
-        if (status.equals(Status.OPTIMIZED)) {
+        if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             long nRangeActions = getNumberOfActivatedRangeActions();
             info += String.format(", %s range action(s) activated", nRangeActions > 0 ? nRangeActions : "no");
-        }
-        if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             info += String.format(", cost: %.2f", getCost());
             info += String.format(" (functional: %.2f", getFunctionalCost());
             info += String.format(", virtual: %.2f)", getVirtualCost());

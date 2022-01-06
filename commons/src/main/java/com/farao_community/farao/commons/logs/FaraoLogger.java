@@ -13,13 +13,15 @@ package com.farao_community.farao.commons.logs;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface FaraoLogger {
-    public void trace(String format, Object... arguments);
+    void trace(String format, Object... arguments);
 
-    public void info(String format, Object... arguments);
+    void info(String format, Object... arguments);
 
-    public void warn(String format, Object... arguments);
+    void warn(String format, Object... arguments);
 
-    public void error(String format, Object... arguments);
+    void error(String format, Object... arguments);
 
-    public void debug(String format, Object... arguments);
+    void debug(String format, Object... arguments);
+
+    boolean isInfoEnabled();
 }

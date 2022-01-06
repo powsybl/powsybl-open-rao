@@ -7,17 +7,13 @@
 
 package com.farao_community.farao.commons.logs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * RAO business warnings, containing important information understandable by the end user.
  * Only WARN level is allowed
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RaoBusinessWarns implements FaraoLogger {
-    private final Logger logger = LoggerFactory.getLogger(RaoBusinessWarns.class);
+public class RaoBusinessWarns extends AbstractFaraoLogger {
     private static final String LOG_LEVEL_NOT_ALLOWED = "Log level not allowed in this logger";
 
     public RaoBusinessWarns() {
@@ -32,11 +28,6 @@ public class RaoBusinessWarns implements FaraoLogger {
     @Override
     public void info(String format, Object... arguments) {
         throw new IllegalCallerException(LOG_LEVEL_NOT_ALLOWED);
-    }
-
-    @Override
-    public void warn(String format, Object... arguments) {
-        logger.warn(format, arguments);
     }
 
     @Override

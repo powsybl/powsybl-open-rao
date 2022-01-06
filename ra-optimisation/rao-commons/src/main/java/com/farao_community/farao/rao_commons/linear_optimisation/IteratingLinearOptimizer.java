@@ -19,6 +19,7 @@ import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.powsybl.iidm.network.Network;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -141,18 +142,18 @@ public class IteratingLinearOptimizer {
         TECHNICAL_LOGS.info(
             "Iteration {}: better solution found with a cost of {} (functional: {})",
             iteration,
-            currentObjectiveFunctionResult.getCost(),
-            currentObjectiveFunctionResult.getFunctionalCost());
+            formatDouble(currentObjectiveFunctionResult.getCost()),
+            formatDouble(currentObjectiveFunctionResult.getFunctionalCost()));
     }
 
     private static void logWorseResult(int iteration, ObjectiveFunctionResult bestResult, ObjectiveFunctionResult currentResult) {
         TECHNICAL_LOGS.info(
             "Iteration {}: linear optimization found a worse result than previous iteration, with a cost increasing from {} to {} (functional: from {} to {})",
             iteration,
-            bestResult.getCost(),
-            currentResult.getCost(),
-            bestResult.getFunctionalCost(),
-            currentResult.getFunctionalCost());
+            formatDouble(bestResult.getCost()),
+            formatDouble(currentResult.getCost()),
+            formatDouble(bestResult.getFunctionalCost()),
+            formatDouble(currentResult.getFunctionalCost()));
     }
 
     private void applyRangeActions(Set<RangeAction> rangeActions,
@@ -199,5 +200,9 @@ public class IteratingLinearOptimizer {
             previousResult.getBranchResult(),
             previousResult.getSensitivityResult()
         );
+    }
+
+    private static String formatDouble(double value) {
+        return new DecimalFormat("#0.00").format(value);
     }
 }
