@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
@@ -63,6 +64,7 @@ public class SearchTree {
     private SearchTreeBloomer bloomer;
     private ObjectiveFunction objectiveFunction;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
+    private boolean purelyVirtual;
 
     private Map<RangeAction, Double> prePerimeterRangeActionSetPoints;
 
@@ -121,6 +123,7 @@ public class SearchTree {
         this.iteratingLinearOptimizer = searchTreeInput.getIteratingLinearOptimizer();
         setTreeParameters(treeParameters);
         this.linearOptimizerParameters = linearOptimizerParameters;
+        this.purelyVirtual = searchTreeInput.getFlowCnecs().stream().noneMatch(FlowCnec::isOptimized);
         initLeaves();
 
         this.prePerimeterRangeActionSetPoints = new HashMap<>();
@@ -346,6 +349,10 @@ public class SearchTree {
      * @return True if the stop criterion has been reached on this leaf.
      */
     private boolean stopCriterionReached(Leaf leaf) {
+        if (purelyVirtual && leaf.getVirtualCost() < 1e-6) {
+            LOGGER.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
+            return true;
+        }
         if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
         } else if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
