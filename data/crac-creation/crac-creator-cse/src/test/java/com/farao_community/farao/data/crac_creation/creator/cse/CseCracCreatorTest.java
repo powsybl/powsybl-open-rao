@@ -143,8 +143,8 @@ public class CseCracCreatorTest {
         assertEquals(-100, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
         assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().get(0).getUsageMethod().toString());
         assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().size());
-        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("BBE2AA11_generator")).findAny().orElseThrow().getValue(), 1e-3);
-        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("FFR3AA11_generator")).findAny().orElseThrow().getValue(), 1e-3);
+        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("BBE2AA11_generator")).findAny().orElseThrow().getValue(), 1e-3);
+        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("FFR3AA11_generator")).findAny().orElseThrow().getValue(), 1e-3);
     }
 
     @Test
