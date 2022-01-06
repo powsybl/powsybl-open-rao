@@ -114,7 +114,7 @@ class RangeActionFilter {
 
     Set<String> sortTsosToKeepByPotentialGainAndGroupId(Set<String> activatedTsos, int maxTso) {
         List<RangeAction> rangeActionsSortedByPotentialGain = rangeActionsToOptimize.stream()
-                .sorted((ra1, ra2) -> -comparePotentialGain(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                .sorted((ra1, ra2) -> -comparePotentialGain(ra1, ra2, getWorstElement(leaf), leaf))
                 .collect(Collectors.toList());
 
         Set<String> tsosToKeep = new HashSet<>(activatedTsos);
@@ -210,7 +210,7 @@ class RangeActionFilter {
             return;
         }
         List<RangeAction> rangeActionsSortedByPotentialGain = rangeActions.stream()
-                .sorted((ra1, ra2) -> comparePrioritiesAndPotentialGains(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                .sorted((ra1, ra2) -> comparePrioritiesAndPotentialGains(ra1, ra2, getWorstElement(leaf), leaf))
                 .collect(Collectors.toList());
 
         Set<String> groupIdHasBeenExplored = new HashSet<>();
@@ -263,6 +263,9 @@ class RangeActionFilter {
     }
 
     private int comparePotentialGain(RangeAction ra1, RangeAction ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
+        if (cnec == null) {
+            return 0;
+        }
         Double gain1 = computePotentialGain(ra1, cnec, optimizationResult);
         Double gain2 = computePotentialGain(ra2, cnec, optimizationResult);
         int comparison = gain1.compareTo(gain2);
@@ -297,5 +300,23 @@ class RangeActionFilter {
 
     boolean isRangeActionUsed(RangeAction rangeAction, Leaf leaf) {
         return leaf.getRangeActions().contains(rangeAction) && Math.abs(leaf.getOptimizedSetPoint(rangeAction) - prePerimeterSetPoints.get(rangeAction)) >= 1e-6;
+    }
+
+    /**
+     * Returns most limiting or most costly element in leaf
+     */
+    static FlowCnec getWorstElement(Leaf leaf) {
+        List<FlowCnec> mostLimiting = leaf.getMostLimitingElements(1);
+        if (!mostLimiting.isEmpty()) {
+            return mostLimiting.get(0);
+        }
+        Optional<String> worstVirtualCost = leaf.getVirtualCostNames().stream().max(Comparator.comparingDouble(leaf::getVirtualCost));
+        if (worstVirtualCost.isPresent()) {
+            List<FlowCnec> mostCostly = leaf.getCostlyElements(worstVirtualCost.get(), 1);
+            if (!mostCostly.isEmpty()) {
+                return mostCostly.get(0);
+            }
+        }
+        return null;
     }
 }
