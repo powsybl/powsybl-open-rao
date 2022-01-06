@@ -4,6 +4,8 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.util.concurrent.TimeUnit;
 
@@ -60,5 +62,16 @@ public class NetworkPoolTest {
 
         pool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         assertEquals(2, network.getVariantManager().getVariantIds().size());
+    }
+
+    @Test
+    public void checkMDCIsCopied() {
+        MDC.put("extra-field", "value from caller");
+        AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 2);
+        pool.submit(() -> {
+            LoggerFactory.getLogger("LOGGER").info("Hello from forked thread");
+            assertEquals("value from caller", MDC.get("extra-field"));
+        });
+
     }
 }
