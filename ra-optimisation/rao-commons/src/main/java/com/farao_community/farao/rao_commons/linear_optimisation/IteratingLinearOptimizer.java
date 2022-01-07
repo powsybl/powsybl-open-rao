@@ -19,8 +19,8 @@ import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.powsybl.iidm.network.Network;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -203,6 +203,6 @@ public class IteratingLinearOptimizer {
     }
 
     private static String formatDouble(double value) {
-        return new DecimalFormat("#0.00").format(value);
+        return String.format(Locale.ENGLISH, "%.2f", value);
     }
 }

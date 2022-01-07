@@ -696,4 +696,19 @@ public class LeafTest {
         Set<NetworkAction> alreadyAppliedNetworkActions = Set.of();
         assertThrows(FaraoException.class, () -> new Leaf(network, alreadyAppliedNetworkActions, naCombinationToApply, rangeActionResult));
     }
+
+    @Test
+    public void testToStringOnRootLeaf() {
+        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        Leaf leaf = new Leaf(network, prePerimeterResult);
+        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
+        LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
+        Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), any(), any(), any(), any())).thenReturn(linearOptimizationResult);
+        leaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
+        Mockito.when(linearOptimizationResult.getCost()).thenReturn(-100.5);
+        Mockito.when(linearOptimizationResult.getFunctionalCost()).thenReturn(-160.);
+        Mockito.when(linearOptimizationResult.getVirtualCost()).thenReturn(59.5);
+
+        assertEquals("Root leaf, no range action(s) activated, cost: -100.50 (functional: -160.00, virtual: 59.50)", leaf.toString());
+    }
 }

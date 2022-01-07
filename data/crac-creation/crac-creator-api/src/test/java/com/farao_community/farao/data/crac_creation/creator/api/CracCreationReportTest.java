@@ -7,10 +7,18 @@
 
 package com.farao_community.farao.data.crac_creation.creator.api;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import com.farao_community.farao.commons.logs.RaoBusinessLogs;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -90,4 +98,25 @@ public class CracCreationReportTest {
         assertEquals(cracCreationReport.getReport(), cracCreationReport2.getReport());
     }
 
+    private ListAppender<ILoggingEvent> getLogs(Class clazz) {
+        Logger logger = (Logger) LoggerFactory.getLogger(clazz);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        return listAppender;
+    }
+
+    @Test
+    public void testPrintReport() {
+        cracCreationReport.warn("message1");
+        cracCreationReport.error("message2");
+
+        ListAppender<ILoggingEvent> listAppender = getLogs(RaoBusinessLogs.class);
+        cracCreationReport.printCreationReport();
+        List<ILoggingEvent> logsList = listAppender.list;
+
+        assertEquals(2, logsList.size());
+        assertEquals("[INFO] [WARN] message1", logsList.get(0).toString());
+        assertEquals("[INFO] [ERROR] message2", logsList.get(1).toString());
+    }
 }

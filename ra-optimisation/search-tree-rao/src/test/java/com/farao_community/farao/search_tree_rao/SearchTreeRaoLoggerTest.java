@@ -7,7 +7,13 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.logs.FaraoLogger;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
+import com.farao_community.farao.commons.logs.RaoBusinessLogs;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
@@ -21,11 +27,10 @@ import com.farao_community.farao.search_tree_rao.state_tree.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.state_tree.ContingencyScenario;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
@@ -110,7 +115,7 @@ public class SearchTreeRaoLoggerTest {
         String relativeMargin = relative ? " relative" : "";
         String ptdfString = (ptdf != null) ? format(" (PTDF %f)", ptdf) : "";
         String descriptor = format("%s at state %s", cnec.getNetworkElement().getName(), cnec.getState().getId());
-        return format("Limiting element #%d:%s margin = %.2f %s%s, element %s, CNEC ID = \"%s\"", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
+        return format(Locale.ENGLISH, "Limiting element #%d:%s margin = %.2f %s%s, element %s, CNEC ID = \"%s\"", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
     }
 
     @Test
@@ -258,5 +263,51 @@ public class SearchTreeRaoLoggerTest {
         assertEquals(absoluteMarginLog(3, -8, AMPERE, cnec1), summary.get(2));
         assertEquals(relativeMarginLog(4, 100, null, AMPERE, cnec5), summary.get(3));
         assertEquals(relativeMarginLog(5, 200, null, AMPERE, cnec3), summary.get(4));
+    }
+
+    @Test
+    public void testFormatDouble() {
+        assertEquals("10.00", SearchTreeRaoLogger.formatDouble(10.));
+        assertEquals("-53.63", SearchTreeRaoLogger.formatDouble(-53.634));
+        assertEquals("-53.64", SearchTreeRaoLogger.formatDouble(-53.635));
+    }
+
+    private ListAppender<ILoggingEvent> registerLogs(Class clazz) {
+        Logger logger = (Logger) LoggerFactory.getLogger(clazz);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        return listAppender;
+    }
+
+    @Test
+    public void testLogOptimizationSummary() {
+        State preventive = Mockito.mock(State.class);
+        when(preventive.getInstant()).thenReturn(Instant.PREVENTIVE);
+
+        State curative = Mockito.mock(State.class);
+        when(curative.getInstant()).thenReturn(Instant.CURATIVE);
+        Contingency contingency = Mockito.mock(Contingency.class);
+        when(contingency.getName()).thenReturn("contingency");
+        when(curative.getContingency()).thenReturn(Optional.of(contingency));
+
+        when(objectiveFunctionResult.getCost()).thenReturn(-100.);
+        when(objectiveFunctionResult.getFunctionalCost()).thenReturn(-150.);
+        when(objectiveFunctionResult.getVirtualCost()).thenReturn(50.);
+
+        FaraoLogger logger = FaraoLoggerProvider.BUSINESS_LOGS;
+        List<ILoggingEvent> logsList = registerLogs(RaoBusinessLogs.class).list;
+
+        SearchTreeRaoLogger.logOptimizationSummary(logger, preventive, 0, 0, 1., 2., objectiveFunctionResult);
+        assertEquals("[INFO] Scenario \"preventive\": initial cost = 3.00 (functional: 1.00, virtual: 2.00), no preventive remedial actions activated, cost after PRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+
+        SearchTreeRaoLogger.logOptimizationSummary(logger, curative, 1, 0, -100., 40., objectiveFunctionResult);
+        assertEquals("[INFO] Scenario \"contingency\": initial cost = -60.00 (functional: -100.00, virtual: 40.00), 1 curative network action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+
+        SearchTreeRaoLogger.logOptimizationSummary(logger, curative, 0, 2, 1., null, objectiveFunctionResult);
+        assertEquals("[INFO] Scenario \"contingency\": 2 curative range action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
+
+        SearchTreeRaoLogger.logOptimizationSummary(logger, curative, 3, 2, null, 200., objectiveFunctionResult);
+        assertEquals("[INFO] Scenario \"contingency\": 3 curative network action(s) and 2 curative range action(s) activated, cost after CRA = -100.00 (functional: -150.00, virtual: 50.00)", logsList.get(logsList.size() - 1).toString());
     }
 }

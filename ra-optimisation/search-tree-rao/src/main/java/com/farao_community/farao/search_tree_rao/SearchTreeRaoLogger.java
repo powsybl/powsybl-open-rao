@@ -23,7 +23,6 @@ import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.state_tree.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.state_tree.ContingencyScenario;
 
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,7 +47,7 @@ final class SearchTreeRaoLogger {
                 return format("%s: %d", rangeAction.getName(), rangeActionTap);
             } else {
                 double rangeActionSetPoint = leaf.getOptimizedSetPoint(rangeAction);
-                return format("%s: %.2f", rangeAction.getName(), rangeActionSetPoint);
+                return format(Locale.ENGLISH, "%s: %.2f", rangeAction.getName(), rangeActionSetPoint);
             }
         }).collect(Collectors.joining(", "));
         logger.info("{}range action(s): {}", prefix == null ? "" : prefix, rangeActionSetpoints);
@@ -95,7 +94,7 @@ final class SearchTreeRaoLogger {
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec)) : "";
-            summary.add(String.format("Limiting element #%s:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(String.format(Locale.ENGLISH, "Limiting element #%s:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
                 cnecMargin,
@@ -154,7 +153,7 @@ final class SearchTreeRaoLogger {
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            summary.add(String.format("Limiting element #%s:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(String.format(Locale.ENGLISH, "Limiting element #%s:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
                 cnecMargin,
@@ -209,12 +208,12 @@ final class SearchTreeRaoLogger {
             raResult = String.format("%s %s network action(s) and %s %s range action(s) activated", activatedNetworkActions, raType, activatedRangeActions, raType);
         }
         String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
-            String.format("initial cost = %.2f (functional: %.2f, virtual: %.2f), ", initialFunctionalCost + initialVirtualCost, initialFunctionalCost, initialVirtualCost);
+            String.format(Locale.ENGLISH, "initial cost = %.2f (functional: %.2f, virtual: %.2f), ", initialFunctionalCost + initialVirtualCost, initialFunctionalCost, initialVirtualCost);
         logger.info("Scenario \"{}\": {}{}, cost {} = {} (functional: {}, virtual: {})", scenarioName, initialCostString, raResult, OptimizationState.afterOptimizing(optimizedState),
             formatDouble(finalObjective.getCost()), formatDouble(finalObjective.getFunctionalCost()), formatDouble(finalObjective.getVirtualCost()));
     }
 
     public static String formatDouble(double value) {
-        return new DecimalFormat("#0.00").format(value);
+        return String.format(Locale.ENGLISH, "%.2f", value);
     }
 }

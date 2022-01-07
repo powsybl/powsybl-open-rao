@@ -279,6 +279,23 @@ public class RangeActionFilterTest {
     }
 
     @Test
+    public void testFilterTsosWithAlignedPsts3() {
+        // fr has highest sensitivity, same group id as be
+        // as we can keep only one tso, nl should be kept
+        PstRangeAction pstfr = addPstRangeActionWithGroupId("fr", 0, 0, 3, Optional.of("group_1"));
+        PstRangeAction pstbe = addPstRangeActionWithGroupId("be", 0, 0, 1, Optional.of("group_1"));
+        PstRangeAction pstnl = addPstRangeAction("nl", 0, 0, 2);
+
+        setTreeParameters(Integer.MAX_VALUE, 1, new HashMap<>(), new HashMap<>());
+
+        rangeActionFilter = new RangeActionFilter(leaf, availableRangeActions, Mockito.mock(State.class), treeParameters, prePerimeterSetPoints, false);
+        rangeActionFilter.filterTsos();
+        Set<RangeAction> filteredRangeActions = rangeActionFilter.getRangeActionsToOptimize();
+
+        assertEquals(Set.of(pstnl), filteredRangeActions);
+    }
+
+    @Test
     public void testFilterMaxRas() {
         // We can only keep 2 psts because one network action was activated
         // pst1 is kept because it was activated

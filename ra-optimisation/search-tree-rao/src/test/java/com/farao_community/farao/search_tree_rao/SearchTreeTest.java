@@ -7,8 +7,13 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.logs.RaoBusinessLogs;
+import com.farao_community.farao.commons.logs.TechnicalLogs;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
@@ -34,6 +39,7 @@ import com.powsybl.iidm.network.VariantManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -58,7 +64,6 @@ public class SearchTreeTest {
     private Set<NetworkAction> availableNetworkActions;
     private RangeAction rangeAction1;
     private RangeAction rangeAction2;
-    private RangeAction rangeAction3;
     private Set<RangeAction> availableRangeActions;
     private PrePerimeterResult prePerimeterOutput;
     private SearchTreeComputer searchTreeComputer;
@@ -493,5 +498,57 @@ public class SearchTreeTest {
         } catch (FaraoException e) {
             fail("Should not have optimized rootleaf as it had already reached the stop criterion");
         }
+    }
+
+    @Test
+    public void testLogsVerbose() {
+        raoWithoutLoopFlowLimitation();
+
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
+        when(rootLeaf.toString()).thenReturn("root leaf description");
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
+
+        String expectedLog1 = "[INFO] Evaluating root leaf";
+        String expectedLog2 = "[INFO] root leaf description";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0,00 (functional: 0,00, virtual: 0,00), no preventive remedial actions activated, cost after PRA = 0,00 (functional: 0,00, virtual: 0,00)";
+
+        ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
+        ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
+        searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true);
+        assertEquals(1, technical.list.size());
+        assertEquals(2, business.list.size());
+        assertEquals(expectedLog1, technical.list.get(0).toString());
+        assertEquals(expectedLog2, business.list.get(0).toString());
+        assertEquals(expectedLog3, business.list.get(1).toString());
+    }
+
+    @Test
+    public void testLogsDontVerbose() {
+        raoWithoutLoopFlowLimitation();
+
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
+        when(rootLeaf.toString()).thenReturn("root leaf description");
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
+
+        String expectedLog1 = "[INFO] Evaluating root leaf";
+        String expectedLog2 = "[INFO] root leaf description";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0,00 (functional: 0,00, virtual: 0,00), no preventive remedial actions activated, cost after PRA = 0,00 (functional: 0,00, virtual: 0,00)";
+
+        ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
+        ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
+        searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, false);
+        assertEquals(2, technical.list.size());
+        assertEquals(1, business.list.size());
+        assertEquals(expectedLog1, technical.list.get(0).toString());
+        assertEquals(expectedLog2, technical.list.get(1).toString());
+        assertEquals(expectedLog3, business.list.get(1).toString());
+    }
+
+    private ListAppender<ILoggingEvent> getLogs(Class clazz) {
+        Logger logger = (Logger) LoggerFactory.getLogger(clazz);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        return listAppender;
     }
 }

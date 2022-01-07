@@ -165,17 +165,17 @@ class Leaf implements OptimizationResult {
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
             LinearProblem linearProblem = leafProblem.getLinearProblem(
-                    network,
-                    preOptimFlowResult,
-                    preOptimSensitivityResult
+                network,
+                preOptimFlowResult,
+                preOptimSensitivityResult
             );
             postOptimResult = iteratingLinearOptimizer.optimize(
-                    linearProblem,
-                    network,
-                    preOptimFlowResult,
-                    preOptimSensitivityResult,
-                    preOptimRangeActionResult,
-                    sensitivityComputer
+                linearProblem,
+                network,
+                preOptimFlowResult,
+                preOptimSensitivityResult,
+                preOptimRangeActionResult,
+                sensitivityComputer
             );
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
@@ -196,9 +196,9 @@ class Leaf implements OptimizationResult {
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             long nRangeActions = getNumberOfActivatedRangeActions();
             info += String.format(", %s range action(s) activated", nRangeActions > 0 ? nRangeActions : "no");
-            info += String.format(", cost: %.2f", getCost());
-            info += String.format(" (functional: %.2f", getFunctionalCost());
-            info += String.format(", virtual: %.2f)", getVirtualCost());
+            info += String.format(Locale.ENGLISH, ", cost: %.2f", getCost());
+            info += String.format(Locale.ENGLISH, " (functional: %.2f", getFunctionalCost());
+            info += String.format(Locale.ENGLISH, ", virtual: %.2f)", getVirtualCost());
         }
         return info;
     }
