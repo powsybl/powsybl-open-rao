@@ -489,7 +489,7 @@ public class SearchTreeTest {
         doThrow(FaraoException.class).when(rootLeaf).optimize(any(), any(), any());
 
         try {
-            searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters);
+            searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true);
         } catch (FaraoException e) {
             fail("Should not have optimized rootleaf as it had already reached the stop criterion");
         }
