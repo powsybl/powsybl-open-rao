@@ -10,7 +10,7 @@ package com.farao_community.farao.data.rao_result_json.deserializers;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_impl.RangeActionResult;
 import com.farao_community.farao.data.rao_result_impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
@@ -19,41 +19,50 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_ID;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDC_NETWORKELEMENT_ID;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-final class HvdcRangeActionResultArrayDeserializer {
+final class StandardRangeActionResultArrayDeserializer {
 
-    private HvdcRangeActionResultArrayDeserializer() {
+    private StandardRangeActionResultArrayDeserializer() {
     }
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac) throws IOException {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            if (!jsonParser.nextFieldName().equals(HVDCRANGEACTION_ID)) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", HVDCRANGEACTION_RESULTS, NETWORKACTION_ID));
+
+            String firstFieldName = jsonParser.nextFieldName();
+
+            // in version <= 1.1, the id field was HVDCRANGEACION_ID, it is now RANGEACTION_ID
+            if (!firstFieldName.equals(RANGEACTION_ID)
+                && !firstFieldName.equals(HVDCRANGEACTION_ID)) {
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", STANDARDRANGEACTION_RESULTS, RANGEACTION_ID));
             }
 
-            String hvdcRangeActionId = jsonParser.nextTextValue();
-            HvdcRangeAction hvdcRangeAction = crac.getHvdcRangeAction(hvdcRangeActionId);
+            String rangeActionId = jsonParser.nextTextValue();
+            RangeAction<?> rangeAction = crac.getRangeAction(rangeActionId);
 
-            if (hvdcRangeAction == null) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: cannot deserialize RaoResult: hvdcRangeAction with id %s does not exist in the Crac", hvdcRangeActionId));
+            if (rangeAction == null) {
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: cannot deserialize RaoResult: RangeAction with id %s does not exist in the Crac", rangeActionId));
             }
 
-            RangeActionResult hvdcRangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(hvdcRangeAction);
+            RangeActionResult rangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(rangeAction);
             Double afterPraSetpoint = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
 
                     case HVDC_NETWORKELEMENT_ID:
-                        hvdcRangeActionResult.setNetworkElementId(jsonParser.nextTextValue());
+                        // only used in version <=1.1
+                        // keep here for retrocompatibility, but information is not used anymore
+                        jsonParser.nextTextValue();
                         break;
 
                     case INITIAL_SETPOINT:
                         jsonParser.nextToken();
-                        hvdcRangeActionResult.setPreOptimSetPoint(jsonParser.getDoubleValue());
+                        rangeActionResult.setPreOptimSetPoint(jsonParser.getDoubleValue());
                         break;
 
                     case AFTER_PRA_SETPOINT:
@@ -63,21 +72,21 @@ final class HvdcRangeActionResultArrayDeserializer {
 
                     case STATES_ACTIVATED:
                         jsonParser.nextToken();
-                        deserializeResultsPerStates(jsonParser, hvdcRangeActionResult, crac);
+                        deserializeResultsPerStates(jsonParser, rangeActionResult, crac);
                         break;
 
                     default:
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", HVDCRANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", STANDARDRANGEACTION_RESULTS, jsonParser.getCurrentName()));
                 }
             }
-            // Do this at the end: for HVDCs with afterPraSetpoint, initial setpoint should be set to afterPra values
+            // Do this at the end: for rangeAction with afterPraSetpoint, initial setpoint should be set to afterPra values
             if (afterPraSetpoint != null) {
-                hvdcRangeActionResult.setPreOptimSetPoint(afterPraSetpoint);
+                rangeActionResult.setPreOptimSetPoint(afterPraSetpoint);
             }
         }
     }
 
-    private static void deserializeResultsPerStates(JsonParser jsonParser, RangeActionResult hvdcRangeActionResult, Crac crac) throws IOException {
+    private static void deserializeResultsPerStates(JsonParser jsonParser, RangeActionResult rangeActionResult, Crac crac) throws IOException {
 
         Instant instant = null;
         String contingencyId = null;
@@ -101,14 +110,14 @@ final class HvdcRangeActionResultArrayDeserializer {
                         break;
 
                     default:
-                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", HVDCRANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", STANDARDRANGEACTION_RESULTS, jsonParser.getCurrentName()));
                 }
             }
 
             if (setpoint == null) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: setpoint are required in %s", HVDCRANGEACTION_RESULTS));
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: setpoint are required in %s", STANDARDRANGEACTION_RESULTS));
             }
-            hvdcRangeActionResult.addActivationForState(StateDeserializer.getState(instant, contingencyId, crac, HVDCRANGEACTION_RESULTS), setpoint);
+            rangeActionResult.addActivationForState(StateDeserializer.getState(instant, contingencyId, crac, STANDARDRANGEACTION_RESULTS), setpoint);
 
         }
     }

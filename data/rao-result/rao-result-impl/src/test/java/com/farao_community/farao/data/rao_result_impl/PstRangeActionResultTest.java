@@ -48,9 +48,8 @@ public class PstRangeActionResultTest {
 
     @Test
     public void defaultValuesTest() {
-        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
+        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
 
-        assertEquals("anyPstNetworkElement", pstRangeActionResult.getNetworkElementId());
         assertEquals(Double.NaN, pstRangeActionResult.getPreOptimSetpoint());
 
         assertFalse(pstRangeActionResult.isActivatedDuringState(crac.getPreventiveState()));
@@ -63,19 +62,9 @@ public class PstRangeActionResultTest {
         assertEquals(Double.NaN, pstRangeActionResult.getPreOptimizedSetpointOnState(crac.getState("Contingency FR1 FR3", CURATIVE)));
     }
 
-    @Test
-    public void setPstNetworkElementTest() {
-        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
-        assertEquals("anyPstNetworkElement", pstRangeActionResult.getNetworkElementId());
-
-        pstRangeActionResult.setNetworkElementId("anotherPstNetworkElement");
-        assertEquals("anotherPstNetworkElement", pstRangeActionResult.getNetworkElementId());
-
-    }
-
     @Test (expected = NullPointerException.class)
     public void defaultValuesGetTapTest() {
-        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
+        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
 
         // no default value possible, as a int is expected in all the methods of a RaoResult expecting a tap
         pstRangeActionResult.getPreOptimTap();
@@ -83,7 +72,7 @@ public class PstRangeActionResultTest {
 
     @Test
     public void pstActivatedInPreventiveTest() {
-        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
+        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
 
         pstRangeActionResult.setPreOptimTap(3);
         pstRangeActionResult.setPreOptimSetPoint(0.3);
@@ -121,7 +110,7 @@ public class PstRangeActionResultTest {
 
     @Test
     public void pstActivatedInCurativeTest() {
-        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
+        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
 
         pstRangeActionResult.setPreOptimTap(3);
         pstRangeActionResult.setPreOptimSetPoint(0.3);
@@ -165,7 +154,7 @@ public class PstRangeActionResultTest {
 
     @Test
     public void pstActivatedInPreventiveAndCurative() {
-        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult("anyPstNetworkElement");
+        PstRangeActionResult pstRangeActionResult = new PstRangeActionResult();
 
         pstRangeActionResult.setPreOptimTap(3);
         pstRangeActionResult.setPreOptimSetPoint(0.3);

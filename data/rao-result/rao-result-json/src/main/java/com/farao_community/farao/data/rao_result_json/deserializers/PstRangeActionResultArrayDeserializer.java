@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.PST_NETWORKELEMENT_ID;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -32,7 +33,7 @@ final class PstRangeActionResultArrayDeserializer {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(PSTRANGEACTION_ID)) {
-                throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", PSTRANGEACTION_RESULTS, NETWORKACTION_ID));
+                throw new FaraoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", PSTRANGEACTION_RESULTS, PSTRANGEACTION_ID));
             }
 
             String pstRangeActionId = jsonParser.nextTextValue();
@@ -49,7 +50,9 @@ final class PstRangeActionResultArrayDeserializer {
                 switch (jsonParser.getCurrentName()) {
 
                     case PST_NETWORKELEMENT_ID:
-                        pstRangeActionResult.setNetworkElementId(jsonParser.nextTextValue());
+                        // only used in version <=1.1
+                        // keep here for retrocompatibility, but information is not used anymore
+                        jsonParser.nextTextValue();
                         break;
 
                     case INITIAL_TAP:

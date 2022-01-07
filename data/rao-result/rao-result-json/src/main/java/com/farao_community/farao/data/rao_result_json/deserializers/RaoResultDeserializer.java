@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -98,8 +99,11 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
 
                 case HVDCRANGEACTION_RESULTS:
+                    // used in version <=1.1
+                    // now called standardRangeAction as it contains a more generic result object
+                case STANDARDRANGEACTION_RESULTS:
                     jsonParser.nextToken();
-                    HvdcRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    StandardRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
                     break;
 
                 default:
