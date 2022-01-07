@@ -9,10 +9,9 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.AbstractRangeActionSensiHandler;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
@@ -152,27 +151,7 @@ public class SystematicSensitivityResult {
     }
 
     public double getSensitivityOnFlow(RangeAction<?> rangeAction, Cnec<?> cnec) {
-        StateResult stateResult = getCnecStateResult(cnec);
-        if (stateResult == null || !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
-            return 0.0;
-        }
-
-        if (rangeAction instanceof PstRangeAction) {
-            Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
-            return sensitivities.getOrDefault(((PstRangeAction) rangeAction).getNetworkElement().getId(), 0.0);
-        } else if (rangeAction instanceof HvdcRangeAction) {
-            Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
-            return sensitivities.getOrDefault(((HvdcRangeAction) rangeAction).getNetworkElement().getId(), 0.0);
-        } else if (rangeAction instanceof InjectionRangeAction) {
-
-            // todo: ensure that it works, not sure it is that easy, notably not sure that GLSK handle negative
-            //  values in Hades. We might have to build two LinearGlsk, one for positive generator/negative load,
-            //  and one for negative generator/positive load
-            return getSensitivityOnFlow(rangeAction.getId(), cnec);
-
-        } else {
-            throw new SensitivityAnalysisException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
-        }
+        return AbstractRangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow((FlowCnec) cnec, this);
     }
 
     public double getSensitivityOnFlow(LinearGlsk glsk, Cnec<?> cnec) {
@@ -190,27 +169,13 @@ public class SystematicSensitivityResult {
         return sensitivities.getOrDefault(variableId, 0.0);
     }
 
+    @Deprecated
     public double getSensitivityOnIntensity(RangeAction<?> rangeAction, Cnec<?> cnec) {
-        StateResult stateResult = getCnecStateResult(cnec);
-        if (stateResult == null || !stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId())) {
-            return 0.0;
-        }
+        /*
+        should not be useful for the RAO
+         */
 
-        if (rangeAction instanceof PstRangeAction) {
-            Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
-            return sensitivities.getOrDefault(((PstRangeAction) rangeAction).getNetworkElement().getId(), 0.0);
-        } else if (rangeAction instanceof HvdcRangeAction) {
-            Map<String, Double> sensitivities = stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId());
-            return sensitivities.getOrDefault(((HvdcRangeAction) rangeAction).getNetworkElement().getId(), 0.0);
-        } else if (rangeAction instanceof InjectionRangeAction) {
-
-            // will not work for now, as Intensity on LinearGLsk sensitivities do not exist yet in Hades
-            // todo: do something cleaner
-            throw new UnsupportedOperationException();
-
-        } else {
-            throw new SensitivityAnalysisException(String.format("RangeAction implementation %s not handled by sensitivity analysis", rangeAction.getClass()));
-        }
+        throw new UnsupportedOperationException();
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec) {
