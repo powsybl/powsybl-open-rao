@@ -10,10 +10,9 @@ import com.farao_community.farao.commons.RandomizedString;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+
+import static com.farao_community.farao.util.MCDContextWrapper.wrapWithMdcContext;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -66,4 +65,12 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
     public void close() {
         shutdownNow();
     }
+
+    // This will transfer the previous MDC context to the new thread from its pool making it MDC aware, so extra-fields created by application are propagated correctly
+    // Must configure the same way different methods from ForkJoinPool when needed
+    @Override
+    public ForkJoinTask<?> submit(Runnable task) {
+        return super.submit(wrapWithMdcContext(task));
+    }
+
 }
