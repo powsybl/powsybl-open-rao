@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -164,6 +165,10 @@ public class MaxMinMarginFiller implements ProblemFiller {
             if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
             } else if (absoluteVariationVariable != null && rangeAction instanceof HvdcRangeAction) {
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
+            } else if (absoluteVariationVariable != null && rangeAction instanceof InjectionRangeAction) {
+                //todo : add its own parameter
+
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
             }
         });
