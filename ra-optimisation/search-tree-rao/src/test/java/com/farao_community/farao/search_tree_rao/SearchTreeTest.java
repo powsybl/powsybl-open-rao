@@ -510,7 +510,7 @@ public class SearchTreeTest {
 
         String expectedLog1 = "[INFO] Evaluating root leaf";
         String expectedLog2 = "[INFO] root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0,00 (functional: 0,00, virtual: 0,00), no preventive remedial actions activated, cost after PRA = 0,00 (functional: 0,00, virtual: 0,00)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no preventive remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
@@ -532,7 +532,7 @@ public class SearchTreeTest {
 
         String expectedLog1 = "[INFO] Evaluating root leaf";
         String expectedLog2 = "[INFO] root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0,00 (functional: 0,00, virtual: 0,00), no preventive remedial actions activated, cost after PRA = 0,00 (functional: 0,00, virtual: 0,00)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no preventive remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
@@ -541,7 +541,7 @@ public class SearchTreeTest {
         assertEquals(1, business.list.size());
         assertEquals(expectedLog1, technical.list.get(0).toString());
         assertEquals(expectedLog2, technical.list.get(1).toString());
-        assertEquals(expectedLog3, business.list.get(1).toString());
+        assertEquals(expectedLog3, business.list.get(0).toString());
     }
 
     private ListAppender<ILoggingEvent> getLogs(Class clazz) {
