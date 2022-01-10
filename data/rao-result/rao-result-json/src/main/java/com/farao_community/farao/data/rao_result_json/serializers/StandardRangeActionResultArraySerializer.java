@@ -156,8 +156,8 @@ final class StandardRangeActionResultArraySerializer {
             return rangeActionsForState.stream()
                     .filter(HvdcRangeAction.class::isInstance)
                     .filter(otherRangeAction -> !otherRangeAction.equals(rangeAction))
-                    .filter(otherRangeAction -> otherRangeAction.getNetworkElements().equals(rangeAction.getNetworkElements()))
                     .map(HvdcRangeAction.class::cast)
+                    .filter(otherRangeAction -> otherRangeAction.getNetworkElement().equals(((HvdcRangeAction) rangeAction).getNetworkElement()))
                     .findFirst().orElse(null);
 
         } else if (rangeAction instanceof InjectionRangeAction) {

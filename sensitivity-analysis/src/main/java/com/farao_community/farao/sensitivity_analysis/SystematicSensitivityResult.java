@@ -172,7 +172,10 @@ public class SystematicSensitivityResult {
     @Deprecated
     public double getSensitivityOnIntensity(RangeAction<?> rangeAction, Cnec<?> cnec) {
         /*
-        should not be useful for the RAO
+        Should not be useful in the RAO -> sensi on intensity are never used + might crash for
+        some rangeAction time
+        For now: deprecate the method and make it throw an exception to ensure that is not used in RAO.
+        Later: reprecate the method if it has some purpose ouside of the RAO.
          */
 
         throw new UnsupportedOperationException();
