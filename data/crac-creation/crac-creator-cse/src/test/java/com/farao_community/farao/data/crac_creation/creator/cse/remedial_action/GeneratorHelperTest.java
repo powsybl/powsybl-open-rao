@@ -80,7 +80,7 @@ public class GeneratorHelperTest {
         GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA12", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
         assertNull(generatorHelper.getGeneratorId());
-        assertEquals("Buses matching BBE1AA12 in the network do not hold generators.", generatorHelper.getDetail());
+        assertEquals("Buses matching BBE1AA12 in the network do not hold generators", generatorHelper.getDetail());
         assertFalse(generatorHelper.isValid());
         assertFalse(generatorHelper.isAltered());
     }

@@ -58,7 +58,7 @@ public class GeneratorHelper {
             }
 
             // if one generator has already been identified on a previous bus, and a new one is found -> inconsistency
-            if (bus.getGeneratorStream().findAny().isPresent() && generatorId != null) {
+            if (bus.getGeneratorStream().findAny().isPresent() && generator != null) {
                 importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
                 detail = String.format("Too many generators match node name %s", busIdInCrac);
                 return;

@@ -120,9 +120,9 @@ public class CseCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(3, importedCrac.getInjectionRangeActions().size());
 
-        assertHvdcRangeActionImported("PRA_HVDC", Map.of("BBE2AA11", "BBE2AA11_generator", "FFR3AA11", "FFR3AA11_generator"), "PRA_HVDC + CRA_HVDC");
-        assertHvdcRangeActionImported("CRA_HVDC", Map.of("BBE2AA11", "BBE2AA11_generator", "FFR3AA11", "FFR3AA11_generator"), "PRA_HVDC + CRA_HVDC");
-        assertHvdcRangeActionImported("CRA_HVDC_2", Map.of("BBE2AA11", "BBE2AA11_generator", "FFR3AA11", "FFR3AA11_generator"), "PRA_HVDC + CRA_HVDC_2");
+        assertHvdcRangeActionImported("PRA_HVDC", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC");
+        assertHvdcRangeActionImported("CRA_HVDC", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC");
+        assertHvdcRangeActionImported("CRA_HVDC_2", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC_2");
 
         assertOutageNotImported("fake_contingency_because_we_have_to", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertCriticalBranchNotImported("fake_because_we_have_to", ELEMENT_NOT_FOUND_IN_NETWORK);
