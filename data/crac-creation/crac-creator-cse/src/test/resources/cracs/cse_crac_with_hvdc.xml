@@ -31,8 +31,8 @@
                 <SharedWith v="CSE"/>
                 <HVDCRange>
                     <HVDCNode>
-                        <FromNode v="BBE2AA11"/>
-                        <ToNode v="FFR3AA11"/>
+                        <FromNode v="BBE2AA12"/>
+                        <ToNode v="FFR3AA12"/>
                         <Order v="1"/>
                     </HVDCNode>
                     <VariationType v="ABSOLUTE"/>
@@ -48,8 +48,8 @@
                 <SharedWith v="CSE"/>
                 <HVDCRange>
                     <HVDCNode>
-                        <FromNode v="FFR3AA11"/>
-                        <ToNode v="BBE2AA11"/>
+                        <FromNode v="FFR3AA12"/>
+                        <ToNode v="BBE2AA12"/>
                         <Order v="1"/>
                     </HVDCNode>
                     <VariationType v="ABSOLUTE"/>
@@ -65,8 +65,8 @@
                 <SharedWith v="CSE"/>
                 <HVDCRange>
                     <HVDCNode>
-                        <FromNode v="FFR3AA11"/>
-                        <ToNode v="BBE2AA11"/>
+                        <FromNode v="FFR3AA12"/>
+                        <ToNode v="BBE2AA12"/>
                         <Order v="1"/>
                     </HVDCNode>
                     <VariationType v="ABSOLUTE"/>

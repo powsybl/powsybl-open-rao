@@ -243,6 +243,10 @@ public class TRemedialActionAdder {
             .newRange()
                 .withMin(tRemedialAction.getHVDCRange().getMin().getV())
                 .withMax(tRemedialAction.getHVDCRange().getMax().getV())
+                .add()
+            .newRange()
+                .withMin(Math.max(-generatorFromHelper.getPmax(), generatorToHelper.getPmin()))
+                .withMax(Math.min(-generatorFromHelper.getPmin(), generatorToHelper.getPmax()))
                 .add();
 
         // ---- add groupId if present
