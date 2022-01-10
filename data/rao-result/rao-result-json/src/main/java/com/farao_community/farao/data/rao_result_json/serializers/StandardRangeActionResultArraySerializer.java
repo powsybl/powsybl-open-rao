@@ -148,7 +148,7 @@ final class StandardRangeActionResultArraySerializer {
         return rangeActionsForState.contains(rangeAction);
     }
 
-    static StandardRangeAction<?> getSimilarPreventiveRangeAction(StandardRangeAction<?> rangeAction, Crac crac) {
+    static StandardRangeAction getSimilarPreventiveRangeAction(StandardRangeAction<?> rangeAction, Crac crac) {
 
         Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
 

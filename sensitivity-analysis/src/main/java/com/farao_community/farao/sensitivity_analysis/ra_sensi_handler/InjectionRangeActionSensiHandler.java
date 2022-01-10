@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class InjectionRangeActionSensiHandler extends AbstractRangeActionSensiHandler {
+public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler {
 
-    private final static String POSITIVE_GLSK_SUFFIX = "-positiveInjections";
-    private final static String NEGATIVE_GLSK_SUFFIX = "-negativeInjections";
+    private static final String POSITIVE_GLSK_SUFFIX = "-positiveInjections";
+    private static final String NEGATIVE_GLSK_SUFFIX = "-negativeInjections";
     private final InjectionRangeAction injectionRangeAction;
 
     public InjectionRangeActionSensiHandler(InjectionRangeAction injectionRangeAction) {

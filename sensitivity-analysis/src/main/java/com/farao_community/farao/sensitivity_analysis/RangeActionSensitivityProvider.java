@@ -9,7 +9,7 @@ package com.farao_community.farao.sensitivity_analysis;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.AbstractRangeActionSensiHandler;
+import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityVariable;
@@ -73,7 +73,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     }
 
     private List<SensitivityVariable> rangeActionToSensitivityVariables(Network network, RangeAction<?> rangeAction) {
-        AbstractRangeActionSensiHandler sensiHandler = AbstractRangeActionSensiHandler.get(rangeAction);
+        RangeActionSensiHandler sensiHandler = RangeActionSensiHandler.get(rangeAction);
         sensiHandler.checkConsistency(network);
         return sensiHandler.rangeActionToSensitivityVariable();
     }

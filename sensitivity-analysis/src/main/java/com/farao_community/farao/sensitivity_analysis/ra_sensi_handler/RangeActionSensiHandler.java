@@ -21,15 +21,15 @@ import java.util.List;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-abstract public class AbstractRangeActionSensiHandler {
+public interface RangeActionSensiHandler {
 
-    abstract public List<SensitivityVariable> rangeActionToSensitivityVariable();
+    List<SensitivityVariable> rangeActionToSensitivityVariable();
 
-    abstract public double getSensitivityOnFlow(FlowCnec cnec, SystematicSensitivityResult sensitivityResult);
+    double getSensitivityOnFlow(FlowCnec cnec, SystematicSensitivityResult sensitivityResult);
 
-    abstract public void checkConsistency(Network network);
+    void checkConsistency(Network network);
 
-    public static AbstractRangeActionSensiHandler get(RangeAction<?> rangeAction) {
+    static RangeActionSensiHandler get(RangeAction<?> rangeAction) {
         if (rangeAction instanceof PstRangeAction) {
             return new PstRangeActionSensiHandler((PstRangeAction) rangeAction);
         } else if (rangeAction instanceof HvdcRangeAction) {

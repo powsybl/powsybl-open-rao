@@ -11,7 +11,7 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.AbstractRangeActionSensiHandler;
+import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
@@ -151,7 +151,7 @@ public class SystematicSensitivityResult {
     }
 
     public double getSensitivityOnFlow(RangeAction<?> rangeAction, Cnec<?> cnec) {
-        return AbstractRangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow((FlowCnec) cnec, this);
+        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow((FlowCnec) cnec, this);
     }
 
     public double getSensitivityOnFlow(LinearGlsk glsk, Cnec<?> cnec) {

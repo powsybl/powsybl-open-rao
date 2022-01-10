@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class PstRangeActionSensiHandler extends AbstractRangeActionSensiHandler {
+public class PstRangeActionSensiHandler implements RangeActionSensiHandler {
 
     private final PstRangeAction pstRangeAction;
 
