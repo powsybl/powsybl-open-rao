@@ -151,6 +151,9 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                 case "pst-optimization-approximation":
                     parameters.setPstOptimizationApproximation(stringToPstApproximation(parser.nextTextValue()));
                     break;
+                case "sensitivity-provider":
+                    parameters.setSensitivityProvider(parser.nextTextValue());
+                    break;
                 case "sensitivity-parameters":
                     parser.nextToken();
                     JsonSensitivityAnalysisParameters.deserialize(parser, deserializationContext, parameters.getDefaultSensitivityAnalysisParameters());

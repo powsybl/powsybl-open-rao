@@ -109,6 +109,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
     public static final PstOptimizationApproximation DEFAULT_PST_OPTIMIZATION_APPROXIMATION = PstOptimizationApproximation.CONTINUOUS;
     public static final boolean DEFAULT_FORBID_COST_INCREASE = false;
+    public static final String DEFAULT_SENSITIVITY_PROVIDER = "Sensi2";
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -139,6 +140,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
     private PstOptimizationApproximation pstOptimizationApproximation = DEFAULT_PST_OPTIMIZATION_APPROXIMATION;
     private boolean forbidCostIncrease = DEFAULT_FORBID_COST_INCREASE; // fallback to initial solution if RAO caused cost to increase (ie in curative)
+    private String sensitivityProvider = DEFAULT_SENSITIVITY_PROVIDER;
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
@@ -407,6 +409,14 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.solverSpecificParameters = solverSpecificParameters;
     }
 
+    public String getSensitivityProvider() {
+        return sensitivityProvider;
+    }
+
+    public void setSensitivityProvider(String sensitivityProvider) {
+        this.sensitivityProvider = sensitivityProvider;
+    }
+
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -472,6 +482,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setSolverSpecificParameters(config.getStringProperty("solver-specific-parameters", DEFAULT_SOLVER_SPECIFIC_PARAMETERS));
                 parameters.setPstOptimizationApproximation(config.getEnumProperty("pst-optimization-approximation", PstOptimizationApproximation.class, DEFAULT_PST_OPTIMIZATION_APPROXIMATION));
                 parameters.setForbidCostIncrease(config.getBooleanProperty("forbid-cost-increase", DEFAULT_FORBID_COST_INCREASE));
+                parameters.setSensitivityProvider(config.getStringProperty("sensitivity-provider", DEFAULT_SENSITIVITY_PROVIDER));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

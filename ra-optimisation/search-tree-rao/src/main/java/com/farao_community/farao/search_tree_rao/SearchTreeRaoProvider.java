@@ -99,7 +99,8 @@ public class SearchTreeRaoProvider implements RaoProvider {
                     raoInput.getGlskProvider(),
                     raoInput.getReferenceProgram(),
                     raoInput.getCrac().getContingencies(),
-                    raoInput.getNetwork()
+                    raoInput.getNetwork(),
+                    parameters.getSensitivityProvider()
                 )
             );
         }

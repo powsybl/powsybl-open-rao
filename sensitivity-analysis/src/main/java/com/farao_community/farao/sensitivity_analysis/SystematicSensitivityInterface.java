@@ -33,6 +33,11 @@ public final class SystematicSensitivityInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityInterface.class);
 
     /**
+     * Name of sensitivity analysis provider
+     */
+    private String sensitivityProvider;
+
+    /**
      * Sensitivity configurations, containing the default and fallback configurations
      * of the sensitivity analysis
      */
@@ -59,6 +64,7 @@ public final class SystematicSensitivityInterface {
      * Builder
      */
     public static final class SystematicSensitivityInterfaceBuilder {
+        private String sensitivityProvider;
         private SensitivityAnalysisParameters defaultParameters;
         private SensitivityAnalysisParameters fallbackParameters;
         private MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
@@ -67,6 +73,11 @@ public final class SystematicSensitivityInterface {
 
         private SystematicSensitivityInterfaceBuilder() {
 
+        }
+
+        public SystematicSensitivityInterfaceBuilder withSensitivityProviderName(String sensitivityProvider) {
+            this.sensitivityProvider = sensitivityProvider;
+            return this;
         }
 
         public SystematicSensitivityInterfaceBuilder withFallbackParameters(SensitivityAnalysisParameters fallbackParameters) {
@@ -103,7 +114,9 @@ public final class SystematicSensitivityInterface {
         }
 
         public SystematicSensitivityInterface build() {
-
+            if (Objects.isNull(sensitivityProvider)) {
+                throw new SensitivityAnalysisException("You must provide a sensitivity provider implementation name when building a SystematicSensitivityInterface.");
+            }
             if (!providerInitialised) {
                 throw new SensitivityAnalysisException("Sensitivity provider is mandatory when building a SystematicSensitivityInterface.");
             }
@@ -111,6 +124,7 @@ public final class SystematicSensitivityInterface {
                 defaultParameters = new SensitivityAnalysisParameters();
             }
             SystematicSensitivityInterface systematicSensitivityInterface = new SystematicSensitivityInterface();
+            systematicSensitivityInterface.sensitivityProvider = sensitivityProvider;
             systematicSensitivityInterface.defaultParameters = defaultParameters;
             systematicSensitivityInterface.fallbackParameters = fallbackParameters;
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
@@ -182,7 +196,7 @@ public final class SystematicSensitivityInterface {
     private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         try {
             SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters);
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, sensitivityProvider);
 
             if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityAnalysisException("Some output data of the sensitivity analysis are missing.");

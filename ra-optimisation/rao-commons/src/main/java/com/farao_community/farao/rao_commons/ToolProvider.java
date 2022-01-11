@@ -143,6 +143,7 @@ public final class ToolProvider {
         }
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
+                .withSensitivityProviderName(raoParameters.getSensitivityProvider())
                 .withDefaultParameters(raoParameters.getDefaultSensitivityAnalysisParameters())
                 .withFallbackParameters(raoParameters.getFallbackSensitivityAnalysisParameters())
                 .withRangeActionSensitivities(rangeActions, cnecs, flowUnits)
