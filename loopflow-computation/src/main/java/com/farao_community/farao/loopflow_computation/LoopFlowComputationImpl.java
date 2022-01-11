@@ -9,7 +9,6 @@ package com.farao_community.farao.loopflow_computation;
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
@@ -51,7 +50,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     }
 
     @Override
-    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs, ComputationManager computationManager) {
+    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs) {
         this.network = network;
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()

@@ -78,7 +78,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
             ContingencyContext preContingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
 
             cnecs.stream()
-                .filter(cnec -> cnec.getState().getContingency().isEmpty())
+                .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingency.getId()))
                 .map(Cnec::getNetworkElement)
                 .distinct()
                 .forEach(ne -> mapCountryLinearGlsk.values().stream()

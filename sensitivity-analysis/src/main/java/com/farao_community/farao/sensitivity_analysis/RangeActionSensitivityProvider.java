@@ -51,7 +51,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                 } else {
                     throw new SensitivityAnalysisException(String.format("Range action type of %s not implemented yet", ra.getId()));
                 }
-            }));
+            }, (k1, k2) -> k1));
 
         // Case no RangeAction is provided, we still want to get reference flows
         if (sensitivityVariables.isEmpty()) {
@@ -84,7 +84,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                     } else {
                         throw new SensitivityAnalysisException(String.format("Range action type of %s not implemented yet", ra.getId()));
                     }
-                }));
+                }, (k1, k2) -> k1));
 
             // Case no RangeAction is provided, we still want to get reference flows
             if (sensitivityVariables.isEmpty()) {

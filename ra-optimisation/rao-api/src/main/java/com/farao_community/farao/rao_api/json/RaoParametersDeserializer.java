@@ -153,14 +153,14 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     break;
                 case "sensitivity-parameters":
                     parser.nextToken();
-                    parameters.setDefaultSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readValue(parser, SensitivityAnalysisParameters.class));
+                    parameters.setDefaultSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readerForUpdating(parameters.getDefaultSensitivityAnalysisParameters()).readValue(parser));
                     break;
                 case "fallback-sensitivity-parameters":
                     parser.nextToken();
                     if (parameters.getFallbackSensitivityAnalysisParameters() == null) {
                         parameters.setFallbackSensitivityAnalysisParameters(new SensitivityAnalysisParameters());
                     }
-                    parameters.setFallbackSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readValue(parser, SensitivityAnalysisParameters.class));
+                    parameters.setFallbackSensitivityAnalysisParameters(SensitivityJson.createObjectMapper().readerForUpdating(parameters.getFallbackSensitivityAnalysisParameters()).readValue(parser));
                     break;
                 case "forbid-cost-increase":
                     parser.nextToken();
