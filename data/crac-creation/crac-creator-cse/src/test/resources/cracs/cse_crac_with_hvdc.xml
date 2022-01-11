@@ -97,6 +97,23 @@
                 </HVDCRange>
             </RemedialAction>
             <RemedialAction>
+                <Name v="HVDC_WITH_NON_OPPOSITE_GENERATORS"/>
+                <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+                <Operator v="FR"/>
+                <Application v="CURATIVE"/>
+                <SharedWith v="CSE"/>
+                <HVDCRange>
+                    <HVDCNode>
+                        <FromNode v="FFR3AA11"/>
+                        <ToNode v="BBE2AA11"/>
+                        <Order v="1"/>
+                    </HVDCNode>
+                    <VariationType v="ABSOLUTE"/>
+                    <Min v="-100"/>
+                    <Max v="2000"/>
+                </HVDCRange>
+            </RemedialAction>
+            <RemedialAction>
                 <Name v="CRA_HVDC_fake"/>
                 <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
                 <Operator v="FR"/>

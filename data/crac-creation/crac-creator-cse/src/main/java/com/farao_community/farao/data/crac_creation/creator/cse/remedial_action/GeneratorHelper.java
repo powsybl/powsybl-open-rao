@@ -29,6 +29,7 @@ public class GeneratorHelper {
 
     private double pMin;
     private double pMax;
+    private double currentP;
 
     // Find a generator using a bus ID
     public GeneratorHelper(String busIdInCrac, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
@@ -90,6 +91,7 @@ public class GeneratorHelper {
             generatorId = generator.getId();
             pMin = generator.getMinP();
             pMax = generator.getMaxP();
+            currentP = generator.getTargetP();
         }
     }
 
@@ -119,5 +121,9 @@ public class GeneratorHelper {
 
     public double getPmax() {
         return pMax;
+    }
+
+    public double getCurrentP() {
+        return currentP;
     }
 }

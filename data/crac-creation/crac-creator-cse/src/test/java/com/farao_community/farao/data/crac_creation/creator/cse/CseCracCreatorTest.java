@@ -122,12 +122,12 @@ public class CseCracCreatorTest {
 
         assertHvdcRangeActionImported("PRA_HVDC", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC");
         assertHvdcRangeActionImported("CRA_HVDC", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC");
-        assertHvdcRangeActionImported("CRA_HVDC_2", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC_2");
 
         assertOutageNotImported("fake_contingency_because_we_have_to", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertCriticalBranchNotImported("fake_because_we_have_to", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertRemedialActionNotImported("CRA_HVDC_fake", NOT_YET_HANDLED_BY_FARAO);
         assertRemedialActionNotImported("WEIRD_HVDC_WITH_2_HVDCNODES", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC_WITH_NON_OPPOSITE_GENERATORS", INCONSISTENCY_IN_DATA);
     }
 
     @Test

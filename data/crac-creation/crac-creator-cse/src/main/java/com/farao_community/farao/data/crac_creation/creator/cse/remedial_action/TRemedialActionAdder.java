@@ -233,6 +233,17 @@ public class TRemedialActionAdder {
             return;
         }
 
+        // ---- check if generator have inverted signs
+        if (Math.abs(generatorFromHelper.getCurrentP() + generatorToHelper.getCurrentP()) > 0.1) {
+            cseCracCreationContext.addRemedialActionCreationContext(
+                    CseHvdcCreationContext.notImported(tRemedialAction,
+                            ImportStatus.INCONSISTENCY_IN_DATA,
+                            "the two generators of the HVDC must have opposite power output values",
+                            hvdcNodes.getFromNode().getV(),
+                            hvdcNodes.getToNode().getV()));
+            return;
+        }
+
         // ---- create range action
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
             .withId(raId)
