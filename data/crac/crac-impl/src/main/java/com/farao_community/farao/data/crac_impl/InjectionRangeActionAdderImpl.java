@@ -44,7 +44,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
     @Override
     public InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName) {
-        distributionKeys.add(new DistributionKeyOnNetworkElement(networkElementId, networkElementName, key));
+        distributionKeys.add(new DistributionKeyOnNetworkElement(key, networkElementId, networkElementName));
         return this;
     }
 
@@ -80,7 +80,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     private Map<NetworkElement, Double> addNetworkElements() {
         Map<NetworkElement, Double> distributionKeyMap = new HashMap<>();
         distributionKeys.forEach(sK -> {
-            if (sK.distributionKey != 0.0) {
+            if (Math.abs(sK.distributionKey) > 1e-3) {
                 NetworkElement networkElement = this.getCrac().addNetworkElement(sK.networkElementId, sK.networkElementName);
                 distributionKeyMap.merge(networkElement, sK.distributionKey, Double::sum);
             }
@@ -93,7 +93,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         String networkElementName;
         double distributionKey;
 
-        DistributionKeyOnNetworkElement(String networkElementId, String networkElementName, double distributionKey) {
+        DistributionKeyOnNetworkElement(double distributionKey, String networkElementId, String networkElementName) {
             this.networkElementId = networkElementId;
             this.networkElementName = networkElementName;
             this.distributionKey = distributionKey;
