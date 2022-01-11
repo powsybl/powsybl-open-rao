@@ -147,7 +147,7 @@ public final class GlskPointScalableConverter {
                 incomingMaxP = generatorTargetP;
             }
             if (!Double.isNaN(incomingMinP) && incomingMinP > generatorTargetP) {
-                BUSINESS_WARNS.warn("Generator '{}' has initial target P that is above GLSK min P. Extending GLSK min P from {} to {}.", generatorId, incomingMinP, generatorTargetP);
+                BUSINESS_WARNS.warn("Generator '{}' has initial target P that is below GLSK min P. Extending GLSK min P from {} to {}.", generatorId, incomingMinP, generatorTargetP);
                 incomingMinP = generatorTargetP;
             }
         }

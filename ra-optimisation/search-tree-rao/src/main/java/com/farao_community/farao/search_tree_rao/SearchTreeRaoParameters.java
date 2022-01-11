@@ -278,7 +278,7 @@ public class SearchTreeRaoParameters extends AbstractExtension<RaoParameters> {
     private Optional<NetworkActionCombination> getNetworkActionCombinationFromIds(List<String> networkActionIds, Crac crac) {
 
         if (networkActionIds.size() < 2) {
-            BUSINESS_WARNS.warn("A network-action-combination should at least contains 2 NetworkAction ids");
+            BUSINESS_WARNS.warn("A network-action-combination should contain at least 2 NetworkAction ids");
             return Optional.empty();
         }
 
