@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -121,6 +122,10 @@ public class SearchTreeTest {
         when(searchTreeInput.getIteratingLinearOptimizer()).thenReturn(iteratingLinearOptimizer);
         rootLeaf = Mockito.mock(Leaf.class);
         when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNaCombinations);
+
+        FlowCnec cnec = Mockito.mock(FlowCnec.class);
+        when(cnec.isOptimized()).thenReturn(true);
+        when(searchTreeInput.getFlowCnecs()).thenReturn(Set.of(cnec));
     }
 
     @Test
@@ -456,5 +461,33 @@ public class SearchTreeTest {
         assertFalse(SearchTree.isRemedialActionAvailable(na1, optimizedState, flowResult));
         assertFalse(SearchTree.isOnFlowConstraintAvailable(onFlowConstraint, optimizedState, flowResult));
         assertFalse(SearchTree.isRemedialActionAvailable(na2, optimizedState, flowResult));
+    }
+
+    @Test
+    public void testPurelyVirtualStopCriterion() {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtTargetObjectiveValue(-30.);
+
+        FlowCnec mnec = Mockito.mock(FlowCnec.class);
+        when(mnec.isOptimized()).thenReturn(false);
+        when(searchTreeInput.getFlowCnecs()).thenReturn(Set.of(mnec));
+
+        RangeAction ra = Mockito.mock(RangeAction.class);
+        when(ra.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(searchTreeInput.getRangeActions()).thenReturn(Set.of(ra));
+
+        double leafCost = 0.;
+        when(rootLeaf.getCost()).thenReturn(leafCost);
+        when(rootLeaf.getVirtualCost()).thenReturn(0.);
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
+        // rootLeaf should not be optimized : its virtual cost is zero so stop criterion is already reached
+        doThrow(FaraoException.class).when(rootLeaf).optimize(any(), any(), any());
+
+        try {
+            searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters);
+        } catch (FaraoException e) {
+            fail("Should not have optimized rootleaf as it had already reached the stop criterion");
+        }
     }
 }
