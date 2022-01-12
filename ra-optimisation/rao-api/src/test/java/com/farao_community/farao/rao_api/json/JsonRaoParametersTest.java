@@ -78,6 +78,7 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setRelativeMipGap(1e-5);
         parameters.setPstOptimizationApproximation(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
         parameters.setForbidCostIncrease(true);
+        parameters.setLoadFlowProvider("OpenLoadFlowProvider");
         parameters.setSensitivityProvider("OpenSensitivityAnalysis");
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet.json");
     }
