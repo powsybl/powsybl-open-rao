@@ -117,7 +117,12 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {
-            return optimizeOneStateOnly(raoInput, parameters, stateTree, toolProvider);
+            try {
+                return optimizeOneStateOnly(raoInput, parameters, stateTree, toolProvider);
+            } catch (Exception e) {
+                BUSINESS_LOGS.error("Optimizing state \"{}\" failed: ", raoInput.getOptimizedState().getId(), e);
+                return CompletableFuture.completedFuture(new FailedRaoOutput());
+            }
         }
 
         // compute initial sensitivity on all CNECs
@@ -195,7 +200,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
      */
     private RaoResult postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, RaoParameters raoParameters) {
         if (raoParameters.getForbidCostIncrease() && raoResult.getCost(OptimizationState.AFTER_CRA) > initialResult.getCost()) {
-            BUSINESS_WARNS.warn("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
+            BUSINESS_LOGS.info("RAO has increased the overall cost from {} (functional: {}, virtual: {}) to {} (functional: {}, virtual: {}). Falling back to initial solution:",
                 formatDouble(initialResult.getCost()), formatDouble(initialResult.getFunctionalCost()), formatDouble(initialResult.getVirtualCost()),
                 formatDouble(raoResult.getCost(OptimizationState.AFTER_CRA)), formatDouble(raoResult.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(raoResult.getVirtualCost(OptimizationState.AFTER_CRA)));
             // log results
@@ -721,7 +726,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             return false;
         }
         if (!Objects.isNull(targetEndInstant) && ChronoUnit.SECONDS.between(Instant.now(), targetEndInstant) < estimatedPreventiveRaoTimeInSeconds) {
-            BUSINESS_WARNS.warn("There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)", targetEndInstant, estimatedPreventiveRaoTimeInSeconds);
+            BUSINESS_LOGS.info("There is not enough time to run a 2nd preventive RAO (target end time: {}, estimated time needed based on first preventive RAO: {} seconds)", targetEndInstant, estimatedPreventiveRaoTimeInSeconds);
             return false;
         }
         if (raoParameters.getExtension(SearchTreeRaoParameters.class).getSecondPreventiveOptimizationCondition().equals(SearchTreeRaoParameters.SecondPreventiveRaoCondition.COST_INCREASE)

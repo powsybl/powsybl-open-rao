@@ -30,7 +30,7 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
 
         // todo : handle PTDFs in AMPERE
         if (factorsInAmpere || !factorsInMegawatt) {
-            FaraoLoggerProvider.BUSINESS_WARNS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
+            FaraoLoggerProvider.TECHNICAL_LOGS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
             factorsInMegawatt = true;
             factorsInAmpere = false;
         }

@@ -24,8 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
-import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -52,9 +51,9 @@ public class IteratingLinearOptimizer {
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
             solveLinearProblem(linearProblem, iteration);
             if (linearProblem.getStatus() == LinearProblemStatus.FEASIBLE) {
-                BUSINESS_WARNS.warn("The solver was interrupted. A feasible solution has been produced.");
+                TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");
             } else if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
-                BUSINESS_WARNS.warn("Linear optimization failed at iteration {}", iteration);
+                BUSINESS_LOGS.error("Linear optimization failed at iteration {}", iteration);
                 if (iteration == 1) {
                     return new FailedLinearOptimizationResult();
                 }

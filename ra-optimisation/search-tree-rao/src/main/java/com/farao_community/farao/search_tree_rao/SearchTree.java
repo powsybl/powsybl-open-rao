@@ -27,10 +27,7 @@ import com.farao_community.farao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -142,8 +139,7 @@ public class SearchTree {
         this.preOptimVirtualCost = rootLeaf.getVirtualCost();
 
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
-            //TODO : improve error messages depending on leaf error (infeasible optimisation, time-out, ...)
-            topLevelLogger.info("{}", rootLeaf);
+            topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
             logOptimizationSummary(rootLeaf);
             return CompletableFuture.completedFuture(rootLeaf);
         } else if (stopCriterionReached(rootLeaf)) {
@@ -218,7 +214,7 @@ public class SearchTree {
             }
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
-            BUSINESS_LOGS.error("A computation thread was interrupted");
+            TECHNICAL_LOGS.warn("A computation thread was interrupted");
             Thread.currentThread().interrupt();
         }
     }
@@ -266,6 +262,10 @@ public class SearchTree {
         }
     }
 
+    private String printNetworkActions(Set<NetworkAction> networkActions) {
+        return networkActions.stream().map(NetworkAction::getId).collect(Collectors.joining(" + "));
+    }
+
     AbstractNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {
         return AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), leavesInParallel);
     }
@@ -276,7 +276,9 @@ public class SearchTree {
             // We get initial range action results from the previous optimal leaf
             leaf = createChildLeaf(network, naCombination);
         } catch (FaraoException e) {
-            BUSINESS_WARNS.warn("Could not create child leaf with network action combination {}, the combination will be skipped: {}", naCombination.getConcatenatedId(), e.getMessage());
+            Set<NetworkAction> networkActions = new HashSet<>(previousDepthOptimalLeaf.getActivatedNetworkActions());
+            networkActions.addAll(naCombination.getNetworkActionSet());
+            topLevelLogger.info("Could not evaluate network action combination \"{}\": {}", printNetworkActions(networkActions), e.getMessage());
             return;
         } catch (NotImplementedException e) {
             networkPool.releaseUsedNetwork(network);
@@ -292,6 +294,8 @@ public class SearchTree {
                 topLevelLogger.info("Optimized {}", leaf);
             }
             updateOptimalLeaf(leaf);
+        } else {
+            topLevelLogger.info("Could not evaluate leaf: {}", leaf);
         }
     }
 
@@ -318,6 +322,9 @@ public class SearchTree {
                     getSensitivityComputerForOptimizationBasedOn(baseFlowResult, rangeActions),
                     searchTreeProblem.getLeafProblem(rangeActions)
                 );
+                if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
+                    topLevelLogger.info("Failed to optimize leaf: {}", leaf);
+                }
                 // Check if result is worse than before (even though it should not happen). If it is, go back to
                 // previous result. The only way to do this is to re-run a linear optimization
                 // TODO : check if this actually happens. If it never does, delete this extra LP
@@ -328,6 +335,9 @@ public class SearchTree {
                         getSensitivityComputerForOptimizationBasedOn(baseFlowResult, previousIterationRangeActions),
                         searchTreeProblem.getLeafProblem(rangeActions)
                     );
+                    if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
+                        topLevelLogger.info("Failed to optimize leaf: {}", leaf);
+                    }
                     break;
                 }
             } else {
