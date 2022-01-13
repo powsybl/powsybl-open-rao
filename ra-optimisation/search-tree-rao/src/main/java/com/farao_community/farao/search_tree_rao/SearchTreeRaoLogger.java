@@ -214,6 +214,12 @@ final class SearchTreeRaoLogger {
     }
 
     public static String formatDouble(double value) {
-        return String.format(Locale.ENGLISH, "%.2f", value);
+        if (value >= Double.MAX_VALUE) {
+            return "+infinity";
+        } else if (value <= -Double.MAX_VALUE) {
+            return "-infinity";
+        } else {
+            return String.format(Locale.ENGLISH, "%.2f", value);
+        }
     }
 }
