@@ -509,7 +509,7 @@ public class SearchTreeTest {
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
         String expectedLog1 = "[INFO] Evaluating root leaf";
-        String expectedLog2 = "[INFO] root leaf description";
+        String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no preventive remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
@@ -531,7 +531,7 @@ public class SearchTreeTest {
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(network, prePerimeterOutput);
 
         String expectedLog1 = "[INFO] Evaluating root leaf";
-        String expectedLog2 = "[INFO] root leaf description";
+        String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no preventive remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
