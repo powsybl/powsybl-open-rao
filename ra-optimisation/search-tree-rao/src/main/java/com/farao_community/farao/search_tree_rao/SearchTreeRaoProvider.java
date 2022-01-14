@@ -143,7 +143,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             return CompletableFuture.completedFuture(new FailedRaoOutput());
         }
 
-        logOverallObjectiveFunction(raoInput.getCrac(), parameters, stateTree, initialOutput, initialOutput, toolProvider, "Initial sensitivity analysis: ");
+        logOverallObjectiveFunction(raoInput.getCrac(), parameters, initialOutput, initialOutput, toolProvider, "Initial sensitivity analysis: ");
 
         // optimize preventive perimeter
         Instant preventiveRaoStartInstant = Instant.now();
@@ -169,7 +169,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         applyRemedialActions(network, preventiveResult);
 
         PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, preventiveResult);
-        logOverallObjectiveFunction(raoInput.getCrac(), parameters, stateTree, initialOutput, preCurativeSensitivityAnalysisOutput, toolProvider, "Systematic sensitivity analysis after preventive remedial actions: ");
+        logOverallObjectiveFunction(raoInput.getCrac(), parameters, initialOutput, preCurativeSensitivityAnalysisOutput, toolProvider, "Systematic sensitivity analysis after preventive remedial actions: ");
 
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
         Map<State, OptimizationResult> postContingencyResults = optimizeContingencyScenarios(raoInput.getCrac(), parameters, stateTree, toolProvider, curativeTreeParameters, network, initialOutput, preCurativeSensitivityAnalysisOutput);
@@ -274,19 +274,12 @@ public class SearchTreeRaoProvider implements RaoProvider {
     /**
      * Build an objective function upon all CNECs in the CRAC and logs the cost and the most limiting elements, for a given preperimeter result
      */
-    static void logOverallObjectiveFunction(Crac crac, RaoParameters raoParameters, StateTree stateTree, PrePerimeterResult initialOutput,
+    static void logOverallObjectiveFunction(Crac crac, RaoParameters raoParameters, PrePerimeterResult initialOutput,
                                             PrePerimeterResult prePerimeterResult, ToolProvider toolProvider, String prefix) {
         if (!BUSINESS_LOGS.isInfoEnabled()) {
             return;
         }
         LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = basicLinearOptimizerBuilder(raoParameters);
-        SearchTreeRaoParameters parameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
-        if (parameters != null && !parameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
-            UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(
-                stateTree.getOperatorsNotSharingCras(),
-                getLargestCnecThreshold(crac.getFlowCnecs()));
-            builder.withUnoptimizedCnecParameters(unoptimizedCnecParameters);
-        }
         LinearOptimizerParameters linearOptimizerParameters = builder.build();
         ObjectiveFunction objectiveFunction = createObjectiveFunction(
             crac.getFlowCnecs(),
@@ -797,7 +790,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         // Run a first sensitivity computation using initial network and applied CRAs
         PrePerimeterResult sensiWithCurativeRemedialActions = prePerimeterSensitivityAnalysis.run(network, appliedRemedialActions);
-        logOverallObjectiveFunction(raoInput.getCrac(), parameters, stateTree, initialOutput, sensiWithCurativeRemedialActions, toolProvider, "Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ");
+        logOverallObjectiveFunction(raoInput.getCrac(), parameters, initialOutput, sensiWithCurativeRemedialActions, toolProvider, "Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ");
 
         // Run second preventive RAO
         BUSINESS_LOGS.info("----- Second preventive perimeter optimization [start]");
