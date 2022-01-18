@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.loopflow_computation;
 
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -13,8 +14,6 @@ import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualH
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -46,7 +45,6 @@ public class XnodeGlskHandler {
     connected to Alegro.
     */
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(XnodeGlskHandler.class);
     private static final int N_CHARACTERS_IN_UCTE_NODE = 8;
 
     private Map<Contingency, List<String>> invalidGlskPerContingency;
@@ -89,7 +87,7 @@ public class XnodeGlskHandler {
 
         glskZonalData.getDataPerZone().forEach((k, linearGlsk) -> {
             if (!isGlskValid(linearGlsk, xNodesInContingency)) {
-                LOGGER.info("PTDF of zone {} will be replaced by 0 after contingency {}, as it acts on a Xnode which has been disconnected by the contingency", linearGlsk.getId(), contingency.getId());
+                FaraoLoggerProvider.TECHNICAL_LOGS.info("PTDF of zone {} will be replaced by 0 after contingency {}, as it acts on a Xnode which has been disconnected by the contingency", linearGlsk.getId(), contingency.getId());
                 invalidGlsk.add(linearGlsk.getId());
             }
         });

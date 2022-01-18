@@ -13,18 +13,19 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_commons.*;
+import com.farao_community.farao.rao_commons.SensitivityComputer;
 import com.farao_community.farao.rao_commons.linear_optimisation.IteratingLinearOptimizer;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.rao_commons.result_api.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * A "leaf" is a node of the search tree.
@@ -34,7 +35,6 @@ import java.util.stream.Collectors;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class Leaf implements OptimizationResult {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Leaf.class);
     private static final String NO_RESULTS_AVAILABLE = "No results available.";
 
     enum Status {
@@ -123,20 +123,20 @@ class Leaf implements OptimizationResult {
      */
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
         if (status.equals(Status.EVALUATED)) {
-            LOGGER.debug("Leaf has already been evaluated");
+            TECHNICAL_LOGS.debug("Leaf has already been evaluated");
             preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, preOptimSensitivityResult.getSensitivityStatus());
             return;
         }
 
         try {
-            LOGGER.debug("Evaluating leaf...");
+            TECHNICAL_LOGS.debug("Evaluating {}", this);
             sensitivityComputer.compute(network);
             preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
             preOptimFlowResult = sensitivityComputer.getBranchResult();
             preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, preOptimSensitivityResult.getSensitivityStatus());
             status = Status.EVALUATED;
         } catch (FaraoException e) {
-            LOGGER.error(String.format("Failed to evaluate leaf: %s", e.getMessage()));
+            BUSINESS_WARNS.warn("Failed to evaluate leaf: {}", e.getMessage());
             status = Status.ERROR;
         }
     }
@@ -159,29 +159,29 @@ class Leaf implements OptimizationResult {
         }
         if (status.equals(Status.OPTIMIZED)) {
             // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
-            LOGGER.debug("Resetting range action setpoints to their pre-optim values");
+            TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
             resetPreOptimRangeActionsSetpoints();
         }
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
-            LOGGER.debug("Optimizing leaf...");
+            TECHNICAL_LOGS.debug("Optimizing leaf...");
             LinearProblem linearProblem = leafProblem.getLinearProblem(
-                    network,
-                    preOptimFlowResult,
-                    preOptimSensitivityResult
+                network,
+                preOptimFlowResult,
+                preOptimSensitivityResult
             );
             postOptimResult = iteratingLinearOptimizer.optimize(
-                    linearProblem,
-                    network,
-                    preOptimFlowResult,
-                    preOptimSensitivityResult,
-                    preOptimRangeActionResult,
-                    sensitivityComputer
+                linearProblem,
+                network,
+                preOptimFlowResult,
+                preOptimSensitivityResult,
+                preOptimRangeActionResult,
+                sensitivityComputer
             );
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
-            LOGGER.warn("Impossible to optimize leaf: {}\n because evaluation failed", this);
+            BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation failed", this);
         } else if (status.equals(Status.CREATED)) {
-            LOGGER.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", this);
+            BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation has not been performed", this);
         }
     }
 
@@ -192,15 +192,21 @@ class Leaf implements OptimizationResult {
     @Override
     public String toString() {
         String info = isRoot() ? "Root leaf" :
-            "Network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
-        try {
-            info += String.format(", Cost: %.2f", getCost());
-            info += String.format(" (Functional: %.2f", getFunctionalCost());
-            info += String.format(", Virtual: %.2f)", getVirtualCost());
-        } catch (FaraoException ignored) {
+            "network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+        if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
+            long nRangeActions = getNumberOfActivatedRangeActions();
+            info += String.format(", %s range action(s) activated", nRangeActions > 0 ? nRangeActions : "no");
+            info += String.format(Locale.ENGLISH, ", cost: %.2f", getCost());
+            info += String.format(Locale.ENGLISH, " (functional: %.2f", getFunctionalCost());
+            info += String.format(Locale.ENGLISH, ", virtual: %.2f)", getVirtualCost());
         }
-        info += ", Status: " + status.getMessage();
         return info;
+    }
+
+    private long getNumberOfActivatedRangeActions() {
+        return getOptimizedSetPoints().entrySet().stream().filter(entry ->
+            Math.abs(entry.getValue() - preOptimRangeActionResult.getOptimizedSetPoints().get(entry.getKey())) > 1e-6
+        ).count();
     }
 
     @Override
