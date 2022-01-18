@@ -62,4 +62,12 @@ public class OptimizationStateTest {
         assertEquals(AUTO, AFTER_ARA.getFirstInstant());
         assertEquals(CURATIVE, AFTER_CRA.getFirstInstant());
     }
+
+    @Test
+    public void testToString() {
+        assertEquals("initial", INITIAL.toString());
+        assertEquals("after PRA", AFTER_PRA.toString());
+        assertEquals("after ARA", AFTER_ARA.toString());
+        assertEquals("after CRA", AFTER_CRA.toString());
+    }
 }

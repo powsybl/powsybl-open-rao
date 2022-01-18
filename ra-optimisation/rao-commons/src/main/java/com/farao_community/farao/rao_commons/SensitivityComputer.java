@@ -19,17 +19,15 @@ import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisExcepti
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class SensitivityComputer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityComputer.class);
-
     private SystematicSensitivityInterface systematicSensitivityInterface;
     private BranchResultAdapter branchResultAdapter;
     private SystematicSensitivityResult result;
@@ -40,11 +38,9 @@ public final class SensitivityComputer {
 
     public void compute(Network network) {
         try {
-            LOGGER.debug("Systematic sensitivity analysis [start]");
             result = systematicSensitivityInterface.run(network);
-            LOGGER.debug("Systematic sensitivity analysis [end]");
         } catch (SensitivityAnalysisException e) {
-            LOGGER.error("Systematic sensitivity computation failed on {} mode: {}", systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage());
+            TECHNICAL_LOGS.warn("Systematic sensitivity computation failed on {} mode: {}", systematicSensitivityInterface.isFallback() ? "Fallback" : "Default", e.getMessage());
             throw e;
         }
     }

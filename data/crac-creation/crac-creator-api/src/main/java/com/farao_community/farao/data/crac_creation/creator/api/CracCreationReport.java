@@ -7,11 +7,10 @@
 
 package com.farao_community.farao.data.crac_creation.creator.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * Common methods used in CRAC creation reports
@@ -19,7 +18,6 @@ import java.util.List;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class CracCreationReport {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CracCreationReport.class);
     private List<String> creationReport;
 
     public CracCreationReport() {
@@ -33,35 +31,35 @@ public final class CracCreationReport {
     public void error(String errorReason) {
         String message = String.format("[ERROR] %s", errorReason);
         creationReport.add(message);
-        LOGGER.error(message);
+        BUSINESS_LOGS.error(message);
     }
 
     public void removed(String removedReason) {
         String message = String.format("[REMOVED] %s", removedReason);
         creationReport.add(message);
-        LOGGER.warn(message);
+        BUSINESS_WARNS.warn(message);
     }
 
     public void altered(String alteredReason) {
         String message = String.format("[ALTERED] %s", alteredReason);
         creationReport.add(message);
-        LOGGER.warn(message);
+        BUSINESS_WARNS.warn(message);
     }
 
     public void warn(String warnReason) {
         String message = String.format("[WARN] %s", warnReason);
         creationReport.add(message);
-        LOGGER.warn(message);
+        BUSINESS_WARNS.warn(message);
     }
 
     public void info(String infoReason) {
         String message = String.format("[INFO] %s", infoReason);
         creationReport.add(message);
-        LOGGER.info(message);
+        TECHNICAL_LOGS.info(message);
     }
 
     public void printCreationReport() {
-        creationReport.forEach(LOGGER::info);
+        creationReport.forEach(BUSINESS_LOGS::info);
     }
 
     public List<String> getReport() {

@@ -14,18 +14,16 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 final class SearchTreeBloomer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchTreeBloomer.class);
-
     private final Network network;
     private final CountryGraph countryGraph;
     private final RangeActionResult prePerimeterRangeActionResult;
@@ -143,7 +141,7 @@ final class SearchTreeBloomer {
             .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
-            LOGGER.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", naCombinations.size() - filteredNaCombinations.size());
+            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", naCombinations.size() - filteredNaCombinations.size());
         }
 
         return filteredNaCombinations;
@@ -158,7 +156,7 @@ final class SearchTreeBloomer {
             .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
-            LOGGER.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", naCombinations.size() - filteredNaCombinations.size());
+            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", naCombinations.size() - filteredNaCombinations.size());
         }
 
         return filteredNaCombinations;
@@ -173,7 +171,7 @@ final class SearchTreeBloomer {
             .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
-            LOGGER.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", naCombinations.size() - filteredNaCombinations.size());
+            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable TSOs has been reached", naCombinations.size() - filteredNaCombinations.size());
         }
 
         return filteredNaCombinations;
@@ -197,7 +195,7 @@ final class SearchTreeBloomer {
             .collect(Collectors.toList());
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
-            LOGGER.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
+            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
         }
         return filteredNaCombinations;
     }

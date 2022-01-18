@@ -18,22 +18,18 @@ import com.farao_community.farao.rao_commons.objective_function_evaluator.Object
 import com.farao_community.farao.rao_commons.result_api.*;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class IteratingLinearOptimizer {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(IteratingLinearOptimizer.class);
-    private static final String BETTER_RESULT = "Iteration {} - Better solution found with a functional cost of {} (optimisation criterion : {})";
-    private static final String WORSE_RESULT = "Iteration {} - Linear Optimization found a worse result than previous iteration, with a functional cost from {} to {} (optimisation criterion : from {} to {})";
-    private static final String LINEAR_OPTIMIZATION_FAILED = "Linear optimization failed at iteration {}";
-
     private final ObjectiveFunction objectiveFunction;
     private final int maxIterations;
     private final RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
@@ -55,9 +51,9 @@ public class IteratingLinearOptimizer {
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
             solveLinearProblem(linearProblem, iteration);
             if (linearProblem.getStatus() == LinearProblemStatus.FEASIBLE) {
-                LOGGER.warn("The solver was interrupted. A feasible solution has been produced.");
+                TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");
             } else if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
-                LOGGER.error(LINEAR_OPTIMIZATION_FAILED, iteration);
+                BUSINESS_LOGS.error("Linear optimization failed at iteration {}", iteration);
                 if (iteration == 1) {
                     return new FailedLinearOptimizationResult();
                 }
@@ -91,7 +87,7 @@ public class IteratingLinearOptimizer {
 
             if (!hasRemedialActionsChanged(currentRangeActionResult, bestResult)) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
-                LOGGER.info("Iteration {} - same results as previous iterations, optimal solution found", iteration);
+                TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
                 return bestResult;
             }
 
@@ -124,9 +120,9 @@ public class IteratingLinearOptimizer {
     }
 
     private static void solveLinearProblem(LinearProblem linearProblem, int iteration) {
-        LOGGER.debug("Iteration {} - linear optimization [start]", iteration);
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
         linearProblem.solve();
-        LOGGER.debug("Iteration {} - linear optimization [end]", iteration);
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
     }
 
     static boolean hasRemedialActionsChanged(RangeActionResult newRangeActionResult, RangeActionResult oldRangeActionResult) {
@@ -142,21 +138,21 @@ public class IteratingLinearOptimizer {
     }
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {
-        LOGGER.info(
-            BETTER_RESULT,
+        TECHNICAL_LOGS.info(
+            "Iteration {}: better solution found with a cost of {} (functional: {})",
             iteration,
-            currentObjectiveFunctionResult.getFunctionalCost(),
-            currentObjectiveFunctionResult.getCost());
+            formatDouble(currentObjectiveFunctionResult.getCost()),
+            formatDouble(currentObjectiveFunctionResult.getFunctionalCost()));
     }
 
     private static void logWorseResult(int iteration, ObjectiveFunctionResult bestResult, ObjectiveFunctionResult currentResult) {
-        LOGGER.info(
-            WORSE_RESULT,
+        TECHNICAL_LOGS.info(
+            "Iteration {}: linear optimization found a worse result than previous iteration, with a cost increasing from {} to {} (functional: from {} to {})",
             iteration,
-            bestResult.getFunctionalCost(),
-            currentResult.getFunctionalCost(),
-            bestResult.getCost(),
-            currentResult.getCost());
+            formatDouble(bestResult.getCost()),
+            formatDouble(currentResult.getCost()),
+            formatDouble(bestResult.getFunctionalCost()),
+            formatDouble(currentResult.getFunctionalCost()));
     }
 
     private void applyRangeActions(Set<RangeAction> rangeActions,
@@ -174,7 +170,7 @@ public class IteratingLinearOptimizer {
         try {
             sensitivityComputer.compute(network);
         } catch (SensitivityAnalysisException e) {
-            LOGGER.error("Systematic sensitivity computation failed at iteration {}", iteration);
+            BUSINESS_WARNS.warn("Systematic sensitivity computation failed at iteration {}", iteration);
             throw e;
         }
     }
@@ -203,5 +199,9 @@ public class IteratingLinearOptimizer {
             previousResult.getBranchResult(),
             previousResult.getSensitivityResult()
         );
+    }
+
+    private static String formatDouble(double value) {
+        return String.format(Locale.ENGLISH, "%.2f", value);
     }
 }

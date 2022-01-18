@@ -13,19 +13,17 @@ import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
 import com.farao_community.farao.data.glsk.api.GlskException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Convert a single GlskPoint to LinearGlsk
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public final class GlskPointLinearGlskConverter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointLinearGlskConverter.class);
-
     private GlskPointLinearGlskConverter() {
         throw new AssertionError("Utility class should not be instantiated");
     }
@@ -56,13 +54,13 @@ public final class GlskPointLinearGlskConverter {
 
         for (AbstractGlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
             if (glskShiftKey.getBusinessType().equals("B42") && glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
-                LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GLSK");
+                TECHNICAL_LOGS.debug("GLSK Type B42, empty registered resources list --> country (proportional) GLSK");
                 convertCountryProportional(network, glskShiftKey, linearGlskMap);
             } else if (glskShiftKey.getBusinessType().equals("B42") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
-                LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
+                TECHNICAL_LOGS.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
                 convertExplicitProportional(network, glskShiftKey, linearGlskMap);
             } else if (glskShiftKey.getBusinessType().equals("B43")) {
-                LOGGER.debug("GLSK Type B43 --> participation factor proportional GSK");
+                TECHNICAL_LOGS.debug("GLSK Type B43 --> participation factor proportional GSK");
                 if (glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                     throw new GlskException("Empty Registered Resources List in B43 type shift key.");
                 } else {

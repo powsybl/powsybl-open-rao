@@ -13,20 +13,19 @@ import com.farao_community.farao.data.glsk.api.AbstractGlskShiftKey;
 import com.farao_community.farao.data.glsk.api.GlskException;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Convert a single GlskPoint to Scalable
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public final class GlskPointScalableConverter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointScalableConverter.class);
-
     private GlskPointScalableConverter() {
         throw new AssertionError("Utility class should not be instantiated");
     }
@@ -68,7 +67,7 @@ public final class GlskPointScalableConverter {
     }
 
     private static void convertRemainingCapacity(Network network, AbstractGlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
-        LOGGER.debug("GLSK Type B44, not empty registered resources list --> remaining capacity proportional GSK");
+        TECHNICAL_LOGS.debug("GLSK Type B44, not empty registered resources list --> remaining capacity proportional GSK");
         // Remaining capacity algorithm is supposed to put all generators at Pmin at the same time when decreasing
         // generation, and to put all generators at Pmax at the same time when increasing generation.
         // Though the scaling is not symmetrical.
@@ -144,11 +143,11 @@ public final class GlskPointScalableConverter {
         if (generator != null) {
             double generatorTargetP = generator.getTargetP();
             if (!Double.isNaN(incomingMaxP) && incomingMaxP < generatorTargetP) {
-                LOGGER.warn("Generator '{}' has initial target P that is above GLSK max P. Extending GLSK max P from {} to {}.", generatorId, incomingMaxP, generatorTargetP);
+                BUSINESS_WARNS.warn("Generator '{}' has initial target P that is above GLSK max P. Extending GLSK max P from {} to {}.", generatorId, incomingMaxP, generatorTargetP);
                 incomingMaxP = generatorTargetP;
             }
             if (!Double.isNaN(incomingMinP) && incomingMinP > generatorTargetP) {
-                LOGGER.warn("Generator '{}' has initial target P that is above GLSK min P. Extending GLSK min P from {} to {}.", generatorId, incomingMinP, generatorTargetP);
+                BUSINESS_WARNS.warn("Generator '{}' has initial target P that is below GLSK min P. Extending GLSK min P from {} to {}.", generatorId, incomingMinP, generatorTargetP);
                 incomingMinP = generatorTargetP;
             }
         }
@@ -166,7 +165,7 @@ public final class GlskPointScalableConverter {
         Country country = new CountryEICode(glskShiftKey.getSubjectDomainmRID()).getCountry();
 
         if (glskShiftKey.getPsrType().equals("A04")) {
-            LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GSK");
+            TECHNICAL_LOGS.debug("GLSK Type B42, empty registered resources list --> country (proportional) GSK");
             List<Generator> generators = network.getGeneratorStream()
                     .filter(generator -> country.equals(getSubstationNullableCountry(generator.getTerminal().getVoltageLevel().getSubstation())))
                     .filter(NetworkUtil::isCorrectGenerator)
@@ -177,7 +176,7 @@ public final class GlskPointScalableConverter {
             generators.forEach(generator -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalCountryP));
             generators.forEach(generator -> scalables.add(Scalable.onGenerator(generator.getId())));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
-            LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) LSK");
+            TECHNICAL_LOGS.debug("GLSK Type B42, empty registered resources list --> country (proportional) LSK");
             List<Load> loads = network.getLoadStream()
                     .filter(load -> country.equals(getSubstationNullableCountry(load.getTerminal().getVoltageLevel().getSubstation())))
                     .filter(NetworkUtil::isCorrectLoad)
@@ -198,7 +197,7 @@ public final class GlskPointScalableConverter {
      */
     private static void convertExplicitProportional(Network network, AbstractGlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
         if (glskShiftKey.getPsrType().equals("A04")) {
-            LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
+            TECHNICAL_LOGS.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
 
             List<Generator> generators = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getGeneratorId)
@@ -212,7 +211,7 @@ public final class GlskPointScalableConverter {
             generators.forEach(generator -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP));
             generators.forEach(generator -> scalables.add(Scalable.onGenerator(generator.getId())));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
-            LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
+            TECHNICAL_LOGS.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getLoadId)
                     .filter(loadId -> network.getLoad(loadId) != null)
@@ -235,7 +234,7 @@ public final class GlskPointScalableConverter {
      */
     private static void convertParticipationFactor(Network network, AbstractGlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
         if (glskShiftKey.getPsrType().equals("A04")) {
-            LOGGER.debug("GLSK Type B43 GSK");
+            TECHNICAL_LOGS.debug("GLSK Type B43 GSK");
 
             List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId()) != null)
@@ -247,7 +246,7 @@ public final class GlskPointScalableConverter {
             generatorResources.forEach(generatorResource -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor));
             generatorResources.forEach(generatorResource -> scalables.add(Scalable.onGenerator(generatorResource.getGeneratorId())));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
-            LOGGER.debug("GLSK Type B43 LSK");
+            TECHNICAL_LOGS.debug("GLSK Type B43 LSK");
             List<AbstractGlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .filter(loadResource -> network.getLoad(loadResource.getLoadId()) != null)
                     .filter(loadResource -> NetworkUtil.isCorrectLoad(network.getLoad(loadResource.getLoadId())))

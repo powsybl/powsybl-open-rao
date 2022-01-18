@@ -6,9 +6,8 @@
  */
 package com.farao_community.farao.util;
 
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class SingleNetworkPool extends AbstractNetworkPool {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SingleNetworkPool.class);
     private String networkInitialVariantId;
     private Network network;
     private Collection<String> baseNetworkVariantIds;
@@ -38,7 +36,7 @@ class SingleNetworkPool extends AbstractNetworkPool {
         this.networkInitialVariantId = network.getVariantManager().getWorkingVariantId();
         this.network = network;
         this.baseNetworkVariantIds = new HashSet<>(network.getVariantManager().getVariantIds());
-        LOGGER.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant);
+        FaraoLoggerProvider.TECHNICAL_LOGS.info("Using base network '{}' on variant '{}'", network.getId(), targetVariant);
         network.getVariantManager().setWorkingVariant(targetVariant);
         network.getVariantManager().cloneVariant(networkInitialVariantId, Arrays.asList(stateSaveVariant, workingVariant), true);
         boolean isSuccess = networksQueue.offer(network);

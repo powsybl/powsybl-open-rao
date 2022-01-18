@@ -7,12 +7,11 @@
 
 package com.farao_community.farao.data.glsk.cim;
 
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.glsk.api.GlskDocument;
 import com.farao_community.farao.data.glsk.api.io.AbstractGlskDocumentImporter;
 import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporter;
 import com.google.auto.service.AutoService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
@@ -21,8 +20,6 @@ import java.io.InputStream;
  */
 @AutoService(GlskDocumentImporter.class)
 public class CimGlskDocumentImporter extends AbstractGlskDocumentImporter implements GlskDocumentImporter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CimGlskDocumentImporter.class);
-
     @Override
     public GlskDocument importGlsk(InputStream inputStream) {
         if (document != null) {
@@ -38,10 +35,10 @@ public class CimGlskDocumentImporter extends AbstractGlskDocumentImporter implem
         }
 
         if ("GLSK_MarketDocument".equals(document.getDocumentElement().getTagName())) {
-            LOGGER.info("CIM GLSK importer could import this document.");
+            FaraoLoggerProvider.TECHNICAL_LOGS.info("CIM GLSK importer could import this document.");
             return true;
         } else {
-            LOGGER.info("CIM GLSK importer could not import this document.");
+            FaraoLoggerProvider.TECHNICAL_LOGS.info("CIM GLSK importer could not import this document.");
             document = null; // As document is not recognized ensure document is null, in case import method is called afterwards
             return false;
         }

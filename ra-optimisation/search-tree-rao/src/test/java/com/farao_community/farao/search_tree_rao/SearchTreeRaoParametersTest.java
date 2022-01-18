@@ -137,4 +137,17 @@ public class SearchTreeRaoParametersTest {
         assertEquals(2, naCombinations.get(0).getNetworkActionSet().size());
         assertEquals(3, naCombinations.get(1).getNetworkActionSet().size());
     }
+
+    @Test
+    public void testIllegalValues() {
+        SearchTreeRaoParameters parameters = new SearchTreeRaoParameters();
+
+        parameters.setMaxCurativeRa(2);
+        parameters.setMaxCurativeRa(-2);
+        assertEquals(0, parameters.getMaxCurativeRa());
+
+        parameters.setMaxCurativeTso(2);
+        parameters.setMaxCurativeTso(-2);
+        assertEquals(0, parameters.getMaxCurativeTso());
+    }
 }

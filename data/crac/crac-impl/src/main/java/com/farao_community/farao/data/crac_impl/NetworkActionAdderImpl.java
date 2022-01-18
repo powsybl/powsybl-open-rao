@@ -8,9 +8,8 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.network_action.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -22,7 +21,6 @@ import java.util.Set;
  */
 public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkActionAdder> implements NetworkActionAdder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NetworkActionAdderImpl.class);
     private Set<ElementaryAction> elementaryActions;
 
     NetworkActionAdderImpl(CracImpl owner) {
@@ -63,7 +61,7 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
             throw new FaraoException(String.format("A remedial action with id %s already exists", id));
         }
         if (usageRules.isEmpty()) {
-            LOGGER.warn("NetworkAction {} does not contain any usage rule, by default it will never be available", id);
+            FaraoLoggerProvider.BUSINESS_WARNS.warn("NetworkAction {} does not contain any usage rule, by default it will never be available", id);
         }
         if (elementaryActions.isEmpty()) {
             throw new FaraoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));
