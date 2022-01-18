@@ -272,7 +272,7 @@ class RangeActionFilter {
         return comparison != 0 ? comparison : orderRangeActionsRandomly(ra1, ra2);
     }
 
-    private Double computePotentialGain(RangeAction<?> rangeAction, FlowCnec cnec, Optim?izationResult optimizationResult) {
+    private Double computePotentialGain(RangeAction<?> rangeAction, FlowCnec cnec, OptimizationResult optimizationResult) {
         double directMargin = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - optimizationResult.getFlow(cnec, Unit.MEGAWATT);
         double oppositeMargin = optimizationResult.getFlow(cnec, Unit.MEGAWATT) - cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         double sensi = optimizationResult.getSensitivityValue(cnec, rangeAction, Unit.MEGAWATT);
