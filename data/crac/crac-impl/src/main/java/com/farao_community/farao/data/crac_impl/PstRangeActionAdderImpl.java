@@ -16,21 +16,17 @@ import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRangeActionAdder> implements PstRangeActionAdder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PstRangeActionAdderImpl.class);
-
     private String networkElementId;
     private String networkElementName;
     private List<TapRange> ranges;
@@ -98,7 +94,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         checkTapToAngleConversionMap();
 
         if (usageRules.isEmpty()) {
-            LOGGER.warn("PstRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            BUSINESS_WARNS.warn("PstRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
@@ -124,7 +120,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         if (usageRules.stream().allMatch(this::isPreventiveUsageRule)) {
             ranges.forEach(range -> {
                 if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {
-                    LOGGER.warn("RELATIVE_TO_PREVIOUS_INSTANT range has been filtered from PstRangeAction {}, as it is a preventive RA", id);
+                    BUSINESS_WARNS.warn("RELATIVE_TO_PREVIOUS_INSTANT range has been filtered from PstRangeAction {}, as it is a preventive RA", id);
                 } else {
                     validRanges.add(range);
                 }
@@ -134,7 +130,7 @@ public class PstRangeActionAdderImpl extends AbstractRemedialActionAdder<PstRang
         }
 
         if (validRanges.isEmpty()) {
-            LOGGER.warn("PstRangeAction {} does not contain any valid range, by default the range of the network will be used", id);
+            BUSINESS_WARNS.warn("PstRangeAction {} does not contain any valid range, by default the range of the network will be used", id);
         }
         return validRanges;
     }

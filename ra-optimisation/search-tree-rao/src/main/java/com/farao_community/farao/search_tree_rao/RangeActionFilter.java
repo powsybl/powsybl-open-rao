@@ -15,20 +15,18 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.google.common.hash.Hashing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 class RangeActionFilter {
-    static final Logger LOGGER = LoggerFactory.getLogger(RangeActionFilter.class);
-
     private final Leaf leaf;
     private final Set<RangeAction<?>> rangeActionsToOptimize;
     private final State optimizedState;
@@ -71,7 +69,7 @@ class RangeActionFilter {
             if (pstsForTso.size() > maxPst) {
                 Set<RangeAction<?>> rangeActionsToRemove = computeRangeActionsToExclude(pstsForTso, maxPst);
                 if (!rangeActionsToRemove.isEmpty()) {
-                    LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of pst for tso {}", rangeActionsToRemove.size(), tso);
+                    TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of pst for tso {}", rangeActionsToRemove.size(), tso);
                     rangeActionsToOptimize.removeAll(rangeActionsToRemove);
                 }
             }
@@ -107,7 +105,7 @@ class RangeActionFilter {
 
         Set<RangeAction<?>> rangeActionsToRemove = rangeActionsToOptimize.stream().filter(rangeAction -> !tsosToKeep.contains(rangeAction.getOperator())).collect(Collectors.toSet());
         if (!rangeActionsToRemove.isEmpty()) {
-            LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
+            TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
     }
@@ -144,7 +142,7 @@ class RangeActionFilter {
                 // remove aligned pst from range actions to optimize
                 if (tsosToKeepIfAlignedPstAreKept.size() > maxTso) {
                     rangeActionsToOptimize.removeAll(raWithSameGroupId);
-                    LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos on aligned PSTs.", raWithSameGroupId.size());
+                    TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos on aligned PSTs.", raWithSameGroupId.size());
                 } else {
                     tsosToKeep = tsosToKeepIfAlignedPstAreKept;
                 }
@@ -165,7 +163,7 @@ class RangeActionFilter {
         int numberOfNetworkActionsAlreadyApplied = leaf.getActivatedNetworkActions().size();
         Set<RangeAction<?>> rangeActionsToRemove = computeRangeActionsToExclude(rangeActionsToOptimize, treeParameters.getMaxRa() - numberOfNetworkActionsAlreadyApplied);
         if (!rangeActionsToRemove.isEmpty()) {
-            LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
+            TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
     }
