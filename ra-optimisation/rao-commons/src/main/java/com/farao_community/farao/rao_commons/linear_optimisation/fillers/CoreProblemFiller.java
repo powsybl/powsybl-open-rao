@@ -35,6 +35,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private final RangeActionResult prePerimeterRangeActionResult;
     private final double pstSensitivityThreshold;
     private final double hvdcSensitivityThreshold;
+    private final double injectionSensitivityThreshold;
     private final boolean relativePositiveMargins;
 
     public CoreProblemFiller(Network network,
@@ -43,6 +44,7 @@ public class CoreProblemFiller implements ProblemFiller {
                              RangeActionResult prePerimeterRangeActionResult,
                              double pstSensitivityThreshold,
                              double hvdcSensitivityThreshold,
+                             double injectionSensitivityThreshold,
                              boolean relativePositiveMargins) {
         this.network = network;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -52,6 +54,7 @@ public class CoreProblemFiller implements ProblemFiller {
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
+        this.injectionSensitivityThreshold = injectionSensitivityThreshold;
         this.relativePositiveMargins = relativePositiveMargins;
     }
 
@@ -214,8 +217,7 @@ public class CoreProblemFiller implements ProblemFiller {
         } else if (rangeAction instanceof HvdcRangeAction) {
             return sensitivity >= hvdcSensitivityThreshold;
         } else if (rangeAction instanceof InjectionRangeAction) {
-            return sensitivity >= hvdcSensitivityThreshold;
-            //todo, create dedicated parameter
+            return sensitivity >= injectionSensitivityThreshold;
         } else {
             throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
         }

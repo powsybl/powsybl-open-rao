@@ -17,6 +17,7 @@ public final class LinearOptimizerParameters {
     private RaoParameters.ObjectiveFunction objectiveFunction;
     private double pstSensitivityThreshold;
     private double hvdcSensitivityThreshold;
+    private double injectionSensitivityThreshold;
     private MnecParameters mnecParameters;
     private MaxMinMarginParameters maxMinMarginParameters;
     private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
@@ -39,6 +40,7 @@ public final class LinearOptimizerParameters {
         private RaoParameters.ObjectiveFunction objectiveFunction;
         private Double pstSensitivityThreshold;
         private Double hvdcSensitivityThreshold;
+        private Double injectionSensitivityThreshold;
         private MaxMinMarginParameters maxMinMarginParameters;
         private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
         private MnecParameters mnecParameters;
@@ -61,6 +63,11 @@ public final class LinearOptimizerParameters {
 
         public LinearOptimizerParametersBuilder withHvdcSensitivityThreshold(double hvdcSensitivityThreshold) {
             this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withInjectionSensitivityThreshold(double injectionSensitivityThreshold) {
+            this.injectionSensitivityThreshold = injectionSensitivityThreshold;
             return this;
         }
 
@@ -123,6 +130,7 @@ public final class LinearOptimizerParameters {
             linearOptimizerParameters.objectiveFunction = objectiveFunction;
             linearOptimizerParameters.pstSensitivityThreshold = pstSensitivityThreshold;
             linearOptimizerParameters.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
+            linearOptimizerParameters.injectionSensitivityThreshold = injectionSensitivityThreshold;
             linearOptimizerParameters.maxMinMarginParameters = maxMinMarginParameters;
             linearOptimizerParameters.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
             linearOptimizerParameters.mnecParameters = mnecParameters;
@@ -146,6 +154,10 @@ public final class LinearOptimizerParameters {
 
     public double getHvdcSensitivityThreshold() {
         return hvdcSensitivityThreshold;
+    }
+
+    public double getInjectionSensitivityThreshold() {
+        return injectionSensitivityThreshold;
     }
 
     public Unit getUnit() {

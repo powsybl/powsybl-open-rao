@@ -40,8 +40,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
     protected final Set<FlowCnec> optimizedCnecs;
     private final Set<RangeAction<?>> rangeActions;
     private final Unit unit;
-    protected double pstPenaltyCost;
-    protected double hvdcPenaltyCost;
+    private final double pstPenaltyCost;
+    private final double hvdcPenaltyCost;
+    private final double injectionPenaltyCost;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction<?>> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -51,6 +52,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         this.unit = unit;
         this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
         this.hvdcPenaltyCost = maxMinMarginParameters.getHvdcPenaltyCost();
+        this.injectionPenaltyCost = maxMinMarginParameters.getInjectionPenaltyCost();
     }
 
     @Override
@@ -167,9 +169,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
             } else if (absoluteVariationVariable != null && rangeAction instanceof HvdcRangeAction) {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
             } else if (absoluteVariationVariable != null && rangeAction instanceof InjectionRangeAction) {
-                //todo : add its own parameter
-
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost);
             }
         });
     }

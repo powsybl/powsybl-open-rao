@@ -55,6 +55,8 @@ public class JsonRaoParametersTest extends AbstractConverterTest {
         parameters.setPstSensitivityThreshold(0.2);
         parameters.setHvdcPenaltyCost(1);
         parameters.setHvdcSensitivityThreshold(0.3);
+        parameters.setInjectionRaPenaltyCost(1.2);
+        parameters.setInjectionRaSensitivityThreshold(0.7);
         parameters.setFallbackOverCost(10);
         parameters.setRaoWithLoopFlowLimitation(true);
         parameters.setLoopFlowAcceptableAugmentation(20.);
