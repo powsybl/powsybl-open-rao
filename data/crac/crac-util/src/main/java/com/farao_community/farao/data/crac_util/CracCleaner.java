@@ -62,8 +62,8 @@ public class CracCleaner {
         }
 
         // remove RangeAction whose NetworkElement is absent from the network
-        ArrayList<RangeAction> absentFromNetworkRangeActions = new ArrayList<>();
-        for (RangeAction rangeAction: crac.getRangeActions()) {
+        ArrayList<RangeAction<?>> absentFromNetworkRangeActions = new ArrayList<>();
+        for (RangeAction<?> rangeAction: crac.getRangeActions()) {
             rangeAction.getNetworkElements().forEach(networkElement -> {
                 if (network.getIdentifiable(networkElement.getId()) == null) {
                     absentFromNetworkRangeActions.add(rangeAction);

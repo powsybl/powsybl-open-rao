@@ -5,22 +5,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_api.range_action;
+package com.farao_community.farao.data.crac_api.range;
+
+import com.farao_community.farao.commons.Unit;
 
 /**
- * Interface dedicated to the definition of the ranges of PSTs
+ * Generic interface for the definition of ranges
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface TapRange extends Range {
-    /**
-     * Get the minimum tap of the range
-     */
-    public int getMinTap();
+public interface Range {
 
     /**
-     * Get the maximum tap of the range
+     * Get the {@link RangeType} of the range
      */
-    public int getMaxTap();
+    public RangeType getRangeType();
+
+    /**
+     * Get the {@link Unit} in which the bounds of the range are defined
+     */
+    public Unit getUnit();
 
 }

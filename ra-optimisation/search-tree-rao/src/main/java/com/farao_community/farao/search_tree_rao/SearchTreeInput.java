@@ -22,7 +22,7 @@ public class SearchTreeInput {
     private Network network;
     private Set<FlowCnec> flowCnecs;
     private Set<NetworkAction> networkActions;
-    private Set<RangeAction> rangeActions;
+    private Set<RangeAction<?>> rangeActions;
     private State optimizedState;
 
     private ObjectiveFunction objectiveFunction;
@@ -65,7 +65,7 @@ public class SearchTreeInput {
         return network;
     }
 
-    public Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         return rangeActions;
     }
 
@@ -81,7 +81,7 @@ public class SearchTreeInput {
         this.network = network;
     }
 
-    public void setRangeActions(Set<RangeAction> rangeActions) {
+    public void setRangeActions(Set<RangeAction<?>> rangeActions) {
         this.rangeActions = rangeActions;
     }
 

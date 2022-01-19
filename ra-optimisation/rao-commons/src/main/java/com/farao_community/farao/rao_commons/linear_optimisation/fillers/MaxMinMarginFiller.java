@@ -37,12 +37,12 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class MaxMinMarginFiller implements ProblemFiller {
     protected final Set<FlowCnec> optimizedCnecs;
-    private final Set<RangeAction> rangeActions;
+    private final Set<RangeAction<?>> rangeActions;
     private final Unit unit;
     protected double pstPenaltyCost;
     protected double hvdcPenaltyCost;
 
-    public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
+    public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction<?>> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));

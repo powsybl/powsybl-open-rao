@@ -85,7 +85,7 @@ public final class SystematicSensitivityInterface {
             return this.withSensitivityProvider(new PtdfSensitivityProvider(glsk, cnecs, units));
         }
 
-        public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
+        public SystematicSensitivityInterfaceBuilder withRangeActionSensitivities(Set<RangeAction<?>> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
             return this.withSensitivityProvider(new RangeActionSensitivityProvider(rangeActions, cnecs, units));
         }
 

@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.data.crac_io_json.serializers;
 
-import com.farao_community.farao.data.crac_api.range_action.HvdcRange;
+import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_io_json.ExtensionsHandler;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -45,7 +45,7 @@ public class HvdcRangeActionSerializer extends AbstractJsonSerializer<HvdcRangeA
 
     private void serializeRanges(HvdcRangeAction hvdcRangeAction, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(RANGES);
-        for (HvdcRange range : hvdcRangeAction.getRanges()) {
+        for (StandardRange range : hvdcRangeAction.getRanges()) {
             gen.writeObject(range);
         }
         gen.writeEndArray();

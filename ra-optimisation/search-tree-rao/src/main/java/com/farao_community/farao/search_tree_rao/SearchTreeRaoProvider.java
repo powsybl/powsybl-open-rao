@@ -481,7 +481,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         // Run sensitivity computation before running curative RAO later
         // Get curative range actions
-        Set<RangeAction> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+        Set<RangeAction<?>> curativeRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         // Get cnecs
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         flowCnecs.addAll(crac.getFlowCnecs(curativeState));
@@ -562,7 +562,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
         searchTreeInput.setOptimizedState(optimizedState);
         searchTreeInput.setNetworkActions(crac.getNetworkActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED));
 
-        Set<RangeAction> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions(optimizedState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterOutput);
         removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterOutput);
         if (isSecondPreventiveRao) {
@@ -673,10 +673,10 @@ public class SearchTreeRaoProvider implements RaoProvider {
     /**
      * If range action's initial setpoint does not respect its allowed range, this function filters it out
      */
-    static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction> rangeActions, RangeActionResult prePerimeterSetPoints) {
+    static void removeRangeActionsWithWrongInitialSetpoint(Set<RangeAction<?>> rangeActions, RangeActionResult prePerimeterSetPoints) {
         //a temp set is needed to avoid ConcurrentModificationExceptions when trying to remove a range action from a set we are looping on
-        Set<RangeAction> rangeActionsToRemove = new HashSet<>();
-        for (RangeAction rangeAction : rangeActions) {
+        Set<RangeAction<?>> rangeActionsToRemove = new HashSet<>();
+        for (RangeAction<?> rangeAction : rangeActions) {
             double preperimeterSetPoint = prePerimeterSetPoints.getOptimizedSetPoint(rangeAction);
             double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
             double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
@@ -692,11 +692,11 @@ public class SearchTreeRaoProvider implements RaoProvider {
     /**
      * If aligned range actionsé initial setpoint are different, this function filters them out
      */
-    static void removeAlignedRangeActionsWithDifferentInitialSetpoints(Set<RangeAction> rangeActions, RangeActionResult prePerimeterSetPoints) {
+    static void removeAlignedRangeActionsWithDifferentInitialSetpoints(Set<RangeAction<?>> rangeActions, RangeActionResult prePerimeterSetPoints) {
         Set<String> groups = rangeActions.stream().map(RangeAction::getGroupId)
             .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
         for (String group : groups) {
-            Set<RangeAction> groupRangeActions = rangeActions.stream().filter(rangeAction -> rangeAction.getGroupId().isPresent() && rangeAction.getGroupId().get().equals(group)).collect(Collectors.toSet());
+            Set<RangeAction<?>> groupRangeActions = rangeActions.stream().filter(rangeAction -> rangeAction.getGroupId().isPresent() && rangeAction.getGroupId().get().equals(group)).collect(Collectors.toSet());
             double preperimeterSetPoint = prePerimeterSetPoints.getOptimizedSetPoint(groupRangeActions.iterator().next());
             if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getOptimizedSetPoint(rangeAction) - preperimeterSetPoint) > 1e-6)) {
                 BUSINESS_WARNS.warn("Range actions of group {} do not have the same initial setpoint. They will be filtered out of the linear problem.", group);
@@ -849,36 +849,36 @@ public class SearchTreeRaoProvider implements RaoProvider {
     /**
      * For second preventive optimization, we shouldn't re-optimize range actions that are also curative
      */
-    static void removeRangeActionsExcludedFromSecondPreventive(Set<RangeAction> rangeActions, Crac crac) {
-        Set<RangeAction> rangeActionsToRemove = new HashSet<>(rangeActions);
+    static void removeRangeActionsExcludedFromSecondPreventive(Set<RangeAction<?>> rangeActions, Crac crac) {
+        Set<RangeAction<?>> rangeActionsToRemove = new HashSet<>(rangeActions);
         rangeActionsToRemove.retainAll(getRangeActionsExcludedFromSecondPreventive(crac));
         rangeActionsToRemove.forEach(rangeAction ->
             BUSINESS_WARNS.warn("Range action {} will not be considered in 2nd preventive RAO as it is also curative (or its network element has an associated CRA)", rangeAction.getId())
         );
-        rangeActionsToRemove.forEach(rangeActions::remove);
+        rangeActions.removeAll(rangeActionsToRemove);
     }
 
     /**
      * Returns the set of range actions that were excluded from the 2nd preventive RAO.
      * It consists of range actions that are both preventive and curative, since they mustn't be re-optimized during 2nd preventive.
      */
-    static Set<RangeAction> getRangeActionsExcludedFromSecondPreventive(Crac crac) {
+    static Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(Crac crac) {
         // TODO :  we can avoid excluding (PRA+CRA) range actions that were not activated in any curative perimeter
         return crac.getRangeActions().stream().filter(rangeAction -> isRangeActionPreventive(rangeAction, crac) && isRangeActionCurative(rangeAction, crac)).collect(Collectors.toSet());
     }
 
-    static boolean isRangeActionPreventive(RangeAction rangeAction, Crac crac) {
+    static boolean isRangeActionPreventive(RangeAction<?> rangeAction, Crac crac) {
         return isRangeActionAvailableInState(rangeAction, crac.getPreventiveState(), crac);
     }
 
-    static boolean isRangeActionCurative(RangeAction rangeAction, Crac crac) {
+    static boolean isRangeActionCurative(RangeAction<?> rangeAction, Crac crac) {
         return crac.getStates().stream()
             .filter(state -> !state.equals(crac.getPreventiveState()))
             .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state, crac));
     }
 
-    static boolean isRangeActionAvailableInState(RangeAction rangeAction, State state, Crac crac) {
-        Set<RangeAction> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+    static boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state, Crac crac) {
+        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         if (rangeActionsForState.contains(rangeAction)) {
             return true;
         } else {

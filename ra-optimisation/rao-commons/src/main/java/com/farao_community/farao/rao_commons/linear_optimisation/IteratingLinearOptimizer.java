@@ -129,7 +129,7 @@ public class IteratingLinearOptimizer {
         if (!(newRangeActionResult.getRangeActions().equals(oldRangeActionResult.getRangeActions()))) {
             return true;
         }
-        for (RangeAction rangeAction : newRangeActionResult.getRangeActions()) {
+        for (RangeAction<?> rangeAction : newRangeActionResult.getRangeActions()) {
             if (Math.abs(newRangeActionResult.getOptimizedSetPoint(rangeAction) - oldRangeActionResult.getOptimizedSetPoint(rangeAction)) >= 1e-6) {
                 return true;
             }
@@ -155,14 +155,14 @@ public class IteratingLinearOptimizer {
             formatDouble(currentResult.getFunctionalCost()));
     }
 
-    private void applyRangeActions(Set<RangeAction> rangeActions,
+    private void applyRangeActions(Set<RangeAction<?>> rangeActions,
                                    RangeActionResult rangeActionResult,
                                    Network network) {
         rangeActions.forEach(rangeAction -> rangeAction.apply(network, rangeActionResult.getOptimizedSetPoint(rangeAction)));
     }
 
     private void applyRangeActionsAndRunSensitivityAnalysis(SensitivityComputer sensitivityComputer,
-                                                            Set<RangeAction> rangeActions,
+                                                            Set<RangeAction<?>> rangeActions,
                                                             RangeActionResult rangeActionResult,
                                                             Network network,
                                                             int iteration) {
@@ -184,7 +184,7 @@ public class IteratingLinearOptimizer {
     }
 
     private RangeActionResult roundResult(RangeActionResult rangeActionResult, Network network, IteratingLinearOptimizerResult previousResult) {
-        Map<RangeAction, Double> roundedSetPoints = new HashMap<>();
+        Map<RangeAction<?>, Double> roundedSetPoints = new HashMap<>();
         rangeActionResult.getOptimizedSetPoints().keySet().stream().filter(PstRangeAction.class::isInstance).forEach(
             rangeAction -> roundedSetPoints.put(rangeAction, rangeActionResult.getOptimizedSetPoint(rangeAction))
         );

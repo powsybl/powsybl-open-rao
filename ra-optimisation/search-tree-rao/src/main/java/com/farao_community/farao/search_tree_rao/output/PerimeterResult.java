@@ -26,7 +26,7 @@ public interface PerimeterResult extends OptimizationResult {
      *
      * @return The set of activated range actions.
      */
-    Set<RangeAction> getActivatedRangeActions();
+    Set<RangeAction<?>> getActivatedRangeActions();
 
     default Set<PstRangeAction> getActivatedPstRangeActions() {
         return getActivatedRangeActions().stream()
