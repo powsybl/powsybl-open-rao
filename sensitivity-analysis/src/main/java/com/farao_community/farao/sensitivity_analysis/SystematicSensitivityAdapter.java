@@ -36,7 +36,7 @@ final class SystematicSensitivityAdapter {
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
-                                                      String sensitivityProvider) {  
+                                                      String sensitivityProvider) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result = SensitivityAnalysis.find(sensitivityProvider).run(network, cnecSensitivityProvider, cnecSensitivityProvider.getContingencies(network), sensitivityComputationParameters);
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
