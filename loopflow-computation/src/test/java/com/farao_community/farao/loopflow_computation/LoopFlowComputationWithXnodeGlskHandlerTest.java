@@ -91,8 +91,7 @@ public class LoopFlowComputationWithXnodeGlskHandlerTest {
         LoopFlowComputation loopFlowComputation = new LoopFlowComputationWithXnodeGlskHandler(
                 glsk,
                 referenceProgram,
-                xnodeGlskHandler,
-                "default-impl-name"
+                xnodeGlskHandler
         );
 
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(

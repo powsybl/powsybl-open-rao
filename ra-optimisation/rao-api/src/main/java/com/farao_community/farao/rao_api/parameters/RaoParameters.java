@@ -493,6 +493,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setPstOptimizationApproximation(config.getEnumProperty("pst-optimization-approximation", PstOptimizationApproximation.class, DEFAULT_PST_OPTIMIZATION_APPROXIMATION));
                 parameters.setForbidCostIncrease(config.getBooleanProperty("forbid-cost-increase", DEFAULT_FORBID_COST_INCREASE));
                 parameters.setSensitivityProvider(config.getStringProperty("sensitivity-provider", DEFAULT_SENSITIVITY_PROVIDER));
+                parameters.setLoadFlowProvider(config.getStringProperty("load-flow-provider", DEFAULT_LOADFLOW_PROVIDER));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

@@ -41,18 +41,16 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     protected ReferenceProgram referenceProgram;
     protected Network network;
     protected Map<EICode, LinearGlsk> glskMap;
-    protected String sensitivityProvider;
 
-    public LoopFlowComputationImpl(ZonalData<LinearGlsk> glsk, ReferenceProgram referenceProgram, Network network, String sensitivityProvider) {
+    public LoopFlowComputationImpl(ZonalData<LinearGlsk> glsk, ReferenceProgram referenceProgram, Network network) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
         this.network = network;
-        this.sensitivityProvider = sensitivityProvider;
         this.glskMap = buildRefProgGlskMap();
     }
 
     @Override
-    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs) {
+    public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs) {
         this.network = network;
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
