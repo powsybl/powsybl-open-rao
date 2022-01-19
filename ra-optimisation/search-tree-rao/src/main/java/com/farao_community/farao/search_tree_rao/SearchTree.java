@@ -23,17 +23,21 @@ import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.util.AbstractNetworkPool;
+import com.google.common.hash.Hashing;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static java.lang.Thread.currentThread;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -73,6 +77,7 @@ public class SearchTree {
     private Leaf previousDepthOptimalLeaf;
     private TreeParameters treeParameters;
     private LinearOptimizerParameters linearOptimizerParameters;
+    private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
     void initLeaves() {
         rootLeaf = makeLeaf(network, prePerimeterOutput);
@@ -192,7 +197,7 @@ public class SearchTree {
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
             LOGGER.error("A computation thread was interrupted");
-            Thread.currentThread().interrupt();
+            currentThread().interrupt();
         }
     }
 
@@ -204,6 +209,7 @@ public class SearchTree {
         Set<NetworkAction> availableActionsOnNewMargins = availableNetworkActions.stream().filter(na -> isRemedialActionAvailable(na, optimizedState, optimalLeaf)).collect(Collectors.toSet());
         // Bloom
         final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, availableActionsOnNewMargins);
+        naCombinations.sort(this::orderNetworkActionCombinationsRandomly);
         if (naCombinations.isEmpty()) {
             LOGGER.info("No more network action available");
             return;
@@ -215,18 +221,22 @@ public class SearchTree {
         naCombinations.forEach(naCombination ->
             networkPool.submit(() -> {
                 try {
-                    Network networkClone = networkPool.getAvailableNetwork();
-                    // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
-                    // from previous optimal leaf starting point
-                    // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
-                    previousDepthOptimalLeaf.getRangeActions()
-                        .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
-                    optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
-                    networkPool.releaseUsedNetwork(networkClone);
-                    LOGGER.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+                    Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
+                    if (combinationFulfillingStopCriterion.isEmpty() || orderNetworkActionCombinationsRandomly(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
+                        // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
+                        // from previous optimal leaf starting point
+                        // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
+                        previousDepthOptimalLeaf.getRangeActions()
+                            .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
+                        optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
+                        networkPool.releaseUsedNetwork(networkClone);
+                        LOGGER.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+                    } else {
+                        LOGGER.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
+                    }
                 } catch (Exception e) {
                     LOGGER.error("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
-                    Thread.currentThread().interrupt();
+                    currentThread().interrupt();
                 } finally {
                     latch.countDown();
                 }
@@ -237,6 +247,10 @@ public class SearchTree {
         if (!success) {
             throw new FaraoException("At least one network action combination could not be evaluated within the given time (24 hours). This should not happen.");
         }
+    }
+
+    private int orderNetworkActionCombinationsRandomly(NetworkActionCombination ra1, NetworkActionCombination ra2) {
+        return Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode();
     }
 
     AbstractNetworkPool makeFaraoNetworkPool(Network network, int leavesInParallel) {
@@ -260,11 +274,19 @@ public class SearchTree {
         LOGGER.debug("{}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
             if (!stopCriterionReached(leaf)) {
-                // We base the results on the results of the evaluation of the leaf in case something has been updated
-                optimizeLeaf(leaf, leaf.getPreOptimBranchResult());
-                LOGGER.info("{}", leaf);
+                if (combinationFulfillingStopCriterion.isPresent() && orderNetworkActionCombinationsRandomly(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
+                    LOGGER.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
+                } else {
+                    // We base the results on the results of the evaluation of the leaf in case something has been updated
+                    optimizeLeaf(leaf, leaf.getPreOptimBranchResult());
+                    LOGGER.info("{}", leaf);
+                }
             }
             updateOptimalLeaf(leaf);
+            if (stopCriterionReached(leaf) && combinationFulfillingStopCriterion.isEmpty()) {
+                LOGGER.info("Stop criterion reached, other threads may skip optimization.");
+                combinationFulfillingStopCriterion = Optional.of(naCombination);
+            }
         }
     }
 
