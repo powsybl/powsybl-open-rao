@@ -57,7 +57,7 @@ class ActionReader {
     private static class Range {
         private int minTap;
         private int maxTap;
-        private com.farao_community.farao.data.crac_api.range_action.RangeType relativeOrAbsolute;
+        private com.farao_community.farao.data.crac_api.range.RangeType relativeOrAbsolute;
     }
 
     Type getType() {
@@ -212,9 +212,9 @@ class ActionReader {
         range.minTap = shouldInvert ? -rangeType.getMax().intValue() : rangeType.getMin().intValue();
         range.maxTap = shouldInvert ? -rangeType.getMin().intValue() : rangeType.getMax().intValue();
         if (rangeCategory.equals("relativeRange")) {
-            range.relativeOrAbsolute = com.farao_community.farao.data.crac_api.range_action.RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
+            range.relativeOrAbsolute = com.farao_community.farao.data.crac_api.range.RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
         } else if (rangeCategory.equals("range")) {
-            range.relativeOrAbsolute = com.farao_community.farao.data.crac_api.range_action.RangeType.ABSOLUTE;
+            range.relativeOrAbsolute = com.farao_community.farao.data.crac_api.range.RangeType.ABSOLUTE;
         } else {
             invalidate(String.format("unknown type of range category %s", rangeCategory));
         }
