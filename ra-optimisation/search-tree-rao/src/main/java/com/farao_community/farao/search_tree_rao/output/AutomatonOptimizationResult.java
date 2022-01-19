@@ -29,8 +29,8 @@ import java.util.Set;
  */
 public class AutomatonOptimizationResult implements PerimeterResult {
 
-    private PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
-    private Set<NetworkAction> activatedNetworkActions;
+    private final PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
+    private final Set<NetworkAction> activatedNetworkActions;
 
     public AutomatonOptimizationResult(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> activatedNetworkActions) {
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
@@ -62,7 +62,7 @@ public class AutomatonOptimizationResult implements PerimeterResult {
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActions() {
+    public Set<RangeAction<?>> getActivatedRangeActions() {
         return Set.of();
     }
 
@@ -107,7 +107,7 @@ public class AutomatonOptimizationResult implements PerimeterResult {
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         return postAutomatonSensitivityAnalysisOutput.getRangeActions();
     }
 
@@ -117,7 +117,7 @@ public class AutomatonOptimizationResult implements PerimeterResult {
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction rangeAction) {
+    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
         return postAutomatonSensitivityAnalysisOutput.getOptimizedSetPoint(rangeAction);
     }
 
@@ -127,7 +127,7 @@ public class AutomatonOptimizationResult implements PerimeterResult {
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPoints() {
+    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
         return postAutomatonSensitivityAnalysisOutput.getOptimizedSetPoints();
     }
 
@@ -137,7 +137,7 @@ public class AutomatonOptimizationResult implements PerimeterResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
         return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, rangeAction, unit);
     }
 

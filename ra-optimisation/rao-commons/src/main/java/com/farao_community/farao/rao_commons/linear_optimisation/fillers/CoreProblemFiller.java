@@ -33,7 +33,7 @@ import static java.lang.String.format;
 public class CoreProblemFiller implements ProblemFiller {
     private final Network network;
     private final Set<FlowCnec> flowCnecs;
-    private final Set<RangeAction> rangeActions;
+    private final Set<RangeAction<?>> rangeActions;
     private final RangeActionResult prePerimeterRangeActionResult;
     private final double pstSensitivityThreshold;
     private final double hvdcSensitivityThreshold;
@@ -41,7 +41,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
     public CoreProblemFiller(Network network,
                              Set<FlowCnec> flowCnecs,
-                             Set<RangeAction> rangeActions,
+                             Set<RangeAction<?>> rangeActions,
                              RangeActionResult prePerimeterRangeActionResult,
                              double pstSensitivityThreshold,
                              double hvdcSensitivityThreshold,
@@ -57,7 +57,7 @@ public class CoreProblemFiller implements ProblemFiller {
         this.relativePositiveMargins = relativePositiveMargins;
     }
 
-    private Set<RangeAction> getRangeActions() {
+    private Set<RangeAction<?>> getRangeActions() {
         return rangeActions;
     }
 
@@ -106,7 +106,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * initialSetPoint[r] - maxNegativeVariation[r] <= S[r]
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
-    private void buildRangeActionSetPointVariables(LinearProblem linearProblem, RangeAction rangeAction, double prePerimeterValue) {
+    private void buildRangeActionSetPointVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, double prePerimeterValue) {
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterValue);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterValue);
         linearProblem.addRangeActionSetpointVariable(minSetPoint, maxSetPoint, rangeAction);
@@ -121,7 +121,7 @@ public class CoreProblemFiller implements ProblemFiller {
      *     <li>in MEGAWATT for HVDC range actions</li>
      * </ul>
      */
-    private void buildRangeActionAbsoluteVariationVariables(LinearProblem linearProblem, RangeAction rangeAction) {
+    private void buildRangeActionAbsoluteVariationVariables(LinearProblem linearProblem, RangeAction<?> rangeAction) {
         linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction);
     }
 
@@ -189,7 +189,7 @@ public class CoreProblemFiller implements ProblemFiller {
         });
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, RangeAction rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, RangeAction<?> rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
         MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction);
         if (setPointVariable == null) {
             throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
@@ -214,7 +214,7 @@ public class CoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private boolean isRangeActionSensitivityAboveThreshold(RangeAction rangeAction, double sensitivity) {
+    private boolean isRangeActionSensitivityAboveThreshold(RangeAction<?> rangeAction, double sensitivity) {
         if (rangeAction instanceof PstRangeAction) {
             return sensitivity >= pstSensitivityThreshold;
         } else if (rangeAction instanceof HvdcRangeAction) {

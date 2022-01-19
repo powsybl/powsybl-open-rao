@@ -82,7 +82,7 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         throw new FaraoException("Should not be used");
     }
 
@@ -92,7 +92,7 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction rangeAction) {
+    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
         throw new FaraoException("Should not be used");
     }
 
@@ -102,7 +102,7 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPoints() {
+    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
         throw new FaraoException("Should not be used");
     }
 
@@ -112,7 +112,7 @@ public class FailedLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
         throw new FaraoException("Should not be used");
     }
 

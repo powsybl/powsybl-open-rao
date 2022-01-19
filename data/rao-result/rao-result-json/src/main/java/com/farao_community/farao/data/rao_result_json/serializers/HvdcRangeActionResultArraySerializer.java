@@ -130,23 +130,23 @@ final class HvdcRangeActionResultArraySerializer {
         }
     }
 
-    static boolean isRangeActionPreventive(RangeAction rangeAction, Crac crac) {
+    static boolean isRangeActionPreventive(RangeAction<?> rangeAction, Crac crac) {
         return isRangeActionAvailableInState(rangeAction, crac.getPreventiveState(), crac);
     }
 
-    static boolean isRangeActionCurative(RangeAction rangeAction, Crac crac) {
+    static boolean isRangeActionCurative(RangeAction<?> rangeAction, Crac crac) {
         return crac.getStates().stream()
                 .filter(state -> !state.equals(crac.getPreventiveState()))
                 .anyMatch(state -> isRangeActionAvailableInState(rangeAction, state, crac));
     }
 
-    static boolean isRangeActionAvailableInState(RangeAction rangeAction, State state, Crac crac) {
-        Set<RangeAction> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+    static boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state, Crac crac) {
+        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         return rangeActionsForState.contains(rangeAction);
     }
 
     static HvdcRangeAction getPreventiveHvdcRangeActionAssociated(HvdcRangeAction hvdcRangeAction, Crac crac) {
-        Set<RangeAction> rangeActionsForState = crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
+        Set<RangeAction<?>> rangeActionsForState = crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED);
         return rangeActionsForState.stream()
                 .filter(HvdcRangeAction.class::isInstance)
                 .filter(otherRangeAction -> !otherRangeAction.equals(hvdcRangeAction))

@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class RangeActionSensitivityProvider extends LoadflowProvider {
-    private Set<RangeAction> rangeActions;
+    private final Set<RangeAction<?>> rangeActions;
 
-    RangeActionSensitivityProvider(Set<RangeAction> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
+    RangeActionSensitivityProvider(Set<RangeAction<?>> rangeActions, Set<FlowCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
         this.rangeActions = rangeActions;
     }
@@ -74,7 +74,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         return factors;
     }
 
-    private List<SensitivityVariable> rangeActionToSensitivityVariables(Network network, RangeAction rangeAction) {
+    private List<SensitivityVariable> rangeActionToSensitivityVariables(Network network, RangeAction<?> rangeAction) {
         Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
         return networkElements.stream()
             .map(el -> networkElementToSensitivityVariable(network, el))

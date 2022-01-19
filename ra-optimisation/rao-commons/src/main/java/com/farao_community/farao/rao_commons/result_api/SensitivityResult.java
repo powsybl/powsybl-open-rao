@@ -20,7 +20,7 @@ public interface SensitivityResult {
 
     ComputationStatus getSensitivityStatus();
 
-    double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit);
+    double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit);
 
     double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit);
 }

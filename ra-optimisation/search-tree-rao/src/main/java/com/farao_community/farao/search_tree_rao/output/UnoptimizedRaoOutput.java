@@ -28,7 +28,7 @@ import java.util.Set;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class UnoptimizedRaoOutput implements RaoResult {
-    private PrePerimeterResult initialResult;
+    private final PrePerimeterResult initialResult;
 
     public UnoptimizedRaoOutput(PrePerimeterResult initialResult) {
         this.initialResult = initialResult;
@@ -110,7 +110,7 @@ public class UnoptimizedRaoOutput implements RaoResult {
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
+    public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
         return false;
     }
 
@@ -125,17 +125,17 @@ public class UnoptimizedRaoOutput implements RaoResult {
     }
 
     @Override
-    public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
+    public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         return initialResult.getOptimizedSetPoint(rangeAction);
     }
 
     @Override
-    public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
+    public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
         return getPreOptimizationSetPointOnState(state, rangeAction);
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
+    public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         return new HashSet<>();
     }
 
@@ -145,7 +145,7 @@ public class UnoptimizedRaoOutput implements RaoResult {
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
+    public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return initialResult.getOptimizedSetPoints();
     }
 }

@@ -626,25 +626,25 @@ public class CracImplTest {
                 .withId("ra1")
                 .withNetworkElement("ne1")
                 .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
                 .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
                 .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
                 .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .add();
 
         State state1 = crac.getState("co1", CURATIVE);
@@ -742,25 +742,25 @@ public class CracImplTest {
                 .withId("ra1")
                 .withNetworkElement("ne1")
                 .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co1").withInstant(CURATIVE).add()
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
                 .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co1").withInstant(CURATIVE).add()
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
                 .newOnStateUsageRule().withUsageMethod(AVAILABLE).withContingency("co2").withInstant(CURATIVE).add()
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .add();
         HvdcRangeAction ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
                 .newOnStateUsageRule().withUsageMethod(FORCED).withContingency("co2").withInstant(CURATIVE).add()
-                .newHvdcRange().withMin(-5).withMax(10).add()
+                .newRange().withMin(-5).withMax(10).add()
                 .add();
 
         State state1 = crac.getState("co1", CURATIVE);

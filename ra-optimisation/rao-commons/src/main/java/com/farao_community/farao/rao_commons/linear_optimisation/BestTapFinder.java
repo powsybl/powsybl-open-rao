@@ -44,7 +44,7 @@ public final class BestTapFinder {
      *
      * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
-    public static RangeActionResult find(Map<RangeAction, Double> optimizedSetPoints,
+    public static RangeActionResult find(Map<RangeAction<?>, Double> optimizedSetPoints,
                                          Network network,
                                          List<FlowCnec> mostLimitingCnecs,
                                          FlowResult flowResult,
@@ -78,7 +78,7 @@ public final class BestTapFinder {
             }
         }
 
-        Map<RangeAction, Double> roundedSetPoints = new HashMap<>(optimizedSetPoints);
+        Map<RangeAction<?>, Double> roundedSetPoints = new HashMap<>(optimizedSetPoints);
         for (var entry : bestTaps.entrySet()) {
             roundedSetPoints.put(entry.getKey(), entry.getKey().convertTapToAngle(entry.getValue()));
         }

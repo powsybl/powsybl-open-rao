@@ -17,7 +17,7 @@ import java.util.Map;
 public class FlowCnecResult {
 
     private static final ElementaryFlowCnecResult DEFAULT_RESULT = new ElementaryFlowCnecResult();
-    private Map<OptimizationState, ElementaryFlowCnecResult> results;
+    private final Map<OptimizationState, ElementaryFlowCnecResult> results;
 
     FlowCnecResult() {
         results = new EnumMap<>(OptimizationState.class);

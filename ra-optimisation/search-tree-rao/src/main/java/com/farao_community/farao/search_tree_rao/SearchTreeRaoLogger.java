@@ -36,11 +36,11 @@ final class SearchTreeRaoLogger {
     }
 
     static void logRangeActions(FaraoLogger logger,
-                                Leaf leaf, Set<RangeAction> rangeActions) {
+                                Leaf leaf, Set<RangeAction<?>> rangeActions) {
         logRangeActions(logger, leaf, rangeActions, null);
     }
 
-    static void logRangeActions(FaraoLogger logger, Leaf leaf, Set<RangeAction> rangeActions, String prefix) {
+    static void logRangeActions(FaraoLogger logger, Leaf leaf, Set<RangeAction<?>> rangeActions, String prefix) {
         String rangeActionSetpoints = rangeActions.stream().map(rangeAction -> {
             if (rangeAction instanceof PstRangeAction) {
                 int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction);

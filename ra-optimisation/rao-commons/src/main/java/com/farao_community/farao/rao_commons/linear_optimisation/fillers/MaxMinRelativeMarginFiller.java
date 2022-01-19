@@ -36,7 +36,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
 
     public MaxMinRelativeMarginFiller(Set<FlowCnec> optimizedCnecs,
                                       FlowResult initialFlowResult,
-                                      Set<RangeAction> rangeActions,
+                                      Set<RangeAction<?>> rangeActions,
                                       Unit unit,
                                       MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
         super(optimizedCnecs, rangeActions, unit, maxMinRelativeMarginParameters);

@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class NetworkActionResult {
 
-    private Set<State> isActivatedInStates;
+    private final Set<State> isActivatedInStates;
 
     NetworkActionResult() {
         isActivatedInStates = new HashSet<>();

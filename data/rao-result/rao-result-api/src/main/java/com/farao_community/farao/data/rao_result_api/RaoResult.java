@@ -197,7 +197,7 @@ public interface RaoResult {
      * @param rangeAction: The range action to be studied.
      * @return True if the set point of the range action has been changed during the specified state.
      */
-    boolean isActivatedDuringState(State state, RangeAction rangeAction);
+    boolean isActivatedDuringState(State state, RangeAction<?> rangeAction);
 
     /**
      * It gives the tap position of the PST on which the {@link PstRangeAction} is pointing at before it is optimized
@@ -265,7 +265,7 @@ public interface RaoResult {
      * @return The set point of the network element defined in the range action at the specified state before its
      * optimization.
      */
-    double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction);
+    double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction);
 
     /**
      * It gives the set point of the element on which the {@link RangeAction} is pointing at after it is optimized
@@ -288,7 +288,7 @@ public interface RaoResult {
      * @return The set point of the network element defined in the range action at the specified state after its
      * optimization.
      */
-    double getOptimizedSetPointOnState(State state, RangeAction rangeAction);
+    double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction);
 
     /**
      * It gathers the {@link RangeAction} that are activated during the specified {@link State}.
@@ -296,7 +296,7 @@ public interface RaoResult {
      * @param state: The state of the state tree to be studied.
      * @return The set of activated range action during the specified state.
      */
-    Set<RangeAction> getActivatedRangeActionsDuringState(State state);
+    Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state);
 
     /**
      * It gives a summary of all the optimized taps of the {@link PstRangeAction} present in the {@link Crac} for a
@@ -314,5 +314,5 @@ public interface RaoResult {
      * @param state: The state of the state tree to be studied.
      * @return The map of the range actions associated to their optimized set points of the specified state.
      */
-    Map<RangeAction, Double> getOptimizedSetPointsOnState(State state);
+    Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state);
 }

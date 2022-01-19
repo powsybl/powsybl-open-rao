@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_io_json.deserializers;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAdder;
+import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
+import com.farao_community.farao.data.crac_api.range_action.StandardRangeActionAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -20,14 +20,14 @@ import static com.farao_community.farao.data.crac_io_json.JsonSerializationConst
 /**
  *  @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public final class HvdcRangeArrayDeserializer {
-    private HvdcRangeArrayDeserializer() {
+public final class StandardRangeArrayDeserializer {
+    private StandardRangeArrayDeserializer() {
     }
 
-    //an HVDC range is implicitly of type "ABSOLUTE" : no RANGE_TYPE
-    public static void deserialize(JsonParser jsonParser, HvdcRangeActionAdder ownerAdder) throws IOException {
+    //a Standard range is implicitly of type "ABSOLUTE" : no RANGE_TYPE
+    public static void deserialize(JsonParser jsonParser, StandardRangeActionAdder<?> ownerAdder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-            HvdcRangeAdder adder = ownerAdder.newHvdcRange();
+            StandardRangeAdder<?> adder = ownerAdder.newRange();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case MIN:
@@ -39,7 +39,7 @@ public final class HvdcRangeArrayDeserializer {
                         adder.withMax(jsonParser.getDoubleValue());
                         break;
                     default:
-                        throw new FaraoException("Unexpected field in HvdcRange: " + jsonParser.getCurrentName());
+                        throw new FaraoException("Unexpected field in StandardRange: " + jsonParser.getCurrentName());
                 }
             }
             adder.add();

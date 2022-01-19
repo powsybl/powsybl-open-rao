@@ -38,13 +38,15 @@ import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FA
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
-    private PrePerimeterResult initialResult;
-    private PerimeterResult postFirstPreventiveResult; // used for RAs optimized only during 1st preventive (excluded from 2nd)
-    private PerimeterResult postSecondPreventiveResult; // flows computed using PRA + CRA
-    private PrePerimeterResult preCurativeResult; // flows computed using PRA only
-    private Map<State, OptimizationResult> postCurativeResults;
-    private Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive; // RAs only in 1st preventive, not in 2nd
+
     private static final String UNKNOWN_OPTIM_STATE = "Unknown OptimizationState: %s";
+
+    private final PrePerimeterResult initialResult;
+    private final PerimeterResult postFirstPreventiveResult; // used for RAs optimized only during 1st preventive (excluded from 2nd)
+    private final PerimeterResult postSecondPreventiveResult; // flows computed using PRA + CRA
+    private final PrePerimeterResult preCurativeResult; // flows computed using PRA only
+    private final Map<State, OptimizationResult> postCurativeResults;
+    private final Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive; // RAs only in 1st preventive, not in 2nd
 
     public SecondPreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult,
                                                  PerimeterResult postFirstPreventiveResult,
@@ -60,7 +62,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
         this.postCurativeResults = postCurativeResults;
     }
 
-    private boolean isRangeActionActivatedInCurative(State state, RangeAction rangeAction) {
+    private boolean isRangeActionActivatedInCurative(State state, RangeAction<?> rangeAction) {
         if (!postCurativeResults.containsKey(state) || !postCurativeResults.get(state).getRangeActions().contains(rangeAction)) {
             return false;
         } else if (postFirstPreventiveResult.getRangeActions().contains(rangeAction)) {
@@ -216,7 +218,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             Set<NetworkAction> activatedNetworkActions = postFirstPreventiveResult.getActivatedNetworkActions().stream()
-                    .filter(networkAction -> remedialActionsExcludedFromSecondPreventive.contains(networkAction)).collect(Collectors.toSet());
+                    .filter(remedialActionsExcludedFromSecondPreventive::contains).collect(Collectors.toSet());
             activatedNetworkActions.addAll(postSecondPreventiveResult.getActivatedNetworkActions());
             return activatedNetworkActions;
         } else if (postCurativeResults.containsKey(state)) {
@@ -227,7 +229,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
+    public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             if (remedialActionsExcludedFromSecondPreventive.contains(rangeAction)) {
                 return postFirstPreventiveResult.getActivatedRangeActions().contains(rangeAction);
@@ -262,7 +264,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
     }
 
     @Override
-    public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
+    public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getOptimizedSetPoint(rangeAction);
         } else if (postCurativeResults.containsKey(state)) {
@@ -273,7 +275,7 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
     }
 
     @Override
-    public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
+    public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE
                 || !postCurativeResults.containsKey(state)
                 || !isRangeActionActivatedInCurative(state, rangeAction)) {
@@ -284,10 +286,10 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
+    public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            Set<RangeAction> activatedRangeActions = postFirstPreventiveResult.getActivatedRangeActions().stream()
-                    .filter(networkAction -> remedialActionsExcludedFromSecondPreventive.contains(networkAction)).collect(Collectors.toSet());
+            Set<RangeAction<?>> activatedRangeActions = postFirstPreventiveResult.getActivatedRangeActions().stream()
+                    .filter(remedialActionsExcludedFromSecondPreventive::contains).collect(Collectors.toSet());
             activatedRangeActions.addAll(postSecondPreventiveResult.getActivatedRangeActions());
             return activatedRangeActions;
         } else if (postCurativeResults.containsKey(state)) {
@@ -310,11 +312,11 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
+    public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE || !postCurativeResults.containsKey(state)) {
             return postSecondPreventiveResult.getOptimizedSetPoints();
         } else {
-            Map<RangeAction, Double> optimizedSetpointsOnState = new HashMap<>();
+            Map<RangeAction<?>, Double> optimizedSetpointsOnState = new HashMap<>();
             initialResult.getRangeActions()
                     .forEach(rangeAction -> optimizedSetpointsOnState.put(rangeAction, getOptimizedSetPointOnState(state, rangeAction)));
             return optimizedSetpointsOnState;

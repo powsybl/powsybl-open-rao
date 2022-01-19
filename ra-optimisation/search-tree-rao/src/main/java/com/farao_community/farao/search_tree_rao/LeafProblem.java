@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LeafProblem extends SearchTreeProblem {
-    private final Set<RangeAction> rangeActions;
+    private final Set<RangeAction<?>> rangeActions;
 
     public LeafProblem(FlowResult initialFlowResult,
                        FlowResult prePerimeterFlowResult,
@@ -34,7 +34,7 @@ public class LeafProblem extends SearchTreeProblem {
                        Set<FlowCnec> flowCnecs,
                        Set<FlowCnec> loopFlowCnecs,
                        LinearOptimizerParameters linearOptimizerParameters,
-                       Set<RangeAction> rangeActions) {
+                       Set<RangeAction<?>> rangeActions) {
         super(initialFlowResult, prePerimeterFlowResult, prePerimeterSetPoints, flowCnecs, loopFlowCnecs, linearOptimizerParameters);
         this.rangeActions = rangeActions;
     }

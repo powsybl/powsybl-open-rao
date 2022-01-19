@@ -15,17 +15,13 @@ import java.util.Optional;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAction> implements RangeAction {
+public abstract class AbstractRangeAction<T extends RangeAction<T>> extends AbstractRemedialAction<T> implements RangeAction<T> {
 
     protected String groupId = null;
 
     AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules, String groupId) {
         super(id, name, operator, usageRules);
         this.groupId = groupId;
-    }
-
-    AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules) {
-        super(id, name, operator, usageRules);
     }
 
     @Override

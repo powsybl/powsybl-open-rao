@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.crac_impl;
 
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,16 +16,16 @@ import static org.junit.Assert.assertNotEquals;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class HvdcRangeImplTest {
+public class StandardRangeImplTest {
 
     private final double min = 1;
     private final double max = 32;
 
-    private HvdcRangeImpl fixedRange;
+    private StandardRangeImpl fixedRange;
 
     @Before
     public void setUp() {
-        fixedRange = new HvdcRangeImpl(min, max);
+        fixedRange = new StandardRangeImpl(min, max);
     }
 
     @Test
@@ -45,9 +45,9 @@ public class HvdcRangeImplTest {
 
     @Test
     public void testEquals() {
-        HvdcRangeImpl range1 = new HvdcRangeImpl(0, 10);
-        HvdcRangeImpl range2 = new HvdcRangeImpl(0, 10);
-        HvdcRangeImpl range3 = new HvdcRangeImpl(0, 11);
+        StandardRangeImpl range1 = new StandardRangeImpl(0, 10);
+        StandardRangeImpl range2 = new StandardRangeImpl(0, 10);
+        StandardRangeImpl range3 = new StandardRangeImpl(0, 11);
 
         assertEquals(range1, range2);
         assertNotEquals(range1, range3);
@@ -55,9 +55,9 @@ public class HvdcRangeImplTest {
 
     @Test
     public void testHashCode() {
-        HvdcRangeImpl range1 = new HvdcRangeImpl(0, 10);
-        HvdcRangeImpl range2 = new HvdcRangeImpl(0, 10);
-        HvdcRangeImpl range3 = new HvdcRangeImpl(0, 11);
+        StandardRangeImpl range1 = new StandardRangeImpl(0, 10);
+        StandardRangeImpl range2 = new StandardRangeImpl(0, 10);
+        StandardRangeImpl range3 = new StandardRangeImpl(0, 11);
 
         assertEquals(range1.hashCode(), range2.hashCode());
         assertNotEquals(range1.hashCode(), range3.hashCode());

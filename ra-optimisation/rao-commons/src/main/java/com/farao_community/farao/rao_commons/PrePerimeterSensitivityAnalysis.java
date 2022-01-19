@@ -32,14 +32,14 @@ import java.util.Set;
  */
 public class PrePerimeterSensitivityAnalysis {
     private final Set<FlowCnec> flowCnecs;
-    private final Set<RangeAction> rangeActions;
+    private final Set<RangeAction<?>> rangeActions;
     private final ToolProvider toolProvider;
     private final RaoParameters raoParameters;
     private final LinearOptimizerParameters linearOptimizerParameters;
 
     private SensitivityComputer sensitivityComputer;
 
-    public PrePerimeterSensitivityAnalysis(Set<RangeAction> rangeActions,
+    public PrePerimeterSensitivityAnalysis(Set<RangeAction<?>> rangeActions,
                                            Set<FlowCnec> flowCnecs,
                                            ToolProvider toolProvider,
                                            RaoParameters raoParameters,

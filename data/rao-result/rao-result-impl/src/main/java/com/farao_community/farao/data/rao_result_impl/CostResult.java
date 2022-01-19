@@ -16,7 +16,7 @@ import java.util.Set;
 public class CostResult {
 
     private double functionalCost;
-    private Map<String, Double> virtualCosts;
+    private final Map<String, Double> virtualCosts;
 
     CostResult() {
         functionalCost = Double.NaN;

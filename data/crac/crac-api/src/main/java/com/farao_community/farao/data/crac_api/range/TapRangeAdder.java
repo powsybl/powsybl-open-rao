@@ -1,4 +1,6 @@
-package com.farao_community.farao.data.crac_api.range_action;
+package com.farao_community.farao.data.crac_api.range;
+
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

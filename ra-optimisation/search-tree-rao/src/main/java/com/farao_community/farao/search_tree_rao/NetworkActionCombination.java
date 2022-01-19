@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 class NetworkActionCombination {
 
-    private Set<NetworkAction> networkActionSet;
+    private final Set<NetworkAction> networkActionSet;
 
     NetworkActionCombination(Set<NetworkAction> networkActionSet) {
         this.networkActionSet = networkActionSet;

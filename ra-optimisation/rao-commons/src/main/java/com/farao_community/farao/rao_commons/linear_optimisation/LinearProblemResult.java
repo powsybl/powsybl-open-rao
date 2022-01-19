@@ -26,7 +26,7 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearProblemResult implements RangeActionResult {
-    private final Map<RangeAction, Double> setPointPerRangeAction = new HashMap<>();
+    private final Map<RangeAction<?>, Double> setPointPerRangeAction = new HashMap<>();
 
     public LinearProblemResult(LinearProblem linearProblem) {
         if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL && linearProblem.getStatus() != LinearProblemStatus.FEASIBLE) {
@@ -38,7 +38,7 @@ public class LinearProblemResult implements RangeActionResult {
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         return setPointPerRangeAction.keySet();
     }
 
@@ -48,7 +48,7 @@ public class LinearProblemResult implements RangeActionResult {
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction rangeAction) {
+    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
         Double setPoint = setPointPerRangeAction.get(rangeAction);
         if (setPoint != null && !Double.isNaN(setPoint)) {
             return setPoint;
@@ -68,7 +68,7 @@ public class LinearProblemResult implements RangeActionResult {
     }
 
     @Override
-    public final Map<RangeAction, Double> getOptimizedSetPoints() {
+    public final Map<RangeAction<?>, Double> getOptimizedSetPoints() {
         return Collections.unmodifiableMap(setPointPerRangeAction);
     }
 }

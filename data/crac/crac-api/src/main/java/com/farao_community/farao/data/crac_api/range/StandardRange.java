@@ -5,15 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_api.range_action;
+package com.farao_community.farao.data.crac_api.range;
 
 /**
- * Interface dedicated to the definition of the ranges of HVDC
+ * Interface dedicated to the definition of the so-called 'standard' range of
+ * a StandardRangeAction
+ *
+ * StandardRange are defined with a min and a max value.
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface HvdcRange extends Range {
+public interface StandardRange extends Range {
     /**
      * Get the minimum of the range
      */
@@ -23,5 +26,4 @@ public interface HvdcRange extends Range {
      * Get the maximum of the range
      */
     double getMax();
-
 }

@@ -10,8 +10,8 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
-import com.farao_community.farao.data.crac_api.range_action.TapRange;
+import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,16 +25,16 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class PstRangeActionImpl extends AbstractRangeAction implements PstRangeAction {
+public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction> implements PstRangeAction {
 
     private static final double EPSILON = 1e-3;
 
-    private NetworkElement networkElement;
-    private List<TapRange> ranges;
-    private int initialTapPosition;
-    private Map<Integer, Double> tapToAngleConversionMap;
-    private int lowTapPosition;
-    private int highTapPosition;
+    private final NetworkElement networkElement;
+    private final List<TapRange> ranges;
+    private final int initialTapPosition;
+    private final Map<Integer, Double> tapToAngleConversionMap;
+    private final int lowTapPosition;
+    private final int highTapPosition;
 
     PstRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<TapRange> ranges,
                               NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap) {

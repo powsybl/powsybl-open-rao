@@ -26,7 +26,7 @@ import java.util.Optional;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface RangeAction extends RemedialAction<RangeAction> {
+public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T> {
 
     /**
      * Apply the action on a given network, with a given setpoint

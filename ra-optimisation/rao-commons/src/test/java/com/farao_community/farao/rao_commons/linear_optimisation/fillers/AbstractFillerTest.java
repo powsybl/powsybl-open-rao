@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.rao_commons.linear_optimisation.FaraoMPSolver;

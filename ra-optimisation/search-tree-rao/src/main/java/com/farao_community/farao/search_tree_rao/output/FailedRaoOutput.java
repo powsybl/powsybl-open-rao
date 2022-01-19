@@ -93,7 +93,7 @@ public class FailedRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
+    public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
@@ -108,17 +108,17 @@ public class FailedRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
+    public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
+    public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
+    public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 
@@ -128,7 +128,7 @@ public class FailedRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
+    public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         throw new FaraoException(SHOULD_NOT_BE_USED);
     }
 

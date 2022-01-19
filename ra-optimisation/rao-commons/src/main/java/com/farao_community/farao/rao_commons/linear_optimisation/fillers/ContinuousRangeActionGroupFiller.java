@@ -25,9 +25,9 @@ import java.util.TreeSet;
  */
 public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
-    private final Set<RangeAction> rangeActions;
+    private final Set<RangeAction<?>> rangeActions;
 
-    public ContinuousRangeActionGroupFiller(Set<RangeAction> rangeActions) {
+    public ContinuousRangeActionGroupFiller(Set<RangeAction<?>> rangeActions) {
         this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.rangeActions.addAll(rangeActions);
     }
@@ -42,7 +42,7 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
         // nothing to do
     }
 
-    private void buildRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction rangeAction) {
+    private void buildRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction) {
         Optional<String> optGroupId = rangeAction.getGroupId();
         if (optGroupId.isPresent()) {
             String groupId = optGroupId.get();

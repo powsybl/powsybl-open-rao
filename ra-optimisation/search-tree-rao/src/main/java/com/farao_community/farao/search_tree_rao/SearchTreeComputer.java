@@ -34,23 +34,23 @@ public final class SearchTreeComputer {
         return new SearchTreeComputerBuilder();
     }
 
-    SensitivityComputer getSensitivityComputerWithComputedCommercialFlows(Set<RangeAction> rangeActions) {
+    SensitivityComputer getSensitivityComputerWithComputedCommercialFlows(Set<RangeAction<?>> rangeActions) {
         SensitivityComputer.SensitivityComputerBuilder builder = getBuilder(rangeActions);
         builder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         return builder.build();
     }
 
-    SensitivityComputer getSensitivityComputerWithFixedCommercialFlows(FlowResult fixedCommercialFlows, Set<RangeAction> rangeActions) {
+    SensitivityComputer getSensitivityComputerWithFixedCommercialFlows(FlowResult fixedCommercialFlows, Set<RangeAction<?>> rangeActions) {
         SensitivityComputer.SensitivityComputerBuilder builder = getBuilder(rangeActions);
         builder.withCommercialFlowsResults(fixedCommercialFlows);
         return builder.build();
     }
 
-    SensitivityComputer getSensitivityComputer(Set<RangeAction> rangeActions) {
+    SensitivityComputer getSensitivityComputer(Set<RangeAction<?>> rangeActions) {
         return getBuilder(rangeActions).build();
     }
 
-    SensitivityComputer.SensitivityComputerBuilder getBuilder(Set<RangeAction> rangeActions) {
+    SensitivityComputer.SensitivityComputerBuilder getBuilder(Set<RangeAction<?>> rangeActions) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder =  SensitivityComputer.create()
                 .withToolProvider(toolProvider)
                 .withCnecs(flowCnecs)

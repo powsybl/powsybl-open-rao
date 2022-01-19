@@ -10,27 +10,23 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRange;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAdder;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
+import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotEmpty;
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class HvdcRangeActionAdderImpl extends AbstractRemedialActionAdder<HvdcRangeActionAdder> implements HvdcRangeActionAdder {
+public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<HvdcRangeActionAdder> implements HvdcRangeActionAdder {
 
     private String networkElementId;
     private String networkElementName;
-    private List<HvdcRange> ranges;
-    private String groupId = null;
 
     @Override
     protected String getTypeDescription() {
@@ -55,28 +51,13 @@ public class HvdcRangeActionAdderImpl extends AbstractRemedialActionAdder<HvdcRa
     }
 
     @Override
-    public HvdcRangeActionAdder withGroupId(String groupId) {
-        this.groupId = groupId;
-        return this;
-    }
-
-    @Override
-    public HvdcRangeAdder newHvdcRange() {
-        return new HvdcRangeAdderImpl(this);
-    }
-
-    @Override
     public HvdcRangeAction add() {
         checkId();
         assertAttributeNotNull(networkElementId, "HvdcRangeAction", "network element", "withNetworkElement()");
+        assertAttributeNotEmpty(ranges, "HvdcRangeAction", "range", "newRange()");
 
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
             throw new FaraoException(String.format("A remedial action with id %s already exists", id));
-        }
-
-        // Check ranges
-        if (ranges.isEmpty()) {
-            throw new FaraoException(String.format("HvdcRangeAction %s does not contain any range", id));
         }
 
         if (usageRules.isEmpty()) {
@@ -88,9 +69,4 @@ public class HvdcRangeActionAdderImpl extends AbstractRemedialActionAdder<HvdcRa
         this.getCrac().addHvdcRangeAction(hvdcWithRange);
         return hvdcWithRange;
     }
-
-    void addRange(HvdcRange hvdcRange) {
-        ranges.add(hvdcRange);
-    }
-
 }

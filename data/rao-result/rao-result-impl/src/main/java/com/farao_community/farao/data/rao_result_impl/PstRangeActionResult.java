@@ -19,7 +19,7 @@ import java.util.Objects;
 public class PstRangeActionResult extends RangeActionResult {
 
     private Integer preOptimTap;
-    private Map<State, Integer> tapPerState;
+    private final Map<State, Integer> tapPerState;
 
     public PstRangeActionResult(String networkElementId) {
         super(networkElementId);

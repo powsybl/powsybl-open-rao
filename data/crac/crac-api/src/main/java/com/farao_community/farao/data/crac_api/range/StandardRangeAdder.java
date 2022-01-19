@@ -5,18 +5,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_api.range_action;
+package com.farao_community.farao.data.crac_api.range;
+
+import com.farao_community.farao.data.crac_api.range_action.StandardRangeActionAdder;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface HvdcRangeAdder {
+public interface StandardRangeAdder<T extends StandardRangeActionAdder<T>> {
 
-    HvdcRangeAdder withMin(double minSetpoint);
+    StandardRangeAdder<T> withMin(double minSetpoint);
 
-    HvdcRangeAdder withMax(double maxSetpoint);
+    StandardRangeAdder<T> withMax(double maxSetpoint);
 
-    HvdcRangeActionAdder add();
-
+    T add();
 }

@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,11 @@ public final class JsonSerializationConstants {
 
     private JsonSerializationConstants() { }
 
-    public static final String CRAC_IO_VERSION = "1.1";
+    public static final String CRAC_IO_VERSION = "1.2";
+    /*
+    v1.1: addition of switchPairs
+    v1.2: addition of injectionRangeAction
+     */
 
     // headers
     public static final String TYPE = "type";
@@ -38,6 +42,7 @@ public final class JsonSerializationConstants {
     public static final String NETWORK_ELEMENTS_IDS = "networkElementsIds";
     public static final String NETWORK_ELEMENT_ID = "networkElementId";
     public static final String NETWORK_ELEMENTS_NAME_PER_ID = "networkElementsNamePerId";
+    public static final String NETWORK_ELEMENT_IDS_AND_KEYS = "networkElementIdsAndKeys";
 
     public static final String GROUP_ID = "groupId";
 
@@ -58,6 +63,7 @@ public final class JsonSerializationConstants {
 
     public static final String PST_RANGE_ACTIONS = "pstRangeActions";
     public static final String HVDC_RANGE_ACTIONS = "hvdcRangeActions";
+    public static final String INJECTION_RANGE_ACTIONS = "injectionRangeActions";
 
     public static final String NETWORK_ACTIONS = "networkActions";
     public static final String TOPOLOGICAL_ACTIONS = "topologicalActions";
