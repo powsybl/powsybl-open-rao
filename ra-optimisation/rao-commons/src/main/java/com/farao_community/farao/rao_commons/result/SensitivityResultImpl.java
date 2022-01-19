@@ -42,7 +42,7 @@ public class SensitivityResultImpl implements SensitivityResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
         if (unit == Unit.MEGAWATT) {
             return systematicSensitivityResult.getSensitivityOnFlow(rangeAction, flowCnec);
         } else if (unit == Unit.AMPERE) {

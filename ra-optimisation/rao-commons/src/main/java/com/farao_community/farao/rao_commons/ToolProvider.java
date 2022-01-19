@@ -7,10 +7,8 @@
 
 package com.farao_community.farao.rao_commons;
 
-import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.commons.ZonalDataImpl;
+import com.farao_community.farao.commons.*;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -23,8 +21,6 @@ import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInter
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,8 +29,6 @@ import java.util.stream.Collectors;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class ToolProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ToolProvider.class);
-
     private Network network;
     private RaoParameters raoParameters;
     private ReferenceProgram referenceProgram;
@@ -124,14 +118,14 @@ public final class ToolProvider {
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
-                                                                            Set<RangeAction> rangeActions,
+                                                                            Set<RangeAction<?>> rangeActions,
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows) {
         return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
-                                                                            Set<RangeAction> rangeActions,
+                                                                            Set<RangeAction<?>> rangeActions,
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows,
                                                                             AppliedRemedialActions appliedRemedialActions) {
@@ -182,7 +176,7 @@ public final class ToolProvider {
         for (String eiCode : listEicCode) {
             LinearGlsk linearGlsk = glskProvider.getData(eiCode);
             if (Objects.isNull(linearGlsk)) {
-                LOGGER.warn("No GLSK found for CountryEICode {}", eiCode);
+                FaraoLoggerProvider.BUSINESS_WARNS.warn("No GLSK found for CountryEICode {}", eiCode);
             } else {
                 glskBoundaries.put(eiCode, linearGlsk);
             }

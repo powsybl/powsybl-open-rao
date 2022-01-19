@@ -8,13 +8,14 @@ package com.farao_community.farao.data.crac_io_json;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.InjectionSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.PstSetpoint;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRange;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
-import com.farao_community.farao.data.crac_api.range_action.TapRange;
+import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range.StandardRange;
+import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.threshold.BranchThreshold;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
@@ -23,6 +24,7 @@ import com.farao_community.farao.data.crac_api.usage_rule.OnState;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import static com.farao_community.farao.data.crac_api.Instant.*;
 import static com.farao_community.farao.data.crac_api.usage_rule.UsageMethod.AVAILABLE;
@@ -82,7 +84,25 @@ public class JsonRetrocompatibilityTest {
         assertEquals(4, crac.getNetworkActions().size());
         assertEquals(2, crac.getPstRangeActions().size());
         assertEquals(2, crac.getHvdcRangeActions().size());
-        testContentOfV1CracWithSwitchPair(crac);
+        testContentOfV1Point1Crac(crac);
+    }
+
+    @Test
+    public void importV1Point2Test() {
+
+        // JSON file of farao-core v3.6
+        // addition of injection range action
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1/crac-v1.2.json");
+
+        Crac crac = new JsonImport().importCrac(cracFile);
+
+        assertEquals(2, crac.getContingencies().size());
+        assertEquals(7, crac.getFlowCnecs().size());
+        assertEquals(4, crac.getNetworkActions().size());
+        assertEquals(2, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getHvdcRangeActions().size());
+        assertEquals(1, crac.getInjectionRangeActions().size());
+        testContentOfV1Point2Crac(crac);
     }
 
     private void testContentOfV1Crac(Crac crac) {
@@ -265,13 +285,13 @@ public class JsonRetrocompatibilityTest {
 
         // check Hvdc range
         assertEquals(1, crac.getHvdcRangeAction("hvdcRange1Id").getRanges().size());
-        HvdcRange hvdcRange = crac.getHvdcRangeAction("hvdcRange1Id").getRanges().get(0);
+        StandardRange hvdcRange = crac.getHvdcRangeAction("hvdcRange1Id").getRanges().get(0);
         assertEquals(-1000, hvdcRange.getMin(), 1e-3);
         assertEquals(1000, hvdcRange.getMax(), 1e-3);
         assertEquals(Unit.MEGAWATT, hvdcRange.getUnit());
     }
 
-    public void testContentOfV1CracWithSwitchPair(Crac crac) {
+    public void testContentOfV1Point1Crac(Crac crac) {
 
         testContentOfV1Crac(crac);
 
@@ -286,5 +306,23 @@ public class JsonRetrocompatibilityTest {
         assertEquals("to-open", switchPair.getSwitchToOpen().getName());
         assertEquals("to-close", switchPair.getSwitchToClose().getId());
         assertEquals("to-close-name", switchPair.getSwitchToClose().getName());
+    }
+
+    public void testContentOfV1Point2Crac(Crac crac) {
+
+        testContentOfV1Point1Crac(crac);
+
+        // test injection range action
+        assertNotNull(crac.getInjectionRangeAction("injectionRange1Id"));
+
+        assertEquals("injectionRange1Name", crac.getInjectionRangeAction("injectionRange1Id").getName());
+        assertNull(crac.getInjectionRangeAction("injectionRange1Id").getOperator());
+        assertTrue(crac.getInjectionRangeAction("injectionRange1Id").getGroupId().isEmpty());
+        Map<NetworkElement, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getInjectionDistributionKeys();
+        assertEquals(2, networkElementAndKeys.size());
+        assertEquals(1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator1Id")).findAny().orElseThrow().getValue(), 1e-3);
+        assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
+        assertEquals("generator2Name", networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getKey().getName());
+        assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
     }
 }

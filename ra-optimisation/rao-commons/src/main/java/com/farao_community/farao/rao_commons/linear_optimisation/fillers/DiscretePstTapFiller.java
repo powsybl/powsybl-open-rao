@@ -33,11 +33,11 @@ import static java.lang.String.format;
  */
 public class DiscretePstTapFiller implements ProblemFiller {
     private final Network network;
-    private final Set<RangeAction> rangeActions;
+    private final Set<RangeAction<?>> rangeActions;
     private final RangeActionResult prePerimeterRangeActionResult;
 
     public DiscretePstTapFiller(Network network,
-                                Set<RangeAction> rangeActions,
+                                Set<RangeAction<?>> rangeActions,
                                 RangeActionResult prePerimeterRangeActionResult) {
         this.network = network;
         this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));

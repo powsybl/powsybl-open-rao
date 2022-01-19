@@ -32,10 +32,10 @@ public class RaoResultImpl implements RaoResult {
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
 
     private ComputationStatus sensitivityStatus;
-    private Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
-    private Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
-    private Map<RangeAction, RangeActionResult> rangeActionResults = new HashMap<>();
-    private Map<OptimizationState, CostResult> costResults = new EnumMap<>(OptimizationState.class);
+    private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
+    private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
+    private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
+    private final Map<OptimizationState, CostResult> costResults = new EnumMap<>(OptimizationState.class);
 
     public void setComputationStatus(ComputationStatus computationStatus) {
         this.sensitivityStatus = computationStatus;
@@ -191,7 +191,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
+    public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
 
         if (rangeAction instanceof PstRangeAction || rangeAction instanceof HvdcRangeAction) {
             return rangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).getOptimizedSetpointOnState(state);
@@ -201,7 +201,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
+    public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         return rangeActionResults.entrySet().stream()
             .filter(e -> e.getValue().isActivatedDuringState(state))
             .map(Map.Entry::getKey)
@@ -220,7 +220,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
+    public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return rangeActionResults.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getOptimizedSetpointOnState(state)));
     }

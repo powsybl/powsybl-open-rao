@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 
 public class PerimeterOutput implements PerimeterResult {
 
-    private OptimizationResult optimizationResult;
-    private RangeActionResult prePerimeterRangeActionResult;
+    private final OptimizationResult optimizationResult;
+    private final RangeActionResult prePerimeterRangeActionResult;
 
     public PerimeterOutput(RangeActionResult prePerimeterRangeActionResult, OptimizationResult optimizationResult) {
         this.optimizationResult = optimizationResult;
@@ -35,7 +35,7 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActions() {
+    public Set<RangeAction<?>> getActivatedRangeActions() {
         return optimizationResult.getRangeActions().stream()
                 .filter(rangeAction -> Math.abs(prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction) - optimizationResult.getOptimizedSetPoint(rangeAction)) > 1e-6)
                 .collect(Collectors.toSet());
@@ -102,7 +102,7 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         return prePerimeterRangeActionResult.getRangeActions();
     }
 
@@ -118,7 +118,7 @@ public class PerimeterOutput implements PerimeterResult {
         PstRangeAction pstRangeActionOnSameElement = null;
         NetworkElement networkElement = pstRangeAction.getNetworkElement();
 
-        for (RangeAction rangeAction : optimizationResult.getRangeActions()) {
+        for (RangeAction<?> rangeAction : optimizationResult.getRangeActions()) {
             if (rangeAction instanceof PstRangeAction && ((PstRangeAction) rangeAction).getNetworkElement() != null
                     &&  ((PstRangeAction) rangeAction).getNetworkElement().equals(networkElement)) {
                 pstRangeActionOnSameElement = (PstRangeAction) rangeAction;
@@ -134,17 +134,17 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction rangeAction) {
+    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
         if (optimizationResult.getRangeActions().contains(rangeAction)) {
             return optimizationResult.getOptimizedSetPoint(rangeAction);
         }
 
         // if rangeAction is not in perimeter, check if there is not another rangeAction
         // on the same network element.
-        RangeAction rangeActionOnSameElement = null;
+        RangeAction<?> rangeActionOnSameElement = null;
         if (rangeAction.getNetworkElements().size() == 1) {
             NetworkElement networkElement = rangeAction.getNetworkElements().iterator().next();
-            for (RangeAction ra : optimizationResult.getRangeActions()) {
+            for (RangeAction<?> ra : optimizationResult.getRangeActions()) {
                 if (ra.getNetworkElements().contains(networkElement)) {
                     rangeActionOnSameElement = ra;
                     break;
@@ -165,7 +165,7 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPoints() {
+    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
         return optimizationResult.getOptimizedSetPoints();
     }
 
@@ -175,7 +175,7 @@ public class PerimeterOutput implements PerimeterResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
         return 0;
     }
 

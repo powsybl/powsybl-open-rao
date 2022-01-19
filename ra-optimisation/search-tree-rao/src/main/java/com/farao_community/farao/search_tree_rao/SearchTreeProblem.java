@@ -45,7 +45,7 @@ public class SearchTreeProblem {
         this.linearOptimizerParameters = linearOptimizerParameters;
     }
 
-    public LeafProblem getLeafProblem(Set<RangeAction> rangeActions) {
+    public LeafProblem getLeafProblem(Set<RangeAction<?>> rangeActions) {
         return new LeafProblem(
                 initialFlowResult,
                 prePerimeterFlowResult,
@@ -57,7 +57,7 @@ public class SearchTreeProblem {
         );
     }
 
-    protected ProblemFiller createCoreProblemFiller(Network network, Set<FlowCnec> flowCnecs, Set<RangeAction> rangeActions) {
+    protected ProblemFiller createCoreProblemFiller(Network network, Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions) {
         return new CoreProblemFiller(
                 network,
                 flowCnecs,
@@ -69,7 +69,7 @@ public class SearchTreeProblem {
         );
     }
 
-    protected ProblemFiller createMaxMinRelativeMarginFiller(Set<FlowCnec> flowCnecs, Set<RangeAction> rangeActions, FlowResult preOptimFlowResult) {
+    protected ProblemFiller createMaxMinRelativeMarginFiller(Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions, FlowResult preOptimFlowResult) {
         return new MaxMinRelativeMarginFiller(
                 flowCnecs.stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
                 preOptimFlowResult,
@@ -79,7 +79,7 @@ public class SearchTreeProblem {
         );
     }
 
-    protected ProblemFiller createMaxMinMarginFiller(Set<FlowCnec> flowCnecs, Set<RangeAction> rangeActions) {
+    protected ProblemFiller createMaxMinMarginFiller(Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions) {
         return new MaxMinMarginFiller(
                 flowCnecs.stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
                 rangeActions,
@@ -113,13 +113,13 @@ public class SearchTreeProblem {
         );
     }
 
-    protected ProblemFiller createContinuousRangeActionGroupFiller(Set<RangeAction> rangeActions) {
+    protected ProblemFiller createContinuousRangeActionGroupFiller(Set<RangeAction<?>> rangeActions) {
         return new ContinuousRangeActionGroupFiller(
                 rangeActions
         );
     }
 
-    protected ProblemFiller createIntegerPstTapFiller(Network network, Set<RangeAction> rangeActions) {
+    protected ProblemFiller createIntegerPstTapFiller(Network network, Set<RangeAction<?>> rangeActions) {
         return new DiscretePstTapFiller(
                 network,
                 rangeActions,

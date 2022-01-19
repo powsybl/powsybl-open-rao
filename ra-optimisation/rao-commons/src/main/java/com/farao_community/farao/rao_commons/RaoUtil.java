@@ -8,6 +8,7 @@
 package com.farao_community.farao.rao_commons;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
@@ -15,8 +16,6 @@ import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -26,9 +25,6 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class RaoUtil {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RaoUtil.class);
-
     private RaoUtil() {
     }
 
@@ -60,15 +56,15 @@ public final class RaoUtil {
         if ((raoParameters.isRaoWithLoopFlowLimitation()
                 || raoParameters.getObjectiveFunction().doesRequirePtdf())
                 && (raoInput.getReferenceProgram() == null)) {
-            LOGGER.info("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
+            FaraoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), raoParameters.getLoadFlowProvider(), raoParameters.getDefaultSensitivityAnalysisParameters().getLoadFlowParameters()));
         }
 
         if (raoParameters.isRaoWithLoopFlowLimitation() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
             String msg = format(
-                    "Loopflow computation cannot be performed CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
+                    "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
                     raoInput.getCrac().getId());
-            LOGGER.error(msg);
+            FaraoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new FaraoException(msg);
         }
     }

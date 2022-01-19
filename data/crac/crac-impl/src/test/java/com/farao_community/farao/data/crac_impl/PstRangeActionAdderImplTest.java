@@ -8,10 +8,11 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import org.junit.Before;
 import org.junit.Test;
@@ -171,18 +172,13 @@ public class PstRangeActionAdderImplTest {
             .newTopologicalAction().withActionType(ActionType.OPEN).withNetworkElement("action-elementId").add()
             .add();
 
-        try {
-            crac.newPstRangeAction()
-                .withId("sameId")
-                .withOperator("BE")
-                .withNetworkElement("networkElementId")
-                .withInitialTap(1)
-                .withTapToAngleConversionMap(validTapToAngleConversionMap)
-                .add();
-            fail();
-        } catch (FaraoException e) {
-            // should throw
-        }
+        PstRangeActionAdder adder = crac.newPstRangeAction()
+            .withId("sameId")
+            .withOperator("BE")
+            .withNetworkElement("networkElementId")
+            .withInitialTap(1)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap);
+        assertThrows(FaraoException.class, adder::add);
     }
 
     @Test(expected = FaraoException.class)
@@ -247,5 +243,19 @@ public class PstRangeActionAdderImplTest {
             .withInitialTap(10)
             .withTapToAngleConversionMap(validTapToAngleConversionMap)
             .add();
+    }
+
+    @Test
+    public void testPraRelativeToPreviousInstantRange() {
+        PstRangeAction pstRangeAction = crac.newPstRangeAction()
+            .withId("id1")
+            .withNetworkElement(networkElementId)
+            .newTapRange()
+            .withMinTap(-10).withMaxTap(10).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
+            .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .withInitialTap(-2)
+            .withTapToAngleConversionMap(validTapToAngleConversionMap)
+            .add();
+        assertTrue(pstRangeAction.getRanges().isEmpty());
     }
 }

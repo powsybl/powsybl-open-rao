@@ -20,7 +20,7 @@ public class ElementaryFlowCnecResult {
 
     private static final FlowCnecResultPerUnit DEFAULT_RESULT = new FlowCnecResultPerUnit();
 
-    private Map<Unit, FlowCnecResultPerUnit> resultPerUnit;
+    private final Map<Unit, FlowCnecResultPerUnit> resultPerUnit;
     private double ptdfZonalSum;
 
     private static class FlowCnecResultPerUnit {
