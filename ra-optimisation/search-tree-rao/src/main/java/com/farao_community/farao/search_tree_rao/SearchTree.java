@@ -309,11 +309,7 @@ public class SearchTree {
                     topLevelLogger.info("Optimized {}", leaf);
                 }
             }
-            updateOptimalLeaf(leaf);
-            if (stopCriterionReached(leaf) && combinationFulfillingStopCriterion.isEmpty()) {
-                topLevelLogger.info("Stop criterion reached, other threads may skip optimization.");
-                combinationFulfillingStopCriterion = Optional.of(naCombination);
-            }
+            updateOptimalLeaf(leaf, naCombination);
         } else {
             topLevelLogger.info("Could not evaluate leaf: {}", leaf);
         }
@@ -393,9 +389,23 @@ public class SearchTree {
         }
     }
 
-    private synchronized void updateOptimalLeaf(Leaf leaf) {
+    private synchronized void updateOptimalLeaf(Leaf leaf, NetworkActionCombination networkActionCombination) {
         if (improvedEnough(leaf)) {
-            optimalLeaf = leaf;
+            // nominal case: stop criterion hasn't been reached yet
+            if (combinationFulfillingStopCriterion.isEmpty() && leaf.getCost() < optimalLeaf.getCost()) {
+                optimalLeaf = leaf;
+                if (stopCriterionReached(leaf)) {
+                    topLevelLogger.info("Stop criterion reached, other threads may skip optimization.");
+                    combinationFulfillingStopCriterion = Optional.of(networkActionCombination);
+                }
+            }
+            // special case: stop criterion has been reached
+            if (combinationFulfillingStopCriterion.isPresent()
+                && stopCriterionReached(leaf)
+                && orderNetworkActionCombinationsRandomly(networkActionCombination, combinationFulfillingStopCriterion.get()) < 0) {
+                optimalLeaf = leaf;
+                combinationFulfillingStopCriterion = Optional.of(networkActionCombination);
+            }
         }
     }
 
@@ -420,8 +430,8 @@ public class SearchTree {
     }
 
     /**
-     * This method compares the leaf best cost to the optimal leaf best cost taking into account the minimum impact
-     * thresholds (absolute and relative)
+     * This method checks if the leaf's cost respects the minimum impact thresholds
+     * (absolute and relative) compared to the previous depth's optimal leaf.
      *
      * @param leaf: Leaf that has to be compared with the optimal leaf.
      * @return True if the leaf cost diminution is enough compared to optimal leaf.
@@ -430,12 +440,10 @@ public class SearchTree {
         double relativeImpact = Math.max(treeParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
         double absoluteImpact = Math.max(treeParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
 
-        double currentBestCost = optimalLeaf.getCost();
         double previousDepthBestCost = previousDepthOptimalLeaf.getCost();
         double newCost = leaf.getCost();
 
-        return newCost < currentBestCost
-            && previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
+        return previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
 
