@@ -148,7 +148,7 @@ class ComplexVariantReader {
             return;
         }
 
-        if (actionsSet.isCurative() || actionsSet.isEnforced()) {
+        if (actionsSet.isCurative() || Boolean.TRUE.equals(actionsSet.isEnforced())) {
             if (Objects.isNull(actionsSet.getAfterCOList()) || Objects.isNull(actionsSet.getAfterCOList().getAfterCOId()) || actionsSet.getAfterCOList().getAfterCOId().isEmpty()) {
                 this.importStatus = ImportStatus.INCOMPLETE_DATA;
                 this.importStatusDetail = String.format("complex variant %s was removed as its 'afterCOList' is empty", complexVariant.getId());
