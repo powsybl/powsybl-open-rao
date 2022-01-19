@@ -30,10 +30,10 @@ import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FA
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
-    private PrePerimeterResult initialResult;
-    private PerimeterResult preventivePerimeterResult;
-    private PrePerimeterResult resultsWithPrasForAllCnecs;
-    private Map<State, PerimeterResult> postContingencyResults;
+    private final PrePerimeterResult initialResult;
+    private final PerimeterResult preventivePerimeterResult;
+    private final PrePerimeterResult resultsWithPrasForAllCnecs;
+    private final Map<State, PerimeterResult> postContingencyResults;
 
     public PreventiveAndCurativesRaoOutput(StateTree stateTree,
                                            PrePerimeterResult initialResult,
@@ -233,7 +233,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
+    public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return preventivePerimeterResult.getActivatedRangeActions().contains(rangeAction);
         } else if (postContingencyResults.containsKey(state)) {
@@ -264,7 +264,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
+    public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getOptimizedSetPoint(rangeAction);
         } else if (postContingencyResults.containsKey(state)) {
@@ -275,7 +275,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
+    public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
             return preventivePerimeterResult.getOptimizedSetPoint(rangeAction);
         } else {
@@ -284,7 +284,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
+    public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return preventivePerimeterResult.getActivatedRangeActions();
         } else if (postContingencyResults.containsKey(state)) {
@@ -304,7 +304,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
+    public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
             return preventivePerimeterResult.getOptimizedSetPoints();
         } else {

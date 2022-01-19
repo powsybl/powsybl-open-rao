@@ -8,8 +8,8 @@
 package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.range_action.TapRange;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.TapRange;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -17,8 +17,8 @@ import com.farao_community.farao.data.crac_api.range_action.RangeType;
  */
 public class TapRangeImpl extends AbstractRange implements TapRange {
 
-    private int minTap;
-    private int maxTap;
+    private final int minTap;
+    private final int maxTap;
 
     TapRangeImpl(int minTap, int maxTap, RangeType rangeType) {
         super(rangeType, Unit.TAP);

@@ -142,7 +142,7 @@ public class AutomatonOptimizationResultTest {
 
     @Test
     public void testGetRangeActions() {
-        Set<RangeAction> rangeActions = Set.of(mock(RangeAction.class), mock(RangeAction.class));
+        Set<RangeAction<?>> rangeActions = Set.of(mock(RangeAction.class), mock(RangeAction.class));
         when(postAutoSensitivity.getRangeActions()).thenReturn(rangeActions);
         assertEquals(rangeActions, result.getRangeActions());
     }
@@ -150,7 +150,7 @@ public class AutomatonOptimizationResultTest {
     @Test
     public void testGetTapsAndSetpoints() {
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
-        RangeAction rangeAction = mock(RangeAction.class);
+        RangeAction<?> rangeAction = mock(RangeAction.class);
         when(postAutoSensitivity.getOptimizedTap(pstRangeAction)).thenReturn(5);
         when(postAutoSensitivity.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 10));
         when(postAutoSensitivity.getOptimizedSetPoint(pstRangeAction)).thenReturn(50.);
@@ -172,7 +172,7 @@ public class AutomatonOptimizationResultTest {
 
     @Test
     public void testGetSensitivityOnRangeAction() {
-        RangeAction rangeAction = mock(RangeAction.class);
+        RangeAction<?> rangeAction = mock(RangeAction.class);
         when(postAutoSensitivity.getSensitivityValue(cnec1, rangeAction, MEGAWATT)).thenReturn(100.);
         when(postAutoSensitivity.getSensitivityValue(cnec1, rangeAction, AMPERE)).thenReturn(1000.);
         when(postAutoSensitivity.getSensitivityValue(cnec2, rangeAction, MEGAWATT)).thenReturn(200.);

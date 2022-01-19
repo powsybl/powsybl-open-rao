@@ -26,19 +26,19 @@ import static java.lang.String.format;
  */
 public class RangeActionResultImpl implements RangeActionResult {
 
-    private Map<RangeAction, Double> setPoints;
+    private Map<RangeAction<?>, Double> setPoints;
 
-    public RangeActionResultImpl(Map<RangeAction, Double> setPoints) {
+    public RangeActionResultImpl(Map<RangeAction<?>, Double> setPoints) {
         this.setPoints = setPoints;
     }
 
-    public RangeActionResultImpl(Network network, Set<RangeAction> rangeActions) {
+    public RangeActionResultImpl(Network network, Set<RangeAction<?>> rangeActions) {
         this(rangeActions.stream()
                 .collect(Collectors.toMap(Function.identity(), rangeAction -> rangeAction.getCurrentSetpoint(network))));
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         return setPoints.keySet();
     }
 
@@ -51,7 +51,7 @@ public class RangeActionResultImpl implements RangeActionResult {
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction rangeAction) {
+    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
         if (!setPoints.containsKey(rangeAction)) {
             throw new FaraoException(format("PST range action %s is not present in the result", rangeAction.getName()));
         }
@@ -68,7 +68,7 @@ public class RangeActionResultImpl implements RangeActionResult {
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPoints() {
+    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
         return setPoints;
     }
 }

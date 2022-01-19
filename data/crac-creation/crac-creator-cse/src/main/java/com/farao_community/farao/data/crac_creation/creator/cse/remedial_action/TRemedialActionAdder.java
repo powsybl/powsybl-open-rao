@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cse.*;
@@ -251,7 +251,7 @@ public class TRemedialActionAdder {
             .withName(tRemedialAction.getName().getV())
             .withOperator(tRemedialAction.getOperator().getV())
             .withNetworkElement(hvdcId)
-            .newHvdcRange().withMin(minRange).withMax(maxRange).add();
+            .newRange().withMin(minRange).withMax(maxRange).add();
 
         // GroupId
         if (cseCracCreationParameters != null && cseCracCreationParameters.getRangeActionGroups() != null) {

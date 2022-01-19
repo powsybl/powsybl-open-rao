@@ -6,9 +6,13 @@
  */
 package com.farao_community.farao.flowbased_computation.impl;
 
+import com.farao_community.farao.commons.RandomizedString;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.*;
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -16,20 +20,23 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.flowbased_domain.*;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
-import com.farao_community.farao.flowbased_computation.*;
-import com.farao_community.farao.commons.RandomizedString;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationProvider;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
+import com.farao_community.farao.flowbased_computation.FlowbasedComputationResultImpl;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Flowbased computation implementation
@@ -40,7 +47,6 @@ import java.util.stream.Collectors;
 public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private static final String INITIAL_STATE_WITH_PRA = "InitialStateWithPra";
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowbasedComputationImpl.class);
 
     @Override
     public String getName() {
@@ -62,14 +68,14 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
 
         if (raoResult == null) {
-            LOGGER.debug("RAO result is null: applying all network actions from CRAC.");
+            TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
             crac.getStates().forEach(state -> {
                 if (state.getInstant().equals(Instant.CURATIVE)) {
                     appliedRemedialActions.addAppliedNetworkActions(state, findAllAvailableRemedialActionsForState(crac, state));
                 }
             });
         } else {
-            LOGGER.debug("RAO result is not null: applying remedial actions selected by the RAO.");
+            TECHNICAL_LOGS.debug("RAO result is not null: applying remedial actions selected by the RAO.");
             crac.getStates().forEach(state -> {
                 if (state.getInstant().equals(Instant.CURATIVE)) {
                     appliedRemedialActions.addAppliedNetworkActions(state, findAppliedNetworkActionsForState(raoResult, state, crac.getNetworkActions()));
@@ -101,13 +107,13 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
 
     private void applyPreventiveRemedialActions(RaoResult raoResult, Crac crac, Network network) {
         if (raoResult == null) {
-            LOGGER.debug("RAO result is null: applying all network actions from CRAC.");
+            TECHNICAL_LOGS.debug("RAO result is null: applying all network actions from CRAC.");
             crac.getNetworkActions().forEach(na -> {
                 UsageMethod usageMethod = na.getUsageMethod(crac.getPreventiveState());
                 if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
                     na.apply(network);
                 } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
-                    LOGGER.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
+                    BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
                     /*
                      * This method is only used in FlowbasedComputation.
                      * We do not assess the availability of such remedial actions: they're not supposed to exist.
@@ -118,7 +124,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
                 }
             });
         } else {
-            LOGGER.debug("RAO result is not null: applying remedial actions selected by the RAO.");
+            TECHNICAL_LOGS.debug("RAO result is not null: applying remedial actions selected by the RAO.");
             crac.getNetworkActions().forEach(na -> {
                 if (raoResult.isActivated(crac.getPreventiveState(), na)) {
                     na.apply(network);
@@ -211,7 +217,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
             if (usageMethod.equals(UsageMethod.AVAILABLE) || usageMethod.equals(UsageMethod.FORCED)) {
                 networkActionsAppl.add(na);
             } else if (usageMethod.equals(UsageMethod.TO_BE_EVALUATED)) {
-                LOGGER.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
+                BUSINESS_WARNS.warn("Network action {} with usage method TO_BE_EVALUATED will not be applied, as we don't have access to the flow results.", na.getId());
                 /*
                  * This method is only used in FlowbasedComputation.
                  * We do not assess the availability of such remedial actions: they're not supposed to exist.
@@ -249,7 +255,7 @@ public class FlowbasedComputationImpl implements FlowbasedComputationProvider {
      * @param raoResult Result of Rao computation
      * @param state State for which the RAs should be applied
      */
-    public static Map<RangeAction, Double> findAppliedRangeActionsForState(RaoResult raoResult, State state) {
+    public static Map<RangeAction<?>, Double> findAppliedRangeActionsForState(RaoResult raoResult, State state) {
         return new HashMap<>(raoResult.getOptimizedSetPointsOnState(state));
     }
 

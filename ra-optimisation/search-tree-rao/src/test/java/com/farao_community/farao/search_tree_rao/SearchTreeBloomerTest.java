@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -397,8 +397,8 @@ public class SearchTreeBloomerTest {
 
     @Test
     public void testGetActivatedTsos() {
-        RangeAction nonActivatedRa = createPstRangeActionWithOperator("NNL2AA1  NNL3AA1  1", "nl");
-        Set<RangeAction> rangeActions = new HashSet<>();
+        RangeAction<?> nonActivatedRa = createPstRangeActionWithOperator("NNL2AA1  NNL3AA1  1", "nl");
+        Set<RangeAction<?>> rangeActions = new HashSet<>();
         rangeActions.add(nonActivatedRa);
         rangeActions.add(raBe1);
 

@@ -23,11 +23,11 @@ import java.util.Set;
  */
 public class AppliedRemedialActions {
 
-    private Map<State, AppliedRemedialActionsPerState> appliedRa = new HashMap<>();
+    private final Map<State, AppliedRemedialActionsPerState> appliedRa = new HashMap<>();
 
-    private class AppliedRemedialActionsPerState {
-        private Set<NetworkAction> networkActions = new HashSet<>();
-        private Map<RangeAction, Double> rangeActions = new HashMap<>();
+    private static class AppliedRemedialActionsPerState {
+        private final Set<NetworkAction> networkActions = new HashSet<>();
+        private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
     }
 
     public void addAppliedNetworkAction(State state, NetworkAction networkAction) {
@@ -44,14 +44,14 @@ public class AppliedRemedialActions {
         }
     }
 
-    public void addAppliedRangeAction(State state, RangeAction rangeAction, double setpoint) {
+    public void addAppliedRangeAction(State state, RangeAction<?> rangeAction, double setpoint) {
         if (rangeAction != null) {
             checkState(state);
             appliedRa.get(state).rangeActions.put(rangeAction, setpoint);
         }
     }
 
-    public void addAppliedRangeActions(State state, Map<RangeAction, Double> rangeActions) {
+    public void addAppliedRangeActions(State state, Map<RangeAction<?>, Double> rangeActions) {
         if (!rangeActions.isEmpty()) {
             checkState(state);
             appliedRa.get(state).rangeActions.putAll(rangeActions);

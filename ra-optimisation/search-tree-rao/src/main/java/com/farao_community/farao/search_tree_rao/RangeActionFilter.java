@@ -15,28 +15,26 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.google.common.hash.Hashing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 class RangeActionFilter {
-    static final Logger LOGGER = LoggerFactory.getLogger(RangeActionFilter.class);
-
     private final Leaf leaf;
-    private Set<RangeAction> rangeActionsToOptimize;
+    private final Set<RangeAction<?>> rangeActionsToOptimize;
     private final State optimizedState;
     private final TreeParameters treeParameters;
-    private final Map<RangeAction, Double> prePerimeterSetPoints;
-    private final Set<RangeAction> leastPriorityRangeActions;
+    private final Map<RangeAction<?>, Double> prePerimeterSetPoints;
+    private final Set<RangeAction<?>> leastPriorityRangeActions;
 
-    public RangeActionFilter(Leaf leaf, Set<RangeAction> availableRangeActions, State optimizedState, TreeParameters treeParameters, Map<RangeAction, Double> prePerimeterSetPoints, boolean deprioritizeIgnoredRangeActions) {
+    public RangeActionFilter(Leaf leaf, Set<RangeAction<?>> availableRangeActions, State optimizedState, TreeParameters treeParameters, Map<RangeAction<?>, Double> prePerimeterSetPoints, boolean deprioritizeIgnoredRangeActions) {
         this.leaf = leaf;
         this.rangeActionsToOptimize = new HashSet<>(availableRangeActions);
         this.optimizedState = optimizedState;
@@ -50,7 +48,7 @@ class RangeActionFilter {
         }
     }
 
-    public Set<RangeAction> getRangeActionsToOptimize() {
+    public Set<RangeAction<?>> getRangeActionsToOptimize() {
         return rangeActionsToOptimize;
     }
 
@@ -65,13 +63,13 @@ class RangeActionFilter {
         }
         // Filter the psts from Tso present in the map depending on their potential gain
         maxPstPerTso.forEach((tso, maxPst) -> {
-            Set<RangeAction> pstsForTso = rangeActionsToOptimize.stream()
+            Set<RangeAction<?>> pstsForTso = rangeActionsToOptimize.stream()
                     .filter(rangeAction -> (rangeAction instanceof PstRangeAction) && rangeAction.getOperator().equals(tso))
                     .collect(Collectors.toSet());
             if (pstsForTso.size() > maxPst) {
-                Set<RangeAction> rangeActionsToRemove = computeRangeActionsToExclude(pstsForTso, maxPst);
+                Set<RangeAction<?>> rangeActionsToRemove = computeRangeActionsToExclude(pstsForTso, maxPst);
                 if (!rangeActionsToRemove.isEmpty()) {
-                    LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of pst for tso {}", rangeActionsToRemove.size(), tso);
+                    TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of pst for tso {}", rangeActionsToRemove.size(), tso);
                     rangeActionsToOptimize.removeAll(rangeActionsToRemove);
                 }
             }
@@ -99,21 +97,21 @@ class RangeActionFilter {
         if (maxTso == Integer.MAX_VALUE) {
             return;
         }
-        Set<RangeAction> appliedRangeActions = rangeActionsToOptimize.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
+        Set<RangeAction<?>> appliedRangeActions = rangeActionsToOptimize.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
         Set<String> activatedTsos = leaf.getActivatedNetworkActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
         activatedTsos.addAll(appliedRangeActions.stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
 
         Set<String> tsosToKeep = sortTsosToKeepByPotentialGainAndGroupId(activatedTsos, maxTso);
 
-        Set<RangeAction> rangeActionsToRemove = rangeActionsToOptimize.stream().filter(rangeAction -> !tsosToKeep.contains(rangeAction.getOperator())).collect(Collectors.toSet());
+        Set<RangeAction<?>> rangeActionsToRemove = rangeActionsToOptimize.stream().filter(rangeAction -> !tsosToKeep.contains(rangeAction.getOperator())).collect(Collectors.toSet());
         if (!rangeActionsToRemove.isEmpty()) {
-            LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
+            TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
     }
 
     Set<String> sortTsosToKeepByPotentialGainAndGroupId(Set<String> activatedTsos, int maxTso) {
-        List<RangeAction> rangeActionsSortedByPotentialGain = rangeActionsToOptimize.stream()
+        List<RangeAction<?>> rangeActionsSortedByPotentialGain = rangeActionsToOptimize.stream()
                 .sorted((ra1, ra2) -> -comparePotentialGain(ra1, ra2, getWorstElement(leaf), leaf))
                 .collect(Collectors.toList());
 
@@ -121,7 +119,7 @@ class RangeActionFilter {
 
         // Look for aligned PSTs : PSTs sharing a groupId must be all kept, or all filtered out.
         Set<String> groupIdHasBeenExplored = new HashSet<>();
-        for (RangeAction ra : rangeActionsSortedByPotentialGain) {
+        for (RangeAction<?> ra : rangeActionsSortedByPotentialGain) {
             // If ra potentially has aligned PSTs
             Optional<String> raGroupId = ra.getGroupId();
             if (raGroupId.isPresent()) {
@@ -132,7 +130,7 @@ class RangeActionFilter {
 
                 Set<String> tsosToKeepIfAlignedPstAreKept = new HashSet<>(tsosToKeep);
 
-                Set<RangeAction> raWithSameGroupId =
+                Set<RangeAction<?>> raWithSameGroupId =
                         rangeActionsSortedByPotentialGain.stream().filter(rangeAction -> {
                             Optional<String> groupId = rangeAction.getGroupId();
                             return groupId.isPresent() && groupId.get().equals(raGroupId.get());
@@ -144,7 +142,7 @@ class RangeActionFilter {
                 // remove aligned pst from range actions to optimize
                 if (tsosToKeepIfAlignedPstAreKept.size() > maxTso) {
                     rangeActionsToOptimize.removeAll(raWithSameGroupId);
-                    LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos on aligned PSTs.", raWithSameGroupId.size());
+                    TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos on aligned PSTs.", raWithSameGroupId.size());
                 } else {
                     tsosToKeep = tsosToKeepIfAlignedPstAreKept;
                 }
@@ -163,19 +161,19 @@ class RangeActionFilter {
             return;
         }
         int numberOfNetworkActionsAlreadyApplied = leaf.getActivatedNetworkActions().size();
-        Set<RangeAction> rangeActionsToRemove = computeRangeActionsToExclude(rangeActionsToOptimize, treeParameters.getMaxRa() - numberOfNetworkActionsAlreadyApplied);
+        Set<RangeAction<?>> rangeActionsToRemove = computeRangeActionsToExclude(rangeActionsToOptimize, treeParameters.getMaxRa() - numberOfNetworkActionsAlreadyApplied);
         if (!rangeActionsToRemove.isEmpty()) {
-            LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
+            TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
     }
 
-    private Set<RangeAction> computeRangeActionsToExclude(Set<RangeAction> rangeActions, int numberOfRangeActionsToKeep) {
+    private Set<RangeAction<?>> computeRangeActionsToExclude(Set<RangeAction<?>> rangeActions, int numberOfRangeActionsToKeep) {
         if (numberOfRangeActionsToKeep < 0) {
             throw new InvalidParameterException("Trying to keep a negative number of remedial actions");
         }
         int updatedNumberOfRangeActionsToKeep = numberOfRangeActionsToKeep;
-        Set<RangeAction> rangeActionsToExclude = new HashSet<>(rangeActions);
+        Set<RangeAction<?>> rangeActionsToExclude = new HashSet<>(rangeActions);
         // If in previous depth some RangeActions were activated, consider them optimizable and decrement the allowed number of PSTs
         // We have to do this because at the end of every depth, we apply optimal RangeActions for the next depth
         removeAppliedRangeActions(rangeActionsToExclude);
@@ -190,8 +188,8 @@ class RangeActionFilter {
      *
      * @param rangeActions the set of RangeActions to filter
      */
-    private void removeAppliedRangeActions(Set<RangeAction> rangeActions) {
-        Set<RangeAction> appliedRangeActions = rangeActions.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
+    private void removeAppliedRangeActions(Set<RangeAction<?>> rangeActions) {
+        Set<RangeAction<?>> appliedRangeActions = rangeActions.stream().filter(rangeAction -> isRangeActionUsed(rangeAction, leaf)).collect(Collectors.toSet());
         rangeActions.removeAll(appliedRangeActions);
     }
 
@@ -201,7 +199,7 @@ class RangeActionFilter {
      * @param rangeActions   the set of RangeActions to filter
      * @param numberToRemove the number of RangeActions to remove from the set
      */
-    private void removeRangeActionsWithBiggestImpact(Set<RangeAction> rangeActions, int numberToRemove) {
+    private void removeRangeActionsWithBiggestImpact(Set<RangeAction<?>> rangeActions, int numberToRemove) {
         if (numberToRemove <= 0) {
             // Nothing to do
             return;
@@ -209,14 +207,14 @@ class RangeActionFilter {
             rangeActions.clear();
             return;
         }
-        List<RangeAction> rangeActionsSortedByPotentialGain = rangeActions.stream()
+        List<RangeAction<?>> rangeActionsSortedByPotentialGain = rangeActions.stream()
                 .sorted((ra1, ra2) -> comparePrioritiesAndPotentialGains(ra1, ra2, getWorstElement(leaf), leaf))
                 .collect(Collectors.toList());
 
         Set<String> groupIdHasBeenExplored = new HashSet<>();
         int numberToRemoveLeft = numberToRemove;
         // Look for aligned PSTs
-        for (RangeAction ra : rangeActionsSortedByPotentialGain) {
+        for (RangeAction<?> ra : rangeActionsSortedByPotentialGain) {
             if (numberToRemoveLeft == 0) {
                 return;
             }
@@ -227,7 +225,7 @@ class RangeActionFilter {
                 if (groupIdHasBeenExplored.contains(raGroupId.get())) {
                     continue;
                 }
-                Set<RangeAction> raWithSameGroupId =
+                Set<RangeAction<?>> raWithSameGroupId =
                         rangeActionsSortedByPotentialGain.stream().filter(rangeAction -> {
                             Optional<String> groupId = rangeAction.getGroupId();
                             return groupId.isPresent() && groupId.get().equals(raGroupId.get());
@@ -252,7 +250,7 @@ class RangeActionFilter {
      * it will be considered greater.
      * If both RAs have the same priority, then absolute sensitivities will be compared.
      */
-    private int comparePrioritiesAndPotentialGains(RangeAction ra1, RangeAction ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
+    private int comparePrioritiesAndPotentialGains(RangeAction<?> ra1, RangeAction<?> ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
         if (!leastPriorityRangeActions.contains(ra1) && leastPriorityRangeActions.contains(ra2)) {
             return -1;
         } else if (leastPriorityRangeActions.contains(ra1) && !leastPriorityRangeActions.contains(ra2)) {
@@ -262,7 +260,7 @@ class RangeActionFilter {
         }
     }
 
-    private int comparePotentialGain(RangeAction ra1, RangeAction ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
+    private int comparePotentialGain(RangeAction<?> ra1, RangeAction<?> ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
         if (cnec == null) {
             return 0;
         }
@@ -272,7 +270,7 @@ class RangeActionFilter {
         return comparison != 0 ? comparison : orderRangeActionsRandomly(ra1, ra2);
     }
 
-    private Double computePotentialGain(RangeAction rangeAction, FlowCnec cnec, OptimizationResult optimizationResult) {
+    private Double computePotentialGain(RangeAction<?> rangeAction, FlowCnec cnec, OptimizationResult optimizationResult) {
         double directMargin = cnec.getUpperBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.POSITIVE_INFINITY) - optimizationResult.getFlow(cnec, Unit.MEGAWATT);
         double oppositeMargin = optimizationResult.getFlow(cnec, Unit.MEGAWATT) - cnec.getLowerBound(Side.LEFT, Unit.MEGAWATT).orElse(Double.NEGATIVE_INFINITY);
         double sensi = optimizationResult.getSensitivityValue(cnec, rangeAction, Unit.MEGAWATT);
@@ -294,11 +292,11 @@ class RangeActionFilter {
 
     }
 
-    private int orderRangeActionsRandomly(RangeAction ra1, RangeAction ra2) {
+    private int orderRangeActionsRandomly(RangeAction<?> ra1, RangeAction<?> ra2) {
         return Hashing.crc32().hashString(ra1.getId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getId(), StandardCharsets.UTF_8).hashCode();
     }
 
-    boolean isRangeActionUsed(RangeAction rangeAction, Leaf leaf) {
+    boolean isRangeActionUsed(RangeAction<?> rangeAction, Leaf leaf) {
         return leaf.getRangeActions().contains(rangeAction) && Math.abs(leaf.getOptimizedSetPoint(rangeAction) - prePerimeterSetPoints.get(rangeAction)) >= 1e-6;
     }
 

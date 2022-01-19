@@ -7,21 +7,19 @@
 
 package com.farao_community.farao.data.crac_api.range_action;
 
-import com.farao_community.farao.data.crac_api.RemedialActionAdder;
+import com.farao_community.farao.data.crac_api.range.StandardRangeAdder;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public interface HvdcRangeActionAdder extends RemedialActionAdder<HvdcRangeActionAdder> {
+public interface HvdcRangeActionAdder extends StandardRangeActionAdder<HvdcRangeActionAdder> {
 
     HvdcRangeActionAdder withNetworkElement(String networkElementId);
 
     HvdcRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    HvdcRangeActionAdder withGroupId(String groupId);
-
-    HvdcRangeAdder newHvdcRange();
+    StandardRangeAdder<HvdcRangeActionAdder> newRange();
 
     HvdcRangeAction add();
 }
