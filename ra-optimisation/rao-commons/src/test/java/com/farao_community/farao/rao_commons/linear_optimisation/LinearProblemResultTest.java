@@ -32,9 +32,9 @@ public class LinearProblemResultTest {
     private PstRangeAction activatedPstRangeAction;
     private PstRangeAction notActivatedPstRangeAction;
     private PstRangeAction unoptimizedPstRangeAction;
-    private RangeAction activatedRangeAction;
-    private RangeAction notActivatedRangeAction;
-    private RangeAction unoptimizedRangeAction;
+    private RangeAction<?> activatedRangeAction;
+    private RangeAction<?> notActivatedRangeAction;
+    private RangeAction<?> unoptimizedRangeAction;
 
     @Before
     public void setUp() {
@@ -47,7 +47,7 @@ public class LinearProblemResultTest {
 
         linearProblem = Mockito.mock(LinearProblem.class);
         Mockito.when(linearProblem.getStatus()).thenReturn(LinearProblemStatus.OPTIMAL);
-        Set<RangeAction> rangeActions = Set.of(activatedPstRangeAction, notActivatedPstRangeAction, activatedRangeAction, notActivatedRangeAction);
+        Set<RangeAction<?>> rangeActions = Set.of(activatedPstRangeAction, notActivatedPstRangeAction, activatedRangeAction, notActivatedRangeAction);
         Mockito.when(linearProblem.getRangeActions()).thenReturn(rangeActions);
 
         MPVariable activatedPstSetPointVariable = Mockito.mock(MPVariable.class);
@@ -59,28 +59,28 @@ public class LinearProblemResultTest {
         MPVariable notActivatedRangeActionSetPointVariable = Mockito.mock(MPVariable.class);
         MPVariable notActivatedRangeActionVariationSetPointVariable = Mockito.mock(MPVariable.class);
 
-        Map<RangeAction, MPVariable> setPointVariablePerRangeAction = Map.of(
+        Map<RangeAction<?>, MPVariable> setPointVariablePerRangeAction = Map.of(
                 activatedPstRangeAction, activatedPstSetPointVariable,
                 notActivatedPstRangeAction, notActivatedPstSetPointVariable,
                 activatedRangeAction, activatedRangeActionSetPointVariable,
                 notActivatedRangeAction, notActivatedRangeActionSetPointVariable
         );
 
-        Map<RangeAction, MPVariable> setPointVariationVariablePerRangeAction = Map.of(
+        Map<RangeAction<?>, MPVariable> setPointVariationVariablePerRangeAction = Map.of(
                 activatedPstRangeAction, activatedPstVariationSetPointVariable,
                 notActivatedPstRangeAction, notActivatedPstVariationSetPointVariable,
                 activatedRangeAction, activatedRangeActionVariationSetPointVariable,
                 notActivatedRangeAction, notActivatedRangeActionVariationSetPointVariable
         );
 
-        Map<RangeAction, Double> setPointPerRangeAction = Map.of(
+        Map<RangeAction<?>, Double> setPointPerRangeAction = Map.of(
                 activatedPstRangeAction, 1.5,
                 notActivatedPstRangeAction, 5.4,
                 activatedRangeAction, 600.,
                 notActivatedRangeAction, -200.
         );
 
-        Map<RangeAction, Double> setPointVariationPerRangeAction = Map.of(
+        Map<RangeAction<?>, Double> setPointVariationPerRangeAction = Map.of(
                 activatedPstRangeAction, 2.3,
                 notActivatedPstRangeAction, 0.,
                 activatedRangeAction, 200.,
@@ -154,7 +154,7 @@ public class LinearProblemResultTest {
     @Test
     public void testGetOptimizedSetPoints() {
         linearProblemResult = new LinearProblemResult(linearProblem);
-        Map<RangeAction, Double> map = linearProblemResult.getOptimizedSetPoints();
+        Map<RangeAction<?>, Double> map = linearProblemResult.getOptimizedSetPoints();
         assertEquals(4, map.size());
         assertEquals(Double.valueOf(1.5), map.get(activatedPstRangeAction));
         assertEquals(Double.valueOf(5.4), map.get(notActivatedPstRangeAction));
@@ -165,7 +165,7 @@ public class LinearProblemResultTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testGetOptimizedSetPointsReturnsUnmodifiableMap() {
         linearProblemResult = new LinearProblemResult(linearProblem);
-        Map<RangeAction, Double> map = linearProblemResult.getOptimizedSetPoints();
+        Map<RangeAction<?>, Double> map = linearProblemResult.getOptimizedSetPoints();
         map.put(unoptimizedRangeAction, 300.);
     }
 }

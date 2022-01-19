@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_api.range_action;
 
 import com.farao_community.farao.data.crac_api.RemedialActionAdder;
+import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
 
 import java.util.Map;
 

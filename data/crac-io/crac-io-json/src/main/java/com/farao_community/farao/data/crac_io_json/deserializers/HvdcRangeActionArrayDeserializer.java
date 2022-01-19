@@ -75,7 +75,7 @@ public final class HvdcRangeActionArrayDeserializer {
                         break;
                     case RANGES:
                         jsonParser.nextToken();
-                        HvdcRangeArrayDeserializer.deserialize(jsonParser, adder);
+                        StandardRangeArrayDeserializer.deserialize(jsonParser, adder);
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();

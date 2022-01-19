@@ -47,27 +47,27 @@ public final class LinearProblemIdGenerator {
         return flowCnec.getId() + SEPARATOR + FLOW + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String rangeActionSetpointVariableId(RangeAction rangeAction) {
+    public static String rangeActionSetpointVariableId(RangeAction<?> rangeAction) {
         return rangeAction.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String pstTapVariableVariationId(RangeAction rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
+    public static String pstTapVariableVariationId(RangeAction<?> rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
         return rangeAction.getId() + SEPARATOR + TAP_VARIATION + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String pstTapBinaryVariationId(RangeAction rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
+    public static String pstTapBinaryVariationId(RangeAction<?> rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
         return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String tapToAngleConversionConstraintId(RangeAction rangeAction) {
+    public static String tapToAngleConversionConstraintId(RangeAction<?> rangeAction) {
         return rangeAction.getId() + SEPARATOR + TAP_TO_ANGLE_CONVERSION + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String upOrDownPstVariationConstraintId(RangeAction rangeAction) {
+    public static String upOrDownPstVariationConstraintId(RangeAction<?> rangeAction) {
         return rangeAction.getId() + SEPARATOR + UP_OR_DOWN_VARIATION + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String isVariationInDirectionConstraintId(RangeAction rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
+    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
         return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
@@ -79,19 +79,19 @@ public final class LinearProblemIdGenerator {
         return rangeActionGroupId + SEPARATOR + VIRTUAL_TAP + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String rangeActionGroupSetpointConstraintId(RangeAction rangeAction) {
+    public static String rangeActionGroupSetpointConstraintId(RangeAction<?> rangeAction) {
         return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String pstGroupTapConstraintId(RangeAction rangeAction) {
+    public static String pstGroupTapConstraintId(RangeAction<?> rangeAction) {
         return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_TAP + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String absoluteRangeActionVariationVariableId(RangeAction rangeAction) {
+    public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction) {
         return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String absoluteRangeActionVariationConstraintId(RangeAction rangeAction, LinearProblem.AbsExtension positiveOrNegative) {
+    public static String absoluteRangeActionVariationConstraintId(RangeAction<?> rangeAction, LinearProblem.AbsExtension positiveOrNegative) {
         return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 

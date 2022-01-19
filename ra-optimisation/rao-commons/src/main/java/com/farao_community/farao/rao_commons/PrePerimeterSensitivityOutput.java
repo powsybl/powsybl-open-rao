@@ -36,7 +36,7 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
         return sensitivityResult.getSensitivityValue(flowCnec, rangeAction, unit);
     }
 
@@ -76,7 +76,7 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         return rangeActionResult.getRangeActions();
     }
 
@@ -96,7 +96,7 @@ public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPoints() {
+    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
         return rangeActionResult.getOptimizedSetPoints();
     }
 

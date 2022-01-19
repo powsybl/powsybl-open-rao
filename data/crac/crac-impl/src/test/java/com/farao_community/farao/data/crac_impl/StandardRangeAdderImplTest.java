@@ -10,6 +10,7 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class HvdcRangeAdderImplTest {
+public class StandardRangeAdderImplTest {
     private HvdcRangeActionAdder hvdcRangeActionAdder;
 
     @Before
@@ -34,7 +35,7 @@ public class HvdcRangeAdderImplTest {
 
     @Test
     public void testOk() {
-        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newHvdcRange().withMin(-5).withMax(10).add()
+        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
 
         assertEquals(1, hvdcRangeAction.getRanges().size());
@@ -46,18 +47,18 @@ public class HvdcRangeAdderImplTest {
 
     @Test (expected = FaraoException.class)
     public void testNoMin() {
-        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newHvdcRange().withMax(16).add()
+        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newRange().withMax(16).add()
             .add();
     }
 
     @Test (expected = FaraoException.class)
     public void testNoMax() {
-        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newHvdcRange().withMin(16).add()
+        HvdcRangeAction hvdcRangeAction = hvdcRangeActionAdder.newRange().withMin(16).add()
                 .add();
     }
 
     @Test (expected = FaraoException.class)
     public void testMinGreaterThanMax() {
-        hvdcRangeActionAdder.newHvdcRange().withMin(10).withMax(-5).add();
+        hvdcRangeActionAdder.newRange().withMin(10).withMax(-5).add();
     }
 }

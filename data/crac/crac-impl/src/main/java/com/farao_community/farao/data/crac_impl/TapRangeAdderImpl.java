@@ -9,9 +9,9 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
-import com.farao_community.farao.data.crac_api.range_action.TapRange;
-import com.farao_community.farao.data.crac_api.range_action.TapRangeAdder;
+import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range.TapRange;
+import com.farao_community.farao.data.crac_api.range.TapRangeAdder;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

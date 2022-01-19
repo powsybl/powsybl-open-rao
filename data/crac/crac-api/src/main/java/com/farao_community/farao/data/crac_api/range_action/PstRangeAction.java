@@ -8,6 +8,7 @@
 package com.farao_community.farao.data.crac_api.range_action;
 
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.Map;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface PstRangeAction extends RangeAction {
+public interface PstRangeAction extends RangeAction<PstRangeAction> {
 
     /**
      * Get the PST Network Element on which the remedial action applies

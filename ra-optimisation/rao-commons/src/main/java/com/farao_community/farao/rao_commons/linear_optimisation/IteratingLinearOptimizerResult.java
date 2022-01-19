@@ -127,7 +127,7 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         return rangeActionResult.getRangeActions();
     }
 
@@ -137,7 +137,7 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction rangeAction) {
+    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
         return rangeActionResult.getOptimizedSetPoint(rangeAction);
     }
 
@@ -147,7 +147,7 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPoints() {
+    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
         return rangeActionResult.getOptimizedSetPoints();
     }
 
@@ -157,7 +157,7 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec branchCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec branchCnec, RangeAction<?> rangeAction, Unit unit) {
         return sensitivityResult.getSensitivityValue(branchCnec, rangeAction, unit);
     }
 

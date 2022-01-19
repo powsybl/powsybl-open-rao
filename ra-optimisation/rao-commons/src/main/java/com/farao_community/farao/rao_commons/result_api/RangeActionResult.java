@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public interface RangeActionResult {
 
-    Set<RangeAction> getRangeActions();
+    Set<RangeAction<?>> getRangeActions();
 
     /**
      * It gives the tap position of the PST on which the {@link PstRangeAction} is pointing at after it is optimized.
@@ -36,7 +36,7 @@ public interface RangeActionResult {
      * @param rangeAction: The range action to be studied.
      * @return The set point of the network element defined in the range action after its optimization.
      */
-    double getOptimizedSetPoint(RangeAction rangeAction);
+    double getOptimizedSetPoint(RangeAction<?> rangeAction);
 
     /**
      * It gives a summary of all the optimized taps of the {@link PstRangeAction} present in the {@link Crac}.
@@ -50,5 +50,5 @@ public interface RangeActionResult {
      *
      * @return The map of the range actions associated to their optimized set points.
      */
-    Map<RangeAction, Double> getOptimizedSetPoints();
+    Map<RangeAction<?>, Double> getOptimizedSetPoints();
 }

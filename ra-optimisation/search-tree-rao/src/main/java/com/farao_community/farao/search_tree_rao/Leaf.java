@@ -324,7 +324,7 @@ class Leaf implements OptimizationResult {
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
+    public Set<RangeAction<?>> getRangeActions() {
         if (status == Status.EVALUATED) {
             return preOptimRangeActionResult.getRangeActions();
         } else if (status == Status.OPTIMIZED) {
@@ -350,7 +350,7 @@ class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction rangeAction) {
+    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
         if (status == Status.EVALUATED) {
             return preOptimRangeActionResult.getOptimizedSetPoint(rangeAction);
         } else if (status == Status.OPTIMIZED) {
@@ -376,7 +376,7 @@ class Leaf implements OptimizationResult {
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPoints() {
+    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
         if (status == Status.EVALUATED) {
             return preOptimRangeActionResult.getOptimizedSetPoints();
         } else if (status == Status.OPTIMIZED) {
@@ -398,7 +398,7 @@ class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, RangeAction rangeAction, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, RangeAction<?> rangeAction, Unit unit) {
         if (status == Status.EVALUATED ||
             (status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction))) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, rangeAction, unit);

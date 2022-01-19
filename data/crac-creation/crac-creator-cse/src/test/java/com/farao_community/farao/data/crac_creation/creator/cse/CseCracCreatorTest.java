@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
