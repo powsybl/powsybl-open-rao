@@ -263,6 +263,41 @@ public class SearchTreeTest {
     }
 
     @Test
+    public void runAndIterateOnTreeStopCriterionReached() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtTargetObjectiveValue(0.);
+
+        NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
+        NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
+        when(networkAction1.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(networkAction2.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        availableNetworkActions.add(networkAction1);
+        availableNetworkActions.add(networkAction2);
+        availableNaCombinations.add(new NetworkActionCombination(networkAction1));
+        availableNaCombinations.add(new NetworkActionCombination(networkAction2));
+
+        Leaf childLeaf1 = Mockito.mock(Leaf.class);
+        Leaf childLeaf2 = Mockito.mock(Leaf.class);
+
+        double rootLeafCostAfterOptim = 4.;
+        double childLeaf1CostAfterOptim = -1.;
+        double childLeaf2CostAfterOptim = -2.;
+
+        mockRootLeafCost(rootLeafCostAfterOptim);
+
+        when(childLeaf1.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        when(childLeaf1.getCost()).thenReturn(childLeaf1CostAfterOptim);
+        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(eq(network), eq(availableNaCombinations.get(0)));
+
+        when(childLeaf2.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
+        Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(eq(network), eq(availableNaCombinations.get(1)));
+
+        OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
+        assertEquals(childLeaf1, result);
+    }
+
+    @Test
     public void tooManyRangeActions() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
