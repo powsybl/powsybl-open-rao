@@ -25,6 +25,8 @@
         <module>crac-creation-util</module>
         <module>crac-creator-api</module>
         <module>crac-creator-cse</module>
+        <module>crac-creator-fb-constraint</module>
+
     </modules>
 
 </project>
