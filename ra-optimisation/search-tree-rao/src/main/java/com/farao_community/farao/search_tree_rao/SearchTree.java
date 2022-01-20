@@ -230,7 +230,7 @@ public class SearchTree {
         Set<NetworkAction> availableActionsOnNewMargins = availableNetworkActions.stream().filter(na -> isRemedialActionAvailable(na, optimizedState, optimalLeaf)).collect(Collectors.toSet());
         // Bloom
         final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, availableActionsOnNewMargins);
-        naCombinations.sort(this::orderNetworkActionCombinationsRandomly);
+        naCombinations.sort(this::arbitraryNetworkActionCombinationComparison);
         if (naCombinations.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
             return;
@@ -243,7 +243,7 @@ public class SearchTree {
             networkPool.submit(() -> {
                 try {
                     Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
-                    if (combinationFulfillingStopCriterion.isEmpty() || orderNetworkActionCombinationsRandomly(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
+                    if (combinationFulfillingStopCriterion.isEmpty() || arbitraryNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
                         // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
                         // from previous optimal leaf starting point
                         // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
@@ -271,7 +271,7 @@ public class SearchTree {
         }
     }
 
-    private int orderNetworkActionCombinationsRandomly(NetworkActionCombination ra1, NetworkActionCombination ra2) {
+    private int arbitraryNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
         return Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode();
     }
 
@@ -302,7 +302,7 @@ public class SearchTree {
         TECHNICAL_LOGS.debug("Evaluated {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
             if (!stopCriterionReached(leaf)) {
-                if (combinationFulfillingStopCriterion.isPresent() && orderNetworkActionCombinationsRandomly(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
+                if (combinationFulfillingStopCriterion.isPresent() && arbitraryNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
                     topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
                 } else {
                     // We base the results on the results of the evaluation of the leaf in case something has been updated
@@ -396,14 +396,14 @@ public class SearchTree {
             if (combinationFulfillingStopCriterion.isEmpty() && leaf.getCost() < optimalLeaf.getCost()) {
                 optimalLeaf = leaf;
                 if (stopCriterionReached(leaf)) {
-                    topLevelLogger.info("Stop criterion reached, other threads may skip optimization.");
+                    TECHNICAL_LOGS.info("Stop criterion reached, other threads may skip optimization.");
                     combinationFulfillingStopCriterion = Optional.of(networkActionCombination);
                 }
             }
             // special case: stop criterion has been reached
             if (combinationFulfillingStopCriterion.isPresent()
                 && stopCriterionReached(leaf)
-                && orderNetworkActionCombinationsRandomly(networkActionCombination, combinationFulfillingStopCriterion.get()) < 0) {
+                && arbitraryNetworkActionCombinationComparison(networkActionCombination, combinationFulfillingStopCriterion.get()) < 0) {
                 optimalLeaf = leaf;
                 combinationFulfillingStopCriterion = Optional.of(networkActionCombination);
             }

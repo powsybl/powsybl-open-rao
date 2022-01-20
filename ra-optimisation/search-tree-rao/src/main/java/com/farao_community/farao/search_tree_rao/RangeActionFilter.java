@@ -267,7 +267,7 @@ class RangeActionFilter {
         Double gain1 = computePotentialGain(ra1, cnec, optimizationResult);
         Double gain2 = computePotentialGain(ra2, cnec, optimizationResult);
         int comparison = gain1.compareTo(gain2);
-        return comparison != 0 ? comparison : orderRangeActionsRandomly(ra1, ra2);
+        return comparison != 0 ? comparison : arbitraryRangeActionComparison(ra1, ra2);
     }
 
     private Double computePotentialGain(RangeAction<?> rangeAction, FlowCnec cnec, OptimizationResult optimizationResult) {
@@ -292,7 +292,7 @@ class RangeActionFilter {
 
     }
 
-    private int orderRangeActionsRandomly(RangeAction<?> ra1, RangeAction<?> ra2) {
+    private int arbitraryRangeActionComparison(RangeAction<?> ra1, RangeAction<?> ra2) {
         return Hashing.crc32().hashString(ra1.getId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getId(), StandardCharsets.UTF_8).hashCode();
     }
 
