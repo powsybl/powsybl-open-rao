@@ -24,9 +24,11 @@ import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.farao_community.farao.rao_commons.result_api.PrePerimeterResult;
 import com.farao_community.farao.util.AbstractNetworkPool;
+import com.google.common.hash.Hashing;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -76,6 +78,7 @@ public class SearchTree {
     private Leaf previousDepthOptimalLeaf;
     private TreeParameters treeParameters;
     private LinearOptimizerParameters linearOptimizerParameters;
+    private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
     void initLeaves() {
         rootLeaf = makeLeaf(network, prePerimeterOutput);
@@ -227,6 +230,7 @@ public class SearchTree {
         Set<NetworkAction> availableActionsOnNewMargins = availableNetworkActions.stream().filter(na -> isRemedialActionAvailable(na, optimizedState, optimalLeaf)).collect(Collectors.toSet());
         // Bloom
         final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, availableActionsOnNewMargins);
+        naCombinations.sort(this::arbitraryNetworkActionCombinationComparison);
         if (naCombinations.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
             return;
@@ -238,15 +242,20 @@ public class SearchTree {
         naCombinations.forEach(naCombination ->
             networkPool.submit(() -> {
                 try {
-                    Network networkClone = networkPool.getAvailableNetwork();
-                    // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
-                    // from previous optimal leaf starting point
-                    // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
-                    previousDepthOptimalLeaf.getRangeActions()
-                        .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
-                    optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
-                    networkPool.releaseUsedNetwork(networkClone);
-                    TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+                    Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
+                    if (combinationFulfillingStopCriterion.isEmpty() || arbitraryNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
+                        // Apply range actions that has been changed by the previous leaf on the network to start next depth leaves
+                        // from previous optimal leaf starting point
+                        // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
+                        previousDepthOptimalLeaf.getRangeActions()
+                            .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
+                        optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
+                        networkPool.releaseUsedNetwork(networkClone);
+                        TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+                    } else {
+                        topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
+                        networkPool.releaseUsedNetwork(networkClone);
+                    }
                 } catch (Exception e) {
                     BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
                     Thread.currentThread().interrupt();
@@ -260,6 +269,10 @@ public class SearchTree {
         if (!success) {
             throw new FaraoException("At least one network action combination could not be evaluated within the given time (24 hours). This should not happen.");
         }
+    }
+
+    private int arbitraryNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
+        return Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).hashCode() - Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).hashCode();
     }
 
     private String printNetworkActions(Set<NetworkAction> networkActions) {
@@ -289,11 +302,17 @@ public class SearchTree {
         TECHNICAL_LOGS.debug("Evaluated {}", leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
             if (!stopCriterionReached(leaf)) {
-                // We base the results on the results of the evaluation of the leaf in case something has been updated
-                optimizeLeaf(leaf, leaf.getPreOptimBranchResult());
-                topLevelLogger.info("Optimized {}", leaf);
+                if (combinationFulfillingStopCriterion.isPresent() && arbitraryNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
+                    topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
+                } else {
+                    // We base the results on the results of the evaluation of the leaf in case something has been updated
+                    optimizeLeaf(leaf, leaf.getPreOptimBranchResult());
+                    topLevelLogger.info("Optimized {}", leaf);
+                }
+            } else {
+                topLevelLogger.info("Evaluated {}", leaf);
             }
-            updateOptimalLeaf(leaf);
+            updateOptimalLeaf(leaf, naCombination);
         } else {
             topLevelLogger.info("Could not evaluate leaf: {}", leaf);
         }
@@ -373,9 +392,23 @@ public class SearchTree {
         }
     }
 
-    private synchronized void updateOptimalLeaf(Leaf leaf) {
+    private synchronized void updateOptimalLeaf(Leaf leaf, NetworkActionCombination networkActionCombination) {
         if (improvedEnough(leaf)) {
-            optimalLeaf = leaf;
+            // nominal case: stop criterion hasn't been reached yet
+            if (combinationFulfillingStopCriterion.isEmpty() && leaf.getCost() < optimalLeaf.getCost()) {
+                optimalLeaf = leaf;
+                if (stopCriterionReached(leaf)) {
+                    TECHNICAL_LOGS.info("Stop criterion reached, other threads may skip optimization.");
+                    combinationFulfillingStopCriterion = Optional.of(networkActionCombination);
+                }
+            }
+            // special case: stop criterion has been reached
+            if (combinationFulfillingStopCriterion.isPresent()
+                && stopCriterionReached(leaf)
+                && arbitraryNetworkActionCombinationComparison(networkActionCombination, combinationFulfillingStopCriterion.get()) < 0) {
+                optimalLeaf = leaf;
+                combinationFulfillingStopCriterion = Optional.of(networkActionCombination);
+            }
         }
     }
 
@@ -400,8 +433,8 @@ public class SearchTree {
     }
 
     /**
-     * This method compares the leaf best cost to the optimal leaf best cost taking into account the minimum impact
-     * thresholds (absolute and relative)
+     * This method checks if the leaf's cost respects the minimum impact thresholds
+     * (absolute and relative) compared to the previous depth's optimal leaf.
      *
      * @param leaf: Leaf that has to be compared with the optimal leaf.
      * @return True if the leaf cost diminution is enough compared to optimal leaf.
@@ -410,12 +443,10 @@ public class SearchTree {
         double relativeImpact = Math.max(treeParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
         double absoluteImpact = Math.max(treeParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
 
-        double currentBestCost = optimalLeaf.getCost();
         double previousDepthBestCost = previousDepthOptimalLeaf.getCost();
         double newCost = leaf.getCost();
 
-        return newCost < currentBestCost
-            && previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
+        return previousDepthBestCost - absoluteImpact > newCost // enough absolute impact
             && (1 - Math.signum(previousDepthBestCost) * relativeImpact) * previousDepthBestCost > newCost; // enough relative impact
     }
 
