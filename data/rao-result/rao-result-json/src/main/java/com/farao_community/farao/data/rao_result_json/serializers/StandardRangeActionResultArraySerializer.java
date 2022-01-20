@@ -175,7 +175,7 @@ final class StandardRangeActionResultArraySerializer {
 
     private static boolean hasSameNetworkElementAndKeys(InjectionRangeAction rangeAction, InjectionRangeAction otherRangeAction) {
 
-        if (rangeAction.getInjectionDistributionKeys().keySet().equals(rangeAction.getInjectionDistributionKeys().keySet())) {
+        if (rangeAction.getInjectionDistributionKeys().keySet().equals(otherRangeAction.getInjectionDistributionKeys().keySet())) {
             return false;
         }
         return rangeAction.getInjectionDistributionKeys().entrySet().stream()
