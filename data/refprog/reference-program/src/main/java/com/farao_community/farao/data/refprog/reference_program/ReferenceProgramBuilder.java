@@ -28,12 +28,12 @@ public final class ReferenceProgramBuilder {
 
     }
 
-    private static void computeRefFlowOnCurrentNetwork(Network network, LoadFlowParameters loadFlowParameters) {
+    private static void computeRefFlowOnCurrentNetwork(Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         String errorMsg = "LoadFlow could not be computed. The ReferenceProgram will be built without a prior LoadFlow computation";
         try {
             // we need this separate load flow to get reference flow on cnec.
             // because reference flow from sensi is not yet fully implemented in powsybl
-            LoadFlowResult loadFlowResult = LoadFlow.run(network, loadFlowParameters);
+            LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
             if (!loadFlowResult.isOk()) {
                 BUSINESS_WARNS.warn(errorMsg);
             }
@@ -42,8 +42,8 @@ public final class ReferenceProgramBuilder {
         }
     }
 
-    public static ReferenceProgram buildReferenceProgram(Network network, LoadFlowParameters loadFlowParameters) {
-        computeRefFlowOnCurrentNetwork(network, loadFlowParameters);
+    public static ReferenceProgram buildReferenceProgram(Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+        computeRefFlowOnCurrentNetwork(network, loadFlowProvider, loadFlowParameters);
         Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         List<ReferenceExchangeData> referenceExchangeDataList = new ArrayList<>();
 

@@ -109,6 +109,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
     public static final PstOptimizationApproximation DEFAULT_PST_OPTIMIZATION_APPROXIMATION = PstOptimizationApproximation.CONTINUOUS;
     public static final boolean DEFAULT_FORBID_COST_INCREASE = false;
+    public static final String DEFAULT_LOADFLOW_PROVIDER = "Hades2";
+    public static final String DEFAULT_SENSITIVITY_PROVIDER = "Sensi2";
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -128,6 +130,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
     private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
+    private String loadFlowProvider = DEFAULT_LOADFLOW_PROVIDER;
+    private String sensitivityProvider = DEFAULT_SENSITIVITY_PROVIDER;
     private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityAnalysisParameters();
     private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
     private List<ZoneToZonePtdfDefinition> relativeMarginPtdfBoundaries = new ArrayList<>();
@@ -247,6 +251,22 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public SensitivityAnalysisParameters getDefaultSensitivityAnalysisParameters() {
         return defaultSensitivityAnalysisParameters;
+    }
+
+    public String getLoadFlowProvider() {
+        return loadFlowProvider;
+    }
+
+    public void setLoadFlowProvider(String loadFlowProvider) {
+        this.loadFlowProvider = loadFlowProvider;
+    }
+
+    public String getSensitivityProvider() {
+        return sensitivityProvider;
+    }
+
+    public void setSensitivityProvider(String sensitivityProvider) {
+        this.sensitivityProvider = sensitivityProvider;
     }
 
     public RaoParameters setDefaultSensitivityAnalysisParameters(SensitivityAnalysisParameters sensiParameters) {
@@ -472,6 +492,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setSolverSpecificParameters(config.getStringProperty("solver-specific-parameters", DEFAULT_SOLVER_SPECIFIC_PARAMETERS));
                 parameters.setPstOptimizationApproximation(config.getEnumProperty("pst-optimization-approximation", PstOptimizationApproximation.class, DEFAULT_PST_OPTIMIZATION_APPROXIMATION));
                 parameters.setForbidCostIncrease(config.getBooleanProperty("forbid-cost-increase", DEFAULT_FORBID_COST_INCREASE));
+                parameters.setSensitivityProvider(config.getStringProperty("sensitivity-provider", DEFAULT_SENSITIVITY_PROVIDER));
+                parameters.setLoadFlowProvider(config.getStringProperty("load-flow-provider", DEFAULT_LOADFLOW_PROVIDER));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

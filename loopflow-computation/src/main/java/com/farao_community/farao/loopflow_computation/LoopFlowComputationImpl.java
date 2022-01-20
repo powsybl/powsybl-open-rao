@@ -44,10 +44,11 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     }
 
     @Override
-    public LoopFlowResult calculateLoopFlows(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs) {
+    public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs) {
         this.network = network;
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withSensitivityProviderName(sensitivityProvider)
             .withDefaultParameters(sensitivityAnalysisParameters)
             .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
             .build();

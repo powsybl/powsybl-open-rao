@@ -43,6 +43,8 @@ public class FlowbasedComputationParameters extends AbstractExtendable<Flowbased
 
     private SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
 
+    private String sensitivityProvider = "Sensi2";
+
     public static FlowbasedComputationParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -81,5 +83,13 @@ public class FlowbasedComputationParameters extends AbstractExtendable<Flowbased
     public FlowbasedComputationParameters setSensitivityAnalysisParameters(SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         this.sensitivityAnalysisParameters = Objects.requireNonNull(sensitivityAnalysisParameters);
         return this;
+    }
+
+    public String getSensitivityProvider() {
+        return sensitivityProvider;
+    }
+
+    public void setSensitivityProvider(String sensitivityProvider) {
+        this.sensitivityProvider = sensitivityProvider;
     }
 }
