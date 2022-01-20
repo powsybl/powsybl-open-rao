@@ -15,20 +15,18 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.result_api.OptimizationResult;
 import com.google.common.hash.Hashing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 class RangeActionFilter {
-    static final Logger LOGGER = LoggerFactory.getLogger(RangeActionFilter.class);
-
     private final Leaf leaf;
     private final Set<RangeAction<?>> rangeActionsToOptimize;
     private final State optimizedState;
@@ -71,7 +69,7 @@ class RangeActionFilter {
             if (pstsForTso.size() > maxPst) {
                 Set<RangeAction<?>> rangeActionsToRemove = computeRangeActionsToExclude(pstsForTso, maxPst);
                 if (!rangeActionsToRemove.isEmpty()) {
-                    LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of pst for tso {}", rangeActionsToRemove.size(), tso);
+                    TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of pst for tso {}", rangeActionsToRemove.size(), tso);
                     rangeActionsToOptimize.removeAll(rangeActionsToRemove);
                 }
             }
@@ -107,14 +105,14 @@ class RangeActionFilter {
 
         Set<RangeAction<?>> rangeActionsToRemove = rangeActionsToOptimize.stream().filter(rangeAction -> !tsosToKeep.contains(rangeAction.getOperator())).collect(Collectors.toSet());
         if (!rangeActionsToRemove.isEmpty()) {
-            LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
+            TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
     }
 
     Set<String> sortTsosToKeepByPotentialGainAndGroupId(Set<String> activatedTsos, int maxTso) {
         List<RangeAction<?>> rangeActionsSortedByPotentialGain = rangeActionsToOptimize.stream()
-                .sorted((ra1, ra2) -> -comparePotentialGain(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                .sorted((ra1, ra2) -> -comparePotentialGain(ra1, ra2, getWorstElement(leaf), leaf))
                 .collect(Collectors.toList());
 
         Set<String> tsosToKeep = new HashSet<>(activatedTsos);
@@ -144,7 +142,7 @@ class RangeActionFilter {
                 // remove aligned pst from range actions to optimize
                 if (tsosToKeepIfAlignedPstAreKept.size() > maxTso) {
                     rangeActionsToOptimize.removeAll(raWithSameGroupId);
-                    LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos on aligned PSTs.", raWithSameGroupId.size());
+                    TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of tsos on aligned PSTs.", raWithSameGroupId.size());
                 } else {
                     tsosToKeep = tsosToKeepIfAlignedPstAreKept;
                 }
@@ -165,7 +163,7 @@ class RangeActionFilter {
         int numberOfNetworkActionsAlreadyApplied = leaf.getActivatedNetworkActions().size();
         Set<RangeAction<?>> rangeActionsToRemove = computeRangeActionsToExclude(rangeActionsToOptimize, treeParameters.getMaxRa() - numberOfNetworkActionsAlreadyApplied);
         if (!rangeActionsToRemove.isEmpty()) {
-            LOGGER.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
+            TECHNICAL_LOGS.info("{} range actions have been filtered out in order to respect the maximum allowed number of remedial actions", rangeActionsToRemove.size());
             rangeActionsToOptimize.removeAll(rangeActionsToRemove);
         }
     }
@@ -210,7 +208,7 @@ class RangeActionFilter {
             return;
         }
         List<RangeAction<?>> rangeActionsSortedByPotentialGain = rangeActions.stream()
-                .sorted((ra1, ra2) -> comparePrioritiesAndPotentialGains(ra1, ra2, leaf.getMostLimitingElements(1).get(0), leaf))
+                .sorted((ra1, ra2) -> comparePrioritiesAndPotentialGains(ra1, ra2, getWorstElement(leaf), leaf))
                 .collect(Collectors.toList());
 
         Set<String> groupIdHasBeenExplored = new HashSet<>();
@@ -263,6 +261,9 @@ class RangeActionFilter {
     }
 
     private int comparePotentialGain(RangeAction<?> ra1, RangeAction<?> ra2, FlowCnec cnec, OptimizationResult optimizationResult) {
+        if (cnec == null) {
+            return 0;
+        }
         Double gain1 = computePotentialGain(ra1, cnec, optimizationResult);
         Double gain2 = computePotentialGain(ra2, cnec, optimizationResult);
         int comparison = gain1.compareTo(gain2);
@@ -297,5 +298,23 @@ class RangeActionFilter {
 
     boolean isRangeActionUsed(RangeAction<?> rangeAction, Leaf leaf) {
         return leaf.getRangeActions().contains(rangeAction) && Math.abs(leaf.getOptimizedSetPoint(rangeAction) - prePerimeterSetPoints.get(rangeAction)) >= 1e-6;
+    }
+
+    /**
+     * Returns most limiting or most costly element in leaf
+     */
+    static FlowCnec getWorstElement(Leaf leaf) {
+        List<FlowCnec> mostLimiting = leaf.getMostLimitingElements(1);
+        if (!mostLimiting.isEmpty()) {
+            return mostLimiting.get(0);
+        }
+        Optional<String> worstVirtualCost = leaf.getVirtualCostNames().stream().max(Comparator.comparingDouble(leaf::getVirtualCost));
+        if (worstVirtualCost.isPresent()) {
+            List<FlowCnec> mostCostly = leaf.getCostlyElements(worstVirtualCost.get(), 1);
+            if (!mostCostly.isEmpty()) {
+                return mostCostly.get(0);
+            }
+        }
+        return null;
     }
 }

@@ -8,20 +8,19 @@
 package com.farao_community.farao.rao_commons.linear_optimisation;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_commons.linear_optimisation.fillers.ProblemFiller;
-import com.farao_community.farao.rao_commons.result_api.LinearProblemStatus;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
+import com.farao_community.farao.rao_commons.result_api.LinearProblemStatus;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
 import com.farao_community.farao.rao_commons.result_api.SensitivityResult;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.google.ortools.linearsolver.*;
 import org.apache.commons.lang3.NotImplementedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -34,13 +33,12 @@ import static java.lang.String.format;
  */
 public final class LinearProblem {
     private static final String OPT_PROBLEM_NAME = "range action opt problem";
-    private static final Logger LOGGER = LoggerFactory.getLogger(LinearProblem.class);
 
     static {
         try {
             NativeLibraryLoader.loadNativeLibrary("jniortools");
         } catch (Exception e) {
-            LOGGER.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+            FaraoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
         }
     }
 

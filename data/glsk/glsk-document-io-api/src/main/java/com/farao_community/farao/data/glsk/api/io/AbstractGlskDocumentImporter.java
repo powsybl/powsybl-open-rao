@@ -7,8 +7,7 @@
 
 package com.farao_community.farao.data.glsk.api.io;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -22,8 +21,6 @@ import java.io.InputStream;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public abstract class AbstractGlskDocumentImporter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGlskDocumentImporter.class);
-
     protected Document document;
 
     protected boolean setDocument(InputStream inputStream) {
@@ -36,7 +33,7 @@ public abstract class AbstractGlskDocumentImporter {
         try {
             document = documentBuilderFactory.newDocumentBuilder().parse(inputStream);
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOGGER.warn("An exception occurred trying to read GLSK document. It could not be imported.");
+            FaraoLoggerProvider.BUSINESS_WARNS.warn("An exception occurred trying to read GLSK document. It could not be imported.");
             document = null; // As something failed ensure document is null, in case import method is called afterwards
             return false;
         }

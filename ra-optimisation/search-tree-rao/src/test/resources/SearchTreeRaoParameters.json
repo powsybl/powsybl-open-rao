@@ -28,6 +28,8 @@
   "solver-specific-parameters" : null,
   "pst-optimization-approximation" : "CONTINUOUS",
   "forbid-cost-increase" : false,
+  "load-flow-provider" : "Hades2",
+  "sensitivity-provider" : "Sensi2",
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {

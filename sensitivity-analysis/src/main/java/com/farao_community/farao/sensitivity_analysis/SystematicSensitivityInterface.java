@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.sensitivity_analysis;
 
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
@@ -14,8 +15,6 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -29,8 +28,10 @@ import java.util.Set;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class SystematicSensitivityInterface {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystematicSensitivityInterface.class);
+    /**
+     * Name of sensitivity analysis provider
+     */
+    private String sensitivityProvider;
 
     /**
      * Sensitivity configurations, containing the default and fallback configurations
@@ -59,6 +60,7 @@ public final class SystematicSensitivityInterface {
      * Builder
      */
     public static final class SystematicSensitivityInterfaceBuilder {
+        private String sensitivityProvider;
         private SensitivityAnalysisParameters defaultParameters;
         private SensitivityAnalysisParameters fallbackParameters;
         private MultipleSensitivityProvider multipleSensitivityProvider = new MultipleSensitivityProvider();
@@ -67,6 +69,11 @@ public final class SystematicSensitivityInterface {
 
         private SystematicSensitivityInterfaceBuilder() {
 
+        }
+
+        public SystematicSensitivityInterfaceBuilder withSensitivityProviderName(String sensitivityProvider) {
+            this.sensitivityProvider = sensitivityProvider;
+            return this;
         }
 
         public SystematicSensitivityInterfaceBuilder withFallbackParameters(SensitivityAnalysisParameters fallbackParameters) {
@@ -103,7 +110,9 @@ public final class SystematicSensitivityInterface {
         }
 
         public SystematicSensitivityInterface build() {
-
+            if (Objects.isNull(sensitivityProvider)) {
+                throw new SensitivityAnalysisException("You must provide a sensitivity provider implementation name when building a SystematicSensitivityInterface.");
+            }
             if (!providerInitialised) {
                 throw new SensitivityAnalysisException("Sensitivity provider is mandatory when building a SystematicSensitivityInterface.");
             }
@@ -111,6 +120,7 @@ public final class SystematicSensitivityInterface {
                 defaultParameters = new SensitivityAnalysisParameters();
             }
             SystematicSensitivityInterface systematicSensitivityInterface = new SystematicSensitivityInterface();
+            systematicSensitivityInterface.sensitivityProvider = sensitivityProvider;
             systematicSensitivityInterface.defaultParameters = defaultParameters;
             systematicSensitivityInterface.fallbackParameters = fallbackParameters;
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
@@ -151,9 +161,9 @@ public final class SystematicSensitivityInterface {
             return result;
 
         } catch (SensitivityAnalysisException e) {
-            LOGGER.debug("Exception occured during sensitivity analysis", e);
+            FaraoLoggerProvider.TECHNICAL_LOGS.debug("Exception occurred during sensitivity analysis", e);
             if (!fallbackMode && fallbackParameters != null) { // default mode fails, retry in fallback mode
-                LOGGER.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
+                FaraoLoggerProvider.BUSINESS_WARNS.warn("Error while running the sensitivity analysis with default parameters, fallback sensitivity parameters are now used.");
                 fallbackMode = true;
                 refreshRequestedUnits();
                 return run(network);
@@ -182,7 +192,7 @@ public final class SystematicSensitivityInterface {
     private SystematicSensitivityResult runWithConfig(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters) {
         try {
             SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters);
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, sensitivityAnalysisParameters, sensitivityProvider);
 
             if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
                 throw new SensitivityAnalysisException("Some output data of the sensitivity analysis are missing.");

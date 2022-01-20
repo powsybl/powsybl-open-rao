@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotEmpty;
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
@@ -22,8 +23,6 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAdder<InjectionRangeActionAdder> implements InjectionRangeActionAdder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(InjectionRangeActionAdderImpl.class);
 
     private final List<DistributionKeyOnNetworkElement> distributionKeys;
 
@@ -44,7 +43,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
     @Override
     public InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName) {
-        distributionKeys.add(new DistributionKeyOnNetworkElement(networkElementId, networkElementName, key));
+        distributionKeys.add(new DistributionKeyOnNetworkElement(key, networkElementId, networkElementName));
         return this;
     }
 
@@ -64,7 +63,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
         // check usage rules
         if (usageRules.isEmpty()) {
-            LOGGER.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
         Map<NetworkElement, Double> neAndDk = addNetworkElements();
@@ -80,7 +79,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     private Map<NetworkElement, Double> addNetworkElements() {
         Map<NetworkElement, Double> distributionKeyMap = new HashMap<>();
         distributionKeys.forEach(sK -> {
-            if (sK.distributionKey != 0.0) {
+            if (Math.abs(sK.distributionKey) > 1e-3) {
                 NetworkElement networkElement = this.getCrac().addNetworkElement(sK.networkElementId, sK.networkElementName);
                 distributionKeyMap.merge(networkElement, sK.distributionKey, Double::sum);
             }
@@ -93,7 +92,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         String networkElementName;
         double distributionKey;
 
-        DistributionKeyOnNetworkElement(String networkElementId, String networkElementName, double distributionKey) {
+        DistributionKeyOnNetworkElement(double distributionKey, String networkElementId, String networkElementName) {
             this.networkElementId = networkElementId;
             this.networkElementName = networkElementName;
             this.distributionKey = distributionKey;

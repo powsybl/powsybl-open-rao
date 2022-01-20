@@ -6,14 +6,13 @@
  */
 package com.farao_community.farao.rao_commons.objective_function_evaluator;
 
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.rao_api.parameters.LoopFlowParameters;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
@@ -23,8 +22,6 @@ import java.util.stream.Collectors;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LoopFlowViolationCostEvaluator implements CostEvaluator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoopFlowViolationCostEvaluator.class);
-
     private final Set<FlowCnec> loopflowCnecs;
     private final FlowResult initialLoopFLowResult;
     private final double loopFlowViolationCost;
@@ -47,18 +44,13 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus) {
-        Map<FlowCnec, Double> loopflowCosts = new HashMap<>();
-        loopflowCnecs.forEach(flowCnec -> loopflowCosts.put(flowCnec, getLoopFlowExcess(flowResult, flowCnec) * loopFlowViolationCost));
-        Set<FlowCnec> sortedLoopflows = new TreeSet<>((c1, c2) -> -loopflowCosts.get(c1).compareTo(loopflowCosts.get(c2)));
-        sortedLoopflows.addAll(loopflowCnecs);
-
         double cost = loopflowCnecs
                 .stream()
                 .mapToDouble(cnec -> getLoopFlowExcess(flowResult, cnec) * loopFlowViolationCost)
                 .sum();
 
         if (cost > 0) {
-            LOGGER.info("Some loopflow constraints are not respected.");
+            FaraoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
         }
 
         return cost;
