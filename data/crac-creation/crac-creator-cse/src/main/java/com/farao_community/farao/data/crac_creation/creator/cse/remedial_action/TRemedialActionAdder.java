@@ -223,11 +223,20 @@ public class TRemedialActionAdder {
 
         // ---- check if generators are present
         if (!generatorFromHelper.isValid() || !generatorToHelper.isValid()) {
-            GeneratorHelper invalidGenerator = generatorFromHelper.isValid() ? generatorToHelper : generatorFromHelper;
+
+            String importStatusDetails;
+            if (generatorToHelper.isValid()) {
+                importStatusDetails = generatorFromHelper.getDetail();
+            } else if (generatorFromHelper.isValid()) {
+                importStatusDetails = generatorToHelper.getDetail();
+            } else {
+                importStatusDetails = generatorFromHelper.getDetail() + " & " + generatorToHelper.getDetail();
+            }
+
             cseCracCreationContext.addRemedialActionCreationContext(
                 CseHvdcCreationContext.notImported(tRemedialAction,
                     ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
-                    invalidGenerator.getDetail(),
+                    importStatusDetails,
                     hvdcNodes.getFromNode().getV(),
                     hvdcNodes.getToNode().getV()));
             return;
