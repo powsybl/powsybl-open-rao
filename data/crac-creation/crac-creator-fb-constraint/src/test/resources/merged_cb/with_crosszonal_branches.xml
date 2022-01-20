@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<FlowBasedConstraintDocument DtdRelease="4" DtdVersion="0" xmlns="flowbased" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flowbasedconstraintdocument-17.xsd">
+  <DocumentIdentification v="17XTSO-CS------W-20190108-F301v1"/>
+  <DocumentVersion v="1"/>
+  <DocumentType v="B06"/>
+  <ProcessType v="A01"/>
+  <SenderIdentification codingScheme="A01" v="17XTSO-CS------W"/>
+  <SenderRole v="A36"/>
+  <ReceiverIdentification codingScheme="A01" v="22XCORESO------S"/>
+  <ReceiverRole v="A44"/>
+  <CreationDateTime v="2019-08-15T14:07:28Z"/>
+  <ConstraintTimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+  <Domain codingScheme="A01" v="10YDOM-REGION-1V"/>
+  <criticalBranches>
+    <criticalBranch id="INTRA_ZONAL_PREVENTIVE">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123450" from="BBE1AA1 " name="[BE-BE] BBE1 - BBE2 [DIR]" order="1" to="BBE2AA1 "/>
+      <imaxFactor>1</imaxFactor>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxFactor>1</permanentImaxFactor>
+      <temporaryImaxFactor>1</temporaryImaxFactor>
+      <frmMw>138</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>BE</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="INTRA_ZONAL_CURATIVE">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123450" from="BBE1AA1 " name="[BE-BE] BBE1 - BBE2 [DIR]" order="1" to="BBE2AA1 "/>
+      <imaxA>800</imaxA>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxFactor>1</permanentImaxFactor>
+      <temporaryImaxFactor>1</temporaryImaxFactor>
+      <frmMw>138</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>BE</tsoOrigin>
+      <outage id="BE_CO_00001" location="BE-NL" name="N-2 BE-NL">
+        <branch eic="1234567890123450" from="X_NLBE1 " order="1" to="BBE3AA1 "/>
+        <branch eic="1234567890123450" from="BBE3AA1 " order="1" to="BBE1AA1 "/>
+      </outage>
+    </criticalBranch>
+    <criticalBranch id="CROSS_ZONAL_PREVENTIVE">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123450" from="NNL3AA1 " name="[NL-DE] NNL3 - XNLDE [DIR]" order="1" to="X_NLDE1 "/>
+      <imaxFactor>1</imaxFactor>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxFactor>1</permanentImaxFactor>
+      <temporaryImaxFactor>1</temporaryImaxFactor>
+      <frmMw>138</frmMw>
+      <minRAMfactor>25</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>NL</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="CROSS_ZONAL_CURATIVE">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123450" from="NNL3AA1 " name="[NL-DE] NNL3 - XNLDE [OPP]" order="1" to="X_NLDE1 "/>
+      <imaxFactor>1</imaxFactor>
+      <imaxType>FIXED</imaxType>
+      <permanentImaxFactor>1</permanentImaxFactor>
+      <temporaryImaxFactor>1</temporaryImaxFactor>
+      <frmMw>138</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>OPPOSITE</direction>
+      <tsoOrigin>NL</tsoOrigin>
+      <outage id="DE_CO_00001" location="DE" name="N-1 DE-FR">
+        <branch eic="1234567890123450" from="X_DEFR1 " order="1" to="DDE3AA1 "/>
+      </outage>
+    </criticalBranch>
+  </criticalBranches>
+</FlowBasedConstraintDocument>

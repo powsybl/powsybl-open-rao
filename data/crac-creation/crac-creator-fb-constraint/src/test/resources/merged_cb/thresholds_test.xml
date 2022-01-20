@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<FlowBasedConstraintDocument DtdRelease="4" DtdVersion="0" xmlns="flowbased" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flowbasedconstraintdocument-18.xsd">
+  <DocumentIdentification v="17XTSO-CS------W-20190108-F301v1"/>
+  <DocumentVersion v="1"/>
+  <DocumentType v="B06"/>
+  <ProcessType v="A01"/>
+  <SenderIdentification codingScheme="A01" v="17XTSO-CS------W"/>
+  <SenderRole v="A36"/>
+  <ReceiverIdentification codingScheme="A01" v="22XCORESO------S"/>
+  <ReceiverRole v="A44"/>
+  <CreationDateTime v="2019-08-15T14:07:28Z"/>
+  <ConstraintTimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+  <Domain codingScheme="A01" v="10Y1001C--00059P"/>
+  <criticalBranches>
+    <criticalBranch id="CBCO_000001">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123451" from="DDE2AA1" name="XXX" order="1" to="DDE3AA1"/>
+      <imaxType>SEASONAL</imaxType>
+      <frmMw>0</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>HU</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="CBCO_000002">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123452" from="NNL1AA11" name="XXX" order="1" to="NNL3AA11"/>
+      <imaxA>200</imaxA>
+      <imaxType>SEASONAL</imaxType>
+      <frmMw>0</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>HU</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="CBCO_000003">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123453" from="FFR2AA11" name="XXX" order="1" to="FFR3AA11"/>
+      <imaxFactor>0.8</imaxFactor>
+      <imaxType>SEASONAL</imaxType>
+      <frmMw>0</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>HU</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="CBCO_000004">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123453" from="FFR1AA11" name="XXX" order="7" to="FFR2AA11"/>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxA>300</permanentImaxA>
+      <frmMw>0</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>HU</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="CBCO_000005">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123453" from="NNL1AA11" name="XXX" order="1" to="NNL2AA11"/>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxFactor>1.2</permanentImaxFactor>
+      <frmMw>0</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>HU</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="CBCO_000006">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123453" from="BBE1AA11" name="XXX" order="5" to="BBE3AA11"/>
+      <imaxType>SEASONAL</imaxType>
+      <temporaryImaxA>200</temporaryImaxA>
+      <frmMw>0</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>HU</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="CBCO_000007">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123453" from="DDE1AA11" name="XXX" order="1" to="DDE2AA11"/>
+      <imaxType>SEASONAL</imaxType>
+      <temporaryImaxFactor>0.8</temporaryImaxFactor>
+      <frmMw>0</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>HU</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="CBCO_000008">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123453" from="BBE1AA11" name="XXX" order="5" to="BBE2AA11"/>
+      <imaxA>200</imaxA>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxA>300</permanentImaxA>
+      <temporaryImaxA>100</temporaryImaxA>
+      <frmMw>0</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>HU</tsoOrigin>
+    </criticalBranch>
+    <criticalBranch id="CBCO_000009">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <branch eic="1234567890123453" from="DDE1AA11" name="XXX" order="1" to="DDE3AA11"/>
+      <imaxFactor>1.2</imaxFactor>
+      <imaxType>SEASONAL</imaxType>
+      <permanentImaxFactor>0.8</permanentImaxFactor>
+      <temporaryImaxFactor>0.6</temporaryImaxFactor>
+      <frmMw>0</frmMw>
+      <minRAMfactor>70</minRAMfactor>
+      <CNEC>true</CNEC>
+      <MNEC>false</MNEC>
+      <direction>DIRECT</direction>
+      <tsoOrigin>HU</tsoOrigin>
+    </criticalBranch>
+  </criticalBranches>
+</FlowBasedConstraintDocument>
