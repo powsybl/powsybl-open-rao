@@ -50,6 +50,7 @@ public class GeneratorHelperTest {
         assertFalse(generatorHelper.isAltered());
         assertEquals(-9000, generatorHelper.getPmin(), 1e-3);
         assertEquals(9000, generatorHelper.getPmax(), 1e-3);
+        assertEquals(1500, generatorHelper.getCurrentP(), 1e-3);
     }
 
     @Test
