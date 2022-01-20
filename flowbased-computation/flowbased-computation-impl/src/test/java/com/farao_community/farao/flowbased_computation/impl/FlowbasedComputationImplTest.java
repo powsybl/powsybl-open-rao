@@ -53,6 +53,7 @@ public class FlowbasedComputationImplTest {
         network = ExampleGenerator.network();
         glsk = ExampleGenerator.glskProvider();
         parameters = FlowbasedComputationParameters.load();
+        parameters.setSensitivityProvider("MockSensitivity");
     }
 
     @Test

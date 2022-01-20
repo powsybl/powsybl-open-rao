@@ -63,11 +63,12 @@ public class SystematicSensitivityInterfaceTest {
     @Test
     public void testRunDefaultConfigOk() {
         // mock sensi service - run OK
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
 
         // run engine
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withSensitivityProviderName("default-impl-name")
             .withDefaultParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .build();
@@ -90,10 +91,11 @@ public class SystematicSensitivityInterfaceTest {
     @Test
     public void testRunDefaultConfigFailsAndNoFallback() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withSensitivityProviderName("default-impl-name")
             .withDefaultParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
             .build();
@@ -110,13 +112,14 @@ public class SystematicSensitivityInterfaceTest {
     @Test
     public void testRunDefaultConfigFailsButFallbackOk() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters), Mockito.anyString()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters), Mockito.anyString()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultOk);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withSensitivityProviderName("default-impl-name")
             .withDefaultParameters(defaultParameters)
             .withFallbackParameters(fallbackParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
@@ -142,13 +145,14 @@ public class SystematicSensitivityInterfaceTest {
     @Test
     public void testRunDefaultConfigAndFallbackFail() {
         // mock sensi service - run with null sensi
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters)))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(defaultParameters), Mockito.anyString()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
-        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters)))
+        Mockito.when(SystematicSensitivityAdapter.runSensitivity(Mockito.any(), Mockito.any(), Mockito.any(), ArgumentMatchers.eq(fallbackParameters), Mockito.anyString()))
             .thenAnswer(invocationOnMock -> systematicAnalysisResultFailed);
 
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
+            .withSensitivityProviderName("default-impl-name")
             .withDefaultParameters(defaultParameters)
             .withFallbackParameters(fallbackParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))

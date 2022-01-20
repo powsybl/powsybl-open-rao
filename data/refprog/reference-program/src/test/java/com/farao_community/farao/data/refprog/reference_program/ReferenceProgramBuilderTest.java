@@ -38,7 +38,7 @@ public class ReferenceProgramBuilderTest {
     @Test
     public void testLines() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, new LoadFlowParameters());
+        ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(1000.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(1500.0, referenceProgram.getGlobalNetPosition(eiCodeBelgium), DOUBLE_TOLERANCE);
         assertEquals(0.0, referenceProgram.getGlobalNetPosition(eiCodeNetherlands), DOUBLE_TOLERANCE);
@@ -48,7 +48,7 @@ public class ReferenceProgramBuilderTest {
     @Test
     public void testDanglingLines() {
         Network network = Importers.loadNetwork("TestCaseDangling.xiidm", getClass().getResourceAsStream("/TestCaseDangling.xiidm"));
-        ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, new LoadFlowParameters());
+        ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(0.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(300.0, referenceProgram.getGlobalNetPosition(eiCodeBelgium), DOUBLE_TOLERANCE);
     }
@@ -56,7 +56,7 @@ public class ReferenceProgramBuilderTest {
     @Test
     public void testHvdcLines() {
         Network network = Importers.loadNetwork("TestCaseHvdc.xiidm", getClass().getResourceAsStream("/TestCaseHvdc.xiidm"));
-        ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, new LoadFlowParameters());
+        ReferenceProgram referenceProgram = ReferenceProgramBuilder.buildReferenceProgram(network, "default-impl-name", new LoadFlowParameters());
         assertEquals(272.0, referenceProgram.getGlobalNetPosition(eiCodeFrance), DOUBLE_TOLERANCE);
         assertEquals(-272.0, referenceProgram.getGlobalNetPosition(eiCodeGermany), DOUBLE_TOLERANCE);
     }

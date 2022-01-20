@@ -35,9 +35,10 @@ final class SystematicSensitivityAdapter {
 
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
-                                                      SensitivityAnalysisParameters sensitivityComputationParameters) {
+                                                      SensitivityAnalysisParameters sensitivityComputationParameters,
+                                                      String sensitivityProvider) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, cnecSensitivityProvider, cnecSensitivityProvider.getContingencies(network), sensitivityComputationParameters);
+        SensitivityAnalysisResult result = SensitivityAnalysis.find(sensitivityProvider).run(network, cnecSensitivityProvider, cnecSensitivityProvider.getContingencies(network), sensitivityComputationParameters);
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
         return new SystematicSensitivityResult().completeData(result, false).postTreatIntensities();
     }
@@ -45,10 +46,11 @@ final class SystematicSensitivityAdapter {
     static SystematicSensitivityResult runSensitivity(Network network,
                                                       CnecSensitivityProvider cnecSensitivityProvider,
                                                       AppliedRemedialActions appliedRemedialActions,
-                                                      SensitivityAnalysisParameters sensitivityComputationParameters) {
+                                                      SensitivityAnalysisParameters sensitivityComputationParameters,
+                                                      String sensitivityProvider) {
 
         if (appliedRemedialActions == null || appliedRemedialActions.isEmpty()) {
-            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters);
+            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider);
         }
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
