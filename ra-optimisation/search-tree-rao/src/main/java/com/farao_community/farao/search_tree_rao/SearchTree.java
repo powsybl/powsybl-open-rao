@@ -309,6 +309,8 @@ public class SearchTree {
                     optimizeLeaf(leaf, leaf.getPreOptimBranchResult());
                     topLevelLogger.info("Optimized {}", leaf);
                 }
+            } else {
+                topLevelLogger.info("Evaluated {}", leaf);
             }
             updateOptimalLeaf(leaf, naCombination);
         } else {
