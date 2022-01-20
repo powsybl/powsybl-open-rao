@@ -193,9 +193,14 @@ class Leaf implements OptimizationResult {
     public String toString() {
         String info = isRoot() ? "Root leaf" :
             "network action(s): " + networkActions.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
-        if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
+        if (status.equals(Status.OPTIMIZED)) {
             long nRangeActions = getNumberOfActivatedRangeActions();
             info += String.format(", %s range action(s) activated", nRangeActions > 0 ? nRangeActions : "no");
+            info += String.format(Locale.ENGLISH, ", cost: %.2f", getCost());
+            info += String.format(Locale.ENGLISH, " (functional: %.2f", getFunctionalCost());
+            info += String.format(Locale.ENGLISH, ", virtual: %.2f)", getVirtualCost());
+        } else if (status.equals(Status.EVALUATED)) {
+            info += String.format(", range actions have not been optimized");
             info += String.format(Locale.ENGLISH, ", cost: %.2f", getCost());
             info += String.format(Locale.ENGLISH, " (functional: %.2f", getFunctionalCost());
             info += String.format(Locale.ENGLISH, ", virtual: %.2f)", getVirtualCost());
