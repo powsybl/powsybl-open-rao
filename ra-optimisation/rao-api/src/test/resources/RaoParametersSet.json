@@ -26,6 +26,8 @@
   "solver-specific-parameters" : "TREEMEMORYLIMIT 20",
   "pst-optimization-approximation" : "APPROXIMATED_INTEGERS",
   "forbid-cost-increase" : true,
+  "load-flow-provider" : "OpenLoadFlowProvider",
+  "sensitivity-provider" : "OpenSensitivityAnalysis",
   "sensitivity-parameters" : {
     "version" : "1.0",
     "load-flow-parameters" : {
