@@ -19,8 +19,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
-import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_ID;
-import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDC_NETWORKELEMENT_ID;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -30,7 +29,7 @@ final class StandardRangeActionResultArrayDeserializer {
     private StandardRangeActionResultArrayDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
@@ -57,7 +56,11 @@ final class StandardRangeActionResultArrayDeserializer {
                     case HVDC_NETWORKELEMENT_ID:
                         // only used in version <=1.1
                         // keep here for retrocompatibility, but information is not used anymore
-                        jsonParser.nextTextValue();
+                        if (getPrimaryVersionNumber(jsonFileVersion) > 1 && getSubVersionNumber(jsonFileVersion) > 1) {
+                            throw new FaraoException(String.format("Cannot deserialize RaoResult: field %s in %s in not supported in file version %s", jsonParser.getCurrentName(), HVDCRANGEACTION_RESULTS, jsonFileVersion));
+                        } else {
+                            jsonParser.nextTextValue();
+                        }
                         break;
 
                     case INITIAL_SETPOINT:

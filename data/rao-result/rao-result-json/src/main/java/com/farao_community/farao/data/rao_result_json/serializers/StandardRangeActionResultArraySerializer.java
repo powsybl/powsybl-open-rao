@@ -168,14 +168,14 @@ final class StandardRangeActionResultArraySerializer {
                     .map(InjectionRangeAction.class::cast)
                     .filter(otherRangeAction -> hasSameNetworkElementAndKeys((InjectionRangeAction) rangeAction, otherRangeAction))
                     .findFirst().orElse(null);
+        } else {
+            throw new FaraoException(String.format("RangeAction of class %s is not handled by RaoResult serializer", rangeAction.getClass()));
         }
-
-        return null;
     }
 
     private static boolean hasSameNetworkElementAndKeys(InjectionRangeAction rangeAction, InjectionRangeAction otherRangeAction) {
 
-        if (rangeAction.getInjectionDistributionKeys().size() != otherRangeAction.getInjectionDistributionKeys().size()) {
+        if (rangeAction.getInjectionDistributionKeys().keySet().equals(rangeAction.getInjectionDistributionKeys().keySet())) {
             return false;
         }
         return rangeAction.getInjectionDistributionKeys().entrySet().stream()

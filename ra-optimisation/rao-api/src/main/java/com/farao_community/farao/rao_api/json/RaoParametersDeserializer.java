@@ -71,11 +71,11 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setHvdcSensitivityThreshold(parser.getDoubleValue());
                     break;
-                case "injection-penalty-cost":
+                case "injection-ra-penalty-cost":
                     parser.nextToken();
                     parameters.setInjectionRaPenaltyCost(parser.getDoubleValue());
                     break;
-                case "injection-sensitivity-threshold":
+                case "injection-ra-sensitivity-threshold":
                     parser.nextToken();
                     parameters.setInjectionRaSensitivityThreshold(parser.getDoubleValue());
                     break;

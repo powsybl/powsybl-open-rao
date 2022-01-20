@@ -182,8 +182,8 @@ public class RaoParametersTest {
     @Test
     public void checkInjectionRaParameters() {
         MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
-        moduleConfig.setStringProperty("injection-penalty-cost", Objects.toString(1.2));
-        moduleConfig.setStringProperty("injection-sensitivity-threshold", Objects.toString(0.55));
+        moduleConfig.setStringProperty("injection-ra-penalty-cost", Objects.toString(1.2));
+        moduleConfig.setStringProperty("injection-ra-sensitivity-threshold", Objects.toString(0.55));
 
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);

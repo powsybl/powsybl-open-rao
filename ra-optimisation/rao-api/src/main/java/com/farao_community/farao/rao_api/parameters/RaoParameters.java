@@ -492,8 +492,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", DEFAULT_PST_SENSITIVITY_THRESHOLD));
                 parameters.setHvdcPenaltyCost(config.getDoubleProperty("hvdc-penalty-cost", DEFAULT_HVDC_PENALTY_COST));
                 parameters.setHvdcSensitivityThreshold(config.getDoubleProperty("hvdc-sensitivity-threshold", DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
-                parameters.setInjectionRaPenaltyCost(config.getDoubleProperty("injection-penalty-cost", DEFAULT_INJECTION_PENALTY_COST));
-                parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty("injection-sensitivity-threshold", DEFAULT_INJECTION_SENSITIVITY_THRESHOLD));
+                parameters.setInjectionRaPenaltyCost(config.getDoubleProperty("injection-ra-penalty-cost", DEFAULT_INJECTION_PENALTY_COST));
+                parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty("injection-ra-sensitivity-threshold", DEFAULT_INJECTION_SENSITIVITY_THRESHOLD));
                 parameters.setFallbackOverCost(config.getDoubleProperty("sensitivity-fallback-over-cost", DEFAULT_FALLBACK_OVER_COST));
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
                 parameters.setLoopFlowAcceptableAugmentation(config.getDoubleProperty("loop-flow-acceptable-augmentation", DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION));

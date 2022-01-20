@@ -95,15 +95,20 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case PSTRANGEACTION_RESULTS:
                     jsonParser.nextToken();
-                    PstRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    PstRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
                     break;
 
                 case HVDCRANGEACTION_RESULTS:
                     // used in version <=1.1
                     // now called standardRangeAction as it contains a more generic result object
+                    if (getPrimaryVersionNumber(jsonFileVersion) > 1 && getSubVersionNumber(jsonFileVersion) > 1) {
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: field %s is not supported in file version %s", jsonParser.getCurrentName(), jsonFileVersion));
+                    }
+                    // else, considered HvdcRangeActions as StandardRangeActions
+
                 case STANDARDRANGEACTION_RESULTS:
                     jsonParser.nextToken();
-                    StandardRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    StandardRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
                     break;
 
                 default:

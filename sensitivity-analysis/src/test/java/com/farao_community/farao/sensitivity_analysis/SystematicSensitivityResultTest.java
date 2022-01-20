@@ -92,11 +92,13 @@ public class SystematicSensitivityResultTest {
         assertEquals(10, result.getReferenceFlow(nStateCnec), EPSILON);
         assertEquals(25, result.getReferenceIntensity(nStateCnec), EPSILON);
         assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec), EPSILON);
+        assertThrows(UnsupportedOperationException.class, () -> result.getSensitivityOnIntensity(rangeAction, nStateCnec));
 
         //  after contingency
         assertEquals(-20, result.getReferenceFlow(contingencyCnec), EPSILON);
         assertEquals(-200, result.getReferenceIntensity(contingencyCnec), EPSILON);
         assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec), EPSILON);
+        assertThrows(UnsupportedOperationException.class, () -> result.getSensitivityOnIntensity(rangeAction, contingencyCnec));
     }
 
     @Test
