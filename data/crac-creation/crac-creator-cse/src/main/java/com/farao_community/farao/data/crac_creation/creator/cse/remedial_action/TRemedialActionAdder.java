@@ -202,45 +202,45 @@ public class TRemedialActionAdder {
         // ---- Only handle ABSOLUTE variation type
         if (!tRemedialAction.getHVDCRange().getVariationType().getV().equals(ABSOLUTE_VARIATION_TYPE)) {
             cseCracCreationContext.addRemedialActionCreationContext(
-                    CseHvdcCreationContext.notImported(tRemedialAction,
-                            ImportStatus.NOT_YET_HANDLED_BY_FARAO,
-                            String.format("HVDC %s is not defined with an ABSOLUTE variation type (only ABSOLUTE is handled)", raId),
-                            hvdcNodes.getFromNode().getV(),
-                            hvdcNodes.getToNode().getV()));
+                CseHvdcCreationContext.notImported(tRemedialAction,
+                    ImportStatus.NOT_YET_HANDLED_BY_FARAO,
+                    String.format("HVDC %s is not defined with an ABSOLUTE variation type (only ABSOLUTE is handled)", raId),
+                    hvdcNodes.getFromNode().getV(),
+                    hvdcNodes.getToNode().getV()));
             return;
         }
 
         // ---- Only handle one HVDC Node
         if (tRemedialAction.getHVDCRange().getHVDCNode().size() > 1) {
             cseCracCreationContext.addRemedialActionCreationContext(
-                    CseHvdcCreationContext.notImported(tRemedialAction,
-                            ImportStatus.INCONSISTENCY_IN_DATA,
-                            String.format("HVDC %s has %s (>1) HVDC nodes", raId, tRemedialAction.getHVDCRange().getHVDCNode().size()),
-                            hvdcNodes.getFromNode().getV(),
-                            hvdcNodes.getToNode().getV()));
+                CseHvdcCreationContext.notImported(tRemedialAction,
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("HVDC %s has %s (>1) HVDC nodes", raId, tRemedialAction.getHVDCRange().getHVDCNode().size()),
+                    hvdcNodes.getFromNode().getV(),
+                    hvdcNodes.getToNode().getV()));
             return;
         }
 
-        // ---- check if generator are presents
+        // ---- check if generators are present
         if (!generatorFromHelper.isValid() || !generatorToHelper.isValid()) {
             GeneratorHelper invalidGenerator = generatorFromHelper.isValid() ? generatorToHelper : generatorFromHelper;
             cseCracCreationContext.addRemedialActionCreationContext(
-                    CseHvdcCreationContext.notImported(tRemedialAction,
-                            ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
-                            invalidGenerator.getDetail(),
-                            hvdcNodes.getFromNode().getV(),
-                            hvdcNodes.getToNode().getV()));
+                CseHvdcCreationContext.notImported(tRemedialAction,
+                    ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                    invalidGenerator.getDetail(),
+                    hvdcNodes.getFromNode().getV(),
+                    hvdcNodes.getToNode().getV()));
             return;
         }
 
         // ---- check if generator have inverted signs
         if (Math.abs(generatorFromHelper.getCurrentP() + generatorToHelper.getCurrentP()) > 0.1) {
             cseCracCreationContext.addRemedialActionCreationContext(
-                    CseHvdcCreationContext.notImported(tRemedialAction,
-                            ImportStatus.INCONSISTENCY_IN_DATA,
-                            "the two generators of the HVDC must have opposite power output values",
-                            hvdcNodes.getFromNode().getV(),
-                            hvdcNodes.getToNode().getV()));
+                CseHvdcCreationContext.notImported(tRemedialAction,
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    "the two generators of the HVDC must have opposite power output values",
+                    hvdcNodes.getFromNode().getV(),
+                    hvdcNodes.getToNode().getV()));
             return;
         }
 
@@ -252,13 +252,13 @@ public class TRemedialActionAdder {
             .withNetworkElementAndKey(-1., generatorFromHelper.getGeneratorId())
             .withNetworkElementAndKey(1., generatorToHelper.getGeneratorId())
             .newRange()
-                .withMin(tRemedialAction.getHVDCRange().getMin().getV())
-                .withMax(tRemedialAction.getHVDCRange().getMax().getV())
-                .add()
+            .withMin(tRemedialAction.getHVDCRange().getMin().getV())
+            .withMax(tRemedialAction.getHVDCRange().getMax().getV())
+            .add()
             .newRange()
-                .withMin(Math.max(-generatorFromHelper.getPmax(), generatorToHelper.getPmin()))
-                .withMax(Math.min(-generatorFromHelper.getPmin(), generatorToHelper.getPmax()))
-                .add();
+            .withMin(Math.max(-generatorFromHelper.getPmax(), generatorToHelper.getPmin()))
+            .withMax(Math.min(-generatorFromHelper.getPmin(), generatorToHelper.getPmax()))
+            .add();
 
         // ---- add groupId if present
         if (cseCracCreationParameters != null && cseCracCreationParameters.getRangeActionGroups() != null) {
@@ -280,11 +280,11 @@ public class TRemedialActionAdder {
         addUsageRules(injectionRangeActionAdder, tRemedialAction);
         injectionRangeActionAdder.add();
         cseCracCreationContext.addRemedialActionCreationContext(CseHvdcCreationContext.imported(tRemedialAction,
-                raId,
-                hvdcNodes.getFromNode().getV(),
-                generatorFromHelper.getGeneratorId(),
-                hvdcNodes.getToNode().getV(),
-                generatorToHelper.getGeneratorId()));
+            raId,
+            hvdcNodes.getFromNode().getV(),
+            generatorFromHelper.getGeneratorId(),
+            hvdcNodes.getToNode().getV(),
+            generatorToHelper.getGeneratorId()));
     }
 
     private static ActionType convertActionType(TStatusType tStatusType) {
