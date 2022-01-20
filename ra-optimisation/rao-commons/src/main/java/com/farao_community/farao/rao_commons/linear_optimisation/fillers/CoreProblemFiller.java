@@ -181,9 +181,7 @@ public class CoreProblemFiller implements ProblemFiller {
             throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
         }
 
-        getRangeActions().forEach(rangeAction -> {
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, rangeAction, cnec, flowConstraint);
-        });
+        getRangeActions().forEach(rangeAction -> addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, rangeAction, cnec, flowConstraint));
     }
 
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, RangeAction<?> rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
