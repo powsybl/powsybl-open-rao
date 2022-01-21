@@ -180,6 +180,19 @@ public class RaoParametersTest {
     }
 
     @Test
+    public void checkInjectionRaParameters() {
+        MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
+        moduleConfig.setStringProperty("injection-ra-penalty-cost", Objects.toString(1.2));
+        moduleConfig.setStringProperty("injection-ra-sensitivity-threshold", Objects.toString(0.55));
+
+        RaoParameters parameters = new RaoParameters();
+        RaoParameters.load(parameters, platformCfg);
+
+        assertEquals(1.2, parameters.getInjectionRaPenaltyCost(), 1e-3);
+        assertEquals(0.55, parameters.getInjectionRaSensitivityThreshold(), 1e-3);
+    }
+
+    @Test
     public void testUpdatePtdfWithTopo() {
         assertFalse(RaoParameters.LoopFlowApproximationLevel.FIXED_PTDF.shouldUpdatePtdfWithTopologicalChange());
         assertTrue(RaoParameters.LoopFlowApproximationLevel.UPDATE_PTDF_WITH_TOPO.shouldUpdatePtdfWithTopologicalChange());

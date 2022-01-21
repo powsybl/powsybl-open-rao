@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_commons.RaoUtil;
@@ -39,8 +40,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
     protected final Set<FlowCnec> optimizedCnecs;
     private final Set<RangeAction<?>> rangeActions;
     private final Unit unit;
-    protected double pstPenaltyCost;
-    protected double hvdcPenaltyCost;
+    private final double pstPenaltyCost;
+    private final double hvdcPenaltyCost;
+    private final double injectionPenaltyCost;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction<?>> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -50,6 +52,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         this.unit = unit;
         this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
         this.hvdcPenaltyCost = maxMinMarginParameters.getHvdcPenaltyCost();
+        this.injectionPenaltyCost = maxMinMarginParameters.getInjectionPenaltyCost();
     }
 
     @Override
@@ -165,6 +168,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
             } else if (absoluteVariationVariable != null && rangeAction instanceof HvdcRangeAction) {
                 linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
+            } else if (absoluteVariationVariable != null && rangeAction instanceof InjectionRangeAction) {
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost);
             }
         });
     }

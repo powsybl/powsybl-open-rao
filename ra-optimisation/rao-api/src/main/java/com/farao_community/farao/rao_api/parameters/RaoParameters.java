@@ -93,6 +93,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
     public static final double DEFAULT_HVDC_PENALTY_COST = 0.001;
     public static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
+    public static final double DEFAULT_INJECTION_PENALTY_COST = 0.001;
+    public static final double DEFAULT_INJECTION_SENSITIVITY_THRESHOLD = 0.0;
     public static final double DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION = 0.0;
     public static final LoopFlowApproximationLevel DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL = LoopFlowApproximationLevel.FIXED_PTDF;
     public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
@@ -118,6 +120,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
     private double hvdcPenaltyCost = DEFAULT_HVDC_PENALTY_COST;
     private double hvdcSensitivityThreshold = DEFAULT_HVDC_SENSITIVITY_THRESHOLD;
+    private double injectionRaPenaltyCost = DEFAULT_HVDC_PENALTY_COST;
+    private double injectionRaSensitivityThreshold = DEFAULT_HVDC_SENSITIVITY_THRESHOLD;
     private double fallbackOverCost = DEFAULT_FALLBACK_OVER_COST;
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
     private LoopFlowApproximationLevel loopFlowApproximationLevel = DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL;
@@ -194,6 +198,22 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public void setHvdcSensitivityThreshold(double hvdcSensitivityThreshold) {
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
+    }
+
+    public double getInjectionRaPenaltyCost() {
+        return injectionRaPenaltyCost;
+    }
+
+    public void setInjectionRaPenaltyCost(double injectionRaPenaltyCost) {
+        this.injectionRaPenaltyCost = injectionRaPenaltyCost;
+    }
+
+    public double getInjectionRaSensitivityThreshold() {
+        return injectionRaSensitivityThreshold;
+    }
+
+    public void setInjectionRaSensitivityThreshold(double injectionRaSensitivityThreshold) {
+        this.injectionRaSensitivityThreshold = injectionRaSensitivityThreshold;
     }
 
     public double getFallbackOverCost() {
@@ -472,6 +492,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", DEFAULT_PST_SENSITIVITY_THRESHOLD));
                 parameters.setHvdcPenaltyCost(config.getDoubleProperty("hvdc-penalty-cost", DEFAULT_HVDC_PENALTY_COST));
                 parameters.setHvdcSensitivityThreshold(config.getDoubleProperty("hvdc-sensitivity-threshold", DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
+                parameters.setInjectionRaPenaltyCost(config.getDoubleProperty("injection-ra-penalty-cost", DEFAULT_INJECTION_PENALTY_COST));
+                parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty("injection-ra-sensitivity-threshold", DEFAULT_INJECTION_SENSITIVITY_THRESHOLD));
                 parameters.setFallbackOverCost(config.getDoubleProperty("sensitivity-fallback-over-cost", DEFAULT_FALLBACK_OVER_COST));
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
                 parameters.setLoopFlowAcceptableAugmentation(config.getDoubleProperty("loop-flow-acceptable-augmentation", DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION));

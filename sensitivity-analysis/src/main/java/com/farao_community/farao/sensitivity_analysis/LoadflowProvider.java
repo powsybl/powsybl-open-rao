@@ -20,6 +20,7 @@ import com.powsybl.sensitivity.factors.functions.BranchFlow;
 import com.powsybl.sensitivity.factors.functions.BranchIntensity;
 import com.powsybl.sensitivity.factors.variables.HvdcSetpointIncrease;
 import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
+import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 
 import java.util.*;
@@ -104,6 +105,8 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
                 return new BranchFlowPerInjectionIncrease((BranchFlow) function, (InjectionIncrease) variable);
             } else if (variable instanceof HvdcSetpointIncrease) {
                 return new BranchFlowPerHvdcSetpointIncrease((BranchFlow) function, (HvdcSetpointIncrease) variable);
+            } else if (variable instanceof LinearGlsk) {
+                return new BranchFlowPerLinearGlsk((BranchFlow) function, (LinearGlsk) variable);
             } else {
                 throw new FaraoException(faraoExceptionSensitivityString(function, variable));
             }

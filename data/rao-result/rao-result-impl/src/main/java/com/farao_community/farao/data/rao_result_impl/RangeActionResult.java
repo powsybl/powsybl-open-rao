@@ -15,19 +15,13 @@ import java.util.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RangeActionResult {
-    protected String networkElementId;
     protected double preOptimSetpoint;
     protected Map<State, Double> setpointPerState;
     protected State preventiveState = null;
 
-    public RangeActionResult(String networkElementId) {
-        this.networkElementId = networkElementId;
+    public RangeActionResult() {
         preOptimSetpoint = Double.NaN;
         setpointPerState = new HashMap<>();
-    }
-
-    public String getNetworkElementId() {
-        return networkElementId;
     }
 
     public double getPreOptimSetpoint() {
@@ -60,10 +54,6 @@ public class RangeActionResult {
 
     public Set<State> getStatesWithActivation() {
         return setpointPerState.keySet();
-    }
-
-    public void setNetworkElementId(String networkElementId) {
-        this.networkElementId = networkElementId;
     }
 
     public void setPreOptimSetPoint(double setpoint) {

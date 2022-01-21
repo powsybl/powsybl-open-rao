@@ -65,6 +65,7 @@ public class SearchTreeProblem {
                 prePerimeterSetPoints,
                 linearOptimizerParameters.getPstSensitivityThreshold(),
                 linearOptimizerParameters.getHvdcSensitivityThreshold(),
+                linearOptimizerParameters.getInjectionSensitivityThreshold(),
                 linearOptimizerParameters.getObjectiveFunction().relativePositiveMargins()
         );
     }

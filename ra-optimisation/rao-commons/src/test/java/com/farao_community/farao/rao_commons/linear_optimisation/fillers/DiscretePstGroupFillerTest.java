@@ -51,6 +51,7 @@ public class DiscretePstGroupFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 0.,
                 0.,
+                0.,
                 false
         );
 

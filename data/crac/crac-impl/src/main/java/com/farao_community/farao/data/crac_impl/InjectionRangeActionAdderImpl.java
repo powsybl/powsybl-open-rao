@@ -10,11 +10,10 @@ package com.farao_community.farao.data.crac_impl;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.range_action.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotEmpty;
 import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttributeNotNull;
 
@@ -22,8 +21,6 @@ import static com.farao_community.farao.data.crac_impl.AdderUtils.assertAttribut
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAdder<InjectionRangeActionAdder> implements InjectionRangeActionAdder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(InjectionRangeActionAdderImpl.class);
 
     private final List<DistributionKeyOnNetworkElement> distributionKeys;
 
@@ -64,7 +61,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
         // check usage rules
         if (usageRules.isEmpty()) {
-            LOGGER.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
+            BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
         Map<NetworkElement, Double> neAndDk = addNetworkElements();
