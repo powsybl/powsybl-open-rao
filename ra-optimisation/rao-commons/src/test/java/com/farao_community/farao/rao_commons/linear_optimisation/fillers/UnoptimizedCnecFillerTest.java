@@ -71,12 +71,13 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
                 new RangeActionResultImpl(Collections.emptyMap()),
                 0.,
                 0.,
+                0.,
                 false
         );
     }
 
     private void buildLinearProblemWithMaxMinMargin() {
-        MaxMinMarginParameters maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01);
+        MaxMinMarginParameters maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01, 0.01);
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(
                 Set.of(cnecNl, cnecFr),
@@ -98,7 +99,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinRelativeMargin() {
         MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = new MaxMinRelativeMarginParameters(
-                0.01, 0.01, 1000, 0.01);
+                0.01, 0.01, 0.01, 1000, 0.01);
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(cnecNl, Unit.MEGAWATT)).thenReturn(400.);

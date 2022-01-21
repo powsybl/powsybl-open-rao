@@ -7,14 +7,12 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityVariable;
-import com.powsybl.sensitivity.factors.variables.HvdcSetpointIncrease;
-import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -75,21 +73,8 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     }
 
     private List<SensitivityVariable> rangeActionToSensitivityVariables(Network network, RangeAction<?> rangeAction) {
-        Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
-        return networkElements.stream()
-            .map(el -> networkElementToSensitivityVariable(network, el))
-            .collect(Collectors.toList());
-    }
-
-    private SensitivityVariable networkElementToSensitivityVariable(Network network, NetworkElement networkElement) {
-        String elementId = networkElement.getId();
-        Identifiable<?> networkIdentifiable = network.getIdentifiable(elementId);
-        if (networkIdentifiable instanceof TwoWindingsTransformer) {
-            return new PhaseTapChangerAngle(elementId, elementId, elementId);
-        } else if (networkIdentifiable instanceof HvdcLine) {
-            return new HvdcSetpointIncrease(elementId, elementId, elementId);
-        } else {
-            throw new SensitivityAnalysisException("Unable to create sensitivity variable for " + elementId);
-        }
+        RangeActionSensiHandler sensiHandler = RangeActionSensiHandler.get(rangeAction);
+        sensiHandler.checkConsistency(network);
+        return sensiHandler.rangeActionToSensitivityVariable();
     }
 }

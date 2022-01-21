@@ -13,6 +13,7 @@ import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
@@ -221,8 +222,8 @@ public class RangeActionSensitivityProviderTest {
 
         NetworkElement hvdc = Mockito.mock(NetworkElement.class);
         Mockito.when(hvdc.getId()).thenReturn("BBE2AA11 FFR3AA11 1");
-        RangeAction mockHvdcRangeAction = Mockito.mock(RangeAction.class);
-        Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(hvdc));
+        HvdcRangeAction mockHvdcRangeAction = Mockito.mock(HvdcRangeAction.class);
+        Mockito.when(mockHvdcRangeAction.getNetworkElement()).thenReturn(hvdc);
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 

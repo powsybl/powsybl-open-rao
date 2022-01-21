@@ -48,6 +48,9 @@ public class GeneratorHelperTest {
         assertNull(generatorHelper.getDetail());
         assertTrue(generatorHelper.isValid());
         assertFalse(generatorHelper.isAltered());
+        assertEquals(-9000, generatorHelper.getPmin(), 1e-3);
+        assertEquals(9000, generatorHelper.getPmax(), 1e-3);
+        assertEquals(1500, generatorHelper.getCurrentP(), 1e-3);
     }
 
     @Test
@@ -78,7 +81,7 @@ public class GeneratorHelperTest {
         GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA12", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
         assertNull(generatorHelper.getGeneratorId());
-        assertEquals("Buses matching BBE1AA12 in the network do not hold generators.", generatorHelper.getDetail());
+        assertEquals("Buses matching BBE1AA12 in the network do not hold generators", generatorHelper.getDetail());
         assertFalse(generatorHelper.isValid());
         assertFalse(generatorHelper.isAltered());
     }
@@ -107,5 +110,32 @@ public class GeneratorHelperTest {
         assertEquals("More than 1 generator associated to BBE1AA11. First generator is selected.", generatorHelper.getDetail());
         assertTrue(generatorHelper.isValid());
         assertTrue(generatorHelper.isAltered());
+    }
+
+    @Test
+    public void testGeneratorNotConnected() {
+        setUp("/networks/TestCase12Nodes_forCSE.uct");
+        network.getGenerator("BBE1AA11_generator").getTerminal().disconnect();
+
+        GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA11", ucteNetworkAnalyzer);
+        assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
+        assertNull(generatorHelper.getGeneratorId());
+        assertEquals("Buses matching BBE1AA11 in the network do not hold generators", generatorHelper.getDetail());
+        assertFalse(generatorHelper.isValid());
+        assertFalse(generatorHelper.isAltered());
+    }
+
+    @Test
+    public void testGeneratorNotInMainComponent() {
+        setUp("/networks/TestCase12Nodes_forCSE.uct");
+        network.getBranch("NNL1AA1  NNL2AA1  1").getTerminal1().disconnect();
+        network.getBranch("NNL1AA1  NNL3AA1  1").getTerminal1().disconnect();
+
+        GeneratorHelper generatorHelper = new GeneratorHelper("NNL1AA1 ", ucteNetworkAnalyzer);
+        assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
+        assertNull(generatorHelper.getGeneratorId());
+        assertEquals("Buses matching NNL1AA1  in the network do not hold generators connected to the main grid", generatorHelper.getDetail());
+        assertFalse(generatorHelper.isValid());
+        assertFalse(generatorHelper.isAltered());
     }
 }

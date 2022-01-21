@@ -51,7 +51,6 @@ final class PstRangeActionResultArraySerializer {
 
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(PSTRANGEACTION_ID, pstRangeAction.getId());
-        jsonGenerator.writeStringField(PST_NETWORKELEMENT_ID, pstRangeAction.getNetworkElement().getId());
 
         Integer initialTap = safeGetPreOptimizedTap(raoResult, crac.getPreventiveState(), pstRangeAction);
         Double initialSetpoint = safeGetPreOptimizedSetpoint(raoResult, crac.getPreventiveState(), pstRangeAction);

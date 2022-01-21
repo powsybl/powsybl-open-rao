@@ -8,9 +8,10 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.Instant;
-import com.farao_community.farao.data.crac_api.NetworkElement;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.factors.functions.BranchFlow;
@@ -20,7 +21,6 @@ import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -150,14 +150,8 @@ public class SystematicSensitivityResult {
         return stateResult.getReferenceIntensities().getOrDefault(cnec.getNetworkElement().getId(), 0.0);
     }
 
-    public double getSensitivityOnFlow(RangeAction rangeAction, Cnec<?> cnec) {
-        StateResult stateResult = getCnecStateResult(cnec);
-        Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
-        if (stateResult == null || !stateResult.getFlowSensitivities().containsKey(cnec.getNetworkElement().getId())) {
-            return 0.0;
-        }
-        Map<String, Double> sensitivities = stateResult.getFlowSensitivities().get(cnec.getNetworkElement().getId());
-        return networkElements.stream().mapToDouble(netEl -> sensitivities.getOrDefault(netEl.getId(), 0.0)).sum();
+    public double getSensitivityOnFlow(RangeAction<?> rangeAction, Cnec<?> cnec) {
+        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow((FlowCnec) cnec, this);
     }
 
     public double getSensitivityOnFlow(LinearGlsk glsk, Cnec<?> cnec) {
@@ -175,14 +169,16 @@ public class SystematicSensitivityResult {
         return sensitivities.getOrDefault(variableId, 0.0);
     }
 
-    public double getSensitivityOnIntensity(RangeAction rangeAction, Cnec<?> cnec) {
-        StateResult stateResult = getCnecStateResult(cnec);
-        Set<NetworkElement> networkElements = rangeAction.getNetworkElements();
-        if (stateResult == null || !stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId())) {
-            return 0.0;
-        }
-        Map<String, Double> sensitivities = stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId());
-        return networkElements.stream().mapToDouble(netEl -> sensitivities.get(netEl.getId())).sum();
+    @Deprecated
+    public double getSensitivityOnIntensity(RangeAction<?> rangeAction, Cnec<?> cnec) {
+        /*
+        Should not be useful in the RAO -> sensi on intensity are never used + might crash for
+        some rangeAction time
+        For now: deprecate the method and make it throw an exception to ensure that is not used in RAO.
+        Later: reprecate the method if it has some purpose ouside of the RAO.
+         */
+
+        throw new UnsupportedOperationException();
     }
 
     private StateResult getCnecStateResult(Cnec<?> cnec) {

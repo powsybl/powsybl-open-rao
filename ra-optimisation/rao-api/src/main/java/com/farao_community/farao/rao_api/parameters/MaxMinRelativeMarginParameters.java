@@ -14,8 +14,8 @@ public class MaxMinRelativeMarginParameters extends MaxMinMarginParameters {
     private final double negativeMarginObjectiveCoefficient;
     private final double ptdfSumLowerBound;
 
-    public MaxMinRelativeMarginParameters(double pstPenaltyCost, double hvdcPenaltyCost, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
-        super(pstPenaltyCost, hvdcPenaltyCost);
+    public MaxMinRelativeMarginParameters(double pstPenaltyCost, double hvdcPenaltyCost, double injectionPenaltyCost, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
+        super(pstPenaltyCost, hvdcPenaltyCost, injectionPenaltyCost);
         this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
         this.ptdfSumLowerBound = ptdfSumLowerBound;
     }

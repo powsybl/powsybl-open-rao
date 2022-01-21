@@ -232,6 +232,7 @@ public class SearchTreeRaoProvider implements RaoProvider {
             .withObjectiveFunction(raoParameters.getObjectiveFunction())
             .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
             .withHvdcSensitivityThreshold(raoParameters.getHvdcSensitivityThreshold())
+            .withInjectionSensitivityThreshold(raoParameters.getInjectionRaSensitivityThreshold())
             .withSolver(raoParameters.getSolver())
             .withRelativeMipGap(raoParameters.getRelativeMipGap())
             .withSolverSpecificParameters(raoParameters.getSolverSpecificParameters())
@@ -239,15 +240,21 @@ public class SearchTreeRaoProvider implements RaoProvider {
 
         if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE
             || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_MEGAWATT) {
-            builder.withMaxMinMarginParameters(new MaxMinMarginParameters(raoParameters.getPstPenaltyCost(), raoParameters.getHvdcPenaltyCost()));
+            builder.withMaxMinMarginParameters(new MaxMinMarginParameters(
+                    raoParameters.getPstPenaltyCost(),
+                    raoParameters.getHvdcPenaltyCost(),
+                    raoParameters.getInjectionRaPenaltyCost()));
+
         } else if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE
             || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) {
             MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = new MaxMinRelativeMarginParameters(
                 raoParameters.getPstPenaltyCost(),
                 raoParameters.getHvdcPenaltyCost(),
+                raoParameters.getInjectionRaPenaltyCost(),
                 raoParameters.getNegativeMarginObjectiveCoefficient(),
                 raoParameters.getPtdfSumLowerBound());
             builder.withMaxMinRelativeMarginParameters(maxMinRelativeMarginParameters);
+
         } else {
             throw new FaraoException(String.format("Unhandled objective function %s", raoParameters.getObjectiveFunction()));
         }

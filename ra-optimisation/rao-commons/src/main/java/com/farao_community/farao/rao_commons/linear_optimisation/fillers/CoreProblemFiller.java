@@ -11,9 +11,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.rao_commons.linear_optimisation.LinearProblem;
 import com.farao_community.farao.rao_commons.result_api.FlowResult;
 import com.farao_community.farao.rao_commons.result_api.RangeActionResult;
@@ -37,6 +35,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private final RangeActionResult prePerimeterRangeActionResult;
     private final double pstSensitivityThreshold;
     private final double hvdcSensitivityThreshold;
+    private final double injectionSensitivityThreshold;
     private final boolean relativePositiveMargins;
 
     public CoreProblemFiller(Network network,
@@ -45,6 +44,7 @@ public class CoreProblemFiller implements ProblemFiller {
                              RangeActionResult prePerimeterRangeActionResult,
                              double pstSensitivityThreshold,
                              double hvdcSensitivityThreshold,
+                             double injectionSensitivityThreshold,
                              boolean relativePositiveMargins) {
         this.network = network;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -54,6 +54,7 @@ public class CoreProblemFiller implements ProblemFiller {
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
+        this.injectionSensitivityThreshold = injectionSensitivityThreshold;
         this.relativePositiveMargins = relativePositiveMargins;
     }
 
@@ -180,13 +181,7 @@ public class CoreProblemFiller implements ProblemFiller {
             throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
         }
 
-        getRangeActions().forEach(rangeAction -> {
-            if (rangeAction instanceof PstRangeAction || rangeAction instanceof HvdcRangeAction) {
-                addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, rangeAction, cnec, flowConstraint);
-            } else {
-                throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
-            }
-        });
+        getRangeActions().forEach(rangeAction -> addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, rangeAction, cnec, flowConstraint));
     }
 
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, RangeAction<?> rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
@@ -219,6 +214,8 @@ public class CoreProblemFiller implements ProblemFiller {
             return sensitivity >= pstSensitivityThreshold;
         } else if (rangeAction instanceof HvdcRangeAction) {
             return sensitivity >= hvdcSensitivityThreshold;
+        } else if (rangeAction instanceof InjectionRangeAction) {
+            return sensitivity >= injectionSensitivityThreshold;
         } else {
             throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
         }

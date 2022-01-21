@@ -11,12 +11,14 @@ package com.farao_community.farao.rao_api.parameters;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class MaxMinMarginParameters {
-    protected double pstPenaltyCost;
-    protected double hvdcPenaltyCost;
+    private final double pstPenaltyCost;
+    private final double hvdcPenaltyCost;
+    private final double injectionPenaltyCost;
 
-    public MaxMinMarginParameters(double pstPenaltyCost, double hvdcPenaltyCost) {
+    public MaxMinMarginParameters(double pstPenaltyCost, double hvdcPenaltyCost, double injectionPenaltyCost) {
         this.pstPenaltyCost = pstPenaltyCost;
         this.hvdcPenaltyCost = hvdcPenaltyCost;
+        this.injectionPenaltyCost = injectionPenaltyCost;
     }
 
     public final double getPstPenaltyCost() {
@@ -25,5 +27,9 @@ public class MaxMinMarginParameters {
 
     public final double getHvdcPenaltyCost() {
         return hvdcPenaltyCost;
+    }
+
+    public final double getInjectionPenaltyCost() {
+        return injectionPenaltyCost;
     }
 }

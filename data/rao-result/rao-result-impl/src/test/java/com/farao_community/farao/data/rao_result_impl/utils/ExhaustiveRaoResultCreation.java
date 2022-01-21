@@ -172,6 +172,13 @@ public final class ExhaustiveRaoResultCreation {
             }
         }
 
+        // ------------------------------------
+        // --- InjectionRangeAction results ---
+        // ------------------------------------
+        RangeActionResult irar = raoResult.getAndCreateIfAbsentRangeActionResult(crac.getInjectionRangeAction("injectionRange1Id"));
+        irar.setPreOptimSetPoint(100);
+        irar.addActivationForState(crac.getState("contingency1Id", Instant.CURATIVE), -300);
+
         return raoResult;
     }
 
