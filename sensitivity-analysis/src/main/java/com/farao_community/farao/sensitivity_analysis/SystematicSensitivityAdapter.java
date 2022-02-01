@@ -37,6 +37,7 @@ final class SystematicSensitivityAdapter {
         LOGGER.debug("Systematic sensitivity analysis [start]");
         // TODO: replace find() with find(providerName)
         SensitivityAnalysisResult result = SensitivityAnalysis.find().run(network,
+            network.getVariantManager().getWorkingVariantId(),
             cnecSensitivityProvider.getAllFactors(network),
             cnecSensitivityProvider.getContingencies(network),
             cnecSensitivityProvider.getVariableSets(),
@@ -72,6 +73,7 @@ final class SystematicSensitivityAdapter {
         List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
         allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
         result.completeData(SensitivityAnalysis.find().run(network,
+            network.getVariantManager().getWorkingVariantId(),
             allFactorsWithoutRa,
             contingenciesWithoutRa,
             cnecSensitivityProvider.getVariableSets(),
@@ -100,6 +102,7 @@ final class SystematicSensitivityAdapter {
             List<Contingency> contingencyList = Collections.singletonList(convertCracContingencyToPowsybl(optContingency.get(), network));
 
             result.completeData(SensitivityAnalysis.find().run(network,
+                network.getVariantManager().getWorkingVariantId(),
                 cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
                 contingencyList,
                 cnecSensitivityProvider.getVariableSets(),
