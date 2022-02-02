@@ -174,7 +174,7 @@ public final class ToolProvider {
         for (String eiCode : listEicCode) {
             LinearGlsk linearGlsk = glskProvider.getData(eiCode);
             if (Objects.isNull(linearGlsk)) {
-                FaraoLoggerProvider.BUSINESS_WARNS.warn("No GLSK found for CountryEICode {}", eiCode);
+                FaraoLoggerProvider.TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
             } else {
                 glskBoundaries.put(eiCode, linearGlsk);
             }
