@@ -35,15 +35,35 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     private final PrePerimeterResult resultsWithPrasForAllCnecs;
     private final Map<State, PerimeterResult> postContingencyResults;
 
+    /**
+     * Constructor used when preventive and post-contingency RAOs have been run
+     */
     public PreventiveAndCurativesRaoOutput(StateTree stateTree,
                                            PrePerimeterResult initialResult,
                                            PerimeterResult preventivePerimeterResult,
                                            PrePerimeterResult resultsWithPrasForAllCnecs,
                                            Map<State, OptimizationResult> postContingencyResults) {
+        this(initialResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults));
+    }
+
+    /**
+     * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
+     * same as the post-preventive RAO results.
+     */
+    public PreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult,
+                                           PerimeterResult preventivePerimeterResult,
+                                           PrePerimeterResult resultsWithPrasForAllCnecs) {
+        this(initialResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, new HashMap<>());
+    }
+
+    private PreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult,
+                                            PerimeterResult preventivePerimeterResult,
+                                            PrePerimeterResult resultsWithPrasForAllCnecs,
+                                            Map<State, PerimeterResult> postContingencyPerimeterResults) {
         this.initialResult = initialResult;
         this.preventivePerimeterResult = preventivePerimeterResult;
         this.resultsWithPrasForAllCnecs = resultsWithPrasForAllCnecs;
-        this.postContingencyResults = buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults);
+        this.postContingencyResults = postContingencyPerimeterResults;
     }
 
     private static Map<State, PerimeterResult> buildPostContingencyResults(StateTree stateTree, PrePerimeterResult preContingencyResult, Map<State, OptimizationResult> postContingencyResults) {
@@ -64,8 +84,8 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     @Override
     public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == FAILURE
-                || preventivePerimeterResult.getSensitivityStatus() == FAILURE
-                || postContingencyResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
+            || preventivePerimeterResult.getSensitivityStatus() == FAILURE
+            || postContingencyResults.values().stream().anyMatch(perimeterResult -> perimeterResult.getSensitivityStatus() == FAILURE)) {
             return FAILURE;
         }
         // TODO: specify the behavior in case some perimeter are FALLBACK and other ones DEFAULT
