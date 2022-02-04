@@ -173,7 +173,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getVirtualCost();
         }
-        if (optimizationState == OptimizationState.AFTER_PRA) {
+        if (optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) {
             return preventivePerimeterResult.getVirtualCost();
         }
         return postContingencyResults.entrySet().stream()
@@ -204,7 +204,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
         if (optimizationState == OptimizationState.INITIAL) {
             return initialResult.getVirtualCost(virtualCostName);
         }
-        if (optimizationState == OptimizationState.AFTER_PRA) {
+        if (optimizationState == OptimizationState.AFTER_PRA || postContingencyResults.isEmpty()) {
             return preventivePerimeterResult.getVirtualCost(virtualCostName);
         }
 
