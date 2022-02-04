@@ -559,4 +559,237 @@ public class PreventiveAndCurativesRaoOutputTest {
         perimeterResult = output.getPerimeterResult(AFTER_CRA, curativeState2);
         assertEquals(5., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    public void testNoPostContingencyResultGetters() {
+        // Test if only preventive RAO has been conducted
+        output = new PreventiveAndCurativesRaoOutput(initialResult, postPrevResult, preCurativeResult);
+
+        // Test get functional cost
+        assertEquals(1000., output.getFunctionalCost(INITIAL), DOUBLE_TOLERANCE);
+        assertEquals(-1050., output.getFunctionalCost(AFTER_PRA), DOUBLE_TOLERANCE);
+        assertEquals(-1020., output.getFunctionalCost(AFTER_ARA), DOUBLE_TOLERANCE);
+        assertEquals(-1020., output.getFunctionalCost(AFTER_CRA), DOUBLE_TOLERANCE);
+
+        // Test get most limiting elements
+        assertNull(output.getMostLimitingElements(INITIAL, 5));
+        assertNull(output.getMostLimitingElements(AFTER_PRA, 15));
+        assertNull(output.getMostLimitingElements(AFTER_ARA, 20));
+        assertNull(output.getMostLimitingElements(AFTER_CRA, 445));
+
+        // Test get virtual cost
+        assertEquals(100., output.getVirtualCost(INITIAL), DOUBLE_TOLERANCE);
+        assertEquals(-120., output.getVirtualCost(AFTER_PRA), DOUBLE_TOLERANCE);
+        assertEquals(-120., output.getVirtualCost(AFTER_ARA), DOUBLE_TOLERANCE);
+        assertEquals(-120., output.getVirtualCost(AFTER_CRA), DOUBLE_TOLERANCE);
+
+        // Test get virtual cost names
+        assertEquals(Set.of("mnec", "lf"), output.getVirtualCostNames());
+
+        // Test get virtual cost by name
+        assertEquals(20., output.getVirtualCost(INITIAL, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(80., output.getVirtualCost(INITIAL, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-40., output.getVirtualCost(AFTER_PRA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-100., output.getVirtualCost(AFTER_PRA, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-40., output.getVirtualCost(AFTER_ARA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-100., output.getVirtualCost(AFTER_ARA, "lf"), DOUBLE_TOLERANCE);
+        assertEquals(-40., output.getVirtualCost(AFTER_CRA, "mnec"), DOUBLE_TOLERANCE);
+        assertEquals(-100., output.getVirtualCost(AFTER_CRA, "lf"), DOUBLE_TOLERANCE);
+
+        // Test get costly elements
+        assertNull(output.getCostlyElements(INITIAL, "mnec", 5));
+        assertNull(output.getCostlyElements(INITIAL, "lf", 15));
+        assertNull(output.getCostlyElements(AFTER_PRA, "mnec", 5));
+        assertNull(output.getCostlyElements(AFTER_PRA, "lf", 15));
+        assertNull(output.getCostlyElements(AFTER_ARA, "mnec", 5));
+        assertNull(output.getCostlyElements(AFTER_ARA, "lf", 15));
+        assertNull(output.getCostlyElements(AFTER_CRA, "mnec", 5));
+        assertNull(output.getCostlyElements(AFTER_CRA, "lf", 15));
+
+        // Test was activated before state
+        assertFalse(output.wasActivatedBeforeState(preventiveState, networkAction));
+        assertTrue(output.wasActivatedBeforeState(autoState1, networkAction));
+        assertTrue(output.wasActivatedBeforeState(curativeState1, networkAction));
+        assertTrue(output.wasActivatedBeforeState(curativeState2, networkAction));
+
+        // Test is activated during state
+        assertTrue(output.isActivatedDuringState(preventiveState, networkAction));
+        assertFalse(output.isActivatedDuringState(autoState1, networkAction));
+        assertFalse(output.isActivatedDuringState(curativeState1, networkAction));
+        assertFalse(output.isActivatedDuringState(curativeState2, networkAction));
+        assertFalse(output.isActivatedDuringState(curativeState3, networkAction));
+
+        // Test get network actions activated during state
+        assertEquals(Set.of(networkAction), output.getActivatedNetworkActionsDuringState(preventiveState));
+        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(autoState1));
+        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(curativeState1));
+        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(curativeState2));
+        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(curativeState3));
+        when(postPrevResult.getActivatedNetworkActions()).thenReturn(Set.of());
+        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(preventiveState));
+        assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(curativeState3));
+
+        // Test is activated during state
+        assertTrue(output.isActivatedDuringState(preventiveState, rangeAction));
+        assertFalse(output.isActivatedDuringState(autoState1, rangeAction));
+        assertFalse(output.isActivatedDuringState(curativeState1, rangeAction));
+        assertFalse(output.isActivatedDuringState(curativeState2, rangeAction));
+        assertFalse(output.isActivatedDuringState(curativeState3, rangeAction));
+
+        // Test get pre optim tap
+        assertEquals(1, output.getPreOptimizationTapOnState(preventiveState, pstRangeAction));
+        assertThrows(FaraoException.class, () -> output.getPreOptimizationTapOnState(autoState1, pstRangeAction));
+        assertThrows(FaraoException.class, () -> output.getPreOptimizationTapOnState(curativeState1, pstRangeAction));
+        assertThrows(FaraoException.class, () -> output.getPreOptimizationTapOnState(curativeState2, pstRangeAction));
+        assertThrows(FaraoException.class, () -> output.getPreOptimizationTapOnState(curativeState3, pstRangeAction));
+
+        // Test get optimized tap
+        when(postPrevResult.getOptimizedTap(pstRangeAction)).thenReturn(202);
+        assertEquals(202, output.getOptimizedTapOnState(preventiveState, pstRangeAction));
+        assertEquals(202, output.getOptimizedTapOnState(autoState1, pstRangeAction));
+        assertEquals(202, output.getOptimizedTapOnState(curativeState1, pstRangeAction));
+        assertEquals(202, output.getOptimizedTapOnState(curativeState2, pstRangeAction));
+        assertEquals(202, output.getOptimizedTapOnState(curativeState3, pstRangeAction));
+
+        // Test get pre optim setpoint
+        assertEquals(6.7, output.getPreOptimizationSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
+        assertThrows(FaraoException.class, () -> output.getPreOptimizationSetPointOnState(autoState1, pstRangeAction));
+        assertThrows(FaraoException.class, () -> output.getPreOptimizationSetPointOnState(curativeState1, pstRangeAction));
+        assertThrows(FaraoException.class, () -> output.getPreOptimizationSetPointOnState(curativeState2, pstRangeAction));
+        assertThrows(FaraoException.class, () -> output.getPreOptimizationSetPointOnState(curativeState3, pstRangeAction));
+
+        // Test get optimized setpoint
+        when(postPrevResult.getOptimizedSetPoint(pstRangeAction)).thenReturn(567.);
+        assertEquals(567, output.getOptimizedSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(567, output.getOptimizedSetPointOnState(autoState1, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(567, output.getOptimizedSetPointOnState(curativeState1, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(567, output.getOptimizedSetPointOnState(curativeState2, pstRangeAction), DOUBLE_TOLERANCE);
+        assertEquals(567, output.getOptimizedSetPointOnState(curativeState3, pstRangeAction), DOUBLE_TOLERANCE);
+
+        // Test get activate range actions
+        assertEquals(Set.of(rangeAction), output.getActivatedRangeActionsDuringState(preventiveState));
+        assertEquals(Set.of(), output.getActivatedRangeActionsDuringState(autoState1));
+        assertEquals(Set.of(), output.getActivatedRangeActionsDuringState(curativeState1));
+        assertEquals(Set.of(), output.getActivatedRangeActionsDuringState(curativeState2));
+        assertEquals(Set.of(), output.getActivatedRangeActionsDuringState(curativeState3));
+        when(postPrevResult.getActivatedRangeActions()).thenReturn(Set.of(pstRangeAction));
+        assertEquals(Set.of(pstRangeAction), output.getActivatedRangeActionsDuringState(preventiveState));
+
+        // Test get optimized taps
+        assertEquals(Map.of(pstRangeAction, 22), output.getOptimizedTapsOnState(preventiveState));
+        assertEquals(Map.of(pstRangeAction, 22), output.getOptimizedTapsOnState(autoState1));
+        assertEquals(Map.of(pstRangeAction, 22), output.getOptimizedTapsOnState(curativeState1));
+        assertEquals(Map.of(pstRangeAction, 22), output.getOptimizedTapsOnState(curativeState2));
+        assertEquals(Map.of(pstRangeAction, 22), output.getOptimizedTapsOnState(curativeState3));
+
+        // Test get optimized setpoints
+        when(postPrevResult.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 222., rangeAction, 111.));
+        assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(preventiveState));
+        assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(autoState1));
+        assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(curativeState1));
+        assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(curativeState2));
+        assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(curativeState3));
+
+        // Test get flow
+        when(initialResult.getFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
+        when(postPrevResult.getFlow(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(cnec3.getState()).thenReturn(curativeState3);
+        assertEquals(10., output.getFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+
+        // Test get margin
+        when(initialResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getMargin(cnec2, Unit.AMPERE)).thenReturn(20.);
+        when(postPrevResult.getMargin(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(cnec3.getState()).thenReturn(curativeState3);
+        assertEquals(10., output.getMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+
+        // Test get relative margin
+        when(initialResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getRelativeMargin(cnec2, Unit.AMPERE)).thenReturn(20.);
+        when(postPrevResult.getRelativeMargin(cnec3, Unit.MEGAWATT)).thenReturn(30.);
+        when(cnec3.getState()).thenReturn(curativeState3);
+        assertEquals(10., output.getRelativeMargin(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getRelativeMargin(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getRelativeMargin(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+
+        // Test get commercial flow
+        when(initialResult.getCommercialFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getCommercialFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
+        when(postPrevResult.getCommercialFlow(cnec3, Unit.MEGAWATT)).thenReturn(25.);
+        when(cnec3.getState()).thenReturn(curativeState1);
+        assertEquals(10., output.getCommercialFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getCommercialFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(25., output.getCommercialFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+
+        // Test get loopflow
+        when(initialResult.getLoopFlow(cnec1, Unit.MEGAWATT)).thenReturn(10.);
+        when(postPrevResult.getLoopFlow(cnec2, Unit.AMPERE)).thenReturn(20.);
+        when(postPrevResult.getLoopFlow(cnec3, Unit.MEGAWATT)).thenReturn(25.);
+        when(cnec3.getState()).thenReturn(curativeState2);
+        assertEquals(10., output.getLoopFlow(INITIAL, cnec1, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getLoopFlow(AFTER_PRA, cnec2, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(25., output.getLoopFlow(AFTER_CRA, cnec3, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+
+        // Test get ptdf zonal sum
+        when(initialResult.getPtdfZonalSum(cnec1)).thenReturn(10.);
+        when(postPrevResult.getPtdfZonalSum(cnec2)).thenReturn(20.);
+        when(postPrevResult.getPtdfZonalSum(cnec3)).thenReturn(30.);
+        when(cnec3.getState()).thenReturn(curativeState2);
+        assertEquals(10., output.getPtdfZonalSum(INITIAL, cnec1), DOUBLE_TOLERANCE);
+        assertEquals(20., output.getPtdfZonalSum(AFTER_PRA, cnec2), DOUBLE_TOLERANCE);
+        assertEquals(30., output.getPtdfZonalSum(AFTER_CRA, cnec3), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testNoPostContingencyResultGetPerimeterResult() {
+        // Test if only preventive RAO has been conducted
+        output = new PreventiveAndCurativesRaoOutput(initialResult, postPrevResult, preCurativeResult);
+
+        State outageState = mock(State.class);
+        when(outageState.getInstant()).thenReturn(Instant.OUTAGE);
+
+        when(initialResult.getPtdfZonalSum(cnec1)).thenReturn(1.);
+        when(postPrevResult.getPtdfZonalSum(cnec1)).thenReturn(2.);
+        when(autoResult1.getPtdfZonalSum(cnec1)).thenReturn(3.);
+        when(curativeResult1.getPtdfZonalSum(cnec1)).thenReturn(4.);
+        when(curativeResult2.getPtdfZonalSum(cnec1)).thenReturn(5.);
+
+        PerimeterResult perimeterResult;
+
+        // INITIAL
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(INITIAL, preventiveState));
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(INITIAL, outageState));
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(INITIAL, autoState1));
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(INITIAL, curativeState1));
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(INITIAL, curativeState2));
+
+        // AFTER_PRA
+        perimeterResult = output.getPerimeterResult(AFTER_PRA, preventiveState);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        perimeterResult = output.getPerimeterResult(AFTER_PRA, outageState);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        perimeterResult = output.getPerimeterResult(AFTER_PRA, autoState1);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        perimeterResult = output.getPerimeterResult(AFTER_PRA, curativeState1);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+        perimeterResult = output.getPerimeterResult(AFTER_PRA, curativeState2);
+        assertEquals(2., perimeterResult.getPtdfZonalSum(cnec1), DOUBLE_TOLERANCE);
+
+        // AFTER_ARA
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_ARA, preventiveState));
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_ARA, outageState));
+        assertNull(output.getPerimeterResult(AFTER_ARA, autoState1));
+
+        // AFTER_CRA
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_CRA, preventiveState));
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_CRA, outageState));
+        assertThrows(FaraoException.class, () -> output.getPerimeterResult(AFTER_CRA, autoState1));
+        assertNull(output.getPerimeterResult(AFTER_CRA, curativeState1));
+        assertNull(output.getPerimeterResult(AFTER_CRA, curativeState2));
+    }
 }
