@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright (c) 2021, RTE (http://www.rte-france.com)
-  ~ This Source Code Form is subject to the terms of the Mozilla Public
-  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
-  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  -->
-
 <!--W3C Schema erstellt mit XMLSpy v2013 rel. 2 sp2 (x64) (http://www.altova.com)-->
-<!-- Version 4 release 15 -->
+<!-- Version 4 release 21 -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ecc="etso-core-cmpts.xsd">
 	<xsd:import namespace="etso-core-cmpts.xsd" schemaLocation="etso-core-cmpts.xsd"/>
 	<xsd:element name="CRACDocument" type="CRACDocumentType"/>
@@ -72,26 +65,19 @@
 		<xsd:sequence>
 			<xsd:element name="Name" type="T_Name" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="EIC" type="T_EIC" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="Selected" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="AlwaysSelected" type="T_Boolean" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="FromNode" type="T_NodeName" minOccurs="1" maxOccurs="1"/>
 			<xsd:element name="ToNode" type="T_NodeName" minOccurs="1" maxOccurs="1"/>
 			<xsd:element name="Order" type="T_Order" minOccurs="1" maxOccurs="1"/>
 			<xsd:element name="Status" type="T_StatusType" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="ImaxAfterOutage" type="T_Imax" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="ImaxAfterOutage1" type="T_Imax" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="IAfterOutage" type="T_Imax" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="ImaxAfterSPS" type="T_Imax" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="ImaxAfterSPS1" type="T_Imax" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="IAfterSPS" type="T_Imax" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="ImaxAfterCRA" type="T_Imax" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="IAfterCRA" type="T_Imax" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="I" type="T_Imax" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="Imax" type="T_Imax" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="Vn" type="T_Vn" minOccurs="0" maxOccurs="1"/>
-			<xsd:element name="Margin" type="T_minMargin" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="minMargin" type="T_minMargin" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="Direction" type="T_Direction" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Selected" type="T_Boolean" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="Sensitivity" type="T_Percent" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="PTDFListRef" type="T_PTDFList" minOccurs="0" maxOccurs="1"/>
 			<xsd:element name="RemedialActions" type="T_RemedialActions" minOccurs="0" maxOccurs="unbounded"/>
@@ -131,9 +117,18 @@
 		</xsd:attribute>
 	</xsd:complexType>
 	<!--_________________________________________________-->
-	<xsd:simpleType name="T_Percent">
+	<xsd:complexType name="T_Percent">
+		<xsd:attribute name="v" type="T_Range" use="required"/>
+		<xsd:attribute name="unit" type="T_Pct" use="optional"/>
+	</xsd:complexType>
+	<xsd:simpleType name="T_Pct">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Pct"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="T_Range">
 		<xsd:restriction base="xsd:decimal">
-			<xsd:minInclusive value="0.00"/>
+			<xsd:minInclusive value="-100.00"/>
 			<xsd:maxInclusive value="100.00"/>
 		</xsd:restriction>
 	</xsd:simpleType>
@@ -162,10 +157,10 @@
 				</xsd:restriction>
 			</xsd:simpleType>
 		</xsd:attribute>
-		<xsd:attribute name="unit" use="required">
+		<xsd:attribute name="unit" use="optional">
 			<xsd:simpleType>
 				<xsd:restriction base="xsd:string">
-					<xsd:enumeration value="%"/>
+					<xsd:enumeration value="Pct"/>
 				</xsd:restriction>
 			</xsd:simpleType>
 		</xsd:attribute>
