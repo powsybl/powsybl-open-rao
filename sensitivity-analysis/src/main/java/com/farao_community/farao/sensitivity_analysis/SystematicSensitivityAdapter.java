@@ -68,7 +68,7 @@ final class SystematicSensitivityAdapter {
             .collect(Collectors.toList());
 
         SystematicSensitivityResult result = new SystematicSensitivityResult();
-        result.completeData(SensitivityAnalysis.run(network, cnecSensitivityProvider, contingenciesWithoutRa, sensitivityComputationParameters), false);
+        result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network, cnecSensitivityProvider, contingenciesWithoutRa, sensitivityComputationParameters), false);
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
@@ -92,7 +92,7 @@ final class SystematicSensitivityAdapter {
 
             List<Contingency> contingencyList = Collections.singletonList(convertCracContingencyToPowsybl(optContingency.get(), network));
 
-            result.completeData(SensitivityAnalysis.run(network, variantForState, cnecSensitivityProvider, contingencyList, sensitivityComputationParameters), true);
+            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network, variantForState, cnecSensitivityProvider, contingencyList, sensitivityComputationParameters), true);
             network.getVariantManager().removeVariant(variantForState);
             counterForLogs++;
         }
