@@ -55,7 +55,7 @@ public class RaoUtilTest {
     }
 
     private void addGlskProvider() {
-        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/GlskCountry.xml"))
                 .getZonalGlsks(network);
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
                 .withNetworkVariantId(variantId)

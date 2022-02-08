@@ -41,12 +41,12 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
         parameters.getExtension(SearchTreeRaoParameters.class).setSecondPreventiveOptimizationCondition(SearchTreeRaoParameters.SecondPreventiveRaoCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         parameters.getExtension(SearchTreeRaoParameters.class).setNetworkActionIdCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
 
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/SearchTreeRaoParameters.json");
+        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/parameters/SearchTreeRaoParameters.json");
     }
 
     @Test
     public void readError() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/SearchTreeRaoParametersError.json")) {
+        try (InputStream is = getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersError.json")) {
             JsonRaoParameters.read(is);
             fail();
         } catch (FaraoException e) {
@@ -57,8 +57,8 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
 
     @Test
     public void update() {
-        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default.json"));
-        JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update.json"));
+        RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_default.json"));
+        JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/parameters/RaoParameters_update.json"));
         SearchTreeRaoParameters extension = parameters.getExtension(SearchTreeRaoParameters.class);
         assertNotNull(extension);
         assertEquals(SearchTreeRaoParameters.PreventiveRaoStopCriterion.MIN_OBJECTIVE, extension.getPreventiveRaoStopCriterion());
@@ -84,21 +84,21 @@ public class JsonSearchTreeRaoParametersTest extends AbstractConverterTest {
 
     @Test(expected = FaraoException.class)
     public void testWrongStopCriterionError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersStopCriterionError.json"));
+        JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersStopCriterionError.json"));
     }
 
     @Test(expected = FaraoException.class)
     public void curativeRaoStopCriterionError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersCurativeStopCriterionError.json"));
+        JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersCurativeStopCriterionError.json"));
     }
 
     @Test(expected = FaraoException.class)
     public void testMapTypeError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersMapError.json"));
+        JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersMapError.json"));
     }
 
     @Test(expected = FaraoException.class)
     public void testMapNegativeError() {
-        JsonRaoParameters.read(getClass().getResourceAsStream("/SearchTreeRaoParametersMapError2.json"));
+        JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/SearchTreeRaoParametersMapError2.json"));
     }
 }

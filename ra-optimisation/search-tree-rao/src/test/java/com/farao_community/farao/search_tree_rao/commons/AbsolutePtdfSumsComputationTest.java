@@ -96,7 +96,7 @@ public class AbsolutePtdfSumsComputationTest {
 
         // prepare data
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes_with_alegro.xml"))
+        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
         Crac crac = CommonCracCreation.create();
         List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
@@ -119,7 +119,7 @@ public class AbsolutePtdfSumsComputationTest {
 
         // prepare data
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_proportional_12nodes_with_alegro.xml"))
+        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
         Crac crac = CommonCracCreation.create();
         List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
@@ -143,8 +143,8 @@ public class AbsolutePtdfSumsComputationTest {
     public void testIgnoreGlskOnDisconnectedXnodes() {
 
         // prepare data
-        Network network = Importers.loadNetwork("network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network_with_alegro_hub.xiidm"));
-        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk_with_virtual_hubs.xml"))
+        Network network = Importers.loadNetwork("network/network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
+        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_with_virtual_hubs.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         Crac crac = CracFactory.findDefault().create("cracId");
