@@ -26,7 +26,7 @@ import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FA
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
+public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult {
     private final PrePerimeterResult initialResult;
     private final PerimeterResult preventivePerimeterResult;
     private final PrePerimeterResult resultsWithPrasForAllCnecs;
@@ -35,11 +35,11 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
     /**
      * Constructor used when preventive and post-contingency RAOs have been run
      */
-    public PreventiveAndCurativesRaoOutput(StateTree stateTree,
-                                           PrePerimeterResult initialResult,
-                                           PerimeterResult preventivePerimeterResult,
-                                           PrePerimeterResult resultsWithPrasForAllCnecs,
-                                           Map<State, OptimizationResult> postContingencyResults) {
+    public PreventiveAndCurativesRaoResultImpl(StateTree stateTree,
+                                               PrePerimeterResult initialResult,
+                                               PerimeterResult preventivePerimeterResult,
+                                               PrePerimeterResult resultsWithPrasForAllCnecs,
+                                               Map<State, OptimizationResult> postContingencyResults) {
         this(initialResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults));
     }
 
@@ -47,16 +47,16 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
      * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
      * same as the post-preventive RAO results.
      */
-    public PreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult,
-                                           PerimeterResult preventivePerimeterResult,
-                                           PrePerimeterResult resultsWithPrasForAllCnecs) {
+    public PreventiveAndCurativesRaoResultImpl(PrePerimeterResult initialResult,
+                                               PerimeterResult preventivePerimeterResult,
+                                               PrePerimeterResult resultsWithPrasForAllCnecs) {
         this(initialResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, new HashMap<>());
     }
 
-    private PreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult,
-                                            PerimeterResult preventivePerimeterResult,
-                                            PrePerimeterResult resultsWithPrasForAllCnecs,
-                                            Map<State, PerimeterResult> postContingencyPerimeterResults) {
+    private PreventiveAndCurativesRaoResultImpl(PrePerimeterResult initialResult,
+                                                PerimeterResult preventivePerimeterResult,
+                                                PrePerimeterResult resultsWithPrasForAllCnecs,
+                                                Map<State, PerimeterResult> postContingencyPerimeterResults) {
         this.initialResult = initialResult;
         this.preventivePerimeterResult = preventivePerimeterResult;
         this.resultsWithPrasForAllCnecs = resultsWithPrasForAllCnecs;
@@ -69,10 +69,10 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
             Optional<State> automatonState = contingencyScenario.getAutomatonState();
             if (automatonState.isPresent()) {
                 OptimizationResult automatonResult = postContingencyResults.get(automatonState.get());
-                results.put(automatonState.get(), new PerimeterOutput(preContingencyResult, automatonResult));
-                results.put(contingencyScenario.getCurativeState(), new PerimeterOutput(automatonResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
+                results.put(automatonState.get(), new PerimeterResultImpl(preContingencyResult, automatonResult));
+                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(automatonResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
             } else {
-                results.put(contingencyScenario.getCurativeState(), new PerimeterOutput(preContingencyResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
+                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(preContingencyResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
             }
         });
         return results;
@@ -143,7 +143,7 @@ public class PreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
             postContingencyResults.entrySet().stream()
                 .filter(entry -> entry.getKey().getInstant().equals(instant))
                 .map(Map.Entry::getValue)
-                .filter(PreventiveAndCurativesRaoOutput::hasActualFunctionalCost)
+                .filter(PreventiveAndCurativesRaoResultImpl::hasActualFunctionalCost)
                 .map(PerimeterResult::getFunctionalCost)
                 .max(Double::compareTo)
                 .orElse(-Double.MAX_VALUE)

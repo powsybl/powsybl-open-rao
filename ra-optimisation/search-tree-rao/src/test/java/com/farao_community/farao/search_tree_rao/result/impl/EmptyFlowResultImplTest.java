@@ -17,11 +17,11 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class EmptyFlowResultTest {
+public class EmptyFlowResultImplTest {
     @Test
     public void testBasicReturns() {
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        EmptyFlowResult branchResult = new EmptyFlowResult();
+        EmptyFlowResultImpl branchResult = new EmptyFlowResultImpl();
         assertTrue(Double.isNaN(branchResult.getFlow(cnec, Unit.MEGAWATT)));
         assertTrue(Double.isNaN(branchResult.getFlow(cnec, Unit.AMPERE)));
         assertTrue(Double.isNaN(branchResult.getCommercialFlow(cnec, Unit.MEGAWATT)));

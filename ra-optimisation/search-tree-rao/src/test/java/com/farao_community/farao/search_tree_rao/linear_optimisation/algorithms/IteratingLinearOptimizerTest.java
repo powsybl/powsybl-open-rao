@@ -18,8 +18,8 @@ import com.farao_community.farao.search_tree_rao.commons.adapter.BranchResultAda
 import com.farao_community.farao.search_tree_rao.commons.adapter.SensitivityResultAdapter;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.FailedLinearOptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizerResult;
+import com.farao_community.farao.search_tree_rao.result.impl.FailedLinearOptimizationResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
@@ -146,7 +146,7 @@ public class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = optimize();
 
         assertEquals(LinearProblemStatus.ABNORMAL, result.getStatus());
-        assertTrue(result instanceof FailedLinearOptimizationResult);
+        assertTrue(result instanceof FailedLinearOptimizationResultImpl);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = optimize();
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(0, ((IteratingLinearOptimizerResult) result).getNbOfIteration());
+        assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
     }
@@ -170,7 +170,7 @@ public class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = optimize();
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(1, ((IteratingLinearOptimizerResult) result).getNbOfIteration());
+        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
     }
@@ -183,7 +183,7 @@ public class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = optimize();
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(0, ((IteratingLinearOptimizerResult) result).getNbOfIteration());
+        assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
     }
@@ -196,7 +196,7 @@ public class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = optimize();
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
-        assertEquals(5, ((IteratingLinearOptimizerResult) result).getNbOfIteration());
+        assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(5, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
     }
@@ -209,7 +209,7 @@ public class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = optimize();
 
         assertEquals(LinearProblemStatus.FEASIBLE, result.getStatus());
-        assertEquals(1, ((IteratingLinearOptimizerResult) result).getNbOfIteration());
+        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
     }
@@ -226,7 +226,7 @@ public class IteratingLinearOptimizerTest {
         LinearOptimizationResult result = optimize();
 
         assertEquals(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED, result.getStatus());
-        assertEquals(0, ((IteratingLinearOptimizerResult) result).getNbOfIteration());
+        assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
     }

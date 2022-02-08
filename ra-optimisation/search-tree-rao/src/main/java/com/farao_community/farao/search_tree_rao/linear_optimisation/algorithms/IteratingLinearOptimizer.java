@@ -15,8 +15,8 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.DiscretePstTapFiller;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.ProblemFiller;
 import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.FailedLinearOptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizerResult;
+import com.farao_community.farao.search_tree_rao.result.impl.FailedLinearOptimizationResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.powsybl.iidm.network.Network;
@@ -48,7 +48,7 @@ public class IteratingLinearOptimizer {
                                              SensitivityResult preOptimSensitivityResult,
                                              RangeActionResult preOptimRangeActionResult,
                                              SensitivityComputer sensitivityComputer) {
-        IteratingLinearOptimizerResult bestResult = createResult(preOptimFlowResult, preOptimSensitivityResult, preOptimRangeActionResult, 0);
+        IteratingLinearOptimizationResultImpl bestResult = createResult(preOptimFlowResult, preOptimSensitivityResult, preOptimRangeActionResult, 0);
 
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
             solveLinearProblem(linearProblem, iteration);
@@ -57,7 +57,7 @@ public class IteratingLinearOptimizer {
             } else if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
                 BUSINESS_LOGS.error("Linear optimization failed at iteration {}", iteration);
                 if (iteration == 1) {
-                    return new FailedLinearOptimizationResult();
+                    return new FailedLinearOptimizationResultImpl();
                 }
                 bestResult.setStatus(LinearProblemStatus.FEASIBLE);
                 return bestResult;
@@ -100,7 +100,7 @@ public class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            IteratingLinearOptimizerResult currentResult = createResult(
+            IteratingLinearOptimizationResultImpl currentResult = createResult(
                 sensitivityComputer.getBranchResult(),
                 sensitivityComputer.getSensitivityResult(),
                 currentRangeActionResult,
@@ -177,15 +177,15 @@ public class IteratingLinearOptimizer {
         }
     }
 
-    private IteratingLinearOptimizerResult createResult(FlowResult flowResult,
-                                                        SensitivityResult sensitivityResult,
-                                                        RangeActionResult rangeActionResult,
-                                                        int nbOfIterations) {
-        return new IteratingLinearOptimizerResult(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionResult, flowResult,
+    private IteratingLinearOptimizationResultImpl createResult(FlowResult flowResult,
+                                                               SensitivityResult sensitivityResult,
+                                                               RangeActionResult rangeActionResult,
+                                                               int nbOfIterations) {
+        return new IteratingLinearOptimizationResultImpl(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionResult, flowResult,
             objectiveFunction.evaluate(flowResult, sensitivityResult.getSensitivityStatus()), sensitivityResult);
     }
 
-    private RangeActionResult roundResult(RangeActionResult rangeActionResult, Network network, IteratingLinearOptimizerResult previousResult) {
+    private RangeActionResult roundResult(RangeActionResult rangeActionResult, Network network, IteratingLinearOptimizationResultImpl previousResult) {
         Map<RangeAction<?>, Double> roundedSetPoints = new HashMap<>();
         rangeActionResult.getOptimizedSetPoints().keySet().stream().filter(PstRangeAction.class::isInstance).forEach(
             rangeAction -> roundedSetPoints.put(rangeAction, rangeActionResult.getOptimizedSetPoint(rangeAction))

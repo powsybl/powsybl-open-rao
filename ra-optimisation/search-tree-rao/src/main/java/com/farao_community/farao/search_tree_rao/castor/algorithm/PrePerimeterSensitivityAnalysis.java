@@ -15,8 +15,8 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import com.farao_community.farao.search_tree_rao.result.impl.EmptyFlowResult;
-import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityOutput;
+import com.farao_community.farao.search_tree_rao.result.impl.EmptyFlowResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
@@ -110,7 +110,7 @@ public class PrePerimeterSensitivityAnalysis {
         FlowResult flowResult = sensitivityComputer.getBranchResult();
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         ObjectiveFunctionResult objectiveFunctionResult = getResult(objectiveFunction, flowResult, sensitivityResult);
-        return new PrePerimeterSensitivityOutput(
+        return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
                 new RangeActionResultImpl(network, rangeActions),
@@ -124,7 +124,7 @@ public class PrePerimeterSensitivityAnalysis {
 
     private ObjectiveFunction getInitialMinMarginObjectiveFunction() {
         ObjectiveFunction.ObjectiveFunctionBuilder builder = ObjectiveFunction.create();
-        FlowResult emptyFlowResult = new EmptyFlowResult();
+        FlowResult emptyFlowResult = new EmptyFlowResultImpl();
         ObjectiveFunctionHelper.addMinMarginObjectiveFunction(flowCnecs, emptyFlowResult, builder, raoParameters.getObjectiveFunction().relativePositiveMargins(), linearOptimizerParameters.getUnoptimizedCnecParameters(), raoParameters.getObjectiveFunction().getUnit());
         return builder.build();
     }

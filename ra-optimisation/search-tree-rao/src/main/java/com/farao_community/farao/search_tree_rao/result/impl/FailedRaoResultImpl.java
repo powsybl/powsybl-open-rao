@@ -26,7 +26,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FailedRaoOutput implements SearchTreeRaoResult {
+public class FailedRaoResultImpl implements SearchTreeRaoResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: the RAO failed.";
 
     @Override

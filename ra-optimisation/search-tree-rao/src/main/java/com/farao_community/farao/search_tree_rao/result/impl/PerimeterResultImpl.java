@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class PerimeterOutput implements PerimeterResult {
+public class PerimeterResultImpl implements PerimeterResult {
 
     private final OptimizationResult optimizationResult;
     private final RangeActionResult prePerimeterRangeActionResult;
 
-    public PerimeterOutput(RangeActionResult prePerimeterRangeActionResult, OptimizationResult optimizationResult) {
+    public PerimeterResultImpl(RangeActionResult prePerimeterRangeActionResult, OptimizationResult optimizationResult) {
         this.optimizationResult = optimizationResult;
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
     }

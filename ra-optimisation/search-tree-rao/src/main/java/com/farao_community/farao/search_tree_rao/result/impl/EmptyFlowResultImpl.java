@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class EmptyFlowResult implements FlowResult {
+public class EmptyFlowResultImpl implements FlowResult {
 
     @Override
     public double getFlow(FlowCnec flowCnec, Unit unit) {

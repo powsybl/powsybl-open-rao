@@ -24,20 +24,20 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FlowResultFromMapTest {
+public class FlowResultFromMapImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     SystematicSensitivityResult systematicSensitivityResult;
     FlowCnec loopFlowCnec;
     FlowCnec optimizedCnec;
-    FlowResultFromMap branchResultFromMap;
+    FlowResultFromMapImpl branchResultFromMap;
 
     @Before
     public void setUp() {
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
         loopFlowCnec = Mockito.mock(FlowCnec.class);
         optimizedCnec = Mockito.mock(FlowCnec.class);
-        branchResultFromMap = new FlowResultFromMap(
+        branchResultFromMap = new FlowResultFromMapImpl(
                 systematicSensitivityResult,
                 Map.of(loopFlowCnec, 200.),
                 Map.of(optimizedCnec, 30.)

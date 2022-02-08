@@ -31,14 +31,14 @@ import static com.farao_community.farao.commons.Unit.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class AutomatonOptimizationResultTest {
+public class AutomatonPerimeterResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private NetworkAction networkAction1;
     private NetworkAction networkAction2;
-    private AutomatonOptimizationResult result;
+    private AutomatonPerimeterResultImpl result;
     private PrePerimeterResult postAutoSensitivity;
 
     @Before
@@ -48,7 +48,7 @@ public class AutomatonOptimizationResultTest {
         networkAction1 = mock(NetworkAction.class);
         networkAction2 = mock(NetworkAction.class);
         postAutoSensitivity = mock(PrePerimeterResult.class);
-        result = new AutomatonOptimizationResult(postAutoSensitivity, Set.of(networkAction1));
+        result = new AutomatonPerimeterResultImpl(postAutoSensitivity, Set.of(networkAction1));
     }
 
     @Test

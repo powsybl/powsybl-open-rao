@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PreventiveAndCurativesRaoOutputTest {
+public class PreventiveAndCurativesRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private PrePerimeterResult initialResult;
     private PerimeterResult postPrevResult;
@@ -61,7 +61,7 @@ public class PreventiveAndCurativesRaoOutputTest {
     private State curativeState1;
     private State curativeState2;
     private State curativeState3;
-    private PreventiveAndCurativesRaoOutput output;
+    private PreventiveAndCurativesRaoResultImpl output;
     private OptimizationResult autoResult1;
     private OptimizationResult curativeResult1;
     private OptimizationResult curativeResult2;
@@ -193,7 +193,7 @@ public class PreventiveAndCurativesRaoOutputTest {
         when(stateTree.getBasecaseScenario()).thenReturn(basecaseScenario);
         when(stateTree.getContingencyScenarios()).thenReturn(contingencyScenarios);
 
-        output = new PreventiveAndCurativesRaoOutput(
+        output = new PreventiveAndCurativesRaoResultImpl(
             stateTree,
             initialResult,
             postPrevResult,
@@ -564,7 +564,7 @@ public class PreventiveAndCurativesRaoOutputTest {
     @Test
     public void testNoPostContingencyResultGetters() {
         // Test if only preventive RAO has been conducted
-        output = new PreventiveAndCurativesRaoOutput(initialResult, postPrevResult, preCurativeResult);
+        output = new PreventiveAndCurativesRaoResultImpl(initialResult, postPrevResult, preCurativeResult);
 
         // Test get functional cost
         assertEquals(1000., output.getFunctionalCost(INITIAL), DOUBLE_TOLERANCE);
@@ -749,7 +749,7 @@ public class PreventiveAndCurativesRaoOutputTest {
     @Test
     public void testNoPostContingencyResultGetPerimeterResult() {
         // Test if only preventive RAO has been conducted
-        output = new PreventiveAndCurativesRaoOutput(initialResult, postPrevResult, preCurativeResult);
+        output = new PreventiveAndCurativesRaoResultImpl(initialResult, postPrevResult, preCurativeResult);
 
         State outageState = mock(State.class);
         when(outageState.getInstant()).thenReturn(Instant.OUTAGE);

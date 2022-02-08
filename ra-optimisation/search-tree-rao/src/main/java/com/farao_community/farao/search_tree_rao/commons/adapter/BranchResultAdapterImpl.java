@@ -15,7 +15,7 @@ import com.farao_community.farao.loopflow_computation.LoopFlowResult;
 import com.farao_community.farao.search_tree_rao.commons.AbsolutePtdfSumsComputation;
 import com.farao_community.farao.search_tree_rao.result.impl.FlowResultImpl;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.impl.EmptyFlowResult;
+import com.farao_community.farao.search_tree_rao.result.impl.EmptyFlowResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -26,10 +26,10 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class BranchResultAdapterImpl implements BranchResultAdapter {
-    private FlowResult fixedPtdfs = new EmptyFlowResult();
+    private FlowResult fixedPtdfs = new EmptyFlowResultImpl();
     private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
     private Set<FlowCnec> flowCnecs;
-    private FlowResult fixedCommercialFlows = new EmptyFlowResult();
+    private FlowResult fixedCommercialFlows = new EmptyFlowResultImpl();
     private LoopFlowComputation loopFlowComputation;
     private Set<FlowCnec> loopFlowCnecs;
 
@@ -115,10 +115,10 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
     }
 
     public static final class BranchResultAdpaterBuilder {
-        private FlowResult fixedPtdfs = new EmptyFlowResult();
+        private FlowResult fixedPtdfs = new EmptyFlowResultImpl();
         private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
         private Set<FlowCnec> cnecs;
-        private FlowResult fixedCommercialFlows = new EmptyFlowResult();
+        private FlowResult fixedCommercialFlows = new EmptyFlowResultImpl();
         private LoopFlowComputation loopFlowComputation;
         private Set<FlowCnec> loopFlowCnecs;
 

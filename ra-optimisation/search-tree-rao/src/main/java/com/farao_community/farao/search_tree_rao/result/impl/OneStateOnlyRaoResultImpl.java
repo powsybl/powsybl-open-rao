@@ -27,13 +27,13 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class OneStateOnlyRaoOutput implements SearchTreeRaoResult {
+public class OneStateOnlyRaoResultImpl implements SearchTreeRaoResult {
     private final State optimizedState;
     private final PrePerimeterResult initialResult;
     private final OptimizationResult postOptimizationResult;
     private final Set<FlowCnec> optimizedFlowCnecs;
 
-    public OneStateOnlyRaoOutput(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
+    public OneStateOnlyRaoResultImpl(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
         this.optimizedState = optimizedState;
         this.initialResult = initialResult;
         this.postOptimizationResult = postOptimizationResult;
@@ -92,7 +92,7 @@ public class OneStateOnlyRaoOutput implements SearchTreeRaoResult {
             // TODO : change this when getAppropriateResult will return a PerimeterResult (maybe throw an exception)
             return null;
         }
-        return new PerimeterOutput(initialResult, postOptimizationResult);
+        return new PerimeterResultImpl(initialResult, postOptimizationResult);
     }
 
     public PerimeterResult getPostPreventivePerimeterResult() {
@@ -100,7 +100,7 @@ public class OneStateOnlyRaoOutput implements SearchTreeRaoResult {
             // TODO : review this also
             throw new FaraoException("Trying to access perimeter result for the wrong state.");
         }
-        return new PerimeterOutput(initialResult, postOptimizationResult);
+        return new PerimeterResultImpl(initialResult, postOptimizationResult);
     }
 
     public PrePerimeterResult getInitialResult() {

@@ -19,7 +19,7 @@ import com.farao_community.farao.search_tree_rao.commons.AbsolutePtdfSumsComputa
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityOutput;
+import com.farao_community.farao.search_tree_rao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -86,10 +86,10 @@ public class PrePerimeterSensitivityAnalysisTest {
         mockSystematicSensitivityInterface(false, false);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.run(network);
-        assertNotNull(((PrePerimeterSensitivityOutput) result).getSensitivityResult());
+        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
 
         result = prePerimeterSensitivityAnalysis.runBasedOn(network, optimizationResult);
-        assertNotNull(((PrePerimeterSensitivityOutput) result).getSensitivityResult());
+        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
     }
 
     @Test
@@ -99,7 +99,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         mockSystematicSensitivityInterface(true, false);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.run(network);
-        assertNotNull(((PrePerimeterSensitivityOutput) result).getSensitivityResult());
+        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
     }
 
     @Test
@@ -109,7 +109,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         mockSystematicSensitivityInterface(false, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.run(network);
-        assertNotNull(((PrePerimeterSensitivityOutput) result).getSensitivityResult());
+        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
     }
 
     @Test
@@ -119,7 +119,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         mockSystematicSensitivityInterface(true, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.run(network);
-        assertNotNull(((PrePerimeterSensitivityOutput) result).getSensitivityResult());
+        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
     }
 
     @Test
@@ -129,9 +129,9 @@ public class PrePerimeterSensitivityAnalysisTest {
         mockSystematicSensitivityInterface(false, false);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOn(network, optimizationResult);
-        assertNotNull(((PrePerimeterSensitivityOutput) result).getSensitivityResult());
-        assertEquals(Map.of(cnec, 0.1), ((PrePerimeterSensitivityOutput) result).getBranchResult().getPtdfZonalSums());
-        assertEquals(150., ((PrePerimeterSensitivityOutput) result).getBranchResult().getCommercialFlow(cnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
+        assertEquals(Map.of(cnec, 0.1), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
+        assertEquals(150., ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getCommercialFlow(cnec, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class PrePerimeterSensitivityAnalysisTest {
         mockSystematicSensitivityInterface(false, true);
 
         PrePerimeterResult result = prePerimeterSensitivityAnalysis.runBasedOn(network, optimizationResult);
-        assertNotNull(((PrePerimeterSensitivityOutput) result).getSensitivityResult());
-        assertEquals(Map.of(cnec, 0.1), ((PrePerimeterSensitivityOutput) result).getBranchResult().getPtdfZonalSums());
+        assertNotNull(((PrePerimeterSensitivityResultImpl) result).getSensitivityResult());
+        assertEquals(Map.of(cnec, 0.1), ((PrePerimeterSensitivityResultImpl) result).getBranchResult().getPtdfZonalSums());
     }
 }

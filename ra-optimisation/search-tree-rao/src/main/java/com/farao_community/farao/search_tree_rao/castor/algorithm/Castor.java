@@ -123,7 +123,7 @@ public class Castor implements RaoProvider {
                 return optimizeOneStateOnly(raoInput, parameters, stateTree, toolProvider);
             } catch (Exception e) {
                 BUSINESS_LOGS.error("Optimizing state \"{}\" failed: ", raoInput.getOptimizedState().getId(), e);
-                return CompletableFuture.completedFuture(new FailedRaoOutput());
+                return CompletableFuture.completedFuture(new FailedRaoResultImpl());
             }
         }
 
@@ -142,7 +142,7 @@ public class Castor implements RaoProvider {
             initialOutput = prePerimeterSensitivityAnalysis.run(raoInput.getNetwork());
         } catch (SensitivityAnalysisException e) {
             BUSINESS_LOGS.error("Initial sensitivity analysis failed :", e);
-            return CompletableFuture.completedFuture(new FailedRaoOutput());
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl());
         }
 
         logOverallObjectiveFunction(raoInput.getCrac(), parameters, initialOutput, initialOutput, toolProvider, "Initial sensitivity analysis: ");
@@ -179,7 +179,7 @@ public class Castor implements RaoProvider {
         if (parameters.getExtension(SearchTreeRaoParameters.class).getPreventiveRaoStopCriterion().equals(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE)
             && preventiveOptimalCost > 0) {
             BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
-            mergedRaoResults = new PreventiveAndCurativesRaoOutput(initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput);
+            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput);
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
@@ -195,7 +195,7 @@ public class Castor implements RaoProvider {
             mergedRaoResults = runSecondPreventiveRao(raoInput, parameters, stateTree, toolProvider, prePerimeterSensitivityAnalysis, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
         } else {
             BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
-            mergedRaoResults = new PreventiveAndCurativesRaoOutput(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
+            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults);
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         }
@@ -214,7 +214,7 @@ public class Castor implements RaoProvider {
                 formatDouble(raoResult.getCost(OptimizationState.AFTER_CRA)), formatDouble(raoResult.getFunctionalCost(OptimizationState.AFTER_CRA)), formatDouble(raoResult.getVirtualCost(OptimizationState.AFTER_CRA)));
             // log results
             RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
-            finalRaoResult = new UnoptimizedRaoOutput(initialResult);
+            finalRaoResult = new UnoptimizedRaoResultImpl(initialResult);
         }
 
         // Log costs before and after RAO
@@ -387,7 +387,7 @@ public class Castor implements RaoProvider {
         optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetPoint(rangeAction)));
         optimizationResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getOptimizedState(), prePerimeterResult, optimizationResult, searchTreeInput.getFlowCnecs()));
+        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(raoInput.getOptimizedState(), prePerimeterResult, optimizationResult, searchTreeInput.getFlowCnecs()));
     }
 
     private SearchTreeRaoResult optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult prePerimeterResult) {
@@ -413,7 +413,7 @@ public class Castor implements RaoProvider {
         perimeterResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), perimeterResult.getOptimizedSetPoint(rangeAction)));
         perimeterResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult, searchTreeInput.getFlowCnecs());
+        return new OneStateOnlyRaoResultImpl(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult, searchTreeInput.getFlowCnecs());
     }
 
     private Map<State, OptimizationResult> optimizeContingencyScenarios(Crac crac,
@@ -446,7 +446,7 @@ public class Castor implements RaoProvider {
 
                         // Simulate automaton instant
                         if (automatonState.isPresent()) {
-                            AutomatonOptimizationResult automatonResult = simulateAutomatonState(automatonState.get(), curativeState, crac, networkClone, raoParameters, toolProvider, prePerimeterSensitivityOutput);
+                            AutomatonPerimeterResultImpl automatonResult = simulateAutomatonState(automatonState.get(), curativeState, crac, networkClone, raoParameters, toolProvider, prePerimeterSensitivityOutput);
                             contingencyScenarioResults.put(automatonState.get(), automatonResult);
                             preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
                         }
@@ -470,13 +470,13 @@ public class Castor implements RaoProvider {
         return contingencyScenarioResults;
     }
 
-    private AutomatonOptimizationResult simulateAutomatonState(State automatonState,
-                                                               State curativeState,
-                                                               Crac crac,
-                                                               Network network,
-                                                               RaoParameters raoParameters,
-                                                               ToolProvider toolProvider,
-                                                               PrePerimeterResult prePerimeterSensitivityOutput) {
+    private AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState,
+                                                                State curativeState,
+                                                                Crac crac,
+                                                                Network network,
+                                                                RaoParameters raoParameters,
+                                                                ToolProvider toolProvider,
+                                                                PrePerimeterResult prePerimeterSensitivityOutput) {
         TECHNICAL_LOGS.info("Optimizing automaton state {}.", automatonState.getId());
         if (!crac.getRangeActions(automatonState, UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED).isEmpty()) {
             BUSINESS_WARNS.warn("CRAC has range action automatons. These are not supported yet.");
@@ -518,12 +518,12 @@ public class Castor implements RaoProvider {
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, postAutomatonSensitivityAnalysisOutput, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
         // Build and return optimization result
-        AutomatonOptimizationResult automatonOptimizationResult = new AutomatonOptimizationResult(postAutomatonSensitivityAnalysisOutput, appliedNetworkActions);
+        AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(postAutomatonSensitivityAnalysisOutput, appliedNetworkActions);
         TECHNICAL_LOGS.info("Automaton state {} has been optimized.", automatonState.getId());
 
-        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonOptimizationResult.getActivatedNetworkActions().size(), automatonOptimizationResult.getActivatedRangeActions().size(), null, null, automatonOptimizationResult);
+        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, automatonState, automatonPerimeterResultImpl.getActivatedNetworkActions().size(), automatonPerimeterResultImpl.getActivatedRangeActions().size(), null, null, automatonPerimeterResultImpl);
 
-        return automatonOptimizationResult;
+        return automatonPerimeterResultImpl;
     }
 
     private OptimizationResult optimizeCurativeState(State curativeState,
@@ -827,7 +827,7 @@ public class Castor implements RaoProvider {
         // log results
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, secondPreventiveResult, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
-        return new SecondPreventiveAndCurativesRaoOutput(initialOutput, firstPreventiveResult, secondPreventiveResult, updatedPreCurativeSensitivityAnalysisOutput, postContingencyResults, remedialActionsExcluded);
+        return new SecondPreventiveAndCurativesRaoResultImpl(initialOutput, firstPreventiveResult, secondPreventiveResult, updatedPreCurativeSensitivityAnalysisOutput, postContingencyResults, remedialActionsExcluded);
     }
 
     static AppliedRemedialActions getAppliedRemedialActionsInCurative(Map<State, OptimizationResult> curativeResults, PrePerimeterResult preCurativeResults) {
@@ -835,7 +835,7 @@ public class Castor implements RaoProvider {
         curativeResults.forEach((state, optimizationResult) -> appliedRemedialActions.addAppliedNetworkActions(state, optimizationResult.getActivatedNetworkActions()));
         // Add all range actions that were activated in curative, even if they are also preventive (they will be excluded from 2nd preventive)
         curativeResults.forEach((state, optimizationResult) ->
-            (new PerimeterOutput(preCurativeResults, optimizationResult)).getActivatedRangeActions()
+            (new PerimeterResultImpl(preCurativeResults, optimizationResult)).getActivatedRangeActions()
                 .forEach(rangeAction -> appliedRemedialActions.addAppliedRangeAction(state, rangeAction, optimizationResult.getOptimizedSetPoint(rangeAction)))
         );
         return appliedRemedialActions;
@@ -864,7 +864,7 @@ public class Castor implements RaoProvider {
         perimeterResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), perimeterResult.getOptimizedSetPoint(rangeAction)));
         perimeterResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoOutput(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult, searchTreeInput.getFlowCnecs()));
+        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(raoInput.getCrac().getPreventiveState(), prePerimeterResult, perimeterResult, searchTreeInput.getFlowCnecs()));
     }
 
     /**

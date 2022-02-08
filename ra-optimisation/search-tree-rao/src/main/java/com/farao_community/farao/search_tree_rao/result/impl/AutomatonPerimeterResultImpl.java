@@ -28,12 +28,12 @@ import java.util.Set;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class AutomatonOptimizationResult implements PerimeterResult {
+public class AutomatonPerimeterResultImpl implements PerimeterResult {
 
     private final PrePerimeterResult postAutomatonSensitivityAnalysisOutput;
     private final Set<NetworkAction> activatedNetworkActions;
 
-    public AutomatonOptimizationResult(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> activatedNetworkActions) {
+    public AutomatonPerimeterResultImpl(PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> activatedNetworkActions) {
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
         this.activatedNetworkActions = activatedNetworkActions;
     }

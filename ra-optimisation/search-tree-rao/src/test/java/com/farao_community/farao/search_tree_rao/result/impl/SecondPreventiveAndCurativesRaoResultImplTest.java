@@ -36,7 +36,7 @@ import static com.farao_community.farao.data.rao_result_api.OptimizationState.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SecondPreventiveAndCurativesRaoOutputTest {
+public class SecondPreventiveAndCurativesRaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private PrePerimeterResult initialResult;
     private PerimeterResult post1PResult; // post 1st preventive result
@@ -54,7 +54,7 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
     private State state2;
     private State state3;
     private State preventiveState;
-    private SecondPreventiveAndCurativesRaoOutput output;
+    private SecondPreventiveAndCurativesRaoResultImpl output;
     private OptimizationResult curativeResult1;
     private OptimizationResult curativeResult2;
 
@@ -230,7 +230,7 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
         when(preCurativeResult.getRelativeMargin(cnec1, Unit.MEGAWATT)).thenReturn(1550.);
         when(preCurativeResult.getRelativeMargin(cnec1, Unit.AMPERE)).thenReturn(800.);
 
-        output = new SecondPreventiveAndCurativesRaoOutput(initialResult,
+        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
@@ -319,7 +319,7 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
         assertTrue(output.wasActivatedBeforeState(state1, networkAction));
         assertTrue(output.wasActivatedBeforeState(state2, networkAction));
 
-        output = new SecondPreventiveAndCurativesRaoOutput(initialResult,
+        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
@@ -337,7 +337,7 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
         assertFalse(output.isActivatedDuringState(state3, networkAction));
 
         when(curativeResult1.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
-        output = new SecondPreventiveAndCurativesRaoOutput(initialResult,
+        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
@@ -357,7 +357,7 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
         assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(state2));
 
         when(curativeResult2.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
-        output = new SecondPreventiveAndCurativesRaoOutput(initialResult,
+        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
@@ -386,7 +386,7 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
         assertFalse(output.isActivatedDuringState(state2, rangeAction));
         assertFalse(output.isActivatedDuringState(state3, rangeAction));
 
-        output = new SecondPreventiveAndCurativesRaoOutput(initialResult,
+        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,
@@ -441,7 +441,7 @@ public class SecondPreventiveAndCurativesRaoOutputTest {
 
         when(post2PResult.getActivatedRangeActions()).thenReturn(Set.of());
         when(post1PResult.getActivatedRangeActions()).thenReturn(Set.of(pstRangeAction));
-        output = new SecondPreventiveAndCurativesRaoOutput(initialResult,
+        output = new SecondPreventiveAndCurativesRaoResultImpl(initialResult,
                 post1PResult,
                 post2PResult,
                 preCurativeResult,

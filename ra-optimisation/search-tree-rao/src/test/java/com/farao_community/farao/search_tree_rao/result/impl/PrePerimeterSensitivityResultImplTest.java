@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class PrePerimeterSensitivityOutputTest {
+public class PrePerimeterSensitivityResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     @Test
@@ -46,7 +46,7 @@ public class PrePerimeterSensitivityOutputTest {
         RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);
         ObjectiveFunctionResult objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
 
-        PrePerimeterSensitivityOutput output = new PrePerimeterSensitivityOutput(flowResult, sensitivityResult, rangeActionResult, objectiveFunctionResult);
+        PrePerimeterSensitivityResultImpl output = new PrePerimeterSensitivityResultImpl(flowResult, sensitivityResult, rangeActionResult, objectiveFunctionResult);
 
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         assertEquals(ComputationStatus.DEFAULT, output.getSensitivityStatus());

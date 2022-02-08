@@ -27,10 +27,10 @@ import java.util.Set;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UnoptimizedRaoOutput implements RaoResult {
+public class UnoptimizedRaoResultImpl implements RaoResult {
     private final PrePerimeterResult initialResult;
 
-    public UnoptimizedRaoOutput(PrePerimeterResult initialResult) {
+    public UnoptimizedRaoResultImpl(PrePerimeterResult initialResult) {
         this.initialResult = initialResult;
     }
 

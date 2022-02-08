@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class OneStateOnlyRaoOutputTest {
+public class OneStateOnlyRaoResultImplest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private State optimizedState;
     private PrePerimeterResult initialResult;
@@ -44,7 +44,7 @@ public class OneStateOnlyRaoOutputTest {
     private FlowCnec cnec2;
     private State cnec1state;
     private State cnec2state;
-    private OneStateOnlyRaoOutput output;
+    private OneStateOnlyRaoResultImpl output;
 
     @Before
     public void setUp() {
@@ -114,7 +114,7 @@ public class OneStateOnlyRaoOutputTest {
         cnecs.add(cnec1);
         cnecs.add(cnec2);
 
-        output = new OneStateOnlyRaoOutput(optimizedState, initialResult, postOptimizationResult, cnecs);
+        output = new OneStateOnlyRaoResultImpl(optimizedState, initialResult, postOptimizationResult, cnecs);
     }
 
     @Test

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class IteratingLinearOptimizerResult implements LinearOptimizationResult {
+public class IteratingLinearOptimizationResultImpl implements LinearOptimizationResult {
 
     private LinearProblemStatus status;
     private int nbOfIteration;
@@ -28,12 +28,12 @@ public class IteratingLinearOptimizerResult implements LinearOptimizationResult 
     private final SensitivityResult sensitivityResult;
     private final ObjectiveFunctionResult objectiveFunctionResult;
 
-    public IteratingLinearOptimizerResult(LinearProblemStatus status,
-                                          int nbOfIteration,
-                                          RangeActionResult rangeActionResult,
-                                          FlowResult flowResult,
-                                          ObjectiveFunctionResult objectiveFunctionResult,
-                                          SensitivityResult sensitivityResult) {
+    public IteratingLinearOptimizationResultImpl(LinearProblemStatus status,
+                                                 int nbOfIteration,
+                                                 RangeActionResult rangeActionResult,
+                                                 FlowResult flowResult,
+                                                 ObjectiveFunctionResult objectiveFunctionResult,
+                                                 SensitivityResult sensitivityResult) {
         this.status = status;
         this.nbOfIteration = nbOfIteration;
         this.rangeActionResult = rangeActionResult;

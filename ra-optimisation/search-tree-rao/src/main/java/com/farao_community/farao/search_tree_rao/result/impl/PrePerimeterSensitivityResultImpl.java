@@ -16,14 +16,14 @@ import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.*;
 
-public class PrePerimeterSensitivityOutput implements PrePerimeterResult {
+public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
 
     private FlowResult flowResult;
     private SensitivityResult sensitivityResult;
     private RangeActionResult rangeActionResult;
     private final ObjectiveFunctionResult objectiveFunctionResult;
 
-    public PrePerimeterSensitivityOutput(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult, ObjectiveFunctionResult objectiveFunctionResult) {
+    public PrePerimeterSensitivityResultImpl(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult, ObjectiveFunctionResult objectiveFunctionResult) {
         this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;
         this.rangeActionResult = rangeActionResult;

@@ -23,14 +23,14 @@ import static java.lang.String.format;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FlowResultFromMap implements FlowResult {
+public class FlowResultFromMapImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
     private final Map<FlowCnec, Double> commercialFlows;
     private final Map<FlowCnec, Double> ptdfZonalSums;
 
-    public FlowResultFromMap(SystematicSensitivityResult systematicSensitivityResult,
-                             Map<FlowCnec, Double> commercialFlows,
-                             Map<FlowCnec, Double> ptdfZonalSums) {
+    public FlowResultFromMapImpl(SystematicSensitivityResult systematicSensitivityResult,
+                                 Map<FlowCnec, Double> commercialFlows,
+                                 Map<FlowCnec, Double> ptdfZonalSums) {
         this.systematicSensitivityResult = systematicSensitivityResult;
         this.commercialFlows = commercialFlows;
         this.ptdfZonalSums = ptdfZonalSums;

@@ -40,7 +40,7 @@ import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FA
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResult {
+public class SecondPreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult {
 
     private static final String UNKNOWN_OPTIM_STATE = "Unknown OptimizationState: %s";
 
@@ -51,12 +51,12 @@ public class SecondPreventiveAndCurativesRaoOutput implements SearchTreeRaoResul
     private final Map<State, OptimizationResult> postCurativeResults;
     private final Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive; // RAs only in 1st preventive, not in 2nd
 
-    public SecondPreventiveAndCurativesRaoOutput(PrePerimeterResult initialResult,
-                                                 PerimeterResult postFirstPreventiveResult,
-                                                 PerimeterResult postSecondPreventiveResult,
-                                                 PrePerimeterResult preCurativeResult,
-                                                 Map<State, OptimizationResult> postCurativeResults,
-                                                 Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive) {
+    public SecondPreventiveAndCurativesRaoResultImpl(PrePerimeterResult initialResult,
+                                                     PerimeterResult postFirstPreventiveResult,
+                                                     PerimeterResult postSecondPreventiveResult,
+                                                     PrePerimeterResult preCurativeResult,
+                                                     Map<State, OptimizationResult> postCurativeResults,
+                                                     Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive) {
         this.initialResult = initialResult;
         this.postFirstPreventiveResult = postFirstPreventiveResult;
         this.postSecondPreventiveResult = postSecondPreventiveResult;

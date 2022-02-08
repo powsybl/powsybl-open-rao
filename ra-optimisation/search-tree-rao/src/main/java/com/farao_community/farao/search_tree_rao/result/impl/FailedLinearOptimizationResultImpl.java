@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FailedLinearOptimizationResult implements LinearOptimizationResult {
+public class FailedLinearOptimizationResultImpl implements LinearOptimizationResult {
 
     @Override
     public LinearProblemStatus getStatus() {

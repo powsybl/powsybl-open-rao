@@ -29,16 +29,16 @@ import static org.mockito.Mockito.when;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UnoptimizedRaoOutputTest {
+public class UnoptimizedRaoResultImplTest {
     private PrePerimeterResult initialResult;
-    private UnoptimizedRaoOutput output;
+    private UnoptimizedRaoResultImpl output;
     private FlowCnec flowCnec;
     private static final double DOUBLE_TOLERANCE = 1e-6;
 
     @Before
     public void setUp() {
         initialResult = Mockito.mock(PrePerimeterResult.class);
-        output = new UnoptimizedRaoOutput(initialResult);
+        output = new UnoptimizedRaoResultImpl(initialResult);
         flowCnec = Mockito.mock(FlowCnec.class);
     }
 
