@@ -105,7 +105,7 @@
         <farao.virtualhubs.version>0.0.7</farao.virtualhubs.version>
         <google.autoservice.version>1.0-rc7</google.autoservice.version>
         <google.guava.version>29.0-jre</google.guava.version>
-        <google.ortools.version>7.8.7959</google.ortools.version>
+        <google.ortools.version>9.2.9972</google.ortools.version>
         <jackson.version>2.11.2</jackson.version>
         <java.version>11</java.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
@@ -405,7 +405,7 @@
                 <version>${farao.virtualhubs.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.farao-community.ortools</groupId>
+                <groupId>com.google.ortools</groupId>
                 <artifactId>ortools-java</artifactId>
                 <version>${google.ortools.version}</version>
             </dependency>
