@@ -446,4 +446,12 @@ public class CseCracCreatorTest {
         setUp("/cracs/cseCrac_ep15us10-1case1.xml", "/networks/TestCase12Nodes_forCSE.uct");
         assertRemedialActionNotImported("Bus bar ok test", INCOMPLETE_DATA);
     }
+
+    @Test
+    public void testImportEmptyRa() {
+        setUp("/cracs/cse_crac_empty_ra.xml");
+        assertNotNull(cracCreationContext.getCrac());
+        assertTrue(cracCreationContext.getCrac().getRemedialActions().isEmpty());
+        assertEquals(1, cracCreationContext.getRemedialActionCreationContexts().size());
+    }
 }
