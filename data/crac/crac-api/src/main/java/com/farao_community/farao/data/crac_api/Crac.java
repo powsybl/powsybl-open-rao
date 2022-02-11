@@ -233,6 +233,11 @@ public interface Crac extends Identifiable<Crac> {
      */
     void removeFlowCnec(String flowCnecId);
 
+    /**
+     * Remove a set of FlowCnecs - identified by their id - from the Crac
+     */
+    void removeFlowCnecs(Set<String> flowCnecsIds);
+
     // Remedial actions management
 
     /**

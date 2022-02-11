@@ -10,6 +10,7 @@ package com.farao_community.farao.search_tree_rao.commons.objective_function_eva
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 
@@ -68,6 +69,23 @@ public class MinMarginEvaluator implements CostEvaluator {
         if (limitingElement == null) {
             return 0;
         }
-        return -marginEvaluator.getMargin(flowResult, limitingElement, unit);
+        double margin = marginEvaluator.getMargin(flowResult, limitingElement, unit);
+        if (margin >= Double.MAX_VALUE / 2) {
+            // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
+            // return a finite value, so that the virtual cost is not hidden by the functional cost
+            // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
+            margin = flowCnecs.stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
+        }
+        return -margin;
+    }
+
+    private double getHighestThreshold(FlowCnec flowCnec) {
+        return Math.max(
+            Math.max(
+                flowCnec.getUpperBound(Side.LEFT, unit).orElse(0.0),
+                flowCnec.getUpperBound(Side.RIGHT, unit).orElse(0.0)),
+            Math.max(
+                -flowCnec.getLowerBound(Side.LEFT, unit).orElse(0.0),
+                -flowCnec.getLowerBound(Side.RIGHT, unit).orElse(0.0)));
     }
 }
