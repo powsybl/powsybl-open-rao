@@ -338,15 +338,19 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void removeFlowCnec(String flowCnecId) {
-        FlowCnec flowCnecToRemove = flowCnecs.get(flowCnecId);
-        if (Objects.isNull(flowCnecToRemove)) {
-            return;
-        }
-        String neId = flowCnecToRemove.getNetworkElement().getId();
-        String stateId = flowCnecToRemove.getState().getId();
-        flowCnecs.remove(flowCnecId);
-        safeRemoveNetworkElements(Collections.singleton(neId));
-        safeRemoveStates(Collections.singleton(stateId));
+        removeFlowCnecs(Collections.singleton(flowCnecId));
+    }
+
+    @Override
+    public void removeFlowCnecs(Set<String> flowCnecsIds) {
+        Set<FlowCnec> flowCnecsToRemove = flowCnecsIds.stream().map(flowCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(Cnec::getNetworkElement).map(Identifiable::getId).collect(Collectors.toSet());
+        Set<String> statesToRemove = flowCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
+        flowCnecsToRemove.forEach(flowCnecToRemove ->
+            flowCnecs.remove(flowCnecToRemove.getId())
+        );
+        safeRemoveNetworkElements(networkElementsToRemove);
+        safeRemoveStates(statesToRemove);
     }
 
     void addFlowCnec(FlowCnec flowCnec) {
