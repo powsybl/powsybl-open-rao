@@ -95,7 +95,7 @@ public final class RaoLogger {
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
             String ptdfIfRelative = (relativePositiveMargins && cnecMargin > 0) ? format(" (PTDF %f)", flowResult.getPtdfZonalSum(cnec)) : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%s:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s%s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
                 cnecMargin,
@@ -154,7 +154,7 @@ public final class RaoLogger {
             double cnecMargin = mostLimitingElementsAndMargins.get(cnec);
 
             String isRelativeMargin = (relativePositiveMargins && cnecMargin > 0) ? " relative" : "";
-            summary.add(String.format(Locale.ENGLISH, "Limiting element #%s:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
+            summary.add(String.format(Locale.ENGLISH, "Limiting element #%02d:%s margin = %.2f %s, element %s at state %s, CNEC ID = \"%s\"",
                 i + 1,
                 isRelativeMargin,
                 cnecMargin,
