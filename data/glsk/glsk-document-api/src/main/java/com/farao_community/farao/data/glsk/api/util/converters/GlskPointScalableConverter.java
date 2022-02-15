@@ -38,32 +38,36 @@ public final class GlskPointScalableConverter {
     public static Scalable convert(Network network, AbstractGlskPoint glskPoint) {
         Objects.requireNonNull(glskPoint.getGlskShiftKeys());
         if (!glskPoint.getGlskShiftKeys().get(0).getBusinessType().equals("B45")) {
-            //B42 and B43 proportional
-            List<Float> percentages = new ArrayList<>();
-            List<Scalable> scalables = new ArrayList<>();
-
-            for (AbstractGlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
-                if (glskShiftKey.getBusinessType().equals("B42") && glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
-                    //B42 country
-                    convertCountryProportional(network, glskShiftKey, percentages, scalables);
-                } else if (glskShiftKey.getBusinessType().equals("B42") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
-                    //B42 explicit
-                    convertExplicitProportional(network, glskShiftKey, percentages, scalables);
-                } else if (glskShiftKey.getBusinessType().equals("B43") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
-                    //B43 participation factor
-                    convertParticipationFactor(network, glskShiftKey, percentages, scalables);
-                } else if (glskShiftKey.getBusinessType().equals("B44") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
-                    //B44 remaining capacity
-                    convertRemainingCapacity(network, glskShiftKey, percentages, scalables);
-                } else {
-                    throw new GlskException("In convert glskShiftKey business type not supported");
-                }
-            }
-            return Scalable.proportional(percentages, scalables, true);
+            return convert(network, glskPoint.getGlskShiftKeys());
         } else {
             //B45 merit order
             return convertMeritOrder(network, glskPoint);
         }
+    }
+
+    public static Scalable convert(Network network, List<AbstractGlskShiftKey> shiftKeys) {
+        Objects.requireNonNull(shiftKeys);
+        List<Float> percentages = new ArrayList<>();
+        List<Scalable> scalables = new ArrayList<>();
+
+        for (AbstractGlskShiftKey glskShiftKey : shiftKeys) {
+            if (glskShiftKey.getBusinessType().equals("B42") && glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
+                //B42 country
+                convertCountryProportional(network, glskShiftKey, percentages, scalables);
+            } else if (glskShiftKey.getBusinessType().equals("B42") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
+                //B42 explicit
+                convertExplicitProportional(network, glskShiftKey, percentages, scalables);
+            } else if (glskShiftKey.getBusinessType().equals("B43") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
+                //B43 participation factor
+                convertParticipationFactor(network, glskShiftKey, percentages, scalables);
+            } else if (glskShiftKey.getBusinessType().equals("B44") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
+                //B44 remaining capacity
+                convertRemainingCapacity(network, glskShiftKey, percentages, scalables);
+            } else {
+                throw new GlskException("In convert glskShiftKey business type not supported");
+            }
+        }
+        return Scalable.proportional(percentages, scalables, true);
     }
 
     private static void convertRemainingCapacity(Network network, AbstractGlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
@@ -88,9 +92,9 @@ public final class GlskPointScalableConverter {
         double totalFactor = generatorResources.stream().mapToDouble(resource -> remainingCapacityFunction.apply(resource, network)).sum();
         generatorResources.forEach(generatorResource -> {
             percentages.add((float) (100 * glskShiftKey.getQuantity().floatValue() * remainingCapacityFunction.apply(generatorResource, network) / totalFactor));
-            scalables.add(Scalable.onGenerator(generatorResource.getGeneratorId()));
+            scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
         });
-        return Scalable.proportional(percentages, scalables);
+        return Scalable.proportional(percentages, scalables, true);
     }
 
     private static double getRemainingCapacityUp(AbstractGlskRegisteredResource resource, Network network) {
@@ -207,9 +211,15 @@ public final class GlskPointScalableConverter {
                     .collect(Collectors.toList());
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
 
-            //calculate factor of each generator
-            generators.forEach(generator -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP));
-            generators.forEach(generator -> scalables.add(Scalable.onGenerator(generator.getId())));
+            generators.forEach(generator -> {
+                // Calculate factor of each generator
+                float factor = glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP;
+                percentages.add(100 * factor);
+                // In case of global shift key limitation we will limit the generator proportionally to
+                // its participation in the global proportional scalable
+                double maxGeneratorValue = NetworkUtil.pseudoTargetP(generator) + factor * glskShiftKey.getMaximumShift();
+                scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, maxGeneratorValue));
+            });
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             TECHNICAL_LOGS.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
@@ -220,6 +230,7 @@ public final class GlskPointScalableConverter {
                     .collect(Collectors.toList());
             double totalP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
 
+            // For now glsk shift key maximum shift is not handled for loads by lack of specification
             loads.forEach(load -> percentages.add(100 * glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalP));
             loads.forEach(load -> scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE)));
         }
