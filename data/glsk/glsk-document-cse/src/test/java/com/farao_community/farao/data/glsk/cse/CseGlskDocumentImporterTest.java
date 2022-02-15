@@ -12,6 +12,7 @@ import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
 
 import java.util.List;
@@ -313,5 +314,19 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2500., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
+    }
+
+    @Test
+    public void checkConversionToLinearGlskFails() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalGlsks(network));
+    }
+
+    @Test
+    public void checkConversionToChronologicalScalableFails() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalScalableChronology(network));
     }
 }
