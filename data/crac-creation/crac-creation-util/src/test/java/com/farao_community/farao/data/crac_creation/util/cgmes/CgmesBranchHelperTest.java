@@ -42,7 +42,7 @@ public class CgmesBranchHelperTest {
         cgmesBranchHelper = new CgmesBranchHelper("_b18cd1aa-7808-49b9-a7cf-605eaf07b006", network);
         assertNotNull(cgmesBranchHelper.getBranch());
         assertTrue(cgmesBranchHelper.isTieLine());
-        assertTrue(cgmesBranchHelper.getTieLineSide() == Branch.Side.ONE);
+        assertSame(cgmesBranchHelper.getTieLineSide(), Branch.Side.ONE);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class CgmesBranchHelperTest {
         cgmesBranchHelper = new CgmesBranchHelper("_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", network);
         assertNotNull(cgmesBranchHelper.getBranch());
         assertTrue(cgmesBranchHelper.isTieLine());
-        assertTrue(cgmesBranchHelper.getTieLineSide() == Branch.Side.TWO);
+        assertSame(cgmesBranchHelper.getTieLineSide(), Branch.Side.TWO);
     }
 
     @Test
