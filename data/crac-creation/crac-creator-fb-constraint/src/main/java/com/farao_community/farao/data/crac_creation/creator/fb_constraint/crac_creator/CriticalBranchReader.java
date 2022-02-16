@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.NativeBranch;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.CriticalBranchType;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.CriticalBranchType;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteCnecElementHelper;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThresholdAdder;

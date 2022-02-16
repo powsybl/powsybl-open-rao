@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.CriticalBranchType;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.CriticalBranchType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
