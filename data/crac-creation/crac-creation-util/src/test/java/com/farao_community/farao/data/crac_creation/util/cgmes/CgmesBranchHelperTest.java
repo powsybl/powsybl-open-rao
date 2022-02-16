@@ -33,29 +33,36 @@ public class CgmesBranchHelperTest {
     @Test
     public void testValidNonTieLine() {
         cgmesBranchHelper = new CgmesBranchHelper("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", network);
+        assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
         assertFalse(cgmesBranchHelper.isTieLine());
+        assertEquals("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", cgmesBranchHelper.getIdInNetwork());
     }
 
     @Test
     public void testTieLineSideOne() {
         cgmesBranchHelper = new CgmesBranchHelper("_b18cd1aa-7808-49b9-a7cf-605eaf07b006", network);
+        assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
         assertTrue(cgmesBranchHelper.isTieLine());
-        assertSame(cgmesBranchHelper.getTieLineSide(), Branch.Side.ONE);
+        assertSame(Branch.Side.ONE, cgmesBranchHelper.getTieLineSide());
+        assertEquals("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", cgmesBranchHelper.getIdInNetwork());
     }
 
     @Test
     public void testTieLineSideTwo() {
         cgmesBranchHelper = new CgmesBranchHelper("_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", network);
+        assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
         assertTrue(cgmesBranchHelper.isTieLine());
-        assertSame(cgmesBranchHelper.getTieLineSide(), Branch.Side.TWO);
+        assertSame(Branch.Side.TWO, cgmesBranchHelper.getTieLineSide());
+        assertEquals("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", cgmesBranchHelper.getIdInNetwork());
     }
 
     @Test
     public void testAbsentLine() {
         cgmesBranchHelper = new CgmesBranchHelper("_ffbabc27-1ccd-4fdc-b037-e341706c8d20", network);
-        assertNull(cgmesBranchHelper.getBranch());
+        assertFalse(cgmesBranchHelper.isValid());
+        assertEquals("Branch with id _ffbabc27-1ccd-4fdc-b037-e341706c8d20 was not found in network.", cgmesBranchHelper.getInvalidReason());
     }
 }

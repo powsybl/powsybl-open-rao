@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.data.crac_creation.util.cgmes;
 
+import com.farao_community.farao.data.crac_creation.util.ElementHelper;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -14,7 +15,7 @@ import java.util.Objects;
 /**
  * @author Philippe Edwards{@literal <philippe.edwards at rte-france.com>}
  */
-public class CgmesBranchHelper {
+public class CgmesBranchHelper implements ElementHelper {
 
     private final String mrId;
 
@@ -67,5 +68,20 @@ public class CgmesBranchHelper {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isValid() {
+        return Objects.nonNull(branch);
+    }
+
+    @Override
+    public String getInvalidReason() {
+        return String.format("Branch with id %s was not found in network.", mrId);
+    }
+
+    @Override
+    public String getIdInNetwork() {
+        return branch.getId();
     }
 }
