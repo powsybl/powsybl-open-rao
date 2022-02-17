@@ -60,7 +60,7 @@ public class ContingencyImpl extends AbstractIdentifiable<Contingency> implement
             }
         });
         com.powsybl.contingency.Contingency.checkValidity(Collections.singletonList(contingency), network);
-        contingency.toTask().modify(network, computationManager);
+        contingency.toModification().apply(network, computationManager);
     }
 
     /**
