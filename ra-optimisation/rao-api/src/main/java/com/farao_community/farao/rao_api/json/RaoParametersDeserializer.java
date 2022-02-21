@@ -71,6 +71,14 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setHvdcSensitivityThreshold(parser.getDoubleValue());
                     break;
+                case "injection-ra-penalty-cost":
+                    parser.nextToken();
+                    parameters.setInjectionRaPenaltyCost(parser.getDoubleValue());
+                    break;
+                case "injection-ra-sensitivity-threshold":
+                    parser.nextToken();
+                    parameters.setInjectionRaSensitivityThreshold(parser.getDoubleValue());
+                    break;
                 case "sensitivity-fallback-over-cost":
                     parser.nextToken();
                     parameters.setFallbackOverCost(parser.getDoubleValue());
@@ -150,6 +158,12 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     break;
                 case "pst-optimization-approximation":
                     parameters.setPstOptimizationApproximation(stringToPstApproximation(parser.nextTextValue()));
+                    break;
+                case "load-flow-provider":
+                    parameters.setLoadFlowProvider(parser.nextTextValue());
+                    break;
+                case "sensitivity-provider":
+                    parameters.setSensitivityProvider(parser.nextTextValue());
                     break;
                 case "sensitivity-parameters":
                     parser.nextToken();

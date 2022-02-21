@@ -13,7 +13,12 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 
+import java.util.Comparator;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
+ * Utility to look for a generator using a bus name
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class GeneratorHelper {
@@ -21,6 +26,10 @@ public class GeneratorHelper {
     private boolean isAltered = false;
     private String generatorId = null;
     private String detail = null;
+
+    private double pMin;
+    private double pMax;
+    private double currentP;
 
     // Find a generator using a bus ID
     public GeneratorHelper(String busIdInCrac, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
@@ -30,36 +39,60 @@ public class GeneratorHelper {
             detail = busHelper.getInvalidReason();
             return;
         }
-        Identifiable<?> busId = ucteNetworkAnalyzer.getNetwork().getIdentifiable(busHelper.getIdInNetwork());
-        if (busId instanceof Bus) {
-            Bus bus = (Bus) busId;
-            // 1 generator connected to bus
-            if (bus.getGeneratorStream().count() == 1) {
-                importStatus = ImportStatus.IMPORTED;
-                generatorId = bus.getGenerators().iterator().next().getId();
+        findBusWithGenerator(busHelper.getBusMatchesInNetwork(), busIdInCrac);
+    }
+
+    private void findBusWithGenerator(Set<Bus> matchedBuses, String busIdInCrac) {
+
+        boolean anyNotConnectedGenerator = false;
+        Generator generator = null;
+
+        for (Bus bus : matchedBuses) {
+
+            // if bus is not in main component, just look if there is any generator for logging purposes,
+            // and go to next bus
+            if (!bus.isInMainConnectedComponent()) {
+                if (bus.getGeneratorStream().findAny().isPresent()) {
+                    anyNotConnectedGenerator = true;
+                }
+                continue;
+            }
+
+            // if one generator has already been identified on a previous bus, and a new one is found -> inconsistency
+            if (bus.getGeneratorStream().findAny().isPresent() && generator != null) {
+                importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
+                detail = String.format("Too many generators match node name %s", busIdInCrac);
                 return;
             }
-            // > 1  generator connected to bus : return 1st generator + warning
+
+            // 1 generator connected to bus -> OK return generator
+            if (bus.getGeneratorStream().count() == 1) {
+                importStatus = ImportStatus.IMPORTED;
+                generator = bus.getGenerators().iterator().next();
+            }
+
+            // > 1  generator connected to bus -> OK return 1st generator + warning
             if (bus.getGeneratorStream().count() > 1) {
                 importStatus = ImportStatus.IMPORTED;
                 isAltered = true;
-                detail = "More than 1 generator associated to {}. Load first generator.";
-                generatorId = bus.getGenerators().iterator().next().getId();
-                return;
-            }
-            // 0  generator connected to bus :
-            if (bus.getGeneratorStream().count() == 0) {
-                importStatus = ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
-                detail = String.format("No generator associated to %s, filter RA", busId);
-                return;
+                detail = String.format("More than 1 generator associated to %s. First generator is selected.", busIdInCrac);
+                generator = bus.getGeneratorStream().sorted(Comparator.comparing(Identifiable::getId)).collect(Collectors.toList()).get(0);
             }
         }
-        if (busId instanceof Generator) {
-            importStatus = ImportStatus.IMPORTED;
-            generatorId = busId.getId();
+
+        if (generator == null) {
+            importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
+            if (anyNotConnectedGenerator) {
+                detail = String.format("Buses matching %s in the network do not hold generators connected to the main grid", busIdInCrac);
+            } else {
+                detail = String.format("Buses matching %s in the network do not hold generators", busIdInCrac);
+            }
+        } else {
+            generatorId = generator.getId();
+            pMin = generator.getMinP();
+            pMax = generator.getMaxP();
+            currentP = generator.getTargetP();
         }
-        importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
-        detail = String.format("BusId %s is neither a Bus nor a Generator.", busId);
     }
 
     public boolean isValid() {
@@ -80,5 +113,17 @@ public class GeneratorHelper {
 
     public String getDetail() {
         return detail;
+    }
+
+    public double getPmin() {
+        return pMin;
+    }
+
+    public double getPmax() {
+        return pMax;
+    }
+
+    public double getCurrentP() {
+        return currentP;
     }
 }

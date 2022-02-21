@@ -7,23 +7,21 @@
 package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.powsybl.contingency.*;
-import com.powsybl.iidm.network.*;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivityProvider {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSimpleSensitivityProvider.class);
-
     protected Set<FlowCnec> cnecs;
     protected boolean factorsInMegawatt = false;
     protected boolean factorsInAmpere = false;
@@ -47,12 +45,13 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
                     factorsInAmpere = true;
                     break;
                 default:
-                    LOGGER.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
+                    FaraoLoggerProvider.TECHNICAL_LOGS.warn("Unit {} cannot be handled by the sensitivity provider as it is not a flow unit", unit);
             }
         }
 
         if (!factorsInAmpere && !factorsInMegawatt) {
-            LOGGER.error("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
+            FaraoLoggerProvider.TECHNICAL_LOGS.error("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
+            throw new SensitivityAnalysisException("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
         }
 
     }

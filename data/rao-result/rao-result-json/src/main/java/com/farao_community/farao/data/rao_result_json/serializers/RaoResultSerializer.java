@@ -31,6 +31,11 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
     public void serialize(RaoResult raoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
+        // type and version
+        jsonGenerator.writeStringField(TYPE, RAO_RESULT_TYPE);
+        jsonGenerator.writeStringField(VERSION, RAO_RESULT_IO_VERSION);
+        jsonGenerator.writeStringField(INFO, RAO_RESULT_INFO);
+
         // computation status
         ComputationStatus computationStatus = raoResult.getComputationStatus();
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
@@ -44,7 +49,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         FlowCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         PstRangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
-        HvdcRangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
+        StandardRangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

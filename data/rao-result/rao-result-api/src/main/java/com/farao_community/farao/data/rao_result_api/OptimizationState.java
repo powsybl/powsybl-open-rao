@@ -15,15 +15,17 @@ import com.farao_community.farao.data.crac_api.State;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public enum OptimizationState {
-    INITIAL(Instant.PREVENTIVE),
-    AFTER_PRA(Instant.PREVENTIVE),
-    AFTER_ARA(Instant.AUTO),
-    AFTER_CRA(Instant.CURATIVE);
+    INITIAL(Instant.PREVENTIVE, "initial"),
+    AFTER_PRA(Instant.PREVENTIVE, "after PRA"),
+    AFTER_ARA(Instant.AUTO, "after ARA"),
+    AFTER_CRA(Instant.CURATIVE, "after CRA");
 
     private final Instant firstInstant;
+    private final String name;
 
-    OptimizationState(Instant firstInstant) {
+    OptimizationState(Instant firstInstant, String name) {
         this.firstInstant = firstInstant;
+        this.name = name;
     }
 
     /**
@@ -80,5 +82,10 @@ public enum OptimizationState {
      */
     public Instant getFirstInstant() {
         return firstInstant;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

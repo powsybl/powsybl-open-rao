@@ -7,18 +7,16 @@
 
 package com.farao_community.farao.data.glsk.virtual.hubs;
 
-import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.*;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
+import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
+import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
-import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
-import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.virtual_hubs.network_extension.AssignedVirtualHub;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,9 +25,6 @@ import java.util.stream.Collectors;
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
 public final class GlskVirtualHubs {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlskVirtualHubs.class);
-
     private GlskVirtualHubs() {
     }
 
@@ -67,9 +62,9 @@ public final class GlskVirtualHubs {
         eiCodes.forEach(eiCode -> {
 
             if (!virtualLoads.containsKey(eiCode)) {
-                LOGGER.warn("No load found for virtual hub {}", eiCode);
+                FaraoLoggerProvider.BUSINESS_WARNS.warn("No load found for virtual hub {}", eiCode);
             } else {
-                LOGGER.debug("Load {} found for virtual hub {}", virtualLoads.get(eiCode).getId(), eiCode);
+                FaraoLoggerProvider.TECHNICAL_LOGS.debug("Load {} found for virtual hub {}", virtualLoads.get(eiCode).getId(), eiCode);
                 Optional<SensitivityVariableSet> virtualHubGlsk = createGlskFromVirtualHub(virtualLoads.get(eiCode));
                 virtualHubGlsk.ifPresent(linearGlsk -> glsks.put(eiCode, linearGlsk));
             }

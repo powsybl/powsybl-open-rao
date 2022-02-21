@@ -34,6 +34,8 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeNumberField("pst-sensitivity-threshold", parameters.getPstSensitivityThreshold());
         jsonGenerator.writeNumberField("hvdc-penalty-cost", parameters.getHvdcPenaltyCost());
         jsonGenerator.writeNumberField("hvdc-sensitivity-threshold", parameters.getHvdcSensitivityThreshold());
+        jsonGenerator.writeNumberField("injection-ra-penalty-cost", parameters.getInjectionRaPenaltyCost());
+        jsonGenerator.writeNumberField("injection-ra-sensitivity-threshold", parameters.getInjectionRaSensitivityThreshold());
         jsonGenerator.writeNumberField("sensitivity-fallback-over-cost", parameters.getFallbackOverCost());
         jsonGenerator.writeBooleanField("rao-with-loop-flow-limitation", parameters.isRaoWithLoopFlowLimitation());
         jsonGenerator.writeNumberField("loop-flow-acceptable-augmentation", parameters.getLoopFlowAcceptableAugmentation());
@@ -67,6 +69,8 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeStringField("solver-specific-parameters", parameters.getSolverSpecificParameters());
         jsonGenerator.writeObjectField("pst-optimization-approximation", parameters.getPstOptimizationApproximation());
         jsonGenerator.writeBooleanField("forbid-cost-increase", parameters.getForbidCostIncrease());
+        jsonGenerator.writeStringField("load-flow-provider", parameters.getLoadFlowProvider());
+        jsonGenerator.writeStringField("sensitivity-provider", parameters.getSensitivityProvider());
         jsonGenerator.writeFieldName("sensitivity-parameters");
         serializerProvider.defaultSerializeValue(parameters.getDefaultSensitivityAnalysisParameters(), jsonGenerator);
         if (parameters.getFallbackSensitivityAnalysisParameters() != null) {

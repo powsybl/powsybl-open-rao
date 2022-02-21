@@ -7,12 +7,11 @@
 package com.farao_community.farao.data.crac_creation.creator.cse;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_creation.creator.cse.xsd.CRACDocumentType;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
 import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -33,8 +32,7 @@ import java.util.Objects;
  */
 @AutoService(NativeCracImporter.class)
 public class CseCracImporter implements NativeCracImporter<CseCrac> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CseCracImporter.class);
-    private static final String CRAC_CSE_SCHEMA_FILE_LOCATION = "/com/farao_community/farao/data/crac_creation/creator/cse/xsd/crac-document_4_15.xsd";
+    private static final String CRAC_CSE_SCHEMA_FILE_LOCATION = "/com/farao_community/farao/data/crac_creation/creator/cse/xsd/crac-document_4_21.xsd";
     private static final String ETSO_CORE_SCHEMA_FILE_LOCATION = "/com/farao_community/farao/data/crac_creation/creator/cse/xsd/etso-core-cmpts.xsd";
     private static final String ETSO_CODES_SCHEMA_FILE_LOCATION = "/com/farao_community/farao/data/crac_creation/creator/cse/xsd/etso-code-lists.xsd";
 
@@ -71,12 +69,12 @@ public class CseCracImporter implements NativeCracImporter<CseCrac> {
             });
 
             schema.newValidator().validate(xmlFile);
-            LOGGER.info("CSE CRAC document is valid");
+            FaraoLoggerProvider.BUSINESS_LOGS.info("CSE CRAC document is valid");
             return FilenameUtils.getExtension(s).equals("xml");
         } catch (MalformedURLException e) {
             throw new FaraoException("URL error");
         } catch (SAXException e) {
-            LOGGER.debug("CSE CRAC document is NOT valid. Reason: {}", e.getMessage());
+            FaraoLoggerProvider.TECHNICAL_LOGS.debug("CSE CRAC document is NOT valid. Reason: {}", e.getMessage());
             return false;
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -93,6 +93,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 0.0;
     public static final double DEFAULT_HVDC_PENALTY_COST = 0.001;
     public static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 0.0;
+    public static final double DEFAULT_INJECTION_PENALTY_COST = 0.001;
+    public static final double DEFAULT_INJECTION_SENSITIVITY_THRESHOLD = 0.0;
     public static final double DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION = 0.0;
     public static final LoopFlowApproximationLevel DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL = LoopFlowApproximationLevel.FIXED_PTDF;
     public static final double DEFAULT_LOOP_FLOW_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
@@ -109,6 +111,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final String DEFAULT_SOLVER_SPECIFIC_PARAMETERS = null;
     public static final PstOptimizationApproximation DEFAULT_PST_OPTIMIZATION_APPROXIMATION = PstOptimizationApproximation.CONTINUOUS;
     public static final boolean DEFAULT_FORBID_COST_INCREASE = false;
+    public static final String DEFAULT_LOADFLOW_PROVIDER = "Hades2";
+    public static final String DEFAULT_SENSITIVITY_PROVIDER = "Sensi2";
 
     private ObjectiveFunction objectiveFunction = DEFAULT_OBJECTIVE_FUNCTION;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
@@ -116,6 +120,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
     private double hvdcPenaltyCost = DEFAULT_HVDC_PENALTY_COST;
     private double hvdcSensitivityThreshold = DEFAULT_HVDC_SENSITIVITY_THRESHOLD;
+    private double injectionRaPenaltyCost = DEFAULT_HVDC_PENALTY_COST;
+    private double injectionRaSensitivityThreshold = DEFAULT_HVDC_SENSITIVITY_THRESHOLD;
     private double fallbackOverCost = DEFAULT_FALLBACK_OVER_COST;
     private boolean raoWithLoopFlowLimitation = DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION;
     private LoopFlowApproximationLevel loopFlowApproximationLevel = DEFAULT_LOOP_FLOW_APPROXIMATION_LEVEL;
@@ -128,6 +134,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
     private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
+    private String loadFlowProvider = DEFAULT_LOADFLOW_PROVIDER;
+    private String sensitivityProvider = DEFAULT_SENSITIVITY_PROVIDER;
     private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityAnalysisParameters();
     private SensitivityAnalysisParameters fallbackSensitivityAnalysisParameters; // Must be null by default
     private List<ZoneToZonePtdfDefinition> relativeMarginPtdfBoundaries = new ArrayList<>();
@@ -192,6 +200,22 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
     }
 
+    public double getInjectionRaPenaltyCost() {
+        return injectionRaPenaltyCost;
+    }
+
+    public void setInjectionRaPenaltyCost(double injectionRaPenaltyCost) {
+        this.injectionRaPenaltyCost = injectionRaPenaltyCost;
+    }
+
+    public double getInjectionRaSensitivityThreshold() {
+        return injectionRaSensitivityThreshold;
+    }
+
+    public void setInjectionRaSensitivityThreshold(double injectionRaSensitivityThreshold) {
+        this.injectionRaSensitivityThreshold = injectionRaSensitivityThreshold;
+    }
+
     public double getFallbackOverCost() {
         return fallbackOverCost;
     }
@@ -247,6 +271,22 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     public SensitivityAnalysisParameters getDefaultSensitivityAnalysisParameters() {
         return defaultSensitivityAnalysisParameters;
+    }
+
+    public String getLoadFlowProvider() {
+        return loadFlowProvider;
+    }
+
+    public void setLoadFlowProvider(String loadFlowProvider) {
+        this.loadFlowProvider = loadFlowProvider;
+    }
+
+    public String getSensitivityProvider() {
+        return sensitivityProvider;
+    }
+
+    public void setSensitivityProvider(String sensitivityProvider) {
+        this.sensitivityProvider = sensitivityProvider;
     }
 
     public RaoParameters setDefaultSensitivityAnalysisParameters(SensitivityAnalysisParameters sensiParameters) {
@@ -452,6 +492,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setPstSensitivityThreshold(config.getDoubleProperty("pst-sensitivity-threshold", DEFAULT_PST_SENSITIVITY_THRESHOLD));
                 parameters.setHvdcPenaltyCost(config.getDoubleProperty("hvdc-penalty-cost", DEFAULT_HVDC_PENALTY_COST));
                 parameters.setHvdcSensitivityThreshold(config.getDoubleProperty("hvdc-sensitivity-threshold", DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
+                parameters.setInjectionRaPenaltyCost(config.getDoubleProperty("injection-ra-penalty-cost", DEFAULT_INJECTION_PENALTY_COST));
+                parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty("injection-ra-sensitivity-threshold", DEFAULT_INJECTION_SENSITIVITY_THRESHOLD));
                 parameters.setFallbackOverCost(config.getDoubleProperty("sensitivity-fallback-over-cost", DEFAULT_FALLBACK_OVER_COST));
                 parameters.setRaoWithLoopFlowLimitation(config.getBooleanProperty("rao-with-loop-flow-limitation", DEFAULT_RAO_WITH_LOOP_FLOW_LIMITATION));
                 parameters.setLoopFlowAcceptableAugmentation(config.getDoubleProperty("loop-flow-acceptable-augmentation", DEFAULT_LOOP_FLOW_ACCEPTABLE_AUGMENTATION));
@@ -472,6 +514,8 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setSolverSpecificParameters(config.getStringProperty("solver-specific-parameters", DEFAULT_SOLVER_SPECIFIC_PARAMETERS));
                 parameters.setPstOptimizationApproximation(config.getEnumProperty("pst-optimization-approximation", PstOptimizationApproximation.class, DEFAULT_PST_OPTIMIZATION_APPROXIMATION));
                 parameters.setForbidCostIncrease(config.getBooleanProperty("forbid-cost-increase", DEFAULT_FORBID_COST_INCREASE));
+                parameters.setSensitivityProvider(config.getStringProperty("sensitivity-provider", DEFAULT_SENSITIVITY_PROVIDER));
+                parameters.setLoadFlowProvider(config.getStringProperty("load-flow-provider", DEFAULT_LOADFLOW_PROVIDER));
             });
 
         // NB: Only the default sensitivity parameters are loaded, not the fallback ones...

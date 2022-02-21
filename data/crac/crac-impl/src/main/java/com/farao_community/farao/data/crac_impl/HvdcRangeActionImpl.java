@@ -9,7 +9,7 @@ package com.farao_community.farao.data.crac_impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.NetworkElement;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRange;
+import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageRule;
 import com.powsybl.iidm.network.HvdcLine;
@@ -25,11 +25,12 @@ import java.util.Set;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class HvdcRangeActionImpl extends AbstractRangeAction implements HvdcRangeAction {
-    private NetworkElement networkElement;
-    private List<HvdcRange> ranges;
+public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> implements HvdcRangeAction {
 
-    HvdcRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<HvdcRange> ranges,
+    private final NetworkElement networkElement;
+    private final List<StandardRange> ranges;
+
+    HvdcRangeActionImpl(String id, String name, String operator, List<UsageRule> usageRules, List<StandardRange> ranges,
                         NetworkElement networkElement, String groupId) {
         super(id, name, operator, usageRules, groupId);
         this.networkElement = networkElement;
@@ -42,7 +43,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction implements HvdcRang
     }
 
     @Override
-    public List<HvdcRange> getRanges() {
+    public List<StandardRange> getRanges() {
         return ranges;
     }
 
@@ -53,12 +54,12 @@ public class HvdcRangeActionImpl extends AbstractRangeAction implements HvdcRang
 
     @Override
     public double getMinAdmissibleSetpoint(double previousInstantSetPoint) {
-        return ranges.stream().mapToDouble(HvdcRange::getMin).max().orElseThrow();
+        return ranges.stream().mapToDouble(StandardRange::getMin).max().orElseThrow();
     }
 
     @Override
     public double getMaxAdmissibleSetpoint(double previousInstantSetPoint) {
-        return ranges.stream().mapToDouble(HvdcRange::getMax).min().orElseThrow();
+        return ranges.stream().mapToDouble(StandardRange::getMax).min().orElseThrow();
     }
 
     @Override
@@ -88,4 +89,30 @@ public class HvdcRangeActionImpl extends AbstractRangeAction implements HvdcRang
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        return this.networkElement.equals(((HvdcRangeAction) o).getNetworkElement())
+                && this.ranges.equals(((HvdcRangeAction) o).getRanges());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = super.hashCode();
+        for (StandardRange range : ranges) {
+            hashCode += 31 * range.hashCode();
+        }
+        hashCode += 31 * networkElement.hashCode();
+        return hashCode;
+    }
 }

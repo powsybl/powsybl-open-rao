@@ -10,7 +10,9 @@ import com.farao_community.farao.data.crac_creation.util.ElementHelper;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.data.crac_creation.util.ucte.UcteUtils.UCTE_NODE_LENGTH;
 import static com.farao_community.farao.data.crac_creation.util.ucte.UcteUtils.WILDCARD_CHARACTER;
@@ -24,7 +26,7 @@ import static com.farao_community.farao.data.crac_creation.util.ucte.UcteUtils.W
  */
 public class UcteBusHelper implements ElementHelper {
 
-    private String busIdInNetwork;
+    private Set<Bus> busMatchesInNetwork = new HashSet<>();
     private boolean isValid = false;
     private String invalidReason;
 
@@ -55,21 +57,19 @@ public class UcteBusHelper implements ElementHelper {
         }
 
         // complex search with wildcard (either *, or incomplete ids)
-        for (Bus bus : ucteNetworkAnalyzer.getNetwork().getBusBreakerView().getBuses()) {
-            if (UcteUtils.matchNodeNames(modNodeName, bus.getId())) {
-                if (Objects.isNull(busIdInNetwork)) {
-                    isValid = true;
-                    busIdInNetwork = bus.getId();
-                } else {
-                    invalidReason = String.format("Too many buses match name %s, for example %s and %s", modNodeName, busIdInNetwork, bus.getId());
-                    isValid = false;
-                    busIdInNetwork = null;
-                    return;
-                }
-            }
-        }
-        if (Objects.isNull(busIdInNetwork)) {
-            invalidReason = String.format("No bus in the network matches bus name %s", modNodeName);
+        lookForBusIdMatches(modNodeName, ucteNetworkAnalyzer);
+    }
+
+    private void lookForBusIdMatches(String nodeName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+        busMatchesInNetwork = ucteNetworkAnalyzer.getNetwork().getBusBreakerView().getBusStream()
+            .filter(bus -> UcteUtils.matchNodeNames(nodeName, bus.getId()))
+            .collect(Collectors.toSet());
+        if (busMatchesInNetwork.isEmpty()) {
+            isValid = false;
+            invalidReason = String.format("No bus in the network matches bus name %s", nodeName);
+        } else {
+            isValid = true;
+            invalidReason = null;
         }
     }
 
@@ -80,7 +80,7 @@ public class UcteBusHelper implements ElementHelper {
         Bus bus = network.getBusBreakerView().getBus(busId);
 
         if (bus != null) {
-            busIdInNetwork = busId;
+            busMatchesInNetwork.add(bus);
             isValid = true;
         } else {
             invalidReason = String.format("No bus in the network matches bus id %s", busId);
@@ -99,6 +99,16 @@ public class UcteBusHelper implements ElementHelper {
 
     @Override
     public String getIdInNetwork() {
-        return busIdInNetwork;
+        if (busMatchesInNetwork.isEmpty()) {
+            return null;
+        } else if (busMatchesInNetwork.size() == 1) {
+            return busMatchesInNetwork.iterator().next().getId();
+        } else {
+            throw new UnsupportedOperationException("Too many buses in the network match the given bus name. Access the list using getBusIdMatchesInNetwork() instead");
+        }
+    }
+
+    public Set<Bus> getBusMatchesInNetwork() {
+        return busMatchesInNetwork;
     }
 }

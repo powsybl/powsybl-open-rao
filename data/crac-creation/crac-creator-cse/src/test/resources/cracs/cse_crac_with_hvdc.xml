@@ -31,8 +31,8 @@
                 <SharedWith v="CSE"/>
                 <HVDCRange>
                     <HVDCNode>
-                        <FromNode v="BBE2AA11"/>
-                        <ToNode v="FFR3AA11"/>
+                        <FromNode v="BBE2AA12"/>
+                        <ToNode v="FFR3AA12"/>
                         <Order v="1"/>
                     </HVDCNode>
                     <VariationType v="ABSOLUTE"/>
@@ -48,8 +48,8 @@
                 <SharedWith v="CSE"/>
                 <HVDCRange>
                     <HVDCNode>
-                        <FromNode v="FFR3AA11"/>
-                        <ToNode v="BBE2AA11"/>
+                        <FromNode v="FFR3AA12"/>
+                        <ToNode v="BBE2AA12"/>
                         <Order v="1"/>
                     </HVDCNode>
                     <VariationType v="ABSOLUTE"/>
@@ -65,8 +65,8 @@
                 <SharedWith v="CSE"/>
                 <HVDCRange>
                     <HVDCNode>
-                        <FromNode v="FFR3AA11"/>
-                        <ToNode v="BBE2AA11"/>
+                        <FromNode v="FFR3AA12"/>
+                        <ToNode v="BBE2AA12"/>
                         <Order v="1"/>
                     </HVDCNode>
                     <VariationType v="ABSOLUTE"/>
@@ -89,6 +89,23 @@
                     <HVDCNode>
                         <FromNode v="BBE3AA11"/>
                         <ToNode v="FFR3AA11"/>
+                        <Order v="1"/>
+                    </HVDCNode>
+                    <VariationType v="ABSOLUTE"/>
+                    <Min v="-100"/>
+                    <Max v="2000"/>
+                </HVDCRange>
+            </RemedialAction>
+            <RemedialAction>
+                <Name v="HVDC_WITH_NON_OPPOSITE_GENERATORS"/>
+                <TimeInterval v="2020-02-19T15:00Z/2020-02-19T16:00Z"/>
+                <Operator v="FR"/>
+                <Application v="CURATIVE"/>
+                <SharedWith v="CSE"/>
+                <HVDCRange>
+                    <HVDCNode>
+                        <FromNode v="FFR3AA11"/>
+                        <ToNode v="BBE2AA11"/>
                         <Order v="1"/>
                     </HVDCNode>
                     <VariationType v="ABSOLUTE"/>

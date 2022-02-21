@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class StateDeserializerTest {
+
     @Test
     public void testGetState() {
         Crac crac = Mockito.mock(Crac.class);
@@ -38,5 +39,4 @@ public class StateDeserializerTest {
         assertEquals(outageState, StateDeserializer.getState(Instant.OUTAGE, contingencyId, crac, "type"));
         assertEquals(curativeState, StateDeserializer.getState(Instant.CURATIVE, contingencyId, crac, "type"));
     }
-
 }

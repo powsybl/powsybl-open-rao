@@ -39,6 +39,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
     private final Map<String, PstRangeAction> pstRangeActions = new HashMap<>();
     private final Map<String, HvdcRangeAction> hvdcRangeActions = new HashMap<>();
+    private final Map<String, InjectionRangeAction> injectionRangeActions = new HashMap<>();
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
 
     public CracImpl(String id, String name) {
@@ -88,7 +89,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         } else if (getRemedialActions().stream()
             .map(RemedialAction::getNetworkElements)
             .flatMap(Set::stream)
-            .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))) {
+            .anyMatch(ne -> ne.getId().equals(networkElementId))) {
             return true;
         }
 
@@ -337,15 +338,19 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public void removeFlowCnec(String flowCnecId) {
-        FlowCnec flowCnecToRemove = flowCnecs.get(flowCnecId);
-        if (Objects.isNull(flowCnecToRemove)) {
-            return;
-        }
-        String neId = flowCnecToRemove.getNetworkElement().getId();
-        String stateId = flowCnecToRemove.getState().getId();
-        flowCnecs.remove(flowCnecId);
-        safeRemoveNetworkElements(Collections.singleton(neId));
-        safeRemoveStates(Collections.singleton(stateId));
+        removeFlowCnecs(Collections.singleton(flowCnecId));
+    }
+
+    @Override
+    public void removeFlowCnecs(Set<String> flowCnecsIds) {
+        Set<FlowCnec> flowCnecsToRemove = flowCnecsIds.stream().map(flowCnecs::get).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<String> networkElementsToRemove = flowCnecsToRemove.stream().map(Cnec::getNetworkElement).map(Identifiable::getId).collect(Collectors.toSet());
+        Set<String> statesToRemove = flowCnecsToRemove.stream().map(Cnec::getState).map(State::getId).collect(Collectors.toSet());
+        flowCnecsToRemove.forEach(flowCnecToRemove ->
+            flowCnecs.remove(flowCnecToRemove.getId())
+        );
+        safeRemoveNetworkElements(networkElementsToRemove);
+        safeRemoveStates(statesToRemove);
     }
 
     void addFlowCnec(FlowCnec flowCnec) {
@@ -358,17 +363,18 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     // ========================================
 
     @Override
-    public Set<RemedialAction> getRemedialActions() {
-        Set<RemedialAction> remedialActions = new HashSet<>();
+    public Set<RemedialAction<?>> getRemedialActions() {
+        Set<RemedialAction<?>> remedialActions = new HashSet<>();
         remedialActions.addAll(pstRangeActions.values());
         remedialActions.addAll(hvdcRangeActions.values());
+        remedialActions.addAll(injectionRangeActions.values());
         remedialActions.addAll(networkActions.values());
         return remedialActions;
     }
 
     @Override
-    public RemedialAction getRemedialAction(String remedialActionId) {
-        RemedialAction remedialAction = getNetworkAction(remedialActionId);
+    public RemedialAction<?> getRemedialAction(String remedialActionId) {
+        RemedialAction<?> remedialAction = getNetworkAction(remedialActionId);
         if (!Objects.isNull(remedialAction)) {
             return remedialAction;
         } else {
@@ -405,6 +411,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
+    public InjectionRangeActionAdder newInjectionRangeAction() {
+        return new InjectionRangeActionAdderImpl(this);
+    }
+
+    @Override
     public Set<PstRangeAction> getPstRangeActions() {
         return new HashSet<>(pstRangeActions.values());
     }
@@ -412,6 +423,11 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<HvdcRangeAction> getHvdcRangeActions() {
         return new HashSet<>(hvdcRangeActions.values());
+    }
+
+    @Override
+    public Set<InjectionRangeAction> getInjectionRangeActions() {
+        return new HashSet<>(injectionRangeActions.values());
     }
 
     @Override
@@ -425,43 +441,53 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<RangeAction> getRangeActions() {
-        // the only implementations of RangeAction are PstRangeAction and HvdcRangeAction
-        Set<RangeAction> rangeActionsSet = new HashSet<>(pstRangeActions.values());
+    public InjectionRangeAction getInjectionRangeAction(String injectionRangActionId) {
+        return injectionRangeActions.get(injectionRangActionId);
+    }
+
+    @Override
+    public Set<RangeAction<?>> getRangeActions() {
+        Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActions.values());
         rangeActionsSet.addAll(hvdcRangeActions.values());
+        rangeActionsSet.addAll(injectionRangeActions.values());
         return rangeActionsSet;
     }
 
     @Override
-    public Set<RangeAction> getRangeActions(State state, UsageMethod... usageMethods) {
-        // the only implementations of RangeAction are PstRangeAction and HvdcRangeAction
-        Set<RangeAction> pstRangeActionsSet = pstRangeActions.values().stream()
+    public Set<RangeAction<?>> getRangeActions(State state, UsageMethod... usageMethods) {
+        Set<RangeAction<?>> pstRangeActionsSet = pstRangeActions.values().stream()
                 .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
                 .collect(Collectors.toSet());
-        Set<RangeAction> hvdcRangeActionsSet = hvdcRangeActions.values().stream()
+        Set<RangeAction<?>> hvdcRangeActionsSet = hvdcRangeActions.values().stream()
                 .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
                 .collect(Collectors.toSet());
-        Set<RangeAction> rangeActionsSet = new HashSet<>(pstRangeActionsSet);
+        Set<RangeAction<?>> injectionRangeActionSet = injectionRangeActions.values().stream()
+                .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
+                .collect(Collectors.toSet());
+        Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActionsSet);
         rangeActionsSet.addAll(hvdcRangeActionsSet);
+        rangeActionsSet.addAll(injectionRangeActionSet);
         return rangeActionsSet;
     }
 
     @Override
-    public RangeAction getRangeAction(String id) {
-        // the only implementations of RangeAction are PstRangeAction and HvdcRangeAction
-        if (pstRangeActions.get(id) == null) {
+    public RangeAction<?> getRangeAction(String id) {
+        if (pstRangeActions.get(id) != null) {
+            return pstRangeActions.get(id);
+        } else if (hvdcRangeActions.get(id) != null) {
             return hvdcRangeActions.get(id);
         } else {
-            return pstRangeActions.get(id);
+            return injectionRangeActions.get(id);
         }
     }
 
     public void removeRangeAction(String id) {
-        // the only implementations of RangeAction are PstRangeAction and HvdcRangeAction
-        if (pstRangeActions.get(id) == null) {
+        if (pstRangeActions.get(id) != null) {
+            removePstRangeAction(id);
+        } else if (hvdcRangeActions.get(id) != null) {
             removeHvdcRangeAction(id);
         } else {
-            removePstRangeAction(id);
+            removeInjectionRangeAction(id);
         }
     }
 
@@ -498,12 +524,32 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     }
 
+    @Override
+    public void removeInjectionRangeAction(String id) {
+        InjectionRangeAction rangeActionToRemove = injectionRangeActions.get(id);
+        if (Objects.isNull(rangeActionToRemove)) {
+            return;
+        }
+
+        Set<String> associatedNetworkElementsIds = rangeActionToRemove.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> associatedStatesIds = getAssociatedStates(rangeActionToRemove).stream().map(State::getId).collect(Collectors.toSet());
+
+        injectionRangeActions.remove(id);
+
+        safeRemoveNetworkElements(associatedNetworkElementsIds);
+        safeRemoveStates(associatedStatesIds);
+    }
+
     void addPstRangeAction(PstRangeAction pstRangeAction) {
         pstRangeActions.put(pstRangeAction.getId(), pstRangeAction);
     }
 
     void addHvdcRangeAction(HvdcRangeAction hvdcRangeAction) {
         hvdcRangeActions.put(hvdcRangeAction.getId(), hvdcRangeAction);
+    }
+
+    void addInjectionRangeAction(InjectionRangeAction injectionRangeAction) {
+        injectionRangeActions.put(injectionRangeAction.getId(), injectionRangeAction);
     }
 
     // endregion

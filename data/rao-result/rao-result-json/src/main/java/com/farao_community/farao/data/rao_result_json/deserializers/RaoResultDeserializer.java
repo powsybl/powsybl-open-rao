@@ -15,15 +15,20 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 import static com.farao_community.farao.data.rao_result_json.RaoResultJsonConstants.*;
+import static com.farao_community.farao.data.rao_result_json.deserializers.DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RaoResultDeserializer.class);
 
     private Crac crac;
 
@@ -39,8 +44,35 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
         RaoResultImpl raoResult = new RaoResultImpl();
 
+        String firstFieldName = jsonParser.nextFieldName();
+        String jsonFileVersion;
+
+        if (firstFieldName.equals(COMPUTATION_STATUS)) {
+            /*
+             it is assumed that the document version is 1.0
+             at this time, there were not the headers with TYPE, VERSION and INFO of the document
+             */
+            jsonFileVersion = "1.0";
+            raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
+        } else {
+            if (!jsonParser.nextTextValue().equals(RAO_RESULT_TYPE)) {
+                throw new FaraoException(String.format("type of document must be %s", RAO_RESULT_TYPE));
+            }
+            if (!jsonParser.nextFieldName().equals(VERSION)) {
+                throw new FaraoException(String.format("%s must contain a version in its second field", RAO_RESULT_TYPE));
+            }
+            jsonFileVersion = jsonParser.nextTextValue();
+        }
+
+        checkVersion(jsonFileVersion);
+
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.getCurrentName()) {
+
+                case INFO:
+                    //no need to import this
+                    jsonParser.nextToken();
+                    break;
 
                 case COMPUTATION_STATUS:
                     raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
@@ -63,12 +95,20 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case PSTRANGEACTION_RESULTS:
                     jsonParser.nextToken();
-                    PstRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    PstRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
                     break;
 
                 case HVDCRANGEACTION_RESULTS:
+                    // used in version <=1.1
+                    // now called standardRangeAction as it contains a more generic result object
+                    if (getPrimaryVersionNumber(jsonFileVersion) > 1 && getSubVersionNumber(jsonFileVersion) > 1) {
+                        throw new FaraoException(String.format("Cannot deserialize RaoResult: field %s is not supported in file version %s", jsonParser.getCurrentName(), jsonFileVersion));
+                    }
+                    // else, considered HvdcRangeActions as StandardRangeActions
+
+                case STANDARDRANGEACTION_RESULTS:
                     jsonParser.nextToken();
-                    HvdcRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
+                    StandardRangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
                     break;
 
                 default:
@@ -76,6 +116,21 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
             }
         }
         return raoResult;
+    }
+
+    private void checkVersion(String raoResultVersion) {
+
+        if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) > getPrimaryVersionNumber(raoResultVersion)) {
+            throw new FaraoException(String.format("RAO-result importer %s is no longer compatible with json RAO-result version %s", RAO_RESULT_IO_VERSION, raoResultVersion));
+        }
+        if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) < getPrimaryVersionNumber(raoResultVersion)) {
+            throw new FaraoException(String.format("RAO-result importer %s cannot handle json RAO-result version %s, consider upgrading farao-core version", RAO_RESULT_IO_VERSION, raoResultVersion));
+        }
+        if (getSubVersionNumber(RAO_RESULT_IO_VERSION) < getSubVersionNumber(raoResultVersion)) {
+            LOGGER.warn("RAO-result importer {} might not be compatible with json RAO-result version {}, consider upgrading farao-core version", RAO_RESULT_IO_VERSION, raoResultVersion);
+        }
+
+        // otherwise, all is good !
     }
 }
 

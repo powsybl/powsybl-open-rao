@@ -15,17 +15,13 @@ import java.util.Optional;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAction> implements RangeAction {
+public abstract class AbstractRangeAction<T extends RangeAction<T>> extends AbstractRemedialAction<T> implements RangeAction<T> {
 
     protected String groupId = null;
 
     AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules, String groupId) {
         super(id, name, operator, usageRules);
         this.groupId = groupId;
-    }
-
-    AbstractRangeAction(String id, String name, String operator, List<UsageRule> usageRules) {
-        super(id, name, operator, usageRules);
     }
 
     @Override
@@ -41,10 +37,10 @@ public abstract class AbstractRangeAction extends AbstractRemedialAction<RangeAc
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractRangeAction otherAbstractRangeAction = (AbstractRangeAction) o;
+        AbstractRangeAction otherRa = (AbstractRangeAction) o;
 
         return super.equals(o)
-                && groupId.equals(otherAbstractRangeAction.getGroupId().orElse(null));
+                && (groupId == null && otherRa.getGroupId().isEmpty()) || (groupId != null && groupId.equals(otherRa.getGroupId().orElse(null)));
     }
 
     @Override

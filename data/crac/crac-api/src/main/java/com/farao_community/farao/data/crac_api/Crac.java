@@ -233,18 +233,23 @@ public interface Crac extends Identifiable<Crac> {
      */
     void removeFlowCnec(String flowCnecId);
 
+    /**
+     * Remove a set of FlowCnecs - identified by their id - from the Crac
+     */
+    void removeFlowCnecs(Set<String> flowCnecsIds);
+
     // Remedial actions management
 
     /**
      * Gather all the remedial actions present in the Crac. It returns a set because remedial
      * actions must not be duplicated and there is no defined order for remedial actions.
      */
-    Set<RemedialAction> getRemedialActions();
+    Set<RemedialAction<?>> getRemedialActions();
 
     /**
      * Find a remedial action by its id, returns null if the remedial action does not exists
      */
-    RemedialAction getRemedialAction(String remedialActionId);
+    RemedialAction<?> getRemedialAction(String remedialActionId);
 
     /**
      * Remove a remedial action - identified by its id - from the Crac
@@ -264,20 +269,25 @@ public interface Crac extends Identifiable<Crac> {
     HvdcRangeActionAdder newHvdcRangeAction();
 
     /**
+     * Get a {@link InjectionRangeActionAdder}, to add an {@link InjectionRangeAction} to the crac
+     */
+    InjectionRangeActionAdder newInjectionRangeAction();
+
+    /**
      * Gather all the range actions present in the Crac. It returns a set because range
      * actions must not be duplicated and there is no defined order for range actions.
      */
-    Set<RangeAction> getRangeActions();
+    Set<RangeAction<?>> getRangeActions();
 
     /**
      * Gather all the range actions of a specified state with one of the specified usage methods
      */
-    Set<RangeAction> getRangeActions(State state, UsageMethod... usageMethod);
+    Set<RangeAction<?>> getRangeActions(State state, UsageMethod... usageMethod);
 
     /**
      * Find a range action by its id, returns null if the range action does not exists
      */
-    RangeAction getRangeAction(String id);
+    RangeAction<?> getRangeAction(String id);
 
     /**
      * Gather all the PstRangeAction present in the Crac. It returns a set because remedial
@@ -292,6 +302,12 @@ public interface Crac extends Identifiable<Crac> {
     Set<HvdcRangeAction> getHvdcRangeActions();
 
     /**
+     * Gather all the InjectionRangeAction present in the Crac. It returns a set because remedial
+     * actions must not be duplicated and there is no defined order for remedial actions.
+     */
+    Set<InjectionRangeAction> getInjectionRangeActions();
+
+    /**
      * Find a PstRangeAction by its id, returns null if the remedial action does not exists
      */
     PstRangeAction getPstRangeAction(String pstRangeActionId);
@@ -302,6 +318,11 @@ public interface Crac extends Identifiable<Crac> {
     HvdcRangeAction getHvdcRangeAction(String hvdcRangeActionId);
 
     /**
+     * Find an InjectionRangeAction by its id, returns null if the remedial action does not exists
+     */
+    InjectionRangeAction getInjectionRangeAction(String injectionRangeActionId);
+
+    /**
      * Remove a PstRangeAction - identified by its id - from the Crac
      */
     void removePstRangeAction(String id);
@@ -310,6 +331,12 @@ public interface Crac extends Identifiable<Crac> {
      * Remove a HvdcRangeAction - identified by its id - from the Crac
      */
     void removeHvdcRangeAction(String id);
+
+    /**
+     * Remove an InjectionRangeAction - identified by its id - from the Crac
+     */
+    void removeInjectionRangeAction(String id);
+
 
     // Network actions management
 

@@ -12,7 +12,7 @@
     <parent>
         <artifactId>farao-data</artifactId>
         <groupId>com.farao-community.farao</groupId>
-        <version>3.5.0-SNAPSHOT</version>
+        <version>3.8.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,6 +25,8 @@
         <module>crac-creation-util</module>
         <module>crac-creator-api</module>
         <module>crac-creator-cse</module>
+        <module>crac-creator-fb-constraint</module>
+
     </modules>
 
 </project>

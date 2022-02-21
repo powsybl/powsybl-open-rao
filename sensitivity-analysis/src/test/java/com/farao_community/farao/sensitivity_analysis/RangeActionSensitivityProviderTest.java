@@ -28,10 +28,7 @@ import com.powsybl.sensitivity.SensitivityVariableType;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -203,6 +200,7 @@ public class RangeActionSensitivityProviderTest {
                 && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
     }
 
+    @Test
     public void cracWithoutRangeActionNorPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
@@ -215,7 +213,6 @@ public class RangeActionSensitivityProviderTest {
         assertEquals(2, factorList.stream().filter(factor ->
             factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
                 && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
-        //assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerInjectionIncrease).count());
     }
 
     @Test
@@ -232,8 +229,8 @@ public class RangeActionSensitivityProviderTest {
 
         NetworkElement hvdc = Mockito.mock(NetworkElement.class);
         Mockito.when(hvdc.getId()).thenReturn("BBE2AA11 FFR3AA11 1");
-        RangeAction mockHvdcRangeAction = Mockito.mock(HvdcRangeAction.class);
-        Mockito.when(mockHvdcRangeAction.getNetworkElements()).thenReturn(Set.of(hvdc));
+        HvdcRangeAction mockHvdcRangeAction = Mockito.mock(HvdcRangeAction.class);
+        Mockito.when(mockHvdcRangeAction.getNetworkElement()).thenReturn(hvdc);
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 

@@ -19,10 +19,10 @@ import java.util.Objects;
 public class PstRangeActionResult extends RangeActionResult {
 
     private Integer preOptimTap;
-    private Map<State, Integer> tapPerState;
+    private final Map<State, Integer> tapPerState;
 
-    public PstRangeActionResult(String networkElementId) {
-        super(networkElementId);
+    public PstRangeActionResult() {
+        super();
         preOptimTap = null;
         tapPerState = new HashMap<>();
     }
@@ -62,5 +62,4 @@ public class PstRangeActionResult extends RangeActionResult {
             preventiveState = state;
         }
     }
-
 }

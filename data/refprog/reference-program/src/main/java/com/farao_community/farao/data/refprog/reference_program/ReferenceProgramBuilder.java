@@ -13,39 +13,37 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class ReferenceProgramBuilder {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(ReferenceProgramBuilder.class);
-
     private ReferenceProgramBuilder() {
 
     }
 
-    private static void computeRefFlowOnCurrentNetwork(Network network, LoadFlowParameters loadFlowParameters) {
+    private static void computeRefFlowOnCurrentNetwork(Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         String errorMsg = "LoadFlow could not be computed. The ReferenceProgram will be built without a prior LoadFlow computation";
         try {
             // we need this separate load flow to get reference flow on cnec.
             // because reference flow from sensi is not yet fully implemented in powsybl
-            LoadFlowResult loadFlowResult = LoadFlow.run(network, loadFlowParameters);
+            LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
             if (!loadFlowResult.isOk()) {
-                LOGGER.warn(errorMsg);
+                BUSINESS_WARNS.warn(errorMsg);
             }
         } catch (PowsyblException e) {
-            LOGGER.warn(String.format("%s : %s", errorMsg, e.getMessage()));
+            BUSINESS_WARNS.warn(String.format("%s: %s", errorMsg, e.getMessage()));
         }
     }
 
-    public static ReferenceProgram buildReferenceProgram(Network network, LoadFlowParameters loadFlowParameters) {
-        computeRefFlowOnCurrentNetwork(network, loadFlowParameters);
+    public static ReferenceProgram buildReferenceProgram(Network network, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+        computeRefFlowOnCurrentNetwork(network, loadFlowProvider, loadFlowParameters);
         Map<EICode, Double> netPositions = (new CountryNetPositionComputation(network)).getNetPositions();
         List<ReferenceExchangeData> referenceExchangeDataList = new ArrayList<>();
 

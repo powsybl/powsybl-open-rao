@@ -10,9 +10,9 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_api.range_action.StandardRangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
@@ -28,14 +28,16 @@ public class RaoResultImpl implements RaoResult {
 
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
-    private static final PstRangeActionResult DEFAULT_PSTRANGEACTION_RESULT = new PstRangeActionResult("");
+    private static final PstRangeActionResult DEFAULT_PSTRANGEACTION_RESULT = new PstRangeActionResult();
+    private static final RangeActionResult DEFAULT_STDRANGEACTION_RESULT = new RangeActionResult();
     private static final CostResult DEFAULT_COST_RESULT = new CostResult();
 
     private ComputationStatus sensitivityStatus;
-    private Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
-    private Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
-    private Map<RangeAction, RangeActionResult> rangeActionResults = new HashMap<>();
-    private Map<OptimizationState, CostResult> costResults = new EnumMap<>(OptimizationState.class);
+    private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
+    private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
+    private final Map<PstRangeAction, PstRangeActionResult> pstRangeActionResults = new HashMap<>();
+    private final Map<StandardRangeAction<?>, RangeActionResult> standardRangeActionResults = new HashMap<>();
+    private final Map<OptimizationState, CostResult> costResults = new EnumMap<>(OptimizationState.class);
 
     public void setComputationStatus(ComputationStatus computationStatus) {
         this.sensitivityStatus = computationStatus;
@@ -149,79 +151,88 @@ public class RaoResultImpl implements RaoResult {
             .collect(Collectors.toSet());
     }
 
-    public RangeActionResult getAndCreateIfAbsentRangeActionResult(RangeAction rangeAction) {
+    public RangeActionResult getAndCreateIfAbsentRangeActionResult(RangeAction<?> rangeAction) {
         if (rangeAction instanceof PstRangeAction) {
-            rangeActionResults.putIfAbsent(rangeAction, new PstRangeActionResult(((PstRangeAction) rangeAction).getNetworkElement().getId()));
-        } else if (rangeAction instanceof HvdcRangeAction) {
-            rangeActionResults.putIfAbsent(rangeAction, new RangeActionResult(((HvdcRangeAction) rangeAction).getNetworkElement().getId()));
+            pstRangeActionResults.putIfAbsent((PstRangeAction) rangeAction, new PstRangeActionResult());
+            return pstRangeActionResults.get(rangeAction);
+        } else if (rangeAction instanceof StandardRangeAction) {
+            standardRangeActionResults.putIfAbsent((StandardRangeAction<?>) rangeAction, new RangeActionResult());
+            return standardRangeActionResults.get(rangeAction);
         } else {
             throw new NotImplementedException("Unable to create range action result for range action %s: range action type not implemented yet", rangeAction.getId());
         }
-        return rangeActionResults.get(rangeAction);
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RangeAction rangeAction) {
+    public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
 
-        if (rangeAction instanceof PstRangeAction || rangeAction instanceof HvdcRangeAction) {
-            return rangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).isActivatedDuringState(state);
+        if (rangeAction instanceof PstRangeAction) {
+            return pstRangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).isActivatedDuringState(state);
+        } else if (rangeAction instanceof StandardRangeAction<?>) {
+            return standardRangeActionResults.getOrDefault(rangeAction, DEFAULT_STDRANGEACTION_RESULT).isActivatedDuringState(state);
         }
-        // only handle PstRangeAction and HvdcRangeAction
         return false;
     }
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        return ((PstRangeActionResult) rangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT)).getPreOptimizedTapOnState(state);
+        return pstRangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT).getPreOptimizedTapOnState(state);
     }
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        return ((PstRangeActionResult) rangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT)).getOptimizedTapOnState(state);
+        return pstRangeActionResults.getOrDefault(pstRangeAction, DEFAULT_PSTRANGEACTION_RESULT).getOptimizedTapOnState(state);
     }
 
     @Override
-    public double getPreOptimizationSetPointOnState(State state, RangeAction rangeAction) {
+    public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
+        if (rangeAction instanceof PstRangeAction) {
+            return pstRangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).getPreOptimizedSetpointOnState(state);
+        } else if (rangeAction instanceof StandardRangeAction<?>) {
+            return standardRangeActionResults.getOrDefault(rangeAction, DEFAULT_STDRANGEACTION_RESULT).getPreOptimizedSetpointOnState(state);
+        }
+        return Double.NaN;
+    }
 
-        if (rangeAction instanceof PstRangeAction || rangeAction instanceof HvdcRangeAction) {
-            return rangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).getPreOptimizedSetpointOnState(state);
+    @Override
+    public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
+        if (rangeAction instanceof PstRangeAction) {
+            return pstRangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).getOptimizedSetpointOnState(state);
+        } else if (rangeAction instanceof StandardRangeAction<?>) {
+            return standardRangeActionResults.getOrDefault(rangeAction, DEFAULT_STDRANGEACTION_RESULT).getOptimizedSetpointOnState(state);
         }
         // only handle PstRangeAction
         return Double.NaN;
     }
 
     @Override
-    public double getOptimizedSetPointOnState(State state, RangeAction rangeAction) {
-
-        if (rangeAction instanceof PstRangeAction || rangeAction instanceof HvdcRangeAction) {
-            return rangeActionResults.getOrDefault(rangeAction, DEFAULT_PSTRANGEACTION_RESULT).getOptimizedSetpointOnState(state);
-        }
-        // only handle PstRangeAction
-        return Double.NaN;
-    }
-
-    @Override
-    public Set<RangeAction> getActivatedRangeActionsDuringState(State state) {
-        return rangeActionResults.entrySet().stream()
+    public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
+        Set<RangeAction<?>> activatedRa = pstRangeActionResults.entrySet().stream()
             .filter(e -> e.getValue().isActivatedDuringState(state))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
 
+        activatedRa.addAll(standardRangeActionResults.entrySet().stream()
+                .filter(e -> e.getValue().isActivatedDuringState(state))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet()));
+
+        return activatedRa;
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         Map<PstRangeAction, Integer> optimizedTapsOnState = new HashMap<>();
-        rangeActionResults.entrySet().stream()
-            .filter(e -> e.getKey() instanceof PstRangeAction)
-            .forEach(e -> optimizedTapsOnState.put((PstRangeAction) e.getKey(), ((PstRangeActionResult) e.getValue()).getOptimizedTapOnState(state)));
+        pstRangeActionResults.forEach((key, value) -> optimizedTapsOnState.put(key, value.getOptimizedTapOnState(state)));
         return optimizedTapsOnState;
 
     }
 
     @Override
-    public Map<RangeAction, Double> getOptimizedSetPointsOnState(State state) {
-        return rangeActionResults.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getOptimizedSetpointOnState(state)));
+    public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
+        Map<RangeAction<?>, Double> optimizedSetpointOnState = new HashMap<>();
+        pstRangeActionResults.forEach((k, v) -> optimizedSetpointOnState.put(k, v.getOptimizedSetpointOnState(state)));
+        standardRangeActionResults.forEach((k, v) -> optimizedSetpointOnState.put(k, v.getOptimizedSetpointOnState(state)));
+        return optimizedSetpointOnState;
     }
 }

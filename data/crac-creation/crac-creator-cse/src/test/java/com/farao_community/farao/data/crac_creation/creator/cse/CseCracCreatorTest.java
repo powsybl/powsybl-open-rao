@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.network_action.SwitchPair;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeType;
+import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.usage_rule.FreeToUse;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -25,7 +25,7 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.CracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.parameters.JsonCracCreationParameters;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.BranchCnecCreationContext;
-import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.HvdcRangeActionCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.InjectionRangeActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.std_creation_context.RemedialActionCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.outage.CseOutageCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cse.parameters.CseCracCreationParameters;
@@ -37,6 +37,7 @@ import org.junit.Test;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static com.farao_community.farao.data.crac_creation.creator.api.ImportStatus.*;
 import static org.junit.Assert.*;
@@ -67,7 +68,7 @@ public class CseCracCreatorTest {
     }
 
     private void setUpWithHvdcNetwork(String cracFileName) {
-        setUp(cracFileName, "/networks/TestCase16NodesWithHvdc.xiidm");
+        setUp(cracFileName, "/networks/TestCase16NodesWithUcteHvdc.uct");
     }
 
     private void assertOutageNotImported(String name, ImportStatus importStatus) {
@@ -93,15 +94,14 @@ public class CseCracCreatorTest {
         assertNull(context.getCreatedRAId());
     }
 
-    private void assertHvdcRangeActionImported(String name, String networkElementName, String groupId, boolean inverted) {
-        HvdcRangeActionCreationContext context = (HvdcRangeActionCreationContext) cracCreationContext.getRemedialActionCreationContext(name);
+    private void assertHvdcRangeActionImported(String name, Map<String, String> networkElements, String groupId) {
+        InjectionRangeActionCreationContext context = (InjectionRangeActionCreationContext) cracCreationContext.getRemedialActionCreationContext(name);
         assertTrue(context.isImported());
-        assertEquals(networkElementName, context.getNativeNetworkElementId());
-        assertEquals(inverted, context.isInverted());
+        assertEquals(networkElements, context.getNativeNetworkElementIds());
         assertFalse(context.isAltered());
         assertNotNull(context.getCreatedRAId());
-        assertNotNull(importedCrac.getHvdcRangeAction(context.getCreatedRAId()));
-        assertEquals(groupId, importedCrac.getHvdcRangeAction(context.getCreatedRAId()).getGroupId().orElseThrow());
+        assertNotNull(importedCrac.getInjectionRangeAction(context.getCreatedRAId()));
+        assertEquals(groupId, importedCrac.getInjectionRangeAction(context.getCreatedRAId()).getGroupId().orElseThrow());
     }
 
     @Test
@@ -118,16 +118,16 @@ public class CseCracCreatorTest {
         parameters.getExtension(CseCracCreationParameters.class).setRangeActionGroupsAsString(List.of("PRA_HVDC + CRA_HVDC", "PRA_HVDC + CRA_HVDC_2"));
         setUpWithHvdcNetwork("/cracs/cse_crac_with_hvdc.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals(3, importedCrac.getHvdcRangeActions().size());
+        assertEquals(3, importedCrac.getInjectionRangeActions().size());
 
-        assertHvdcRangeActionImported("PRA_HVDC", "BBE2AA11 FFR3AA11 1", "PRA_HVDC + CRA_HVDC", false);
-        assertHvdcRangeActionImported("CRA_HVDC", "BBE2AA11 FFR3AA11 1", "PRA_HVDC + CRA_HVDC", true);
-        assertHvdcRangeActionImported("CRA_HVDC_2", "BBE2AA11 FFR3AA11 1", "PRA_HVDC + CRA_HVDC_2", true);
+        assertHvdcRangeActionImported("PRA_HVDC", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC");
+        assertHvdcRangeActionImported("CRA_HVDC", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC");
 
         assertOutageNotImported("fake_contingency_because_we_have_to", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertCriticalBranchNotImported("fake_because_we_have_to", ELEMENT_NOT_FOUND_IN_NETWORK);
         assertRemedialActionNotImported("CRA_HVDC_fake", NOT_YET_HANDLED_BY_FARAO);
         assertRemedialActionNotImported("WEIRD_HVDC_WITH_2_HVDCNODES", INCONSISTENCY_IN_DATA);
+        assertRemedialActionNotImported("HVDC_WITH_NON_OPPOSITE_GENERATORS", INCONSISTENCY_IN_DATA);
     }
 
     @Test
@@ -135,14 +135,20 @@ public class CseCracCreatorTest {
         parameters.addExtension(CseCracCreationParameters.class, new CseCracCreationParameters());
         setUpWithHvdcNetwork("/cracs/cse_crac_with_hvdc.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertTrue(importedCrac.getHvdcRangeAction("PRA_HVDC").getGroupId().isEmpty());
-        assertTrue(importedCrac.getHvdcRangeAction("CRA_HVDC").getGroupId().isEmpty());
-        assertTrue(importedCrac.getHvdcRangeAction("CRA_HVDC_2").getGroupId().isEmpty());
-        assertEquals("FR", importedCrac.getHvdcRangeAction("PRA_HVDC").getOperator());
-        assertEquals(2000, importedCrac.getHvdcRangeAction("PRA_HVDC").getRanges().get(0).getMax(), 1e-1);
-        assertEquals(-100, importedCrac.getHvdcRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
-        assertEquals("AVAILABLE", importedCrac.getHvdcRangeAction("PRA_HVDC").getUsageRules().get(0).getUsageMethod().toString());
-        assertEquals("BBE2AA11 FFR3AA11 1", importedCrac.getHvdcRangeAction("PRA_HVDC").getNetworkElement().getId());
+        assertTrue(importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().isEmpty());
+        assertTrue(importedCrac.getInjectionRangeAction("CRA_HVDC").getGroupId().isEmpty());
+        assertTrue(importedCrac.getInjectionRangeAction("CRA_HVDC_2").getGroupId().isEmpty());
+        assertEquals("FR", importedCrac.getInjectionRangeAction("PRA_HVDC").getOperator());
+        // range from CRAC
+        assertEquals(-100, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
+        assertEquals(2000, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMax(), 1e-1);
+        //range from network
+        assertEquals(-500, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMin(), 1e-1);
+        assertEquals(800, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMax(), 1e-1);
+        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().get(0).getUsageMethod().toString());
+        assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().size());
+        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("BBE2AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
+        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("FFR3AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
     }
 
     @Test
@@ -151,12 +157,12 @@ public class CseCracCreatorTest {
         parameters.getExtension(CseCracCreationParameters.class).setRangeActionGroupsAsString(List.of("PRA_HVDC + CRA_HVDC"));
         setUpWithHvdcNetwork("/cracs/cse_crac_with_hvdc.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
-        assertEquals("PRA_HVDC + CRA_HVDC", importedCrac.getHvdcRangeAction("PRA_HVDC").getGroupId().get());
-        assertEquals(importedCrac.getHvdcRangeAction("CRA_HVDC").getGroupId().get(), importedCrac.getHvdcRangeAction("PRA_HVDC").getGroupId().get());
-        assertEquals("FR", importedCrac.getHvdcRangeAction("PRA_HVDC").getOperator());
-        assertEquals(2000, importedCrac.getHvdcRangeAction("PRA_HVDC").getRanges().get(0).getMax(), 1e-1);
-        assertEquals(-100, importedCrac.getHvdcRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
-        assertEquals("AVAILABLE", importedCrac.getHvdcRangeAction("PRA_HVDC").getUsageRules().get(0).getUsageMethod().toString());
+        assertEquals("PRA_HVDC + CRA_HVDC", importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().get());
+        assertEquals(importedCrac.getInjectionRangeAction("CRA_HVDC").getGroupId().get(), importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().get());
+        assertEquals("FR", importedCrac.getInjectionRangeAction("PRA_HVDC").getOperator());
+        assertEquals(2000, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMax(), 1e-1);
+        assertEquals(-100, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
+        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().get(0).getUsageMethod().toString());
     }
 
     @Test
@@ -439,5 +445,13 @@ public class CseCracCreatorTest {
         parameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/CseCracCreationParameters_15_10_1_4.json"));
         setUp("/cracs/cseCrac_ep15us10-1case1.xml", "/networks/TestCase12Nodes_forCSE.uct");
         assertRemedialActionNotImported("Bus bar ok test", INCOMPLETE_DATA);
+    }
+
+    @Test
+    public void testImportEmptyRa() {
+        setUp("/cracs/cse_crac_empty_ra.xml");
+        assertNotNull(cracCreationContext.getCrac());
+        assertTrue(cracCreationContext.getCrac().getRemedialActions().isEmpty());
+        assertEquals(1, cracCreationContext.getRemedialActionCreationContexts().size());
     }
 }
