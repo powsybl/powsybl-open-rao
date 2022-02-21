@@ -132,6 +132,7 @@
         <mockito.version>3.5.10</mockito.version>
         <powermock.version>2.0.7</powermock.version>
         <powsybl.core.version>4.7.0-RC1</powsybl.core.version>
+        <powsybl.glsk.version>1.3.0-SNAPSHOT</powsybl.glsk.version>
         <powsybl.hades2.version>3.4.0</powsybl.hades2.version>
         <slf4j.version>1.7.30</slf4j.version>
         <threeten.version>1.5.0</threeten.version>

@@ -37,14 +37,6 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-converter-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-tools</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
         </dependency>
@@ -54,20 +46,28 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-ucte-util</artifactId>
+            <artifactId>powsybl-glsk-commons</artifactId>
+            <version>${powsybl.glsk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-converter-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-sensitivity-analysis-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-tools</artifactId>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-glsk-commons</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <artifactId>powsybl-ucte-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
