@@ -8,7 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.fb_constraint.impor
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_creation.creator.fb_constraint.FbConstraint;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.FlowBasedConstraintDocument;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.FlowBasedConstraintDocument;
 import com.farao_community.farao.data.native_crac_io_api.NativeCracImporter;
 import com.google.auto.service.AutoService;
 import org.apache.commons.io.FilenameUtils;

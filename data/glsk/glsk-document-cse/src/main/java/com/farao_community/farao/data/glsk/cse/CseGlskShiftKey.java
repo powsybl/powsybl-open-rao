@@ -20,6 +20,9 @@ import java.util.Optional;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class CseGlskShiftKey extends AbstractGlskShiftKey {
+    private static final int DEFAULT_ORDER = 0;
+
+    private int order = DEFAULT_ORDER;
 
     public CseGlskShiftKey(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID) {
         initCommonMemberVariables(glskBlockElement, businessType, pointInterval, subjectDomainmRID);
@@ -99,10 +102,38 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         } else {
             throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + businessType);
         }
-        this.quantity = Double.valueOf(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v"));
         this.glskShiftKeyInterval = pointInterval;
         this.subjectDomainmRID = subjectDomainmRID;
         this.registeredResourceArrayList = new ArrayList<>();
+        if (isPartOfHybridShiftKey(glskBlockElement)) {
+            this.order = getOrder(glskBlockElement);
+            if (hasMaximumShift(glskBlockElement)) {
+                this.maximumShift = getMaximumShift(glskBlockElement);
+            }
+        } else {
+            this.quantity = getFactor(glskBlockElement);
+        }
+    }
+
+    private static boolean isPartOfHybridShiftKey(Element glskBlockElement) {
+        return glskBlockElement.getElementsByTagName("Order").getLength() != 0;
+    }
+
+    private static int getOrder(Element glskBlockElement) {
+        return Integer.parseInt((glskBlockElement.getElementsByTagName("Order").item(0)).getTextContent());
+    }
+
+    private static boolean hasMaximumShift(Element glskBlockElement) {
+        return glskBlockElement.getElementsByTagName("MaximumShift").getLength() != 0;
+    }
+
+    private static double getMaximumShift(Element glskBlockElement) {
+        //maximum shift in hybrid cse glsk
+        return Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("MaximumShift").item(0)).getAttribute("v"));
+    }
+
+    private static double getFactor(Element glskBlockElement) {
+        return Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v"));
     }
 
     private void importImplicitProportionalBlock(Element glskBlockElement, String businessType) {
@@ -114,5 +145,9 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
             CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
             registeredResourceArrayList.add(cseRegisteredResource);
         }
+    }
+
+    public int getOrder() {
+        return order;
     }
 }
