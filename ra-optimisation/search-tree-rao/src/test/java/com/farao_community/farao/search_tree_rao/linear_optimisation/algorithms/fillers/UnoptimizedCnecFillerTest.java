@@ -45,6 +45,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
     private UnoptimizedCnecFiller unoptimizedCnecFiller;
     private FlowCnec cnecNl;
     private FlowCnec cnecFr;
+    private double  maxNegativeRelativeRam;
 
     @Before
     public void setUp() {
@@ -77,7 +78,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblemWithMaxMinMargin() {
-        MaxMinMarginParameters maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01, 0.01);
+        MaxMinMarginParameters maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01, 0.01, MAX_ABS_THRESHOLD);
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(
                 Set.of(cnecNl, cnecFr),
@@ -99,7 +100,8 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinRelativeMargin() {
         MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = new MaxMinRelativeMarginParameters(
-                0.01, 0.01, 0.01, 1000, 0.01);
+                0.01, 0.01, 0.01, MAX_ABS_THRESHOLD, 1000, 0.01);
+        maxNegativeRelativeRam =  5 * maxMinRelativeMarginParameters.getHighestThresholdValue() / maxMinRelativeMarginParameters.getPtdfSumLowerBound();
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(cnecNl, Unit.MEGAWATT)).thenReturn(400.);
@@ -209,8 +211,9 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         // Test that cnecFr's constraint does not have a bigM
         assertEquals(750.0, linearProblem.getMinimumMarginConstraint(cnecFr, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
         assertEquals(750.0, linearProblem.getMinimumMarginConstraint(cnecFr, LinearProblem.MarginExtension.ABOVE_THRESHOLD).ub(), DOUBLE_TOLERANCE);
-        assertEquals(750.0, linearProblem.getMinimumRelativeMarginConstraint(cnecFr, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
-        assertEquals(750.0, linearProblem.getMinimumRelativeMarginConstraint(cnecFr, LinearProblem.MarginExtension.ABOVE_THRESHOLD).ub(), DOUBLE_TOLERANCE);
+        // All cnecs now have fmax - maxNegativeRelativeRam OR - fmin - maxNegativeRelativeRam as mMRM ub
+        assertEquals(750.0 - maxNegativeRelativeRam, linearProblem.getMinimumRelativeMarginConstraint(cnecFr, LinearProblem.MarginExtension.BELOW_THRESHOLD).ub(), DOUBLE_TOLERANCE);
+        assertEquals(750.0 - maxNegativeRelativeRam, linearProblem.getMinimumRelativeMarginConstraint(cnecFr, LinearProblem.MarginExtension.ABOVE_THRESHOLD).ub(), DOUBLE_TOLERANCE);
 
         // Test that cnecNl's constraint does have a bigM
         MPVariable marginDecreaseVariable = linearProblem.getMarginDecreaseBinaryVariable(cnecNl);

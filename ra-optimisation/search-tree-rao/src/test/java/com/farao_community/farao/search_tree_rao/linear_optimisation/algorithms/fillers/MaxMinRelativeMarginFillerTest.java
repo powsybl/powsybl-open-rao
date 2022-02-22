@@ -38,6 +38,7 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private static final double PRECISE_DOUBLE_TOLERANCE = 1e-10;
+    private static final double MAX_ABS_THRESHOLD = 1000;
 
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
@@ -60,7 +61,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
                 0.,
                 false
         );
-        parameters = new MaxMinRelativeMarginParameters(0.01, 0.01, 0.01, 1000, 0.01);
+        parameters = new MaxMinRelativeMarginParameters(0.01, 0.01, 0.01, MAX_ABS_THRESHOLD, 1000, 0.01);
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {
@@ -115,13 +116,13 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
         // check objective
         assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE);
-        assertEquals(-1000.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumRelativeMargin), DOUBLE_TOLERANCE);
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(7, linearProblem.numConstraints());
+        assertEquals(6, linearProblem.numVariables());
+        assertEquals(9, linearProblem.numConstraints());
     }
 
     @Test
@@ -162,12 +163,12 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
         // check objective
         assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
-        assertEquals(-1000.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumRelativeMargin), DOUBLE_TOLERANCE);
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(7, linearProblem.numConstraints());
+        assertEquals(6, linearProblem.numVariables());
+        assertEquals(9, linearProblem.numConstraints());
     }
 }
