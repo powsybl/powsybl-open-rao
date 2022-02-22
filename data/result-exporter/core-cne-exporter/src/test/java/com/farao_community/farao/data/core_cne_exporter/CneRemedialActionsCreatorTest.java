@@ -43,14 +43,14 @@ public class CneRemedialActionsCreatorTest {
     private RaoResult raoResult;
     private RaoParameters raoParameters;
     private List<ConstraintSeries> cnecsConstraintSeries;
-    private StandardCneExporterParameters exporterParameters;
+    private CoreCneExporterParameters exporterParameters;
 
     @Before
     public void setUp() {
         CneUtil.initUniqueIds();
         network = Importers.loadNetwork("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
-        exporterParameters = new StandardCneExporterParameters("22XCORESO------S-20211115-F299v1", 10, "10YDOM-REGION-1V", StandardCneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "22XCORESO------S", StandardCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", StandardCneExporterParameters.RoleType.CAPACITY_COORDINATOR,
+        exporterParameters = new CoreCneExporterParameters("22XCORESO------S-20211115-F299v1", 10, "10YDOM-REGION-1V", CoreCneExporterParameters.ProcessType.DAY_AHEAD_CC,
+            "22XCORESO------S", CoreCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, "17XTSO-CS------W", CoreCneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "2021-10-30T22:00Z/2021-10-31T23:00Z");
         crac = CracFactory.findDefault().create("test-crac");
         crac.newContingency()

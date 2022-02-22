@@ -38,7 +38,7 @@ public class Cne {
     private CriticalNetworkElementMarketDocument marketDocument;
     private CneHelper cneHelper;
 
-    public Cne(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, StandardCneExporterParameters exporterParameters) {
+    public Cne(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CoreCneExporterParameters exporterParameters) {
         marketDocument = new CriticalNetworkElementMarketDocument();
         cneHelper = new CneHelper(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
     }

@@ -42,12 +42,12 @@ import static com.farao_community.farao.data.core_cne_exporter.CneConstants.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class StandardCneExporter {
+public class CoreCneExporter {
 
     public void exportCne(Crac crac, Network network,
                           StandardCracCreationContext cracCreationContext,
                           RaoResult raoResult, RaoParameters raoParameters,
-                          StandardCneExporterParameters exporterParameters, OutputStream outputStream) {
+                          CoreCneExporterParameters exporterParameters, OutputStream outputStream) {
         Cne cne = new Cne(crac, network, cracCreationContext, raoResult, raoParameters, exporterParameters);
         cne.generate();
         CriticalNetworkElementMarketDocument marketDocument = cne.getMarketDocument();
@@ -80,7 +80,7 @@ public class StandardCneExporter {
     }
 
     private static String getSchemaFile(String schemaName) {
-        return Objects.requireNonNull(StandardCneExporter.class.getResource("/xsd/" + schemaName)).toExternalForm();
+        return Objects.requireNonNull(CoreCneExporter.class.getResource("/xsd/" + schemaName)).toExternalForm();
     }
 
     public static boolean validateCNESchema(String xmlContent) {

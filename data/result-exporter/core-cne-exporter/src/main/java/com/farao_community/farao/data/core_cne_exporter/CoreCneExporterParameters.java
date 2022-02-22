@@ -12,7 +12,7 @@ package com.farao_community.farao.data.core_cne_exporter;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class StandardCneExporterParameters {
+public class CoreCneExporterParameters {
     private String documentId;
     private int revisionNumber;
     private String domainId;
@@ -60,7 +60,7 @@ public class StandardCneExporterParameters {
         }
     }
 
-    public StandardCneExporterParameters(String documentId, int revisionNumber, String domainId, ProcessType processType, String senderId, RoleType senderRole, String receiverId, RoleType receiverRole, String timeInterval) {
+    public CoreCneExporterParameters(String documentId, int revisionNumber, String domainId, ProcessType processType, String senderId, RoleType senderRole, String receiverId, RoleType receiverRole, String timeInterval) {
         this.documentId = documentId;
         this.revisionNumber = revisionNumber;
         this.domainId = domainId;

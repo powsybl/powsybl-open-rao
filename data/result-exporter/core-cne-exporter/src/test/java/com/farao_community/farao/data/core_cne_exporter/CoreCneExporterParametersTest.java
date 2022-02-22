@@ -13,30 +13,30 @@ import static org.junit.Assert.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class StandardCneExporterParametersTest {
+public class CoreCneExporterParametersTest {
     @Test
     public void basicTest() {
-        StandardCneExporterParameters params = new StandardCneExporterParameters(
-            "a", 3, "b", StandardCneExporterParameters.ProcessType.DAY_AHEAD_CC,
-            "c", StandardCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
-            "e", StandardCneExporterParameters.RoleType.CAPACITY_COORDINATOR,
+        CoreCneExporterParameters params = new CoreCneExporterParameters(
+            "a", 3, "b", CoreCneExporterParameters.ProcessType.DAY_AHEAD_CC,
+            "c", CoreCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR,
+            "e", CoreCneExporterParameters.RoleType.CAPACITY_COORDINATOR,
             "timeInterval");
 
         assertEquals("a", params.getDocumentId());
         assertEquals(3, params.getRevisionNumber());
         assertEquals("b", params.getDomainId());
 
-        assertEquals(StandardCneExporterParameters.ProcessType.DAY_AHEAD_CC, params.getProcessType());
+        assertEquals(CoreCneExporterParameters.ProcessType.DAY_AHEAD_CC, params.getProcessType());
         assertEquals("A48", params.getProcessType().getCode());
         assertEquals("A48", params.getProcessType().toString());
 
         assertEquals("c", params.getSenderId());
-        assertEquals(StandardCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, params.getSenderRole());
+        assertEquals(CoreCneExporterParameters.RoleType.REGIONAL_SECURITY_COORDINATOR, params.getSenderRole());
         assertEquals("A44", params.getSenderRole().getCode());
         assertEquals("A44", params.getSenderRole().toString());
 
         assertEquals("e", params.getReceiverId());
-        assertEquals(StandardCneExporterParameters.RoleType.CAPACITY_COORDINATOR, params.getReceiverRole());
+        assertEquals(CoreCneExporterParameters.RoleType.CAPACITY_COORDINATOR, params.getReceiverRole());
         assertEquals("A36", params.getReceiverRole().getCode());
         assertEquals("A36", params.getReceiverRole().toString());
 

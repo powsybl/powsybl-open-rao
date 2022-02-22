@@ -29,10 +29,10 @@ public class CneHelper {
     private boolean relativePositiveMargins;
     private boolean withLoopflows;
     private RaoResult raoResult;
-    private StandardCneExporterParameters exporterParameters;
+    private CoreCneExporterParameters exporterParameters;
     private double mnecAcceptableMarginDiminution;
 
-    public CneHelper(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, StandardCneExporterParameters exporterParameters) {
+    public CneHelper(Crac crac, Network network, StandardCracCreationContext cracCreationContext, RaoResult raoResult, RaoParameters raoParameters, CoreCneExporterParameters exporterParameters) {
         this.crac = crac;
         this.network = network;
         this.cracCreationContext = cracCreationContext;
@@ -76,7 +76,7 @@ public class CneHelper {
         }
     }
 
-    public StandardCneExporterParameters getExporterParameters() {
+    public CoreCneExporterParameters getExporterParameters() {
         return exporterParameters;
     }
 
