@@ -91,7 +91,6 @@ public final class CneCnecsCreator {
     private List<ConstraintSeries> createConstraintSeriesOfCnec(BranchCnecCreationContext branchCnecCreationContext, String outageCnecId, String curativeCnecId, boolean asMnec, CneHelper cneHelper) {
         List<ConstraintSeries> constraintSeriesOfCnec = new ArrayList<>();
         String nativeCnecId = branchCnecCreationContext.getNativeId();
-        NativeBranch nativeBranch = branchCnecCreationContext.getNativeBranch();
         boolean shouldInvertBranchDirection = branchCnecCreationContext.isDirectionInvertedInNetwork();
 
         FlowCnec outageCnec = cneHelper.getCrac().getFlowCnec(outageCnecId);
