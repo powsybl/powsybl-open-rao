@@ -29,6 +29,7 @@ public final class LinearProblemIdGenerator {
     private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
     private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
+    private static final String MIN_RELATIVE_MARGIN_SIGN_BINARY = "minrelmarginispositive";
     private static final String MAX_LOOPFLOW = "maxloopflow";
     private static final String LOOPFLOWVIOLATION = "loopflowviolation";
     private static final String MNEC_VIOLATION = "mnecviolation";
@@ -109,6 +110,18 @@ public final class LinearProblemIdGenerator {
 
     public static String minimumRelativeMarginConstraintId(FlowCnec flowCnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
         return flowCnec.getId() + SEPARATOR + MIN_RELATIVE_MARGIN + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String minimumRelativeMarginSignBinaryVariableId() {
+        return MIN_RELATIVE_MARGIN_SIGN_BINARY + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String minimumRelMarginSignDefinitionConstraintId() {
+        return MIN_RELATIVE_MARGIN_SIGN_BINARY + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String minimumRelativeMarginSetToZeroConstraintId() {
+        return MIN_RELATIVE_MARGIN + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String maxLoopFlowConstraintId(FlowCnec flowCnec, LinearProblem.BoundExtension lbOrUb) {

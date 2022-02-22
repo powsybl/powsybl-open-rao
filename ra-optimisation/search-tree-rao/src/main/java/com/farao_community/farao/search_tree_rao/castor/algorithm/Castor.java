@@ -134,7 +134,7 @@ public class Castor implements RaoProvider {
             raoInput.getCrac().getFlowCnecs(),
             toolProvider,
             parameters,
-            basicLinearOptimizerBuilder(parameters).build()
+            basicLinearOptimizerBuilder(parameters, computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter())).build()
         );
 
         PrePerimeterResult initialOutput;
@@ -241,7 +241,7 @@ public class Castor implements RaoProvider {
             .forEach(rangeAction -> rangeAction.apply(network, perimeterResult.getOptimizedSetPoint(rangeAction)));
     }
 
-    private static LinearOptimizerParameters.LinearOptimizerParametersBuilder basicLinearOptimizerBuilder(RaoParameters raoParameters) {
+    private static LinearOptimizerParameters.LinearOptimizerParametersBuilder basicLinearOptimizerBuilder(RaoParameters raoParameters, Set<FlowCnec> flowCnecs) {
         LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = LinearOptimizerParameters.create()
             .withObjectiveFunction(raoParameters.getObjectiveFunction())
             .withPstSensitivityThreshold(raoParameters.getPstSensitivityThreshold())
@@ -257,7 +257,7 @@ public class Castor implements RaoProvider {
             builder.withMaxMinMarginParameters(new MaxMinMarginParameters(
                     raoParameters.getPstPenaltyCost(),
                     raoParameters.getHvdcPenaltyCost(),
-                    raoParameters.getInjectionRaPenaltyCost()));
+                    raoParameters.getInjectionRaPenaltyCost(), getLargestCnecThreshold(flowCnecs)));
 
         } else if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE
             || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) {
@@ -265,6 +265,7 @@ public class Castor implements RaoProvider {
                 raoParameters.getPstPenaltyCost(),
                 raoParameters.getHvdcPenaltyCost(),
                 raoParameters.getInjectionRaPenaltyCost(),
+                    getLargestCnecThreshold(flowCnecs),
                 raoParameters.getNegativeMarginObjectiveCoefficient(),
                 raoParameters.getPtdfSumLowerBound());
             builder.withMaxMinRelativeMarginParameters(maxMinRelativeMarginParameters);
@@ -300,7 +301,7 @@ public class Castor implements RaoProvider {
         if (!BUSINESS_LOGS.isInfoEnabled()) {
             return;
         }
-        LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = basicLinearOptimizerBuilder(raoParameters);
+        LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = basicLinearOptimizerBuilder(raoParameters, crac.getFlowCnecs());
         LinearOptimizerParameters linearOptimizerParameters = builder.build();
         ObjectiveFunction objectiveFunction = createObjectiveFunction(
             crac.getFlowCnecs(),
@@ -318,12 +319,12 @@ public class Castor implements RaoProvider {
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, prePerimeterResult, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
     }
 
-    static LinearOptimizerParameters createPreventiveLinearOptimizerParameters(RaoParameters raoParameters) {
-        return basicLinearOptimizerBuilder(raoParameters).build();
+    static LinearOptimizerParameters createPreventiveLinearOptimizerParameters(RaoParameters raoParameters, Set<FlowCnec> flowCnecs) {
+        return basicLinearOptimizerBuilder(raoParameters, flowCnecs).build();
     }
 
     static LinearOptimizerParameters createCurativeLinearOptimizerParameters(RaoParameters raoParameters, StateTree stateTree, Set<FlowCnec> cnecs) {
-        LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = basicLinearOptimizerBuilder(raoParameters);
+        LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = basicLinearOptimizerBuilder(raoParameters, cnecs);
         SearchTreeRaoParameters parameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (parameters != null && !parameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(
@@ -392,7 +393,7 @@ public class Castor implements RaoProvider {
 
     private SearchTreeRaoResult optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult prePerimeterResult) {
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
-        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
+        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters, computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter()));
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
             raoInput.getCrac(),
             raoInput.getNetwork(),
@@ -511,7 +512,7 @@ public class Castor implements RaoProvider {
             flowCnecs,
             toolProvider,
             raoParameters,
-            basicLinearOptimizerBuilder(raoParameters).build()
+            basicLinearOptimizerBuilder(raoParameters, flowCnecs).build()
         );
         // Run computation
         PrePerimeterResult postAutomatonSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOn(network, prePerimeterSensitivityOutput);
@@ -843,7 +844,7 @@ public class Castor implements RaoProvider {
 
     private CompletableFuture<SearchTreeRaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, AppliedRemedialActions appliedRemedialActions) {
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
-        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
+        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters, computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter()));
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
             raoInput.getCrac(),
             raoInput.getNetwork(),
