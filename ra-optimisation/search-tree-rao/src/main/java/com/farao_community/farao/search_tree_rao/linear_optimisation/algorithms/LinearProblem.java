@@ -272,6 +272,14 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, belowOrAboveThreshold));
     }
 
+    public MPConstraint addMinimumRelMarginSignDefinitionConstraint(double lb, double ub) {
+        return solver.makeConstraint(lb, ub, minimumRelMarginSignDefinitionConstraintId());
+    }
+
+    public MPConstraint addMinimumRelMarginSetToZeroConstraint(double lb, double ub) {
+        return solver.makeConstraint(lb, ub, minimumRelativeMarginSetToZeroConstraintId());
+    }
+
     public MPConstraint getMinimumMarginConstraint(FlowCnec cnec, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(minimumMarginConstraintId(cnec, belowOrAboveThreshold));
     }
@@ -298,6 +306,14 @@ public final class LinearProblem {
 
     public MPVariable getMinimumRelativeMarginVariable() {
         return solver.getVariable(minimumRelativeMarginVariableId());
+    }
+
+    public MPVariable addMinimumRelativeMarginSignBinaryVariable() {
+        return solver.makeBoolVar(minimumRelativeMarginSignBinaryVariableId());
+    }
+
+    public MPVariable getMinimumRelativeMarginSignBinaryVariable() {
+        return solver.getVariable(minimumRelativeMarginSignBinaryVariableId());
     }
 
     //Begin MaxLoopFlowFiller section

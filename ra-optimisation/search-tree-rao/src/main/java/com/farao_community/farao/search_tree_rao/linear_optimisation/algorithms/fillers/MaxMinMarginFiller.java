@@ -43,6 +43,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private final double pstPenaltyCost;
     private final double hvdcPenaltyCost;
     private final double injectionPenaltyCost;
+    private final double highestThreshold;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction<?>> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -53,12 +54,14 @@ public class MaxMinMarginFiller implements ProblemFiller {
         this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
         this.hvdcPenaltyCost = maxMinMarginParameters.getHvdcPenaltyCost();
         this.injectionPenaltyCost = maxMinMarginParameters.getInjectionPenaltyCost();
+        this.highestThreshold = maxMinMarginParameters.getHighestThresholdValue();
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // build variables
         buildMinimumMarginVariable(linearProblem);
+        buildMinimumRelativeMarginSignBinaryVariable(linearProblem);
 
         // build constraints
         buildMinimumMarginConstraints(linearProblem);
@@ -75,7 +78,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     /**
      * Build the minimum margin variable MM.
-     * This variable represents the smallest margin of all Cnecs.
+     * MM represents the smallest margin of all Cnecs.
      * It is given in MEGAWATT.
      */
     private void buildMinimumMarginVariable(LinearProblem linearProblem) {
@@ -89,26 +92,48 @@ public class MaxMinMarginFiller implements ProblemFiller {
     }
 
     /**
+     * Build the  miminum relative margin sign binary variable, P.
+     * P represents the sign of the minimum margin.
+     */
+    private void buildMinimumRelativeMarginSignBinaryVariable(LinearProblem linearProblem) {
+        linearProblem.addMinimumRelativeMarginSignBinaryVariable();
+    }
+
+    /**
      * Build two minimum margin constraints for each Cnec c.
      * The minimum margin constraints ensure that the minimum margin variable is below
      * the margin of each Cnec. They consist in a linear equivalent of the definition
      * of the min margin : MM = min{c in CNEC} margin[c].
      * <p>
-     * For each Cnec c, the two constraints are (if the max margin is defined in MEGAWATT) :
+     * For each Cnec c, the 4 constraints are (if the max margin is defined in MEGAWATT) :
      * <p>
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
+     * - (1 - P) * mMinRAM <= MM <= 0
+     * MM <= 0
      * <p>
-     * For each Cnec c, the two constraints are (if the max margin is defined in AMPERE) :
+     * For each Cnec c, the 4 constraints are (if the max margin is defined in AMPERE) :
      * <p>
      * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
+     * - (1 - P) * mMinRAM <= MM
+     * MM <= 0
      */
     private void buildMinimumMarginConstraints(LinearProblem linearProblem) {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
+        MPVariable miminumRelativeMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
+
+        // Minimum Margin is negative or null
+        minimumMarginVariable.setUb(.0);
+        // Forcing miminumRelativeMarginSignBinaryVariable to 0 when minimumMarginVariable is negative
+        double maxNegativeRam = 5 * highestThreshold;
+        MPConstraint minimumRelMarginSignDefinition = linearProblem.addMinimumRelMarginSignDefinitionConstraint(-LinearProblem.infinity(), maxNegativeRam);
+        minimumRelMarginSignDefinition.setCoefficient(miminumRelativeMarginSignBinaryVariable, maxNegativeRam);
+        minimumRelMarginSignDefinition.setCoefficient(minimumMarginVariable, -1);
+
         optimizedCnecs.forEach(cnec -> {
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 
