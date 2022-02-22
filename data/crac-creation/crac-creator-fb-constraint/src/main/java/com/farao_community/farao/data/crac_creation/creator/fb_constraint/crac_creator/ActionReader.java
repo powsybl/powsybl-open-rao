@@ -9,8 +9,8 @@ package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.ActionType;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.RangeType;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.ActionType;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.RangeType;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.farao_community.farao.data.crac_creation.util.ucte.UctePstHelper;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteTopologicalElementHelper;
