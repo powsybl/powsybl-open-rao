@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns:ecl="urn:entsoe.eu:wgedi:codelists" attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:simpleType name="LocalAllocationModeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalAnalogType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <!-- added for publication purposes -->
+    <xsd:enumeration value="Z01">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>IMax</Title>
+            <Definition>Maximum admissible current.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z02">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>FMax</Title>
+            <Definition>Maximum admissible power flow.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z03">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>FRefInit</Title>
+            <Definition>Reference flow calculated during the initial flow-based calculation.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z04">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Fnrao</Title>
+            <Definition>Expected flow change due to non-costly remedial actions optimisation.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z05">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>F0Core</Title>
+            <Definition>The flow per CNEC in the situation without commercial exchanges within the Core CCR.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z06">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>F0All</Title>
+            <Definition>The flow per CNEC in a situation without any commercial exchange between bidding zones within Continental Europe and between bidding zones within Continental Europe and bidding zones of other synchronous areas.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z07">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>FUaf</Title>
+            <Definition>The flow per CNEC assumed to result from commercial exchanges outside Core CCR.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z08">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>CVA</Title>
+            <Definition>Coordinated validation adjustment.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z09">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>IVA</Title>
+            <Definition>Individual validation adjustment.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z10">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>FLtn</Title>
+            <Definition>The flow resulting from long-term nominations.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+     <xsd:enumeration value="Z11">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>sumPTDF</Title>
+            <Definition></Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+        <xsd:enumeration value="Z12">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>AbsMarginPATL</Title>
+            <Definition></Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z13">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>PATL Objective Function Value</Title>
+            <Definition></Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z14">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Abs Margin TATL</Title>
+            <Definition></Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z15">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>TATL Objective Function Value</Title>
+            <Definition></Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z16">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Loop Flow</Title>
+            <Definition></Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z17">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Max LoopFlow</Title>
+            <Definition></Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+     <xsd:enumeration value="Z18">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>minimum RAM factor</Title>
+            <Definition></Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+     <xsd:enumeration value="Z19">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>minimum RAM factor for Core only</Title>
+            <Definition></Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalAssetType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalAuctionType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalBusinessType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <!-- Added for publication purposes (JAO UT) -->
+      <xsd:enumeration value="Z01">
+       <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Pre-Final LTNOm</Title>
+            <Definition>Pre-Final Flow Based domain adjusted to long term schedules</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+     </xsd:enumeration>
+      <xsd:enumeration value="Z02">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Final Virgin</Title>
+            <Definition>Final Virgin Domain.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+   </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCategoryType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalClassificationType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCodingSchemeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCoordinateSystemType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalContractType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCurrencyType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="BAM" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalCurveType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalDirectionType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalEicType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalEnergyProductType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="8716867000016" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalHVDCModeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalIndicatorType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalMessageType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalMarketProductType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalObjectAggregationType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalPaymentTermsType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalPriceCategoryType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalPriceDirectionType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalProcessType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalQualityType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalReasonCodeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="999" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalRightsType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalRoleType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalStatusType">
+    <xsd:restriction base="xsd:NMTOKEN">
+    <!-- added for publication purposes (JAO UT) -->
+    <xsd:enumeration value="Z01">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Ok</Title>
+            <Definition>The FB Domain is OK.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z02">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Unbounded</Title>
+            <Definition>The FB Domain is unbounded.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    <xsd:enumeration value="Z03">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Empty</Title>
+            <Definition>The FB Domain is empty.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+       <xsd:enumeration value="Z04">
+      <xsd:annotation>
+        <xsd:documentation>
+          <CodeDescription>
+            <Title>Non-Presolved</Title>
+            <Definition>The FB Constraint is non-presolved.</Definition>
+          </CodeDescription>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalTarifTypeType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalUnitMultiplier">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="1" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalUnitOfMeasureType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A59" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalUnitSymbol">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="AMP" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="LocalDocumentType">
+    <xsd:restriction base="xsd:NMTOKEN">
+      <xsd:enumeration value="A01" />
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>
