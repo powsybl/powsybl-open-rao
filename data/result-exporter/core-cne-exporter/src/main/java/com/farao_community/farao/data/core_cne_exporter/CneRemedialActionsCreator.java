@@ -56,8 +56,9 @@ public final class CneRemedialActionsCreator {
 
     /**
      * Creates RA ConstraintSeries for all RAs (B56) and adds them to the list
-     * <!> This also adds the RemedialActionSeries to the CNECs' ConstraintSeries in the list,
+     * PS: This also adds the RemedialActionSeries to the CNECs' ConstraintSeries in the list,
      * so it should be done after adding the CNECs' ConstraintSeries to the list
+     * @return a List of ConstraintSeries
      */
     public List<ConstraintSeries> generate() {
         List<ConstraintSeries> constraintSeries = new ArrayList<>();

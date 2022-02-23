@@ -47,9 +47,6 @@ public class Cne {
         return marketDocument;
     }
 
-    /*****************
-     GENERAL METHODS
-     *****************/
     // Main method
     public void generate() {
         // Reset unique IDs
@@ -70,9 +67,6 @@ public class Cne {
         createAllConstraintSeries(point);
     }
 
-    /*****************
-     HEADER
-     *****************/
     // fills the header of the CNE
     private void fillHeader() {
         marketDocument.setMRID(cneHelper.getExporterParameters().getDocumentId());
@@ -88,9 +82,6 @@ public class Cne {
         marketDocument.setDomainMRID(createAreaIDString(A01_CODING_SCHEME, cneHelper.getExporterParameters().getDomainId()));
     }
 
-    /*****************
-     TIME_SERIES
-     *****************/
     // creates and adds the TimeSeries to the CNE
     private void addTimeSeriesToCne(OffsetDateTime offsetDateTime) {
         try {
@@ -101,9 +92,6 @@ public class Cne {
         }
     }
 
-    /*****************
-     CONSTRAINT_SERIES
-     *****************/
     // Creates and fills all ConstraintSeries
     private void createAllConstraintSeries(Point point) {
         List<ConstraintSeries> constraintSeriesList = new ArrayList<>();

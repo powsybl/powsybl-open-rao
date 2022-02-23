@@ -43,7 +43,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <excludePackageNames>com.farao_community.farao.data.core_cne_exporter.xsd</excludePackageNames>
+                    <excludePackageNames>org.w3._2001.xmlschema:generated:eu.entsoe.*:com.farao_community.farao.data.core_cne_exporter.xsd</excludePackageNames>
                 </configuration>
             </plugin>
         </plugins>
