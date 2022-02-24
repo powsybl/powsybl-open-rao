@@ -119,7 +119,6 @@ public class LeafProblem extends SearchTreeProblem {
             maxTso,
             maxTsoExclusions,
             maxPstPerTso,
-            maxRaPerTso,
-            linearOptimizerParameters.getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS));
+            maxRaPerTso);
     }
 }

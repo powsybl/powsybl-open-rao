@@ -18,6 +18,7 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -40,7 +41,6 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final Set<String> maxTsoExclusions;
     private final Map<String, Integer> maxPstPerTso;
     private final Map<String, Integer> maxRaPerTso;
-    private final boolean pstModelIsDiscrete;
 
     public RaUsageLimitsFiller(Set<RangeAction<?>> rangeActions,
                                RangeActionResult prePerimeterRangeActionResult,
@@ -48,16 +48,14 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                                Integer maxTso,
                                Set<String> maxTsoExclusions,
                                Map<String, Integer> maxPstPerTso,
-                               Map<String, Integer> maxRaPerTso,
-                               boolean pstModelIsDiscrete) {
+                               Map<String, Integer> maxRaPerTso) {
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.maxRa = maxRa;
         this.maxTso = maxTso;
-        this.maxTsoExclusions = maxTsoExclusions;
+        this.maxTsoExclusions = maxTsoExclusions != null ? maxTsoExclusions : new HashSet<>();
         this.maxPstPerTso = maxPstPerTso;
         this.maxRaPerTso = maxRaPerTso;
-        this.pstModelIsDiscrete = pstModelIsDiscrete;
     }
 
     @Override
@@ -154,6 +152,6 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     @Override
     public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
-        // nothing to do
+        // nothing to do, we are only comparing optimal and pre-perimeter setpoints
     }
 }
