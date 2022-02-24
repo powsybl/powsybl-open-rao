@@ -125,6 +125,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
+        if (miminumRelativeMarginSignBinaryVariable == null) {
+            throw new FaraoException("Minimum relative  margin sign binary variable has not yet been created");
+        }
 
         // Minimum Margin is negative or null
         minimumMarginVariable.setUb(.0);
