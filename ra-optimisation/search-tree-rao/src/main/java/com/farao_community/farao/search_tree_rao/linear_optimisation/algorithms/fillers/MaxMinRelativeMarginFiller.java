@@ -74,11 +74,11 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
      */
     private void buildMinimumRelativeMarginConstraints(LinearProblem linearProblem) {
         MPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
-        MPVariable miRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
+        MPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
         if (minRelMarginVariable == null) {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
-        if (miRelMarginSignBinaryVariable == null)  {
+        if (minRelMarginSignBinaryVariable == null)  {
             throw new FaraoException("Minimum relative margin sign binary variable has not yet been created");
         }
         double maxPositiveRelativeRam = highestThreshold / ptdfSumLowerBound;
@@ -87,7 +87,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         minRelMarginVariable.setLb(.0);
         // Forcing minRelMarginVariable to 0 when minimumMarginVariable is negative
         MPConstraint minimumRelativeMarginSetToZero = linearProblem.addMinimumRelMarginSetToZeroConstraint(-LinearProblem.infinity(), 0);
-        minimumRelativeMarginSetToZero.setCoefficient(miRelMarginSignBinaryVariable, -maxPositiveRelativeRam);
+        minimumRelativeMarginSetToZero.setCoefficient(minRelMarginSignBinaryVariable, -maxPositiveRelativeRam);
         minimumRelativeMarginSetToZero.setCoefficient(minRelMarginVariable, 1);
 
         optimizedCnecs.forEach(cnec -> {
@@ -106,16 +106,16 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             //TODO : check that using only Side.LEFT is sufficient
 
             if (minFlow.isPresent()) {
-                MPConstraint minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), -minFlow.get() - maxNegativeRelativeRam, cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+                MPConstraint minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), -minFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam, cnec, LinearProblem.MarginExtension.BELOW_THRESHOLD);
                 minimumMarginNegative.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
-                minimumMarginNegative.setCoefficient(miRelMarginSignBinaryVariable, 1);
+                minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
-                MPConstraint minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), maxFlow.get() - maxNegativeRelativeRam, cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
+                MPConstraint minimumMarginPositive = linearProblem.addMinimumRelativeMarginConstraint(-LinearProblem.infinity(), maxFlow.get() + unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam, cnec, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
                 minimumMarginPositive.setCoefficient(minRelMarginVariable, unitConversionCoefficient * relMarginCoef);
-                minimumMarginPositive.setCoefficient(miRelMarginSignBinaryVariable, 1);
+                minimumMarginPositive.setCoefficient(minRelMarginSignBinaryVariable, unitConversionCoefficient * relMarginCoef * maxNegativeRelativeRam);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         });
