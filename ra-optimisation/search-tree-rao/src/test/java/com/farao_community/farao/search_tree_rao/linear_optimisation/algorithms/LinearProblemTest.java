@@ -127,8 +127,8 @@ public class LinearProblemTest {
         assertNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction));
         assertNull(linearProblem.getTapToAngleConversionConstraint(rangeAction));
 
-        linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, rangeAction, PREVIOUS_ITERATION, UPWARD);
-        linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, rangeAction, PREVIOUS_ITERATION, DOWNWARD);
+        linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, PREVIOUS_ITERATION, UPWARD);
+        linearProblem.addIsVariationInDirectionConstraint(-Double.MAX_VALUE, 0, rangeAction, PREVIOUS_ITERATION, DOWNWARD);
         linearProblem.addUpOrDownPstVariationConstraint(rangeAction);
         linearProblem.addTapToAngleConversionConstraint(LB, UB, rangeAction);
 
