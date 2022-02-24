@@ -302,56 +302,6 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void tooManyRangeActions() throws Exception {
-        raoWithoutLoopFlowLimitation();
-        setStopCriterionAtMinObjective();
-
-        String tsoName = "TSO";
-        raoWithRangeActionsForTso(tsoName);
-        int maxPstOfTso = 1;
-        setMaxPstPerTso(tsoName, maxPstOfTso);
-        mockRootLeafCost(5.);
-        RangeAction<?> rangeAction4 = Mockito.mock(PstRangeAction.class);
-        when(rangeAction4.getOperator()).thenReturn("TSO - not in map");
-        when(rangeAction4.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
-        availableRangeActions.add(rangeAction4);
-
-        searchTree.setTreeParameters(treeParameters);
-        searchTree.setAvailableRangeActions(availableRangeActions);
-        Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints = new HashMap<>();
-        availableRangeActions.forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, 0.));
-        searchTree.setPrePerimeterRangeActionSetPoints(prePerimeterRangeActionSetPoints);
-        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.removeUnavailableRangeActions(rootLeaf, availableRangeActions);
-
-        assert rangeActionsToOptimize.contains(rangeAction2);
-        assertFalse(rangeActionsToOptimize.contains(rangeAction1));
-
-        assert rangeActionsToOptimize.contains(rangeAction4);
-    }
-
-    @Test
-    public void tooManyRangeActions2() throws Exception {
-        raoWithoutLoopFlowLimitation();
-        setStopCriterionAtMinObjective();
-
-        String tsoName = "TSO";
-        raoWithRangeActionsForTso(tsoName);
-        int maxPstOfTso = 1;
-        setMaxPstPerTso(tsoName, maxPstOfTso);
-        mockRootLeafCost(5.);
-
-        searchTree.setTreeParameters(treeParameters);
-        searchTree.setAvailableRangeActions(availableRangeActions);
-        Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints = new HashMap<>();
-        availableRangeActions.forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, 0.));
-        searchTree.setPrePerimeterRangeActionSetPoints(prePerimeterRangeActionSetPoints);
-        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.removeUnavailableRangeActions(rootLeaf, availableRangeActions);
-
-        assertTrue(rangeActionsToOptimize.contains(rangeAction2));
-        assertFalse(rangeActionsToOptimize.contains(rangeAction1));
-    }
-
-    @Test
     public void optimizeRootLeafWithRangeActions() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtMinObjective();
@@ -366,39 +316,6 @@ public class SearchTreeTest {
 
         OptimizationResult result = searchTree.run(searchTreeInput, treeParameters, linearOptimizerParameters, true).get();
         assertEquals(3., result.getOptimizedSetPoint(rangeAction2), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void maxCurativeRaLimitNumberOfAvailableRangeActions() {
-        raoWithRangeActionsForTso("TSO");
-        int maxCurativeRa = 2;
-        setMaxRa(maxCurativeRa);
-        Leaf childLeaf = Mockito.mock(Leaf.class);
-        when(childLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(networkAction));
-        FlowCnec mostLimitingElement = Mockito.mock(FlowCnec.class);
-        when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
-        searchTree.setTreeParameters(treeParameters);
-        searchTree.setAvailableRangeActions(availableRangeActions);
-        Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints = new HashMap<>();
-        availableRangeActions.forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, 0.));
-        searchTree.setPrePerimeterRangeActionSetPoints(prePerimeterRangeActionSetPoints);
-        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.removeUnavailableRangeActions(childLeaf, availableRangeActions);
-        assertEquals(1, rangeActionsToOptimize.size());
-    }
-
-    @Test
-    public void maxCurativeRaPreventToOptimizeRangeActions() {
-        raoWithRangeActionsForTso("TSO");
-        int maxCurativeRa = 1;
-        setMaxRa(maxCurativeRa);
-        Leaf childLeaf = Mockito.mock(Leaf.class);
-        when(childLeaf.getActivatedNetworkActions()).thenReturn(Collections.singleton(networkAction));
-        FlowCnec mostLimitingElement = Mockito.mock(FlowCnec.class);
-        when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
-        searchTree.setTreeParameters(treeParameters);
-        searchTree.setAvailableRangeActions(availableRangeActions);
-        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.removeUnavailableRangeActions(childLeaf, availableRangeActions);
-        assertEquals(0, rangeActionsToOptimize.size());
     }
 
     private void raoWithRangeActionsForTso(String tsoName) {
