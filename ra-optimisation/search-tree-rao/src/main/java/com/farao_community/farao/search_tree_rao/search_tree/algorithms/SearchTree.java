@@ -109,16 +109,16 @@ public class SearchTree {
     }
 
     /**
-     * If the allowed number of range actions (or RAs) is limited (by tso or globally), this function filters out
-     * the range actions with the least impact
+     * Remove from a set of range actions those that are not used and not available
      */
-    Set<RangeAction<?>> applyRangeActionsFilters(Leaf leaf, Set<RangeAction<?>> fromRangeActions, boolean deprioritizeIgnoredRangeActions) {
-        RangeActionFilter filter = new RangeActionFilter(leaf, fromRangeActions, optimizedState, treeParameters, prePerimeterRangeActionSetPoints, deprioritizeIgnoredRangeActions);
-        filter.filterUnavailableRangeActions();
-        filter.filterPstPerTso();
-        filter.filterTsos();
-        filter.filterMaxRas();
-        return filter.getRangeActionsToOptimize();
+    Set<RangeAction<?>> removeUnavailableRangeActions(Leaf leaf, Set<RangeAction<?>> fromRangeActions) {
+        return fromRangeActions.stream()
+            .filter(ra -> isRangeActionUsed(ra, leaf) || isRemedialActionAvailable(ra, optimizedState, leaf))
+            .collect(Collectors.toSet());
+    }
+
+    boolean isRangeActionUsed(RangeAction<?> rangeAction, Leaf leaf) {
+        return leaf.getRangeActions().contains(rangeAction) && Math.abs(leaf.getOptimizedSetPoint(rangeAction) - prePerimeterRangeActionSetPoints.get(rangeAction)) >= 1e-6;
     }
 
     public CompletableFuture<OptimizationResult> run(SearchTreeInput searchTreeInput, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters, boolean verbose) {
@@ -203,6 +203,7 @@ public class SearchTree {
         TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (AbstractNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
             while (depth < treeParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
+                // TODO : reset range actions to their initial setpoint
                 TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
                 updateOptimalLeafWithNextDepthBestLeaf(networkPool);
@@ -331,7 +332,7 @@ public class SearchTree {
         int iteration = 0;
         double previousCost = Double.MAX_VALUE;
         Set<RangeAction<?>> previousIterationRangeActions = null;
-        Set<RangeAction<?>> rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, false);
+        Set<RangeAction<?>> rangeActions = removeUnavailableRangeActions(leaf, availableRangeActions);
         // Iterate on optimizer until the list of range actions stops changing
         while (!rangeActions.equals(previousIterationRangeActions) && Math.abs(previousCost - leaf.getCost()) >= 1e-6 && iteration < 10) {
             previousCost = leaf.getCost();
@@ -344,7 +345,7 @@ public class SearchTree {
                 leaf.optimize(
                     iteratingLinearOptimizer,
                     getSensitivityComputerForOptimizationBasedOn(baseFlowResult, rangeActions),
-                    searchTreeProblem.getLeafProblem(rangeActions)
+                    searchTreeProblem.getLeafProblem(rangeActions, leaf.getActivatedNetworkActions())
                 );
                 if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
                     topLevelLogger.info("Failed to optimize leaf: {}", leaf);
@@ -357,7 +358,7 @@ public class SearchTree {
                     leaf.optimize(
                         iteratingLinearOptimizer,
                         getSensitivityComputerForOptimizationBasedOn(baseFlowResult, previousIterationRangeActions),
-                        searchTreeProblem.getLeafProblem(rangeActions)
+                        searchTreeProblem.getLeafProblem(rangeActions, leaf.getActivatedNetworkActions())
                     );
                     if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
                         topLevelLogger.info("Failed to optimize leaf: {}", leaf);
@@ -368,7 +369,7 @@ public class SearchTree {
                 TECHNICAL_LOGS.info("No range actions to optimize");
             }
             previousIterationRangeActions = rangeActions;
-            rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, true);
+            rangeActions = removeUnavailableRangeActions(leaf, availableRangeActions);
         }
         leaf.finalizeOptimization();
     }

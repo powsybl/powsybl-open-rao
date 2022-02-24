@@ -17,8 +17,8 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.Optional;
 
-import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem.VariationExtension.DOWNWARD;
-import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem.VariationExtension.UPWARD;
+import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem.VariationDirectionExtension.*;
+import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem.VariationReferenceExtension.*;
 import static org.junit.Assert.*;
 
 /**
@@ -122,18 +122,18 @@ public class LinearProblemTest {
 
     @Test
     public void pstTapConstraintsTest() {
-        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, UPWARD));
-        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, DOWNWARD));
+        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, PREVIOUS_ITERATION, UPWARD));
+        assertNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, PREVIOUS_ITERATION, DOWNWARD));
         assertNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction));
         assertNull(linearProblem.getTapToAngleConversionConstraint(rangeAction));
 
-        linearProblem.addIsVariationInDirectionConstraint(rangeAction, UPWARD);
-        linearProblem.addIsVariationInDirectionConstraint(rangeAction, DOWNWARD);
+        linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, rangeAction, PREVIOUS_ITERATION, UPWARD);
+        linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, rangeAction, PREVIOUS_ITERATION, DOWNWARD);
         linearProblem.addUpOrDownPstVariationConstraint(rangeAction);
         linearProblem.addTapToAngleConversionConstraint(LB, UB, rangeAction);
 
-        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, UPWARD));
-        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, DOWNWARD));
+        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, PREVIOUS_ITERATION, UPWARD));
+        assertNotNull(linearProblem.getIsVariationInDirectionConstraint(rangeAction, PREVIOUS_ITERATION, DOWNWARD));
         assertNotNull(linearProblem.getUpOrDownPstVariationConstraint(rangeAction));
         assertNotNull(linearProblem.getTapToAngleConversionConstraint(rangeAction));
     }

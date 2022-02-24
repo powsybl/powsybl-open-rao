@@ -45,16 +45,16 @@ public class DiscretePstTapFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        rangeActions.forEach(rangeAction -> {
-            if (rangeAction instanceof PstRangeAction) {
-                buildPstTapVariablesAndConstraints(linearProblem, (PstRangeAction) rangeAction);
-            }
-        });
+        rangeActions.stream().filter(PstRangeAction.class::isInstance).forEach(rangeAction ->
+            buildPstTapVariablesAndConstraints(linearProblem, (PstRangeAction) rangeAction)
+        );
     }
 
     @Override
     public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
-        rangeActions.forEach(rangeAction -> refineTapToAngleConversionCoefficientAndUpdateBounds(linearProblem, (PstRangeAction) rangeAction, rangeActionResult));
+        rangeActions.stream().filter(PstRangeAction.class::isInstance).forEach(rangeAction ->
+            refineTapToAngleConversionCoefficientAndUpdateBounds(linearProblem, (PstRangeAction) rangeAction, rangeActionResult)
+        );
     }
 
     private void buildPstTapVariablesAndConstraints(LinearProblem linearProblem, PstRangeAction pstRangeAction) {
@@ -71,11 +71,11 @@ public class DiscretePstTapFiller implements ProblemFiller {
         int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - currentTap);
 
         // create and get variables
-        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
-        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, LinearProblem.VariationExtension.UPWARD);
+        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
 
-        MPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
-        MPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
+        MPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
 
         MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
 
@@ -113,15 +113,13 @@ public class DiscretePstTapFiller implements ProblemFiller {
         upOrDownConstraint.setUb(1);
 
         // variation can be made in one direction, only if it is authorized by the binary variable
-        MPConstraint downAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
+        MPConstraint downAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationVariable, 1);
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationBinary, -maxDownwardTapVariation);
-        downAuthorizationConstraint.setUb(0);
 
-        MPConstraint upAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
+        MPConstraint upAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationVariable, 1);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
-        upAuthorizationConstraint.setUb(0);
     }
 
     private void refineTapToAngleConversionCoefficientAndUpdateBounds(LinearProblem linearProblem, PstRangeAction pstRangeAction, RangeActionResult rangeActionResult) {
@@ -141,12 +139,12 @@ public class DiscretePstTapFiller implements ProblemFiller {
 
         // get variables and constraints
         MPConstraint tapToAngleConversionConstraint = linearProblem.getTapToAngleConversionConstraint(pstRangeAction);
-        MPVariable pstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
-        MPVariable pstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
-        MPConstraint downAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
-        MPConstraint upAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
-        MPVariable pstTapDownwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
-        MPVariable pstTapUpwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
+        MPVariable pstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable pstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPConstraint downAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPConstraint upAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable pstTapDownwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable pstTapUpwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
 
         if (tapToAngleConversionConstraint == null || pstTapUpwardVariationVariable == null || pstTapDownwardVariationVariable == null
                 || downAuthorizationConstraint == null || upAuthorizationConstraint == null || pstTapDownwardVariationBinary == null

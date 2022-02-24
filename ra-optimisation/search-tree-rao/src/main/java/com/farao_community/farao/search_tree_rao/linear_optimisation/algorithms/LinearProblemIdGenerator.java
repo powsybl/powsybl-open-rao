@@ -34,6 +34,11 @@ public final class LinearProblemIdGenerator {
     private static final String MNEC_VIOLATION = "mnecviolation";
     private static final String MNEC_FLOW = "mnecflow";
     private static final String MARGIN_DECREASE = "margindecrease";
+    private static final String MAX_RA = "maxra";
+    private static final String MAX_TSO = "maxtso";
+    private static final String MAX_RA_PER_TSO = "maxrapertso";
+    private static final String MAX_PST_PER_TSO = "maxpstpertso";
+    private static final String TSO_RA_USED = "tsoraused";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -51,11 +56,15 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String pstTapVariableVariationId(RangeAction<?> rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
+    public static String pstTapVariableVariationId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension upwardOrDownward) {
         return rangeAction.getId() + SEPARATOR + TAP_VARIATION + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String pstTapBinaryVariationId(RangeAction<?> rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
+    public static String rangeActionBinaryVariableId(RangeAction<?> rangeAction) {
+        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String pstTapBinaryVariationInDirectionId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension upwardOrDownward) {
         return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
@@ -67,8 +76,15 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + UP_OR_DOWN_VARIATION + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, LinearProblem.VariationExtension upwardOrDownward) {
-        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String isVariationConstraintId(RangeAction<?> rangeAction) {
+        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration, LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY
+            + SEPARATOR + preperimeterOrPreviousIteration.toString().toLowerCase()
+            + SEPARATOR + upwardOrDownward.toString().toLowerCase()
+            + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String rangeActionGroupSetpointVariableId(String rangeActionGroupId) {
@@ -133,5 +149,29 @@ public final class LinearProblemIdGenerator {
 
     public static String marginDecreaseConstraintId(FlowCnec flowCnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
         return flowCnec.getId() + SEPARATOR + MARGIN_DECREASE + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String maxRaConstraintId() {
+        return MAX_RA + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String maxTsoConstraintId() {
+        return MAX_TSO + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String maxRaPerTsoConstraintId(String operator) {
+        return MAX_RA_PER_TSO + SEPARATOR + operator + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String maxPstPerTsoConstraintId(String operator) {
+        return MAX_PST_PER_TSO + SEPARATOR + operator + SEPARATOR + CONSTRAINT_SUFFIX;
+    }
+
+    public static String tsoRaUsedVariableId(String operator) {
+        return TSO_RA_USED + SEPARATOR + operator + SEPARATOR + VARIABLE_SUFFIX;
+    }
+
+    public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction) {
+        return TSO_RA_USED + SEPARATOR + operator + SEPARATOR + rangeAction.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 }

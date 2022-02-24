@@ -321,7 +321,7 @@ public class SearchTreeTest {
         Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints = new HashMap<>();
         availableRangeActions.forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, 0.));
         searchTree.setPrePerimeterRangeActionSetPoints(prePerimeterRangeActionSetPoints);
-        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(rootLeaf, availableRangeActions, false);
+        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.removeUnavailableRangeActions(rootLeaf, availableRangeActions);
 
         assert rangeActionsToOptimize.contains(rangeAction2);
         assertFalse(rangeActionsToOptimize.contains(rangeAction1));
@@ -345,7 +345,7 @@ public class SearchTreeTest {
         Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints = new HashMap<>();
         availableRangeActions.forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, 0.));
         searchTree.setPrePerimeterRangeActionSetPoints(prePerimeterRangeActionSetPoints);
-        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(rootLeaf, availableRangeActions, false);
+        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.removeUnavailableRangeActions(rootLeaf, availableRangeActions);
 
         assertTrue(rangeActionsToOptimize.contains(rangeAction2));
         assertFalse(rangeActionsToOptimize.contains(rangeAction1));
@@ -382,7 +382,7 @@ public class SearchTreeTest {
         Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints = new HashMap<>();
         availableRangeActions.forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, 0.));
         searchTree.setPrePerimeterRangeActionSetPoints(prePerimeterRangeActionSetPoints);
-        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(childLeaf, availableRangeActions, false);
+        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.removeUnavailableRangeActions(childLeaf, availableRangeActions);
         assertEquals(1, rangeActionsToOptimize.size());
     }
 
@@ -397,7 +397,7 @@ public class SearchTreeTest {
         when(childLeaf.getMostLimitingElements(1)).thenReturn(Collections.singletonList(mostLimitingElement));
         searchTree.setTreeParameters(treeParameters);
         searchTree.setAvailableRangeActions(availableRangeActions);
-        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.applyRangeActionsFilters(childLeaf, availableRangeActions, false);
+        Set<RangeAction<?>> rangeActionsToOptimize = searchTree.removeUnavailableRangeActions(childLeaf, availableRangeActions);
         assertEquals(0, rangeActionsToOptimize.size());
     }
 

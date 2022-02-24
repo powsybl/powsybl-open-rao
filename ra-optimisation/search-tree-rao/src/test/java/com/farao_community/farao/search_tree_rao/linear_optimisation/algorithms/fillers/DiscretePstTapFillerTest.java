@@ -62,14 +62,14 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         // check that all constraints and variables exists
         MPVariable setpointV = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
-        MPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
-        MPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
-        MPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
-        MPVariable binaryDownV = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
+        MPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable binaryDownV = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
         MPConstraint tapToAngleConversionC = linearProblem.getTapToAngleConversionConstraint(pstRangeAction);
         MPConstraint upOrDownC = linearProblem.getUpOrDownPstVariationConstraint(pstRangeAction);
-        MPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationExtension.UPWARD);
-        MPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationExtension.DOWNWARD);
+        MPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
         assertNotNull(setpointV);
         assertNotNull(variationUpV);
