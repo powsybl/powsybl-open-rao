@@ -129,8 +129,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
             throw new FaraoException("Minimum relative  margin sign binary variable has not yet been created");
         }
 
-        // Minimum Margin is negative or null
-        minimumMarginVariable.setUb(.0);
         // Forcing miminumRelativeMarginSignBinaryVariable to 0 when minimumMarginVariable is negative
         double maxNegativeRam = 5 * highestThreshold;
         MPConstraint minimumRelMarginSignDefinition = linearProblem.addMinimumRelMarginSignDefinitionConstraint(-LinearProblem.infinity(), maxNegativeRam);

@@ -75,6 +75,11 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     private void buildMinimumRelativeMarginConstraints(LinearProblem linearProblem) {
         MPVariable minRelMarginVariable = linearProblem.getMinimumRelativeMarginVariable();
         MPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
+        MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
+
+        if (minimumMarginVariable == null) {
+            throw new FaraoException("Minimum margin variable has not yet been created");
+        }
         if (minRelMarginVariable == null) {
             throw new FaraoException("Minimum relative margin variable has not yet been created");
         }
@@ -83,6 +88,8 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         }
         double maxPositiveRelativeRam = highestThreshold / ptdfSumLowerBound;
         double maxNegativeRelativeRam = 5 * maxPositiveRelativeRam;
+        // Minimum Margin is negative or null
+        minimumMarginVariable.setUb(.0);
         // Minimum Relative Margin is positive or null
         minRelMarginVariable.setLb(.0);
         // Forcing minRelMarginVariable to 0 when minimumMarginVariable is negative
