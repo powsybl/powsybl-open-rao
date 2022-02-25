@@ -57,8 +57,8 @@ public class LeafProblem extends SearchTreeProblem {
     private void computeRaUsageLimits(Set<NetworkAction> activatedNetworkActions) {
         this.maxRa = treeParameters.getMaxRa() - activatedNetworkActions.size();
         this.maxPstPerTso = treeParameters.getMaxPstPerTso();
-        this.maxTso = treeParameters.getMaxTso();
         this.maxTsoExclusions = activatedNetworkActions.stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
+        this.maxTso = treeParameters.getMaxTso() - this.maxTsoExclusions.size();
         this.maxRaPerTso = new HashMap<>(treeParameters.getMaxRaPerTso());
         this.maxRaPerTso.entrySet().forEach(entry -> {
             int activatedNetworkActionsForTso = activatedNetworkActions.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();

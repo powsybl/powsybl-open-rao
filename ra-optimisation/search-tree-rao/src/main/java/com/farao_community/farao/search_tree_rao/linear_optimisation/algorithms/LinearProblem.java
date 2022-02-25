@@ -107,7 +107,7 @@ public final class LinearProblem {
         this.solverSpecificParameters = solverSpecificParameters;
     }
 
-    List<ProblemFiller> getFillers() {
+    public List<ProblemFiller> getFillers() {
         return Collections.unmodifiableList(fillers);
     }
 

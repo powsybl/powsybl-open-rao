@@ -18,10 +18,7 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -41,6 +38,26 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final Set<String> maxTsoExclusions;
     private final Map<String, Integer> maxPstPerTso;
     private final Map<String, Integer> maxRaPerTso;
+
+    public Integer getMaxRa() {
+        return maxRa;
+    }
+
+    public Integer getMaxTso() {
+        return maxTso;
+    }
+
+    public Set<String> getMaxTsoExclusions() {
+        return Collections.unmodifiableSet(maxTsoExclusions);
+    }
+
+    public Map<String, Integer> getMaxPstPerTso() {
+        return Collections.unmodifiableMap(maxPstPerTso);
+    }
+
+    public Map<String, Integer> getMaxRaPerTso() {
+        return Collections.unmodifiableMap(maxRaPerTso);
+    }
 
     public RaUsageLimitsFiller(Set<RangeAction<?>> rangeActions,
                                RangeActionResult prePerimeterRangeActionResult,
