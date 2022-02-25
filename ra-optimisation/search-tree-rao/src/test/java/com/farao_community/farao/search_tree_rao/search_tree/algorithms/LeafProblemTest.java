@@ -11,13 +11,9 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.RaUsageLimitsFiller;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
-import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.TreeParameters;
-import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 import java.util.Map;
@@ -59,7 +55,7 @@ public class LeafProblemTest {
         when(linearOptimizerParameters.getPstOptimizationApproximation()).thenReturn(RaoParameters.PstOptimizationApproximation.CONTINUOUS);
         when(linearOptimizerParameters.getSolver()).thenReturn(RaoParameters.Solver.CBC);
 
-        LinearProblem linearProblem =
+        LeafProblem leafProblem =
             new LeafProblem(mock(FlowResult.class),
                 mock(FlowResult.class),
                 mock(RangeActionResult.class),
@@ -68,23 +64,20 @@ public class LeafProblemTest {
                 linearOptimizerParameters,
                 treeParameters,
                 Set.of(),
-                activatedNetworkActions)
-                .getLinearProblem(mock(Network.class), mock(FlowResult.class), mock(SensitivityResult.class));
-
-        RaUsageLimitsFiller filler = (RaUsageLimitsFiller) linearProblem.getFillers().stream().filter(RaUsageLimitsFiller.class::isInstance).findAny().orElseThrow();
+                activatedNetworkActions);
 
         // Initial maxRA = 9, 4 network actions used, so 5 range actions can still be used
-        assertEquals(5, filler.getMaxRa().intValue());
+        assertEquals(5, leafProblem.getMaxRa().intValue());
 
         // Initial maxTso = 4. opA, opB and opC already have activated RAs. So they should be counted out:
         // maxTso for TSOs other than these three = 1
-        assertEquals(1, filler.getMaxTso().intValue());
-        assertEquals(Set.of("opA", "opB", "opC"), filler.getMaxTsoExclusions());
+        assertEquals(1, leafProblem.getMaxTso().intValue());
+        assertEquals(Set.of("opA", "opB", "opC"), leafProblem.getMaxTsoExclusions());
 
         // Max PST per TSO is not impacted by activated network actions
-        assertEquals(Map.of("opA", 2, "opB", 3), filler.getMaxPstPerTso());
+        assertEquals(Map.of("opA", 2, "opB", 3), leafProblem.getMaxPstPerTso());
 
         // Max RA per TSO should be impacted by the number of activated network actions
-        assertEquals(Map.of("opA", 4, "opB", 4), filler.getMaxRaPerTso());
+        assertEquals(Map.of("opA", 4, "opB", 4), leafProblem.getMaxRaPerTso());
     }
 }

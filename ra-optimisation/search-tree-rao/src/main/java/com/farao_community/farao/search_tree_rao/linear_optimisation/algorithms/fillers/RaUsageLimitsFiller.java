@@ -39,26 +39,6 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final Map<String, Integer> maxPstPerTso;
     private final Map<String, Integer> maxRaPerTso;
 
-    public Integer getMaxRa() {
-        return maxRa;
-    }
-
-    public Integer getMaxTso() {
-        return maxTso;
-    }
-
-    public Set<String> getMaxTsoExclusions() {
-        return Collections.unmodifiableSet(maxTsoExclusions);
-    }
-
-    public Map<String, Integer> getMaxPstPerTso() {
-        return Collections.unmodifiableMap(maxPstPerTso);
-    }
-
-    public Map<String, Integer> getMaxRaPerTso() {
-        return Collections.unmodifiableMap(maxRaPerTso);
-    }
-
     public RaUsageLimitsFiller(Set<RangeAction<?>> rangeActions,
                                RangeActionResult prePerimeterRangeActionResult,
                                Integer maxRa,

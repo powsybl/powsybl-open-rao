@@ -23,10 +23,7 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.TreeParameters;
 import com.powsybl.iidm.network.Network;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -120,5 +117,25 @@ public class LeafProblem extends SearchTreeProblem {
             maxTsoExclusions,
             maxPstPerTso,
             maxRaPerTso);
+    }
+
+    Integer getMaxRa() {
+        return maxRa;
+    }
+
+    Integer getMaxTso() {
+        return maxTso;
+    }
+
+    Set<String> getMaxTsoExclusions() {
+        return Collections.unmodifiableSet(maxTsoExclusions);
+    }
+
+    Map<String, Integer> getMaxPstPerTso() {
+        return Collections.unmodifiableMap(maxPstPerTso);
+    }
+
+    Map<String, Integer> getMaxRaPerTso() {
+        return Collections.unmodifiableMap(maxRaPerTso);
     }
 }
