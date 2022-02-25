@@ -57,10 +57,10 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        if (maxRa == null
-            && maxTso == null
-            && maxPstPerTso == null
-            && maxRaPerTso == null) {
+        if ((maxRa == null || maxRa >= rangeActions.size())
+            && (maxTso == null || maxTso >= rangeActions.stream().map(RemedialAction::getOperator).distinct().filter(tso -> !maxTsoExclusions.contains(tso)).count())
+            && (maxPstPerTso == null || maxPstPerTso.isEmpty())
+            && (maxRaPerTso == null || maxRaPerTso.isEmpty())) {
             return;
         }
         rangeActions.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra));

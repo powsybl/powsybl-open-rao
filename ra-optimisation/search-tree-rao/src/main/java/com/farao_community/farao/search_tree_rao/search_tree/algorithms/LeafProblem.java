@@ -92,10 +92,10 @@ public class LeafProblem extends SearchTreeProblem {
             linearProblemBuilder.withProblemFiller(createContinuousRangeActionGroupFiller(rangeActions));
         }
 
-        if (maxRa != null
-            || maxTso != null
-            || maxPstPerTso != null
-            || maxRaPerTso != null) {
+        if ((maxRa != null && maxRa < rangeActions.size())
+            || (maxTso != null && maxTso < rangeActions.stream().map(RemedialAction::getOperator).count() - maxTsoExclusions.size())
+            || (maxPstPerTso != null && !maxPstPerTso.isEmpty())
+            || (maxRaPerTso != null && !maxRaPerTso.isEmpty())) {
             linearProblemBuilder.withProblemFiller(createRaUageLimitsFiller(rangeActions));
         }
 

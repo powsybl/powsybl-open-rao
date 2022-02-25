@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -101,7 +102,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testSkipFiller() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, null, null, null, null);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 5, 2, Set.of("opA"), null, new HashMap<>());
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -162,14 +163,14 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testMaxRa() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 5, null, null, null, null);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 4, null, null, null, null);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 
         MPConstraint constraint = linearProblem.getMaxRaConstraint();
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(5, constraint.ub(), DOUBLE_TOLERANCE);
+        assertEquals(4, constraint.ub(), DOUBLE_TOLERANCE);
         rangeActions.forEach(ra -> assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(ra)), DOUBLE_TOLERANCE));
     }
 
