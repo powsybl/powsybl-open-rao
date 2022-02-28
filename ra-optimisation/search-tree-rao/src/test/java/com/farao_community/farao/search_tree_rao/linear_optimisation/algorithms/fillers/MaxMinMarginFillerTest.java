@@ -32,8 +32,6 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 public class MaxMinMarginFillerTest extends AbstractFillerTest {
-    private static final double MAX_ABS_THRESHOLD = 1000;
-
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
     private MaxMinMarginFiller maxMinMarginFiller;
@@ -55,7 +53,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
                 0.,
                 false
         );
-        maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01, 0.01, MAX_ABS_THRESHOLD);
+        maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01, 0.01);
     }
 
     private void createMaxMinMarginFiller(Unit unit) {
@@ -107,13 +105,11 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         // total number of variables 5 :
         //      - 3 due to CoreFiller
         //      - minimum margin variable
-        //      - minimum relative margin sign binary variable
         // total number of constraints 6 :
         //      - 3 due to CoreFiller
         //      - 2 per CNEC (min margin constraints)
-        //      - 1 due to minimumRelMarginSignDefinition
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(6, linearProblem.numConstraints());
+        assertEquals(4, linearProblem.numVariables());
+        assertEquals(5, linearProblem.numConstraints());
     }
 
     @Test
@@ -149,8 +145,8 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        assertEquals(5, linearProblem.numVariables());
-        assertEquals(6, linearProblem.numConstraints());
+        assertEquals(4, linearProblem.numVariables());
+        assertEquals(5, linearProblem.numConstraints());
     }
 
     @Test

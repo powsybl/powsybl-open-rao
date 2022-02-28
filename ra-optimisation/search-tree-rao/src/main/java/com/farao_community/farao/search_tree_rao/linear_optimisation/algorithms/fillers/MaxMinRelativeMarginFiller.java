@@ -51,6 +51,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         super.fill(linearProblem, flowResult, sensitivityResult);
         buildMinimumRelativeMarginVariable(linearProblem);
+        buildMinimumRelativeMarginSignBinaryVariable(linearProblem);
         buildMinimumRelativeMarginConstraints(linearProblem);
         fillObjectiveWithMinRelMargin(linearProblem);
     }
@@ -67,6 +68,14 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             // otherwise it would be unbounded in the LP
             linearProblem.addMinimumRelativeMarginVariable(0.0, 0.0);
         }
+    }
+
+    /**
+     * Build the  miminum relative margin sign binary variable, P.
+     * P represents the sign of the minimum margin.
+     */
+    private void buildMinimumRelativeMarginSignBinaryVariable(LinearProblem linearProblem) {
+        linearProblem.addMinimumRelativeMarginSignBinaryVariable();
     }
 
     /**
@@ -88,6 +97,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         }
         double maxPositiveRelativeRam = highestThreshold / ptdfSumLowerBound;
         double maxNegativeRelativeRam = 5 * maxPositiveRelativeRam;
+        double maxNegativeRam = 5 * highestThreshold;
         // Minimum Margin is negative or null
         minimumMarginVariable.setUb(.0);
         // Minimum Relative Margin is positive or null
@@ -96,6 +106,10 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         MPConstraint minimumRelativeMarginSetToZero = linearProblem.addMinimumRelMarginSetToZeroConstraint(-LinearProblem.infinity(), 0);
         minimumRelativeMarginSetToZero.setCoefficient(minRelMarginSignBinaryVariable, -maxPositiveRelativeRam);
         minimumRelativeMarginSetToZero.setCoefficient(minRelMarginVariable, 1);
+        // Forcing miminumRelativeMarginSignBinaryVariable to 0 when minimumMarginVariable is negative
+        MPConstraint minimumRelMarginSignDefinition = linearProblem.addMinimumRelMarginSignDefinitionConstraint(-LinearProblem.infinity(), maxNegativeRam);
+        minimumRelMarginSignDefinition.setCoefficient(minRelMarginSignBinaryVariable, maxNegativeRam);
+        minimumRelMarginSignDefinition.setCoefficient(minimumMarginVariable, -1);
 
         optimizedCnecs.forEach(cnec -> {
             double relMarginCoef = Math.max(initialFlowResult.getPtdfZonalSum(cnec), ptdfSumLowerBound);
