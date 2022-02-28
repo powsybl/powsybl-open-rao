@@ -10,8 +10,8 @@ import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.ActionsSetType;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.IndependantComplexVariant;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.ActionsSetType;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.IndependantComplexVariant;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 
 import java.util.*;

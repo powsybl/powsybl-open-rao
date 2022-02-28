@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint;
 
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.FlowBasedConstraintDocument;
 import org.junit.Test;
 import org.mockito.Mockito;
 

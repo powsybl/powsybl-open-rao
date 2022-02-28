@@ -8,7 +8,7 @@ package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_
 
 import com.farao_community.farao.data.crac_api.ContingencyAdder;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.OutageType;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.OutageType;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteContingencyElementHelper;
 import com.farao_community.farao.data.crac_creation.util.ucte.UcteNetworkAnalyzer;
 import com.powsybl.iidm.network.DanglingLine;

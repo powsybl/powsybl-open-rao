@@ -7,7 +7,7 @@
 package com.farao_community.farao.data.crac_creation.creator.fb_constraint.crac_creator;
 
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
-import com.farao_community.farao.data.crac_creation.creator.fb_constraint.ActionsSetType;
+import com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.ActionsSetType;
 
 import java.util.*;
 import java.util.stream.Collectors;

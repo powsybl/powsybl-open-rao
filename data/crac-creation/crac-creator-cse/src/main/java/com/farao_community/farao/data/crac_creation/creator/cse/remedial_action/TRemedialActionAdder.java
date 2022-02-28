@@ -89,6 +89,11 @@ public class TRemedialActionAdder {
             .withName(tRemedialAction.getName().getV())
             .withOperator(tRemedialAction.getOperator().getV());
 
+        if (tRemedialAction.getStatus().getBranch().isEmpty()) {
+            cseCracCreationContext.addRemedialActionCreationContext(CseRemedialActionCreationContext.notImported(tRemedialAction, ImportStatus.INCOMPLETE_DATA, "field 'Status' of a topological remedial action cannot be empty"));
+            return;
+        }
+
         for (TBranch tBranch : tRemedialAction.getStatus().getBranch()) {
             UcteTopologicalElementHelper branchHelper = new UcteTopologicalElementHelper(tBranch.getFromNode().getV(), tBranch.getToNode().getV(), String.valueOf(tBranch.getOrder().getV()), createdRAId, ucteNetworkAnalyzer);
             if (!branchHelper.isValid()) {

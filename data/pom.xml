@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-core</artifactId>
-        <version>3.7.0-SNAPSHOT</version>
+        <version>3.8.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>farao-data</artifactId>
@@ -23,6 +23,7 @@
         <module>glsk</module>
         <module>native-crac</module>
         <module>rao-result</module>
+        <module>result-exporter</module>
         <module>refprog</module>
     </modules>
 </project>

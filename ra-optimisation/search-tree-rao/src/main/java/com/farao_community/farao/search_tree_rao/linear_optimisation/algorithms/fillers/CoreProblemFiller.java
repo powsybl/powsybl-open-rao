@@ -37,6 +37,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private final double hvdcSensitivityThreshold;
     private final double injectionSensitivityThreshold;
     private final boolean relativePositiveMargins;
+    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
     public CoreProblemFiller(Network network,
                              Set<FlowCnec> flowCnecs,
@@ -110,7 +111,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private void buildRangeActionSetPointVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, double prePerimeterValue) {
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterValue);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterValue);
-        linearProblem.addRangeActionSetpointVariable(minSetPoint, maxSetPoint, rangeAction);
+        linearProblem.addRangeActionSetpointVariable(minSetPoint - RANGE_ACTION_SETPOINT_EPSILON, maxSetPoint + RANGE_ACTION_SETPOINT_EPSILON, rangeAction);
     }
 
     /**

@@ -5,17 +5,17 @@
               xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <jxb:bindings schemaLocation="../xsd/flowbasedconstraintdocument-18.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.farao_community.farao.data.crac_creation.creator.fb_constraint" />
+            <jxb:package name="com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd" />
         </jxb:schemaBindings>
     </jxb:bindings>
     <jxb:bindings schemaLocation="../xsd/etso-code-lists.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.farao_community.farao.data.crac_creation.creator.fb_constraint.etso" />
+            <jxb:package name="com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.etso" />
         </jxb:schemaBindings>
     </jxb:bindings>
     <jxb:bindings schemaLocation="../xsd/etso-core-cmpts.xsd">
         <jxb:schemaBindings>
-            <jxb:package name="com.farao_community.farao.data.crac_creation.creator.fb_constraint.etso" />
+            <jxb:package name="com.farao_community.farao.data.crac_creation.creator.fb_constraint.xsd.etso" />
         </jxb:schemaBindings>
     </jxb:bindings>
 </jxb:bindings>
