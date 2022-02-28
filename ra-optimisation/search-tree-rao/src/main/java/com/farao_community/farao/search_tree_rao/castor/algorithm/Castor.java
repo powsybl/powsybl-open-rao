@@ -257,7 +257,7 @@ public class Castor implements RaoProvider {
             builder.withMaxMinMarginParameters(new MaxMinMarginParameters(
                     raoParameters.getPstPenaltyCost(),
                     raoParameters.getHvdcPenaltyCost(),
-                    raoParameters.getInjectionRaPenaltyCost(), getLargestCnecThreshold(flowCnecs)));
+                    raoParameters.getInjectionRaPenaltyCost()));
 
         } else if (raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE
             || raoParameters.getObjectiveFunction() == RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT) {
@@ -265,9 +265,9 @@ public class Castor implements RaoProvider {
                 raoParameters.getPstPenaltyCost(),
                 raoParameters.getHvdcPenaltyCost(),
                 raoParameters.getInjectionRaPenaltyCost(),
-                    getLargestCnecThreshold(flowCnecs),
                 raoParameters.getNegativeMarginObjectiveCoefficient(),
-                raoParameters.getPtdfSumLowerBound());
+                raoParameters.getPtdfSumLowerBound(),
+                    getLargestCnecThreshold(flowCnecs));
             builder.withMaxMinRelativeMarginParameters(maxMinRelativeMarginParameters);
 
         } else {

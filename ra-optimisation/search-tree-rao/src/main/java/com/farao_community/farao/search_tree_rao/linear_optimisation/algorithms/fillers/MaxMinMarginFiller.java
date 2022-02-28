@@ -43,7 +43,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private final double pstPenaltyCost;
     private final double hvdcPenaltyCost;
     private final double injectionPenaltyCost;
-    private final double highestThreshold;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction<?>> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -54,14 +53,12 @@ public class MaxMinMarginFiller implements ProblemFiller {
         this.pstPenaltyCost = maxMinMarginParameters.getPstPenaltyCost();
         this.hvdcPenaltyCost = maxMinMarginParameters.getHvdcPenaltyCost();
         this.injectionPenaltyCost = maxMinMarginParameters.getInjectionPenaltyCost();
-        this.highestThreshold = maxMinMarginParameters.getHighestThresholdValue();
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // build variables
         buildMinimumMarginVariable(linearProblem);
-        buildMinimumRelativeMarginSignBinaryVariable(linearProblem);
 
         // build constraints
         buildMinimumMarginConstraints(linearProblem);
@@ -92,14 +89,6 @@ public class MaxMinMarginFiller implements ProblemFiller {
     }
 
     /**
-     * Build the  miminum relative margin sign binary variable, P.
-     * P represents the sign of the minimum margin.
-     */
-    private void buildMinimumRelativeMarginSignBinaryVariable(LinearProblem linearProblem) {
-        linearProblem.addMinimumRelativeMarginSignBinaryVariable();
-    }
-
-    /**
      * Build two minimum margin constraints for each Cnec c.
      * The minimum margin constraints ensure that the minimum margin variable is below
      * the margin of each Cnec. They consist in a linear equivalent of the definition
@@ -121,19 +110,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void buildMinimumMarginConstraints(LinearProblem linearProblem) {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
-        MPVariable miminumRelativeMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
-        if (miminumRelativeMarginSignBinaryVariable == null) {
-            throw new FaraoException("Minimum relative  margin sign binary variable has not yet been created");
-        }
-
-        // Forcing miminumRelativeMarginSignBinaryVariable to 0 when minimumMarginVariable is negative
-        double maxNegativeRam = 5 * highestThreshold;
-        MPConstraint minimumRelMarginSignDefinition = linearProblem.addMinimumRelMarginSignDefinitionConstraint(-LinearProblem.infinity(), maxNegativeRam);
-        minimumRelMarginSignDefinition.setCoefficient(miminumRelativeMarginSignBinaryVariable, maxNegativeRam);
-        minimumRelMarginSignDefinition.setCoefficient(minimumMarginVariable, -1);
 
         optimizedCnecs.forEach(cnec -> {
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);

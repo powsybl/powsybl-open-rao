@@ -81,7 +81,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblemWithMaxMinMargin() {
-        MaxMinMarginParameters maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01, 0.01, MAX_ABS_THRESHOLD);
+        MaxMinMarginParameters maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01, 0.01);
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(
                 Set.of(cnecNl, cnecFr),

@@ -13,11 +13,13 @@ package com.farao_community.farao.rao_api.parameters;
 public class MaxMinRelativeMarginParameters extends MaxMinMarginParameters {
     private final double negativeMarginObjectiveCoefficient;
     private final double ptdfSumLowerBound;
+    private final double highestThreshold;
 
-    public MaxMinRelativeMarginParameters(double pstPenaltyCost, double hvdcPenaltyCost, double injectionPenaltyCost, double highestThresholdValue, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
-        super(pstPenaltyCost, hvdcPenaltyCost, injectionPenaltyCost, highestThresholdValue);
+    public MaxMinRelativeMarginParameters(double pstPenaltyCost, double hvdcPenaltyCost, double injectionPenaltyCost, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound, double highestThresholdValue) {
+        super(pstPenaltyCost, hvdcPenaltyCost, injectionPenaltyCost);
         this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
         this.ptdfSumLowerBound = ptdfSumLowerBound;
+        this.highestThreshold = highestThresholdValue;
     }
 
     public double getNegativeMarginObjectiveCoefficient() {
@@ -26,5 +28,9 @@ public class MaxMinRelativeMarginParameters extends MaxMinMarginParameters {
 
     public double getPtdfSumLowerBound() {
         return ptdfSumLowerBound;
+    }
+
+    public double getHighestThresholdValue() {
+        return highestThreshold;
     }
 }

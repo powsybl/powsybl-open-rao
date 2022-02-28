@@ -14,13 +14,11 @@ public class MaxMinMarginParameters {
     private final double pstPenaltyCost;
     private final double hvdcPenaltyCost;
     private final double injectionPenaltyCost;
-    private final double highestThresholdValue;
 
-    public MaxMinMarginParameters(double pstPenaltyCost, double hvdcPenaltyCost, double injectionPenaltyCost, double highestThresholdValue) {
+    public MaxMinMarginParameters(double pstPenaltyCost, double hvdcPenaltyCost, double injectionPenaltyCost) {
         this.pstPenaltyCost = pstPenaltyCost;
         this.hvdcPenaltyCost = hvdcPenaltyCost;
         this.injectionPenaltyCost = injectionPenaltyCost;
-        this.highestThresholdValue = highestThresholdValue;
     }
 
     public final double getPstPenaltyCost() {
@@ -33,9 +31,5 @@ public class MaxMinMarginParameters {
 
     public final double getInjectionPenaltyCost() {
         return injectionPenaltyCost;
-    }
-
-    public double getHighestThresholdValue() {
-        return highestThresholdValue;
     }
 }
