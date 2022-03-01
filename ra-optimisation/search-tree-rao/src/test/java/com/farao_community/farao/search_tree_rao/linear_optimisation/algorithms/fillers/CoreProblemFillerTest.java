@@ -381,13 +381,12 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    public void testRelativeFilter1() {
+    public void testSensitivityFilter1() {
         MPConstraint flowConstraint;
         MPVariable rangeActionSetpoint;
         when(flowResult.getPtdfZonalSum(cnec1)).thenReturn(0.5);
         Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
 
-        // Case 1: margin on cnec1 is negative
         // (sensi = 2) < 2.5 should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
         initialize(cnec1, 2.5, 2.5, 2.5, true);
@@ -396,70 +395,22 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.ub(), DOUBLE_TOLERANCE);
-
-        // Case 2: margin on cnec1 is positive
-        // (relative sensi = 2 / 0.5 = 4) > 2.5 should not be filtered
-        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(1.0);
-        linearProblem.update(flowResult, sensitivityResult, null);
-        assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
-        assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.ub(), DOUBLE_TOLERANCE);
-
-        // Case 3: margin on cnec1 is 0
-        // should be filtered like in case 1
-        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(.0);
-        linearProblem.update(flowResult, sensitivityResult, null);
-        assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
-        assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(500., flowConstraint.ub(), DOUBLE_TOLERANCE);
     }
 
     @Test
-    public void testRelativeFilter2() {
+    public void testSensitivityFilter2() {
         MPConstraint flowConstraint;
         MPVariable rangeActionSetpoint;
         when(flowResult.getPtdfZonalSum(cnec1)).thenReturn(0.5);
         Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
 
-        // Case 1: margin on cnec1 is positive
-        // (relative sensi = 2 / 0.5 = 4) > 2.5 should not be filtered
-        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(1.0);
-        initialize(cnec1, 2.5, 2.5, 2.5, true);
+        // (sensi = 2) > 1/.5 should not be filtered
+        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
+        initialize(cnec1, 1.5, 1.5, 1.5, true);
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.ub(), DOUBLE_TOLERANCE);
-
-        // Case 2: margin on cnec1 is negative
-        // (sensi = 2) < 2.5 should be filtered
-        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
-        linearProblem.update(flowResult, sensitivityResult, null);
-        assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
-        assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(500., flowConstraint.ub(), DOUBLE_TOLERANCE);
-
-        // Case 3: margin on cnec1 is 0
-        // should be filtered like in case 2
-        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(.0);
-        linearProblem.update(flowResult, sensitivityResult, null);
-        assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
-        assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(500., flowConstraint.ub(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    public void testRelativeFilter3() {
-        MPConstraint flowConstraint;
-        MPVariable rangeActionSetpoint;
-        when(flowResult.getPtdfZonalSum(cnec1)).thenReturn(0.5);
-
-        // Case 1: margin on cnec1 is positive, but relativePositiveMargins is false
-        // RA should be filtered
-        when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(1.0);
-        initialize(cnec1, 2.5, 2.5, 2.5, false);
-        flowConstraint = linearProblem.getFlowConstraint(cnec1);
-        rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
-        assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
     }
 }

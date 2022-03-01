@@ -193,10 +193,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, rangeAction, Unit.MEGAWATT);
 
-        // If objective function uses relative positive margins, and if the margin on the cnec is positive,
-        // the sensi should be divided by the absolute PTDF sum
-        double sensiDivider = (relativePositiveMargins && flowResult.getMargin(cnec, Unit.MEGAWATT) > 0) ? flowResult.getPtdfZonalSum(cnec) : 1;
-        if (isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity / sensiDivider))) {
+        if (isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
             double currentSetPoint = rangeAction.getCurrentSetpoint(network);
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
