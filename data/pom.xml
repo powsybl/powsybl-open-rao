@@ -23,6 +23,7 @@
         <module>glsk</module>
         <module>native-crac</module>
         <module>rao-result</module>
+        <module>result-exporter</module>
         <module>refprog</module>
     </modules>
 </project>
