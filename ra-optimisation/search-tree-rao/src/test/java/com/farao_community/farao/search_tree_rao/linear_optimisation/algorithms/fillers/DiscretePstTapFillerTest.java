@@ -46,8 +46,7 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 0.,
                 0.,
-                0.,
-                false);
+                0.);
 
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
                 network,

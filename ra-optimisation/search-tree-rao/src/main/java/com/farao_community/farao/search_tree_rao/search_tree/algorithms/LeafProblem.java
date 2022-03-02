@@ -166,8 +166,7 @@ public class LeafProblem {
             prePerimeterSetPoints,
             linearOptimizerParameters.getPstSensitivityThreshold(),
             linearOptimizerParameters.getHvdcSensitivityThreshold(),
-            linearOptimizerParameters.getInjectionSensitivityThreshold(),
-            linearOptimizerParameters.getObjectiveFunction().relativePositiveMargins()
+            linearOptimizerParameters.getInjectionSensitivityThreshold()
         );
     }
 
