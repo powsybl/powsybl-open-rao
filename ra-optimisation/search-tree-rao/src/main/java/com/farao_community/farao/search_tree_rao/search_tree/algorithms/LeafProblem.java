@@ -8,14 +8,14 @@
 package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.ProblemFiller;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.RaUsageLimitsFiller;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.*;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
@@ -29,7 +29,14 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class LeafProblem extends SearchTreeProblem {
+public class LeafProblem {
+    private final FlowResult initialFlowResult;
+    private final FlowResult prePerimeterFlowResult;
+    private final RangeActionResult prePerimeterSetPoints;
+    private final Set<FlowCnec> flowCnecs;
+    private final Set<FlowCnec> loopFlowCnecs;
+    private final LinearOptimizerParameters linearOptimizerParameters;
+    private final TreeParameters treeParameters;
     private final Set<RangeAction<?>> rangeActions;
     private Integer maxRa;
     private Integer maxTso;
@@ -46,9 +53,40 @@ public class LeafProblem extends SearchTreeProblem {
                        TreeParameters treeParameters,
                        Set<RangeAction<?>> rangeActions,
                        Set<NetworkAction> activatedNetworkActions) {
-        super(initialFlowResult, prePerimeterFlowResult, prePerimeterSetPoints, flowCnecs, loopFlowCnecs, linearOptimizerParameters, treeParameters);
+        this.initialFlowResult = initialFlowResult;
+        this.prePerimeterFlowResult = prePerimeterFlowResult;
+        this.prePerimeterSetPoints = prePerimeterSetPoints;
+        this.flowCnecs = flowCnecs;
+        this.loopFlowCnecs = loopFlowCnecs;
+        this.linearOptimizerParameters = linearOptimizerParameters;
+        this.treeParameters = treeParameters;
         this.rangeActions = rangeActions;
         computeRaUsageLimits(activatedNetworkActions);
+    }
+
+    // For testing
+    Integer getMaxRa() {
+        return maxRa;
+    }
+
+    // For testing
+    Integer getMaxTso() {
+        return maxTso;
+    }
+
+    // For testing
+    Set<String> getMaxTsoExclusions() {
+        return Collections.unmodifiableSet(maxTsoExclusions);
+    }
+
+    // For testing
+    Map<String, Integer> getMaxPstPerTso() {
+        return Collections.unmodifiableMap(maxPstPerTso);
+    }
+
+    // For testing
+    Map<String, Integer> getMaxRaPerTso() {
+        return Collections.unmodifiableMap(maxRaPerTso);
     }
 
     private void computeRaUsageLimits(Set<NetworkAction> activatedNetworkActions) {
@@ -108,7 +146,7 @@ public class LeafProblem extends SearchTreeProblem {
         return linearProblemBuilder.build();
     }
 
-    protected ProblemFiller createRaUageLimitsFiller(Set<RangeAction<?>> rangeActions) {
+    private ProblemFiller createRaUageLimitsFiller(Set<RangeAction<?>> rangeActions) {
         return new RaUsageLimitsFiller(
             rangeActions,
             prePerimeterSetPoints,
@@ -116,26 +154,85 @@ public class LeafProblem extends SearchTreeProblem {
             maxTso,
             maxTsoExclusions,
             maxPstPerTso,
-            maxRaPerTso);
+            maxRaPerTso,
+            linearOptimizerParameters.getPstOptimizationApproximation() == RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
     }
 
-    Integer getMaxRa() {
-        return maxRa;
+    private ProblemFiller createCoreProblemFiller(Network network, Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions) {
+        return new CoreProblemFiller(
+            network,
+            flowCnecs,
+            rangeActions,
+            prePerimeterSetPoints,
+            linearOptimizerParameters.getPstSensitivityThreshold(),
+            linearOptimizerParameters.getHvdcSensitivityThreshold(),
+            linearOptimizerParameters.getInjectionSensitivityThreshold(),
+            linearOptimizerParameters.getObjectiveFunction().relativePositiveMargins()
+        );
     }
 
-    Integer getMaxTso() {
-        return maxTso;
+    private ProblemFiller createMaxMinRelativeMarginFiller(Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions, FlowResult preOptimFlowResult) {
+        return new MaxMinRelativeMarginFiller(
+            flowCnecs.stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
+            preOptimFlowResult,
+            rangeActions,
+            linearOptimizerParameters.getObjectiveFunction().getUnit(),
+            linearOptimizerParameters.getMaxMinRelativeMarginParameters()
+        );
     }
 
-    Set<String> getMaxTsoExclusions() {
-        return Collections.unmodifiableSet(maxTsoExclusions);
+    private ProblemFiller createMaxMinMarginFiller(Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions) {
+        return new MaxMinMarginFiller(
+            flowCnecs.stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
+            rangeActions,
+            linearOptimizerParameters.getUnit(),
+            linearOptimizerParameters.getMaxMinMarginParameters()
+        );
     }
 
-    Map<String, Integer> getMaxPstPerTso() {
-        return Collections.unmodifiableMap(maxPstPerTso);
+    private ProblemFiller createMnecFiller(Set<FlowCnec> flowCnecs) {
+        return new MnecFiller(
+            initialFlowResult,
+            flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
+            linearOptimizerParameters.getUnit(),
+            linearOptimizerParameters.getMnecParameters()
+        );
     }
 
-    Map<String, Integer> getMaxRaPerTso() {
-        return Collections.unmodifiableMap(maxRaPerTso);
+    private ProblemFiller createLoopFlowFiller(Set<FlowCnec> loopFlowCnecs) {
+        return new MaxLoopFlowFiller(
+            loopFlowCnecs,
+            initialFlowResult,
+            linearOptimizerParameters.getLoopFlowParameters()
+        );
+    }
+
+    private ProblemFiller createUnoptimizedCnecFiller(Set<FlowCnec> flowCnecs) {
+        return new UnoptimizedCnecFiller(
+            flowCnecs,
+            prePerimeterFlowResult,
+            linearOptimizerParameters.getUnoptimizedCnecParameters()
+        );
+    }
+
+    private ProblemFiller createContinuousRangeActionGroupFiller(Set<RangeAction<?>> rangeActions) {
+        return new ContinuousRangeActionGroupFiller(
+            rangeActions
+        );
+    }
+
+    private ProblemFiller createIntegerPstTapFiller(Network network, Set<RangeAction<?>> rangeActions) {
+        return new DiscretePstTapFiller(
+            network,
+            rangeActions,
+            prePerimeterSetPoints
+        );
+    }
+
+    private ProblemFiller createDiscretePstGroupFiller(Network network, Set<PstRangeAction> pstRangeActions) {
+        return new DiscretePstGroupFiller(
+            network,
+            pstRangeActions
+        );
     }
 }

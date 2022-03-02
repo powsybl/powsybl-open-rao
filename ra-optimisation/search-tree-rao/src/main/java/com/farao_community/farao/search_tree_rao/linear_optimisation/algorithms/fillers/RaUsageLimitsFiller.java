@@ -38,6 +38,8 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final Set<String> maxTsoExclusions;
     private final Map<String, Integer> maxPstPerTso;
     private final Map<String, Integer> maxRaPerTso;
+    private boolean arePstSetpointsApproximated;
+    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
     public RaUsageLimitsFiller(Set<RangeAction<?>> rangeActions,
                                RangeActionResult prePerimeterRangeActionResult,
@@ -45,7 +47,8 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                                Integer maxTso,
                                Set<String> maxTsoExclusions,
                                Map<String, Integer> maxPstPerTso,
-                               Map<String, Integer> maxRaPerTso) {
+                               Map<String, Integer> maxRaPerTso,
+                               boolean arePstSetpointsApproximated) {
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
         this.maxRa = maxRa;
@@ -53,6 +56,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         this.maxTsoExclusions = maxTsoExclusions != null ? maxTsoExclusions : new HashSet<>();
         this.maxPstPerTso = maxPstPerTso;
         this.maxRaPerTso = maxRaPerTso;
+        this.arePstSetpointsApproximated = arePstSetpointsApproximated;
     }
 
     @Override
@@ -70,6 +74,28 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         addMaxPstPerTsoConstraint(linearProblem);
     }
 
+    private double getAverageAbsoluteTapToAngleConversionFactor(PstRangeAction pstRangeAction) {
+        int minTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().min(Integer::compareTo).orElseThrow();
+        int maxTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().max(Integer::compareTo).orElseThrow();
+        double minAngle = pstRangeAction.getTapToAngleConversionMap().values().stream().min(Double::compareTo).orElseThrow();
+        double maxAngle = pstRangeAction.getTapToAngleConversionMap().values().stream().max(Double::compareTo).orElseThrow();
+        return Math.abs((maxAngle - minAngle) / (maxTap - minTap));
+    }
+
+    /**
+     *  Get relaxation term to add to correct the initial setpoint, to ensure problem feasibility depending on the approximations.
+     *  If PSTs are modelled with approximate integers, make sure that the initial setpoint is feasible (it should be at
+     *  a distance smaller then 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
+     */
+    private double getInitialSetpointRelaxation(RangeAction rangeAction) {
+        if (rangeAction instanceof PstRangeAction && arePstSetpointsApproximated) {
+            // The BestTapFinder is accurate at 35% of the setpoint difference between 2 taps. Using 30% here to be safe.
+            return 0.3 * getAverageAbsoluteTapToAngleConversionFactor((PstRangeAction) rangeAction);
+        } else {
+            return 0;
+        }
+    }
+
     private void buildIsVariationVariableAndConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction) {
         MPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction);
         double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
@@ -78,15 +104,23 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             throw new FaraoException(format("Range action setpoint variable for %s has not been defined yet.", rangeAction.getId()));
         }
 
+        double initialSetpointRelaxation = getInitialSetpointRelaxation(rangeAction);
+
         // range action setpoint <= intial setpoint + isVariationVariable * (max setpoint - initial setpoint)
-        MPConstraint constraintUp = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), initialSetpoint, rangeAction, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.UPWARD);
+        // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring the initial situation is feasible
+        // initialSetpointRelaxation is also used for the same purpose in some cases
+        double relaxedInitialSetpoint = initialSetpoint + initialSetpointRelaxation;
+        MPConstraint constraintUp = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), relaxedInitialSetpoint, rangeAction, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.UPWARD);
         constraintUp.setCoefficient(setpointVariable, 1);
-        constraintUp.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) - initialSetpoint));
+        constraintUp.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - relaxedInitialSetpoint));
 
         // range action setpoint >= intial setpoint - isVariationVariable * (initial setpoint - min setpoint)
-        MPConstraint constraintDown = linearProblem.addIsVariationInDirectionConstraint(initialSetpoint, LinearProblem.infinity(), rangeAction, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring the initial situation is feasible
+        // initialSetpointRelaxation is also used for the same purpose in some cases
+        relaxedInitialSetpoint = initialSetpoint - initialSetpointRelaxation;
+        MPConstraint constraintDown = linearProblem.addIsVariationInDirectionConstraint(relaxedInitialSetpoint, LinearProblem.infinity(), rangeAction, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.DOWNWARD);
         constraintDown.setCoefficient(setpointVariable, 1);
-        constraintDown.setCoefficient(isVariationVariable, initialSetpoint - rangeAction.getMinAdmissibleSetpoint(initialSetpoint));
+        constraintDown.setCoefficient(isVariationVariable, relaxedInitialSetpoint - rangeAction.getMinAdmissibleSetpoint(initialSetpoint) - RANGE_ACTION_SETPOINT_EPSILON);
     }
 
     private void addMaxRaConstraint(LinearProblem linearProblem) {
