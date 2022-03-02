@@ -98,9 +98,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             prePerimeterRangeActionResult,
             0.,
             0.,
-            0.,
-            false
-        );
+            0.);
     }
 
     @Test
