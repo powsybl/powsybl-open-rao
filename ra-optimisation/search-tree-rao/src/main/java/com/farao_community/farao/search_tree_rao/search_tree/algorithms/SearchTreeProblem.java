@@ -65,9 +65,7 @@ public class SearchTreeProblem {
                 prePerimeterSetPoints,
                 linearOptimizerParameters.getPstSensitivityThreshold(),
                 linearOptimizerParameters.getHvdcSensitivityThreshold(),
-                linearOptimizerParameters.getInjectionSensitivityThreshold(),
-                linearOptimizerParameters.getObjectiveFunction().relativePositiveMargins()
-        );
+                linearOptimizerParameters.getInjectionSensitivityThreshold());
     }
 
     protected ProblemFiller createMaxMinRelativeMarginFiller(Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions, FlowResult preOptimFlowResult) {

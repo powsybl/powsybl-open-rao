@@ -57,9 +57,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 0.,
                 0.,
-                0.,
-                false
-        );
+                0.);
         parameters = new MaxMinRelativeMarginParameters(0.01, 0.01, 0.01, 1000, 0.01);
     }
 

@@ -51,9 +51,7 @@ public class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 0.,
                 0.,
-                0.,
-                false
-        );
+                0.);
 
         ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(
                 Set.of(pstRa1, pstRa2)

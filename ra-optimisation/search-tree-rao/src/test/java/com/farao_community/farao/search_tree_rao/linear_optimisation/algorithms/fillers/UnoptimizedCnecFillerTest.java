@@ -71,9 +71,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
                 new RangeActionResultImpl(Collections.emptyMap()),
                 0.,
                 0.,
-                0.,
-                false
-        );
+                0.);
     }
 
     private void buildLinearProblemWithMaxMinMargin() {
