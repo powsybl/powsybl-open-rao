@@ -59,14 +59,14 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     }
 
     private void initializeForPreventive(double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold) {
-        initialize(cnec1, pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold, false);
+        initialize(cnec1, pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold);
     }
 
     private void initializeForCurative() {
-        initialize(cnec2, 0, 0, 0, false);
+        initialize(cnec2, 0, 0, 0);
     }
 
-    private void initialize(FlowCnec cnec, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold, boolean relativePositiveMargins) {
+    private void initialize(FlowCnec cnec, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold) {
         coreProblemFiller = new CoreProblemFiller(
                 network,
                 Set.of(cnec),
@@ -74,9 +74,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 pstSensitivityThreshold,
                 hvdcSensitivityThreshold,
-                injectionSensitivityThreshold,
-                relativePositiveMargins
-        );
+                injectionSensitivityThreshold);
         buildLinearProblem();
     }
 
@@ -368,9 +366,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 0.,
                 0.,
-                0.,
-                false
-        );
+                0.);
         linearProblem = new LinearProblem(List.of(coreProblemFiller), mpSolver);
         try {
             updateLinearProblem();
@@ -389,7 +385,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
         // (sensi = 2) < 2.5 should be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
-        initialize(cnec1, 2.5, 2.5, 2.5, true);
+        initialize(cnec1, 2.5, 2.5, 2.5);
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
@@ -406,7 +402,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
 
         // (sensi = 2) > 1/.5 should not be filtered
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
-        initialize(cnec1, 1.5, 1.5, 1.5, true);
+        initialize(cnec1, 1.5, 1.5, 1.5);
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
         rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);

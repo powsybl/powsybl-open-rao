@@ -36,7 +36,6 @@ public class CoreProblemFiller implements ProblemFiller {
     private final double pstSensitivityThreshold;
     private final double hvdcSensitivityThreshold;
     private final double injectionSensitivityThreshold;
-    private final boolean relativePositiveMargins;
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
     public CoreProblemFiller(Network network,
@@ -45,8 +44,7 @@ public class CoreProblemFiller implements ProblemFiller {
                              RangeActionResult prePerimeterRangeActionResult,
                              double pstSensitivityThreshold,
                              double hvdcSensitivityThreshold,
-                             double injectionSensitivityThreshold,
-                             boolean relativePositiveMargins) {
+                             double injectionSensitivityThreshold) {
         this.network = network;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(flowCnecs);
@@ -56,7 +54,6 @@ public class CoreProblemFiller implements ProblemFiller {
         this.pstSensitivityThreshold = pstSensitivityThreshold;
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
         this.injectionSensitivityThreshold = injectionSensitivityThreshold;
-        this.relativePositiveMargins = relativePositiveMargins;
     }
 
     private Set<RangeAction<?>> getRangeActions() {
@@ -148,7 +145,7 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setCoefficient(flowVariable, 1);
 
             // add sensitivity coefficients
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, cnec);
+            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec);
         });
     }
 
@@ -170,11 +167,11 @@ public class CoreProblemFiller implements ProblemFiller {
             flowConstraint.setLb(referenceFlow);
 
             //reset sensitivity coefficients
-            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, cnec);
+            addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec);
         });
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, FlowCnec cnec) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec) {
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
         MPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec);
 
@@ -182,10 +179,10 @@ public class CoreProblemFiller implements ProblemFiller {
             throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
         }
 
-        getRangeActions().forEach(rangeAction -> addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, flowResult, rangeAction, cnec, flowConstraint));
+        getRangeActions().forEach(rangeAction -> addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, cnec, flowConstraint));
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowResult flowResult, RangeAction<?> rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
         MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction);
         if (setPointVariable == null) {
             throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
