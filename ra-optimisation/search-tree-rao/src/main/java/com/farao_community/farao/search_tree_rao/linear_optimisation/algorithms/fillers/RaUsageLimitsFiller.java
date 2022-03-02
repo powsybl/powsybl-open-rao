@@ -92,7 +92,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             // The BestTapFinder is accurate at 35% of the setpoint difference between 2 taps. Using 30% here to be safe.
             return 0.3 * getAverageAbsoluteTapToAngleConversionFactor((PstRangeAction) rangeAction);
         } else {
-            return 0;
+            return RANGE_ACTION_SETPOINT_EPSILON;
         }
     }
 
@@ -107,20 +107,20 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         double initialSetpointRelaxation = getInitialSetpointRelaxation(rangeAction);
 
         // range action setpoint <= intial setpoint + isVariationVariable * (max setpoint - initial setpoint)
-        // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring the initial situation is feasible
-        // initialSetpointRelaxation is also used for the same purpose in some cases
+        // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring that the maximum setpoint is feasible
+        // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
         double relaxedInitialSetpoint = initialSetpoint + initialSetpointRelaxation;
         MPConstraint constraintUp = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), relaxedInitialSetpoint, rangeAction, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.UPWARD);
         constraintUp.setCoefficient(setpointVariable, 1);
         constraintUp.setCoefficient(isVariationVariable, -(rangeAction.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - relaxedInitialSetpoint));
 
         // range action setpoint >= intial setpoint - isVariationVariable * (initial setpoint - min setpoint)
-        // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring the initial situation is feasible
-        // initialSetpointRelaxation is also used for the same purpose in some cases
+        // RANGE_ACTION_SETPOINT_EPSILON is used to mitigate rounding issues, ensuring that the minimum setpoint is feasible
+        // initialSetpointRelaxation is used to ensure that the initial setpoint is feasible
         relaxedInitialSetpoint = initialSetpoint - initialSetpointRelaxation;
         MPConstraint constraintDown = linearProblem.addIsVariationInDirectionConstraint(relaxedInitialSetpoint, LinearProblem.infinity(), rangeAction, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.DOWNWARD);
         constraintDown.setCoefficient(setpointVariable, 1);
-        constraintDown.setCoefficient(isVariationVariable, relaxedInitialSetpoint - rangeAction.getMinAdmissibleSetpoint(initialSetpoint) - RANGE_ACTION_SETPOINT_EPSILON);
+        constraintDown.setCoefficient(isVariationVariable, relaxedInitialSetpoint - (rangeAction.getMinAdmissibleSetpoint(initialSetpoint) - RANGE_ACTION_SETPOINT_EPSILON));
     }
 
     private void addMaxRaConstraint(LinearProblem linearProblem) {

@@ -131,13 +131,13 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
 
             assertEquals(1, constraintUp.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + 1e-5 - initialSetpoint), constraintUp.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) - initialSetpoint), constraintUp.getCoefficient(binary), DOUBLE_TOLERANCE);
             assertEquals(-LinearProblem.infinity(), constraintUp.lb(), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint, constraintUp.ub(), DOUBLE_TOLERANCE);
+            assertEquals(initialSetpoint + 1e-5, constraintUp.ub(), DOUBLE_TOLERANCE);
 
             assertEquals(1, constraintDown.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - ra.getMinAdmissibleSetpoint(initialSetpoint) - 1e-5, constraintDown.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint, constraintDown.lb(), DOUBLE_TOLERANCE);
+            assertEquals(initialSetpoint - ra.getMinAdmissibleSetpoint(initialSetpoint), constraintDown.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(initialSetpoint - 1e-5, constraintDown.lb(), DOUBLE_TOLERANCE);
             assertEquals(LinearProblem.infinity(), constraintDown.ub(), DOUBLE_TOLERANCE);
         });
     }
@@ -159,7 +159,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(ra);
             double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
-            double relaxation = 0;
+            double relaxation = 1e-5;
             if (ra.getId().equals("pst1")) {
                 relaxation = 0.3 * 6.9 / 2;
             } else if (ra.getId().equals("pst2")) {
@@ -174,7 +174,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertEquals(initialSetpoint + relaxation, constraintUp.ub(), DOUBLE_TOLERANCE);
 
             assertEquals(1, constraintDown.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - relaxation - ra.getMinAdmissibleSetpoint(initialSetpoint) - 1e-5, constraintDown.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(initialSetpoint - relaxation - ra.getMinAdmissibleSetpoint(initialSetpoint) + 1e-5, constraintDown.getCoefficient(binary), DOUBLE_TOLERANCE);
             assertEquals(initialSetpoint - relaxation, constraintDown.lb(), DOUBLE_TOLERANCE);
             assertEquals(LinearProblem.infinity(), constraintDown.ub(), DOUBLE_TOLERANCE);
         });
