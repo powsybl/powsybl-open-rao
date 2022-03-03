@@ -101,10 +101,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
     public static final boolean DEFAULT_RAO_WITH_MNEC_LIMITATION = false;
     public static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
-    public static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
+    public static final double DEFAULT_MNEC_VIOLATION_COST = .01;
     public static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    public static final double DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT = 1000;
-    public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
+    public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.00001;
     public static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
     public static final Solver DEFAULT_SOLVER = Solver.CBC;
     public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;
@@ -133,7 +132,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private double mnecAcceptableMarginDiminution = DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION; // always in MW
     private double mnecViolationCost = DEFAULT_MNEC_VIOLATION_COST; // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
     private double mnecConstraintAdjustmentCoefficient = DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT; // always in MW
-    private double negativeMarginObjectiveCoefficient = DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT;
     private String loadFlowProvider = DEFAULT_LOADFLOW_PROVIDER;
     private String sensitivityProvider = DEFAULT_SENSITIVITY_PROVIDER;
     private SensitivityAnalysisParameters defaultSensitivityAnalysisParameters = new SensitivityAnalysisParameters();
@@ -338,15 +336,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         return this;
     }
 
-    public double getNegativeMarginObjectiveCoefficient() {
-        return negativeMarginObjectiveCoefficient;
-    }
-
-    public RaoParameters setNegativeMarginObjectiveCoefficient(double negativeMarginObjectiveCoefficient) {
-        this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
-        return this;
-    }
-
     public Set<Country> getLoopflowCountries() {
         return loopflowCountries;
     }
@@ -505,7 +494,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setMnecAcceptableMarginDiminution(config.getDoubleProperty("mnec-acceptable-margin-diminution", DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION));
                 parameters.setMnecViolationCost(config.getDoubleProperty("mnec-violation-cost", DEFAULT_MNEC_VIOLATION_COST));
                 parameters.setMnecConstraintAdjustmentCoefficient(config.getDoubleProperty("mnec-constraint-adjustment-coefficient", DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT));
-                parameters.setNegativeMarginObjectiveCoefficient(config.getDoubleProperty("negative-margin-objective-coefficient", DEFAULT_NEGATIVE_MARGIN_OBJECTIVE_COEFFICIENT));
                 parameters.setRelativeMarginPtdfBoundariesFromString(config.getStringListProperty("relative-margin-ptdf-boundaries", new ArrayList<>()));
                 parameters.setPtdfSumLowerBound(config.getDoubleProperty("ptdf-sum-lower-bound", DEFAULT_PTDF_SUM_LOWER_BOUND));
                 parameters.setPerimetersInParallel(config.getIntProperty("perimeters-in-parallel", DEFAULT_PERIMETERS_IN_PARALLEL));

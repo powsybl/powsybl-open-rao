@@ -31,7 +31,6 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     private final FlowResult initialFlowResult;
     private final Unit unit;
     private final double ptdfSumLowerBound;
-    private final double negativeMarginObjectiveCoefficient;
     private final double highestThreshold;
 
     public MaxMinRelativeMarginFiller(Set<FlowCnec> optimizedCnecs,
@@ -43,7 +42,6 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         this.initialFlowResult = initialFlowResult;
         this.unit = unit;
         this.ptdfSumLowerBound = maxMinRelativeMarginParameters.getPtdfSumLowerBound();
-        this.negativeMarginObjectiveCoefficient = maxMinRelativeMarginParameters.getNegativeMarginObjectiveCoefficient();
         this.highestThreshold = maxMinRelativeMarginParameters.getHighestThresholdValue();
     }
 

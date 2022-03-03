@@ -61,7 +61,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
                 0.,
                 false
         );
-        parameters = new MaxMinRelativeMarginParameters(0.01, 0.01, 0.01, 1000, 0.01, MAX_ABS_THRESHOLD);
+        parameters = new MaxMinRelativeMarginParameters(0.01, 0.01, 0.01, 0.01, MAX_ABS_THRESHOLD);
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {

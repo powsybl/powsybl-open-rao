@@ -134,8 +134,6 @@ public class RaoParametersTest {
 
         RaoParameters parameters = new RaoParameters();
         RaoParameters.load(parameters, platformCfg);
-
-        assertEquals(100, parameters.getNegativeMarginObjectiveCoefficient(), 1e-6);
     }
 
     @Test

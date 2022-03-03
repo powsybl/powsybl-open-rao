@@ -103,7 +103,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinRelativeMargin() {
         MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = new MaxMinRelativeMarginParameters(
-                0.01, 0.01, 0.01, MAX_ABS_THRESHOLD, 1000, 0.01);
+                0.01, 0.01, 0.01, MAX_ABS_THRESHOLD, 0.01);
 
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
