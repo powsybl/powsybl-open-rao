@@ -55,7 +55,7 @@ public class CgmesBranchHelperTest {
         assertTrue(cgmesBranchHelper.isValid());
         assertNotNull(cgmesBranchHelper.getBranch());
         assertTrue(cgmesBranchHelper.isTieLine());
-        assertSame(Branch.Side.TWO, cgmesBranchHelper.getTieLineSide());
+        assertSame(Branch.Side.ONE, cgmesBranchHelper.getTieLineSide());
         assertEquals("_b18cd1aa-7808-49b9-a7cf-605eaf07b006 + _e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc", cgmesBranchHelper.getIdInNetwork());
     }
 
