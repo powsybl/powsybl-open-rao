@@ -322,7 +322,7 @@ public class Castor implements RaoProvider {
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, prePerimeterResult, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
     }
 
-    static LinearOptimizerParameters createPreventiveLinearOptimizerParameters(RaoParameters raoParameters, Set<FlowCnec> flowCnecs) {
+    static LinearOptimizerParameters createPreventiveLinearOptimizerParameters(RaoParameters raoParameters) {
         return basicLinearOptimizerBuilder(raoParameters).build();
     }
 
@@ -396,7 +396,7 @@ public class Castor implements RaoProvider {
 
     private SearchTreeRaoResult optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult prePerimeterResult) {
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
-        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters, computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter()));
+        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
             raoInput.getCrac(),
             raoInput.getNetwork(),
@@ -847,7 +847,7 @@ public class Castor implements RaoProvider {
 
     private CompletableFuture<SearchTreeRaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, AppliedRemedialActions appliedRemedialActions) {
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
-        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters, computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter()));
+        LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
             raoInput.getCrac(),
             raoInput.getNetwork(),

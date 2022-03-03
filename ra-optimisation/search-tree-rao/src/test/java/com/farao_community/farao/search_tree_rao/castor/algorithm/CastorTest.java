@@ -240,7 +240,7 @@ public class CastorTest {
         raoParameters.setMnecViolationCost(0);
         raoParameters.setPstSensitivityThreshold(0.45);
 
-        LinearOptimizerParameters linearOptimizerParameters = Castor.createPreventiveLinearOptimizerParameters(raoParameters, Castor.computePerimeterCnecs(crac, null));
+        LinearOptimizerParameters linearOptimizerParameters = Castor.createPreventiveLinearOptimizerParameters(raoParameters);
         assertNotNull(linearOptimizerParameters);
         assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE, linearOptimizerParameters.getObjectiveFunction());
         assertEquals(Unit.AMPERE, linearOptimizerParameters.getUnit());
@@ -262,7 +262,7 @@ public class CastorTest {
         raoParameters.setMnecViolationCost(-10);
         raoParameters.setPstSensitivityThreshold(0.67);
 
-        linearOptimizerParameters = Castor.createPreventiveLinearOptimizerParameters(raoParameters, Castor.computePerimeterCnecs(crac, null));
+        linearOptimizerParameters = Castor.createPreventiveLinearOptimizerParameters(raoParameters);
         assertNotNull(linearOptimizerParameters);
         assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, linearOptimizerParameters.getObjectiveFunction());
         assertEquals(Unit.MEGAWATT, linearOptimizerParameters.getUnit());
