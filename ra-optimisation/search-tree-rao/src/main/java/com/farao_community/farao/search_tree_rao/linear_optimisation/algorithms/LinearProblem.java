@@ -26,6 +26,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import java.util.*;
 
 import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblemIdGenerator.*;
+import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblemIdGenerator.minimumRelMarginSignDefinitionConstraintId;
 import static java.lang.String.format;
 
 /**
@@ -272,16 +273,24 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, belowOrAboveThreshold));
     }
 
+    public MPConstraint getMinimumMarginConstraint(FlowCnec cnec, MarginExtension belowOrAboveThreshold) {
+        return solver.getConstraint(minimumMarginConstraintId(cnec, belowOrAboveThreshold));
+    }
+
     public MPConstraint addMinimumRelMarginSignDefinitionConstraint(double lb, double ub) {
         return solver.makeConstraint(lb, ub, minimumRelMarginSignDefinitionConstraintId());
+    }
+
+    public MPConstraint getMinimumRelMarginSignDefinitionConstraint() {
+        return solver.getConstraint(minimumRelMarginSignDefinitionConstraintId());
     }
 
     public MPConstraint addMinimumRelMarginSetToZeroConstraint(double lb, double ub) {
         return solver.makeConstraint(lb, ub, minimumRelativeMarginSetToZeroConstraintId());
     }
 
-    public MPConstraint getMinimumMarginConstraint(FlowCnec cnec, MarginExtension belowOrAboveThreshold) {
-        return solver.getConstraint(minimumMarginConstraintId(cnec, belowOrAboveThreshold));
+    public MPConstraint getMinimumRelMarginSetToZeroConstraint() {
+        return solver.getConstraint(minimumRelativeMarginSetToZeroConstraintId());
     }
 
     public MPConstraint addMinimumRelativeMarginConstraint(double lb, double ub, FlowCnec cnec, MarginExtension belowOrAboveThreshold) {

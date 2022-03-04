@@ -102,10 +102,10 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertTrue(linearProblem.getObjective().minimization());
 
         // check the number of variables and constraints
-        // total number of variables 5 :
+        // total number of variables 4 :
         //      - 3 due to CoreFiller
         //      - minimum margin variable
-        // total number of constraints 6 :
+        // total number of constraints 5 :
         //      - 3 due to CoreFiller
         //      - 2 per CNEC (min margin constraints)
         assertEquals(4, linearProblem.numVariables());

@@ -101,9 +101,9 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     public static final double DEFAULT_LOOP_FLOW_VIOLATION_COST = 0.0;
     public static final boolean DEFAULT_RAO_WITH_MNEC_LIMITATION = false;
     public static final double DEFAULT_MNEC_ACCEPTABLE_MARGIN_DIMINUTION = 50.0;
-    public static final double DEFAULT_MNEC_VIOLATION_COST = .01;
+    public static final double DEFAULT_MNEC_VIOLATION_COST = 10.0;
     public static final double DEFAULT_MNEC_CONSTRAINT_ADJUSTMENT_COEFFICIENT = 0.0;
-    public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.00001;
+    public static final double DEFAULT_PTDF_SUM_LOWER_BOUND = 0.01;
     public static final int DEFAULT_PERIMETERS_IN_PARALLEL = 1;
     public static final Solver DEFAULT_SOLVER = Solver.CBC;
     public static final double DEFAULT_RELATIVE_MIP_GAP = 0.0001;

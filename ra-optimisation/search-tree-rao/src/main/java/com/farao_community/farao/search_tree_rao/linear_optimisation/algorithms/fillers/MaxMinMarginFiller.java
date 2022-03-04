@@ -94,19 +94,15 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * the margin of each Cnec. They consist in a linear equivalent of the definition
      * of the min margin : MM = min{c in CNEC} margin[c].
      * <p>
-     * For each Cnec c, the 4 constraints are (if the max margin is defined in MEGAWATT) :
+     * For each Cnec c, the constraints are (if the max margin is defined in MEGAWATT) :
      * <p>
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
-     * - (1 - P) * mMinRAM <= MM <= 0
-     * MM <= 0
      * <p>
-     * For each Cnec c, the 4 constraints are (if the max margin is defined in AMPERE) :
+     * For each Cnec c, the constraints are (if the max margin is defined in AMPERE) :
      * <p>
      * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
-     * - (1 - P) * mMinRAM <= MM
-     * MM <= 0
      */
     private void buildMinimumMarginConstraints(LinearProblem linearProblem) {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
