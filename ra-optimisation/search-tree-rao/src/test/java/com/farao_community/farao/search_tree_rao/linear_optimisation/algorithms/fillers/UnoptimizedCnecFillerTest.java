@@ -29,6 +29,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
@@ -80,7 +81,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinMargin() {
         MaxMinMarginParameters maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01, 0.01);
-        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
+        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"));
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(
                 Set.of(cnecNl, cnecFr),
                 Set.of(pstRangeAction),
@@ -101,9 +102,9 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinRelativeMargin() {
         MaxMinRelativeMarginParameters maxMinRelativeMarginParameters = new MaxMinRelativeMarginParameters(
-                0.01, 0.01, 0.01, MAX_ABS_THRESHOLD, 0.01);
+                0.01, 0.01, 0.01, 0.01);
 
-        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"), MAX_ABS_THRESHOLD);
+        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"));
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(cnecNl, Unit.MEGAWATT)).thenReturn(400.);
         when(initialFlowResult.getMargin(cnecFr, Unit.MEGAWATT)).thenReturn(600.);
@@ -118,7 +119,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         );
         double relMarginCoef = Math.max(initialFlowResult.getPtdfZonalSum(cnecFr), maxMinRelativeMarginParameters.getPtdfSumLowerBound());
         double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnecFr, Side.LEFT, MEGAWATT, MEGAWATT);
-        constraintCoeff =  5 * maxMinRelativeMarginParameters.getHighestThresholdValue() / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
+        constraintCoeff =  5 * maxMinRelativeMarginParameters.getLargestCnecThreshold(Set.of(cnecNl, cnecFr)) / maxMinRelativeMarginParameters.getPtdfSumLowerBound() * unitConversionCoefficient * relMarginCoef;
 
         unoptimizedCnecFiller = new UnoptimizedCnecFiller(
                 Set.of(cnecNl, cnecFr),
@@ -228,5 +229,34 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         MPConstraint minMarginDefMax = linearProblem.getMinimumMarginConstraint(cnecNl, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
         assertEquals(800 + 2 * MAX_ABS_THRESHOLD, minMarginDefMax.ub(), DOUBLE_TOLERANCE);
         assertEquals(2 * MAX_ABS_THRESHOLD, minMarginDefMax.getCoefficient(marginDecreaseVariable), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    public void testGetLargestCnecThreshold() {
+        // Set up
+        FlowCnec cnecA = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecB = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecC = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecD = Mockito.mock(FlowCnec.class);
+        Mockito.when(cnecA.isOptimized()).thenReturn(true);
+        Mockito.when(cnecB.isOptimized()).thenReturn(true);
+        Mockito.when(cnecC.isOptimized()).thenReturn(true);
+        Mockito.when(cnecD.isOptimized()).thenReturn(false);
+        Mockito.when(cnecA.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        Mockito.when(cnecA.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
+        Mockito.when(cnecC.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecC.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecD.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        Mockito.when(cnecD.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"));
+
+        assertEquals(1000., unoptimizedCnecParameters.getLargestCnecThreshold(Set.of(cnecA)), DOUBLE_TOLERANCE);
+        assertEquals(1500., unoptimizedCnecParameters.getLargestCnecThreshold(Set.of(cnecB)), DOUBLE_TOLERANCE);
+        assertEquals(1500., unoptimizedCnecParameters.getLargestCnecThreshold(Set.of(cnecA, cnecB)), DOUBLE_TOLERANCE);
+        assertEquals(1500., unoptimizedCnecParameters.getLargestCnecThreshold(Set.of(cnecA, cnecB, cnecC)), DOUBLE_TOLERANCE);
+        assertEquals(1000., unoptimizedCnecParameters.getLargestCnecThreshold(Set.of(cnecA, cnecC)), DOUBLE_TOLERANCE);
+        assertEquals(1500., unoptimizedCnecParameters.getLargestCnecThreshold(Set.of(cnecA, cnecB, cnecD)), DOUBLE_TOLERANCE);
     }
 }

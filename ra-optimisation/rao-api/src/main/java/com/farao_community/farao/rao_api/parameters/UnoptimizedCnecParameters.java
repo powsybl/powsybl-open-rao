@@ -7,25 +7,44 @@
 
 package com.farao_community.farao.rao_api.parameters;
 
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.cnec.Side;
+
+import java.util.Optional;
 import java.util.Set;
+
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class UnoptimizedCnecParameters {
     Set<String> operatorNotToOptimize;
-    private final double highestThresholdValue;
+    private double largestCnecThreshold;
 
-    public UnoptimizedCnecParameters(Set<String> operatorNotToOptimize, double highestThresholdValue) {
+    public UnoptimizedCnecParameters(Set<String> operatorNotToOptimize) {
         this.operatorNotToOptimize = operatorNotToOptimize;
-        this.highestThresholdValue = highestThresholdValue;
     }
 
     public Set<String> getOperatorsNotToOptimize() {
         return operatorNotToOptimize;
     }
 
-    public double getHighestThresholdValue() {
-        return highestThresholdValue;
+    public double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
+        double max = 0;
+        for (FlowCnec flowCnec : flowCnecs) {
+            if (flowCnec.isOptimized()) {
+                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
+                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
+                    max = Math.abs(minFlow.get());
+                }
+                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
+                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
+                    max = Math.abs(maxFlow.get());
+                }
+            }
+        }
+        return max;
     }
+
 }

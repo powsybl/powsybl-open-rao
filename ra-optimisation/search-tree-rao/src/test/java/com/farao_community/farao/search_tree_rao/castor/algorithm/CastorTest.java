@@ -172,16 +172,6 @@ public class CastorTest {
     }
 
     @Test
-    public void testGetLargestCnecThreshold() {
-        assertEquals(1000., Castor.getLargestCnecThreshold(Set.of(cnec1)), DOUBLE_TOLERANCE);
-        assertEquals(1500., Castor.getLargestCnecThreshold(Set.of(cnec2)), DOUBLE_TOLERANCE);
-        assertEquals(1500., Castor.getLargestCnecThreshold(Set.of(cnec1, cnec2)), DOUBLE_TOLERANCE);
-        assertEquals(1500., Castor.getLargestCnecThreshold(Set.of(cnec1, cnec2, cnec3)), DOUBLE_TOLERANCE);
-        assertEquals(1000., Castor.getLargestCnecThreshold(Set.of(cnec1, cnec3)), DOUBLE_TOLERANCE);
-        assertEquals(1500., Castor.getLargestCnecThreshold(Set.of(cnec1, cnec2, cnec4)), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     public void testBuildSearchTreeInput() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
@@ -344,7 +334,7 @@ public class CastorTest {
         assertFalse(linearOptimizerParameters.isRaoWithMnecLimitation());
         assertNotNull(linearOptimizerParameters.getUnoptimizedCnecParameters());
         assertEquals(Set.of("DE", "NL"), linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize());
-        assertEquals(1000., linearOptimizerParameters.getUnoptimizedCnecParameters().getHighestThresholdValue(), DOUBLE_TOLERANCE);
+        assertEquals(1000., linearOptimizerParameters.getUnoptimizedCnecParameters().getLargestCnecThreshold(Set.of(cnec1, cnec3, cnec4)), DOUBLE_TOLERANCE);
     }
 
     @Test

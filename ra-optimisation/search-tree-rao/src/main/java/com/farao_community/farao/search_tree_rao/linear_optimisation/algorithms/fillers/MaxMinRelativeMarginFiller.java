@@ -42,7 +42,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         this.initialFlowResult = initialFlowResult;
         this.unit = unit;
         this.ptdfSumLowerBound = maxMinRelativeMarginParameters.getPtdfSumLowerBound();
-        this.highestThreshold = maxMinRelativeMarginParameters.getHighestThresholdValue();
+        this.highestThreshold = maxMinRelativeMarginParameters.getLargestCnecThreshold(optimizedCnecs);
 
     }
 
@@ -50,13 +50,13 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         super.fill(linearProblem, flowResult, sensitivityResult);
         buildMinimumRelativeMarginSignBinaryVariable(linearProblem);
-        updateMinimumNegativeMarginDefinitionAndCost(linearProblem);
+        updateMinimumNegativeMarginDefinition(linearProblem);
         buildMinimumRelativeMarginVariable(linearProblem);
         buildMinimumRelativeMarginConstraints(linearProblem);
         fillObjectiveWithMinRelMargin(linearProblem);
     }
 
-    private void updateMinimumNegativeMarginDefinitionAndCost(LinearProblem linearProblem) {
+    private void updateMinimumNegativeMarginDefinition(LinearProblem linearProblem) {
         MPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable();
         MPVariable minRelMarginSignBinaryVariable = linearProblem.getMinimumRelativeMarginSignBinaryVariable();
         double maxNegativeRam = 5 * highestThreshold;

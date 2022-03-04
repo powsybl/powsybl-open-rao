@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -48,7 +47,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.formatDouble;
 
@@ -63,7 +61,6 @@ public class Castor implements RaoProvider {
     private static final String CONTINGENCY_SCENARIO = "ContingencyScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
-    private static double maxPositiveRam = 10000; // default
 
     // Do not store any big object in this class as it is a static RaoProvider
     // Objects stored in memory will not be released at the end of the RAO run
@@ -89,9 +86,6 @@ public class Castor implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         RaoUtil.initData(raoInput, parameters);
-
-        // Compute the max possible positive RAM
-        maxPositiveRam = getLargestCnecThreshold(raoInput.getCrac().getFlowCnecs());
 
         StateTree stateTree = new StateTree(raoInput.getCrac());
         ToolProvider.ToolProviderBuilder toolProviderBuilder = ToolProvider.create()
@@ -269,8 +263,7 @@ public class Castor implements RaoProvider {
                 raoParameters.getPstPenaltyCost(),
                 raoParameters.getHvdcPenaltyCost(),
                 raoParameters.getInjectionRaPenaltyCost(),
-                raoParameters.getPtdfSumLowerBound(),
-                    maxPositiveRam);
+                raoParameters.getPtdfSumLowerBound());
             builder.withMaxMinRelativeMarginParameters(maxMinRelativeMarginParameters);
 
         } else {
@@ -331,28 +324,10 @@ public class Castor implements RaoProvider {
         SearchTreeRaoParameters parameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (parameters != null && !parameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(
-                stateTree.getOperatorsNotSharingCras(),
-                getLargestCnecThreshold(cnecs));
+                stateTree.getOperatorsNotSharingCras());
             builder.withUnoptimizedCnecParameters(unoptimizedCnecParameters);
         }
         return builder.build();
-    }
-
-    static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
-        double max = 0;
-        for (FlowCnec flowCnec : flowCnecs) {
-            if (flowCnec.isOptimized()) {
-                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
-                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
-                    max = Math.abs(minFlow.get());
-                }
-                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
-                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
-                    max = Math.abs(maxFlow.get());
-                }
-            }
-        }
-        return max;
     }
 
     CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider) {
