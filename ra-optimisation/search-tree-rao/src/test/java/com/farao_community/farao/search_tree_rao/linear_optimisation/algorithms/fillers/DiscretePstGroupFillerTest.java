@@ -51,9 +51,7 @@ public class DiscretePstGroupFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 0.,
                 0.,
-                0.,
-                false
-        );
+                0.);
 
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
                 network,
@@ -74,10 +72,10 @@ public class DiscretePstGroupFillerTest extends AbstractFillerTest {
 
         // check that all constraints and variables relate to discrete Pst Group filler exists
         MPVariable groupTapV = linearProblem.getPstGroupTapVariable(groupId);
-        MPVariable variationUp1V = linearProblem.getPstTapVariationVariable(pstRa1, LinearProblem.VariationExtension.UPWARD);
-        MPVariable variationDown1V = linearProblem.getPstTapVariationVariable(pstRa1, LinearProblem.VariationExtension.DOWNWARD);
-        MPVariable variationUp2V = linearProblem.getPstTapVariationVariable(pstRa2, LinearProblem.VariationExtension.UPWARD);
-        MPVariable variationDown2V = linearProblem.getPstTapVariationVariable(pstRa2, LinearProblem.VariationExtension.DOWNWARD);
+        MPVariable variationUp1V = linearProblem.getPstTapVariationVariable(pstRa1, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable variationDown1V = linearProblem.getPstTapVariationVariable(pstRa1, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable variationUp2V = linearProblem.getPstTapVariationVariable(pstRa2, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable variationDown2V = linearProblem.getPstTapVariationVariable(pstRa2, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
         MPConstraint groupTap1C = linearProblem.getPstGroupTapConstraint(pstRa1);
         MPConstraint groupTap2C = linearProblem.getPstGroupTapConstraint(pstRa2);

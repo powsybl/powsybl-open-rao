@@ -612,7 +612,8 @@ public class Castor implements RaoProvider {
             prePerimeterOutput,
             cnecs,
             toolProvider.getLoopFlowCnecs(cnecs),
-            linearOptimizerParameters
+            linearOptimizerParameters,
+            treeParameters
         ));
 
         SearchTreeComputer.SearchTreeComputerBuilder searchTreeComputerBuilder = SearchTreeComputer.create()

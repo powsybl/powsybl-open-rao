@@ -58,10 +58,8 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 0.,
                 0.,
-                0.,
-                false
-        );
-        parameters = new MaxMinRelativeMarginParameters(0.01, 0.01, 0.01, 0.01, MAX_ABS_THRESHOLD);
+                0.);
+        parameters = new MaxMinRelativeMarginParameters(0.01, 0.01, 0.01, 1000, 0.01);
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {
