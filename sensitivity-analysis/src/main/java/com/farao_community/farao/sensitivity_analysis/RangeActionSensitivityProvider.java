@@ -45,6 +45,45 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
 
         Map<String, SensitivityVariableType> sensitivityVariables = new HashMap<>();
         Set<String> glskIds = new HashSet<>();
+        fillSensitivityVariablesAndGlskIds(network, sensitivityVariables, glskIds);
+
+        List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = getSensitivityFunctions(network, null);
+
+        //According to ContingencyContext doc, contingencyId should be null for preContingency context
+        ContingencyContext preContingencyContext = new ContingencyContext(null, ContingencyContextType.NONE);
+        sensitivityFunctions.forEach(function ->
+            sensitivityVariables.entrySet().forEach(variable ->
+                factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(),
+                    glskIds.contains(variable.getKey()), preContingencyContext))
+            )
+        );
+        return factors;
+    }
+
+    @Override
+    public List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        for (Contingency contingency : contingencies) {
+            String contingencyId = contingency.getId();
+            Map<String, SensitivityVariableType> sensitivityVariables = new HashMap<>();
+            Set<String> glskIds = new HashSet<>();
+            fillSensitivityVariablesAndGlskIds(network, sensitivityVariables, glskIds);
+
+            List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = getSensitivityFunctions(network, contingencyId);
+
+            //According to ContingencyContext doc, contingencyId should be null for preContingency context
+            ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
+            sensitivityFunctions.forEach(function ->
+                sensitivityVariables.entrySet().forEach(variable ->
+                    factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(),
+                        glskIds.contains(variable.getKey()), contingencyContext))
+                )
+            );
+        }
+        return factors;
+    }
+
+    private void fillSensitivityVariablesAndGlskIds(Network network, Map<String, SensitivityVariableType> sensitivityVariables, Set<String> glskIds) {
         for (RangeAction<?> ra : rangeActions) {
             if (ra instanceof PstRangeAction) {
                 sensitivityVariables.put(((PstRangeAction) ra).getNetworkElement().getId(), SensitivityVariableType.TRANSFORMER_PHASE);
@@ -61,18 +100,6 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         if (sensitivityVariables.isEmpty()) {
             addDefaultSensitivityVariable(network, sensitivityVariables);
         }
-
-        List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = getSensitivityFunctions(network, null);
-
-        //According to ContingencyContext doc, contingencyId should be null for preContingency context
-        ContingencyContext preContingencyContext = new ContingencyContext(null, ContingencyContextType.NONE);
-        sensitivityFunctions.forEach(function -> {
-            sensitivityVariables.entrySet().forEach(variable -> {
-                factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(),
-                    glskIds.contains(variable.getKey()), preContingencyContext));
-            });
-        });
-        return factors;
     }
 
     private void createPositiveAndNegativeGlsks(InjectionRangeAction rangeAction, Map<String, SensitivityVariableType> sensitivityVariables, Set<String> glskIds) {
@@ -93,44 +120,6 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             glsks.add(new SensitivityVariableSet(injectionRangeActionSensiHandler.getNegativeGlskMapId(), negativeGlsk));
             glskIds.add(injectionRangeActionSensiHandler.getNegativeGlskMapId());
         }
-    }
-
-    @Override
-    public List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies) {
-        List<SensitivityFactor> factors = new ArrayList<>();
-        for (Contingency contingency : contingencies) {
-            String contingencyId = contingency.getId();
-            Map<String, SensitivityVariableType> sensitivityVariables = new HashMap<>();
-            Set<String> glskIds = new HashSet<>();
-            for (RangeAction<?> ra : rangeActions) {
-                if (ra instanceof PstRangeAction) {
-                    sensitivityVariables.put(((PstRangeAction) ra).getNetworkElement().getId(), SensitivityVariableType.TRANSFORMER_PHASE);
-                } else if (ra instanceof HvdcRangeAction) {
-                    sensitivityVariables.put(((HvdcRangeAction) ra).getNetworkElement().getId(), SensitivityVariableType.HVDC_LINE_ACTIVE_POWER);
-                } else if (ra instanceof InjectionRangeAction) {
-                    createPositiveAndNegativeGlsks((InjectionRangeAction) ra, sensitivityVariables, glskIds);
-                } else {
-                    throw new SensitivityAnalysisException(String.format("Range action type of %s not implemented yet", ra.getId()));
-                }
-            }
-
-            // Case no RangeAction is provided, we still want to get reference flows
-            if (sensitivityVariables.isEmpty()) {
-                addDefaultSensitivityVariable(network, sensitivityVariables);
-            }
-
-            List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = getSensitivityFunctions(network, contingencyId);
-
-            //According to ContingencyContext doc, contingencyId should be null for preContingency context
-            ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
-            sensitivityFunctions.forEach(function -> {
-                sensitivityVariables.entrySet().forEach(variable -> {
-                    factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(),
-                        glskIds.contains(variable.getKey()), contingencyContext));
-                });
-            });
-        }
-        return factors;
     }
 
     @Override

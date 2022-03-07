@@ -51,11 +51,11 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
         //According to ContingencyContext doc, contingencyId should be null for preContingency context
         ContingencyContext preContingencyContext = new ContingencyContext(null, ContingencyContextType.NONE);
-        sensitivityFunctions.forEach(function -> {
-            sensitivityVariables.entrySet().forEach(variable -> {
-                factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(), false, preContingencyContext));
-            });
-        });
+        sensitivityFunctions.forEach(function ->
+            sensitivityVariables.entrySet().forEach(variable ->
+                factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(), false, preContingencyContext))
+            )
+        );
         return factors;
     }
 
@@ -70,11 +70,11 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
             List<Pair<String, SensitivityFunctionType> > sensitivityFunctions = getSensitivityFunctions(network, contingencyId);
 
             ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
-            sensitivityFunctions.forEach(function -> {
-                sensitivityVariables.entrySet().forEach(variable -> {
-                    factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(), false, contingencyContext));
-                });
-            });
+            sensitivityFunctions.forEach(function ->
+                sensitivityVariables.entrySet().forEach(variable ->
+                    factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variable.getValue(), variable.getKey(), false, contingencyContext))
+                )
+            );
         }
         return factors;
     }

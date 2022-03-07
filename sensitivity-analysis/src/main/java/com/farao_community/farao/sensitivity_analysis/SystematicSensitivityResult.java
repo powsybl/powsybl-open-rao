@@ -65,7 +65,7 @@ public class SystematicSensitivityResult {
             this.status = SensitivityComputationStatus.FAILURE;
             return this;
         }
-        // status set to failure initially, and set to success if we find at least one non NaN value;
+        // status set to failure initially, and set to success if we find at least one non NaN value
         this.status =  SensitivityComputationStatus.FAILURE;
 
         Map<String, StateResult> contingencyResultsToFill = afterCra ? postCraResults : postContingencyResults;
