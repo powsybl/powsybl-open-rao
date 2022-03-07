@@ -20,7 +20,6 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  */
 public class UnoptimizedCnecParameters {
     Set<String> operatorNotToOptimize;
-    private double largestCnecThreshold;
 
     public UnoptimizedCnecParameters(Set<String> operatorNotToOptimize) {
         this.operatorNotToOptimize = operatorNotToOptimize;
