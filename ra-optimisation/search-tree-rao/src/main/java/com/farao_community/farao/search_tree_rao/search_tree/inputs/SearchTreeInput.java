@@ -26,7 +26,8 @@ public class SearchTreeInput {
     private Set<FlowCnec> flowCnecs;
     private Set<NetworkAction> networkActions;
     private Set<RangeAction<?>> rangeActions;
-    private State optimizedState;
+    private State optimizedStateForNetworkActions;
+    private Set<State> optimizedStatesForRangeActions;
 
     private ObjectiveFunction objectiveFunction;
     private IteratingLinearOptimizer iteratingLinearOptimizer;
@@ -36,12 +37,20 @@ public class SearchTreeInput {
 
     private PrePerimeterResult prePerimeterOutput;
 
-    public State getOptimizedState() {
-        return optimizedState;
+    public State getOptimizedStateForNetworkActions() {
+        return optimizedStateForNetworkActions;
     }
 
-    public void setOptimizedState(State optimizedState) {
-        this.optimizedState = optimizedState;
+    public void setOptimizedStateForNetworkActions(State optimizedState) {
+        this.optimizedStateForNetworkActions = optimizedState;
+    }
+
+    public Set<State> getOptimizedStatesForRangeActions() {
+        return optimizedStatesForRangeActions;
+    }
+
+    public void setOptimizedStatesForRangeActions(Set<State> optimizedStatesForRangeActions) {
+        this.optimizedStatesForRangeActions = optimizedStatesForRangeActions;
     }
 
     public SearchTreeBloomer getSearchTreeBloomer() {

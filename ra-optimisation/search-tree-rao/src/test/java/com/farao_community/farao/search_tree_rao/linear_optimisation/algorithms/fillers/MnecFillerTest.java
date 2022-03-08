@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.rao_api.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -79,7 +79,7 @@ public class MnecFillerTest extends AbstractFillerTest {
                 network,
                 Set.of(mnec1, mnec2),
                 Collections.emptySet(),
-                new RangeActionResultImpl(Collections.emptyMap()),
+                new RangeActionActivationResultImpl(Collections.emptyMap()),
                 0.,
                 0.,
                 0.);

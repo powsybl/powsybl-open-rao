@@ -10,8 +10,8 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -42,12 +42,12 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         init();
         network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().setTapPosition(TAP_INITIAL);
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
+        RangeActionActivationResult initialRangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(pstRangeAction, initialAlpha));
         coreProblemFiller = new CoreProblemFiller(
                 network,
                 Set.of(cnec1),
                 Set.of(pstRangeAction),
-                initialRangeActionResult,
+            initialRangeActionActivationResult,
                 0.,
                 0.,
                 0.);

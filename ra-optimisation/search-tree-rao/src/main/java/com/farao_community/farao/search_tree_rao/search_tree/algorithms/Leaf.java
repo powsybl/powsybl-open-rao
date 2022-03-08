@@ -8,6 +8,7 @@ package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -19,6 +20,7 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.*;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -54,6 +56,8 @@ public class Leaf implements OptimizationResult {
         }
     }
 
+    private final State optimizedState;
+
     /**
      * Network Actions which will be tested (including the
      * network actions from the parent leaves as well as from
@@ -61,7 +65,8 @@ public class Leaf implements OptimizationResult {
      */
     private final Set<NetworkAction> networkActions;
     private Network network;
-    private final RangeActionResult preOptimRangeActionResult;
+    private final RangeActionActivationResult raActivationsFromParentLeaf;
+    private final RangeActionSetpointResult prePerimeterSetpoints;
 
     /**
      * Status of the leaf's Network Action evaluation
@@ -79,11 +84,15 @@ public class Leaf implements OptimizationResult {
     private boolean optimizationDataPresent = true;
 
     Leaf(Network network,
+         State optimizedState,
          Set<NetworkAction> alreadyAppliedNetworkActions,
          NetworkActionCombination naCombinationToApply,
-         RangeActionResult preOptimRangeActionResult) {
+         RangeActionActivationResult raActivationsFromParentLeaf,
+         RangeActionSetpointResult prePerimeterSetpoints) {
         this.network = network;
-        this.preOptimRangeActionResult = preOptimRangeActionResult;
+        this.optimizedState = optimizedState;
+        this.raActivationsFromParentLeaf = raActivationsFromParentLeaf;
+        this.prePerimeterSetpoints = prePerimeterSetpoints;
         networkActions = new HashSet<>(alreadyAppliedNetworkActions);
         if (!Objects.isNull(naCombinationToApply)) {
             networkActions.addAll(naCombinationToApply.getNetworkActionSet());
@@ -99,8 +108,8 @@ public class Leaf implements OptimizationResult {
         status = Status.CREATED;
     }
 
-    Leaf(Network network, PrePerimeterResult prePerimeterOutput) {
-        this(network, Collections.emptySet(), null, prePerimeterOutput);
+    Leaf(Network network, State optimizedState, PrePerimeterResult prePerimeterOutput) {
+        this(network, optimizedState, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput);
         status = Status.EVALUATED;
         preOptimFlowResult = prePerimeterOutput;
         preOptimSensitivityResult = prePerimeterOutput;
@@ -173,9 +182,11 @@ public class Leaf implements OptimizationResult {
             postOptimResult = iteratingLinearOptimizer.optimize(
                 linearProblem,
                 network,
+                optimizedState,
                 preOptimFlowResult,
                 preOptimSensitivityResult,
-                preOptimRangeActionResult,
+                raActivationsFromParentLeaf,
+                prePerimeterSetpoints,
                 sensitivityComputer
             );
             status = Status.OPTIMIZED;
@@ -187,7 +198,7 @@ public class Leaf implements OptimizationResult {
     }
 
     private void resetPreOptimRangeActionsSetpoints() {
-        preOptimRangeActionResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(network, preOptimRangeActionResult.getOptimizedSetPoint(rangeAction)));
+        raActivationsFromParentLeaf.getRangeActions().forEach(rangeAction -> rangeAction.apply(network, raActivationsFromParentLeaf.getOptimizedSetpoint(rangeAction, optimizedState)));
     }
 
     @Override
@@ -210,9 +221,7 @@ public class Leaf implements OptimizationResult {
     }
 
     private long getNumberOfActivatedRangeActions() {
-        return getOptimizedSetPoints().entrySet().stream().filter(entry ->
-            Math.abs(entry.getValue() - preOptimRangeActionResult.getOptimizedSetPoint(entry.getKey())) > 1e-6
-        ).count();
+        return postOptimResult.getActivatedRangeActions().size();
     }
 
     @Override
@@ -332,7 +341,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public Set<RangeAction<?>> getRangeActions() {
         if (status == Status.EVALUATED) {
-            return preOptimRangeActionResult.getRangeActions();
+            return raActivationsFromParentLeaf.getRangeActions();
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getRangeActions();
         } else {
@@ -341,14 +350,27 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public int getOptimizedTap(PstRangeAction pstRangeAction) {
+    public Set<RangeAction<?>> getActivatedRangeActions() {
         if (status == Status.EVALUATED) {
-            return preOptimRangeActionResult.getOptimizedTap(pstRangeAction);
+            return raActivationsFromParentLeaf.getActivatedRangeActions();
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getActivatedRangeActions();
+        } else {
+            throw new FaraoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
+    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
+        // todo: check behaviour of this method once refacto finished
+
+        if (status == Status.EVALUATED) {
+            return raActivationsFromParentLeaf.getOptimizedSetpoint(rangeAction, optimizedState);
         } else if (status == Status.OPTIMIZED) {
             try {
-                return postOptimResult.getOptimizedTap(pstRangeAction);
+                return postOptimResult.getOptimizedSetpoint(rangeAction, state);
             } catch (FaraoException e) {
-                return preOptimRangeActionResult.getOptimizedTap(pstRangeAction);
+                return raActivationsFromParentLeaf.getOptimizedSetpoint(rangeAction, optimizedState);
             }
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -356,14 +378,26 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
+    public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
         if (status == Status.EVALUATED) {
-            return preOptimRangeActionResult.getOptimizedSetPoint(rangeAction);
+            return raActivationsFromParentLeaf.getOptimizedSetpointsOnState(state);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getOptimizedSetpointsOnState(state);
+        } else {
+            throw new FaraoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
+    public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
+        // todo: check behaviour of this method once refacto finished
+        if (status == Status.EVALUATED) {
+            return raActivationsFromParentLeaf.getOptimizedTap(pstRangeAction, optimizedState);
         } else if (status == Status.OPTIMIZED) {
             try {
-                return postOptimResult.getOptimizedSetPoint(rangeAction);
+                return postOptimResult.getOptimizedTap(pstRangeAction, state);
             } catch (FaraoException e) {
-                return preOptimRangeActionResult.getOptimizedSetPoint(rangeAction);
+                return raActivationsFromParentLeaf.getOptimizedTap(pstRangeAction, optimizedState);
             }
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -371,22 +405,11 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public Map<PstRangeAction, Integer> getOptimizedTaps() {
+    public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         if (status == Status.EVALUATED) {
-            return preOptimRangeActionResult.getOptimizedTaps();
+            return raActivationsFromParentLeaf.getOptimizedTapsOnState(state);
         } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getOptimizedTaps();
-        } else {
-            throw new FaraoException(NO_RESULTS_AVAILABLE);
-        }
-    }
-
-    @Override
-    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
-        if (status == Status.EVALUATED) {
-            return preOptimRangeActionResult.getOptimizedSetPoints();
-        } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getOptimizedSetPoints();
+            return postOptimResult.getOptimizedTapsOnState(state);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }

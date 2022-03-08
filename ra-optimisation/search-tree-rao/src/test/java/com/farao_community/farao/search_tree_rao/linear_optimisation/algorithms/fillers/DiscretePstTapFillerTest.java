@@ -8,8 +8,8 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Test;
@@ -37,13 +37,13 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
         PstRangeAction pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
         Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(this.pstRangeAction, initialAlpha));
+        RangeActionActivationResult initialRangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(this.pstRangeAction, initialAlpha));
 
         CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
                 network,
                 Set.of(cnec1),
                 Set.of(pstRangeAction),
-                initialRangeActionResult,
+            initialRangeActionActivationResult,
                 0.,
                 0.,
                 0.);
@@ -51,7 +51,7 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
                 network,
                 Set.of(pstRangeAction),
-                initialRangeActionResult);
+            initialRangeActionActivationResult);
 
         LinearProblem linearProblem = new LinearProblem(List.of(coreProblemFiller, discretePstTapFiller), mpSolver);
 
@@ -110,8 +110,8 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         // update linear problem, with a new PST tap equal to -4
         double alphaBeforeUpdate = tapToAngle.get(-4);
-        RangeActionResult rangeActionResultBeforeUpdate = new RangeActionResultImpl(Map.of(this.pstRangeAction, alphaBeforeUpdate));
-        discretePstTapFiller.update(linearProblem, flowResult, sensitivityResult, rangeActionResultBeforeUpdate);
+        RangeActionActivationResult rangeActionActivationResultBeforeUpdate = new RangeActionActivationResultImpl(Map.of(this.pstRangeAction, alphaBeforeUpdate));
+        discretePstTapFiller.update(linearProblem, flowResult, sensitivityResult, rangeActionActivationResultBeforeUpdate);
 
         // check tap to angle conversion constraints
         assertEquals(alphaBeforeUpdate, tapToAngleConversionC.lb(), 1e-6);

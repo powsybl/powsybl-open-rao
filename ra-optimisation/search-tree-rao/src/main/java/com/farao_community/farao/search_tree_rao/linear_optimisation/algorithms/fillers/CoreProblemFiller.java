@@ -14,7 +14,8 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -32,7 +33,7 @@ public class CoreProblemFiller implements ProblemFiller {
     private final Network network;
     private final Set<FlowCnec> flowCnecs;
     private final Set<RangeAction<?>> rangeActions;
-    private final RangeActionResult prePerimeterRangeActionResult;
+    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final double pstSensitivityThreshold;
     private final double hvdcSensitivityThreshold;
     private final double injectionSensitivityThreshold;
@@ -41,7 +42,7 @@ public class CoreProblemFiller implements ProblemFiller {
     public CoreProblemFiller(Network network,
                              Set<FlowCnec> flowCnecs,
                              Set<RangeAction<?>> rangeActions,
-                             RangeActionResult prePerimeterRangeActionResult,
+                             RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              double pstSensitivityThreshold,
                              double hvdcSensitivityThreshold,
                              double injectionSensitivityThreshold) {
@@ -50,7 +51,7 @@ public class CoreProblemFiller implements ProblemFiller {
         this.flowCnecs.addAll(flowCnecs);
         this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.rangeActions.addAll(rangeActions);
-        this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
+        this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
         this.injectionSensitivityThreshold = injectionSensitivityThreshold;
@@ -65,7 +66,7 @@ public class CoreProblemFiller implements ProblemFiller {
         // add variables
         buildFlowVariables(linearProblem);
         getRangeActions().forEach(rangeAction -> {
-            double prePerimeterSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
+            double prePerimeterSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
             buildRangeActionSetPointVariables(linearProblem, rangeAction, prePerimeterSetpoint);
             buildRangeActionAbsoluteVariationVariables(linearProblem, rangeAction);
         });
@@ -76,7 +77,7 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     @Override
-    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
+    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints(linearProblem, flowResult, sensitivityResult);
     }
@@ -226,7 +227,7 @@ public class CoreProblemFiller implements ProblemFiller {
      */
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
         getRangeActions().forEach(rangeAction -> {
-            double prePerimeterSetPoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
+            double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
             MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
                     -prePerimeterSetPoint,
                     LinearProblem.infinity(),

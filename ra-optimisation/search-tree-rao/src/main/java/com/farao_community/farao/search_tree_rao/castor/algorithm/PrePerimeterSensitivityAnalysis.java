@@ -10,7 +10,6 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
@@ -21,6 +20,7 @@ import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunctionHelper;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
@@ -113,7 +113,7 @@ public class PrePerimeterSensitivityAnalysis {
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
-                new RangeActionResultImpl(network, rangeActions),
+                new RangeActionSetpointResultImpl(network, rangeActions),
                 objectiveFunctionResult
         );
     }

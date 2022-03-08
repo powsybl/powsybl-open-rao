@@ -20,7 +20,7 @@ import com.farao_community.farao.search_tree_rao.commons.objective_function_eval
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.FailedLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -56,7 +56,7 @@ public class IteratingLinearOptimizerTest {
     private Network network;
     private FlowResult flowResult;
     private SensitivityResult sensitivityResult;
-    private RangeActionResult rangeActionResult;
+    private RangeActionActivationResult rangeActionActivationResult;
     private BranchResultAdapter branchResultAdapter;
     private SensitivityComputer sensitivityComputer;
     private IteratingLinearOptimizer optimizer;
@@ -78,7 +78,7 @@ public class IteratingLinearOptimizerTest {
         network = Mockito.mock(Network.class);
         this.flowResult = Mockito.mock(FlowResult.class);
         sensitivityResult = Mockito.mock(SensitivityResult.class);
-        rangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, 0.));
+        rangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(rangeAction, 0.));
         branchResultAdapter = Mockito.mock(BranchResultAdapter.class);
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
 
@@ -119,7 +119,7 @@ public class IteratingLinearOptimizerTest {
             public Object answer(InvocationOnMock invocation) {
                 count += 1;
                 if (statuses.get(count - 1) == LinearProblemStatus.OPTIMAL) {
-                    when(linearProblem.getResults()).thenReturn(new RangeActionResultImpl(Map.of(rangeAction, setPoints.get(count - 1))));
+                    when(linearProblem.getResults()).thenReturn(new RangeActionActivationResultImpl(Map.of(rangeAction, setPoints.get(count - 1))));
                 }
                 when(linearProblem.getStatus()).thenReturn(statuses.get(count - 1));
                 return statuses.get(count - 1);
@@ -133,7 +133,7 @@ public class IteratingLinearOptimizerTest {
                 network,
                 flowResult,
                 sensitivityResult,
-                rangeActionResult,
+            rangeActionActivationResult,
                 sensitivityComputer
         );
     }
@@ -240,15 +240,15 @@ public class IteratingLinearOptimizerTest {
         rangeAction = crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(0, 0., 1, 1.)).add();
-        RangeActionResult preoptimRangeActionResult = new RangeActionResultImpl(Map.of(rangeAction, 0.));
-        when(linearProblem.getResults()).thenReturn(new RangeActionResultImpl(Map.of(rangeAction, 1.)));
+        RangeActionActivationResult preoptimRangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(rangeAction, 0.));
+        when(linearProblem.getResults()).thenReturn(new RangeActionActivationResultImpl(Map.of(rangeAction, 1.)));
         network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().setTapPosition(5);
         LinearOptimizationResult result = optimizer.optimize(
                 linearProblem,
                 network,
                 flowResult,
                 sensitivityResult,
-                preoptimRangeActionResult,
+            preoptimRangeActionActivationResult,
                 sensitivityComputer
         );
         assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());

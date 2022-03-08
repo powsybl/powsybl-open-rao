@@ -15,7 +15,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.ProblemFiller;
 import com.farao_community.farao.search_tree_rao.result.impl.LinearProblemResult;
@@ -433,7 +433,7 @@ public final class LinearProblem {
         return status;
     }
 
-    public RangeActionResult getResults() {
+    public RangeActionActivationResult getResults() {
         return new LinearProblemResult(this);
     }
 
@@ -441,8 +441,8 @@ public final class LinearProblem {
         fillers.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult));
     }
 
-    public void update(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
-        fillers.forEach(problemFiller -> problemFiller.update(this, flowResult, sensitivityResult, rangeActionResult));
+    public void update(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        fillers.forEach(problemFiller -> problemFiller.update(this, flowResult, sensitivityResult, rangeActionActivationResult));
     }
 
     public static LinearProblemBuilder create() {

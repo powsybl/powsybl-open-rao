@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class RangeActionResultImplTest {
+public class RangeActionActivationResultImplTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private RangeAction rangeAction = Mockito.mock(RangeAction.class);
@@ -39,7 +39,7 @@ public class RangeActionResultImplTest {
 
     @Test
     public void testInitWithMap() {
-        RangeActionResultImpl rangeActionResultImpl = new RangeActionResultImpl(
+        RangeActionActivationResultImpl rangeActionResultImpl = new RangeActionActivationResultImpl(
                 Map.of(
                         rangeAction, 200.,
                         pstRangeAction, 2.75
@@ -54,11 +54,11 @@ public class RangeActionResultImplTest {
         when(rangeAction.getCurrentSetpoint(network)).thenReturn(200.);
         when(pstRangeAction.getCurrentSetpoint(network)).thenReturn(2.75);
 
-        RangeActionResultImpl rangeActionResultImpl = new RangeActionResultImpl(network, Set.of(rangeAction, pstRangeAction));
+        RangeActionActivationResultImpl rangeActionResultImpl = new RangeActionActivationResultImpl(network, Set.of(rangeAction, pstRangeAction));
         checkContents(rangeActionResultImpl);
     }
 
-    private void checkContents(RangeActionResultImpl rangeActionResultImpl) {
+    private void checkContents(RangeActionActivationResultImpl rangeActionResultImpl) {
         assertEquals(200, rangeActionResultImpl.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
         assertEquals(2.75, rangeActionResultImpl.getOptimizedSetPoint(pstRangeAction), DOUBLE_TOLERANCE);
         assertEquals(4, rangeActionResultImpl.getOptimizedTap(pstRangeAction));

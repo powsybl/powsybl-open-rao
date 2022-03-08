@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -17,10 +18,7 @@ import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents the optimization result of automatons
@@ -60,11 +58,6 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     @Override
     public Map<FlowCnec, Double> getPtdfZonalSums() {
         return postAutomatonSensitivityAnalysisOutput.getPtdfZonalSums();
-    }
-
-    @Override
-    public Set<RangeAction<?>> getActivatedRangeActions() {
-        return Set.of();
     }
 
     @Override
@@ -113,23 +106,31 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
-    public int getOptimizedTap(PstRangeAction pstRangeAction) {
-        return postAutomatonSensitivityAnalysisOutput.getOptimizedTap(pstRangeAction);
+    public Set<RangeAction<?>> getActivatedRangeActions() {
+        // range actions not yet considered as automaton
+        return Set.of();
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
-        return postAutomatonSensitivityAnalysisOutput.getOptimizedSetPoint(rangeAction);
+    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
+        return postAutomatonSensitivityAnalysisOutput.getSetpoint(rangeAction);
     }
 
     @Override
-    public Map<PstRangeAction, Integer> getOptimizedTaps() {
-        return postAutomatonSensitivityAnalysisOutput.getOptimizedTaps();
+    public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
+        // range actions not yet considered as automaton
+        return new HashMap<>();
     }
 
     @Override
-    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
-        return postAutomatonSensitivityAnalysisOutput.getOptimizedSetPoints();
+    public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
+        return postAutomatonSensitivityAnalysisOutput.getTap(pstRangeAction);
+    }
+
+    @Override
+    public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
+        // range actions not yet considered as automaton
+        return new HashMap<>();
     }
 
     @Override

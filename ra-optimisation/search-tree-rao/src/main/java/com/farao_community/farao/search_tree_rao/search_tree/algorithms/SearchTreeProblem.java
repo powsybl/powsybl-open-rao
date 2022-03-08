@@ -7,12 +7,13 @@
 
 package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.TreeParameters;
 
 import java.util.Set;
@@ -21,21 +22,24 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class SearchTreeProblem {
+    protected final State optimizedState;
     protected final FlowResult initialFlowResult;
     protected final FlowResult prePerimeterFlowResult;
-    protected final RangeActionResult prePerimeterSetPoints;
+    protected final RangeActionSetpointResult prePerimeterSetPoints;
     protected final Set<FlowCnec> flowCnecs;
     protected final Set<FlowCnec> loopFlowCnecs;
     protected final LinearOptimizerParameters linearOptimizerParameters;
     protected final TreeParameters treeParameters;
 
-    public SearchTreeProblem(FlowResult initialFlowResult,
+    public SearchTreeProblem(State optimizedState,
+                             FlowResult initialFlowResult,
                              FlowResult prePerimeterFlowResult,
-                             RangeActionResult prePerimeterSetPoints,
+                             RangeActionSetpointResult prePerimeterSetPoints,
                              Set<FlowCnec> flowCnecs,
                              Set<FlowCnec> loopFlowCnecs,
                              LinearOptimizerParameters linearOptimizerParameters,
                              TreeParameters treeParameters) {
+        this.optimizedState = optimizedState;
         this.initialFlowResult = initialFlowResult;
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.prePerimeterSetPoints = prePerimeterSetPoints;
@@ -47,6 +51,7 @@ public class SearchTreeProblem {
 
     public LeafProblem getLeafProblem(Set<RangeAction<?>> rangeActions, Set<NetworkAction> activatedNetworkActions) {
         return new LeafProblem(
+                optimizedState,
                 initialFlowResult,
                 prePerimeterFlowResult,
                 prePerimeterSetPoints,

@@ -8,8 +8,8 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Test;
@@ -42,13 +42,13 @@ public class DiscretePstGroupFillerTest extends AbstractFillerTest {
         String groupId = "group1";
         Map<Integer, Double> tapToAngle = pstRa1.getTapToAngleConversionMap(); // both PSTs have the same map
         double initialAlpha = tapToAngle.get(0);
-        RangeActionResult initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRa1, initialAlpha, pstRa2, initialAlpha));
+        RangeActionActivationResult initialRangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(pstRa1, initialAlpha, pstRa2, initialAlpha));
 
         CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
                 network,
                 Set.of(cnec1),
                 Set.of(pstRa1, pstRa2),
-                initialRangeActionResult,
+            initialRangeActionActivationResult,
                 0.,
                 0.,
                 0.);
@@ -56,7 +56,7 @@ public class DiscretePstGroupFillerTest extends AbstractFillerTest {
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
                 network,
                 Set.of(pstRa1, pstRa2),
-                initialRangeActionResult);
+            initialRangeActionActivationResult);
 
         DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
                 network,
@@ -99,9 +99,9 @@ public class DiscretePstGroupFillerTest extends AbstractFillerTest {
 
         // update with a tap of -10
         double newAlpha = tapToAngle.get(-10);
-        RangeActionResult updatedRangeActionResult = new RangeActionResultImpl(Map.of(pstRa1, newAlpha, pstRa2, newAlpha));
-        discretePstTapFiller.update(linearProblem, flowResult, sensitivityResult, updatedRangeActionResult);
-        discretePstGroupFiller.update(linearProblem, flowResult, sensitivityResult, updatedRangeActionResult);
+        RangeActionActivationResult updatedRangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(pstRa1, newAlpha, pstRa2, newAlpha));
+        discretePstTapFiller.update(linearProblem, flowResult, sensitivityResult, updatedRangeActionActivationResult);
+        discretePstGroupFiller.update(linearProblem, flowResult, sensitivityResult, updatedRangeActionActivationResult);
 
         // check constraints
         assertEquals(-10, groupTap1C.lb(), 1e-6);

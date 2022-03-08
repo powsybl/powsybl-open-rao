@@ -12,7 +12,7 @@ import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.TreeParameters;
 import org.junit.Test;
 
@@ -58,7 +58,7 @@ public class LeafProblemTest {
         LeafProblem leafProblem =
             new LeafProblem(mock(FlowResult.class),
                 mock(FlowResult.class),
-                mock(RangeActionResult.class),
+                mock(RangeActionActivationResult.class),
                 Set.of(),
                 Set.of(),
                 linearOptimizerParameters,

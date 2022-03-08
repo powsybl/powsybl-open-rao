@@ -11,8 +11,8 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 public class CoreProblemFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
-    private RangeActionResult initialRangeActionResult;
+    private RangeActionActivationResult initialRangeActionActivationResult;
     // some additional data
     private double minAlpha;
     private double maxAlpha;
@@ -50,7 +50,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         maxAlpha = crac.getRangeAction(RANGE_ACTION_ID).getMaxAdmissibleSetpoint(0);
         initialAlpha = pstRangeAction.convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
-        initialRangeActionResult = new RangeActionResultImpl(Map.of(pstRangeAction, initialAlpha));
+        initialRangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(pstRangeAction, initialAlpha));
     }
 
     private void buildLinearProblem() {
@@ -71,7 +71,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 network,
                 Set.of(cnec),
                 Set.of(pstRangeAction),
-                initialRangeActionResult,
+            initialRangeActionActivationResult,
                 pstSensitivityThreshold,
                 hvdcSensitivityThreshold,
                 injectionSensitivityThreshold);
@@ -363,7 +363,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
                 network,
                 Set.of(cnec1),
                 Set.of(pstRangeAction),
-                initialRangeActionResult,
+            initialRangeActionActivationResult,
                 0.,
                 0.,
                 0.);

@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -41,7 +41,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     private HvdcRangeAction hvdc;
     private InjectionRangeAction injection;
     private Set<RangeAction<?>> rangeActions;
-    private RangeActionResult prePerimeterRangeActionResult;
+    private RangeActionActivationResult prePerimeterRangeActionActivationResult;
 
     private LinearProblem linearProblem;
     private CoreProblemFiller coreProblemFiller;
@@ -75,17 +75,17 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         rangeActions = Set.of(pst1, pst2, pst3, hvdc, injection);
 
-        prePerimeterRangeActionResult = mock(RangeActionResult.class);
+        prePerimeterRangeActionActivationResult = mock(RangeActionActivationResult.class);
 
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(pst1)).thenReturn(1.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(pst2)).thenReturn(2.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(pst3)).thenReturn(3.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(hvdc)).thenReturn(4.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(injection)).thenReturn(5.);
+        when(prePerimeterRangeActionActivationResult.getOptimizedSetPoint(pst1)).thenReturn(1.);
+        when(prePerimeterRangeActionActivationResult.getOptimizedSetPoint(pst2)).thenReturn(2.);
+        when(prePerimeterRangeActionActivationResult.getOptimizedSetPoint(pst3)).thenReturn(3.);
+        when(prePerimeterRangeActionActivationResult.getOptimizedSetPoint(hvdc)).thenReturn(4.);
+        when(prePerimeterRangeActionActivationResult.getOptimizedSetPoint(injection)).thenReturn(5.);
 
         rangeActions.forEach(ra -> {
-            double min = -10 * prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
-            double max = 20 * prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
+            double min = -10 * prePerimeterRangeActionActivationResult.getOptimizedSetPoint(ra);
+            double max = 20 * prePerimeterRangeActionActivationResult.getOptimizedSetPoint(ra);
             when(ra.getMinAdmissibleSetpoint(anyDouble())).thenReturn(min);
             when(ra.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(max);
         });
@@ -95,7 +95,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             network,
             Set.of(),
             rangeActions,
-            prePerimeterRangeActionResult,
+            prePerimeterRangeActionActivationResult,
             0.,
             0.,
             0.);
@@ -103,7 +103,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testSkipFiller() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 5, 2, Set.of("opA"), null, new HashMap<>(), false);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, 5, 2, Set.of("opA"), null, new HashMap<>(), false);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -112,7 +112,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testVariationVariableAndConstraints() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 1, null, null, null, null, false);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, 1, null, null, null, null, false);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -126,7 +126,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertNotNull(constraintDown);
 
             MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(ra);
-            double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
+            double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetPoint(ra);
 
             assertEquals(1, constraintUp.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
             assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) - initialSetpoint), constraintUp.getCoefficient(binary), DOUBLE_TOLERANCE);
@@ -142,7 +142,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testVariationVariableAndConstraintsApproxPsts() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 1, null, null, null, null, true);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, 1, null, null, null, null, true);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -156,7 +156,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertNotNull(constraintDown);
 
             MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(ra);
-            double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(ra);
+            double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetPoint(ra);
             double relaxation = 1e-5;
             if (ra.getId().equals("pst1")) {
                 relaxation = 0.3 * 6.9 / 2;
@@ -180,7 +180,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testSkipConstraints1() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 5, null, null, null, null, false);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, 5, null, null, null, null, false);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
         assertNull(linearProblem.getMaxTsoConstraint());
@@ -194,7 +194,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testSkipConstraints2() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, 3, null, null, null, false);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, null, 3, null, null, null, false);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
         assertNull(linearProblem.getMaxRaConstraint());
@@ -202,7 +202,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testMaxRa() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, 4, null, null, null, null, false);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, 4, null, null, null, null, false);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -224,7 +224,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testMaxTso() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, 2, null, null, null, false);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, null, 2, null, null, null, false);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -245,7 +245,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testMaxTsoWithExclusion() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, 1, Set.of("opC"), null, null, false);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, null, 1, Set.of("opC"), null, null, false);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -260,7 +260,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testMaxRaPerTso() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, null, null, null, Map.of("opA", 2, "opC", 0), false);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, null, null, null, null, Map.of("opA", 2, "opC", 0), false);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -289,7 +289,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
     @Test
     public void testMaxPstPerTso() {
-        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionResult, null, null, null, Map.of("opA", 1, "opC", 3), null, false);
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(rangeActions, prePerimeterRangeActionActivationResult, null, null, null, Map.of("opA", 1, "opC", 3), null, false);
         linearProblem = new LinearProblem(List.of(coreProblemFiller, raUsageLimitsFiller), mpSolver);
         linearProblem.fill(flowResult, sensitivityResult);
 

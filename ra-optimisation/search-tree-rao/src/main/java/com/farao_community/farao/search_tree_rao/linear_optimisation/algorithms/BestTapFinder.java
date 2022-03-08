@@ -8,14 +8,16 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
@@ -45,13 +47,14 @@ public final class BestTapFinder {
      *
      * @return a map containing the best tap position for every PstRangeAction that was optimized in the linear problem
      */
-    public static RangeActionResult find(Map<RangeAction<?>, Double> optimizedSetPoints,
-                                         Network network,
-                                         List<FlowCnec> mostLimitingCnecs,
-                                         FlowResult flowResult,
-                                         SensitivityResult sensitivityResult) {
+    public static RangeActionActivationResult find(Map<RangeAction<?>, Double> optimizedSetPoints,
+                                                   Network network,
+                                                   State optimizedState,
+                                                   RangeActionSetpointResult prePerimeterSetpoint,
+                                                   List<FlowCnec> mostLimitingCnecs,
+                                                   FlowResult flowResult,
+                                                   SensitivityResult sensitivityResult) {
         // TODO: network could be replaced by the previous RangeActionResult
-        Map<PstRangeAction, Integer> bestTaps = new HashMap<>();
         Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 
         Set<PstRangeAction> pstRangeActions = optimizedSetPoints.keySet().stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toSet());
@@ -69,21 +72,24 @@ public final class BestTapFinder {
 
         Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
-        for (PstRangeAction pstRangeAction : pstRangeActions) {
-            Optional<String> optGroupId = pstRangeAction.getGroupId();
-            if (optGroupId.isPresent()) {
-                bestTaps.put(pstRangeAction, bestTapPerPstGroup.get(optGroupId.get()));
+        RangeActionActivationResultImpl raar = new RangeActionActivationResultImpl(prePerimeterSetpoint);
+
+        for (RangeAction<?> rangeAction : optimizedSetPoints.keySet()) {
+            if (rangeAction instanceof PstRangeAction) {
+                PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
+                Optional<String> optGroupId = pstRangeAction.getGroupId();
+                if (optGroupId.isPresent()) {
+                    raar.activate(pstRangeAction, optimizedState, pstRangeAction.convertTapToAngle(bestTapPerPstGroup.get(optGroupId.get())));
+                } else {
+                    int bestTap = minMarginPerTap.get(pstRangeAction).entrySet().stream().max(Comparator.comparing(Map.Entry<Integer, Double>::getValue)).orElseThrow().getKey();
+                    raar.activate(pstRangeAction, optimizedState, pstRangeAction.convertTapToAngle(bestTap));
+                }
             } else {
-                int bestTap = minMarginPerTap.get(pstRangeAction).entrySet().stream().max(Comparator.comparing(Map.Entry<Integer, Double>::getValue)).orElseThrow().getKey();
-                bestTaps.put(pstRangeAction, bestTap);
+                raar.activate(rangeAction, optimizedState, optimizedSetPoints.get(rangeAction));
             }
         }
 
-        Map<RangeAction<?>, Double> roundedSetPoints = new HashMap<>(optimizedSetPoints);
-        for (var entry : bestTaps.entrySet()) {
-            roundedSetPoints.put(entry.getKey(), entry.getKey().convertTapToAngle(entry.getValue()));
-        }
-        return new RangeActionResultImpl(roundedSetPoints);
+        return raar;
     }
 
     /**

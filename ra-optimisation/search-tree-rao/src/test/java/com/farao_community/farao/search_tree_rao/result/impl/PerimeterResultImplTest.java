@@ -16,7 +16,7 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class PerimeterResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
     private PerimeterResultImpl perimeterResultImpl;
-    private RangeActionResult prePerimeterRangeActionResult;
+    private RangeActionActivationResult prePerimeterRangeActionActivationResult;
     private OptimizationResult optimizationResult;
     private RangeAction ra1;
     private RangeAction ra2;
@@ -51,12 +51,12 @@ public class PerimeterResultImplTest {
 
     @Before
     public void setUp() {
-        prePerimeterRangeActionResult = mock(RangeActionResult.class);
+        prePerimeterRangeActionActivationResult = mock(RangeActionActivationResult.class);
         optimizationResult = mock(OptimizationResult.class);
 
         ra1 = mock(RangeAction.class);
         ra2 = mock(RangeAction.class);
-        when(prePerimeterRangeActionResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
+        when(prePerimeterRangeActionActivationResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
         when(optimizationResult.getRangeActions()).thenReturn(Set.of(ra1, ra2));
 
         flowCnec1 = mock(FlowCnec.class);
@@ -68,14 +68,14 @@ public class PerimeterResultImplTest {
         pst1 = mock(PstRangeAction.class);
         pst2 = mock(PstRangeAction.class);
 
-        perimeterResultImpl = new PerimeterResultImpl(prePerimeterRangeActionResult, optimizationResult);
+        perimeterResultImpl = new PerimeterResultImpl(prePerimeterRangeActionActivationResult, optimizationResult);
     }
 
     @Test
     public void testGetActivatedRangeActions() {
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(ra1)).thenReturn(5.);
+        when(prePerimeterRangeActionActivationResult.getOptimizedSetPoint(ra1)).thenReturn(5.);
         when(optimizationResult.getOptimizedSetPoint(ra1)).thenReturn(5.);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(ra2)).thenReturn(15.);
+        when(prePerimeterRangeActionActivationResult.getOptimizedSetPoint(ra2)).thenReturn(15.);
         when(optimizationResult.getOptimizedSetPoint(ra2)).thenReturn(50.);
         assertEquals(Set.of(ra2), perimeterResultImpl.getActivatedRangeActions());
     }
@@ -176,7 +176,7 @@ public class PerimeterResultImplTest {
 
         when(optimizationResult.getOptimizedTap(pst1)).thenReturn(10);
         when(optimizationResult.getOptimizedTap(pst2)).thenThrow(new FaraoException("absent mock"));
-        when(prePerimeterRangeActionResult.getOptimizedTap(pst2)).thenReturn(3);
+        when(prePerimeterRangeActionActivationResult.getOptimizedTap(pst2)).thenReturn(3);
 
         assertEquals(10, perimeterResultImpl.getOptimizedTap(pst1));
         assertEquals(3, perimeterResultImpl.getOptimizedTap(pst2));
@@ -200,7 +200,7 @@ public class PerimeterResultImplTest {
     public void testGetOptimizedSetPoint() {
         when(optimizationResult.getRangeActions()).thenReturn(Set.of(ra1));
         when(optimizationResult.getOptimizedSetPoint(ra1)).thenReturn(10.7);
-        when(prePerimeterRangeActionResult.getOptimizedSetPoint(ra2)).thenReturn(3.5);
+        when(prePerimeterRangeActionActivationResult.getOptimizedSetPoint(ra2)).thenReturn(3.5);
 
         assertEquals(10.7, perimeterResultImpl.getOptimizedSetPoint(ra1), DOUBLE_TOLERANCE);
         assertEquals(3.5, perimeterResultImpl.getOptimizedSetPoint(ra2), DOUBLE_TOLERANCE);

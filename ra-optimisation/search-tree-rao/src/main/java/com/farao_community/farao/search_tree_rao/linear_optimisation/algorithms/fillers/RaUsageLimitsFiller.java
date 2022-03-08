@@ -13,7 +13,8 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
@@ -32,7 +33,7 @@ import static java.lang.String.format;
  */
 public class RaUsageLimitsFiller implements ProblemFiller {
     private final Set<RangeAction<?>> rangeActions;
-    private final RangeActionResult prePerimeterRangeActionResult;
+    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final Integer maxRa;
     private final Integer maxTso;
     private final Set<String> maxTsoExclusions;
@@ -42,7 +43,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
     public RaUsageLimitsFiller(Set<RangeAction<?>> rangeActions,
-                               RangeActionResult prePerimeterRangeActionResult,
+                               RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                Integer maxRa,
                                Integer maxTso,
                                Set<String> maxTsoExclusions,
@@ -50,7 +51,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                                Map<String, Integer> maxRaPerTso,
                                boolean arePstSetpointsApproximated) {
         this.rangeActions = rangeActions;
-        this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
+        this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.maxRa = maxRa;
         this.maxTso = maxTso;
         this.maxTsoExclusions = maxTsoExclusions != null ? maxTsoExclusions : new HashSet<>();
@@ -98,7 +99,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     private void buildIsVariationVariableAndConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction) {
         MPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction);
-        double initialSetpoint = prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
+        double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
         MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction);
         if (setpointVariable == null) {
             throw new FaraoException(format("Range action setpoint variable for %s has not been defined yet.", rangeAction.getId()));
@@ -182,7 +183,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     @Override
-    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionResult rangeActionResult) {
+    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // nothing to do, we are only comparing optimal and pre-perimeter setpoints
     }
 }

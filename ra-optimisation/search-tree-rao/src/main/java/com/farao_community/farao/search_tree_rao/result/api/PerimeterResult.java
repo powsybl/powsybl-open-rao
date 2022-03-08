@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
  */
 public interface PerimeterResult extends OptimizationResult {
 
+    //todo: delete this class or optimizationResult class
+
     /**
      * It gathers the {@link RangeAction} that are activated.
      *

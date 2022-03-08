@@ -18,6 +18,7 @@ import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.data.rao_result_api.RaoResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -116,7 +117,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        return initialResult.getOptimizedTap(pstRangeAction);
+        return initialResult.getTap(pstRangeAction);
     }
 
     @Override
@@ -126,7 +127,7 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        return initialResult.getOptimizedSetPoint(rangeAction);
+        return initialResult.getSetpoint(rangeAction);
     }
 
     @Override
@@ -141,11 +142,21 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return initialResult.getOptimizedTaps();
+        Map<PstRangeAction, Integer> tapPerPst = new HashMap<>();
+        initialResult.getRangeActions().forEach(ra -> {
+            if (ra instanceof PstRangeAction) {
+                tapPerPst.put((PstRangeAction) ra, initialResult.getTap((PstRangeAction) ra));
+            }
+        });
+        return tapPerPst;
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        return initialResult.getOptimizedSetPoints();
+        Map<RangeAction<?>, Double> setpointPerRa = new HashMap<>();
+        initialResult.getRangeActions().forEach(ra -> {
+            setpointPerRa.put(ra, initialResult.getSetpoint(ra));
+        });
+        return setpointPerRa;
     }
 }

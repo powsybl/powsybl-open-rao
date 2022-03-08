@@ -37,17 +37,17 @@ public final class RaoLogger {
     }
 
     public static void logRangeActions(FaraoLogger logger,
-                                       Leaf leaf, Set<RangeAction<?>> rangeActions) {
-        logRangeActions(logger, leaf, rangeActions, null);
+                                       Leaf leaf, Set<RangeAction<?>> rangeActions, State state) {
+        logRangeActions(logger, leaf, rangeActions, state, null);
     }
 
-    public static void logRangeActions(FaraoLogger logger, Leaf leaf, Set<RangeAction<?>> rangeActions, String prefix) {
+    public static void logRangeActions(FaraoLogger logger, Leaf leaf, Set<RangeAction<?>> rangeActions, State state, String prefix) {
         String rangeActionSetpoints = rangeActions.stream().map(rangeAction -> {
             if (rangeAction instanceof PstRangeAction) {
-                int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction);
+                int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction, state);
                 return format("%s: %d", rangeAction.getName(), rangeActionTap);
             } else {
-                double rangeActionSetPoint = leaf.getOptimizedSetPoint(rangeAction);
+                double rangeActionSetPoint = leaf.getOptimizedSetpoint(rangeAction, state);
                 return format(Locale.ENGLISH, "%s: %.2f", rangeAction.getName(), rangeActionSetPoint);
             }
         }).collect(Collectors.joining(", "));

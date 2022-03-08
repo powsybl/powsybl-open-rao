@@ -8,25 +8,22 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class LinearProblemResult implements RangeActionResult {
+public class LinearProblemResult implements RangeActionActivationResult {
+
     private final Map<RangeAction<?>, Double> setPointPerRangeAction = new HashMap<>();
 
     public LinearProblemResult(LinearProblem linearProblem) {
@@ -34,6 +31,7 @@ public class LinearProblemResult implements RangeActionResult {
             throw new FaraoException("Impossible to define results on non-optimal and non-feasible Linear problem.");
         }
 
+        //todo : adapt constructor to new multi-state approach
         linearProblem.getRangeActions().forEach(rangeAction ->
                 setPointPerRangeAction.put(rangeAction, linearProblem.getRangeActionSetpointVariable(rangeAction).solutionValue()));
     }
@@ -44,12 +42,13 @@ public class LinearProblemResult implements RangeActionResult {
     }
 
     @Override
-    public int getOptimizedTap(PstRangeAction pstRangeAction) {
-        return pstRangeAction.convertAngleToTap(getOptimizedSetPoint(pstRangeAction));
+    public Set<RangeAction<?>> getActivatedRangeActions() {
+        //todo, write method
+        return new HashSet<>();
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
+    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         Double setPoint = setPointPerRangeAction.get(rangeAction);
         if (setPoint != null && !Double.isNaN(setPoint)) {
             return setPoint;
@@ -58,18 +57,20 @@ public class LinearProblemResult implements RangeActionResult {
     }
 
     @Override
-    public final Map<PstRangeAction, Integer> getOptimizedTaps() {
-        return setPointPerRangeAction.keySet().stream()
-                .filter(rangeAction -> rangeAction instanceof PstRangeAction)
-                .map(rangeAction -> (PstRangeAction) rangeAction)
-                .collect(Collectors.toUnmodifiableMap(
-                        Function.identity(),
-                        this::getOptimizedTap
-                ));
+    public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
+        //todo: implement
+        return null;
     }
 
     @Override
-    public final Map<RangeAction<?>, Double> getOptimizedSetPoints() {
-        return Collections.unmodifiableMap(setPointPerRangeAction);
+    public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
+        return pstRangeAction.convertAngleToTap(getOptimizedSetpoint(pstRangeAction, state));
     }
+
+    @Override
+    public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
+        //todo: implement
+        return null;
+    }
+
 }

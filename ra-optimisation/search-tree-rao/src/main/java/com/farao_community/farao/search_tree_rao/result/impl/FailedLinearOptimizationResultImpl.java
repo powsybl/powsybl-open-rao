@@ -9,6 +9,7 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -87,22 +88,27 @@ public class FailedLinearOptimizationResultImpl implements LinearOptimizationRes
     }
 
     @Override
-    public int getOptimizedTap(PstRangeAction pstRangeAction) {
+    public Set<RangeAction<?>> getActivatedRangeActions() {
         throw new FaraoException("Should not be used");
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
+    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         throw new FaraoException("Should not be used");
     }
 
     @Override
-    public Map<PstRangeAction, Integer> getOptimizedTaps() {
+    public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
         throw new FaraoException("Should not be used");
     }
 
     @Override
-    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
+    public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
+        throw new FaraoException("Should not be used");
+    }
+
+    @Override
+    public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         throw new FaraoException("Should not be used");
     }
 

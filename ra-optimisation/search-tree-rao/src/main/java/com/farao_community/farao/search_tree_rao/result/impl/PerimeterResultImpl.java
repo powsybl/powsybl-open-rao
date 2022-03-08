@@ -9,36 +9,29 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
 import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class PerimeterResultImpl implements PerimeterResult {
 
     private final OptimizationResult optimizationResult;
-    private final RangeActionResult prePerimeterRangeActionResult;
+    private final RangeActionSetpointResult prePerimeterRangeActionSetpoint;
 
-    public PerimeterResultImpl(RangeActionResult prePerimeterRangeActionResult, OptimizationResult optimizationResult) {
+    public PerimeterResultImpl(RangeActionSetpointResult prePerimeterRangeActionSetpoint, OptimizationResult optimizationResult) {
         this.optimizationResult = optimizationResult;
-        this.prePerimeterRangeActionResult = prePerimeterRangeActionResult;
-    }
-
-    @Override
-    public Set<RangeAction<?>> getActivatedRangeActions() {
-        return optimizationResult.getRangeActions().stream()
-                .filter(rangeAction -> Math.abs(prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction) - optimizationResult.getOptimizedSetPoint(rangeAction)) > 1e-6)
-                .collect(Collectors.toSet());
+        this.prePerimeterRangeActionSetpoint = prePerimeterRangeActionSetpoint;
     }
 
     @Override
@@ -103,40 +96,22 @@ public class PerimeterResultImpl implements PerimeterResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        return prePerimeterRangeActionResult.getRangeActions();
+        return optimizationResult.getRangeActions();
     }
 
     @Override
-    public int getOptimizedTap(PstRangeAction pstRangeAction) {
-
-        if (optimizationResult.getRangeActions().contains(pstRangeAction)) {
-            return optimizationResult.getOptimizedTap(pstRangeAction);
-        }
-
-        // if pstRangeAction is not in perimeter, check if there is not another rangeAction
-        // on the same network element.
-        PstRangeAction pstRangeActionOnSameElement = null;
-        NetworkElement networkElement = pstRangeAction.getNetworkElement();
-
-        for (RangeAction<?> rangeAction : optimizationResult.getRangeActions()) {
-            if (rangeAction instanceof PstRangeAction && ((PstRangeAction) rangeAction).getNetworkElement() != null
-                    &&  ((PstRangeAction) rangeAction).getNetworkElement().equals(networkElement)) {
-                pstRangeActionOnSameElement = (PstRangeAction) rangeAction;
-                break;
-            }
-        }
-
-        if (pstRangeActionOnSameElement != null) {
-            return optimizationResult.getOptimizedTap(pstRangeActionOnSameElement);
-        } else {
-            return prePerimeterRangeActionResult.getOptimizedTap(pstRangeAction);
-        }
+    public Set<RangeAction<?>> getActivatedRangeActions() {
+        return optimizationResult.getActivatedRangeActions();
     }
 
     @Override
-    public double getOptimizedSetPoint(RangeAction<?> rangeAction) {
+    public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
+
+        // todo: check behaviour of this method when end of POC
+        // todo: move this logics in RangeActionActivationResultImpl (?)
+
         if (optimizationResult.getRangeActions().contains(rangeAction)) {
-            return optimizationResult.getOptimizedSetPoint(rangeAction);
+            return optimizationResult.getOptimizedSetpoint(rangeAction, state);
         }
 
         // if rangeAction is not in perimeter, check if there is not another rangeAction
@@ -153,20 +128,49 @@ public class PerimeterResultImpl implements PerimeterResult {
         }
 
         if (rangeActionOnSameElement != null) {
-            return optimizationResult.getOptimizedSetPoint(rangeActionOnSameElement);
+            return optimizationResult.getOptimizedSetpoint(rangeActionOnSameElement, state);
         } else {
-            return prePerimeterRangeActionResult.getOptimizedSetPoint(rangeAction);
+            return prePerimeterRangeActionSetpoint.getSetpoint(rangeAction);
         }
     }
 
     @Override
-    public Map<PstRangeAction, Integer> getOptimizedTaps() {
-        return optimizationResult.getOptimizedTaps();
+    public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
+
+        // todo: check behaviour of this method when end of POC
+        // todo: move this logics in RangeActionActivationResultImpl (?)
+        if (optimizationResult.getRangeActions().contains(pstRangeAction)) {
+            return optimizationResult.getOptimizedTap(pstRangeAction, state);
+        }
+
+        // if pstRangeAction is not in perimeter, check if there is not another rangeAction
+        // on the same network element.
+        PstRangeAction pstRangeActionOnSameElement = null;
+        NetworkElement networkElement = pstRangeAction.getNetworkElement();
+
+        for (RangeAction<?> rangeAction : optimizationResult.getRangeActions()) {
+            if (rangeAction instanceof PstRangeAction && ((PstRangeAction) rangeAction).getNetworkElement() != null
+                &&  ((PstRangeAction) rangeAction).getNetworkElement().equals(networkElement)) {
+                pstRangeActionOnSameElement = (PstRangeAction) rangeAction;
+                break;
+            }
+        }
+
+        if (pstRangeActionOnSameElement != null) {
+            return optimizationResult.getOptimizedTap(pstRangeActionOnSameElement, state);
+        } else {
+            return prePerimeterRangeActionSetpoint.getTap(pstRangeAction);
+        }
     }
 
     @Override
-    public Map<RangeAction<?>, Double> getOptimizedSetPoints() {
-        return optimizationResult.getOptimizedSetPoints();
+    public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
+        return optimizationResult.getOptimizedTapsOnState(state);
+    }
+
+    @Override
+    public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
+        return optimizationResult.getOptimizedSetpointsOnState(state);
     }
 
     @Override

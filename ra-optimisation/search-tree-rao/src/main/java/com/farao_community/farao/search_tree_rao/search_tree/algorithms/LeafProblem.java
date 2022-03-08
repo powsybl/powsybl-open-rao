@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
@@ -17,7 +18,7 @@ import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.*;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.TreeParameters;
@@ -30,9 +31,10 @@ import java.util.stream.Collectors;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LeafProblem {
+    private final State optimizedState;
     private final FlowResult initialFlowResult;
     private final FlowResult prePerimeterFlowResult;
-    private final RangeActionResult prePerimeterSetPoints;
+    private final RangeActionSetpointResult prePerimeterSetPoints;
     private final Set<FlowCnec> flowCnecs;
     private final Set<FlowCnec> loopFlowCnecs;
     private final LinearOptimizerParameters linearOptimizerParameters;
@@ -44,15 +46,17 @@ public class LeafProblem {
     private Map<String, Integer> maxPstPerTso;
     private Map<String, Integer> maxRaPerTso;
 
-    public LeafProblem(FlowResult initialFlowResult,
+    public LeafProblem(State optimizedState,
+                       FlowResult initialFlowResult,
                        FlowResult prePerimeterFlowResult,
-                       RangeActionResult prePerimeterSetPoints,
+                       RangeActionSetpointResult prePerimeterSetPoints,
                        Set<FlowCnec> flowCnecs,
                        Set<FlowCnec> loopFlowCnecs,
                        LinearOptimizerParameters linearOptimizerParameters,
                        TreeParameters treeParameters,
                        Set<RangeAction<?>> rangeActions,
                        Set<NetworkAction> activatedNetworkActions) {
+        this.optimizedState = optimizedState;
         this.initialFlowResult = initialFlowResult;
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.prePerimeterSetPoints = prePerimeterSetPoints;
@@ -223,6 +227,7 @@ public class LeafProblem {
     private ProblemFiller createIntegerPstTapFiller(Network network, Set<RangeAction<?>> rangeActions) {
         return new DiscretePstTapFiller(
             network,
+            optimizedState,
             rangeActions,
             prePerimeterSetPoints
         );
@@ -231,6 +236,7 @@ public class LeafProblem {
     private ProblemFiller createDiscretePstGroupFiller(Network network, Set<PstRangeAction> pstRangeActions) {
         return new DiscretePstGroupFiller(
             network,
+            optimizedState,
             pstRangeActions
         );
     }

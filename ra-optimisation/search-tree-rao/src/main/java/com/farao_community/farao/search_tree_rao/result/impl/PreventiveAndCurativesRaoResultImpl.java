@@ -27,10 +27,22 @@ import static com.farao_community.farao.data.rao_result_api.ComputationStatus.FA
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult {
+    private final State preventiveState;
     private final PrePerimeterResult initialResult;
     private final PerimeterResult preventivePerimeterResult;
     private final PrePerimeterResult resultsWithPrasForAllCnecs;
     private final Map<State, PerimeterResult> postContingencyResults;
+
+    /**
+     * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
+     * same as the post-preventive RAO results.
+     */
+    public PreventiveAndCurativesRaoResultImpl(State preventiveState,
+                                               PrePerimeterResult initialResult,
+                                               PerimeterResult preventivePerimeterResult,
+                                               PrePerimeterResult resultsWithPrasForAllCnecs) {
+        this(preventiveState, initialResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, new HashMap<>());
+    }
 
     /**
      * Constructor used when preventive and post-contingency RAOs have been run
@@ -40,23 +52,15 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
                                                PerimeterResult preventivePerimeterResult,
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Map<State, OptimizationResult> postContingencyResults) {
-        this(initialResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults));
+        this(stateTree.getBasecaseScenario().getBasecaseState(), initialResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, resultsWithPrasForAllCnecs, postContingencyResults));
     }
 
-    /**
-     * Constructor used when no post-contingency RAO has been run. Then the post-contingency results will be the
-     * same as the post-preventive RAO results.
-     */
-    public PreventiveAndCurativesRaoResultImpl(PrePerimeterResult initialResult,
-                                               PerimeterResult preventivePerimeterResult,
-                                               PrePerimeterResult resultsWithPrasForAllCnecs) {
-        this(initialResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, new HashMap<>());
-    }
-
-    private PreventiveAndCurativesRaoResultImpl(PrePerimeterResult initialResult,
+    private PreventiveAndCurativesRaoResultImpl(State preventiveState,
+                                                PrePerimeterResult initialResult,
                                                 PerimeterResult preventivePerimeterResult,
                                                 PrePerimeterResult resultsWithPrasForAllCnecs,
                                                 Map<State, PerimeterResult> postContingencyPerimeterResults) {
+        this.preventiveState = preventiveState;
         this.initialResult = initialResult;
         this.preventivePerimeterResult = preventivePerimeterResult;
         this.resultsWithPrasForAllCnecs = resultsWithPrasForAllCnecs;
@@ -70,7 +74,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             if (automatonState.isPresent()) {
                 OptimizationResult automatonResult = postContingencyResults.get(automatonState.get());
                 results.put(automatonState.get(), new PerimeterResultImpl(preContingencyResult, automatonResult));
-                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(automatonResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
+                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(new RangeActionSetpointResultImpl(automatonResult, automatonState.get()), postContingencyResults.get(contingencyScenario.getCurativeState())));
             } else {
                 results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(preContingencyResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
             }
@@ -263,9 +267,9 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return initialResult.getOptimizedTap(pstRangeAction);
+            return initialResult.getTap(pstRangeAction);
         } else if (postContingencyResults.containsKey(state)) {
-            return preventivePerimeterResult.getOptimizedTap(pstRangeAction);
+            return preventivePerimeterResult.getOptimizedTap(pstRangeAction, preventiveState);
         } else {
             throw new FaraoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
         }
@@ -274,18 +278,18 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
-            return preventivePerimeterResult.getOptimizedTap(pstRangeAction);
+            return preventivePerimeterResult.getOptimizedTap(pstRangeAction, state);
         } else {
-            return postContingencyResults.get(state).getOptimizedTap(pstRangeAction);
+            return postContingencyResults.get(state).getOptimizedTap(pstRangeAction, state);
         }
     }
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return initialResult.getOptimizedSetPoint(rangeAction);
+            return initialResult.getSetpoint(rangeAction);
         } else if (postContingencyResults.containsKey(state)) {
-            return preventivePerimeterResult.getOptimizedSetPoint(rangeAction);
+            return preventivePerimeterResult.getOptimizedSetpoint(rangeAction, preventiveState);
         } else {
             throw new FaraoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
         }
@@ -294,9 +298,9 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
-            return preventivePerimeterResult.getOptimizedSetPoint(rangeAction);
+            return preventivePerimeterResult.getOptimizedSetpoint(rangeAction, state);
         } else {
-            return postContingencyResults.get(state).getOptimizedSetPoint(rangeAction);
+            return postContingencyResults.get(state).getOptimizedSetpoint(rangeAction, state);
         }
     }
 
@@ -314,18 +318,18 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
-            return preventivePerimeterResult.getOptimizedTaps();
+            return preventivePerimeterResult.getOptimizedTapsOnState(state);
         } else {
-            return postContingencyResults.get(state).getOptimizedTaps();
+            return postContingencyResults.get(state).getOptimizedTapsOnState(state);
         }
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE || !postContingencyResults.containsKey(state)) {
-            return preventivePerimeterResult.getOptimizedSetPoints();
+            return preventivePerimeterResult.getOptimizedSetpointsOnState(state);
         } else {
-            return postContingencyResults.get(state).getOptimizedSetPoints();
+            return postContingencyResults.get(state).getOptimizedSetpointsOnState(state);
         }
     }
 }
