@@ -8,8 +8,8 @@
 package com.farao_community.farao.search_tree_rao.search_tree.algorithms;
 
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.rao_api.parameters.LinearOptimizerParameters;
-import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.LinearOptimizerParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.MaxMinMarginParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;

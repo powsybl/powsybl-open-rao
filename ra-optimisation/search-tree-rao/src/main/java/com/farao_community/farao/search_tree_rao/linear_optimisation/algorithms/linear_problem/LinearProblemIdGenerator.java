@@ -5,8 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
+package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem;
 
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 
@@ -52,59 +53,60 @@ public final class LinearProblemIdGenerator {
         return flowCnec.getId() + SEPARATOR + FLOW + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String rangeActionSetpointVariableId(RangeAction<?> rangeAction) {
-        return rangeAction.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
+    public static String rangeActionSetpointVariableId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String pstTapVariableVariationId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension upwardOrDownward) {
-        return rangeAction.getId() + SEPARATOR + TAP_VARIATION + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
+    public static String pstTapVariableVariationId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + TAP_VARIATION + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String rangeActionBinaryVariableId(RangeAction<?> rangeAction) {
-        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + VARIABLE_SUFFIX;
+    public static String rangeActionBinaryVariableId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String pstTapBinaryVariationInDirectionId(RangeAction<?> rangeAction, LinearProblem.VariationDirectionExtension upwardOrDownward) {
-        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
+    public static String pstTapBinaryVariationInDirectionId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String tapToAngleConversionConstraintId(RangeAction<?> rangeAction) {
-        return rangeAction.getId() + SEPARATOR + TAP_TO_ANGLE_CONVERSION + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String tapToAngleConversionConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + TAP_TO_ANGLE_CONVERSION + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String upOrDownPstVariationConstraintId(RangeAction<?> rangeAction) {
-        return rangeAction.getId() + SEPARATOR + UP_OR_DOWN_VARIATION + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String upOrDownPstVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + UP_OR_DOWN_VARIATION + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String isVariationConstraintId(RangeAction<?> rangeAction) {
-        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String isVariationConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + TAP_VARIATION_BINARY + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration, LinearProblem.VariationDirectionExtension upwardOrDownward) {
-        return rangeAction.getId() + SEPARATOR + TAP_VARIATION_BINARY
+    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration, LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return rangeAction.getId() + SEPARATOR + state.getId()
+            + SEPARATOR + TAP_VARIATION_BINARY
             + SEPARATOR + preperimeterOrPreviousIteration.toString().toLowerCase()
             + SEPARATOR + upwardOrDownward.toString().toLowerCase()
             + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String rangeActionGroupSetpointVariableId(String rangeActionGroupId) {
-        return rangeActionGroupId + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
+    public static String rangeActionGroupSetpointVariableId(String rangeActionGroupId, State state) {
+        return rangeActionGroupId + SEPARATOR + state.getId() + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String pstGroupTapVariableId(String rangeActionGroupId) {
-        return rangeActionGroupId + SEPARATOR + VIRTUAL_TAP + SEPARATOR + VARIABLE_SUFFIX;
+    public static String pstGroupTapVariableId(String rangeActionGroupId, State state) {
+        return rangeActionGroupId + SEPARATOR + state.getId() + SEPARATOR + VIRTUAL_TAP + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String rangeActionGroupSetpointConstraintId(RangeAction<?> rangeAction) {
-        return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String rangeActionGroupSetpointConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String pstGroupTapConstraintId(RangeAction<?> rangeAction) {
-        return rangeAction.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_TAP + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String pstGroupTapConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + rangeAction.getGroupId().orElseThrow() + SEPARATOR + VIRTUAL_TAP + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction) {
-        return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
+    public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX + SEPARATOR + state.getId();
     }
 
     public static String absoluteRangeActionVariationConstraintId(RangeAction<?> rangeAction, LinearProblem.AbsExtension positiveOrNegative) {

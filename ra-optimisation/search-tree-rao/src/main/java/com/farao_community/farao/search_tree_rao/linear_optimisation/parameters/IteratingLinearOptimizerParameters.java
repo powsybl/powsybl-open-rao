@@ -5,30 +5,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api.parameters;
+package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public final class LinearOptimizerParameters {
+public final class IteratingLinearOptimizerParameters {
+
     private RaoParameters.ObjectiveFunction objectiveFunction;
-    private double pstSensitivityThreshold;
-    private double hvdcSensitivityThreshold;
-    private double injectionSensitivityThreshold;
+
+    private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
+
     private MnecParameters mnecParameters;
     private MaxMinMarginParameters maxMinMarginParameters;
     private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
     private LoopFlowParameters loopFlowParameters;
     private UnoptimizedCnecParameters unoptimizedCnecParameters;
+    private RaLimitationParameters raLimitationParameters;
+
+    private double pstSensitivityThreshold;
+    private double hvdcSensitivityThreshold;
+    private double injectionSensitivityThreshold;
+
     private RaoParameters.Solver solver;
     private double relativeMipGap;
     private String solverSpecificParameters;
-    private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
 
-    private LinearOptimizerParameters() {
+
+    private IteratingLinearOptimizerParameters() {
         // Can be instantiated only by builder
     }
 
@@ -38,18 +46,19 @@ public final class LinearOptimizerParameters {
 
     public static class LinearOptimizerParametersBuilder {
         private RaoParameters.ObjectiveFunction objectiveFunction;
-        private Double pstSensitivityThreshold;
-        private Double hvdcSensitivityThreshold;
-        private Double injectionSensitivityThreshold;
+        private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
         private MaxMinMarginParameters maxMinMarginParameters;
         private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
         private MnecParameters mnecParameters;
         private LoopFlowParameters loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
+        private RaLimitationParameters raLimitationParameters;
+        private Double pstSensitivityThreshold;
+        private Double hvdcSensitivityThreshold;
+        private Double injectionSensitivityThreshold;
         private RaoParameters.Solver solver;
         private double relativeMipGap;
         private String solverSpecificParameters;
-        private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
 
         public LinearOptimizerParametersBuilder withObjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
@@ -96,6 +105,11 @@ public final class LinearOptimizerParameters {
             return this;
         }
 
+        public LinearOptimizerParametersBuilder withRaLimitationParameters(RaLimitationParameters raLimitationParameters) {
+            this.raLimitationParameters = raLimitationParameters;
+            return this;
+        }
+
         public LinearOptimizerParametersBuilder withSolver(RaoParameters.Solver solver) {
             this.solver = solver;
             return this;
@@ -116,7 +130,7 @@ public final class LinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParameters build() {
+        public IteratingLinearOptimizerParameters build() {
             if (objectiveFunction == null || pstSensitivityThreshold == null || hvdcSensitivityThreshold == null) {
                 throw new FaraoException("Objective function, pst sensitivity threshold and hvdc sensitivity threshold are mandatory parameters.");
             }
@@ -126,20 +140,21 @@ public final class LinearOptimizerParameters {
             if (!objectiveFunction.relativePositiveMargins() && maxMinMarginParameters == null) {
                 throw new FaraoException("An objective function without relative margins requires parameters on non-relative margins.");
             }
-            LinearOptimizerParameters linearOptimizerParameters = new LinearOptimizerParameters();
+            IteratingLinearOptimizerParameters linearOptimizerParameters = new IteratingLinearOptimizerParameters();
             linearOptimizerParameters.objectiveFunction = objectiveFunction;
-            linearOptimizerParameters.pstSensitivityThreshold = pstSensitivityThreshold;
-            linearOptimizerParameters.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
-            linearOptimizerParameters.injectionSensitivityThreshold = injectionSensitivityThreshold;
+            linearOptimizerParameters.pstOptimizationApproximation = pstOptimizationApproximation;
             linearOptimizerParameters.maxMinMarginParameters = maxMinMarginParameters;
             linearOptimizerParameters.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
             linearOptimizerParameters.mnecParameters = mnecParameters;
             linearOptimizerParameters.loopFlowParameters = loopFlowParameters;
             linearOptimizerParameters.unoptimizedCnecParameters = unoptimizedCnecParameters;
+            linearOptimizerParameters.raLimitationParameters = raLimitationParameters;
+            linearOptimizerParameters.pstSensitivityThreshold = pstSensitivityThreshold;
+            linearOptimizerParameters.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
+            linearOptimizerParameters.injectionSensitivityThreshold = injectionSensitivityThreshold;
             linearOptimizerParameters.solver = solver;
             linearOptimizerParameters.relativeMipGap = relativeMipGap;
             linearOptimizerParameters.solverSpecificParameters = solverSpecificParameters;
-            linearOptimizerParameters.pstOptimizationApproximation = pstOptimizationApproximation;
             return linearOptimizerParameters;
         }
     }
@@ -199,6 +214,10 @@ public final class LinearOptimizerParameters {
 
     public UnoptimizedCnecParameters getUnoptimizedCnecParameters() {
         return unoptimizedCnecParameters;
+    }
+
+    public RaLimitationParameters getRaLimitationParameters() {
+        return raLimitationParameters;
     }
 
     public RaoParameters.Solver getSolver() {

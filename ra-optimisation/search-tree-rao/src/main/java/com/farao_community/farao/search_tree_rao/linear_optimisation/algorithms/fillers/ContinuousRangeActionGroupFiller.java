@@ -7,17 +7,16 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
 import com.farao_community.farao.data.crac_api.Identifiable;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -25,11 +24,10 @@ import java.util.TreeSet;
  */
 public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
-    private final Set<RangeAction<?>> rangeActions;
+    private final OptimizationContext optimizationContext;
 
-    public ContinuousRangeActionGroupFiller(Set<RangeAction<?>> rangeActions) {
-        this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.rangeActions.addAll(rangeActions);
+    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActions) {
+        this.optimizationContext = optimizationContext;
     }
 
     @Override

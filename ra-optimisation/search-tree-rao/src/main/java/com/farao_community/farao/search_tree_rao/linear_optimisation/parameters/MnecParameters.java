@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.rao_api.parameters;
+package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
 
 public class MnecParameters {
     private final double mnecAcceptableMarginDiminution;

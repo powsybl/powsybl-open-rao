@@ -63,14 +63,25 @@ public class AppliedRemedialActions {
     }
 
     public Set<State> getStatesWithRa() {
+        //todo: check if an
         return appliedRa.keySet();
     }
 
     public void applyOnNetwork(State state, Network network) {
         if (appliedRa.containsKey(state)) {
+            //todo: check if range action must be applied
             appliedRa.get(state).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
             appliedRa.get(state).networkActions.forEach(networkAction -> networkAction.apply(network));
         }
+    }
+
+    public AppliedRemedialActions copy() {
+        AppliedRemedialActions ara = new AppliedRemedialActions();
+        appliedRa.forEach((state, appliedRaOnState) -> {
+            ara.addAppliedNetworkActions(state, appliedRaOnState.networkActions);
+            ara.addAppliedRangeActions(state, appliedRaOnState.rangeActions);
+        });
+        return ara;
     }
 
     private void checkState(State state) {

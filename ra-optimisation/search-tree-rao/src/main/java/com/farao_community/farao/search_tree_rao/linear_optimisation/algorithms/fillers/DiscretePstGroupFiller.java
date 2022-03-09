@@ -10,17 +10,14 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -31,7 +28,7 @@ public class DiscretePstGroupFiller implements ProblemFiller {
     private final Set<PstRangeAction> pstRangeActions;
     private final Network network;
 
-    public DiscretePstGroupFiller(Network network, State optimizedState, Set<PstRangeAction> pstRangeActions) {
+    public DiscretePstGroupFiller(Network network, State optimizedState, Map<State, Set<PstRangeAction>> pstRangeActions) {
         this.pstRangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.pstRangeActions.addAll(pstRangeActions);
         this.network = network;

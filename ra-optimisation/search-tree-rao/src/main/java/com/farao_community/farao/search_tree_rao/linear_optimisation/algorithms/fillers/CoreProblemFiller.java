@@ -10,9 +10,11 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.*;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -20,8 +22,10 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -31,8 +35,9 @@ import static java.lang.String.format;
  */
 public class CoreProblemFiller implements ProblemFiller {
     private final Network network;
+    private final State mainOptimizationState;
     private final Set<FlowCnec> flowCnecs;
-    private final Set<RangeAction<?>> rangeActions;
+    private final Map<State, Set<RangeAction<?>>> availableRangeActionsPerState;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final double pstSensitivityThreshold;
     private final double hvdcSensitivityThreshold;
@@ -40,46 +45,64 @@ public class CoreProblemFiller implements ProblemFiller {
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
     public CoreProblemFiller(Network network,
+                             State mainOptimizationState,
                              Set<FlowCnec> flowCnecs,
-                             Set<RangeAction<?>> rangeActions,
+                             Map<State, Set<RangeAction<?>>> availableRangeActionsPerState,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              double pstSensitivityThreshold,
                              double hvdcSensitivityThreshold,
                              double injectionSensitivityThreshold) {
+
         this.network = network;
+        this.mainOptimizationState = mainOptimizationState;
+
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(flowCnecs);
-        this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.rangeActions.addAll(rangeActions);
+
+        this.availableRangeActionsPerState = new HashMap<>();
+        availableRangeActionsPerState.forEach((state, rangeActions) -> {
+            Set<RangeAction<?>> rangeActionSet = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+            rangeActionSet.addAll(availableRangeActionsPerState.get(state));
+            this.availableRangeActionsPerState.put(state, rangeActionSet);
+        });
+
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.pstSensitivityThreshold = pstSensitivityThreshold;
         this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
         this.injectionSensitivityThreshold = injectionSensitivityThreshold;
     }
 
-    private Set<RangeAction<?>> getRangeActions() {
-        return rangeActions;
-    }
-
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // add variables
         buildFlowVariables(linearProblem);
-        getRangeActions().forEach(rangeAction -> {
-            double prePerimeterSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
-            buildRangeActionSetPointVariables(linearProblem, rangeAction, prePerimeterSetpoint);
-            buildRangeActionAbsoluteVariationVariables(linearProblem, rangeAction);
-        });
+
+        availableRangeActionsPerState.forEach((state, rangeActions) ->
+            rangeActions.forEach(rangeAction -> {
+                double prePerimeterSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+                buildRangeActionSetPointVariables(linearProblem, rangeAction, state);
+                buildRangeActionAbsoluteVariationVariables(linearProblem, rangeAction, state);
+            })
+        );
 
         // add constraints
         buildFlowConstraints(linearProblem, flowResult, sensitivityResult);
         buildRangeActionConstraints(linearProblem);
+
+        // complete objective
+        fillObjectiveWithRangeActionPenaltyCost(linearProblem);
+
     }
 
     @Override
-    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // update reference flow and sensitivities of flow constraints
         updateFlowConstraints(linearProblem, flowResult, sensitivityResult);
+    }
+
+    @Override
+    public void updateBetweenMipIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        // nothing to do
     }
 
     /**
@@ -106,10 +129,8 @@ public class CoreProblemFiller implements ProblemFiller {
      * initialSetPoint[r] - maxNegativeVariation[r] <= S[r]
      * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
      */
-    private void buildRangeActionSetPointVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, double prePerimeterValue) {
-        double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterValue);
-        double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterValue);
-        linearProblem.addRangeActionSetpointVariable(minSetPoint - RANGE_ACTION_SETPOINT_EPSILON, maxSetPoint + RANGE_ACTION_SETPOINT_EPSILON, rangeAction);
+    private void buildRangeActionSetPointVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+        linearProblem.addRangeActionSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), rangeAction, state);
     }
 
     /**
@@ -121,8 +142,8 @@ public class CoreProblemFiller implements ProblemFiller {
      *     <li>in MEGAWATT for HVDC range actions</li>
      * </ul>
      */
-    private void buildRangeActionAbsoluteVariationVariables(LinearProblem linearProblem, RangeAction<?> rangeAction) {
-        linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction);
+    private void buildRangeActionAbsoluteVariationVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+        linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction, state);
     }
 
     /**
@@ -180,11 +201,32 @@ public class CoreProblemFiller implements ProblemFiller {
             throw new FaraoException(format("Flow variable and/or constraint on %s has not been defined yet.", cnec.getId()));
         }
 
-        getRangeActions().forEach(rangeAction -> addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, cnec, flowConstraint));
+        List<State> statesBeforeCnec = getPreviousStates(cnec.getState()).stream()
+            .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
+            .collect(Collectors.toList());
+
+        Map<State, Set<RangeAction<?>>> alreadyConsideredAction = new HashMap<>();
+
+        for (State state : statesBeforeCnec) {
+            for (RangeAction<?> rangeAction : availableRangeActionsPerState.get(state)) {
+                // todo: make that cleaner, it is ugly
+                if (!alreadyConsideredAction.containsKey(state) || !alreadyConsideredAction.get(state).contains(rangeAction)) {
+                    addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, flowConstraint);
+                    Pair<RangeAction<?>, State> raOnSameAction = getLastAvailableRangeActionOnSameAction(rangeAction, state);
+                    if (raOnSameAction != null) {
+                        if (alreadyConsideredAction.containsKey(raOnSameAction.getRight())) {
+                            alreadyConsideredAction.get(raOnSameAction.getRight()).add(raOnSameAction.getLeft());
+                        } else {
+                            alreadyConsideredAction.putIfAbsent(raOnSameAction.getRight(), Collections.singleton(raOnSameAction.getLeft()));
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, FlowCnec cnec, MPConstraint flowConstraint) {
-        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction);
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, MPConstraint flowConstraint) {
+        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, state);
         if (setPointVariable == null) {
             throw new FaraoException(format("Range action variable for %s has not been defined yet.", rangeAction.getId()));
         }
@@ -193,6 +235,9 @@ public class CoreProblemFiller implements ProblemFiller {
 
         if (isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
             double currentSetPoint = rangeAction.getCurrentSetpoint(network);
+
+            //todo: get that info not from network
+
             // care : might not be robust as getCurrentValue get the current setPoint from a network variant
             //        we need to be sure that this variant has been properly set
             flowConstraint.setLb(flowConstraint.lb() - sensitivity * currentSetPoint);
@@ -226,29 +271,133 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
-        getRangeActions().forEach(rangeAction -> {
-            double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
-            MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
-                    -prePerimeterSetPoint,
-                    LinearProblem.infinity(),
-                    rangeAction,
-                    LinearProblem.AbsExtension.NEGATIVE
-            );
-            MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
-                    prePerimeterSetPoint,
-                    LinearProblem.infinity(),
-                    rangeAction,
-                    LinearProblem.AbsExtension.POSITIVE
-            );
+        availableRangeActionsPerState.entrySet().stream()
+            .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
+            .forEach(entry ->
+                entry.getValue().forEach(rangeAction -> {
 
-            MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction);
+                    MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction, entry.getKey());
+                    MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, entry.getKey());
+                    MPConstraint varConstraintNegative = linearProblem.addAbsoluteRangeActionVariationConstraint(
+                        -LinearProblem.infinity(),
+                        LinearProblem.infinity(),
+                        rangeAction,
+                        LinearProblem.AbsExtension.NEGATIVE
+                    );
+                    MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
+                        -LinearProblem.infinity(),
+                        LinearProblem.infinity(),
+                        rangeAction,
+                        LinearProblem.AbsExtension.POSITIVE);
+
+
+                    Pair<RangeAction<?>, State> lastAvailableRangeAction = getLastAvailableRangeActionOnSameAction(rangeAction, entry.getKey());
+
+                    if (lastAvailableRangeAction == null) {
+                        // if state is equal to masterState,
+                        // or if rangeAction is not available for a previous state
+                        // then, rangeAction could not have been activated in a previous instant
+
+                        double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+                        double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoint);
+                        double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoint);
+
+                        setPointVariable.setLb(minSetPoint - RANGE_ACTION_SETPOINT_EPSILON);
+                        setPointVariable.setUb(maxSetPoint + RANGE_ACTION_SETPOINT_EPSILON);
+
+                        varConstraintNegative.setLb(-prePerimeterSetPoint);
+                        varConstraintNegative.setCoefficient(absoluteVariationVariable, 1);
+                        varConstraintNegative.setCoefficient(setPointVariable, -1);
+
+                        varConstraintPositive.setLb(prePerimeterSetPoint);
+                        varConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
+                        varConstraintPositive.setCoefficient(setPointVariable, 1);
+                    } else {
+
+                        // range action have been activated in a previous instant
+                        // getRangeActionSetpointVariable from previous instant
+                        MPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
+
+                        // if relative to previous instant range
+                        // todo: handle relative range
+
+                        // if absolute range
+                        // todo: only take into account absolute range here
+                        double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
+                        double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoint);
+                        double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoint);
+
+                        setPointVariable.setLb(minSetPoint - RANGE_ACTION_SETPOINT_EPSILON);
+                        setPointVariable.setUb(maxSetPoint + RANGE_ACTION_SETPOINT_EPSILON);
+
+                        // define absolute range action variation
+                        varConstraintNegative.setLb(0);
+                        varConstraintNegative.setCoefficient(absoluteVariationVariable, 1);
+                        varConstraintNegative.setCoefficient(setPointVariable, -1);
+                        varConstraintNegative.setCoefficient(previousSetpointVariable, 1);
+
+                        varConstraintPositive.setLb(0);
+                        varConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
+                        varConstraintPositive.setCoefficient(setPointVariable, 1);
+                        varConstraintPositive.setCoefficient(previousSetpointVariable, -1);
+                    }
+                }
+            )
+        );
+    }
+
+    private Set<State> getPreviousStates(State refState) {
+        return availableRangeActionsPerState.keySet().stream()
+            .filter(s -> s.getContingency().equals(refState.getContingency()) || s.getContingency().isEmpty())
+            .filter(s -> s.getInstant().comesBefore(refState.getInstant()))
+            .collect(Collectors.toSet());
+    }
+
+    private Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameAction(RangeAction<?> rangeAction, State state) {
+
+        if (state.isPreventive() || state.equals(mainOptimizationState)) {
+            // no previous instant
+            return null;
+        } else if (state.getInstant().equals(Instant.CURATIVE)) {
+
+            // look if a preventive range action acts on the same network elements
+            State preventiveState = availableRangeActionsPerState.keySet().stream().filter(State::isPreventive).findAny().orElse(null);
+
+            if (preventiveState != null) {
+                Optional<RangeAction<?>> correspondingRa = availableRangeActionsPerState.get(preventiveState).stream()
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || (ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
+                    .findAny();
+
+                if (correspondingRa.isPresent()) {
+                    return Pair.of(correspondingRa.get(), preventiveState);
+                }
+            }
+            return null;
+        } else {
+            throw new FaraoException("Linear optimization does no handle RA which are neither PREVENTIVE nor CURATIVE.");
+        }
+    }
+
+    /**
+     * Add in the objective function a penalty cost associated to the RangeAction
+     * activations. This penalty cost prioritizes the solutions which change as less
+     * as possible the set points of the RangeActions.
+     * <p>
+     * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
+     */
+    private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
+        rangeActions.forEach(rangeAction -> {
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
-            varConstraintNegative.setCoefficient(absoluteVariationVariable, 1);
-            varConstraintNegative.setCoefficient(setPointVariable, -1);
-
-            varConstraintPositive.setCoefficient(absoluteVariationVariable, 1);
-            varConstraintPositive.setCoefficient(setPointVariable, 1);
+            // If the range action has been filtered out, then absoluteVariationVariable is null
+            if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
+            } else if (absoluteVariationVariable != null && rangeAction instanceof HvdcRangeAction) {
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
+            } else if (absoluteVariationVariable != null && rangeAction instanceof InjectionRangeAction) {
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost);
+            }
         });
     }
+
 }

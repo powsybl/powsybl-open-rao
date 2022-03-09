@@ -9,7 +9,7 @@ package com.farao_community.farao.search_tree_rao.commons.objective_function_eva
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_api.parameters.MnecParameters;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import org.junit.Before;
 import org.junit.Test;
