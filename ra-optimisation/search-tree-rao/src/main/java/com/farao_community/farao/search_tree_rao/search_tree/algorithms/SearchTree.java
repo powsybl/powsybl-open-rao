@@ -234,14 +234,14 @@ public class SearchTree {
                             .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
                         optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
                         networkPool.releaseUsedNetwork(networkClone);
-                        TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
                         networkPool.releaseUsedNetwork(networkClone);
                     }
+                    TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                 } catch (Exception e) {
                     BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
-                    Thread.currentThread().interrupt();
+                    TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                 } finally {
                     latch.countDown();
                 }
