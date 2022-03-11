@@ -8,14 +8,17 @@ package com.farao_community.farao.sensitivity_analysis;
 
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.contingency.ContingencyContextType;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.factors.BranchFlowPerLinearGlsk;
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.SensitivityVariableType;
 
 import java.util.*;
 
@@ -23,9 +26,9 @@ import java.util.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
-    private final ZonalData<LinearGlsk> glsk;
+    private final ZonalData<SensitivityVariableSet> glsk;
 
-    PtdfSensitivityProvider(ZonalData<LinearGlsk> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
+    PtdfSensitivityProvider(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
 
         // todo : handle PTDFs in AMPERE
@@ -38,41 +41,54 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     }
 
     @Override
-    public List<SensitivityFactor> getCommonFactors(Network network) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<SensitivityFactor> getAdditionalFactors(Network network) {
+    public List<SensitivityFactor> getBasecaseFactors(Network network) {
         List<SensitivityFactor> factors = new ArrayList<>();
 
         if (afterContingencyOnly) {
             return factors;
         }
 
-        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
+        Map<String, SensitivityVariableSet> mapCountryLinearGlsk = glsk.getDataPerZone();
+
+        //According to ContingencyContext doc, contingencyId should be null for preContingency context
+        ContingencyContext preContingencyContext = new ContingencyContext(null, ContingencyContextType.NONE);
+
         cnecs.stream()
             .filter(cnec -> cnec.getState().getContingency().isEmpty())
             .map(Cnec::getNetworkElement)
             .distinct()
             .forEach(ne -> mapCountryLinearGlsk.values().stream()
-                .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(ne.getId(), ne.getName(), ne.getId()), linearGlsk))
+                .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, ne.getId(),
+                    SensitivityVariableType.INJECTION_ACTIVE_POWER, linearGlsk.getId(),
+                    true, preContingencyContext))
                 .forEach(factors::add));
         return factors;
     }
 
     @Override
-    public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
+    public List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies) {
         List<SensitivityFactor> factors = new ArrayList<>();
-        Map<String, LinearGlsk> mapCountryLinearGlsk = glsk.getDataPerZone();
+        for (Contingency contingency : contingencies) {
+            String contingencyId = contingency.getId();
+            Map<String, SensitivityVariableSet> mapCountryLinearGlsk = glsk.getDataPerZone();
 
-        cnecs.stream()
-            .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingencyId))
-            .map(Cnec::getNetworkElement)
-            .distinct()
-            .forEach(ne -> mapCountryLinearGlsk.values().stream()
-                .map(linearGlsk -> new BranchFlowPerLinearGlsk(new BranchFlow(ne.getId(), ne.getName(), ne.getId()), linearGlsk))
-                .forEach(factors::add));
+            ContingencyContext preContingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
+
+            cnecs.stream()
+                .filter(cnec -> cnec.getState().getContingency().isPresent() && cnec.getState().getContingency().get().getId().equals(contingency.getId()))
+                .map(Cnec::getNetworkElement)
+                .distinct()
+                .forEach(ne -> mapCountryLinearGlsk.values().stream()
+                    .map(linearGlsk -> new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, ne.getId(),
+                        SensitivityVariableType.INJECTION_ACTIVE_POWER, linearGlsk.getId(),
+                        true, preContingencyContext))
+                    .forEach(factors::add));
+        }
         return factors;
+    }
+
+    @Override
+    public List<SensitivityVariableSet> getVariableSets() {
+        return new ArrayList<>(glsk.getDataPerZone().values());
     }
 }

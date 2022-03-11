@@ -8,12 +8,12 @@
 package com.farao_community.farao.loopflow_computation;
 
 import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgram;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -25,18 +25,18 @@ public class LoopFlowComputationWithXnodeGlskHandler extends LoopFlowComputation
 
     private final XnodeGlskHandler xnodeGlskHandler;
 
-    public LoopFlowComputationWithXnodeGlskHandler(ZonalData<LinearGlsk> glsk, ReferenceProgram referenceProgram, Set<Contingency> contingencies, Network network) {
+    public LoopFlowComputationWithXnodeGlskHandler(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram, Set<Contingency> contingencies, Network network) {
         super(glsk, referenceProgram, network);
         xnodeGlskHandler = new XnodeGlskHandler(glsk, contingencies, network);
     }
 
-    LoopFlowComputationWithXnodeGlskHandler(ZonalData<LinearGlsk> glsk, ReferenceProgram referenceProgram, XnodeGlskHandler xnodeGlskHandler) {
+    LoopFlowComputationWithXnodeGlskHandler(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram, XnodeGlskHandler xnodeGlskHandler) {
         super(glsk, referenceProgram, xnodeGlskHandler.getNetwork());
         this.xnodeGlskHandler = xnodeGlskHandler;
     }
 
     @Override
-    protected Stream<Map.Entry<EICode, LinearGlsk>> getGlskStream(FlowCnec flowCnec) {
+    protected Stream<Map.Entry<EICode, SensitivityVariableSet>> getGlskStream(FlowCnec flowCnec) {
         return super.getGlskStream(flowCnec)
                 .filter(entry -> xnodeGlskHandler.isLinearGlskValidForCnec(flowCnec, entry.getValue()));
     }

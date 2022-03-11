@@ -16,7 +16,7 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -40,7 +40,7 @@ public class PrePerimeterSensitivityResultImplTest {
         PstRangeAction ra1 = Mockito.mock(PstRangeAction.class);
         RangeAction ra2 = Mockito.mock(RangeAction.class);
 
-        LinearGlsk linearGlsk = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         FlowResult flowResult = Mockito.mock(FlowResult.class);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         RangeActionResult rangeActionResult = Mockito.mock(RangeActionResult.class);

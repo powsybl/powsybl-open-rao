@@ -14,10 +14,8 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityVariable;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,34 +34,6 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
     }
 
     @Override
-    public List<SensitivityVariable> rangeActionToSensitivityVariable() {
-        List<SensitivityVariable> sensitivityVariables = new ArrayList<>();
-
-        /*
-         separate injection distribution keys of the RangeAction into two GlskMap:
-         - one with the positive injection variations
-         - one with the negative injection variations
-
-         Rescale the GlskMaps so that their sum is equal to 1
-         */
-
-        Map<String, Float> positiveGlskMap = getPositiveGlskMap();
-        Map<String, Float> negativeGlskMap = getNegativeGlskMap();
-
-        if (!positiveGlskMap.isEmpty()) {
-            rescaleGlskMap(positiveGlskMap);
-            sensitivityVariables.add(new LinearGlsk(getPositiveGlskMapId(), getPositiveGlskMapId(), positiveGlskMap));
-        }
-
-        if (!negativeGlskMap.isEmpty()) {
-            rescaleGlskMap(negativeGlskMap);
-            sensitivityVariables.add(new LinearGlsk(getNegativeGlskMapId(), getNegativeGlskMapId(), negativeGlskMap));
-        }
-
-        return sensitivityVariables;
-    }
-
-    @Override
     public double getSensitivityOnFlow(FlowCnec cnec, SystematicSensitivityResult sensitivityResult) {
         return sensitivityResult.getSensitivityOnFlow(getPositiveGlskMapId(), cnec) * getKeySum(getPositiveGlskMap())
                 - sensitivityResult.getSensitivityOnFlow(getNegativeGlskMapId(), cnec) * getKeySum(getNegativeGlskMap());
@@ -79,23 +49,24 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
         });
     }
 
-    private Map<String, Float> getPositiveGlskMap() {
+    public Map<String, Float> getPositiveGlskMap() {
         return injectionRangeAction.getInjectionDistributionKeys().entrySet()
                 .stream().filter(e -> e.getValue() > 0)
                 .collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue().floatValue()));
     }
 
-    private Map<String, Float> getNegativeGlskMap() {
+    public Map<String, Float> getNegativeGlskMap() {
         return injectionRangeAction.getInjectionDistributionKeys().entrySet()
                 .stream().filter(e -> e.getValue() < 0)
                 .collect(Collectors.toMap(e -> e.getKey().getId(), e -> -e.getValue().floatValue()));
     }
 
-    private void rescaleGlskMap(Map<String, Float> glskMap) {
+    public List<WeightedSensitivityVariable> rescaleGlskMap(Map<String, Float> glskMap) {
         float keySum = (float) getKeySum(glskMap);
         if (keySum != 0) {
             glskMap.entrySet().forEach(e -> e.setValue(e.getValue() / keySum));
         }
+        return glskMap.entrySet().stream().map(e -> new WeightedSensitivityVariable(e.getKey(), e.getValue())).collect(Collectors.toList());
     }
 
     private double getKeySum(Map<String, Float> glskMap) {
@@ -104,11 +75,11 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
                 .sum();
     }
 
-    private String getPositiveGlskMapId() {
+    public String getPositiveGlskMapId() {
         return injectionRangeAction.getId() + POSITIVE_GLSK_SUFFIX;
     }
 
-    private String getNegativeGlskMapId() {
+    public String getNegativeGlskMapId() {
         return injectionRangeAction.getId() + NEGATIVE_GLSK_SUFFIX;
     }
 }

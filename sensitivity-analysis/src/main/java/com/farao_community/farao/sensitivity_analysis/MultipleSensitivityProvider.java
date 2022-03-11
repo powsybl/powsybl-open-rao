@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
 
@@ -49,6 +50,41 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
     }
 
     @Override
+    public List<SensitivityFactor> getBasecaseFactors(Network network) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            factors.addAll(cnecSensitivityProvider.getBasecaseFactors(network));
+        }
+        return new ArrayList<>(factors);
+    }
+
+    @Override
+    public List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            factors.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingencies));
+        }
+        return new ArrayList<>(factors);
+    }
+
+    @Override
+    public List<SensitivityFactor> getAllFactors(Network network) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        factors.addAll(getBasecaseFactors(network));
+        factors.addAll(getContingencyFactors(network, getContingencies(network)));
+        return new ArrayList<>(factors);
+    }
+
+    @Override
+    public List<SensitivityVariableSet> getVariableSets() {
+        List<SensitivityVariableSet> glsks = new ArrayList<>();
+        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
+            glsks.addAll(cnecSensitivityProvider.getVariableSets());
+        }
+        return new ArrayList<>(glsks);
+    }
+
+    @Override
     public List<Contingency> getContingencies(Network network) {
         //using a set to avoid duplicates
         Set<Contingency> contingencies = new HashSet<>();
@@ -57,35 +93,5 @@ public class MultipleSensitivityProvider implements CnecSensitivityProvider {
         }
         return new ArrayList<>(contingencies);
 
-    }
-
-    @Override
-    public List<SensitivityFactor> getCommonFactors(Network network) {
-        //using a set to avoid duplicates
-        Set<SensitivityFactor> factors = new HashSet<>();
-        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
-            factors.addAll(cnecSensitivityProvider.getCommonFactors(network));
-        }
-        return new ArrayList<>(factors);
-    }
-
-    @Override
-    public List<SensitivityFactor> getAdditionalFactors(Network network) {
-        //using a set to avoid duplicates
-        Set<SensitivityFactor> factors = new HashSet<>();
-        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
-            factors.addAll(cnecSensitivityProvider.getAdditionalFactors(network));
-        }
-        return new ArrayList<>(factors);
-    }
-
-    @Override
-    public List<SensitivityFactor> getAdditionalFactors(Network network, String contingencyId) {
-        //using a set to avoid duplicates
-        Set<SensitivityFactor> factors = new HashSet<>();
-        for (CnecSensitivityProvider cnecSensitivityProvider : cnecSensitivityProviders) {
-            factors.addAll(cnecSensitivityProvider.getAdditionalFactors(network, contingencyId));
-        }
-        return new ArrayList<>(factors);
     }
 }

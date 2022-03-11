@@ -8,7 +8,7 @@
 package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.EICode;
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
@@ -19,7 +19,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -106,12 +106,12 @@ public class ToolProviderTest {
 
     @Test
     public void testGetGlskForEic() {
-        ZonalData<LinearGlsk> glskProvider = Mockito.mock(ZonalData.class);
+        ZonalData<SensitivityVariableSet> glskProvider = Mockito.mock(ZonalData.class);
 
-        LinearGlsk linearGlsk1 = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk1 = Mockito.mock(SensitivityVariableSet.class);
         Mockito.when(glskProvider.getData("10YFR-RTE------C")).thenReturn(linearGlsk1);
 
-        LinearGlsk linearGlsk2 = Mockito.mock(LinearGlsk.class);
+        SensitivityVariableSet linearGlsk2 = Mockito.mock(SensitivityVariableSet.class);
         Mockito.when(glskProvider.getData("10YES-REE------0")).thenReturn(linearGlsk2);
 
         ToolProvider toolProvider = ToolProvider.create()
@@ -120,7 +120,7 @@ public class ToolProviderTest {
                 .withLoopFlowComputation(Mockito.mock(ReferenceProgram.class), glskProvider, Mockito.mock(LoopFlowComputation.class))
                 .build();
 
-        ZonalData<LinearGlsk> result = toolProvider.getGlskForEic(Set.of("10YFR-RTE------C", "10YES-REE------0", "absent"));
+        ZonalData<SensitivityVariableSet> result = toolProvider.getGlskForEic(Set.of("10YFR-RTE------C", "10YES-REE------0", "absent"));
         assertEquals(linearGlsk1, result.getData("10YFR-RTE------C"));
         assertEquals(linearGlsk2, result.getData("10YES-REE------0"));
         assertNull(result.getData("absent"));

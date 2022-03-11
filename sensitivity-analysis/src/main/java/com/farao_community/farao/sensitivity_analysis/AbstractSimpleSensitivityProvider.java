@@ -11,7 +11,9 @@ import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityFactor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,6 +54,14 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
             throw new SensitivityAnalysisException("The Sensitivity Provider should contain at least Megawatt or Ampere unit");
         }
 
+    }
+
+    @Override
+    public List<SensitivityFactor> getAllFactors(Network network) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        factors.addAll(getBasecaseFactors(network));
+        factors.addAll(getContingencyFactors(network, getContingencies(network)));
+        return new ArrayList<>(factors);
     }
 
     public Set<FlowCnec> getFlowCnecs() {
