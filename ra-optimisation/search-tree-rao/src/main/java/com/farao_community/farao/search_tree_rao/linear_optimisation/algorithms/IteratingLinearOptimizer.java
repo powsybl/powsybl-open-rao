@@ -57,7 +57,7 @@ public class IteratingLinearOptimizer {
                 BUSINESS_LOGS.error("Linear optimization failed at iteration {}", iteration);
                 if (iteration == 1) {
                     bestResult.setStatus(linearProblem.getStatus());
-                    BUSINESS_LOGS.info("Linear problem is infeasible, initial situation is kept.");
+                    BUSINESS_LOGS.info("Linear problem failed with the following status : %s, initial situation is kept.", linearProblem.getStatus());
                     return bestResult;
                 }
                 bestResult.setStatus(LinearProblemStatus.FEASIBLE);
