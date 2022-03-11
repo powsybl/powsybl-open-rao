@@ -8,19 +8,19 @@ package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.EICode;
 import com.farao_community.farao.commons.Unit;
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.data.glsk.ucte.UcteGlskDocument;
+import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.farao_community.farao.rao_api.ZoneToZonePtdfDefinition;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -48,11 +48,11 @@ public class AbsolutePtdfSumsComputationTest {
     public void setUp() {
 
         systematicSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
-        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(LinearGlsk.class), Mockito.any(FlowCnec.class)))
+        Mockito.when(systematicSensitivityResult.getSensitivityOnFlow(Mockito.any(SensitivityVariableSet.class), Mockito.any(FlowCnec.class)))
             .thenAnswer(
                 new Answer<Double>() {
                     @Override public Double answer(InvocationOnMock invocation) {
-                        LinearGlsk linearGlsk = (LinearGlsk) invocation.getArguments()[0];
+                        SensitivityVariableSet linearGlsk = (SensitivityVariableSet) invocation.getArguments()[0];
                         FlowCnec branchCnec = (FlowCnec) invocation.getArguments()[1];
                         if (branchCnec.getId().contains("cnec1")) {
                             switch (linearGlsk.getId().substring(0, EICode.EIC_LENGTH)) {
@@ -96,7 +96,7 @@ public class AbsolutePtdfSumsComputationTest {
 
         // prepare data
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
+        ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
         Crac crac = CommonCracCreation.create();
         List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
@@ -119,7 +119,7 @@ public class AbsolutePtdfSumsComputationTest {
 
         // prepare data
         Network network = NetworkImportsUtil.import12NodesNetwork();
-        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
+        ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_proportional_12nodes_with_alegro.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
         Crac crac = CommonCracCreation.create();
         List<ZoneToZonePtdfDefinition> boundaries = Arrays.asList(
@@ -144,7 +144,7 @@ public class AbsolutePtdfSumsComputationTest {
 
         // prepare data
         Network network = Importers.loadNetwork("network/network_with_alegro_hub.xiidm", getClass().getResourceAsStream("/network/network_with_alegro_hub.xiidm"));
-        ZonalData<LinearGlsk> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_with_virtual_hubs.xml"))
+        ZonalData<SensitivityVariableSet> glskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/glsk/glsk_with_virtual_hubs.xml"))
                 .getZonalGlsks(network, Instant.parse("2016-07-28T22:30:00Z"));
 
         Crac crac = CracFactory.findDefault().create("cracId");

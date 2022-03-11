@@ -12,15 +12,9 @@ import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.sensitivity_analysis.ra_sensi_handler.RangeActionSensiHandler;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
-import com.powsybl.sensitivity.SensitivityValue;
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.functions.BranchIntensity;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -67,17 +61,21 @@ public class SystematicSensitivityResult {
 
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, boolean afterCra) {
 
-        if (results == null || !results.isOk()) {
+        if (results == null) {
             this.status = SensitivityComputationStatus.FAILURE;
             return this;
         }
+        // status set to failure initially, and set to success if we find at least one non NaN value
+        this.status =  SensitivityComputationStatus.FAILURE;
 
         Map<String, StateResult> contingencyResultsToFill = afterCra ? postCraResults : postContingencyResults;
-        results.getSensitivityValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult));
-        results.getSensitivityValuesContingencies().forEach((contingencyId, sensitivityValues) -> {
+        results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, nStateResult, results.getFactors()));
+        results.getContingencies().forEach(contingency -> {
             StateResult contingencyStateResult = new StateResult();
-            sensitivityValues.forEach(sensitivityValue -> fillIndividualValue(sensitivityValue, contingencyStateResult));
-            contingencyResultsToFill.put(contingencyId, contingencyStateResult);
+            results.getValues(contingency.getId()).forEach(sensitivityValue ->
+                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors())
+            );
+            contingencyResultsToFill.put(contingency.getId(), contingencyStateResult);
         });
 
         return this;
@@ -103,22 +101,25 @@ public class SystematicSensitivityResult {
         });
     }
 
-    private void fillIndividualValue(SensitivityValue value, StateResult stateResult) {
+    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors) {
         double reference = value.getFunctionReference();
         double sensitivity = value.getValue();
+        SensitivityFactor factor = factors.get(value.getFactorIndex());
 
         if (Double.isNaN(reference) || Double.isNaN(sensitivity)) {
             reference = 0.;
+        } else {
+            this.status = SensitivityComputationStatus.SUCCESS;
         }
 
-        if (value.getFactor().getFunction() instanceof BranchFlow) {
-            stateResult.getReferenceFlows().putIfAbsent(value.getFactor().getFunction().getId(), reference);
-            stateResult.getFlowSensitivities().computeIfAbsent(value.getFactor().getFunction().getId(), k -> new HashMap<>())
-                .putIfAbsent(value.getFactor().getVariable().getId(), sensitivity);
-        } else if (value.getFactor().getFunction() instanceof BranchIntensity) {
-            stateResult.getReferenceIntensities().putIfAbsent(value.getFactor().getFunction().getId(), reference);
-            stateResult.getIntensitySensitivities().computeIfAbsent(value.getFactor().getFunction().getId(), k -> new HashMap<>())
-                .putIfAbsent(value.getFactor().getVariable().getId(), sensitivity);
+        if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER)) {
+            stateResult.getReferenceFlows().putIfAbsent(factor.getFunctionId(), reference);
+            stateResult.getFlowSensitivities().computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .putIfAbsent(factor.getVariableId(), sensitivity);
+        } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT)) {
+            stateResult.getReferenceIntensities().putIfAbsent(factor.getFunctionId(), reference);
+            stateResult.getIntensitySensitivities().computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .putIfAbsent(factor.getVariableId(), sensitivity);
         }
     }
 
@@ -154,7 +155,7 @@ public class SystematicSensitivityResult {
         return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow((FlowCnec) cnec, this);
     }
 
-    public double getSensitivityOnFlow(LinearGlsk glsk, Cnec<?> cnec) {
+    public double getSensitivityOnFlow(SensitivityVariableSet glsk, Cnec<?> cnec) {
         return getSensitivityOnFlow(glsk.getId(), cnec);
     }
 
