@@ -18,7 +18,6 @@ import com.farao_community.farao.search_tree_rao.commons.adapter.BranchResultAda
 import com.farao_community.farao.search_tree_rao.commons.adapter.SensitivityResultAdapter;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.FailedLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
