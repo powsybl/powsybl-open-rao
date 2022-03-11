@@ -39,11 +39,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>farao-glsk-document-io-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>farao-rao-result-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -55,6 +50,11 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-glsk-document-io-api</artifactId>
+            <version>${powsybl.glsk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
