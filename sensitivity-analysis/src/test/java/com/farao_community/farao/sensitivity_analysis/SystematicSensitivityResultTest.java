@@ -132,10 +132,9 @@ public class SystematicSensitivityResultTest {
     }
 
     @Test
-    public void testNokSensiResult() {
+    public void testFailureSensiResult() {
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
-        //Mockito.when(sensitivityAnalysisResult.isOk()).thenReturn(false);
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, false).postTreatIntensities();
 
         // Then
