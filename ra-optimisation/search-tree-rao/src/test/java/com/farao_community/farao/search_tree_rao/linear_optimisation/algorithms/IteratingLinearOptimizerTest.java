@@ -145,8 +145,7 @@ public class IteratingLinearOptimizerTest {
 
         LinearOptimizationResult result = optimize();
 
-        assertEquals(LinearProblemStatus.ABNORMAL, result.getStatus());
-        assertTrue(result instanceof FailedLinearOptimizationResultImpl);
+        assertEquals(LinearProblemStatus.INFEASIBLE, result.getStatus());
     }
 
     @Test
