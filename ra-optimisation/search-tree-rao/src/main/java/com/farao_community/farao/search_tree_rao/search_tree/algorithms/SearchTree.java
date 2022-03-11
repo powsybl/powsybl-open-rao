@@ -239,6 +239,11 @@ public class SearchTree {
                         networkPool.releaseUsedNetwork(networkClone);
                     }
                     TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+                } catch (InterruptedException e) {
+                    BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
+                    TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
+                    Thread.currentThread().interrupt();
+
                 } catch (Exception e) {
                     BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
                     TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
