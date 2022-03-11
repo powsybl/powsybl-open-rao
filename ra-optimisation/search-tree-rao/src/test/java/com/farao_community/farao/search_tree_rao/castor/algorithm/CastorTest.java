@@ -282,7 +282,7 @@ public class CastorTest {
         StateTree stateTree = Mockito.mock(StateTree.class);
         Mockito.when(stateTree.getOperatorsNotSharingCras()).thenReturn(Set.of("DE", "NL"));
 
-        // absolute ampere, with mnec, no lf
+        // Absolute ampere, with mnec, no lf
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         raoParameters.setRaoWithLoopFlowLimitation(false);
         raoParameters.setRaoWithMnecLimitation(true);
