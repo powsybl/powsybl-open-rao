@@ -17,15 +17,10 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityVariable;
-import com.powsybl.sensitivity.factors.variables.HvdcSetpointIncrease;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -45,24 +40,6 @@ public class HvdcRangeActionSensiHandlerTest {
         HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
 
         sensiHandler.checkConsistency(network); // should not throw
-    }
-
-    @Test
-    public void rangeActionToSensitivityVariableTest() {
-        Crac crac = CracFactory.findDefault().create("test-crac");
-        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction().withId("hvdcRangeId")
-                .withNetworkElement("BBE2AA11 FFR3AA11 1")
-                .newRange().withMin(-1000).withMax(1000).add()
-                .newFreeToUseUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
-                .add();
-
-        HvdcRangeActionSensiHandler sensiHandler = new HvdcRangeActionSensiHandler(hvdcRangeAction);
-
-        List<SensitivityVariable> sensiVariables = sensiHandler.rangeActionToSensitivityVariable();
-        assertEquals(1, sensiVariables.size());
-        assertTrue(sensiVariables.get(0) instanceof HvdcSetpointIncrease);
-        assertEquals("BBE2AA11 FFR3AA11 1", sensiVariables.get(0).getId());
-        assertEquals("BBE2AA11 FFR3AA11 1", ((HvdcSetpointIncrease) sensiVariables.get(0)).getHvdcId());
     }
 
     @Test
