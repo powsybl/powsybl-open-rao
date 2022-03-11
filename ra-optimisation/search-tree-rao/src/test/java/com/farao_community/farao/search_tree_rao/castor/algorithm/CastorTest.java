@@ -290,7 +290,7 @@ public class CastorTest {
         raoParameters.setPstSensitivityThreshold(0.45);
         raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(true);
 
-        LinearOptimizerParameters linearOptimizerParameters = Castor.createCurativeLinearOptimizerParameters(raoParameters, stateTree, Set.of(cnec1, cnec2, cnec3, cnec4));
+        LinearOptimizerParameters linearOptimizerParameters = Castor.createCurativeLinearOptimizerParameters(raoParameters, stateTree);
         assertNotNull(linearOptimizerParameters);
         assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE, linearOptimizerParameters.getObjectiveFunction());
         assertEquals(Unit.AMPERE, linearOptimizerParameters.getUnit());
@@ -316,7 +316,7 @@ public class CastorTest {
         raoParameters.setPstSensitivityThreshold(0.67);
         raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(false);
 
-        linearOptimizerParameters = Castor.createCurativeLinearOptimizerParameters(raoParameters, stateTree, Set.of(cnec1, cnec3, cnec4));
+        linearOptimizerParameters = Castor.createCurativeLinearOptimizerParameters(raoParameters, stateTree);
         assertNotNull(linearOptimizerParameters);
         assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, linearOptimizerParameters.getObjectiveFunction());
         assertEquals(Unit.MEGAWATT, linearOptimizerParameters.getUnit());
