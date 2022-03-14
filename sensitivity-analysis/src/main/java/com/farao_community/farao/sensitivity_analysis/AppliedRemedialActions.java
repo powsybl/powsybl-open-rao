@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -62,14 +63,18 @@ public class AppliedRemedialActions {
         return appliedRa.isEmpty();
     }
 
-    public Set<State> getStatesWithRa() {
-        //todo: check if an
-        return appliedRa.keySet();
+    public Set<State> getStatesWithRa(Network network) {
+        // state with at least one network action applied
+        // or state with at least one range action whose setpoint is different than the one in the network
+        return appliedRa.entrySet().stream()
+            .filter(stateE -> !stateE.getValue().networkActions.isEmpty() || stateE.getValue().rangeActions.entrySet().stream()
+                .anyMatch(raE -> Math.abs(raE.getKey().getCurrentSetpoint(network) - raE.getValue()) > 1e-6))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
     }
 
     public void applyOnNetwork(State state, Network network) {
         if (appliedRa.containsKey(state)) {
-            //todo: check if range action must be applied
             appliedRa.get(state).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
             appliedRa.get(state).networkActions.forEach(networkAction -> networkAction.apply(network));
         }
