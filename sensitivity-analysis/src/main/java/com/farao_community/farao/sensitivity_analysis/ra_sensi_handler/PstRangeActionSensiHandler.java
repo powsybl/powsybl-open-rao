@@ -11,11 +11,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.*;
-import com.powsybl.sensitivity.SensitivityVariable;
-import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -26,12 +21,6 @@ public class PstRangeActionSensiHandler implements RangeActionSensiHandler {
 
     public PstRangeActionSensiHandler(PstRangeAction pstRangeAction) {
         this.pstRangeAction = pstRangeAction;
-    }
-
-    @Override
-    public List<SensitivityVariable> rangeActionToSensitivityVariable() {
-        String elementId = pstRangeAction.getNetworkElement().getId();
-        return Collections.singletonList(new PhaseTapChangerAngle(elementId, elementId, elementId));
     }
 
     @Override

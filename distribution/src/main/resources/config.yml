@@ -15,7 +15,7 @@ load-flow-default-parameters:
     phaseShifterRegulationOn": false
     noGeneratorReactiveLimits": false
     twtSplitShuntAdmittance": true
-    simulShunt: false
+    shuntCompensatorVoltageControlOn: false
     readSlackBus: false
     writeSlackBus: false
     distributedSlack: true

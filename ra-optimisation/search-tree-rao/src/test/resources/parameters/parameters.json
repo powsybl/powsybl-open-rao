@@ -17,7 +17,7 @@
       "phaseShifterRegulationOn" : false,
       "noGeneratorReactiveLimits" : false,
       "twtSplitShuntAdmittance" : false,
-      "simulShunt" : false,
+      "shuntCompensatorVoltageControlOn" : false,
       "readSlackBus" : false,
       "writeSlackBus" : false,
       "dc" : false,
