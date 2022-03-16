@@ -11,8 +11,11 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.commons.SearchTreeComputer;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTreeBloomer;
@@ -22,8 +25,50 @@ import com.powsybl.iidm.network.Network;
 import java.util.Set;
 
 public class SearchTreeInput {
-    private Network network;
-    private Set<FlowCnec> flowCnecs;
+
+    private final Network network;
+    private final Set<FlowCnec> flowCnecs;
+    private final Set<FlowCnec> loopFlowCnecs;
+    private final OptimizationContext optimizationContext;
+    private final Set<NetworkAction> availableNetworkActions;
+
+    private final FlowResult initialFlowResult;
+    private final PrePerimeterResult prePerimeterResult;
+    private final ToolProvider toolProvider;
+
+    public Network getNetwork() {
+        return network;
+    }
+
+
+    public Set<FlowCnec> getFlowCnecs() {
+        return flowCnecs;
+    }
+
+    public Set<FlowCnec> getLoopFlowCnecs() {
+        return loopFlowCnecs;
+    }
+
+    public OptimizationContext getOptimizationContext() {
+        return optimizationContext;
+    }
+
+    private Set<NetworkAction> getAvailableNetworkActions() {
+        return availableNetworkActions;
+    }
+
+    public FlowResult getInitialFlowResult() {
+        return initialFlowResult;
+    }
+
+    public PrePerimeterResult getPrePerimeterResult() {
+        return prePerimeterResult;
+    }
+
+    public ToolProvider getToolProvider() {
+        return toolProvider;
+    }
+
     private Set<NetworkAction> networkActions;
     private Set<RangeAction<?>> rangeActions;
     private State optimizedStateForNetworkActions;
@@ -36,6 +81,7 @@ public class SearchTreeInput {
     private SearchTreeComputer searchTreeComputer;
 
     private PrePerimeterResult prePerimeterOutput;
+    private
 
     public State getOptimizedStateForNetworkActions() {
         return optimizedStateForNetworkActions;
@@ -73,16 +119,9 @@ public class SearchTreeInput {
         return networkActions;
     }
 
-    public Network getNetwork() {
-        return network;
-    }
 
     public Set<RangeAction<?>> getRangeActions() {
         return rangeActions;
-    }
-
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
     }
 
     public void setNetworkActions(Set<NetworkAction> networkActions) {

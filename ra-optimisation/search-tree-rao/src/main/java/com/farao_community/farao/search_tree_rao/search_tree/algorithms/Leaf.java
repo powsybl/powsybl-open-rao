@@ -16,11 +16,18 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
+import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.AbstractOptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
+import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
@@ -56,8 +63,6 @@ public class Leaf implements OptimizationResult {
         }
     }
 
-    private final State optimizedState;
-
     /**
      * Network Actions which will be tested (including the
      * network actions from the parent leaves as well as from
@@ -84,13 +89,11 @@ public class Leaf implements OptimizationResult {
     private boolean optimizationDataPresent = true;
 
     Leaf(Network network,
-         State optimizedState,
          Set<NetworkAction> alreadyAppliedNetworkActions,
          NetworkActionCombination naCombinationToApply,
          RangeActionActivationResult raActivationsFromParentLeaf,
          RangeActionSetpointResult prePerimeterSetpoints) {
         this.network = network;
-        this.optimizedState = optimizedState;
         this.raActivationsFromParentLeaf = raActivationsFromParentLeaf;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         networkActions = new HashSet<>(alreadyAppliedNetworkActions);
@@ -108,8 +111,8 @@ public class Leaf implements OptimizationResult {
         status = Status.CREATED;
     }
 
-    Leaf(Network network, State optimizedState, PrePerimeterResult prePerimeterOutput) {
-        this(network, optimizedState, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput);
+    Leaf(Network network, PrePerimeterResult prePerimeterOutput) {
+        this(network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput);
         status = Status.EVALUATED;
         preOptimFlowResult = prePerimeterOutput;
         preOptimSensitivityResult = prePerimeterOutput;
@@ -140,6 +143,7 @@ public class Leaf implements OptimizationResult {
 
         try {
             TECHNICAL_LOGS.debug("Evaluating {}", this);
+
             sensitivityComputer.compute(network);
             preOptimSensitivityResult = sensitivityComputer.getSensitivityResult();
             preOptimFlowResult = sensitivityComputer.getBranchResult();
@@ -162,8 +166,7 @@ public class Leaf implements OptimizationResult {
      * corresponding to a new variant created by the IteratingLinearOptimizer.
      */
     void optimize(IteratingLinearOptimizer iteratingLinearOptimizer,
-                  SensitivityComputer sensitivityComputer,
-                  LeafProblem leafProblem) {
+                  SearchTreeInput searchTreeInput) {
         if (!optimizationDataPresent) {
             throw new FaraoException("Cannot optimize leaf, because optimization data has been deleted");
         }
@@ -174,21 +177,26 @@ public class Leaf implements OptimizationResult {
         }
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
-            LinearProblem linearProblem = leafProblem.getLinearProblem(
-                network,
-                preOptimFlowResult,
-                preOptimSensitivityResult
-            );
-            postOptimResult = iteratingLinearOptimizer.optimize(
-                linearProblem,
-                network,
-                optimizedState,
-                preOptimFlowResult,
-                preOptimSensitivityResult,
-                raActivationsFromParentLeaf,
-                prePerimeterSetpoints,
-                sensitivityComputer
-            );
+
+            // build input
+            IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
+                .withNetwork(network)
+                .withFlowCnecs(searchTreeInput.getFlowCnecs())
+                .withLoopFlowCnecs(searchTreeInput.getLoopFlowCnecs())
+                .withOptimizationContext(searchTreeInput.getOptimizationContext())
+                .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
+                .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
+                .withPrePerimeterSetpoints(prePerimeterSetpoints)
+                .withPreOptimizationFlowResult(preOptimFlowResult)
+                .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
+                .withPreOptimizationAppliedRemedialActions() //to povide
+                .withRaActivationFromParentLeaf(raActivationsFromParentLeaf)
+                .withToolProvider(searchTreeInput.getToolProvider());
+
+            // build parameters
+            IteratingLinearOptimizerParameters linearOptimizerParameters = new IteratingLinearOptimizerParameters(); //todo
+
+            postOptimResult = iteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {
             BUSINESS_WARNS.warn("Impossible to optimize leaf: {}\n because evaluation failed", this);
@@ -365,12 +373,12 @@ public class Leaf implements OptimizationResult {
         // todo: check behaviour of this method once refacto finished
 
         if (status == Status.EVALUATED) {
-            return raActivationsFromParentLeaf.getOptimizedSetpoint(rangeAction, optimizedState);
+            return raActivationsFromParentLeaf.getOptimizedSetpoint(rangeAction, state);
         } else if (status == Status.OPTIMIZED) {
             try {
                 return postOptimResult.getOptimizedSetpoint(rangeAction, state);
             } catch (FaraoException e) {
-                return raActivationsFromParentLeaf.getOptimizedSetpoint(rangeAction, optimizedState);
+                return raActivationsFromParentLeaf.getOptimizedSetpoint(rangeAction, state);
             }
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
@@ -392,12 +400,12 @@ public class Leaf implements OptimizationResult {
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
         // todo: check behaviour of this method once refacto finished
         if (status == Status.EVALUATED) {
-            return raActivationsFromParentLeaf.getOptimizedTap(pstRangeAction, optimizedState);
+            return raActivationsFromParentLeaf.getOptimizedTap(pstRangeAction, state);
         } else if (status == Status.OPTIMIZED) {
             try {
                 return postOptimResult.getOptimizedTap(pstRangeAction, state);
             } catch (FaraoException e) {
-                return raActivationsFromParentLeaf.getOptimizedTap(pstRangeAction, optimizedState);
+                return raActivationsFromParentLeaf.getOptimizedTap(pstRangeAction, state);
             }
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);

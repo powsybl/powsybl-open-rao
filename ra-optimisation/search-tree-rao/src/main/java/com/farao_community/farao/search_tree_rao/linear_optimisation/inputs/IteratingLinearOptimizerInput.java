@@ -1,9 +1,9 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.inputs;
 
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.AbstractOptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -20,7 +20,7 @@ public class IteratingLinearOptimizerInput {
     private final Set<FlowCnec> flowCnecs;
     private final Set<FlowCnec> loopFlowCnecs;
 
-    private final AbstractOptimizationContext optimizationContext;
+    private final OptimizationContext optimizationContext;
 
     private final FlowResult initialFlowResult;
 
@@ -38,7 +38,7 @@ public class IteratingLinearOptimizerInput {
     public IteratingLinearOptimizerInput(Network network,
                                          Set<FlowCnec> flowCnecs,
                                          Set<FlowCnec> loopFlowCnecs,
-                                         AbstractOptimizationContext optimizationContext,
+                                         OptimizationContext optimizationContext,
                                          FlowResult initialFlowResult,
                                          FlowResult prePerimeterFlowResult,
                                          RangeActionSetpointResult prePerimeterSetpoints,
@@ -73,7 +73,7 @@ public class IteratingLinearOptimizerInput {
         return loopFlowCnecs;
     }
 
-    public AbstractOptimizationContext getOptimizationContext() {
+    public OptimizationContext getOptimizationContext() {
         return optimizationContext;
     }
 
@@ -142,7 +142,7 @@ public class IteratingLinearOptimizerInput {
             return this;
         }
 
-        public IteratingLinearOptimizerInputBuilder withOptimizationContext(AbstractOptimizationContext optimizationContext) {
+        public IteratingLinearOptimizerInputBuilder withOptimizationContext(OptimizationContext optimizationContext) {
             this.optimizationContext = optimizationContext;
             return this;
         }

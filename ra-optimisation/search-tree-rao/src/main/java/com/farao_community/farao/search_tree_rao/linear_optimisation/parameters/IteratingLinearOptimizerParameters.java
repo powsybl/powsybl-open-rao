@@ -18,23 +18,17 @@ public final class IteratingLinearOptimizerParameters {
 
     private RaoParameters.ObjectiveFunction objectiveFunction;
 
-    private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
-
+    private RangeActionParameters rangeActionParameters;
     private MnecParameters mnecParameters;
     private MaxMinMarginParameters maxMinMarginParameters;
     private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
     private LoopFlowParameters loopFlowParameters;
     private UnoptimizedCnecParameters unoptimizedCnecParameters;
-    private RaLimitationParameters raLimitationParameters;
-
-    private double pstSensitivityThreshold;
-    private double hvdcSensitivityThreshold;
-    private double injectionSensitivityThreshold;
+    private RangeActionLimitationParameters raLimitationParameters;
 
     private RaoParameters.Solver solver;
     private double relativeMipGap;
     private String solverSpecificParameters;
-
 
     private IteratingLinearOptimizerParameters() {
         // Can be instantiated only by builder
@@ -52,7 +46,7 @@ public final class IteratingLinearOptimizerParameters {
         private MnecParameters mnecParameters;
         private LoopFlowParameters loopFlowParameters;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
-        private RaLimitationParameters raLimitationParameters;
+        private RangeActionLimitationParameters raLimitationParameters;
         private Double pstSensitivityThreshold;
         private Double hvdcSensitivityThreshold;
         private Double injectionSensitivityThreshold;
@@ -105,7 +99,7 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withRaLimitationParameters(RaLimitationParameters raLimitationParameters) {
+        public LinearOptimizerParametersBuilder withRaLimitationParameters(RangeActionLimitationParameters raLimitationParameters) {
             this.raLimitationParameters = raLimitationParameters;
             return this;
         }
@@ -149,9 +143,6 @@ public final class IteratingLinearOptimizerParameters {
             linearOptimizerParameters.loopFlowParameters = loopFlowParameters;
             linearOptimizerParameters.unoptimizedCnecParameters = unoptimizedCnecParameters;
             linearOptimizerParameters.raLimitationParameters = raLimitationParameters;
-            linearOptimizerParameters.pstSensitivityThreshold = pstSensitivityThreshold;
-            linearOptimizerParameters.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
-            linearOptimizerParameters.injectionSensitivityThreshold = injectionSensitivityThreshold;
             linearOptimizerParameters.solver = solver;
             linearOptimizerParameters.relativeMipGap = relativeMipGap;
             linearOptimizerParameters.solverSpecificParameters = solverSpecificParameters;
@@ -161,18 +152,6 @@ public final class IteratingLinearOptimizerParameters {
 
     public RaoParameters.ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
-    }
-
-    public double getPstSensitivityThreshold() {
-        return pstSensitivityThreshold;
-    }
-
-    public double getHvdcSensitivityThreshold() {
-        return hvdcSensitivityThreshold;
-    }
-
-    public double getInjectionSensitivityThreshold() {
-        return injectionSensitivityThreshold;
     }
 
     public Unit getUnit() {
@@ -196,6 +175,10 @@ public final class IteratingLinearOptimizerParameters {
         return mnecParameters != null;
     }
 
+    public RangeActionParameters getRangeActionParameters() {
+        return rangeActionParameters;
+    }
+
     public MnecParameters getMnecParameters() {
         return mnecParameters;
     }
@@ -216,7 +199,7 @@ public final class IteratingLinearOptimizerParameters {
         return unoptimizedCnecParameters;
     }
 
-    public RaLimitationParameters getRaLimitationParameters() {
+    public RangeActionLimitationParameters getRaLimitationParameters() {
         return raLimitationParameters;
     }
 
@@ -232,7 +215,4 @@ public final class IteratingLinearOptimizerParameters {
         return solverSpecificParameters;
     }
 
-    public RaoParameters.PstOptimizationApproximation getPstOptimizationApproximation() {
-        return pstOptimizationApproximation;
-    }
 }

@@ -14,7 +14,9 @@ import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.*;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -34,56 +36,33 @@ import static java.lang.String.format;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CoreProblemFiller implements ProblemFiller {
-    private final Network network;
-    private final State mainOptimizationState;
-    private final Set<FlowCnec> flowCnecs;
-    private final Map<State, Set<RangeAction<?>>> availableRangeActionsPerState;
-    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
-    private final double pstSensitivityThreshold;
-    private final double hvdcSensitivityThreshold;
-    private final double injectionSensitivityThreshold;
+
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
+    private final Network network;
+    private final OptimizationContext optimizationContext;
+    private final Set<FlowCnec> flowCnecs;
+    private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
+    private final RangeActionParameters rangeActionParameters;
+
     public CoreProblemFiller(Network network,
-                             State mainOptimizationState,
+                             OptimizationContext optimizationContext,
                              Set<FlowCnec> flowCnecs,
-                             Map<State, Set<RangeAction<?>>> availableRangeActionsPerState,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
-                             double pstSensitivityThreshold,
-                             double hvdcSensitivityThreshold,
-                             double injectionSensitivityThreshold) {
-
+                             RangeActionParameters rangeActionParameters) {
         this.network = network;
-        this.mainOptimizationState = mainOptimizationState;
-
+        this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(flowCnecs);
-
-        this.availableRangeActionsPerState = new HashMap<>();
-        availableRangeActionsPerState.forEach((state, rangeActions) -> {
-            Set<RangeAction<?>> rangeActionSet = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-            rangeActionSet.addAll(availableRangeActionsPerState.get(state));
-            this.availableRangeActionsPerState.put(state, rangeActionSet);
-        });
-
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
-        this.pstSensitivityThreshold = pstSensitivityThreshold;
-        this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
-        this.injectionSensitivityThreshold = injectionSensitivityThreshold;
+        this.rangeActionParameters = rangeActionParameters;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // add variables
         buildFlowVariables(linearProblem);
-
-        availableRangeActionsPerState.forEach((state, rangeActions) ->
-            rangeActions.forEach(rangeAction -> {
-                double prePerimeterSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
-                buildRangeActionSetPointVariables(linearProblem, rangeAction, state);
-                buildRangeActionAbsoluteVariationVariables(linearProblem, rangeAction, state);
-            })
-        );
+        buildRangeActionVariables(linearProblem);
 
         // add constraints
         buildFlowConstraints(linearProblem, flowResult, sensitivityResult);
@@ -101,7 +80,7 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     @Override
-    public void updateBetweenMipIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
         // nothing to do
     }
 
@@ -117,33 +96,25 @@ public class CoreProblemFiller implements ProblemFiller {
 
     /**
      * Build one set point variable S[r] for each RangeAction r
-     * This variable describes the set point of the given RangeAction r, given :
+     * This variable describes the setpoint of the given RangeAction r, given :
      * <ul>
      *     <li>in DEGREE for PST range actions</li>
      *     <li>in MEGAWATT for HVDC range actions</li>
+     *     <li>in MEGAWATT for Injection range actions</li>
      * </ul>
      *
-     * This set point of the RangeAction is bounded between the min/max variations
-     * of the RangeAction :
-     *
-     * initialSetPoint[r] - maxNegativeVariation[r] <= S[r]
-     * S[r] >= initialSetPoint[r] + maxPositiveVariation[r]
-     */
-    private void buildRangeActionSetPointVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        linearProblem.addRangeActionSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), rangeAction, state);
-    }
-
-    /**
      * Build one absolute variable variable AV[r] for each RangeAction r
-     * This variable describes the absolute difference between the range action set point
-     * and its initial value. It is given :
-     * <ul>
-     *     <li>in DEGREE for PST range actions</li>
-     *     <li>in MEGAWATT for HVDC range actions</li>
-     * </ul>
+     * This variable describes the absolute difference between the range action setpoint
+     * and its initial value. It is given in the same unit as S[r].
+     *
      */
-    private void buildRangeActionAbsoluteVariationVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction, state);
+    private void buildRangeActionVariables(LinearProblem linearProblem) {
+        optimizationContext.getAvailableRangeActions().forEach((state, rangeActions) ->
+            rangeActions.forEach(rangeAction -> {
+                linearProblem.addRangeActionSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), rangeAction, state);
+                linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction, state);
+            })
+        );
     }
 
     /**
@@ -208,7 +179,7 @@ public class CoreProblemFiller implements ProblemFiller {
         Map<State, Set<RangeAction<?>>> alreadyConsideredAction = new HashMap<>();
 
         for (State state : statesBeforeCnec) {
-            for (RangeAction<?> rangeAction : availableRangeActionsPerState.get(state)) {
+            for (RangeAction<?> rangeAction : optimizationContext.getAvailableRangeActions().get(state)) {
                 // todo: make that cleaner, it is ugly
                 if (!alreadyConsideredAction.containsKey(state) || !alreadyConsideredAction.get(state).contains(rangeAction)) {
                     addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, flowConstraint);
@@ -252,11 +223,11 @@ public class CoreProblemFiller implements ProblemFiller {
 
     private boolean isRangeActionSensitivityAboveThreshold(RangeAction<?> rangeAction, double sensitivity) {
         if (rangeAction instanceof PstRangeAction) {
-            return sensitivity >= pstSensitivityThreshold;
+            return sensitivity >= rangeActionParameters.getPstSensitivityThreshold();
         } else if (rangeAction instanceof HvdcRangeAction) {
-            return sensitivity >= hvdcSensitivityThreshold;
+            return sensitivity >= rangeActionParameters.getHvdcSensitivityThreshold();
         } else if (rangeAction instanceof InjectionRangeAction) {
-            return sensitivity >= injectionSensitivityThreshold;
+            return sensitivity >= rangeActionParameters.getInjectionSensitivityThreshold();
         } else {
             throw new FaraoException("Type of RangeAction not yet handled by the LinearRao.");
         }
@@ -271,7 +242,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
-        availableRangeActionsPerState.entrySet().stream()
+        optimizationContext.getAvailableRangeActions().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry ->
                 entry.getValue().forEach(rangeAction -> {
@@ -347,7 +318,7 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     private Set<State> getPreviousStates(State refState) {
-        return availableRangeActionsPerState.keySet().stream()
+        return optimizationContext.getAvailableRangeActions().keySet().stream()
             .filter(s -> s.getContingency().equals(refState.getContingency()) || s.getContingency().isEmpty())
             .filter(s -> s.getInstant().comesBefore(refState.getInstant()))
             .collect(Collectors.toSet());
@@ -355,16 +326,16 @@ public class CoreProblemFiller implements ProblemFiller {
 
     private Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameAction(RangeAction<?> rangeAction, State state) {
 
-        if (state.isPreventive() || state.equals(mainOptimizationState)) {
+        if (state.isPreventive() || state.equals(optimizationContext.getFirstOptimizedState())) {
             // no previous instant
             return null;
         } else if (state.getInstant().equals(Instant.CURATIVE)) {
 
             // look if a preventive range action acts on the same network elements
-            State preventiveState = availableRangeActionsPerState.keySet().stream().filter(State::isPreventive).findAny().orElse(null);
+            State preventiveState = optimizationContext.getAvailableRangeActions().keySet().stream().filter(State::isPreventive).findAny().orElse(null);
 
             if (preventiveState != null) {
-                Optional<RangeAction<?>> correspondingRa = availableRangeActionsPerState.get(preventiveState).stream()
+                Optional<RangeAction<?>> correspondingRa = optimizationContext.getAvailableRangeActions().get(preventiveState).stream()
                     .filter(ra -> ra.getId().equals(rangeAction.getId()) || (ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
                     .findAny();
 
@@ -386,18 +357,18 @@ public class CoreProblemFiller implements ProblemFiller {
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
     private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
-        rangeActions.forEach(rangeAction -> {
-            MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
+        optimizationContext.getAvailableRangeActions().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+                MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
 
-            // If the range action has been filtered out, then absoluteVariationVariable is null
-            if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
-            } else if (absoluteVariationVariable != null && rangeAction instanceof HvdcRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
-            } else if (absoluteVariationVariable != null && rangeAction instanceof InjectionRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost);
+                // If the range action has been filtered out, then absoluteVariationVariable is null
+                if (absoluteVariationVariable != null && ra instanceof PstRangeAction) {
+                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getPstPenaltyCost());
+                } else if (absoluteVariationVariable != null && ra instanceof HvdcRangeAction) {
+                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getHvdcPenaltyCost());
+                } else if (absoluteVariationVariable != null && ra instanceof InjectionRangeAction) {
+                    linearProblem.getObjective().setCoefficient(absoluteVariationVariable, rangeActionParameters.getInjectionPenaltyCost());
+                }
             }
-        });
+        ));
     }
-
 }

@@ -393,8 +393,4 @@ public final class LinearProblem {
         return MPSolver.infinity();
     }
 
-    //todo : move this method ?
-    public RangeActionActivationResult getResults(RangeActionSetpointResult prePerimeterSetpoints) {
-        return new LinearProblemResult(this, prePerimeterSetpoints);
-    }
 }

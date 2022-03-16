@@ -7,16 +7,10 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.DiscretePstGroupFiller;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.DiscretePstTapFiller;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.ProblemFiller;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
@@ -29,10 +23,7 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.powsybl.iidm.network.Network;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 
@@ -45,6 +36,7 @@ public class IteratingLinearOptimizer {
     private final RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
 
     public IteratingLinearOptimizer(ObjectiveFunction objectiveFunction, int maxIterations, RaoParameters.PstOptimizationApproximation pstOptimizationApproximation) {
+        //todo : why not in LinearProblemParameters ?
         this.objectiveFunction = objectiveFunction;
         this.maxIterations = maxIterations;
         this.pstOptimizationApproximation = pstOptimizationApproximation;

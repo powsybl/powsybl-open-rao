@@ -16,7 +16,9 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.LinearOptimizerParameters;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
 import com.farao_community.farao.search_tree_rao.commons.SearchTreeComputer;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
@@ -58,71 +60,43 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SearchTree {
-    private FaraoLogger topLevelLogger;
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
 
-    private Network network;
-    private State optimizedStateForNetworkActions;
-    private Set<State> optimizedStatesForRangeActions;
-    private Set<NetworkAction> availableNetworkActions;
-    private Set<RangeAction<?>> availableRangeActions;
-    private PrePerimeterResult prePerimeterOutput;
-    private double preOptimFunctionalCost;
-    private double preOptimVirtualCost;
-    private SearchTreeComputer searchTreeComputer;
-    private SearchTreeProblem searchTreeProblem;
-    private SearchTreeBloomer bloomer;
-    private ObjectiveFunction objectiveFunction;
-    private IteratingLinearOptimizer iteratingLinearOptimizer;
-    private boolean purelyVirtual = false;
+    /**
+     * attribute defined in constructor of the search tree class
+     */
 
-    private Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints;
+    private final FaraoLogger topLevelLogger;
+
+    /**
+     * attribute defined and used within the class
+     */
 
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
     private Leaf previousDepthOptimalLeaf;
-    private TreeParameters treeParameters;
-    private LinearOptimizerParameters linearOptimizerParameters;
+
+    private double preOptimFunctionalCost;
+    private double preOptimVirtualCost;
+
+
+    // todo: include relevant information of SearchTreeRaoParameters in TreeParameters
+    private SearchTreeRaoParameters searchTreeRaoParameters;
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
-    void initLeaves() {
-        rootLeaf = makeLeaf(network, prePerimeterOutput);
-        optimalLeaf = rootLeaf;
-        previousDepthOptimalLeaf = rootLeaf;
-    }
-
-    Leaf makeLeaf(Network network, PrePerimeterResult prePerimeterOutput) {
-        return new Leaf(network, optimizedStateForNetworkActions, prePerimeterOutput);
-    }
-
-    void setTreeParameters(TreeParameters parameters) {
-        treeParameters = parameters;
-    }
-
-    public CompletableFuture<OptimizationResult> run(SearchTreeInput searchTreeInput, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters, boolean verbose) {
-        this.network = searchTreeInput.getNetwork();
-        this.optimizedStateForNetworkActions = searchTreeInput.getOptimizedStateForNetworkActions();
-        this.optimizedStatesForRangeActions = searchTreeInput.getOptimizedStatesForRangeActions();
-        this.availableNetworkActions = searchTreeInput.getNetworkActions();
-        this.prePerimeterOutput = searchTreeInput.getPrePerimeterOutput();
-        this.searchTreeComputer = searchTreeInput.getSearchTreeComputer();
-        this.searchTreeProblem = searchTreeInput.getSearchTreeProblem();
-        this.bloomer = searchTreeInput.getSearchTreeBloomer();
-        this.objectiveFunction = searchTreeInput.getObjectiveFunction();
-        this.iteratingLinearOptimizer = searchTreeInput.getIteratingLinearOptimizer();
-        setTreeParameters(treeParameters);
-        this.linearOptimizerParameters = linearOptimizerParameters;
+    public SearchTree(boolean verbose) {
         this.topLevelLogger = verbose ? BUSINESS_LOGS : TECHNICAL_LOGS;
-        this.purelyVirtual = searchTreeInput.getFlowCnecs().stream().noneMatch(FlowCnec::isOptimized);
-        initLeaves();
+    }
 
-        //todo : check this
-        this.prePerimeterRangeActionSetPoints = new HashMap<>();
-        rootLeaf.getRangeActions().stream().forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, prePerimeterOutput.getSetpoint(rangeAction)));
+    public CompletableFuture<OptimizationResult> run(SearchTreeInput input, TreeParameters treeParameters, SearchTreeRaoParameters searchTreeRaoParameters, RaoParameters raoParameters) {
+
+        boolean purelyVirtual = input.getFlowCnecs().stream().noneMatch(FlowCnec::isOptimized);
+
+        initLeaves(input);
 
         TECHNICAL_LOGS.info("Evaluating root leaf");
-        rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, searchTreeInput.getRangeActions()));
+        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluationBasedOn(input.getPrePerimeterResult(), input.getRangeActions()));
         this.preOptimFunctionalCost = rootLeaf.getFunctionalCost();
         this.preOptimVirtualCost = rootLeaf.getVirtualCost();
 
@@ -131,7 +105,9 @@ public class SearchTree {
                 .anyMatch(state -> isRemedialActionAvailable(ra, state, rootLeaf)))
             .collect(Collectors.toSet());
          */
-        this.availableRangeActions = searchTreeInput.getRangeActions().stream().filter(ra -> isRemedialActionAvailable(ra, optimizedStateForNetworkActions, rootLeaf)).collect(Collectors.toSet());
+
+        // do in castor ?
+        // this.availableRangeActions = searchTreeInput.getRangeActions().stream().filter(ra -> isRemedialActionAvailable(ra, optimizedStateForNetworkActions, rootLeaf)).collect(Collectors.toSet());
 
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
@@ -139,20 +115,20 @@ public class SearchTree {
             return CompletableFuture.completedFuture(rootLeaf);
         } else if (stopCriterionReached(rootLeaf)) {
             topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
-            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
             logOptimizationSummary(rootLeaf);
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
         TECHNICAL_LOGS.info("{}", rootLeaf);
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         TECHNICAL_LOGS.info("Linear optimization on root leaf");
-        optimizeLeaf(rootLeaf, prePerimeterOutput);
+        optimizeLeaf(rootLeaf, input.getPrePerimeterResult());
 
         topLevelLogger.info("{}", rootLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, availableRangeActions, optimizedStateForNetworkActions);
-        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         if (stopCriterionReached(rootLeaf)) {
             return CompletableFuture.completedFuture(rootLeaf);
@@ -163,10 +139,21 @@ public class SearchTree {
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
         TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, availableRangeActions, optimizedStateForNetworkActions, "Best leaf: ");
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
         logOptimizationSummary(optimalLeaf);
         return CompletableFuture.completedFuture(optimalLeaf);
+    }
+
+
+    void initLeaves(SearchTreeInput input) {
+        rootLeaf = makeLeaf(input.getNetwork(), input.getPrePerimeterResult());
+        optimalLeaf = rootLeaf;
+        previousDepthOptimalLeaf = rootLeaf;
+    }
+
+    Leaf makeLeaf(Network network, PrePerimeterResult prePerimeterOutput) {
+        return new Leaf(network, prePerimeterOutput);
     }
 
     private void logOptimizationSummary(Leaf leaf) {
@@ -183,14 +170,15 @@ public class SearchTree {
          */
     }
 
-    private void iterateOnTree() {
+    private void iterateOnTree(SearchTreeInput searchTreeInput, TreeParameters treeParameters) {
         int depth = 0;
         boolean hasImproved = true;
-        int leavesInParallel = Math.min(availableNetworkActions.size(), treeParameters.getLeavesInParallel());
-        if (availableNetworkActions.isEmpty()) {
+        if (searchTreeInput.getAvailableNetworkActions().isEmpty()) {
             topLevelLogger.info("No network action available");
             return;
         }
+
+        int leavesInParallel = Math.min(searchTreeInput.getAvailableNetworkActions().size(), treeParameters.getLeavesInParallel());
         TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (AbstractNetworkPool networkPool = makeFaraoNetworkPool(network, leavesInParallel)) {
             while (depth < treeParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
@@ -202,7 +190,7 @@ public class SearchTree {
                     TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
                     topLevelLogger.info("Search depth {} best leaf: {}", depth + 1, optimalLeaf);
                     RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, availableRangeActions, optimizedStateForNetworkActions, String.format("Search depth %s best leaf: ", depth + 1));
-                    RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+                    RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
                 } else {
                     topLevelLogger.info("No better result found in search depth {}, exiting search tree", depth + 1);
                 }

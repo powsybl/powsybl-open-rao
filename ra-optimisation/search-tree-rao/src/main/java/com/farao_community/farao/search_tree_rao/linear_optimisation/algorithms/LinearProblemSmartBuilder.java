@@ -13,7 +13,6 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.RaLimitationParameters;
 import com.google.ortools.linearsolver.MPSolver;
 
 import java.util.HashMap;
@@ -86,7 +85,6 @@ public class LinearProblemSmartBuilder {
         // RA limitation
         if (inputs.getOptimizationContext().getAllOptimizedStates().stream().anyMatch(s -> s.getInstant().equals(Instant.CURATIVE))
             && parameters.getRaLimitationParameters() != null) {
-            RaLimitationParameters raLimit = parameters.getRaLimitationParameters();
             // todo: add some controls here or in filler to check whether it is necessary or not to take it into account
             builder.withProblemFiller(buildRaUageLimitsFiller());
         }
@@ -113,13 +111,10 @@ public class LinearProblemSmartBuilder {
     private ProblemFiller buildCoreProblemFiller() {
         return new CoreProblemFiller(
             inputs.getNetwork(),
-            inputs.getOptimizationContext().getFirstOptimizedState(),
+            inputs.getOptimizationContext(),
             inputs.getFlowCnecs(),
-            inputs.getOptimizationContext().getAvailableRangeActions(),
             inputs.getPrePerimeterSetpoints(),
-            parameters.getPstSensitivityThreshold(),
-            parameters.getHvdcSensitivityThreshold(),
-            parameters.getInjectionSensitivityThreshold()
+            parameters.getRangeActionParameters()
         );
     }
 
