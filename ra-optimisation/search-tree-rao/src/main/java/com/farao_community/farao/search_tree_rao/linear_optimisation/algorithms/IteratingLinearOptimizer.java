@@ -32,14 +32,9 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
  */
 public class IteratingLinearOptimizer {
     private final ObjectiveFunction objectiveFunction;
-    private final int maxIterations;
-    private final RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
 
-    public IteratingLinearOptimizer(ObjectiveFunction objectiveFunction, int maxIterations, RaoParameters.PstOptimizationApproximation pstOptimizationApproximation) {
-        //todo : why not in LinearProblemParameters ?
+    public IteratingLinearOptimizer(ObjectiveFunction objectiveFunction) {
         this.objectiveFunction = objectiveFunction;
-        this.maxIterations = maxIterations;
-        this.pstOptimizationApproximation = pstOptimizationApproximation;
     }
 
     public LinearOptimizationResult optimize(IteratingLinearOptimizerInput input,
@@ -58,7 +53,7 @@ public class IteratingLinearOptimizer {
             .withParameters(parameters)
             .build();
 
-        for (int iteration = 1; iteration <= maxIterations; iteration++) {
+        for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
                 TECHNICAL_LOGS.warn("The solver was interrupted. A feasible solution has been produced.");
@@ -74,7 +69,7 @@ public class IteratingLinearOptimizer {
             RangeActionActivationResult linearProblemResult = new LinearProblemResult(linearProblem, input.getPrePerimeterSetpoints(), input.getOptimizationContext());
             RangeActionActivationResult currentRangeActionActivationResult = roundResult(input, linearProblemResult, bestResult);
 
-            if (pstOptimizationApproximation.equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
+            if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
 
                 // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
                 // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to

@@ -7,15 +7,16 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
 
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class MaxMinRelativeMarginParameters extends MaxMinMarginParameters {
+public class MaxMinRelativeMarginParameters {
     private final double negativeMarginObjectiveCoefficient;
     private final double ptdfSumLowerBound;
 
-    public MaxMinRelativeMarginParameters(double pstPenaltyCost, double hvdcPenaltyCost, double injectionPenaltyCost, double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
-        super(pstPenaltyCost, hvdcPenaltyCost, injectionPenaltyCost);
+    public MaxMinRelativeMarginParameters(double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
         this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
         this.ptdfSumLowerBound = ptdfSumLowerBound;
     }
@@ -26,5 +27,20 @@ public class MaxMinRelativeMarginParameters extends MaxMinMarginParameters {
 
     public double getPtdfSumLowerBound() {
         return ptdfSumLowerBound;
+    }
+
+    public static MaxMinRelativeMarginParameters buildFromRaoParameters(RaoParameters raoParameters) {
+
+        /*
+        for now, values of MaxMinRelativeMarginParameters are constant over all the SearchTreeRao
+        they can therefore be instantiated directly from a RaoParameters
+         */
+
+        if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
+            return new MaxMinRelativeMarginParameters(raoParameters.getNegativeMarginObjectiveCoefficient(),
+                raoParameters.getPtdfSumLowerBound());
+        } else {
+            return null;
+        }
     }
 }

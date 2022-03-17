@@ -7,6 +7,8 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
 
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+
 public class MnecParameters {
     private final double mnecAcceptableMarginDiminution;
     private final double mnecViolationCost;
@@ -28,5 +30,17 @@ public class MnecParameters {
 
     public double getMnecConstraintAdjustmentCoefficient() {
         return mnecConstraintAdjustmentCoefficient;
+    }
+
+    public static MnecParameters buildFromRaoParameters(RaoParameters raoParameters) {
+
+        /*
+        for now, values of MnecParameters are constant over all the SearchTreeRao
+        they can therefore be instantiated directly from a RaoParameters
+         */
+
+        return new MnecParameters(raoParameters.getMnecAcceptableMarginDiminution(),
+            raoParameters.getMnecViolationCost(),
+            raoParameters.getMnecConstraintAdjustmentCoefficient());
     }
 }

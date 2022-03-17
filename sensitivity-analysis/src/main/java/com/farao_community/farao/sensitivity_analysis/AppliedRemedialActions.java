@@ -73,6 +73,22 @@ public class AppliedRemedialActions {
             .collect(Collectors.toSet());
     }
 
+    public Set<NetworkAction> getAppliedNetworkActions(State state) {
+        if (appliedRa.containsKey(state)) {
+            return appliedRa.get(state).networkActions;
+        } else {
+            return new HashSet<>();
+        }
+    }
+
+    public Map<RangeAction<?>, Double> getAppliedRangeActions(State state) {
+        if (appliedRa.containsKey(state)) {
+            return appliedRa.get(state).rangeActions;
+        } else {
+            return new HashMap<>();
+        }
+    }
+
     public void applyOnNetwork(State state, Network network) {
         if (appliedRa.containsKey(state)) {
             appliedRa.get(state).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));

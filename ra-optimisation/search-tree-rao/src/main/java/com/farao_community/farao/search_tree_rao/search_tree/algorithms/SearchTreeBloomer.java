@@ -36,7 +36,7 @@ public final class SearchTreeBloomer {
     private final boolean filterFarElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
     private final List<NetworkActionCombination> preDefinedNaCombinations;
-    private final State optimizedState;
+    private final State optimizedStateForNetworkActions;
 
     public SearchTreeBloomer(Network network,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
@@ -47,8 +47,7 @@ public final class SearchTreeBloomer {
                              boolean filterFarElements,
                              int maxNumberOfBoundariesForSkippingNetworkActions,
                              List<NetworkActionCombination> preDefinedNaCombinations,
-                             State optimizedState) {
-
+                             State optimizedStateForNetworkActions) {
         this.network = network;
         countryGraph = new CountryGraph(network);
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
@@ -59,7 +58,7 @@ public final class SearchTreeBloomer {
         this.filterFarElements = filterFarElements;
         this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
         this.preDefinedNaCombinations = preDefinedNaCombinations;
-        this.optimizedState = optimizedState;
+        this.optimizedStateForNetworkActions = optimizedStateForNetworkActions;
     }
 
     /**
@@ -242,8 +241,8 @@ public final class SearchTreeBloomer {
         return updatedMaxTopoPerTso;
     }
 
-    private boolean hasRangeActionChangedComparedToPrePerimeter(Leaf fromLeaf, RangeAction rangeAction) {
-        double optimizedSetPoint = fromLeaf.getOptimizedSetpoint(rangeAction, optimizedState);
+    private boolean hasRangeActionChangedComparedToPrePerimeter(Leaf fromLeaf, RangeAction<?> rangeAction) {
+        double optimizedSetPoint = fromLeaf.getOptimizedSetpoint(rangeAction, optimizedStateForNetworkActions);
         double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
         if (Double.isNaN(optimizedSetPoint)) {
             return false;

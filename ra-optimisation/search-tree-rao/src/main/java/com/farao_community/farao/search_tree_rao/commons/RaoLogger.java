@@ -16,6 +16,8 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
@@ -37,20 +39,31 @@ public final class RaoLogger {
     }
 
     public static void logRangeActions(FaraoLogger logger,
-                                       Leaf leaf, Set<RangeAction<?>> rangeActions, State state) {
-        logRangeActions(logger, leaf, rangeActions, state, null);
+                                       Leaf leaf,
+                                       OptimizationContext optimizationContext) {
+        logRangeActions(logger, leaf, optimizationContext, null);
     }
 
-    public static void logRangeActions(FaraoLogger logger, Leaf leaf, Set<RangeAction<?>> rangeActions, State state, String prefix) {
-        String rangeActionSetpoints = rangeActions.stream().map(rangeAction -> {
-            if (rangeAction instanceof PstRangeAction) {
-                int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction, state);
-                return format("%s: %d", rangeAction.getName(), rangeActionTap);
-            } else {
-                double rangeActionSetPoint = leaf.getOptimizedSetpoint(rangeAction, state);
-                return format(Locale.ENGLISH, "%s: %.2f", rangeAction.getName(), rangeActionSetPoint);
-            }
-        }).collect(Collectors.joining(", "));
+    public static void logRangeActions(FaraoLogger logger, Leaf leaf, OptimizationContext optimizationContext, String prefix) {
+
+        boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationContext;
+
+        String rangeActionSetpoints = optimizationContext.getAvailableRangeActions().entrySet().stream()
+            .flatMap(eState -> eState.getValue().stream().map(rangeAction -> {
+                double rangeActionValue;
+                if (rangeAction instanceof PstRangeAction) {
+                    rangeActionValue = leaf.getOptimizedTap((PstRangeAction) rangeAction, eState.getKey());
+                } else {
+                    rangeActionValue = leaf.getOptimizedSetpoint(rangeAction, eState.getKey());
+                }
+                if (globalPstOptimization) {
+                    return format("%s@%s: %.1f", rangeAction.getName(), eState.getKey().getId(), rangeActionValue);
+                } else {
+                    return format("%s: %.1f", rangeAction.getName(), rangeActionValue);
+                }
+            }))
+            .collect(Collectors.joining(", "));
+
         logger.info("{}range action(s): {}", prefix == null ? "" : prefix, rangeActionSetpoints);
     }
 

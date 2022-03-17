@@ -336,22 +336,7 @@ public class Castor implements RaoProvider {
         return builder.build();
     }
 
-    static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
-        double max = 0;
-        for (FlowCnec flowCnec : flowCnecs) {
-            if (flowCnec.isOptimized()) {
-                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
-                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
-                    max = Math.abs(minFlow.get());
-                }
-                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
-                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
-                    max = Math.abs(maxFlow.get());
-                }
-            }
-        }
-        return max;
-    }
+
 
     CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider) {
         Set<FlowCnec> perimeterCnecs = computePerimeterCnecs(raoInput.getCrac(), raoInput.getPerimeter());
@@ -576,7 +561,7 @@ public class Castor implements RaoProvider {
         if (isSecondPreventiveRao) {
             Objects.requireNonNull(appliedRemedialActions);
         }
-        SearchTreeInput searchTreeInput = new SearchTreeInput();
+        SearchTreeInput searchTreeInput = new SearchTreeInput(network, flowCnecs, loopFlowCnecs, optimizationContext, availableNetworkActions, initialFlowResult, prePerimeterResult, preOptimizationAppliedNetworkActions, toolProvider);
 
         searchTreeInput.setNetwork(network);
         Set<FlowCnec> cnecs;

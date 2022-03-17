@@ -8,6 +8,8 @@ package com.farao_community.farao.search_tree_rao.search_tree.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.search_tree_rao.castor.parameters.UnoptimizedCnecParameters;
+import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -41,8 +43,15 @@ public final class TreeParameters {
     private Map<String, Integer> maxPstPerTso;
     private Map<String, Integer> maxRaPerTso;
 
+    public UnoptimizedCnecParameters getUnoptimizedCnecParameters() {
+        return null;
+    }
 
+    private List<NetworkActionCombination> networkActionCombinations;
 
+    public List<NetworkActionCombination> getNetworkActionCombinations() {
+        return networkActionCombinations;
+    }
 
     private TreeParameters() {
     }

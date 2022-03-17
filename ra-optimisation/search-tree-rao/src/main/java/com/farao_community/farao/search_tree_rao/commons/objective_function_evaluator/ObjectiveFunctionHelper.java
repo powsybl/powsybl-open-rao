@@ -38,6 +38,7 @@ public final class ObjectiveFunctionHelper {
         } else {
             marginEvaluator = FlowResult::getMargin;
         }
+
         if (unoptimizedCnecParameters != null) {
             builder.withFunctionalCostEvaluator(new MinMarginEvaluator(
                 cnecs,

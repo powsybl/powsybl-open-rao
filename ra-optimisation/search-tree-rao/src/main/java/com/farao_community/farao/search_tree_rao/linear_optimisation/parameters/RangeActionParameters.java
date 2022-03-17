@@ -1,6 +1,8 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
 
+import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 
 public class RangeActionParameters {
 
@@ -54,5 +56,21 @@ public class RangeActionParameters {
 
     public double getInjectionPenaltyCost() {
         return injectionPenaltyCost;
+    }
+
+    public static RangeActionParameters buildFromRaoParameters(RaoParameters raoParameters) {
+
+        /*
+        for now, values of RangeActionParameters are constant over all the SearchTreeRao
+        they can therefore be instantiated directly from a RaoParameters
+         */
+
+        return new RangeActionParameters(raoParameters.getPstOptimizationApproximation(),
+            raoParameters.getPstSensitivityThreshold(),
+            raoParameters.getHvdcSensitivityThreshold(),
+            raoParameters.getInjectionRaSensitivityThreshold(),
+            raoParameters.getPstPenaltyCost(),
+            raoParameters.getHvdcPenaltyCost(),
+            raoParameters.getInjectionRaPenaltyCost());
     }
 }

@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
 
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters.LoopFlowApproximationLevel;
 
 public class LoopFlowParameters {
@@ -36,5 +37,22 @@ public class LoopFlowParameters {
 
     public double getLoopFlowConstraintAdjustmentCoefficient() {
         return loopFlowConstraintAdjustmentCoefficient;
+    }
+
+    public static LoopFlowParameters buildFromRaoParameters(RaoParameters raoParameters) {
+
+        /*
+        for now, values of LoopFlowParameters are constant over all the SearchTreeRao
+        they can therefore be instantiated directly from a RaoParameters
+         */
+
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            return new LoopFlowParameters(raoParameters.getLoopFlowApproximationLevel(),
+                raoParameters.getLoopFlowAcceptableAugmentation(),
+                raoParameters.getLoopFlowViolationCost(),
+                raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
+        } else {
+            return null;
+        }
     }
 }
