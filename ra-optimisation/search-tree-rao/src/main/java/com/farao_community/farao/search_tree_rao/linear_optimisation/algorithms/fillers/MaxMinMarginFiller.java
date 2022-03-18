@@ -24,11 +24,9 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
+import com.powsybl.iidm.network.Network;
 
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -37,6 +35,7 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
+    private final String networkName;
     protected final Set<FlowCnec> optimizedCnecs;
     private final Set<RangeAction<?>> rangeActions;
     private final Unit unit;
@@ -44,7 +43,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private final double hvdcPenaltyCost;
     private final double injectionPenaltyCost;
 
-    public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction<?>> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
+    public MaxMinMarginFiller(Network network, Set<FlowCnec> optimizedCnecs, Set<RangeAction<?>> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
+        this.networkName = network.getNameOrId();
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -166,13 +166,24 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
             // If the range action has been filtered out, then absoluteVariationVariable is null
             if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost + getRandomPenaltyCost(rangeAction));
             } else if (absoluteVariationVariable != null && rangeAction instanceof HvdcRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost + getRandomPenaltyCost(rangeAction));
             } else if (absoluteVariationVariable != null && rangeAction instanceof InjectionRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost);
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost + getRandomPenaltyCost(rangeAction));
             }
         });
+    }
+
+    /**
+     * Generates a random double between 0 and 0.001 for a given remedial action
+     * Seeded with the network name, so it changes between 2 different runs of the RAO but is replicable for the same run
+     * If there are equivalent solutions, this allows the solver to always chose the same solution
+     */
+    private double getRandomPenaltyCost(RangeAction<?> rangeAction) {
+        int seed = networkName.hashCode() + rangeAction.getId().hashCode();
+        Random generator = new Random(seed);
+        return generator.nextDouble() * 0.001;
     }
 }
 

@@ -18,6 +18,7 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
 import java.util.Set;
@@ -33,12 +34,13 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     private final double ptdfSumLowerBound;
     private final double highestThreshold;
 
-    public MaxMinRelativeMarginFiller(Set<FlowCnec> optimizedCnecs,
+    public MaxMinRelativeMarginFiller(Network network,
+                                      Set<FlowCnec> optimizedCnecs,
                                       FlowResult initialFlowResult,
                                       Set<RangeAction<?>> rangeActions,
                                       Unit unit,
                                       MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
-        super(optimizedCnecs, rangeActions, unit, maxMinRelativeMarginParameters);
+        super(network, optimizedCnecs, rangeActions, unit, maxMinRelativeMarginParameters);
         this.initialFlowResult = initialFlowResult;
         this.unit = unit;
         this.ptdfSumLowerBound = maxMinRelativeMarginParameters.getPtdfSumLowerBound();

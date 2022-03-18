@@ -56,6 +56,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     private void createMaxMinMarginFiller(Unit unit) {
         maxMinMarginFiller = new MaxMinMarginFiller(
+                network,
                 Set.of(cnec1),
                 Set.of(pstRangeAction),
                 unit,
@@ -95,7 +96,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertEquals(1, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
 
         // check objective
-        assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
+        assertEquals(0.010771, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
         assertTrue(linearProblem.getObjective().minimization());
 
@@ -138,7 +139,7 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
 
         // check objective
-        assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
+        assertEquals(0.010771, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE); // penalty cost
         assertTrue(linearProblem.getObjective().minimization());
 

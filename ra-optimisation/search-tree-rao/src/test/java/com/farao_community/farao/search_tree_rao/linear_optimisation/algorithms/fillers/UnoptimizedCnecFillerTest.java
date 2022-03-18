@@ -33,7 +33,6 @@ import java.util.Set;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
@@ -82,6 +81,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         MaxMinMarginParameters maxMinMarginParameters = new MaxMinMarginParameters(0.01, 0.01, 0.01);
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"));
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(
+                network,
                 Set.of(cnecNl, cnecFr),
                 Set.of(pstRangeAction),
                 Unit.MEGAWATT,
@@ -110,6 +110,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
         when(initialFlowResult.getPtdfZonalSum(cnecNl)).thenReturn(0.5);
         when(initialFlowResult.getPtdfZonalSum(cnecFr)).thenReturn(2.6);
         MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
+                network,
                 Set.of(cnecNl, cnecFr),
                 initialFlowResult,
                 Set.of(pstRangeAction),
