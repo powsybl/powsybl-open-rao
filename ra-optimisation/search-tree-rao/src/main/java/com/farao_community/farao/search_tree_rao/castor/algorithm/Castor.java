@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -26,16 +25,17 @@ import com.farao_community.farao.rao_api.parameters.*;
 import com.farao_community.farao.rao_api.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.commons.*;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.*;
+import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.MaxMinRelativeMarginParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.*;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTreeBloomer;
-import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTreeProblem;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
-import com.farao_community.farao.search_tree_rao.search_tree.parameters.TreeParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.util.AbstractNetworkPool;
@@ -50,7 +50,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.formatDouble;
 
@@ -132,12 +131,11 @@ public class Castor implements RaoProvider {
         // compute initial sensitivity on all CNECs
         // this is necessary to have initial flows for MNEC and loopflow constraints on CNECs, in preventive and curative perimeters
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-            raoInput.getCrac().getRangeActions(),
             raoInput.getCrac().getFlowCnecs(),
-            toolProvider,
+            raoInput.getCrac().getRangeActions(),
+            stateTree.getOperatorsNotSharingCras(),
             parameters,
-            basicLinearOptimizerBuilder(parameters).build()
-        );
+            toolProvider);
 
         PrePerimeterResult initialOutput;
         try {

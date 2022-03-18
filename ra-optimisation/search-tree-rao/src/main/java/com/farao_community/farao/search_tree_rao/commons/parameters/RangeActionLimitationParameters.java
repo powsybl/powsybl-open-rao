@@ -1,4 +1,4 @@
-package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
+package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.data.crac_api.State;
 

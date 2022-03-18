@@ -13,7 +13,7 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
-import com.farao_community.farao.search_tree_rao.search_tree.parameters.TreeParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import org.junit.Test;
 
 import java.util.Map;

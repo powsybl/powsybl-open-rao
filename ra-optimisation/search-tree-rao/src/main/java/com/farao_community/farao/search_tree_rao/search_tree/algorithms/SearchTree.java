@@ -15,10 +15,9 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.CurativeOptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
@@ -26,7 +25,8 @@ import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
-import com.farao_community.farao.search_tree_rao.search_tree.parameters.TreeParameters;
+import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.util.AbstractNetworkPool;
 import com.google.common.hash.Hashing;
@@ -66,10 +66,7 @@ public class SearchTree {
      */
 
     private final SearchTreeInput input;
-    private final TreeParameters treeParameters;
-    // todo: include relevant information of SearchTreeRaoParameters and RaoParameters in TreeParameters
-    private final SearchTreeRaoParameters searchTreeParameters;
-    private final RaoParameters raoParameters;
+    private final SearchTreeParameters parameters;
     private final FaraoLogger topLevelLogger;
 
     /**
@@ -89,29 +86,41 @@ public class SearchTree {
     private Optional<NetworkActionCombination> combinationFulfillingStopCriterion = Optional.empty();
 
     public SearchTree(SearchTreeInput input,
-                      TreeParameters treeParameters,
-                      RaoParameters raoParameters,
+                      SearchTreeParameters parameters,
                       boolean verbose) {
         // inputs
         this.input = input;
-        this.treeParameters = treeParameters;
-        this.raoParameters = raoParameters;
-        this.searchTreeParameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
+        this.parameters = parameters;
         this.topLevelLogger = verbose ? BUSINESS_LOGS : TECHNICAL_LOGS;
 
         // build from inputs
         this.purelyVirtual = input.getFlowCnecs().stream().noneMatch(FlowCnec::isOptimized);
-        this.bloomer = new SearchTreeBloomer(
-            input.getNetwork(),
-            input.getPrePerimeterResult(),
-            treeParameters.getMaxRa(),
-            treeParameters.getMaxTso(),
-            treeParameters.getMaxTopoPerTso(),
-            treeParameters.getMaxRaPerTso(),
-            searchTreeParameters.getSkipNetworkActionsFarFromMostLimitingElement(),
-            searchTreeParameters.getMaxNumberOfBoundariesForSkippingNetworkActions(),
-            treeParameters.getNetworkActionCombinations(),
-            input.getOptimizationContext().getFirstOptimizedState());
+
+        if (input.getOptimizationContext() instanceof CurativeOptimizationContext) {
+            this.bloomer = new SearchTreeBloomer(
+                input.getNetwork(),
+                input.getPrePerimeterResult(),
+                parameters.getRaLimitationParameters().getMaxCurativeRa(),
+                parameters.getRaLimitationParameters().getMaxCurativeTso(),
+                parameters.getRaLimitationParameters().getMaxCurativeTopoPerTso(),
+                parameters.getRaLimitationParameters().getMaxCurativeRaPerTso(),
+                parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
+                parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
+                parameters.getNetworkActionParameters().getNetworkActionCombinations(),
+                input.getOptimizationContext().getFirstOptimizedState());
+        } else {
+            this.bloomer = new SearchTreeBloomer(
+                input.getNetwork(),
+                input.getPrePerimeterResult(),
+                Integer.MAX_VALUE, //no limitation of RA in preventive
+                Integer.MAX_VALUE, //no limitation of RA in preventive
+                new HashMap<>(),   //no limitation of RA in preventive
+                new HashMap<>(),   //no limitation of RA in preventive
+                parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
+                parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
+                parameters.getNetworkActionParameters().getNetworkActionCombinations(),
+                input.getOptimizationContext().getFirstOptimizedState());
+        }
     }
 
     public CompletableFuture<OptimizationResult> run() {
@@ -132,20 +141,20 @@ public class SearchTree {
             return CompletableFuture.completedFuture(rootLeaf);
         } else if (stopCriterionReached(rootLeaf)) {
             topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
-            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
             logOptimizationSummary(rootLeaf);
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
         TECHNICAL_LOGS.info("{}", rootLeaf);
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         TECHNICAL_LOGS.info("Linear optimization on root leaf");
         optimizeLeaf(rootLeaf);
 
         topLevelLogger.info("{}", rootLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationContext());
-        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         if (stopCriterionReached(rootLeaf)) {
             logOptimizationSummary(optimalLeaf);
@@ -157,7 +166,7 @@ public class SearchTree {
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
         TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
         RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationContext(), "Best leaf: ");
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
         logOptimizationSummary(optimalLeaf);
         return CompletableFuture.completedFuture(optimalLeaf);
@@ -190,10 +199,10 @@ public class SearchTree {
             return;
         }
 
-        int leavesInParallel = Math.min(input.getAvailableNetworkActions().size(), treeParameters.getLeavesInParallel());
+        int leavesInParallel = Math.min(input.getAvailableNetworkActions().size(), parameters.getTreeParameters().getLeavesInParallel());
         TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (AbstractNetworkPool networkPool = makeFaraoNetworkPool(input.getNetwork(), leavesInParallel)) {
-            while (depth < treeParameters.getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
+            while (depth < parameters.getTreeParameters().getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 TECHNICAL_LOGS.info("Search depth {} [start]", depth + 1);
                 previousDepthOptimalLeaf = optimalLeaf;
                 updateOptimalLeafWithNextDepthBestLeaf(networkPool);
@@ -202,12 +211,12 @@ public class SearchTree {
                     TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
                     topLevelLogger.info("Search depth {} best leaf: {}", depth + 1, optimalLeaf);
                     RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationContext(), String.format("Search depth %s best leaf: ", depth + 1));
-                    RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, raoParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+                    RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
                 } else {
                     topLevelLogger.info("No better result found in search depth {}, exiting search tree", depth + 1);
                 }
                 depth += 1;
-                if (depth >= treeParameters.getMaximumSearchDepth()) {
+                if (depth >= parameters.getTreeParameters().getMaximumSearchDepth()) {
                     topLevelLogger.info("maximum search depth has been reached, exiting search tree");
                 }
             }
@@ -326,7 +335,7 @@ public class SearchTree {
 
     private void optimizeLeaf(Leaf leaf) {
         if (!input.getOptimizationContext().getAllRangeActions().isEmpty()) {
-            leaf.optimize(input, treeParameters, raoParameters);
+            leaf.optimize(input, parameters);
             if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
                 topLevelLogger.info("Failed to optimize leaf: {}", leaf);
             }
@@ -349,13 +358,13 @@ public class SearchTree {
             sensitivityComputerBuilder.withAppliedRemedialActions(getAppliedRemedialActions(previousDepthOptimalLeaf));
         }
 
-        if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
+        if (parameters.getObjectiveFunction().relativePositiveMargins()) {
             sensitivityComputerBuilder.withPtdfsResults(input.getInitialFlowResult());
         }
 
-        if (raoParameters.isRaoWithLoopFlowLimitation() && raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
+        if (parameters.getLoopFlowParameters() != null  && parameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getLoopFlowCnecs());
-        } else if (raoParameters.isRaoWithLoopFlowLimitation()) {
+        } else if (parameters.getLoopFlowParameters() != null) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getInitialFlowResult());
         }
 
@@ -393,12 +402,12 @@ public class SearchTree {
             TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
             return true;
         }
-        if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
+        if (parameters.getTreeParameters().getStopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
-        } else if (treeParameters.getStopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return leaf.getCost() < treeParameters.getTargetObjectiveValue();
+        } else if (parameters.getTreeParameters().getStopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
+            return leaf.getCost() < parameters.getTreeParameters().getTargetObjectiveValue();
         } else {
-            throw new FaraoException("Unexpected stop criterion: " + treeParameters.getStopCriterion());
+            throw new FaraoException("Unexpected stop criterion: " + parameters.getTreeParameters().getStopCriterion());
         }
     }
 
@@ -410,8 +419,8 @@ public class SearchTree {
      * @return True if the leaf cost diminution is enough compared to optimal leaf.
      */
     private boolean improvedEnough(Leaf leaf) {
-        double relativeImpact = Math.max(treeParameters.getRelativeNetworkActionMinimumImpactThreshold(), 0);
-        double absoluteImpact = Math.max(treeParameters.getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
+        double relativeImpact = Math.max(parameters.getNetworkActionParameters().getRelativeNetworkActionMinimumImpactThreshold(), 0);
+        double absoluteImpact = Math.max(parameters.getNetworkActionParameters().getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
 
         double previousDepthBestCost = previousDepthOptimalLeaf.getCost();
         double newCost = leaf.getCost();

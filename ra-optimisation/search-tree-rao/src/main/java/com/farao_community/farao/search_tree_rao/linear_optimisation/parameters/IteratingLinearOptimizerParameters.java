@@ -10,7 +10,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.UnoptimizedCnecParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

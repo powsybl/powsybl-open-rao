@@ -40,7 +40,7 @@ public class PrePerimeterSensitivityAnalysis {
 
     private final Set<FlowCnec> flowCnecs;
     private final Set<RangeAction<?>> rangeActions;
-    private final StateTree stateTree;
+    private final Set<String> operatorsNotSharingRas;
     private final RaoParameters raoParameters;
     private final ToolProvider toolProvider;
 
@@ -48,12 +48,12 @@ public class PrePerimeterSensitivityAnalysis {
 
     public PrePerimeterSensitivityAnalysis(Set<FlowCnec> flowCnecs,
                                            Set<RangeAction<?>> rangeActions,
-                                           StateTree stateTree,
+                                           Set<String> operatorsNotSharingRas,
                                            RaoParameters raoParameters,
                                            ToolProvider toolProvider) {
         this.flowCnecs = flowCnecs;
         this.rangeActions = rangeActions;
-        this.stateTree = stateTree;
+        this.operatorsNotSharingRas = operatorsNotSharingRas;
         this.raoParameters = raoParameters;
         this.toolProvider = toolProvider;
     }
@@ -143,7 +143,7 @@ public class PrePerimeterSensitivityAnalysis {
         if (raoParameters.getExtension(SearchTreeRaoParameters.class) != null &&
             !raoParameters.getExtension(SearchTreeRaoParameters.class).getCurativeRaoOptimizeOperatorsNotSharingCras()) {
            return new UnoptimizedCnecParameters(
-                stateTree.getOperatorsNotSharingCras(),
+                operatorsNotSharingRas,
                 getLargestCnecThreshold(flowCnecs));
         } else {
             return null;

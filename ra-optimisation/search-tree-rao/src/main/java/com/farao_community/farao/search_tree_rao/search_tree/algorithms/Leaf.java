@@ -16,8 +16,6 @@ import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
@@ -25,14 +23,14 @@ import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.C
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.PreventiveOptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.*;
 import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
-import com.farao_community.farao.search_tree_rao.search_tree.parameters.TreeParameters;
+import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
@@ -173,7 +171,7 @@ public class Leaf implements OptimizationResult {
      * is either the same as the initial variant ID if the optimization has not been efficient or a new ID
      * corresponding to a new variant created by the IteratingLinearOptimizer.
      */
-    void optimize(SearchTreeInput searchTreeInput, TreeParameters treeParameters, RaoParameters raoParameters) {
+    void optimize(SearchTreeInput searchTreeInput, SearchTreeParameters parameters) {
         if (!optimizationDataPresent) {
             throw new FaraoException("Cannot optimize leaf, because optimization data has been deleted");
         }
@@ -203,15 +201,15 @@ public class Leaf implements OptimizationResult {
 
             // build parameters
             IteratingLinearOptimizerParameters linearOptimizerParameters = IteratingLinearOptimizerParameters.create()
-                .withObjectiveFunction(raoParameters.getObjectiveFunction())
-                .withRangeActionParameters(RangeActionParameters.buildFromRaoParameters(raoParameters))
-                .withMnecParameters(MnecParameters.buildFromRaoParameters(raoParameters))
-                .withMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters))
-                .withLoopFlowParameters(LoopFlowParameters.buildFromRaoParameters(raoParameters))
-                .withUnoptimizedCnecParameters(treeParameters.getUnoptimizedCnecParameters())
-                .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationContext(), raoParameters.getExtension(SearchTreeRaoParameters.class)))
-                .withSolverParameters(SolverParameters.buildFromRaoParameters(raoParameters))
-                .withMaxNumberOfIterations(raoParameters.getMaxIterations())
+                .withObjectiveFunction(parameters.getObjectiveFunction())
+                .withRangeActionParameters(parameters.getRangeActionParameters())
+                .withMnecParameters(parameters.getMnecParameters())
+                .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
+                .withLoopFlowParameters(parameters.getLoopFlowParameters())
+                .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
+                .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationContext(), parameters))
+                .withSolverParameters(parameters.getSolverParameters())
+                .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
                 .build();
 
             postOptimResult = new IteratingLinearOptimizer(searchTreeInput.getObjectiveFunction())
@@ -230,7 +228,7 @@ public class Leaf implements OptimizationResult {
             rangeActions.forEach(ra -> ra.apply(network, raActivationsFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
-    private RangeActionLimitationParameters getRaLimitationParameters(OptimizationContext context, SearchTreeRaoParameters searchTreeRaoParameters) {
+    private RangeActionLimitationParameters getRaLimitationParameters(OptimizationContext context, SearchTreeParameters parameters) {
 
         if (context instanceof PreventiveOptimizationContext) {
             // no limitation in preventive
@@ -240,11 +238,11 @@ public class Leaf implements OptimizationResult {
 
         if (context instanceof CurativeOptimizationContext) {
 
-            int maxRa = searchTreeRaoParameters.getMaxCurativeRa() - appliedNetworkActionsInPrimaryState.size();
+            int maxRa = parameters.getRaLimitationParameters().getMaxCurativeRa() - appliedNetworkActionsInPrimaryState.size();
             Set<String> tsoWithAlreadyActivatedRa = appliedNetworkActionsInPrimaryState.stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-            int maxTso = searchTreeRaoParameters.getMaxCurativeTso() - tsoWithAlreadyActivatedRa.size();
-            Map<String, Integer> maxPstPerTso = searchTreeRaoParameters.getMaxCurativePstPerTso();
-            Map<String, Integer> maxRaPerTso = new HashMap<>(searchTreeRaoParameters.getMaxCurativeRaPerTso());
+            int maxTso = parameters.getRaLimitationParameters().getMaxCurativeTso() - tsoWithAlreadyActivatedRa.size();
+            Map<String, Integer> maxPstPerTso = parameters.getRaLimitationParameters().getMaxCurativePstPerTso();
+            Map<String, Integer> maxRaPerTso = new HashMap<>(parameters.getRaLimitationParameters().getMaxCurativeRaPerTso());
             maxRaPerTso.entrySet().forEach(entry -> {
                 int activatedNetworkActionsForTso = appliedNetworkActionsInPrimaryState.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                 entry.setValue(entry.getValue() - activatedNetworkActionsForTso);
@@ -261,11 +259,11 @@ public class Leaf implements OptimizationResult {
             context.getAllOptimizedStates().stream()
                 .filter(state -> state.getInstant().equals(Instant.CURATIVE))
                 .forEach(state -> {
-                    int maxRa = searchTreeRaoParameters.getMaxCurativeRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
+                    int maxRa = parameters.getRaLimitationParameters().getMaxCurativeRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
                     Set<String> tsoWithAlreadyActivatedRa = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-                    int maxTso = searchTreeRaoParameters.getMaxCurativeTso() - tsoWithAlreadyActivatedRa.size();
-                    Map<String, Integer> maxPstPerTso = searchTreeRaoParameters.getMaxCurativePstPerTso();
-                    Map<String, Integer> maxRaPerTso = new HashMap<>(searchTreeRaoParameters.getMaxCurativeRaPerTso());
+                    int maxTso = parameters.getRaLimitationParameters().getMaxCurativeTso() - tsoWithAlreadyActivatedRa.size();
+                    Map<String, Integer> maxPstPerTso = parameters.getRaLimitationParameters().getMaxCurativePstPerTso();
+                    Map<String, Integer> maxRaPerTso = new HashMap<>(parameters.getRaLimitationParameters().getMaxCurativeRaPerTso());
                     maxRaPerTso.entrySet().forEach(entry -> {
                         int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
                         entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
