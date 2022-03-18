@@ -98,7 +98,7 @@ public final class IteratingLinearOptimizerParameters {
         return raLimitationParameters;
     }
 
-    public SolverParameters getSolver() {
+    public SolverParameters getSolverParameters() {
         return solverParameters;
     }
 

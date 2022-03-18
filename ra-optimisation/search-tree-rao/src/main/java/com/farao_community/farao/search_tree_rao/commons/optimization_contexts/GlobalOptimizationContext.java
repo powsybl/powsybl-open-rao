@@ -6,7 +6,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import java.util.Map;
 import java.util.Set;
 
-public class GlobalOptimizationContext extends AbstractOptimizationContext {
+public class GlobalOptimizationContext extends AbstractOptimizationPerimeter {
 
     public GlobalOptimizationContext(State firstOptimizedState, Map<State, Set<RangeAction<?>>> availableRangeActions) {
         super(firstOptimizedState, availableRangeActions);

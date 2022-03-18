@@ -7,25 +7,19 @@
 
 package com.farao_community.farao.search_tree_rao.search_tree.inputs;
 
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Set;
-
 public class SearchTreeInput {
 
     private final Network network;
-    private final Set<FlowCnec> flowCnecs;
-    private final Set<FlowCnec> loopFlowCnecs;
-    private final OptimizationContext optimizationContext;
-    private final Set<NetworkAction> availableNetworkActions;
+
+    private final OptimizationPerimeter optimizationPerimeter;
 
     private final FlowResult initialFlowResult;
     private final PrePerimeterResult prePerimeterResult;
@@ -35,20 +29,14 @@ public class SearchTreeInput {
     private final ToolProvider toolProvider;
 
     private SearchTreeInput(Network network,
-                            Set<FlowCnec> flowCnecs,
-                            Set<FlowCnec> loopFlowCnecs,
-                            OptimizationContext optimizationContext,
-                            Set<NetworkAction> availableNetworkActions,
+                            OptimizationPerimeter optimizationPerimeter,
                             FlowResult initialFlowResult,
                             PrePerimeterResult prePerimeterResult,
                             AppliedRemedialActions preOptimizationAppliedNetworkActions,
                             ObjectiveFunction objectiveFunction,
                             ToolProvider toolProvider) {
         this.network = network;
-        this.flowCnecs = flowCnecs;
-        this.loopFlowCnecs = loopFlowCnecs;
-        this.optimizationContext = optimizationContext;
-        this.availableNetworkActions = availableNetworkActions;
+        this.optimizationPerimeter = optimizationPerimeter;
         this.initialFlowResult = initialFlowResult;
         this.prePerimeterResult = prePerimeterResult;
         this.preOptimizationAppliedNetworkActions = preOptimizationAppliedNetworkActions;
@@ -60,20 +48,8 @@ public class SearchTreeInput {
         return network;
     }
 
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
-    }
-
-    public Set<FlowCnec> getLoopFlowCnecs() {
-        return loopFlowCnecs;
-    }
-
-    public OptimizationContext getOptimizationContext() {
-        return optimizationContext;
-    }
-
-    public Set<NetworkAction> getAvailableNetworkActions() {
-        return availableNetworkActions;
+    public OptimizationPerimeter getOptimizationPerimeter() {
+        return optimizationPerimeter;
     }
 
     public FlowResult getInitialFlowResult() {
@@ -103,10 +79,7 @@ public class SearchTreeInput {
     public static class SearchTreeInputBuilder {
 
         private Network network;
-        private Set<FlowCnec> flowCnecs;
-        private Set<FlowCnec> loopFlowCnecs;
-        private OptimizationContext optimizationContext;
-        private Set<NetworkAction> availableNetworkActions;
+        private OptimizationPerimeter optimizationPerimeter;
         private FlowResult initialFlowResult;
         private PrePerimeterResult prePerimeterResult;
         private AppliedRemedialActions preOptimizationAppliedNetworkActions;
@@ -118,23 +91,8 @@ public class SearchTreeInput {
             return this;
         }
 
-        SearchTreeInputBuilder withFlowCnecs(Set<FlowCnec> flowCnecs) {
-            this.flowCnecs = flowCnecs;
-            return this;
-        }
-
-        SearchTreeInputBuilder withLoopFlowCnecs(Set<FlowCnec> loopFlowCnecs) {
-            this.loopFlowCnecs = loopFlowCnecs;
-            return this;
-        }
-
-        SearchTreeInputBuilder withOptimizationContext(OptimizationContext optimizationContext) {
-            this.optimizationContext = optimizationContext;
-            return this;
-        }
-
-        SearchTreeInputBuilder withAvailableNetworkActions(Set<NetworkAction> availableNetworkActions) {
-            this.availableNetworkActions = availableNetworkActions;
+        SearchTreeInputBuilder withOptimizationPerimeter(OptimizationPerimeter optimizationPerimeter) {
+            this.optimizationPerimeter = optimizationPerimeter;
             return this;
         }
 
@@ -165,10 +123,7 @@ public class SearchTreeInput {
 
         SearchTreeInput build() {
             return new SearchTreeInput(network,
-                flowCnecs,
-                loopFlowCnecs,
-                optimizationContext,
-                availableNetworkActions,
+                optimizationPerimeter,
                 initialFlowResult,
                 prePerimeterResult,
                 preOptimizationAppliedNetworkActions,

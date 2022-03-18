@@ -94,9 +94,9 @@ public class SearchTree {
         this.topLevelLogger = verbose ? BUSINESS_LOGS : TECHNICAL_LOGS;
 
         // build from inputs
-        this.purelyVirtual = input.getFlowCnecs().stream().noneMatch(FlowCnec::isOptimized);
+        this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
 
-        if (input.getOptimizationContext() instanceof CurativeOptimizationContext) {
+        if (input.getOptimizationPerimeter() instanceof CurativeOptimizationContext) {
             this.bloomer = new SearchTreeBloomer(
                 input.getNetwork(),
                 input.getPrePerimeterResult(),
@@ -107,7 +107,7 @@ public class SearchTree {
                 parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
                 parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
                 parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-                input.getOptimizationContext().getFirstOptimizedState());
+                input.getOptimizationPerimeter().getMainOptimizationState());
         } else {
             this.bloomer = new SearchTreeBloomer(
                 input.getNetwork(),
@@ -119,7 +119,7 @@ public class SearchTree {
                 parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(),
                 parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions(),
                 parameters.getNetworkActionParameters().getNetworkActionCombinations(),
-                input.getOptimizationContext().getFirstOptimizedState());
+                input.getOptimizationPerimeter().getMainOptimizationState());
         }
     }
 
@@ -153,7 +153,7 @@ public class SearchTree {
         optimizeLeaf(rootLeaf);
 
         topLevelLogger.info("{}", rootLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationContext());
+        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter());
         RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         if (stopCriterionReached(rootLeaf)) {
@@ -165,7 +165,7 @@ public class SearchTree {
 
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
         TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationContext(), "Best leaf: ");
+        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
         logOptimizationSummary(optimalLeaf);
@@ -184,7 +184,7 @@ public class SearchTree {
     }
 
     private void logOptimizationSummary(Leaf leaf) {
-        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, input.getOptimizationContext().getFirstOptimizedState(), leaf.getActivatedNetworkActions().size(), getNumberOfActivatedRangeActions(leaf), preOptimFunctionalCost, preOptimVirtualCost, leaf);
+        RaoLogger.logOptimizationSummary(BUSINESS_LOGS, input.getOptimizationPerimeter().getMainOptimizationState(), leaf.getActivatedNetworkActions().size(), getNumberOfActivatedRangeActions(leaf), preOptimFunctionalCost, preOptimVirtualCost, leaf);
     }
 
     private long getNumberOfActivatedRangeActions(Leaf leaf) {
@@ -194,12 +194,12 @@ public class SearchTree {
     private void iterateOnTree() {
         int depth = 0;
         boolean hasImproved = true;
-        if (input.getAvailableNetworkActions().isEmpty()) {
+        if (input.getOptimizationPerimeter().getNetworkActions().isEmpty()) {
             topLevelLogger.info("No network action available");
             return;
         }
 
-        int leavesInParallel = Math.min(input.getAvailableNetworkActions().size(), parameters.getTreeParameters().getLeavesInParallel());
+        int leavesInParallel = Math.min(input.getOptimizationPerimeter().getNetworkActions().size(), parameters.getTreeParameters().getLeavesInParallel());
         TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (AbstractNetworkPool networkPool = makeFaraoNetworkPool(input.getNetwork(), leavesInParallel)) {
             while (depth < parameters.getTreeParameters().getMaximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
@@ -210,7 +210,7 @@ public class SearchTree {
                 if (hasImproved) {
                     TECHNICAL_LOGS.info("Search depth {} [end]", depth + 1);
                     topLevelLogger.info("Search depth {} best leaf: {}", depth + 1, optimalLeaf);
-                    RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationContext(), String.format("Search depth %s best leaf: ", depth + 1));
+                    RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), String.format("Search depth %s best leaf: ", depth + 1));
                     RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
                 } else {
                     topLevelLogger.info("No better result found in search depth {}, exiting search tree", depth + 1);
@@ -232,7 +232,7 @@ public class SearchTree {
      */
     private void updateOptimalLeafWithNextDepthBestLeaf(AbstractNetworkPool networkPool) throws InterruptedException {
 
-        final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, input.getAvailableNetworkActions());
+        final List<NetworkActionCombination> naCombinations = bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions());
         naCombinations.sort(this::arbitraryNetworkActionCombinationComparison);
         if (naCombinations.isEmpty()) {
             TECHNICAL_LOGS.info("No more network action available");
@@ -251,7 +251,7 @@ public class SearchTree {
                         // from previous optimal leaf starting point
                         // TODO: we can wonder if it's better to do this here or at creation of each leaves or at each evaluation/optimization
                         previousDepthOptimalLeaf.getRangeActions()
-                            .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationContext().getFirstOptimizedState())));
+                            .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState())));
 
                         // todo
                         // set alreadyAppliedRa
@@ -334,7 +334,7 @@ public class SearchTree {
     }
 
     private void optimizeLeaf(Leaf leaf) {
-        if (!input.getOptimizationContext().getAllRangeActions().isEmpty()) {
+        if (!input.getOptimizationPerimeter().getRangeActions().isEmpty()) {
             leaf.optimize(input, parameters);
             if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
                 topLevelLogger.info("Failed to optimize leaf: {}", leaf);
@@ -349,8 +349,8 @@ public class SearchTree {
 
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder =  SensitivityComputer.create()
             .withToolProvider(input.getToolProvider())
-            .withCnecs(input.getFlowCnecs())
-            .withRangeActions(input.getOptimizationContext().getAllRangeActions());
+            .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
+            .withRangeActions(input.getOptimizationPerimeter().getRangeActions());
 
         if (isRootLeaf) {
             sensitivityComputerBuilder.withAppliedRemedialActions(input.getPreOptimizationAppliedNetworkActions());
@@ -363,7 +363,7 @@ public class SearchTree {
         }
 
         if (parameters.getLoopFlowParameters() != null  && parameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
-            sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getLoopFlowCnecs());
+            sensitivityComputerBuilder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
         } else if (parameters.getLoopFlowParameters() != null) {
             sensitivityComputerBuilder.withCommercialFlowsResults(input.getInitialFlowResult());
         }
@@ -431,9 +431,9 @@ public class SearchTree {
 
     private AppliedRemedialActions getAppliedRemedialActions(RangeActionActivationResult previousDepthRangeActionActivations) {
         AppliedRemedialActions alreadyAppliedRa = input.getPreOptimizationAppliedNetworkActions().copy();
-        if (input.getOptimizationContext() instanceof GlobalOptimizationContext) {
-            input.getOptimizationContext().getAvailableRangeActions().entrySet().stream()
-                .filter(e -> !e.getKey().equals(input.getOptimizationContext().getFirstOptimizedState())) // remove preventive state
+        if (input.getOptimizationPerimeter() instanceof GlobalOptimizationContext) {
+            input.getOptimizationPerimeter().getRangeActionsPerState().entrySet().stream()
+                .filter(e -> !e.getKey().equals(input.getOptimizationPerimeter().getMainOptimizationState())) // remove preventive state
                 .forEach(e -> e.getValue().forEach(ra -> alreadyAppliedRa.addAppliedRangeAction(e.getKey(), ra, previousDepthRangeActionActivations.getOptimizedSetpoint(ra, e.getKey()))));
         }
         return alreadyAppliedRa;

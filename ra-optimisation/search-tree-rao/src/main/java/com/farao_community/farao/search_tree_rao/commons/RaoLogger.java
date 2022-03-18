@@ -13,11 +13,10 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
@@ -40,15 +39,15 @@ public final class RaoLogger {
 
     public static void logRangeActions(FaraoLogger logger,
                                        Leaf leaf,
-                                       OptimizationContext optimizationContext) {
+                                       OptimizationPerimeter optimizationContext) {
         logRangeActions(logger, leaf, optimizationContext, null);
     }
 
-    public static void logRangeActions(FaraoLogger logger, Leaf leaf, OptimizationContext optimizationContext, String prefix) {
+    public static void logRangeActions(FaraoLogger logger, Leaf leaf, OptimizationPerimeter optimizationContext, String prefix) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationContext;
 
-        String rangeActionSetpoints = optimizationContext.getAvailableRangeActions().entrySet().stream()
+        String rangeActionSetpoints = optimizationContext.getRangeActionsPerState().entrySet().stream()
             .flatMap(eState -> eState.getValue().stream().map(rangeAction -> {
                 double rangeActionValue;
                 if (rangeAction instanceof PstRangeAction) {

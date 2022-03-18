@@ -1,0 +1,120 @@
+/*
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.farao_community.farao.search_tree_rao.commons.optimization_contexts;
+
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Identifiable;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.cnec.Cnec;
+import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
+public abstract class AbstractOptimizationPerimeter implements OptimizationPerimeter {
+
+    private final State mainOptimizationState;
+    private final Set<State> monitoredStates;
+    private final Set<FlowCnec> flowCnecs;
+    private final Set<FlowCnec> optimizedFlowCnecs;
+    private final Set<FlowCnec> monitoredFlowCnecs;
+    private final Set<FlowCnec> loopFlowCnecs;
+    private final Set<NetworkAction> availableNetworkActions;
+    private final Map<State, Set<RangeAction<?>>> availableRangeActions;
+
+    public AbstractOptimizationPerimeter(State mainOptimizationState,
+                                         Set<FlowCnec> flowCnecs,
+                                         Set<FlowCnec> loopFlowCnecs,
+                                         Set<NetworkAction> availableNetworkActions,
+                                         Map<State, Set<RangeAction<?>>> availableRangeActions) {
+
+        if (!availableRangeActions.containsKey(mainOptimizationState)) {
+            throw new FaraoException("some range actions should be available on the first optimized state of the context");
+        }
+
+        this.mainOptimizationState = mainOptimizationState;
+
+        this.monitoredStates = flowCnecs.stream().map(FlowCnec::getState).collect(Collectors.toSet());
+
+        this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.flowCnecs.addAll(flowCnecs);
+
+        this.optimizedFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.optimizedFlowCnecs.addAll(flowCnecs.stream().filter(Cnec::isOptimized).collect(Collectors.toSet()));
+
+        this.monitoredFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.monitoredFlowCnecs.addAll(flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()));
+
+        this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.loopFlowCnecs.addAll(loopFlowCnecs);
+
+        this.availableNetworkActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+        this.availableNetworkActions.addAll(availableNetworkActions);
+
+        this.availableRangeActions = new HashMap<>();
+        availableRangeActions.forEach((state, rangeActions) -> {
+            Set<RangeAction<?>> rangeActionSet = new TreeSet<>(Comparator.comparing(Identifiable::getId));
+            rangeActionSet.addAll(availableRangeActions.get(state));
+            this.availableRangeActions.put(state, rangeActionSet);
+        });
+    }
+
+    @Override
+    public State getMainOptimizationState() {
+        return mainOptimizationState;
+    }
+
+    @Override
+    public Set<State> getRangeActionOptimizationStates() {
+        return availableRangeActions.keySet();
+    }
+
+    @Override
+    public Set<State> getMonitoredStates() {
+        return monitoredStates;
+    }
+
+    @Override
+    public Set<FlowCnec> getFlowCnecs() {
+        return flowCnecs;
+    }
+
+    @Override
+    public Set<FlowCnec> getOptimizedFlowCnecs() {
+        return optimizedFlowCnecs;
+    }
+
+    @Override
+    public Set<FlowCnec> getMonitoredFlowCnecs() {
+        return monitoredFlowCnecs;
+    }
+
+    @Override
+    public Set<FlowCnec> getLoopFlowCnecs() {
+        return loopFlowCnecs;
+    }
+
+    @Override
+    public Set<NetworkAction> getNetworkActions() {
+        return availableNetworkActions;
+    }
+
+    @Override
+    public Map<State, Set<RangeAction<?>>> getRangeActionsPerState() {
+        return availableRangeActions;
+    }
+
+    @Override
+    public Set<RangeAction<?>> getRangeActions() {
+        return availableRangeActions.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+}

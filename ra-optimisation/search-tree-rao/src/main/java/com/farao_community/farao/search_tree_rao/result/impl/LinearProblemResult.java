@@ -7,7 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 
@@ -16,10 +16,10 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointR
  */
 public class LinearProblemResult extends RangeActionActivationResultImpl {
 
-    public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetpoints, OptimizationContext optimizationContext) {
+    public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetpoints, OptimizationPerimeter optimizationContext) {
         super(prePerimeterSetpoints);
 
-        optimizationContext.getAvailableRangeActions().forEach((state, rangeActions) ->
+        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
                 double setpoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state).solutionValue();
                 activate(rangeAction, state, setpoint);

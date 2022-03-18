@@ -8,7 +8,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import java.util.Map;
 import java.util.Set;
 
-public class CurativeOptimizationContext extends AbstractOptimizationContext {
+public class CurativeOptimizationContext extends AbstractOptimizationPerimeter {
 
     public CurativeOptimizationContext(State curativeState, Set<RangeAction<?>> availableRangeActions) {
         super(curativeState, Map.of(curativeState, availableRangeActions));

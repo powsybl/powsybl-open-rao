@@ -13,7 +13,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.cnec.Side;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 
@@ -50,7 +50,7 @@ public final class BestTapFinder {
      */
     public static RangeActionActivationResult round(RangeActionActivationResult linearProblemResult,
                                                     Network network,
-                                                    OptimizationContext optimizationContext,
+                                                    OptimizationPerimeter optimizationContext,
                                                     RangeActionSetpointResult prePerimeterSetpoint,
                                                     List<FlowCnec> mostLimitingCnecs,
                                                     FlowResult flowResult,
@@ -64,24 +64,24 @@ public final class BestTapFinder {
 
     private static void findBestTapOfPstRangeActions(RangeActionActivationResult linearProblemResult,
                                                      Network network,
-                                                     OptimizationContext optimizationContext,
+                                                     OptimizationPerimeter optimizationContext,
                                                      List<FlowCnec> mostLimitingCnecs,
                                                      FlowResult flowResult,
                                                      SensitivityResult sensitivityResult,
                                                      RangeActionActivationResultImpl roundedResult) {
 
-        for (State state : optimizationContext.getAllOptimizedStates()) {
+        for (State state : optimizationContext.getRangeActionOptimizationStates()) {
 
             Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 
-            optimizationContext.getAvailableRangeActions().get(state).stream()
+            optimizationContext.getRangeActionsPerState().get(state).stream()
                 .filter(PstRangeAction.class::isInstance)
                 .map(PstRangeAction.class::cast)
                 .forEach(pstRangeAction -> minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, linearProblemResult.getOptimizedSetpoint(pstRangeAction, state), mostLimitingCnecs, flowResult, sensitivityResult)));
 
             Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
-            for (RangeAction<?> rangeAction : optimizationContext.getAvailableRangeActions().get(state)) {
+            for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
                 if (rangeAction instanceof PstRangeAction) {
                     PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
                     Optional<String> optGroupId = pstRangeAction.getGroupId();
@@ -251,10 +251,10 @@ public final class BestTapFinder {
     }
 
     private static void roundOtherRa(RangeActionActivationResult linearProblemResult,
-                                     OptimizationContext optimizationContext,
+                                     OptimizationPerimeter optimizationContext,
                                      RangeActionActivationResultImpl roundedResult) {
 
-        optimizationContext.getAvailableRangeActions().forEach((key, value) -> value.stream()
+        optimizationContext.getRangeActionsPerState().forEach((key, value) -> value.stream()
             .filter(ra -> !(ra instanceof PstRangeAction))
             .forEach(ra -> roundedResult.activate(ra, key, (double) Math.round(linearProblemResult.getOptimizedSetpoint(ra, key)))));
     }

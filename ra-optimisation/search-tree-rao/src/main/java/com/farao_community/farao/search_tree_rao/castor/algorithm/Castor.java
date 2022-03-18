@@ -22,12 +22,10 @@ import com.farao_community.farao.loopflow_computation.LoopFlowComputationWithXno
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.RaoProvider;
 import com.farao_community.farao.rao_api.parameters.*;
-import com.farao_community.farao.rao_api.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.commons.*;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.MaxMinRelativeMarginParameters;
-import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.*;
+import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
@@ -35,7 +33,7 @@ import com.farao_community.farao.search_tree_rao.commons.objective_function_eval
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTree;
 import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTreeBloomer;
 import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
-import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
+import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.util.AbstractNetworkPool;
@@ -376,7 +374,29 @@ public class Castor implements RaoProvider {
     }
 
     private SearchTreeRaoResult optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult prePerimeterResult) {
+
+        //ici
+
+        Set<FlowCnec> perimeterCnecs = new HashSet<>();
+
+        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
+            .with0bjectiveFunction(raoParameters.getObjectiveFunction())
+            .withTreeParameters(TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)))
+            .withNetworkActionParameters(NetworkActionParameters.buildFromRaoParameters(raoParameters, raoInput.getCrac()))
+            .withGlobalRemedialActionLimitationParameters(GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters))
+            .withRangeActionParameters(RangeActionParameters.buildFromRaoParameters(raoParameters))
+            .withMnecParameters(MnecParameters.buildFromRaoParameters(raoParameters))
+            .withMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters))
+            .withLoopFlowParameters(LoopFlowParameters.buildFromRaoParameters(raoParameters))
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), perimeterCnecs))
+            .withSolverParameters(SolverParameters.buildFromRaoParameters(raoParameters))
+            .withMaxNumberOfIterations(raoParameters.getMaxIterations())
+            .build();
+
         TreeParameters preventiveTreeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
+
+
+
         LinearOptimizerParameters linearOptimizerParameters = createPreventiveLinearOptimizerParameters(raoParameters);
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
             raoInput.getCrac(),

@@ -7,7 +7,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import java.util.Map;
 import java.util.Set;
 
-public class PreventiveOptimizationContext extends AbstractOptimizationContext {
+public class PreventiveOptimizationContext extends AbstractOptimizationPerimeter {
 
     public PreventiveOptimizationContext(State preventiveState, Set<RangeAction<?>> availableRangeActions) {
         super(preventiveState, Map.of(preventiveState, availableRangeActions));

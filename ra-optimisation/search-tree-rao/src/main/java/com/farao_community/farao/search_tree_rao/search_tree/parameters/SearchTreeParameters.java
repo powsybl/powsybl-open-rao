@@ -89,7 +89,7 @@ public class SearchTreeParameters {
         return maxNumberOfIterations;
     }
 
-    public SearchTreeParametersBuilder create() {
+    public static SearchTreeParametersBuilder create() {
         return new SearchTreeParametersBuilder();
     }
 
@@ -106,62 +106,62 @@ public class SearchTreeParameters {
         private SolverParameters solverParameters;
         private int maxNumberOfIterations;
 
-        SearchTreeParametersBuilder with0bjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
+        public SearchTreeParametersBuilder with0bjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
             return this;
         }
 
-        SearchTreeParametersBuilder withTreeParameters(TreeParameters treeParameters) {
+        public SearchTreeParametersBuilder withTreeParameters(TreeParameters treeParameters) {
             this.treeParameters = treeParameters;
             return this;
         }
 
-        SearchTreeParametersBuilder withNetworkActionParameters(NetworkActionParameters networkActionParameters) {
+        public SearchTreeParametersBuilder withNetworkActionParameters(NetworkActionParameters networkActionParameters) {
             this.networkActionParameters = networkActionParameters;
             return this;
         }
 
-        SearchTreeParametersBuilder withGlobalRemedialActionLimitationParameters(GlobalRemedialActionLimitationParameters raLimitationParameters) {
+        public SearchTreeParametersBuilder withGlobalRemedialActionLimitationParameters(GlobalRemedialActionLimitationParameters raLimitationParameters) {
             this.raLimitationParameters = raLimitationParameters;
             return this;
         }
 
-        SearchTreeParametersBuilder withRangeActionParameters(RangeActionParameters rangeActionParameters) {
+        public SearchTreeParametersBuilder withRangeActionParameters(RangeActionParameters rangeActionParameters) {
             this.rangeActionParameters = rangeActionParameters;
             return this;
         }
 
-        SearchTreeParametersBuilder withMnecParameters(MnecParameters mnecParameters) {
+        public SearchTreeParametersBuilder withMnecParameters(MnecParameters mnecParameters) {
             this.mnecParameters = mnecParameters;
             return this;
         }
 
-        SearchTreeParametersBuilder withMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
+        public SearchTreeParametersBuilder withMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
             this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
             return this;
         }
 
-        SearchTreeParametersBuilder withLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
+        public SearchTreeParametersBuilder withLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
             this.loopFlowParameters = loopFlowParameters;
             return this;
         }
 
-        SearchTreeParametersBuilder withUnoptimizedCnecParameters(UnoptimizedCnecParameters unoptimizedCnecParameters) {
+        public SearchTreeParametersBuilder withUnoptimizedCnecParameters(UnoptimizedCnecParameters unoptimizedCnecParameters) {
             this.unoptimizedCnecParameters = unoptimizedCnecParameters;
             return this;
         }
 
-        SearchTreeParametersBuilder withSolverParameters(SolverParameters solverParameters) {
+        public SearchTreeParametersBuilder withSolverParameters(SolverParameters solverParameters) {
             this.solverParameters = solverParameters;
             return this;
         }
 
-        SearchTreeParametersBuilder withMaxNumberOfIterations(int maxNumberOfIterations) {
+        public SearchTreeParametersBuilder withMaxNumberOfIterations(int maxNumberOfIterations) {
             this.maxNumberOfIterations = maxNumberOfIterations;
             return this;
         }
 
-        SearchTreeParameters build() {
+        public SearchTreeParameters build() {
             return new SearchTreeParameters(objectiveFunction,
                 treeParameters,
                 networkActionParameters,

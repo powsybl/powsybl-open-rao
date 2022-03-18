@@ -21,7 +21,7 @@ import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.CurativeOptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.PreventiveOptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
@@ -178,7 +178,7 @@ public class Leaf implements OptimizationResult {
         if (status.equals(Status.OPTIMIZED)) {
             // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
             TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
-            resetPreOptimRangeActionsSetpoints(searchTreeInput.getOptimizationContext());
+            resetPreOptimRangeActionsSetpoints(searchTreeInput.getOptimizationPerimeter());
         }
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
@@ -186,9 +186,7 @@ public class Leaf implements OptimizationResult {
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
                 .withNetwork(network)
-                .withFlowCnecs(searchTreeInput.getFlowCnecs())
-                .withLoopFlowCnecs(searchTreeInput.getLoopFlowCnecs())
-                .withOptimizationContext(searchTreeInput.getOptimizationContext())
+                .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
                 .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
                 .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
                 .withPrePerimeterSetpoints(prePerimeterSetpoints)
@@ -207,7 +205,7 @@ public class Leaf implements OptimizationResult {
                 .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
                 .withLoopFlowParameters(parameters.getLoopFlowParameters())
                 .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
-                .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationContext(), parameters))
+                .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
                 .withSolverParameters(parameters.getSolverParameters())
                 .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
                 .build();
@@ -223,12 +221,12 @@ public class Leaf implements OptimizationResult {
         }
     }
 
-    private void resetPreOptimRangeActionsSetpoints(OptimizationContext optimizationContext) {
-        optimizationContext.getAvailableRangeActions().forEach((state, rangeActions) ->
+    private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {
+        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(ra -> ra.apply(network, raActivationsFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
-    private RangeActionLimitationParameters getRaLimitationParameters(OptimizationContext context, SearchTreeParameters parameters) {
+    private RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
 
         if (context instanceof PreventiveOptimizationContext) {
             // no limitation in preventive
@@ -248,15 +246,15 @@ public class Leaf implements OptimizationResult {
                 entry.setValue(entry.getValue() - activatedNetworkActionsForTso);
             });
 
-            limitationParameters.setMaxRangeAction(context.getFirstOptimizedState(), maxRa);
-            limitationParameters.setMaxTso(context.getFirstOptimizedState(), maxTso);
-            limitationParameters.setMaxTsoExclusion(context.getFirstOptimizedState(), tsoWithAlreadyActivatedRa);
-            limitationParameters.setMaxPstPerTso(context.getFirstOptimizedState(), maxPstPerTso);
-            limitationParameters.setMaxRangeActionPerTso(context.getFirstOptimizedState(), maxRaPerTso);
+            limitationParameters.setMaxRangeAction(context.getMainOptimizationState(), maxRa);
+            limitationParameters.setMaxTso(context.getMainOptimizationState(), maxTso);
+            limitationParameters.setMaxTsoExclusion(context.getMainOptimizationState(), tsoWithAlreadyActivatedRa);
+            limitationParameters.setMaxPstPerTso(context.getMainOptimizationState(), maxPstPerTso);
+            limitationParameters.setMaxRangeActionPerTso(context.getMainOptimizationState(), maxRaPerTso);
 
         } else if (context instanceof GlobalOptimizationContext) {
 
-            context.getAllOptimizedStates().stream()
+            context.getRangeActionOptimizationStates().stream()
                 .filter(state -> state.getInstant().equals(Instant.CURATIVE))
                 .forEach(state -> {
                     int maxRa = parameters.getRaLimitationParameters().getMaxCurativeRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
