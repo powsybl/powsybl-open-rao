@@ -27,6 +27,7 @@ import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -161,16 +162,17 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
     private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
+        Map<RangeAction<?>, Double> randoms = getRandomPenaltyCost();
         rangeActions.forEach(rangeAction -> {
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
             // If the range action has been filtered out, then absoluteVariationVariable is null
             if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost + getRandomPenaltyCost(rangeAction));
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost + randoms.get(rangeAction));
             } else if (absoluteVariationVariable != null && rangeAction instanceof HvdcRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost + getRandomPenaltyCost(rangeAction));
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost + randoms.get(rangeAction));
             } else if (absoluteVariationVariable != null && rangeAction instanceof InjectionRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost + getRandomPenaltyCost(rangeAction));
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost + randoms.get(rangeAction));
             }
         });
     }
@@ -180,10 +182,18 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * Seeded with the network name, so it changes between 2 different runs of the RAO but is replicable for the same run
      * If there are equivalent solutions, this allows the solver to always chose the same solution
      */
-    private double getRandomPenaltyCost(RangeAction<?> rangeAction) {
-        int seed = networkName.hashCode() + rangeAction.getId().hashCode();
-        Random generator = new Random(seed);
-        return generator.nextDouble() * 0.001;
+    private Map<RangeAction<?>, Double> getRandomPenaltyCost() {
+        //int seed = networkName.hashCode();
+        //Random generator = new Random(seed);
+        Map<RangeAction<?>, Double> randoms = new HashMap<>();
+        List<RangeAction<?>> sortedRangeActions = rangeActions.stream().sorted(Comparator.comparing(Identifiable::getId)).collect(Collectors.toList());
+        //sortedRangeActions.forEach(ra -> randoms.put(ra, generator.nextDouble() * 0.001));
+        int i = 1;
+        for (RangeAction<?> ra : sortedRangeActions) {
+            randoms.put(ra, i * 0.01 / sortedRangeActions.size());
+            i++;
+        }
+        return randoms;
     }
 }
 
