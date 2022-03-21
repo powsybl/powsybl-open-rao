@@ -125,7 +125,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertNotNull(constraintUp);
             assertNotNull(constraintDown);
 
-            MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(ra);
+            MPVariable setpointVariable = linearProblem.getRangeActionAbsoluteSetpointVariable(ra);
             double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetPoint(ra);
 
             assertEquals(1, constraintUp.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
@@ -155,7 +155,7 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertNotNull(constraintUp);
             assertNotNull(constraintDown);
 
-            MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(ra);
+            MPVariable setpointVariable = linearProblem.getRangeActionAbsoluteSetpointVariable(ra);
             double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetPoint(ra);
             double relaxation = 1e-5;
             if (ra.getId().equals("pst1")) {

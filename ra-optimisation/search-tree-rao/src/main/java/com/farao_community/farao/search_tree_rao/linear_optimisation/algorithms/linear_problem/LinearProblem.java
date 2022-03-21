@@ -14,7 +14,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.ProblemFiller;
 import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.LinearProblemResult;
 import com.farao_community.farao.util.NativeLibraryLoader;
 import com.google.ortools.linearsolver.*;
 import org.apache.commons.lang3.NotImplementedException;
@@ -154,6 +153,14 @@ public final class LinearProblem {
 
     public MPVariable getRangeActionSetpointVariable(RangeAction<?> rangeAction, State state) {
         return solver.getVariable(rangeActionSetpointVariableId(rangeAction, state));
+    }
+
+    public MPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction) {
+        return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction));
+    }
+
+    public MPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction) {
+        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction));
     }
 
     public MPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {

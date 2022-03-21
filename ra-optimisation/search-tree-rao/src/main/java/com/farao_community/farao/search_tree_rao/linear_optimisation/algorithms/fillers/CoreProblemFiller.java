@@ -13,6 +13,9 @@ import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range.StandardRange;
+import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.*;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
@@ -24,6 +27,7 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -176,22 +180,16 @@ public class CoreProblemFiller implements ProblemFiller {
             .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
             .collect(Collectors.toList());
 
-        Map<State, Set<RangeAction<?>>> alreadyConsideredAction = new HashMap<>();
+        Set<RangeAction<?>> alreadyConsideredAction = new HashSet<>();
 
         for (State state : statesBeforeCnec) {
             for (RangeAction<?> rangeAction : optimizationContext.getAvailableRangeActions().get(state)) {
                 // todo: make that cleaner, it is ugly
-                if (!alreadyConsideredAction.containsKey(state) || !alreadyConsideredAction.get(state).contains(rangeAction)) {
+                if (!alreadyConsideredAction.contains(rangeAction)) {
                     addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, flowConstraint);
-                    Pair<RangeAction<?>, State> raOnSameAction = getLastAvailableRangeActionOnSameAction(rangeAction, state);
-                    if (raOnSameAction != null) {
-                        if (alreadyConsideredAction.containsKey(raOnSameAction.getRight())) {
-                            alreadyConsideredAction.get(raOnSameAction.getRight()).add(raOnSameAction.getLeft());
-                        } else {
-                            alreadyConsideredAction.putIfAbsent(raOnSameAction.getRight(), Collections.singleton(raOnSameAction.getLeft()));
-                        }
-                    }
+                    alreadyConsideredAction.addAll(getAvailableRangeActionsOnSameAction(rangeAction));
                 }
+
             }
         }
     }
@@ -290,16 +288,78 @@ public class CoreProblemFiller implements ProblemFiller {
                         MPVariable previousSetpointVariable = linearProblem.getRangeActionSetpointVariable(lastAvailableRangeAction.getLeft(), lastAvailableRangeAction.getValue());
 
                         // if relative to previous instant range
-                        // todo: handle relative range
+                        double minAbsoluteSetpoint = Double.NEGATIVE_INFINITY;
+                        double maxAbsoluteSetpoint = Double.POSITIVE_INFINITY;
+                        double minRelativeSetpoint = Double.NEGATIVE_INFINITY;
+                        double maxRelativeSetpoint = Double.POSITIVE_INFINITY;
+                        if (rangeAction instanceof PstRangeAction) {
+                            List<TapRange> ranges = ((PstRangeAction) rangeAction).getRanges();
+                            int minAbsoluteTap = Integer.MIN_VALUE;
+                            int maxAbsoluteTap = Integer.MAX_VALUE;
+                            int minRelativeTap = Integer.MIN_VALUE;
+                            int maxRelativeTap = Integer.MAX_VALUE;
+                            for (TapRange range : ranges) {
+                                if (range.getRangeType().equals(RangeType.ABSOLUTE)) {
+                                    minAbsoluteTap = Math.max(minAbsoluteTap, range.getMinTap());
+                                    maxAbsoluteTap = Math.min(maxAbsoluteTap, range.getMaxTap());
+                                } else if (range.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK)) {
+                                    minAbsoluteTap = Math.max(minAbsoluteTap, ((PstRangeAction) rangeAction).getInitialTap() + range.getMinTap());
+                                    maxAbsoluteTap = Math.min(maxAbsoluteTap, ((PstRangeAction) rangeAction).getInitialTap() + range.getMaxTap());
+                                } else if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {
+                                    minRelativeTap = Math.max(minRelativeTap, range.getMinTap());
+                                    maxRelativeTap = Math.min(maxRelativeTap, range.getMaxTap());
+                                }
+                            }
+                            Map<Integer, Double> tapToAngleMap = ((PstRangeAction) rangeAction).getTapToAngleConversionMap();
+                            // The taps are not necessarily in order of increasing angle.
+                            double setPointMinAbsoluteTap = tapToAngleMap.get(minAbsoluteTap);
+                            double setPointMaxAbsoluteTap = tapToAngleMap.get(maxAbsoluteTap);
+                            minAbsoluteSetpoint = Math.min(setPointMinAbsoluteTap, setPointMaxAbsoluteTap);
+                            maxAbsoluteSetpoint = Math.max(setPointMinAbsoluteTap, setPointMaxAbsoluteTap);
+                            // Make sure we stay in the range by multiplying the relative tap by the smallest angle between taps.
+                            // (As long as minRelativeTap is negative (or zero) and maxRelativeTap is positive (or zero).)
+                            minRelativeSetpoint = minRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleDiff();
+                            minRelativeSetpoint = maxRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleDiff();
+                        } else if (rangeAction instanceof HvdcRangeAction) {
+                            List<StandardRange> ranges = ((HvdcRangeAction) rangeAction).getRanges();
+                            for (StandardRange range : ranges) {
+                                if (range.getRangeType().equals(RangeType.ABSOLUTE)) {
+                                    minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, range.getMin());
+                                    maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, range.getMax());
+                                } else if (range.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK)) {
+                                    minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, ((HvdcRangeAction) rangeAction).getInitialSetpoint() + range.getMin());
+                                    maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, ((HvdcRangeAction) rangeAction).getInitialSetpoint() + range.getMax());
+                                } else if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {
+                                    minRelativeSetpoint = Math.max(minRelativeSetpoint, range.getMin());
+                                    maxRelativeSetpoint = Math.min(maxRelativeSetpoint, range.getMax());
+                                }
+                            }
+                        } else if (rangeAction instanceof InjectionRangeAction) {
+                            List<StandardRange> ranges = ((InjectionRangeAction) rangeAction).getRanges();
+                            for (StandardRange range : ranges) {
+                                if (range.getRangeType().equals(RangeType.ABSOLUTE)) {
+                                    minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, range.getMin());
+                                    maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, range.getMax());
+                                } else if (range.getRangeType().equals(RangeType.RELATIVE_TO_INITIAL_NETWORK)) {
+                                    minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, ((InjectionRangeAction) rangeAction).getInitialSetpoint() + range.getMin());
+                                    maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, ((InjectionRangeAction) rangeAction).getInitialSetpoint() + range.getMax());
+                                } else if (range.getRangeType().equals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT)) {
+                                    minRelativeSetpoint = Math.max(minRelativeSetpoint, range.getMin());
+                                    maxRelativeSetpoint = Math.min(maxRelativeSetpoint, range.getMax());
+                                }
+                            }
+                        } else {
+                            throw new NotImplementedException("range action type is not supported yet");
+                        }
 
-                        // if absolute range
-                        // todo: only take into account absolute range here
-                        double prePerimeterSetPoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
-                        double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoint);
-                        double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoint);
+                        // relative range
+                        MPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction);
+                        relSetpointConstraint.setCoefficient(setPointVariable, 1);
+                        relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
 
-                        setPointVariable.setLb(minSetPoint - RANGE_ACTION_SETPOINT_EPSILON);
-                        setPointVariable.setUb(maxSetPoint + RANGE_ACTION_SETPOINT_EPSILON);
+                        // absolute range
+                        setPointVariable.setLb(minAbsoluteSetpoint - RANGE_ACTION_SETPOINT_EPSILON);
+                        setPointVariable.setUb(maxAbsoluteSetpoint + RANGE_ACTION_SETPOINT_EPSILON);
 
                         // define absolute range action variation
                         varConstraintNegative.setLb(0);
@@ -347,6 +407,18 @@ public class CoreProblemFiller implements ProblemFiller {
         } else {
             throw new FaraoException("Linear optimization does no handle RA which are neither PREVENTIVE nor CURATIVE.");
         }
+    }
+
+    private Set<RangeAction<?>> getAvailableRangeActionsOnSameAction(RangeAction<?> rangeAction) {
+        Set<RangeAction<?>> rangeActions = new HashSet<>();
+        optimizationContext.getAvailableRangeActions().forEach((state, raSet) ->
+            raSet.forEach(ra -> {
+                if (ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements())) {
+                    rangeActions.add(ra);
+                }
+            })
+        );
+        return rangeActions;
     }
 
     /**

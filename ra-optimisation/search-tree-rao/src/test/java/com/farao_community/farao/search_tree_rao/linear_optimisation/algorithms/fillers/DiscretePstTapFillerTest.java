@@ -60,7 +60,7 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
         discretePstTapFiller.fill(linearProblem, flowResult, sensitivityResult);
 
         // check that all constraints and variables exists
-        MPVariable setpointV = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
+        MPVariable setpointV = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRangeAction);
         MPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
         MPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
         MPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);

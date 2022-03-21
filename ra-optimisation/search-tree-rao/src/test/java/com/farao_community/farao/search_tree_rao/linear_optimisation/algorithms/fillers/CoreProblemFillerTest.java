@@ -83,7 +83,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         initializeForPreventive(0, 0, 0);
 
         // check range action setpoint variable
-        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
+        MPVariable setPointVariable = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRangeAction);
         assertNotNull(setPointVariable);
         assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
@@ -142,7 +142,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         initializeForPreventive(2.5, 2.5, 2.5);
 
         // check range action setpoint variable
-        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
+        MPVariable setPointVariable = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRangeAction);
         assertNotNull(setPointVariable);
         assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
@@ -201,7 +201,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         initializeForCurative();
 
         // check range action setpoint variable
-        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
+        MPVariable setPointVariable = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRangeAction);
         assertNotNull(setPointVariable);
         assertEquals(minAlpha, setPointVariable.lb(), DOUBLE_TOLERANCE);
         assertEquals(maxAlpha, setPointVariable.ub(), DOUBLE_TOLERANCE);
@@ -278,7 +278,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // some additional data
         final double currentAlpha = ((PstRangeAction) pstRangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
-        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
+        MPVariable setPointVariable = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRangeAction);
 
         // check flow variable for cnec1
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
@@ -322,7 +322,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         // some additional data
         final double currentAlpha = ((PstRangeAction) pstRangeAction).convertTapToAngle(network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getTapPosition());
 
-        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
+        MPVariable setPointVariable = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRangeAction);
 
         // check flow variable for cnec1 does not exist
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
@@ -387,7 +387,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
         initialize(cnec1, 2.5, 2.5, 2.5);
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
-        rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
+        rangeActionSetpoint = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRangeAction);
         assertEquals(0, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500., flowConstraint.ub(), DOUBLE_TOLERANCE);
@@ -404,7 +404,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         when(flowResult.getMargin(cnec1, Unit.MEGAWATT)).thenReturn(-1.0);
         initialize(cnec1, 1.5, 1.5, 1.5);
         flowConstraint = linearProblem.getFlowConstraint(cnec1);
-        rangeActionSetpoint = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
+        rangeActionSetpoint = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRangeAction);
         assertEquals(-2, flowConstraint.getCoefficient(rangeActionSetpoint), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(500. - 2 * tapToAngle.get(TAP_INITIAL), flowConstraint.ub(), DOUBLE_TOLERANCE);

@@ -65,8 +65,8 @@ public class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
 
         // check that all constraints and variables relate to discrete Pst Group filler exists
         MPVariable groupSetpointV = linearProblem.getRangeActionGroupSetpointVariable(groupId);
-        MPVariable setpoint1V = linearProblem.getRangeActionSetpointVariable(pstRa1);
-        MPVariable setpoint2V = linearProblem.getRangeActionSetpointVariable(pstRa2);
+        MPVariable setpoint1V = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRa1);
+        MPVariable setpoint2V = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRa2);
 
         MPConstraint groupTap1C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa1);
         MPConstraint groupTap2C = linearProblem.getRangeActionGroupSetpointConstraint(pstRa2);

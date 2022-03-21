@@ -101,7 +101,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private void buildIsVariationVariableAndConstraints(LinearProblem linearProblem, RangeAction<?> rangeAction) {
         MPVariable isVariationVariable = linearProblem.addRangeActionVariationBinary(rangeAction);
         double initialSetpoint = prePerimeterRangeActionSetpoints.getSetpoint(rangeAction);
-        MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(rangeAction);
+        MPVariable setpointVariable = linearProblem.getRangeActionAbsoluteSetpointVariable(rangeAction);
         if (setpointVariable == null) {
             throw new FaraoException(format("Range action setpoint variable for %s has not been defined yet.", rangeAction.getId()));
         }

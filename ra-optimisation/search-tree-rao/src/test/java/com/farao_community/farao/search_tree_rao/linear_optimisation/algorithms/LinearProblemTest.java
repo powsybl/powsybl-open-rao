@@ -74,11 +74,11 @@ public class LinearProblemTest {
 
     @Test
     public void rangeActionSetPointVariableTest() {
-        assertNull(linearProblem.getRangeActionSetpointVariable(rangeAction));
-        linearProblem.addRangeActionSetpointVariable(LB, UB, rangeAction);
-        assertNotNull(linearProblem.getRangeActionSetpointVariable(rangeAction));
-        assertEquals(LB, linearProblem.getRangeActionSetpointVariable(rangeAction).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getRangeActionSetpointVariable(rangeAction).ub(), DOUBLE_TOLERANCE);
+        assertNull(linearProblem.getRangeActionAbsoluteSetpointVariable(rangeAction));
+        linearProblem.addRangeActionAbsoluteSetpointVariable(LB, UB, rangeAction);
+        assertNotNull(linearProblem.getRangeActionAbsoluteSetpointVariable(rangeAction));
+        assertEquals(LB, linearProblem.getRangeActionAbsoluteSetpointVariable(rangeAction).lb(), DOUBLE_TOLERANCE);
+        assertEquals(UB, linearProblem.getRangeActionAbsoluteSetpointVariable(rangeAction).ub(), DOUBLE_TOLERANCE);
     }
 
     @Test

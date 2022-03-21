@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
@@ -54,7 +53,7 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
     private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction rangeAction, String groupId) {
         MPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(rangeAction), 1);
+        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionAbsoluteSetpointVariable(rangeAction), 1);
         groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId), -1);
     }
 }
