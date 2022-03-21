@@ -33,12 +33,15 @@ import java.util.Set;
  */
 public class PrePerimeterSensitivityAnalysis {
 
+    // actual input
     private final Set<FlowCnec> flowCnecs;
     private final Set<RangeAction<?>> rangeActions;
     private final RaoParameters raoParameters;
     private final ToolProvider toolProvider;
 
+    // built internally
     private SensitivityComputer sensitivityComputer;
+    private ObjectiveFunction objectiveFunction;
 
     public PrePerimeterSensitivityAnalysis(Set<FlowCnec> flowCnecs,
                                            Set<RangeAction<?>> rangeActions,
@@ -51,7 +54,7 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
@@ -60,7 +63,7 @@ public class PrePerimeterSensitivityAnalysis {
         }
 
         sensitivityComputer = sensitivityComputerBuilder.build();
-        ObjectiveFunction objectiveFunction = ObjectiveFunctionSmartBuilder.buildForInitialSensitivityComputation(flowCnecs, raoParameters);
+        objectiveFunction = ObjectiveFunctionSmartBuilder.buildForInitialSensitivityComputation(flowCnecs, raoParameters);
 
         return runAndGetResult(network, objectiveFunction);
     }
@@ -70,7 +73,7 @@ public class PrePerimeterSensitivityAnalysis {
                                                        Set<String> operatorsNotSharingCras,
                                                        AppliedRemedialActions appliedCurativeRemedialActions) {
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = getBuilder();
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder();
         if (raoParameters.isRaoWithLoopFlowLimitation()) {
             if (raoParameters.getLoopFlowApproximationLevel().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
@@ -87,12 +90,16 @@ public class PrePerimeterSensitivityAnalysis {
         }
         sensitivityComputer = sensitivityComputerBuilder.build();
 
-        ObjectiveFunction objectiveFunction = ObjectiveFunctionSmartBuilder.build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters);
+        objectiveFunction = ObjectiveFunctionSmartBuilder.build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters);
 
         return runAndGetResult(network, objectiveFunction);
     }
 
-    private SensitivityComputer.SensitivityComputerBuilder getBuilder() {
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunction;
+    }
+
+    private SensitivityComputer.SensitivityComputerBuilder buildSensiBuilder() {
         return SensitivityComputer.create()
                 .withToolProvider(toolProvider)
                 .withCnecs(flowCnecs)

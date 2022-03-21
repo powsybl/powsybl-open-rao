@@ -15,6 +15,7 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
@@ -28,6 +29,7 @@ import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
 import static java.lang.String.format;
 
 /**
@@ -37,13 +39,39 @@ public final class RaoLogger {
     private RaoLogger() {
     }
 
+    public static void logSensitivityAnalysisResults(String prefix,
+                                              ObjectiveFunction objectiveFunction,
+                                              PrePerimeterResult sensitivityAnalysisResult,
+                                              RaoParameters raoParameters,
+                                              int numberOfLoggedLimitingElements) {
+
+        if (!BUSINESS_LOGS.isInfoEnabled()) {
+            return;
+        }
+
+        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
+
+        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
+            formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
+            formatDouble(prePerimeterObjectiveFunctionResult.getFunctionalCost()),
+            formatDouble(prePerimeterObjectiveFunctionResult.getVirtualCost()));
+
+        RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
+            sensitivityAnalysisResult,
+            raoParameters.getObjectiveFunction(),
+            numberOfLoggedLimitingElements);
+    }
+
     public static void logRangeActions(FaraoLogger logger,
                                        Leaf leaf,
                                        OptimizationPerimeter optimizationContext) {
         logRangeActions(logger, leaf, optimizationContext, null);
     }
 
-    public static void logRangeActions(FaraoLogger logger, Leaf leaf, OptimizationPerimeter optimizationContext, String prefix) {
+    public static void logRangeActions(FaraoLogger logger,
+                                       Leaf leaf,
+                                       OptimizationPerimeter
+                                           optimizationContext, String prefix) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationContext;
 

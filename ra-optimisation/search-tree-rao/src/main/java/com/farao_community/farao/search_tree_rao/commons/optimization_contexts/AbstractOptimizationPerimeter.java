@@ -18,10 +18,13 @@ import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -144,6 +147,20 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
 
             //no loopFLow limitation
             return Collections.emptySet();
+        }
+    }
+
+    static boolean doesPrePerimeterSetpointRespectRange(RangeAction<?> rangeAction, RangeActionSetpointResult prePerimeterSetpoints) {
+        double preperimeterSetPoint = prePerimeterSetpoints.getSetpoint(rangeAction);
+        double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
+        double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
+
+        if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
+            BUSINESS_WARNS.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
+                rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
+            return false;
+        } else {
+            return true;
         }
     }
 

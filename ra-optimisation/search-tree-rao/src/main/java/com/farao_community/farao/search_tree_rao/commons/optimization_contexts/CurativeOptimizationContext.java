@@ -12,6 +12,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.algorithm.BasecaseScenario;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
@@ -38,18 +39,18 @@ public class CurativeOptimizationContext extends AbstractOptimizationPerimeter {
         }
     }
 
-    public static CurativeOptimizationContext build(State curativeState, Crac crac, Network network, RaoParameters raoParameters, FlowResult prePerimeterFlowResult) {
+    public static CurativeOptimizationContext build(State curativeState, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
 
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(curativeState);
-
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, curativeState, prePerimeterFlowResult))
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, curativeState, prePerimeterResult))
             .collect(Collectors.toSet());
 
         Set<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, curativeState, prePerimeterFlowResult))
+            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, curativeState, prePerimeterResult))
+            .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
 
         return new CurativeOptimizationContext(curativeState,

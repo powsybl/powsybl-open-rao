@@ -1,6 +1,8 @@
 package com.farao_community.farao.search_tree_rao.search_tree.parameters;
 
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
 public class SearchTreeParameters {
@@ -106,6 +108,19 @@ public class SearchTreeParameters {
         private SolverParameters solverParameters;
         private int maxNumberOfIterations;
 
+        public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
+            this.objectiveFunction = raoParameters.getObjectiveFunction();
+            this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
+            this.raLimitationParameters = GlobalRemedialActionLimitationParameters.buildFromRaoParameters(raoParameters);
+            this.rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
+            this.mnecParameters = MnecParameters.buildFromRaoParameters(raoParameters);
+            this.maxMinRelativeMarginParameters = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
+            this.loopFlowParameters = LoopFlowParameters.buildFromRaoParameters(raoParameters);
+            this.solverParameters = SolverParameters.buildFromRaoParameters(raoParameters);
+            this.maxNumberOfIterations = raoParameters.getMaxIterations();
+            return this;
+        }
+
         public SearchTreeParametersBuilder with0bjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
             return this;
@@ -175,4 +190,6 @@ public class SearchTreeParameters {
                 maxNumberOfIterations);
         }
     }
+
+
 }
