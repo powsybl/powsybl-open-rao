@@ -10,6 +10,9 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters.LoopFlowApproximationLevel;
 
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 public class LoopFlowParameters {
     private final LoopFlowApproximationLevel loopFlowApproximationLevel;
     private final double loopFlowAcceptableAugmentation;

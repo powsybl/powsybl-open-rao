@@ -9,6 +9,9 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 public class MnecParameters {
     private final double mnecAcceptableMarginDiminution;
     private final double mnecViolationCost;

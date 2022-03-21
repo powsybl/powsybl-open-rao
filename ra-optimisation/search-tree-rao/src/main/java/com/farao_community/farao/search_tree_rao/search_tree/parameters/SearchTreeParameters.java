@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.search_tree_rao.search_tree.parameters;
 
 import com.farao_community.farao.data.crac_api.Crac;
@@ -5,6 +11,9 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
+/**
+ * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
+ */
 public class SearchTreeParameters {
 
     private final RaoParameters.ObjectiveFunction objectiveFunction;

@@ -113,23 +113,6 @@ public final class RaoUtil {
         return value;
     }
 
-    public static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
-        double max = 0;
-        for (FlowCnec flowCnec : flowCnecs) {
-            if (flowCnec.isOptimized()) {
-                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
-                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
-                    max = Math.abs(minFlow.get());
-                }
-                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
-                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
-                    max = Math.abs(maxFlow.get());
-                }
-            }
-        }
-        return max;
-    }
-
     /**
      * Returns true if a remedial action is available depending on its usage rules
      * If it has a OnFlowConstraint usage rule, then the margins are needed

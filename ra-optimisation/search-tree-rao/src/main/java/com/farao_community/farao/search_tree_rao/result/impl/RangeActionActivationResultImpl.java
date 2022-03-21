@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
  */
 public class RangeActionActivationResultImpl implements RangeActionActivationResult {
 
