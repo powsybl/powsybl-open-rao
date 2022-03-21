@@ -183,11 +183,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * If there are equivalent solutions, this allows the solver to always chose the same solution
      */
     private Map<RangeAction<?>, Double> getRandomPenaltyCost() {
-        //int seed = networkName.hashCode();
-        //Random generator = new Random(seed);
         Map<RangeAction<?>, Double> randoms = new HashMap<>();
         List<RangeAction<?>> sortedRangeActions = rangeActions.stream().sorted(Comparator.comparing(Identifiable::getId)).collect(Collectors.toList());
-        //sortedRangeActions.forEach(ra -> randoms.put(ra, generator.nextDouble() * 0.001));
+        Collections.shuffle(sortedRangeActions, new Random(networkName.hashCode()));
         int i = 1;
         for (RangeAction<?> ra : sortedRangeActions) {
             randoms.put(ra, i * 0.01 / sortedRangeActions.size());
