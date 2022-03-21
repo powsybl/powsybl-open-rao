@@ -439,35 +439,5 @@ public class SearchTree {
         return alreadyAppliedRa;
     }
 
-    /**
-     * Returns true if a remedial action is available depending on its usage rules
-     * If it has a OnFlowConstraint usage rule, then the margins are needed
-     */
-    //todo : move out of here
-    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State optimizedState, FlowResult flowResult) {
-        switch (remedialAction.getUsageMethod(optimizedState)) {
-            case AVAILABLE:
-                return true;
-            case TO_BE_EVALUATED:
-                return remedialAction.getUsageRules().stream()
-                    .anyMatch(usageRule -> (usageRule instanceof OnFlowConstraint)
-                        && isOnFlowConstraintAvailable((OnFlowConstraint) usageRule, optimizedState, flowResult));
-            default:
-                return false;
-        }
-    }
 
-    /**
-     * Returns true if a OnFlowConstraint usage rule is verified, ie if the associated CNEC has a negative margin
-     * It needs a FlowResult to get the margin of the flow cnec
-     */
-    //todo : move out of here
-    static boolean isOnFlowConstraintAvailable(OnFlowConstraint onFlowConstraint, State optimizedState, FlowResult flowResult) {
-        if (!onFlowConstraint.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)) {
-            return false;
-        } else {
-            // We don't actually need to know the unit of the objective function, we just need to know if the margin is negative
-            return flowResult.getMargin(onFlowConstraint.getFlowCnec(), Unit.MEGAWATT) <= 0;
-        }
-    }
 }

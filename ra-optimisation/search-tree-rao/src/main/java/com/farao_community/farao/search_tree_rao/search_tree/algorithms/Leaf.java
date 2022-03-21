@@ -22,7 +22,7 @@ import com.farao_community.farao.search_tree_rao.commons.objective_function_eval
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.CurativeOptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.PreventiveOptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.PreventiveOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
@@ -228,7 +228,7 @@ public class Leaf implements OptimizationResult {
 
     private RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
 
-        if (context instanceof PreventiveOptimizationContext) {
+        if (context instanceof PreventiveOptimizationPerimeter) {
             // no limitation in preventive
             return null;
         }

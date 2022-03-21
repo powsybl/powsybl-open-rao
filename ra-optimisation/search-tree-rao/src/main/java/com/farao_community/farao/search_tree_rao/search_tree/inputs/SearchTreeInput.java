@@ -72,7 +72,7 @@ public class SearchTreeInput {
         return toolProvider;
     }
 
-    public SearchTreeInputBuilder create() {
+    public static SearchTreeInputBuilder create() {
         return new SearchTreeInputBuilder();
     }
 
@@ -86,42 +86,42 @@ public class SearchTreeInput {
         private ObjectiveFunction objectiveFunction;
         private ToolProvider toolProvider;
 
-        SearchTreeInputBuilder withNetwork(Network network) {
+        public SearchTreeInputBuilder withNetwork(Network network) {
             this.network = network;
             return this;
         }
 
-        SearchTreeInputBuilder withOptimizationPerimeter(OptimizationPerimeter optimizationPerimeter) {
+        public SearchTreeInputBuilder withOptimizationPerimeter(OptimizationPerimeter optimizationPerimeter) {
             this.optimizationPerimeter = optimizationPerimeter;
             return this;
         }
 
-        SearchTreeInputBuilder withInitialFlowResult(FlowResult initialFlowResult) {
+        public SearchTreeInputBuilder withInitialFlowResult(FlowResult initialFlowResult) {
             this.initialFlowResult = initialFlowResult;
             return this;
         }
 
-        SearchTreeInputBuilder withPrePerimeterResult(PrePerimeterResult prePerimeterResult) {
+        public SearchTreeInputBuilder withPrePerimeterResult(PrePerimeterResult prePerimeterResult) {
             this.prePerimeterResult = prePerimeterResult;
             return this;
         }
 
-        SearchTreeInputBuilder withPreOptimizationAppliedNetworkActions(AppliedRemedialActions preOptimizationAppliedNetworkActions) {
+        public SearchTreeInputBuilder withPreOptimizationAppliedNetworkActions(AppliedRemedialActions preOptimizationAppliedNetworkActions) {
             this.preOptimizationAppliedNetworkActions = preOptimizationAppliedNetworkActions;
             return this;
         }
 
-        SearchTreeInputBuilder withObjectiveFunction(ObjectiveFunction objectiveFunction) {
+        public SearchTreeInputBuilder withObjectiveFunction(ObjectiveFunction objectiveFunction) {
             this.objectiveFunction = objectiveFunction;
             return this;
         }
 
-        SearchTreeInputBuilder withToolProvider(ToolProvider toolProvider) {
+        public SearchTreeInputBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
             return this;
         }
 
-        SearchTreeInput build() {
+        public SearchTreeInput build() {
             return new SearchTreeInput(network,
                 optimizationPerimeter,
                 initialFlowResult,

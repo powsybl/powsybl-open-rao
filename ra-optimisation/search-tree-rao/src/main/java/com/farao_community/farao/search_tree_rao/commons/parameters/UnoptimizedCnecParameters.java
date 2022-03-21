@@ -45,7 +45,7 @@ public class UnoptimizedCnecParameters {
             throw new FaraoException("RaoParameters must contain SearchTreeRaoParameters when running a SearchTreeRao");
         }
 
-        if (searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
+        if (!searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             return new UnoptimizedCnecParameters(
                 operatorsNotSharingCras,
                 getLargestCnecThreshold(flowCnecs));

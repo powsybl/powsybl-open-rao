@@ -10,11 +10,16 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.RemedialAction;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
@@ -123,5 +128,35 @@ public final class RaoUtil {
             }
         }
         return max;
+    }
+
+    /**
+     * Returns true if a remedial action is available depending on its usage rules
+     * If it has a OnFlowConstraint usage rule, then the margins are needed
+     */
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State optimizedState, FlowResult flowResult) {
+        switch (remedialAction.getUsageMethod(optimizedState)) {
+            case AVAILABLE:
+                return true;
+            case TO_BE_EVALUATED:
+                return remedialAction.getUsageRules().stream()
+                    .anyMatch(usageRule -> (usageRule instanceof OnFlowConstraint)
+                        && isOnFlowConstraintAvailable((OnFlowConstraint) usageRule, optimizedState, flowResult));
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Returns true if a OnFlowConstraint usage rule is verified, ie if the associated CNEC has a negative margin
+     * It needs a FlowResult to get the margin of the flow cnec
+     */
+    static boolean isOnFlowConstraintAvailable(OnFlowConstraint onFlowConstraint, State optimizedState, FlowResult flowResult) {
+        if (!onFlowConstraint.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)) {
+            return false;
+        } else {
+            // We don't actually need to know the unit of the objective function, we just need to know if the margin is negative
+            return flowResult.getMargin(onFlowConstraint.getFlowCnec(), Unit.MEGAWATT) <= 0;
+        }
     }
 }

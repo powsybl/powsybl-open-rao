@@ -7,12 +7,18 @@
 package com.farao_community.farao.search_tree_rao.commons.optimization_contexts;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
+import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -117,4 +123,28 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     public Set<RangeAction<?>> getRangeActions() {
         return availableRangeActions.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
+
+    static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
+
+        Set<FlowCnec> loopFlowCnecs;
+        if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.getLoopflowCountries().isEmpty()) {
+
+            // loopFlow limited, and set of country for which loop-flow are monitored is defined
+            return flowCnecs.stream()
+                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)) &&
+                    cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && raoParameters.getLoopflowCountries().contains(country.get())))
+                .collect(Collectors.toSet());
+        } else if (raoParameters.isRaoWithLoopFlowLimitation()) {
+
+            // loopFlow limited, but no set of country defined
+            return flowCnecs.stream()
+                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)))
+                .collect(Collectors.toSet());
+        } else {
+
+            //no loopFLow limitation
+            return Collections.emptySet();
+        }
+    }
+
 }
