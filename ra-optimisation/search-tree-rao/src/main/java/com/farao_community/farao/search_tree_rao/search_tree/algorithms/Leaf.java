@@ -72,6 +72,7 @@ public class Leaf implements OptimizationResult {
      * network actions from the parent leaves as well as from
      * this leaf), can be empty for root leaf
      */
+    private final OptimizationPerimeter optimizationPerimeter;
     private final Set<NetworkAction> appliedNetworkActionsInPrimaryState;
     private final AppliedRemedialActions appliedRemedialActionsInSecondaryStates; // for 2nd prev
     private Network network;
@@ -93,12 +94,14 @@ public class Leaf implements OptimizationResult {
      */
     private boolean optimizationDataPresent = true;
 
-    Leaf(Network network,
+    Leaf(OptimizationPerimeter optimizationPerimeter,
+         Network network,
          Set<NetworkAction> appliedNetworkActionsInPrimaryState,
          NetworkActionCombination naCombinationToApply,
          RangeActionActivationResult raActivationsFromParentLeaf,
          RangeActionSetpointResult prePerimeterSetpoints,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+        this.optimizationPerimeter = optimizationPerimeter;
         this.network = network;
         this.raActivationsFromParentLeaf = raActivationsFromParentLeaf;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
@@ -118,8 +121,11 @@ public class Leaf implements OptimizationResult {
         this.status = Status.CREATED;
     }
 
-    Leaf(Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        this(network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+    Leaf(OptimizationPerimeter optimizationPerimeter,
+         Network network,
+         PrePerimeterResult prePerimeterOutput,
+         AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+        this(optimizationPerimeter, network, Collections.emptySet(), null, new RangeActionActivationResultImpl(prePerimeterOutput), prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
         this.status = Status.EVALUATED;
         this.preOptimFlowResult = prePerimeterOutput;
         this.preOptimSensitivityResult = prePerimeterOutput;
@@ -296,8 +302,10 @@ public class Leaf implements OptimizationResult {
         return info;
     }
 
-    private long getNumberOfActivatedRangeActions() {
-        return postOptimResult.getActivatedRangeActions().size();
+    long getNumberOfActivatedRangeActions() {
+        return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
+            .mapToDouble(s -> postOptimResult.getActivatedRangeActions(s).size())
+            .sum();
     }
 
     @Override
@@ -426,11 +434,11 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public Set<RangeAction<?>> getActivatedRangeActions() {
+    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         if (status == Status.EVALUATED) {
-            return raActivationsFromParentLeaf.getActivatedRangeActions();
+            return raActivationsFromParentLeaf.getActivatedRangeActions(state);
         } else if (status == Status.OPTIMIZED) {
-            return postOptimResult.getActivatedRangeActions();
+            return postOptimResult.getActivatedRangeActions(state);
         } else {
             throw new FaraoException(NO_RESULTS_AVAILABLE);
         }

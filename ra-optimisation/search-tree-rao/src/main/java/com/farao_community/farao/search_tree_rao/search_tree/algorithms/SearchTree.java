@@ -19,6 +19,7 @@ import com.farao_community.farao.search_tree_rao.commons.RaoLogger;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.CurativeOptimizationContext;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
@@ -174,13 +175,13 @@ public class SearchTree {
 
 
     void initLeaves(SearchTreeInput input) {
-        rootLeaf = makeLeaf(input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedNetworkActions());
+        rootLeaf = makeLeaf(input.getOptimizationPerimeter(), input.getNetwork(), input.getPrePerimeterResult(), input.getPreOptimizationAppliedNetworkActions());
         optimalLeaf = rootLeaf;
         previousDepthOptimalLeaf = rootLeaf;
     }
 
-    Leaf makeLeaf(Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
-        return new Leaf(network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
+    Leaf makeLeaf(OptimizationPerimeter optimizationPerimeter, Network network, PrePerimeterResult prePerimeterOutput, AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
+        return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
     private void logOptimizationSummary(Leaf leaf) {
@@ -188,7 +189,7 @@ public class SearchTree {
     }
 
     private long getNumberOfActivatedRangeActions(Leaf leaf) {
-        return leaf.getActivatedRangeActions().size();
+        return leaf.getNumberOfActivatedRangeActions();
     }
 
     private void iterateOnTree() {
@@ -325,7 +326,9 @@ public class SearchTree {
     }
 
     Leaf createChildLeaf(Network network, NetworkActionCombination naCombination) {
-        return new Leaf(network,
+        return new Leaf(
+            input.getOptimizationPerimeter(),
+            network,
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
             previousDepthOptimalLeaf,

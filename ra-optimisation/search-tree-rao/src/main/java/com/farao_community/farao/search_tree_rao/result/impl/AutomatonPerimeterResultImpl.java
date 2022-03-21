@@ -106,7 +106,7 @@ public class AutomatonPerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
-    public Set<RangeAction<?>> getActivatedRangeActions() {
+    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         // range actions not yet considered as automaton
         return Set.of();
     }

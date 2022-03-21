@@ -46,6 +46,14 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
                 .anyMatch(v -> Math.abs(v - refSetpoint) > 1e-6);
         }
 
+        private boolean isActivatedDuringState(State state) {
+            if (!setPointPerState.containsKey(state)) {
+                return false;
+            } else {
+                return Math.abs(getSetpointAndLastActivation(state).getLeft() - setPointPerState.get(state)) > 1e-6;
+            }
+        }
+
         private double getSetpoint(State state) {
             if (setPointPerState.containsKey(state)) {
                 return setPointPerState.get(state);
@@ -116,9 +124,9 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     @Override
-    public Set<RangeAction<?>> getActivatedRangeActions() {
+    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         return elementaryResultMap.entrySet().stream()
-            .filter(e -> e.getValue().isActivatedAtLeastOneTime())
+            .filter(e -> e.getValue().isActivatedDuringState(state))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
