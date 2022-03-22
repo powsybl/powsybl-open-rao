@@ -155,12 +155,12 @@ public final class LinearProblem {
         return solver.getVariable(rangeActionSetpointVariableId(rangeAction, state));
     }
 
-    public MPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction) {
-        return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction));
+    public MPConstraint addRangeActionRelativeSetpointConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state));
     }
 
-    public MPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction) {
-        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction));
+    public MPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction, state));
     }
 
     public MPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
@@ -259,12 +259,12 @@ public final class LinearProblem {
         return solver.getVariable(absoluteRangeActionVariationVariableId(rangeAction, state));
     }
 
-    public MPConstraint addAbsoluteRangeActionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, AbsExtension positiveOrNegative) {
-        return solver.makeConstraint(lb, ub, absoluteRangeActionVariationConstraintId(rangeAction, positiveOrNegative));
+    public MPConstraint addAbsoluteRangeActionVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
+        return solver.makeConstraint(lb, ub, absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
     }
 
-    public MPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction<?> rangeAction, AbsExtension positiveOrNegative) {
-        return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, positiveOrNegative));
+    public MPConstraint getAbsoluteRangeActionVariationConstraint(RangeAction<?> rangeAction, State state, AbsExtension positiveOrNegative) {
+        return solver.getConstraint(absoluteRangeActionVariationConstraintId(rangeAction, state, positiveOrNegative));
     }
 
     public MPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, MarginExtension belowOrAboveThreshold) {

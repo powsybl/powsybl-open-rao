@@ -50,6 +50,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
         availableRangeActions.put(crac.getPreventiveState(), crac.getRangeActions().stream()
             .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, crac.getPreventiveState(), prePerimeterResult))
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
+            // todo: to reactive old behaviour, filter range actions defined as CRA + PRA here
             .collect(Collectors.toSet()));
 
         //add curative range actions

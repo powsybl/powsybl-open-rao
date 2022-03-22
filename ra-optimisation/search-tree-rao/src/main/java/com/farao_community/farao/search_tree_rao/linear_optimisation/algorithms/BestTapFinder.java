@@ -82,7 +82,7 @@ public final class BestTapFinder {
             Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
             for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
-                if (rangeAction instanceof PstRangeAction) {
+                if (rangeAction instanceof PstRangeAction && linearProblemResult.getActivatedRangeActions(state).contains(rangeAction)) {
                     PstRangeAction pstRangeAction = (PstRangeAction) rangeAction;
                     Optional<String> optGroupId = pstRangeAction.getGroupId();
                     if (optGroupId.isPresent()) {
@@ -91,8 +91,6 @@ public final class BestTapFinder {
                         int bestTap = minMarginPerTap.get(pstRangeAction).entrySet().stream().max(Comparator.comparing(Map.Entry<Integer, Double>::getValue)).orElseThrow().getKey();
                         roundedResult.activate(pstRangeAction, state, pstRangeAction.convertTapToAngle(bestTap));
                     }
-                } else {
-                    roundedResult.activate(rangeAction, state, linearProblemResult.getOptimizedSetpoint(rangeAction, state));
                 }
             }
         }
@@ -254,8 +252,9 @@ public final class BestTapFinder {
                                      OptimizationPerimeter optimizationContext,
                                      RangeActionActivationResultImpl roundedResult) {
 
-        optimizationContext.getRangeActionsPerState().forEach((key, value) -> value.stream()
+        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.stream()
             .filter(ra -> !(ra instanceof PstRangeAction))
-            .forEach(ra -> roundedResult.activate(ra, key, (double) Math.round(linearProblemResult.getOptimizedSetpoint(ra, key)))));
+            .filter(ra -> linearProblemResult.getActivatedRangeActions(state).contains(ra))
+            .forEach(ra -> roundedResult.activate(ra, state, (double) Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 }

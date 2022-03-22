@@ -253,12 +253,14 @@ public class CoreProblemFiller implements ProblemFiller {
                         -LinearProblem.infinity(),
                         LinearProblem.infinity(),
                         rangeAction,
+                        entry.getKey(),
                         LinearProblem.AbsExtension.NEGATIVE
                     );
                     MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
                         -LinearProblem.infinity(),
                         LinearProblem.infinity(),
                         rangeAction,
+                        entry.getKey(),
                         LinearProblem.AbsExtension.POSITIVE);
 
                     Pair<RangeAction<?>, State> lastAvailableRangeAction = getLastAvailableRangeActionOnSameAction(rangeAction, entry.getKey());
@@ -294,11 +296,13 @@ public class CoreProblemFiller implements ProblemFiller {
                         double minRelativeSetpoint = Double.NEGATIVE_INFINITY;
                         double maxRelativeSetpoint = Double.POSITIVE_INFINITY;
                         if (rangeAction instanceof PstRangeAction) {
+                            Map<Integer, Double> tapToAngleMap = ((PstRangeAction) rangeAction).getTapToAngleConversionMap();
                             List<TapRange> ranges = ((PstRangeAction) rangeAction).getRanges();
-                            int minAbsoluteTap = Integer.MIN_VALUE;
-                            int maxAbsoluteTap = Integer.MAX_VALUE;
-                            int minRelativeTap = Integer.MIN_VALUE;
-                            int maxRelativeTap = Integer.MAX_VALUE;
+
+                            int minAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).min().orElseThrow();
+                            int maxAbsoluteTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).max().orElseThrow();
+                            int minRelativeTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).min().orElseThrow();
+                            int maxRelativeTap = tapToAngleMap.keySet().stream().mapToInt(k -> k).max().orElseThrow();
                             for (TapRange range : ranges) {
                                 if (range.getRangeType().equals(RangeType.ABSOLUTE)) {
                                     minAbsoluteTap = Math.max(minAbsoluteTap, range.getMinTap());
@@ -311,7 +315,6 @@ public class CoreProblemFiller implements ProblemFiller {
                                     maxRelativeTap = Math.min(maxRelativeTap, range.getMaxTap());
                                 }
                             }
-                            Map<Integer, Double> tapToAngleMap = ((PstRangeAction) rangeAction).getTapToAngleConversionMap();
                             // The taps are not necessarily in order of increasing angle.
                             double setPointMinAbsoluteTap = tapToAngleMap.get(minAbsoluteTap);
                             double setPointMaxAbsoluteTap = tapToAngleMap.get(maxAbsoluteTap);
@@ -354,7 +357,7 @@ public class CoreProblemFiller implements ProblemFiller {
                         }
 
                         // relative range
-                        MPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction);
+                        MPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, entry.getKey());
                         relSetpointConstraint.setCoefficient(setPointVariable, 1);
                         relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
 

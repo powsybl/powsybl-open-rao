@@ -96,12 +96,12 @@ public class IteratingLinearOptimizer {
             try {
                 if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
                     AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(input, currentRangeActionActivationResult);
-                    sensitivityComputer = createSensitivityComputer(input, appliedRemedialActionsInSecondaryStates);
+                    sensitivityComputer = createSensitivityComputer(input, parameters, appliedRemedialActionsInSecondaryStates);
                     runSensitivityAnalysis(sensitivityComputer, input.getNetwork(), iteration);
                 } else {
                     applyRangeActions(input, currentRangeActionActivationResult);
                     if (sensitivityComputer == null) { // first iteration, do not need to be updated afterwards
-                        sensitivityComputer = createSensitivityComputer(input, input.getPreOptimizationAppliedRemedialActions());
+                        sensitivityComputer = createSensitivityComputer(input, parameters, input.getPreOptimizationAppliedRemedialActions());
                     }
                     runSensitivityAnalysis(sensitivityComputer, input.getNetwork(), iteration);
                 }
@@ -165,15 +165,26 @@ public class IteratingLinearOptimizer {
         }
     }
 
-    private static SensitivityComputer createSensitivityComputer(IteratingLinearOptimizerInput input, AppliedRemedialActions appliedRemedialActions) {
-        return SensitivityComputer.create()
+    private SensitivityComputer createSensitivityComputer(IteratingLinearOptimizerInput input,
+                                                          IteratingLinearOptimizerParameters parameters,
+                                                          AppliedRemedialActions appliedRemedialActions) {
+
+        SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create()
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
-            .withCommercialFlowsResults(input.getInitialFlowResult())
             .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
-            .withPtdfsResults(input.getInitialFlowResult())
             .withAppliedRemedialActions(appliedRemedialActions)
-            .withToolProvider(input.getToolProvider())
-            .build();
+            .withToolProvider(input.getToolProvider());
+
+        if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParameters().getLoopFlowApproximationLevel().shouldUpdatePtdfWithPstChange()) {
+            builder.withCommercialFlowsResults(input.getToolProvider().getLoopFlowComputation(), input.getOptimizationPerimeter().getLoopFlowCnecs());
+        } else if (parameters.isRaoWithLoopFlowLimitation()) {
+            builder.withCommercialFlowsResults(input.getPreOptimizationFlowResult());
+        }
+        if (parameters.getObjectiveFunction().doesRequirePtdf()) {
+            builder.withPtdfsResults(input.getInitialFlowResult());
+        }
+
+        return builder.build();
     }
 
     private void runSensitivityAnalysis(SensitivityComputer sensitivityComputer, Network network, int iteration) {

@@ -84,9 +84,9 @@ public final class RaoLogger {
                     rangeActionValue = leaf.getOptimizedSetpoint(rangeAction, eState.getKey());
                 }
                 if (globalPstOptimization) {
-                    return format("%s@%s: %.1f", rangeAction.getName(), eState.getKey().getId(), rangeActionValue);
+                    return format("%s@%s: %.0f", rangeAction.getName(), eState.getKey().getId(), rangeActionValue);
                 } else {
-                    return format("%s: %.1f", rangeAction.getName(), rangeActionValue);
+                    return format("%s: %.0f", rangeAction.getName(), rangeActionValue);
                 }
             }))
             .collect(Collectors.joining(", "));
@@ -235,18 +235,17 @@ public final class RaoLogger {
     }
 
     public static void logOptimizationSummary(FaraoLogger logger, State optimizedState, long activatedNetworkActions, long activatedRangeActions, Double initialFunctionalCost, Double initialVirtualCost, ObjectiveFunctionResult finalObjective) {
-        String raType = optimizedState.getInstant().toString();
         Optional<Contingency> optionalContingency = optimizedState.getContingency();
         String scenarioName = optionalContingency.isEmpty() ? "preventive" : optionalContingency.get().getName();
         String raResult = "";
         if (activatedNetworkActions + activatedRangeActions == 0) {
-            raResult = String.format("no %s remedial actions activated", raType);
+            raResult = "no remedial actions activated";
         } else if (activatedNetworkActions > 0 && activatedRangeActions == 0) {
-            raResult = String.format("%s %s network action(s) activated", activatedNetworkActions, raType);
+            raResult = String.format("%s network action(s) activated", activatedNetworkActions);
         } else if (activatedRangeActions > 0 && activatedNetworkActions == 0) {
-            raResult = String.format("%s %s range action(s) activated", activatedRangeActions, raType);
+            raResult = String.format("%s range action(s) activated", activatedRangeActions);
         } else {
-            raResult = String.format("%s %s network action(s) and %s %s range action(s) activated", activatedNetworkActions, raType, activatedRangeActions, raType);
+            raResult = String.format("%s network action(s) and %s range action(s) activated", activatedNetworkActions, activatedRangeActions);
         }
         String initialCostString = initialFunctionalCost == null || initialVirtualCost == null ? "" :
             String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDouble(initialFunctionalCost + initialVirtualCost), formatDouble(initialFunctionalCost), formatDouble(initialVirtualCost));

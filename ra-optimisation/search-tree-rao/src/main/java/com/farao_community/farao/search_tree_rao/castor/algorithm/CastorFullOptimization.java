@@ -202,9 +202,11 @@ public class CastorFullOptimization {
      * of 1st preventive for range actions that are both preventive and curative
      */
     static void applyPreventiveResultsForCurativeRangeActions(Network network, PerimeterResult preventiveResult, Crac crac) {
-        preventiveResult.getActivatedRangeActions(crac.getPreventiveState()).stream()
+        /*preventiveResult.getActivatedRangeActions(crac.getPreventiveState()).stream()
             .filter(rangeAction -> isRangeActionCurative(rangeAction, crac))
             .forEach(rangeAction -> rangeAction.apply(network, preventiveResult.getOptimizedSetpoint(rangeAction, crac.getPreventiveState())));
+
+         */
     }
 
     private SearchTreeRaoResult optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialResult) {
@@ -478,8 +480,10 @@ public class CastorFullOptimization {
         BUSINESS_LOGS.info("----- Second preventive perimeter optimization [end]");
 
         BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
-        Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
-
+        Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>();
+        if (false) { // keep old behaviour
+            remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
+        }
         // log results
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, secondPreventiveResult, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
@@ -517,7 +521,7 @@ public class CastorFullOptimization {
             .withToolProvider(toolProvider)
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run().join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
         // apply PRAs
         result.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), result.getOptimizedSetpoint(rangeAction, raoInput.getCrac().getPreventiveState())));

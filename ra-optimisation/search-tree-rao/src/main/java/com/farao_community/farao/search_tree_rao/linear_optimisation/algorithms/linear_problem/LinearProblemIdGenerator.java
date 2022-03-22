@@ -58,8 +58,8 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction) {
-        return rangeAction.getId() + SEPARATOR + RELATIVE + SEPARATOR + SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + RELATIVE + SEPARATOR + SET_POINT + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String pstTapVariableVariationId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
@@ -111,11 +111,11 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
-        return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX + SEPARATOR + state.getId();
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String absoluteRangeActionVariationConstraintId(RangeAction<?> rangeAction, LinearProblem.AbsExtension positiveOrNegative) {
-        return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String absoluteRangeActionVariationConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.AbsExtension positiveOrNegative) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, LinearProblem.MarginExtension belowOrAboveThreshold) {
