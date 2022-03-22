@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao.commons.optimization_contexts;
+package com.farao_community.farao.search_tree_rao.commons.optimization_perimeters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Crac;
@@ -25,22 +25,22 @@ import java.util.stream.Collectors;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class CurativeOptimizationContext extends AbstractOptimizationPerimeter {
+public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter {
 
-    public CurativeOptimizationContext(State curativeState,
-                                       Set<FlowCnec> flowCnecs,
-                                       Set<FlowCnec> looopFlowCnecs,
-                                       Set<NetworkAction> availableNetworkActions,
-                                       Set<RangeAction<?>> availableRangeActions) {
+    public CurativeOptimizationPerimeter(State curativeState,
+                                         Set<FlowCnec> flowCnecs,
+                                         Set<FlowCnec> looopFlowCnecs,
+                                         Set<NetworkAction> availableNetworkActions,
+                                         Set<RangeAction<?>> availableRangeActions) {
 
         super(curativeState, flowCnecs, looopFlowCnecs, availableNetworkActions, Map.of(curativeState, availableRangeActions));
 
-        if (!curativeState.getInstant().equals(Instant.CURATIVE)) {
+        if (curativeState.getInstant().equals(Instant.PREVENTIVE)) {
             throw new FaraoException("a CurativeOptimizationContext must be based on a curative state");
         }
     }
 
-    public static CurativeOptimizationContext build(State curativeState, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static CurativeOptimizationPerimeter build(State curativeState, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
 
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(curativeState);
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
@@ -54,7 +54,7 @@ public class CurativeOptimizationContext extends AbstractOptimizationPerimeter {
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
 
-        return new CurativeOptimizationContext(curativeState,
+        return new CurativeOptimizationPerimeter(curativeState,
             flowCnecs,
             loopFlowCnecs,
             availableNetworkActions,

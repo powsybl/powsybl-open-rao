@@ -19,10 +19,10 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.CurativeOptimizationContext;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.PreventiveOptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.PreventiveOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionLimitationParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
@@ -245,7 +245,7 @@ public class Leaf implements OptimizationResult {
         }
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
 
-        if (context instanceof CurativeOptimizationContext) {
+        if (context instanceof CurativeOptimizationPerimeter) {
 
             int maxRa = parameters.getRaLimitationParameters().getMaxCurativeRa() - appliedNetworkActionsInPrimaryState.size();
             Set<String> tsoWithAlreadyActivatedRa = appliedNetworkActionsInPrimaryState.stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
@@ -263,7 +263,7 @@ public class Leaf implements OptimizationResult {
             limitationParameters.setMaxPstPerTso(context.getMainOptimizationState(), maxPstPerTso);
             limitationParameters.setMaxRangeActionPerTso(context.getMainOptimizationState(), maxRaPerTso);
 
-        } else if (context instanceof GlobalOptimizationContext) {
+        } else if (context instanceof GlobalOptimizationPerimeter) {
 
             context.getRangeActionOptimizationStates().stream()
                 .filter(state -> state.getInstant().equals(Instant.CURATIVE))

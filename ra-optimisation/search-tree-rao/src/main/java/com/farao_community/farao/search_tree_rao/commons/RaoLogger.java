@@ -16,8 +16,8 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
@@ -73,7 +73,7 @@ public final class RaoLogger {
                                        OptimizationPerimeter
                                            optimizationContext, String prefix) {
 
-        boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationContext;
+        boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
         String rangeActionSetpoints = optimizationContext.getRangeActionsPerState().entrySet().stream()
             .flatMap(eState -> eState.getValue().stream().map(rangeAction -> {

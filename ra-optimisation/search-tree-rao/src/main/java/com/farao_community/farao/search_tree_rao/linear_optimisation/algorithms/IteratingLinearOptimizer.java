@@ -9,8 +9,8 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
@@ -94,7 +94,7 @@ public class IteratingLinearOptimizer {
             }
 
             try {
-                if (input.getOptimizationPerimeter() instanceof GlobalOptimizationContext) {
+                if (input.getOptimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
                     AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(input, currentRangeActionActivationResult);
                     sensitivityComputer = createSensitivityComputer(input, appliedRemedialActionsInSecondaryStates);
                     runSensitivityAnalysis(sensitivityComputer, input.getNetwork(), iteration);
@@ -154,7 +154,7 @@ public class IteratingLinearOptimizer {
             .forEach(ra -> ra.apply(input.getNetwork(), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationContext.getMainOptimizationState())));
 
         // add RangeAction activated in the following states
-        if (optimizationContext instanceof GlobalOptimizationContext) {
+        if (optimizationContext instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActions = input.getPreOptimizationAppliedRemedialActions().copy();
             optimizationContext.getRangeActionsPerState().entrySet().stream()
                 .filter(e -> !e.getKey().equals(optimizationContext.getMainOptimizationState())) // remove preventive state

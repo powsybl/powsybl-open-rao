@@ -243,8 +243,10 @@ public class SecondPreventiveAndCurativesRaoResultImpl implements SearchTreeRaoR
             return postSecondPreventiveResult.getActivatedRangeActions(state).contains(rangeAction);
         } else if (state.getInstant().equals(Instant.PREVENTIVE)) {
             return postFirstPreventiveResult.getActivatedRangeActions(state).contains(rangeAction);
-        } else {
+        } else if (postCurativeResults.containsKey(state)) {
             return postCurativeResults.get(state).getActivatedRangeActions(state).contains(rangeAction);
+        } else {
+            return false;
         }
     }
 

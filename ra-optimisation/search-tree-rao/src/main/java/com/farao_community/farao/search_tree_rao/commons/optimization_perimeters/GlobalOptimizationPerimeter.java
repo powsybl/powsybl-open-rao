@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.farao_community.farao.search_tree_rao.commons.optimization_contexts;
+package com.farao_community.farao.search_tree_rao.commons.optimization_perimeters;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.Instant;
@@ -25,17 +25,17 @@ import java.util.stream.Collectors;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class GlobalOptimizationContext extends AbstractOptimizationPerimeter {
+public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
 
-    public GlobalOptimizationContext(State mainOptimizationState,
-                                     Set<FlowCnec> flowCnecs,
-                                     Set<FlowCnec> loopFlowCnecs,
-                                     Set<NetworkAction> availableNetworkActions,
-                                     Map<State, Set<RangeAction<?>>> availableRangeActions) {
+    public GlobalOptimizationPerimeter(State mainOptimizationState,
+                                       Set<FlowCnec> flowCnecs,
+                                       Set<FlowCnec> loopFlowCnecs,
+                                       Set<NetworkAction> availableNetworkActions,
+                                       Map<State, Set<RangeAction<?>>> availableRangeActions) {
         super(mainOptimizationState, flowCnecs, loopFlowCnecs, availableNetworkActions, availableRangeActions);
     }
 
-    public static GlobalOptimizationContext build(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static GlobalOptimizationPerimeter build(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
 
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
@@ -65,7 +65,7 @@ public class GlobalOptimizationContext extends AbstractOptimizationPerimeter {
                 }
             });
 
-        return new GlobalOptimizationContext(crac.getPreventiveState(),
+        return new GlobalOptimizationPerimeter(crac.getPreventiveState(),
             flowCnecs,
             loopFlowCnecs,
             availableNetworkActions,
