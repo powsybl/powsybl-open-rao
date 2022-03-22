@@ -159,10 +159,6 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction));
     }
 
-    public MPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction) {
-        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction));
-    }
-
     public MPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
         return solver.makeBoolVar(rangeActionBinaryVariableId(rangeAction, state));
     }
