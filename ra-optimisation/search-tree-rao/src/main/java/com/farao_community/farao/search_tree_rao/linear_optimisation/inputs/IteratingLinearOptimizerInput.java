@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.inputs;
 
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.AbstractOptimizationContext;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -13,14 +17,14 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Set;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class IteratingLinearOptimizerInput {
 
     private final Network network;
 
-    private final Set<FlowCnec> flowCnecs;
-    private final Set<FlowCnec> loopFlowCnecs;
-
-    private final OptimizationContext optimizationContext;
+    private final OptimizationPerimeter optimizationPerimeter;
 
     private final FlowResult initialFlowResult;
 
@@ -36,9 +40,7 @@ public class IteratingLinearOptimizerInput {
     private final ToolProvider toolProvider;
 
     public IteratingLinearOptimizerInput(Network network,
-                                         Set<FlowCnec> flowCnecs,
-                                         Set<FlowCnec> loopFlowCnecs,
-                                         OptimizationContext optimizationContext,
+                                         OptimizationPerimeter optimizationPerimeter,
                                          FlowResult initialFlowResult,
                                          FlowResult prePerimeterFlowResult,
                                          RangeActionSetpointResult prePerimeterSetpoints,
@@ -48,9 +50,7 @@ public class IteratingLinearOptimizerInput {
                                          RangeActionActivationResult raActivationFromParentLeaf,
                                          ToolProvider toolProvider) {
         this.network = network;
-        this.flowCnecs = flowCnecs;
-        this.loopFlowCnecs = loopFlowCnecs;
-        this.optimizationContext = optimizationContext;
+        this.optimizationPerimeter = optimizationPerimeter;
         this.initialFlowResult = initialFlowResult;
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
@@ -65,16 +65,8 @@ public class IteratingLinearOptimizerInput {
         return network;
     }
 
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
-    }
-
-    public Set<FlowCnec> getLoopFlowCnecs() {
-        return loopFlowCnecs;
-    }
-
-    public OptimizationContext getOptimizationContext() {
-        return optimizationContext;
+    public OptimizationPerimeter getOptimizationPerimeter() {
+        return optimizationPerimeter;
     }
 
     public FlowResult getInitialFlowResult() {
@@ -115,9 +107,7 @@ public class IteratingLinearOptimizerInput {
 
     public static class IteratingLinearOptimizerInputBuilder {
         private Network network;
-        private Set<FlowCnec> flowCnecs;
-        private Set<FlowCnec> loopFlowCnecs;
-        private AbstractOptimizationContext optimizationContext;
+        private OptimizationPerimeter optimizationPerimeter;
         private FlowResult initialFlowResult;
         private FlowResult prePerimeterFlowResult;
         private RangeActionSetpointResult prePerimeterSetpoints;
@@ -132,18 +122,8 @@ public class IteratingLinearOptimizerInput {
             return this;
         }
 
-        public IteratingLinearOptimizerInputBuilder withFlowCnecs(Set<FlowCnec> flowCnecs) {
-            this.flowCnecs = flowCnecs;
-            return this;
-        }
-
-        public IteratingLinearOptimizerInputBuilder withLoopFlowCnecs(Set<FlowCnec> loopFlowCnecs) {
-            this.loopFlowCnecs = loopFlowCnecs;
-            return this;
-        }
-
-        public IteratingLinearOptimizerInputBuilder withOptimizationContext(OptimizationContext optimizationContext) {
-            this.optimizationContext = optimizationContext;
+        public IteratingLinearOptimizerInputBuilder withOptimizationPerimeter(OptimizationPerimeter optimizationPerimeter) {
+            this.optimizationPerimeter = optimizationPerimeter;
             return this;
         }
 
@@ -189,9 +169,7 @@ public class IteratingLinearOptimizerInput {
 
         public IteratingLinearOptimizerInput build() {
             return new IteratingLinearOptimizerInput(network,
-                flowCnecs,
-                loopFlowCnecs,
-                optimizationContext,
+                optimizationPerimeter,
                 initialFlowResult,
                 prePerimeterFlowResult,
                 prePerimeterSetpoints,

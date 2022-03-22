@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.search_tree.parameters;
 
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.TreeParameters;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -8,7 +8,7 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
-    private final OptimizationContext optimizationContext;
+    private final OptimizationPerimeter optimizationContext;
 
     public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActions) {
         this.optimizationContext = optimizationContext;

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 /**
- * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
  */
 public class RangeActionActivationResultImpl implements RangeActionActivationResult {
 
@@ -44,6 +44,14 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
         private boolean isActivatedAtLeastOneTime() {
             return setPointPerState.values().stream()
                 .anyMatch(v -> Math.abs(v - refSetpoint) > 1e-6);
+        }
+
+        private boolean isActivatedDuringState(State state) {
+            if (!setPointPerState.containsKey(state)) {
+                return false;
+            } else {
+                return Math.abs(getSetpointAndLastActivation(state).getLeft() - setPointPerState.get(state)) > 1e-6;
+            }
         }
 
         private double getSetpoint(State state) {
@@ -116,9 +124,9 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     @Override
-    public Set<RangeAction<?>> getActivatedRangeActions() {
+    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         return elementaryResultMap.entrySet().stream()
-            .filter(e -> e.getValue().isActivatedAtLeastOneTime())
+            .filter(e -> e.getValue().isActivatedDuringState(state))
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }

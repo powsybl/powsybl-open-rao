@@ -11,7 +11,7 @@ import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_loopflow_extension.LoopFlowThreshold;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.LoopFlowParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.LoopFlowParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 
 import java.util.*;

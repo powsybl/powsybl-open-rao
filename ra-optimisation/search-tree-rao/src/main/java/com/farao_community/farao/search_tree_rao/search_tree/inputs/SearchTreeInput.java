@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,54 +7,52 @@
 
 package com.farao_community.farao.search_tree_rao.search_tree.inputs;
 
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.PrePerimeterResult;
-import com.farao_community.farao.search_tree_rao.commons.SearchTreeComputer;
-import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTreeBloomer;
-import com.farao_community.farao.search_tree_rao.search_tree.algorithms.SearchTreeProblem;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Set;
-
+/**
+ * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
+ */
 public class SearchTreeInput {
 
     private final Network network;
-    private final Set<FlowCnec> flowCnecs;
-    private final Set<FlowCnec> loopFlowCnecs;
-    private final OptimizationContext optimizationContext;
-    private final Set<NetworkAction> availableNetworkActions;
+
+    private final OptimizationPerimeter optimizationPerimeter;
 
     private final FlowResult initialFlowResult;
     private final PrePerimeterResult prePerimeterResult;
+    private final AppliedRemedialActions preOptimizationAppliedNetworkActions;
+
+    private final ObjectiveFunction objectiveFunction;
     private final ToolProvider toolProvider;
+
+    private SearchTreeInput(Network network,
+                            OptimizationPerimeter optimizationPerimeter,
+                            FlowResult initialFlowResult,
+                            PrePerimeterResult prePerimeterResult,
+                            AppliedRemedialActions preOptimizationAppliedNetworkActions,
+                            ObjectiveFunction objectiveFunction,
+                            ToolProvider toolProvider) {
+        this.network = network;
+        this.optimizationPerimeter = optimizationPerimeter;
+        this.initialFlowResult = initialFlowResult;
+        this.prePerimeterResult = prePerimeterResult;
+        this.preOptimizationAppliedNetworkActions = preOptimizationAppliedNetworkActions;
+        this.objectiveFunction = objectiveFunction;
+        this.toolProvider = toolProvider;
+    }
 
     public Network getNetwork() {
         return network;
     }
 
-
-    public Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs;
-    }
-
-    public Set<FlowCnec> getLoopFlowCnecs() {
-        return loopFlowCnecs;
-    }
-
-    public OptimizationContext getOptimizationContext() {
-        return optimizationContext;
-    }
-
-    private Set<NetworkAction> getAvailableNetworkActions() {
-        return availableNetworkActions;
+    public OptimizationPerimeter getOptimizationPerimeter() {
+        return optimizationPerimeter;
     }
 
     public FlowResult getInitialFlowResult() {
@@ -65,110 +63,75 @@ public class SearchTreeInput {
         return prePerimeterResult;
     }
 
-    public ToolProvider getToolProvider() {
-        return toolProvider;
-    }
-
-    private Set<NetworkAction> networkActions;
-    private Set<RangeAction<?>> rangeActions;
-    private State optimizedStateForNetworkActions;
-    private Set<State> optimizedStatesForRangeActions;
-
-    private ObjectiveFunction objectiveFunction;
-    private IteratingLinearOptimizer iteratingLinearOptimizer;
-    private SearchTreeBloomer searchTreeBloomer;
-    private SearchTreeProblem searchTreeProblem;
-    private SearchTreeComputer searchTreeComputer;
-
-    private PrePerimeterResult prePerimeterOutput;
-    private
-
-    public State getOptimizedStateForNetworkActions() {
-        return optimizedStateForNetworkActions;
-    }
-
-    public void setOptimizedStateForNetworkActions(State optimizedState) {
-        this.optimizedStateForNetworkActions = optimizedState;
-    }
-
-    public Set<State> getOptimizedStatesForRangeActions() {
-        return optimizedStatesForRangeActions;
-    }
-
-    public void setOptimizedStatesForRangeActions(Set<State> optimizedStatesForRangeActions) {
-        this.optimizedStatesForRangeActions = optimizedStatesForRangeActions;
-    }
-
-    public SearchTreeBloomer getSearchTreeBloomer() {
-        return searchTreeBloomer;
-    }
-
-    public void setSearchTreeBloomer(SearchTreeBloomer searchTreeBloomer) {
-        this.searchTreeBloomer = searchTreeBloomer;
-    }
-
-    public SearchTreeComputer getSearchTreeComputer() {
-        return searchTreeComputer;
-    }
-
-    public void setSearchTreeComputer(SearchTreeComputer searchTreeComputer) {
-        this.searchTreeComputer = searchTreeComputer;
-    }
-
-    public Set<NetworkAction> getNetworkActions() {
-        return networkActions;
-    }
-
-
-    public Set<RangeAction<?>> getRangeActions() {
-        return rangeActions;
-    }
-
-    public void setNetworkActions(Set<NetworkAction> networkActions) {
-        this.networkActions = networkActions;
-    }
-
-    public void setNetwork(Network network) {
-        this.network = network;
-    }
-
-    public void setRangeActions(Set<RangeAction<?>> rangeActions) {
-        this.rangeActions = rangeActions;
-    }
-
-    public void setFlowCnecs(Set<FlowCnec> flowCnecs) {
-        this.flowCnecs = flowCnecs;
+    public AppliedRemedialActions getPreOptimizationAppliedNetworkActions() {
+        return preOptimizationAppliedNetworkActions;
     }
 
     public ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
     }
 
-    public void setObjectiveFunction(ObjectiveFunction objectiveFunction) {
-        this.objectiveFunction = objectiveFunction;
+    public ToolProvider getToolProvider() {
+        return toolProvider;
     }
 
-    public IteratingLinearOptimizer getIteratingLinearOptimizer() {
-        return iteratingLinearOptimizer;
+    public static SearchTreeInputBuilder create() {
+        return new SearchTreeInputBuilder();
     }
 
-    public void setIteratingLinearOptimizer(IteratingLinearOptimizer iteratingLinearOptimizer) {
-        this.iteratingLinearOptimizer = iteratingLinearOptimizer;
-    }
+    public static class SearchTreeInputBuilder {
 
-    public SearchTreeProblem getSearchTreeProblem() {
-        return searchTreeProblem;
-    }
+        private Network network;
+        private OptimizationPerimeter optimizationPerimeter;
+        private FlowResult initialFlowResult;
+        private PrePerimeterResult prePerimeterResult;
+        private AppliedRemedialActions preOptimizationAppliedNetworkActions;
+        private ObjectiveFunction objectiveFunction;
+        private ToolProvider toolProvider;
 
-    public void setSearchTreeProblem(SearchTreeProblem searchTreeProblem) {
-        this.searchTreeProblem = searchTreeProblem;
-    }
+        public SearchTreeInputBuilder withNetwork(Network network) {
+            this.network = network;
+            return this;
+        }
 
-    public PrePerimeterResult getPrePerimeterOutput() {
-        return prePerimeterOutput;
-    }
+        public SearchTreeInputBuilder withOptimizationPerimeter(OptimizationPerimeter optimizationPerimeter) {
+            this.optimizationPerimeter = optimizationPerimeter;
+            return this;
+        }
 
-    public void setPrePerimeterOutput(PrePerimeterResult prePerimeterOutput) {
-        this.prePerimeterOutput = prePerimeterOutput;
+        public SearchTreeInputBuilder withInitialFlowResult(FlowResult initialFlowResult) {
+            this.initialFlowResult = initialFlowResult;
+            return this;
+        }
+
+        public SearchTreeInputBuilder withPrePerimeterResult(PrePerimeterResult prePerimeterResult) {
+            this.prePerimeterResult = prePerimeterResult;
+            return this;
+        }
+
+        public SearchTreeInputBuilder withPreOptimizationAppliedNetworkActions(AppliedRemedialActions preOptimizationAppliedNetworkActions) {
+            this.preOptimizationAppliedNetworkActions = preOptimizationAppliedNetworkActions;
+            return this;
+        }
+
+        public SearchTreeInputBuilder withObjectiveFunction(ObjectiveFunction objectiveFunction) {
+            this.objectiveFunction = objectiveFunction;
+            return this;
+        }
+
+        public SearchTreeInputBuilder withToolProvider(ToolProvider toolProvider) {
+            this.toolProvider = toolProvider;
+            return this;
+        }
+
+        public SearchTreeInput build() {
+            return new SearchTreeInput(network,
+                optimizationPerimeter,
+                initialFlowResult,
+                prePerimeterResult,
+                preOptimizationAppliedNetworkActions,
+                objectiveFunction,
+                toolProvider);
+        }
     }
 }

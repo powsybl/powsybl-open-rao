@@ -12,7 +12,7 @@ import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.MnecParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;

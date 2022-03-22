@@ -13,9 +13,11 @@ import com.farao_community.farao.data.crac_api.Contingency;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.GlobalOptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
@@ -27,6 +29,7 @@ import com.farao_community.farao.search_tree_rao.search_tree.algorithms.Leaf;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
 import static java.lang.String.format;
 
 /**
@@ -36,21 +39,58 @@ public final class RaoLogger {
     private RaoLogger() {
     }
 
-    public static void logRangeActions(FaraoLogger logger,
-                                       Leaf leaf, Set<RangeAction<?>> rangeActions, State state) {
-        logRangeActions(logger, leaf, rangeActions, state, null);
+    public static void logSensitivityAnalysisResults(String prefix,
+                                              ObjectiveFunction objectiveFunction,
+                                              PrePerimeterResult sensitivityAnalysisResult,
+                                              RaoParameters raoParameters,
+                                              int numberOfLoggedLimitingElements) {
+
+        if (!BUSINESS_LOGS.isInfoEnabled()) {
+            return;
+        }
+
+        ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, sensitivityAnalysisResult.getSensitivityStatus());
+
+        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {})",
+            formatDouble(prePerimeterObjectiveFunctionResult.getCost()),
+            formatDouble(prePerimeterObjectiveFunctionResult.getFunctionalCost()),
+            formatDouble(prePerimeterObjectiveFunctionResult.getVirtualCost()));
+
+        RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
+            sensitivityAnalysisResult,
+            raoParameters.getObjectiveFunction(),
+            numberOfLoggedLimitingElements);
     }
 
-    public static void logRangeActions(FaraoLogger logger, Leaf leaf, Set<RangeAction<?>> rangeActions, State state, String prefix) {
-        String rangeActionSetpoints = rangeActions.stream().map(rangeAction -> {
-            if (rangeAction instanceof PstRangeAction) {
-                int rangeActionTap = leaf.getOptimizedTap((PstRangeAction) rangeAction, state);
-                return format("%s: %d", rangeAction.getName(), rangeActionTap);
-            } else {
-                double rangeActionSetPoint = leaf.getOptimizedSetpoint(rangeAction, state);
-                return format(Locale.ENGLISH, "%s: %.2f", rangeAction.getName(), rangeActionSetPoint);
-            }
-        }).collect(Collectors.joining(", "));
+    public static void logRangeActions(FaraoLogger logger,
+                                       Leaf leaf,
+                                       OptimizationPerimeter optimizationContext) {
+        logRangeActions(logger, leaf, optimizationContext, null);
+    }
+
+    public static void logRangeActions(FaraoLogger logger,
+                                       Leaf leaf,
+                                       OptimizationPerimeter
+                                           optimizationContext, String prefix) {
+
+        boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationContext;
+
+        String rangeActionSetpoints = optimizationContext.getRangeActionsPerState().entrySet().stream()
+            .flatMap(eState -> eState.getValue().stream().map(rangeAction -> {
+                double rangeActionValue;
+                if (rangeAction instanceof PstRangeAction) {
+                    rangeActionValue = leaf.getOptimizedTap((PstRangeAction) rangeAction, eState.getKey());
+                } else {
+                    rangeActionValue = leaf.getOptimizedSetpoint(rangeAction, eState.getKey());
+                }
+                if (globalPstOptimization) {
+                    return format("%s@%s: %.1f", rangeAction.getName(), eState.getKey().getId(), rangeActionValue);
+                } else {
+                    return format("%s: %.1f", rangeAction.getName(), rangeActionValue);
+                }
+            }))
+            .collect(Collectors.joining(", "));
+
         logger.info("{}range action(s): {}", prefix == null ? "" : prefix, rangeActionSetpoints);
     }
 

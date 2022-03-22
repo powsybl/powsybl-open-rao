@@ -5,10 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
+package com.farao_community.farao.search_tree_rao.commons.parameters;
 
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters.LoopFlowApproximationLevel;
 
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 public class LoopFlowParameters {
     private final LoopFlowApproximationLevel loopFlowApproximationLevel;
     private final double loopFlowAcceptableAugmentation;
@@ -36,5 +40,22 @@ public class LoopFlowParameters {
 
     public double getLoopFlowConstraintAdjustmentCoefficient() {
         return loopFlowConstraintAdjustmentCoefficient;
+    }
+
+    public static LoopFlowParameters buildFromRaoParameters(RaoParameters raoParameters) {
+
+        /*
+        for now, values of LoopFlowParameters are constant over all the SearchTreeRao
+        they can therefore be instantiated directly from a RaoParameters
+         */
+
+        if (raoParameters.isRaoWithLoopFlowLimitation()) {
+            return new LoopFlowParameters(raoParameters.getLoopFlowApproximationLevel(),
+                raoParameters.getLoopFlowAcceptableAugmentation(),
+                raoParameters.getLoopFlowViolationCost(),
+                raoParameters.getLoopFlowConstraintAdjustmentCoefficient());
+        } else {
+            return null;
+        }
     }
 }

@@ -256,9 +256,9 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return preventivePerimeterResult.getActivatedRangeActions().contains(rangeAction);
+            return preventivePerimeterResult.getActivatedRangeActions(state).contains(rangeAction);
         } else if (postContingencyResults.containsKey(state)) {
-            return postContingencyResults.get(state).getActivatedRangeActions().contains(rangeAction);
+            return postContingencyResults.get(state).getActivatedRangeActions(state).contains(rangeAction);
         } else {
             return false;
         }
@@ -307,9 +307,9 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant() == Instant.PREVENTIVE) {
-            return preventivePerimeterResult.getActivatedRangeActions();
+            return preventivePerimeterResult.getActivatedRangeActions(state);
         } else if (postContingencyResults.containsKey(state)) {
-            return postContingencyResults.get(state).getActivatedRangeActions();
+            return postContingencyResults.get(state).getActivatedRangeActions(state);
         } else {
             return new HashSet<>();
         }

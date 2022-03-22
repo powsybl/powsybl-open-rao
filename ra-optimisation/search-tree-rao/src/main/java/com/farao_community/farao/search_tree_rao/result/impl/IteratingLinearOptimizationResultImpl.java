@@ -135,8 +135,8 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
-    public Set<RangeAction<?>> getActivatedRangeActions() {
-        return rangeActionActivationResult.getActivatedRangeActions();
+    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
+        return rangeActionActivationResult.getActivatedRangeActions(state);
     }
 
     @Override

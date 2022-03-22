@@ -17,9 +17,9 @@ import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.*;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationContext;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.RangeActionParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
@@ -44,13 +44,13 @@ public class CoreProblemFiller implements ProblemFiller {
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
     private final Network network;
-    private final OptimizationContext optimizationContext;
+    private final OptimizationPerimeter optimizationContext;
     private final Set<FlowCnec> flowCnecs;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionParameters rangeActionParameters;
 
     public CoreProblemFiller(Network network,
-                             OptimizationContext optimizationContext,
+                             OptimizationPerimeter optimizationContext,
                              Set<FlowCnec> flowCnecs,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              RangeActionParameters rangeActionParameters) {
@@ -113,7 +113,7 @@ public class CoreProblemFiller implements ProblemFiller {
      *
      */
     private void buildRangeActionVariables(LinearProblem linearProblem) {
-        optimizationContext.getAvailableRangeActions().forEach((state, rangeActions) ->
+        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
                 linearProblem.addRangeActionSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), rangeAction, state);
                 linearProblem.addAbsoluteRangeActionVariationVariable(0, LinearProblem.infinity(), rangeAction, state);
@@ -183,7 +183,7 @@ public class CoreProblemFiller implements ProblemFiller {
         Set<RangeAction<?>> alreadyConsideredAction = new HashSet<>();
 
         for (State state : statesBeforeCnec) {
-            for (RangeAction<?> rangeAction : optimizationContext.getAvailableRangeActions().get(state)) {
+            for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
                 // todo: make that cleaner, it is ugly
                 if (!alreadyConsideredAction.contains(rangeAction)) {
                     addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, flowConstraint);
@@ -240,7 +240,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * AV[r] >= initialSetPoint[r] - S[r]     (POSITIVE)
      */
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
-        optimizationContext.getAvailableRangeActions().entrySet().stream()
+        optimizationContext.getRangeActionsPerState().entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry ->
                 entry.getValue().forEach(rangeAction -> {
@@ -378,7 +378,7 @@ public class CoreProblemFiller implements ProblemFiller {
     }
 
     private Set<State> getPreviousStates(State refState) {
-        return optimizationContext.getAvailableRangeActions().keySet().stream()
+        return optimizationContext.getRangeActionsPerState().keySet().stream()
             .filter(s -> s.getContingency().equals(refState.getContingency()) || s.getContingency().isEmpty())
             .filter(s -> s.getInstant().comesBefore(refState.getInstant()))
             .collect(Collectors.toSet());
@@ -386,16 +386,16 @@ public class CoreProblemFiller implements ProblemFiller {
 
     private Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameAction(RangeAction<?> rangeAction, State state) {
 
-        if (state.isPreventive() || state.equals(optimizationContext.getFirstOptimizedState())) {
+        if (state.isPreventive() || state.equals(optimizationContext.getMainOptimizationState())) {
             // no previous instant
             return null;
         } else if (state.getInstant().equals(Instant.CURATIVE)) {
 
             // look if a preventive range action acts on the same network elements
-            State preventiveState = optimizationContext.getAvailableRangeActions().keySet().stream().filter(State::isPreventive).findAny().orElse(null);
+            State preventiveState = optimizationContext.getRangeActionsPerState().keySet().stream().filter(State::isPreventive).findAny().orElse(null);
 
             if (preventiveState != null) {
-                Optional<RangeAction<?>> correspondingRa = optimizationContext.getAvailableRangeActions().get(preventiveState).stream()
+                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(preventiveState).stream()
                     .filter(ra -> ra.getId().equals(rangeAction.getId()) || (ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
                     .findAny();
 
@@ -429,7 +429,7 @@ public class CoreProblemFiller implements ProblemFiller {
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
     private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
-        optimizationContext.getAvailableRangeActions().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
                 MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
 
                 // If the range action has been filtered out, then absoluteVariationVariable is null
