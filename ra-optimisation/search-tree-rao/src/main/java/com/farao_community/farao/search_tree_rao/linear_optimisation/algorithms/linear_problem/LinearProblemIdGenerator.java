@@ -55,7 +55,7 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String rangeActionSetpointVariableId(RangeAction<?> rangeAction, State state) {
-        return rangeAction.getId() + SEPARATOR + state.getId() + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + SET_POINT + SEPARATOR + VARIABLE_SUFFIX;
     }
 
     public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction) {

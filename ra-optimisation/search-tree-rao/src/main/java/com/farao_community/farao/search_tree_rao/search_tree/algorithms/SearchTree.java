@@ -323,7 +323,7 @@ public class SearchTree {
             network,
             previousDepthOptimalLeaf.getActivatedNetworkActions(),
             naCombination,
-            previousDepthOptimalLeaf,
+            previousDepthOptimalLeaf.getRangeActionActivationResult(),
             input.getPrePerimeterResult(),
             getAppliedRemedialActions(previousDepthOptimalLeaf));
     }

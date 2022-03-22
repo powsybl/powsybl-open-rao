@@ -49,9 +49,11 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
         private boolean isActivatedDuringState(State state) {
             if (!setPointPerState.containsKey(state)) {
                 return false;
-            } else {
-                return Math.abs(getSetpointAndLastActivation(state).getLeft() - setPointPerState.get(state)) > 1e-6;
             }
+
+            Optional<State> prevActiv = getLastPreviousActivation(state);
+            return prevActiv.map(value -> Math.abs(setPointPerState.get(state) - setPointPerState.get(value)) > 1e-6).
+                orElseGet(() -> Math.abs(setPointPerState.get(state) - refSetpoint) > 1e-6);
         }
 
         private double getSetpoint(State state) {

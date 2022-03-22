@@ -173,4 +173,9 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     public double getSensitivityValue(FlowCnec branchCnec, LinearGlsk linearGlsk, Unit unit) {
         return sensitivityResult.getSensitivityValue(branchCnec, linearGlsk, unit);
     }
+
+    @Override
+    public RangeActionActivationResult getRangeActionActivationResult() {
+        return rangeActionActivationResult;
+    }
 }

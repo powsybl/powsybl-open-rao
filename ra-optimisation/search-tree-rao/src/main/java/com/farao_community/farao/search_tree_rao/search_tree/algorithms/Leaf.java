@@ -37,6 +37,7 @@ import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_WARNS;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNICAL_LOGS;
@@ -96,8 +97,8 @@ public class Leaf implements OptimizationResult {
 
     Leaf(OptimizationPerimeter optimizationPerimeter,
          Network network,
-         Set<NetworkAction> appliedNetworkActionsInPrimaryState,
-         NetworkActionCombination naCombinationToApply,
+         Set<NetworkAction> alreadyAppliedNetworkActionsInPrimaryState,
+         NetworkActionCombination newCombinationToApply,
          RangeActionActivationResult raActivationsFromParentLeaf,
          RangeActionSetpointResult prePerimeterSetpoints,
          AppliedRemedialActions appliedRemedialActionsInSecondaryStates) {
@@ -105,9 +106,13 @@ public class Leaf implements OptimizationResult {
         this.network = network;
         this.raActivationsFromParentLeaf = raActivationsFromParentLeaf;
         this.prePerimeterSetpoints = prePerimeterSetpoints;
-        this.appliedNetworkActionsInPrimaryState = new HashSet<>(appliedNetworkActionsInPrimaryState);
-        if (!Objects.isNull(naCombinationToApply)) {
-            this.appliedNetworkActionsInPrimaryState.addAll(naCombinationToApply.getNetworkActionSet());
+        if (!Objects.isNull(newCombinationToApply)) {
+            this.appliedNetworkActionsInPrimaryState = Stream.concat(
+                    alreadyAppliedNetworkActionsInPrimaryState.stream(),
+                    newCombinationToApply.getNetworkActionSet().stream())
+                .collect(Collectors.toSet());
+        } else {
+            this.appliedNetworkActionsInPrimaryState = alreadyAppliedNetworkActionsInPrimaryState;
         }
         this.appliedRemedialActionsInSecondaryStates = appliedRemedialActionsInSecondaryStates;
 
@@ -283,6 +288,16 @@ public class Leaf implements OptimizationResult {
         return limitationParameters;
     }
 
+    public RangeActionActivationResult getRangeActionActivationResult() {
+        if (status == Status.EVALUATED) {
+            return raActivationsFromParentLeaf;
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getRangeActionActivationResult();
+        } else {
+            throw new FaraoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
     @Override
     public String toString() {
         String info = isRoot() ? "Root leaf" :
@@ -303,9 +318,17 @@ public class Leaf implements OptimizationResult {
     }
 
     long getNumberOfActivatedRangeActions() {
-        return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-            .mapToDouble(s -> postOptimResult.getActivatedRangeActions(s).size())
-            .sum();
+        if (status == Status.EVALUATED) {
+            return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
+                .mapToDouble(s -> raActivationsFromParentLeaf.getActivatedRangeActions(s).size())
+                .sum();
+        } else if (status == Status.OPTIMIZED) {
+            return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
+                .mapToDouble(s -> postOptimResult.getActivatedRangeActions(s).size())
+                .sum();
+        } else {
+            throw new FaraoException(NO_RESULTS_AVAILABLE);
+        }
     }
 
     @Override

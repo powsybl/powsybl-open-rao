@@ -13,4 +13,6 @@ package com.farao_community.farao.search_tree_rao.result.api;
 public interface LinearOptimizationResult extends FlowResult, SensitivityResult, RangeActionActivationResult, ObjectiveFunctionResult {
 
     LinearProblemStatus getStatus();
+
+    RangeActionActivationResult getRangeActionActivationResult();
 }

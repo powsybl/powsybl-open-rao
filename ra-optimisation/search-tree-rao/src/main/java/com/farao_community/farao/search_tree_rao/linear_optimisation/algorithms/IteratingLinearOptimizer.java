@@ -53,6 +53,8 @@ public class IteratingLinearOptimizer {
             .withParameters(parameters)
             .build();
 
+        linearProblem.fill(input.getPreOptimizationFlowResult(), input.getPreOptimizationSensitivityResult());
+
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
@@ -167,6 +169,7 @@ public class IteratingLinearOptimizer {
         return SensitivityComputer.create()
             .withCnecs(input.getOptimizationPerimeter().getFlowCnecs())
             .withCommercialFlowsResults(input.getInitialFlowResult())
+            .withRangeActions(input.getOptimizationPerimeter().getRangeActions())
             .withPtdfsResults(input.getInitialFlowResult())
             .withAppliedRemedialActions(appliedRemedialActions)
             .withToolProvider(input.getToolProvider())

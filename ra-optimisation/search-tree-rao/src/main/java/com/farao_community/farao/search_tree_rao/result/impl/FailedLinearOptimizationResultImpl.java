@@ -16,6 +16,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.LinearOptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 
 import java.util.List;
@@ -124,6 +125,11 @@ public class FailedLinearOptimizationResultImpl implements LinearOptimizationRes
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
+        throw new FaraoException("Should not be used");
+    }
+
+    @Override
+    public RangeActionActivationResult getRangeActionActivationResult()  {
         throw new FaraoException("Should not be used");
     }
 }
