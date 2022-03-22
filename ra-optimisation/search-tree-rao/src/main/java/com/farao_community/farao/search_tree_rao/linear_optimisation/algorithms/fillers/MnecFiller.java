@@ -65,7 +65,7 @@ public class MnecFiller implements ProblemFiller {
     }
 
     @Override
-    public void updateBetweenMipIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
         // nothing to do
     }
 

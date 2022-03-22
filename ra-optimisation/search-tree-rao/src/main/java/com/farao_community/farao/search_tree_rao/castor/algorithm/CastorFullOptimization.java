@@ -92,7 +92,7 @@ public class CastorFullOptimization {
         PrePerimeterResult initialOutput;
         try {
             initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
-            RaoLogger.logSensitivityAnalysisResults(  "Initial sensitivity analysis: ",
+            RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
                 prePerimeterSensitivityAnalysis.getObjectiveFunction(),
                 initialOutput,
                 raoParameters,
@@ -129,7 +129,7 @@ public class CastorFullOptimization {
         applyRemedialActions(network, preventiveResult, raoInput.getCrac().getPreventiveState());
 
         PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, preventiveResult, stateTree.getOperatorsNotSharingCras(), null);
-        RaoLogger.logSensitivityAnalysisResults( "Systematic sensitivity analysis after preventive remedial actions: ",
+        RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after preventive remedial actions: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
             preCurativeSensitivityAnalysisOutput,
             raoParameters,
@@ -154,7 +154,6 @@ public class CastorFullOptimization {
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
         Map<State, OptimizationResult> postContingencyResults = optimizeContingencyScenarios(raoInput.getCrac(), raoParameters, stateTree, toolProvider, curativeTreeParameters, network, initialOutput, preCurativeSensitivityAnalysisOutput);
         BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [end]");
-
 
         // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
 
@@ -210,7 +209,7 @@ public class CastorFullOptimization {
 
     private SearchTreeRaoResult optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialResult) {
 
-        PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFullPreventivePerimeter(stateTree.getBasecaseScenario(),raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResult);
+        PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFullPreventivePerimeter(stateTree.getBasecaseScenario(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResult);
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
@@ -356,7 +355,6 @@ public class CastorFullOptimization {
                                                      PrePerimeterResult prePerimeterSensitivityOutput) {
         TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
 
-
         OptimizationPerimeter optPerimeter = CurativeOptimizationContext.build(curativeState, crac, network, raoParameters, prePerimeterSensitivityOutput);
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
@@ -465,7 +463,7 @@ public class CastorFullOptimization {
 
         // Run a first sensitivity computation using initial network and applied CRAs
         PrePerimeterResult sensiWithCurativeRemedialActions = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedCras);
-        RaoLogger.logSensitivityAnalysisResults(  "Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
+        RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after curative remedial actions before second preventive optimization: ",
             prePerimeterSensitivityAnalysis.getObjectiveFunction(),
             sensiWithCurativeRemedialActions,
             parameters,

@@ -23,10 +23,7 @@ import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static java.lang.String.format;
 
 /**

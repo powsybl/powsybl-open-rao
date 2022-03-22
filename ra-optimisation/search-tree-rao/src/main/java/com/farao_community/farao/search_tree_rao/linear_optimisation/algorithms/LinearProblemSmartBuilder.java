@@ -7,12 +7,9 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
@@ -41,6 +38,7 @@ public class LinearProblemSmartBuilder {
         this.inputs = inputs;
         return this;
     }
+
     public LinearProblemSmartBuilder withParameters(IteratingLinearOptimizerParameters parameters) {
         this.parameters = parameters;
         return this;
@@ -81,22 +79,26 @@ public class LinearProblemSmartBuilder {
         }
 
         // MIP optimization vs. CONTINUOUS optimization
-        if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
+        //if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
+        if (false) {
             Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
             Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
-            builder.withProblemFiller(buildIntegerPstTapFiller(pstRangeActions));
-            builder.withProblemFiller(buildDiscretePstGroupFiller(pstRangeActions));
+            //builder.withProblemFiller(buildIntegerPstTapFiller(pstRangeActions));
+            //builder.withProblemFiller(buildDiscretePstGroupFiller(pstRangeActions));
             builder.withProblemFiller(buildContinuousRangeActionGroupFiller(otherRa));
         } else {
             builder.withProblemFiller(buildContinuousRangeActionGroupFiller(inputs.getOptimizationPerimeter().getRangeActionsPerState()));
         }
 
         // RA limitation
+        /*
         if (inputs.getOptimizationPerimeter().getRangeActionOptimizationStates().stream().anyMatch(s -> s.getInstant().equals(Instant.CURATIVE))
             && parameters.getRaLimitationParameters() != null) {
             // todo: add some controls here or in filler to check whether it is necessary or not to take it into account
             builder.withProblemFiller(buildRaUageLimitsFiller());
         }
+
+         */
 
         return builder.build();
     }
@@ -168,6 +170,7 @@ public class LinearProblemSmartBuilder {
         );
     }
 
+    /*
     private ProblemFiller buildIntegerPstTapFiller(Map<State, Set<PstRangeAction>> pstRangeActions) {
         return new DiscretePstTapFiller(
             inputs.getNetwork(),
@@ -184,15 +187,13 @@ public class LinearProblemSmartBuilder {
             pstRangeActions
         );
     }
+     */
 
-
-    private ProblemFiller buildContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActions) {
-        return new ContinuousRangeActionGroupFiller(
-            rangeActions
-        );
+    private ProblemFiller buildContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
+        return new ContinuousRangeActionGroupFiller(rangeActionsPerState);
     }
 
-
+    /*
     private ProblemFiller buildRaUageLimitsFiller() {
         return new RaUsageLimitsFiller(
             inputs.getOptimizationPerimeter().getRangeActionsPerState(),
@@ -204,8 +205,7 @@ public class LinearProblemSmartBuilder {
             parameters.getRaLimitationParameters().getMaxCurativeRangeActionPerTso(),
             parameters.getPstOptimizationApproximation() == RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
     }
-
-
+     */
     private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
         Map<State, Set<RangeAction<?>>> outRangeActions = new HashMap<>();
         inRangeActions.forEach((state, rangeActions) -> {
@@ -215,7 +215,6 @@ public class LinearProblemSmartBuilder {
         });
         return outRangeActions;
     }
-
 
     private Map<State, Set<PstRangeAction>> copyOnlyPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
         Map<State, Set<PstRangeAction>> outRangeActions = new HashMap<>();

@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
  */
-public class SearchTreeInput {
+public final class SearchTreeInput {
 
     private final Network network;
 

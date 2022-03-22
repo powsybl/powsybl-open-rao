@@ -49,7 +49,7 @@ public class CastorOneStateOnly {
         this.raoParameters = raoParameters;
     }
 
-    public CompletableFuture<RaoResult> run () {
+    public CompletableFuture<RaoResult> run() {
 
         RaoUtil.initData(raoInput, raoParameters);
         StateTree stateTree = new StateTree(raoInput.getCrac());

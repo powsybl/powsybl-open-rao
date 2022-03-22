@@ -8,7 +8,6 @@ package com.farao_community.farao.search_tree_rao.search_tree.parameters;
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
 /**
@@ -199,6 +198,4 @@ public class SearchTreeParameters {
                 maxNumberOfIterations);
         }
     }
-
-
 }

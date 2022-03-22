@@ -48,17 +48,6 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         this.highestThresholdValue = unoptimizedCnecParameters.getHighestThresholdValue();
     }
 
-    private Set<FlowCnec> getFlowCnecs() {
-        return flowCnecs.stream()
-                .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // nothing to do
-    }
-
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
         // build variables
@@ -71,6 +60,16 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         updateMinimumMarginConstraints(linearProblem);
     }
 
+    @Override
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        // nothing to do
+    }
+
+    @Override
+    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+        // nothing to do
+    }
+
     /**
      * This method defines, for each CNEC belonging to a TSO that does not share RAs in the given perimeter, a binary variable
      * The binary variable should detect the decrease of the margin on the given CNEC compared to the preperimeter margin
@@ -78,6 +77,12 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
      */
     private void buildMarginDecreaseVariables(LinearProblem linearProblem) {
         getFlowCnecs().forEach(linearProblem::addMarginDecreaseBinaryVariable);
+    }
+
+    private Set<FlowCnec> getFlowCnecs() {
+        return flowCnecs.stream()
+            .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
+            .collect(Collectors.toSet());
     }
 
     /**

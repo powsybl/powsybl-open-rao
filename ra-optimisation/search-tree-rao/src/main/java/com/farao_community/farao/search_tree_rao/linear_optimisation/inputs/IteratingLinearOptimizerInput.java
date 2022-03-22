@@ -15,8 +15,6 @@ import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Set;
-
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */

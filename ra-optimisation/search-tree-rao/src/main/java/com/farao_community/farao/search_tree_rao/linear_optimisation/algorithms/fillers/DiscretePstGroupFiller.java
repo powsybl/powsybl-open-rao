@@ -7,23 +7,12 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
-import com.farao_community.farao.data.crac_api.Identifiable;
-import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
-import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
-import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
-import com.google.ortools.linearsolver.MPConstraint;
-import com.powsybl.iidm.network.Network;
-
-import java.util.*;
-
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class DiscretePstGroupFiller implements ProblemFiller {
+public class DiscretePstGroupFiller {
 
+    /*
     private final State optimizedState;
     private final Set<PstRangeAction> pstRangeActions;
     private final Network network;
@@ -74,4 +63,5 @@ public class DiscretePstGroupFiller implements ProblemFiller {
             groupSetPointConstraint.setUb(newTap);
         }
     }
+     */
 }

@@ -21,7 +21,7 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
 
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
-                double setpoint = linearProblem.getRangeActionAbsoluteSetpointVariable(rangeAction, state).solutionValue();
+                double setpoint = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue();
                 activate(rangeAction, state, setpoint);
             })
         );

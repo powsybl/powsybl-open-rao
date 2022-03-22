@@ -8,7 +8,6 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -23,37 +22,48 @@ import java.util.*;
  */
 public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
-    private final OptimizationPerimeter optimizationContext;
+    private final Map<State, Set<RangeAction<?>>> rangeActionsPerState;
 
-    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActions) {
-        this.optimizationContext = optimizationContext;
+    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
+        this.rangeActionsPerState = rangeActionsPerState;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        rangeActions.forEach(rangeAction -> buildRangeActionGroupConstraint(linearProblem, rangeAction));
+        buildRangeActionGroupConstraint(linearProblem);
     }
 
     @Override
-    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // nothing to do
     }
 
-    private void buildRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction) {
-        Optional<String> optGroupId = rangeAction.getGroupId();
-        if (optGroupId.isPresent()) {
-            String groupId = optGroupId.get();
-            // For the first time the group ID is encountered a common variable for set point has to be created
-            if (linearProblem.getRangeActionGroupSetpointVariable(groupId) == null) {
-                linearProblem.addRangeActionGroupSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId);
-            }
-            addRangeActionGroupConstraint(linearProblem, rangeAction, groupId);
-        }
+    @Override
+    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+        // nothing to do
     }
 
-    private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction rangeAction, String groupId) {
-        MPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionAbsoluteSetpointVariable(rangeAction), 1);
-        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId), -1);
+    private void buildRangeActionGroupConstraint(LinearProblem linearProblem) {
+
+        rangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+            Optional<String> optGroupId = ra.getGroupId();
+            // if range action belongs to a group
+            if (optGroupId.isPresent()) {
+                String groupId = optGroupId.get();
+                // For the first time the group ID is encountered a common variable for set point has to be created
+                if (linearProblem.getRangeActionGroupSetpointVariable(groupId, state) == null) {
+                    linearProblem.addRangeActionGroupSetpointVariable(-LinearProblem.infinity(), LinearProblem.infinity(), groupId, state);
+                }
+                addRangeActionGroupConstraint(linearProblem, ra, groupId, state);
+            }
+
+        }));
+
+    }
+
+    private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, String groupId, State state) {
+        MPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction, state);
+        groupSetPointConstraint.setCoefficient(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state), 1);
+        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId, state), -1);
     }
 }

@@ -259,7 +259,6 @@ public class CoreProblemFiller implements ProblemFiller {
                         rangeAction,
                         LinearProblem.AbsExtension.POSITIVE);
 
-
                     Pair<RangeAction<?>, State> lastAvailableRangeAction = getLastAvailableRangeActionOnSameAction(rangeAction, entry.getKey());
 
                     if (lastAvailableRangeAction == null) {
@@ -319,7 +318,7 @@ public class CoreProblemFiller implements ProblemFiller {
                             // Make sure we stay in the range by multiplying the relative tap by the smallest angle between taps.
                             // (As long as minRelativeTap is negative (or zero) and maxRelativeTap is positive (or zero).)
                             minRelativeSetpoint = minRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleDiff();
-                            minRelativeSetpoint = maxRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleDiff();
+                            maxRelativeSetpoint = maxRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleDiff();
                         } else if (rangeAction instanceof HvdcRangeAction) {
                             List<StandardRange> ranges = ((HvdcRangeAction) rangeAction).getRanges();
                             for (StandardRange range : ranges) {
@@ -411,7 +410,7 @@ public class CoreProblemFiller implements ProblemFiller {
 
     private Set<RangeAction<?>> getAvailableRangeActionsOnSameAction(RangeAction<?> rangeAction) {
         Set<RangeAction<?>> rangeActions = new HashSet<>();
-        optimizationContext.getAvailableRangeActions().forEach((state, raSet) ->
+        optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
             raSet.forEach(ra -> {
                 if (ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements())) {
                     rangeActions.add(ra);

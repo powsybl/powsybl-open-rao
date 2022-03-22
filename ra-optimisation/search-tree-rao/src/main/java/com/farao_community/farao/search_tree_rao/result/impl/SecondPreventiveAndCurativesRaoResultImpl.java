@@ -245,7 +245,8 @@ public class SecondPreventiveAndCurativesRaoResultImpl implements SearchTreeRaoR
             return postFirstPreventiveResult.getActivatedRangeActions(state).contains(rangeAction);
         } else {
             return postCurativeResults.get(state).getActivatedRangeActions(state).contains(rangeAction);
-        }    }
+        }
+    }
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
