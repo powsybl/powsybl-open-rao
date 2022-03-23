@@ -128,17 +128,6 @@ public class RaoParametersTest {
     }
 
     @Test
-    public void checkRelativeMarginConfig() {
-        MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
-        moduleConfig.setStringProperty("negative-margin-objective-coefficient", Objects.toString(100.0));
-
-        RaoParameters parameters = new RaoParameters();
-        RaoParameters.load(parameters, platformCfg);
-
-        assertEquals(100, parameters.getNegativeMarginObjectiveCoefficient(), 1e-6);
-    }
-
-    @Test
     public void checkLoopFlowConfig() {
         MapModuleConfig moduleConfig = platformCfg.createModuleConfig("rao-parameters");
         moduleConfig.setStringProperty("loop-flow-approximation", "UPDATE_PTDF_WITH_TOPO");

@@ -211,8 +211,14 @@ public class Leaf implements OptimizationResult {
 
     private long getNumberOfActivatedRangeActions() {
         return getOptimizedSetPoints().entrySet().stream().filter(entry ->
-            Math.abs(entry.getValue() - preOptimRangeActionResult.getOptimizedSetPoint(entry.getKey())) > 1e-6
+            Math.abs(entry.getValue() - preOptimRangeActionResult.getOptimizedSetPoint(entry.getKey())) > 1e-3
         ).count();
+    }
+
+    public Set<RangeAction<?>> getActivatedRangeActions() {
+        return getOptimizedSetPoints().entrySet().stream().filter(entry ->
+            Math.abs(entry.getValue() - preOptimRangeActionResult.getOptimizedSetPoint(entry.getKey())) > 1e-6
+        ).map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     @Override

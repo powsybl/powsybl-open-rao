@@ -153,7 +153,7 @@ public class SearchTree {
 
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
         TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, availableRangeActions, "Best leaf: ");
+        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, optimalLeaf.getActivatedRangeActions(), "Best leaf: ");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
         logOptimizationSummary(optimalLeaf);

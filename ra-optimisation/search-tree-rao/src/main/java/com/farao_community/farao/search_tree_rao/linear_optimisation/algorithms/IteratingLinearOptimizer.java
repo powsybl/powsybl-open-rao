@@ -15,7 +15,6 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.DiscretePstTapFiller;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.ProblemFiller;
 import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.FailedLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
@@ -57,7 +56,9 @@ public class IteratingLinearOptimizer {
             } else if (linearProblem.getStatus() != LinearProblemStatus.OPTIMAL) {
                 BUSINESS_LOGS.error("Linear optimization failed at iteration {}", iteration);
                 if (iteration == 1) {
-                    return new FailedLinearOptimizationResultImpl();
+                    bestResult.setStatus(linearProblem.getStatus());
+                    BUSINESS_LOGS.info("Linear problem failed with the following status : %s, initial situation is kept.", linearProblem.getStatus());
+                    return bestResult;
                 }
                 bestResult.setStatus(LinearProblemStatus.FEASIBLE);
                 return bestResult;
