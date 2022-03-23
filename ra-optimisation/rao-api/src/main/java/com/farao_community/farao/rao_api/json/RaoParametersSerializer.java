@@ -56,7 +56,6 @@ public class RaoParametersSerializer extends StdSerializer<RaoParameters> {
         jsonGenerator.writeNumberField("mnec-acceptable-margin-diminution", parameters.getMnecAcceptableMarginDiminution());
         jsonGenerator.writeNumberField("mnec-violation-cost", parameters.getMnecViolationCost());
         jsonGenerator.writeNumberField("mnec-constraint-adjustment-coefficient", parameters.getMnecConstraintAdjustmentCoefficient());
-        jsonGenerator.writeNumberField("negative-margin-objective-coefficient", parameters.getNegativeMarginObjectiveCoefficient());
         jsonGenerator.writeArrayFieldStart("relative-margin-ptdf-boundaries");
         for (String countryPair : parameters.getRelativeMarginPtdfBoundariesAsString()) {
             jsonGenerator.writeString(countryPair);

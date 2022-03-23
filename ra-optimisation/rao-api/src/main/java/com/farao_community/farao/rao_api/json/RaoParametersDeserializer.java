@@ -125,10 +125,6 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
                     parser.nextToken();
                     parameters.setMnecConstraintAdjustmentCoefficient(parser.getDoubleValue());
                     break;
-                case "negative-margin-objective-coefficient":
-                    parser.nextToken();
-                    parameters.setNegativeMarginObjectiveCoefficient(parser.getDoubleValue());
-                    break;
                 case "relative-margin-ptdf-boundaries":
                     if (parser.getCurrentToken() == JsonToken.START_ARRAY) {
                         List<String> boundaries = new ArrayList<>();

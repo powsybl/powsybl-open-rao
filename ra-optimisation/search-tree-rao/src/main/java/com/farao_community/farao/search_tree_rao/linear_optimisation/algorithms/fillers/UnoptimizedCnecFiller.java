@@ -45,7 +45,7 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         this.flowCnecs.addAll(flowCnecs);
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
-        this.highestThresholdValue = unoptimizedCnecParameters.getHighestThresholdValue();
+        this.highestThresholdValue = unoptimizedCnecParameters.getLargestCnecThreshold(flowCnecs);
     }
 
     private Set<FlowCnec> getFlowCnecs() {

@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
@@ -48,7 +47,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.*;
 import static com.farao_community.farao.search_tree_rao.commons.RaoLogger.formatDouble;
 
@@ -265,7 +263,6 @@ public class Castor implements RaoProvider {
                 raoParameters.getPstPenaltyCost(),
                 raoParameters.getHvdcPenaltyCost(),
                 raoParameters.getInjectionRaPenaltyCost(),
-                raoParameters.getNegativeMarginObjectiveCoefficient(),
                 raoParameters.getPtdfSumLowerBound());
             builder.withMaxMinRelativeMarginParameters(maxMinRelativeMarginParameters);
 
@@ -322,33 +319,15 @@ public class Castor implements RaoProvider {
         return basicLinearOptimizerBuilder(raoParameters).build();
     }
 
-    static LinearOptimizerParameters createCurativeLinearOptimizerParameters(RaoParameters raoParameters, StateTree stateTree, Set<FlowCnec> cnecs) {
+    static LinearOptimizerParameters createCurativeLinearOptimizerParameters(RaoParameters raoParameters, StateTree stateTree) {
         LinearOptimizerParameters.LinearOptimizerParametersBuilder builder = basicLinearOptimizerBuilder(raoParameters);
         SearchTreeRaoParameters parameters = raoParameters.getExtension(SearchTreeRaoParameters.class);
         if (parameters != null && !parameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(
-                stateTree.getOperatorsNotSharingCras(),
-                getLargestCnecThreshold(cnecs));
+                stateTree.getOperatorsNotSharingCras());
             builder.withUnoptimizedCnecParameters(unoptimizedCnecParameters);
         }
         return builder.build();
-    }
-
-    static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
-        double max = 0;
-        for (FlowCnec flowCnec : flowCnecs) {
-            if (flowCnec.isOptimized()) {
-                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
-                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
-                    max = Math.abs(minFlow.get());
-                }
-                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
-                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
-                    max = Math.abs(maxFlow.get());
-                }
-            }
-        }
-        return max;
     }
 
     CompletableFuture<RaoResult> optimizeOneStateOnly(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider) {
@@ -356,7 +335,7 @@ public class Castor implements RaoProvider {
         TreeParameters treeParameters = raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState()) ?
             TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)) :
             TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
-        LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree, perimeterCnecs);
+        LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree);
 
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
             raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE, UsageMethod.TO_BE_EVALUATED, UsageMethod.FORCED),
@@ -536,8 +515,7 @@ public class Castor implements RaoProvider {
                                                      PrePerimeterResult initialSensitivityOutput,
                                                      PrePerimeterResult prePerimeterSensitivityOutput) {
         TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
-        Set<FlowCnec> cnecs = computePerimeterCnecs(crac, Collections.singleton(curativeState));
-        LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree, cnecs);
+        LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree);
 
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
             crac,
