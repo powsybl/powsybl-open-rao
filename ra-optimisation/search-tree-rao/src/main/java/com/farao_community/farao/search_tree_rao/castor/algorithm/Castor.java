@@ -515,7 +515,6 @@ public class Castor implements RaoProvider {
                                                      PrePerimeterResult initialSensitivityOutput,
                                                      PrePerimeterResult prePerimeterSensitivityOutput) {
         TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
-        Set<FlowCnec> cnecs = computePerimeterCnecs(crac, Collections.singleton(curativeState));
         LinearOptimizerParameters linearOptimizerParameters = createCurativeLinearOptimizerParameters(raoParameters, stateTree);
 
         SearchTreeInput searchTreeInput = buildSearchTreeInput(
