@@ -106,9 +106,9 @@ public class LeafProblem {
                 .withProblemFiller(createCoreProblemFiller(network, flowCnecs, rangeActions));
 
         if (linearOptimizerParameters.getObjectiveFunction().relativePositiveMargins()) {
-            linearProblemBuilder.withProblemFiller(createMaxMinRelativeMarginFiller(network, flowCnecs, rangeActions, preOptimFlowResult));
+            linearProblemBuilder.withProblemFiller(createMaxMinRelativeMarginFiller(flowCnecs, rangeActions, preOptimFlowResult));
         } else {
-            linearProblemBuilder.withProblemFiller(createMaxMinMarginFiller(network, flowCnecs, rangeActions));
+            linearProblemBuilder.withProblemFiller(createMaxMinMarginFiller(flowCnecs, rangeActions));
         }
 
         if (linearOptimizerParameters.isRaoWithMnecLimitation()) {
@@ -170,9 +170,8 @@ public class LeafProblem {
         );
     }
 
-    private ProblemFiller createMaxMinRelativeMarginFiller(Network network, Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions, FlowResult preOptimFlowResult) {
+    private ProblemFiller createMaxMinRelativeMarginFiller(Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions, FlowResult preOptimFlowResult) {
         return new MaxMinRelativeMarginFiller(
-            network,
             flowCnecs.stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
             preOptimFlowResult,
             rangeActions,
@@ -181,9 +180,8 @@ public class LeafProblem {
         );
     }
 
-    private ProblemFiller createMaxMinMarginFiller(Network network, Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions) {
+    private ProblemFiller createMaxMinMarginFiller(Set<FlowCnec> flowCnecs, Set<RangeAction<?>> rangeActions) {
         return new MaxMinMarginFiller(
-            network,
             flowCnecs.stream().filter(Cnec::isOptimized).collect(Collectors.toSet()),
             rangeActions,
             linearOptimizerParameters.getUnit(),

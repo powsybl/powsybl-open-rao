@@ -56,7 +56,6 @@ public class MaxMinMarginFillerTest extends AbstractFillerTest {
 
     private void createMaxMinMarginFiller(Unit unit) {
         maxMinMarginFiller = new MaxMinMarginFiller(
-                network,
                 Set.of(cnec1),
                 Set.of(pstRangeAction),
                 unit,

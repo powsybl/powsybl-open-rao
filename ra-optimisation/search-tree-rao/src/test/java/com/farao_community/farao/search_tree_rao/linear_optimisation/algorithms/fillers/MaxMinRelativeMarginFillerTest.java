@@ -66,7 +66,6 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getPtdfZonalSum(cnec1)).thenReturn(cnecInitialAbsolutePtdfSum);
         maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
-                network,
                 Set.of(cnec1),
                 initialFlowResult,
                 Set.of(pstRangeAction),

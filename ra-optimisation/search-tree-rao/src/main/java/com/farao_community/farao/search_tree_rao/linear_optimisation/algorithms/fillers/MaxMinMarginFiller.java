@@ -16,18 +16,19 @@ import com.farao_community.farao.data.crac_api.range_action.HvdcRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.InjectionRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.rao_api.parameters.MaxMinMarginParameters;
+import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
-import com.powsybl.iidm.network.Network;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
@@ -36,7 +37,6 @@ import static com.farao_community.farao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
-    private final String networkName;
     protected final Set<FlowCnec> optimizedCnecs;
     private final Set<RangeAction<?>> rangeActions;
     private final Unit unit;
@@ -44,8 +44,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private final double hvdcPenaltyCost;
     private final double injectionPenaltyCost;
 
-    public MaxMinMarginFiller(Network network, Set<FlowCnec> optimizedCnecs, Set<RangeAction<?>> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
-        this.networkName = network.getNameOrId();
+    public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs, Set<RangeAction<?>> rangeActions, Unit unit, MaxMinMarginParameters maxMinMarginParameters) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -92,7 +91,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
     /**
      * Build two minimum margin constraints for each Cnec c.
      * The minimum margin constraints ensure that the minimum margin variable is below
-     * the margin of each Cnec. They consist in a linear equivalent of the definition
+     * the margin of each Cnec. They consist in a linear equivalent of the definitilon
      * of the min margin : MM = min{c in CNEC} margin[c].
      * <p>
      * For each Cnec c, the constraints are (if the max margin is defined in MEGAWATT) :
@@ -162,36 +161,18 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
      */
     private void fillObjectiveWithRangeActionPenaltyCost(LinearProblem linearProblem) {
-        Map<RangeAction<?>, Double> randoms = getRandomPenaltyCost();
         rangeActions.forEach(rangeAction -> {
             MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction);
 
             // If the range action has been filtered out, then absoluteVariationVariable is null
             if (absoluteVariationVariable != null && rangeAction instanceof PstRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost + randoms.get(rangeAction));
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, pstPenaltyCost);
             } else if (absoluteVariationVariable != null && rangeAction instanceof HvdcRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost + randoms.get(rangeAction));
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, hvdcPenaltyCost);
             } else if (absoluteVariationVariable != null && rangeAction instanceof InjectionRangeAction) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost + randoms.get(rangeAction));
+                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, injectionPenaltyCost);
             }
         });
-    }
-
-    /**
-     * Generates a random double between 0 and 0.001 for a given remedial action
-     * Seeded with the network name, so it changes between 2 different runs of the RAO but is replicable for the same run
-     * If there are equivalent solutions, this allows the solver to always chose the same solution
-     */
-    private Map<RangeAction<?>, Double> getRandomPenaltyCost() {
-        Map<RangeAction<?>, Double> randoms = new HashMap<>();
-        List<RangeAction<?>> sortedRangeActions = rangeActions.stream().sorted(Comparator.comparing(Identifiable::getId)).collect(Collectors.toList());
-        Collections.shuffle(sortedRangeActions, new Random(networkName.hashCode()));
-        int i = 1;
-        for (RangeAction<?> ra : sortedRangeActions) {
-            randoms.put(ra, i * 0.01 / sortedRangeActions.size());
-            i++;
-        }
-        return randoms;
     }
 }
 
