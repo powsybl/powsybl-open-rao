@@ -158,27 +158,27 @@ public final class LinearProblemIdGenerator {
         return flowCnec.getId() + SEPARATOR + MARGIN_DECREASE + belowOrAboveThreshold.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String maxRaConstraintId() {
-        return MAX_RA + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String maxRaConstraintId(State state) {
+        return MAX_RA + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String maxTsoConstraintId() {
-        return MAX_TSO + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String maxTsoConstraintId(State state) {
+        return MAX_TSO + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String maxRaPerTsoConstraintId(String operator) {
-        return MAX_RA_PER_TSO + SEPARATOR + operator + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String maxRaPerTsoConstraintId(String operator, State state) {
+        return MAX_RA_PER_TSO + SEPARATOR + operator + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String maxPstPerTsoConstraintId(String operator) {
-        return MAX_PST_PER_TSO + SEPARATOR + operator + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String maxPstPerTsoConstraintId(String operator, State state) {
+        return MAX_PST_PER_TSO + SEPARATOR + operator + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
-    public static String tsoRaUsedVariableId(String operator) {
-        return TSO_RA_USED + SEPARATOR + operator + SEPARATOR + VARIABLE_SUFFIX;
+    public static String tsoRaUsedVariableId(String operator, State state) {
+        return TSO_RA_USED + SEPARATOR + operator + SEPARATOR + state.getId() + SEPARATOR + VARIABLE_SUFFIX;
     }
 
-    public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction) {
-        return TSO_RA_USED + SEPARATOR + operator + SEPARATOR + rangeAction.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction, State state) {
+        return TSO_RA_USED + SEPARATOR + operator + SEPARATOR + rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 }

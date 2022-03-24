@@ -10,13 +10,13 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Identifiable;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range.StandardRange;
 import com.farao_community.farao.data.crac_api.range.TapRange;
 import com.farao_community.farao.data.crac_api.range_action.*;
+import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
@@ -259,7 +259,7 @@ public class CoreProblemFiller implements ProblemFiller {
                         rangeAction,
                         LinearProblem.AbsExtension.POSITIVE);
 
-                    Pair<RangeAction<?>, State> lastAvailableRangeAction = getLastAvailableRangeActionOnSameAction(rangeAction, entry.getKey());
+                    Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameAction(optimizationContext, rangeAction, entry.getKey());
 
                     if (lastAvailableRangeAction == null) {
                         // if state is equal to masterState,
@@ -381,31 +381,6 @@ public class CoreProblemFiller implements ProblemFiller {
             .filter(s -> s.getContingency().equals(refState.getContingency()) || s.getContingency().isEmpty())
             .filter(s -> s.getInstant().comesBefore(refState.getInstant()))
             .collect(Collectors.toSet());
-    }
-
-    private Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameAction(RangeAction<?> rangeAction, State state) {
-
-        if (state.isPreventive() || state.equals(optimizationContext.getMainOptimizationState())) {
-            // no previous instant
-            return null;
-        } else if (state.getInstant().equals(Instant.CURATIVE)) {
-
-            // look if a preventive range action acts on the same network elements
-            State preventiveState = optimizationContext.getRangeActionsPerState().keySet().stream().filter(State::isPreventive).findAny().orElse(null);
-
-            if (preventiveState != null) {
-                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(preventiveState).stream()
-                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || (ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
-                    .findAny();
-
-                if (correspondingRa.isPresent()) {
-                    return Pair.of(correspondingRa.get(), preventiveState);
-                }
-            }
-            return null;
-        } else {
-            throw new FaraoException("Linear optimization does no handle RA which are neither PREVENTIVE nor CURATIVE.");
-        }
     }
 
     private Set<RangeAction<?>> getAvailableRangeActionsOnSameAction(RangeAction<?> rangeAction) {

@@ -7,15 +7,31 @@
 
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.State;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPVariable;
+import com.powsybl.iidm.network.Network;
+
+import java.util.Map;
+import java.util.Set;
+
+import static java.lang.String.format;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class DiscretePstTapFiller {
+public class DiscretePstTapFiller implements ProblemFiller {
 
-    /*
     private final Network network;
     private final State optimizedState;
-    private final Set<RangeAction<?>> rangeActions;
+    private final Map<State, Set<PstRangeAction>> rangeActions;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
 
     public DiscretePstTapFiller(Network network,
@@ -24,26 +40,32 @@ public class DiscretePstTapFiller {
                                 RangeActionSetpointResult prePerimeterRangeActionSetpoints) {
         this.network = network;
         this.optimizedState = optimizedState;
-        this.rangeActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.rangeActions.addAll(rangeActions);
+        this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        rangeActions.stream().filter(PstRangeAction.class::isInstance).forEach(rangeAction ->
-            buildPstTapVariablesAndConstraints(linearProblem, (PstRangeAction) rangeAction)
-        );
+        rangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
+            buildPstTapVariablesAndConstraints(linearProblem, rangeAction, state)
+        ));
     }
 
     @Override
-    public void update(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        rangeActions.stream().filter(PstRangeAction.class::isInstance).forEach(rangeAction ->
-            refineTapToAngleConversionCoefficientAndUpdateBounds(linearProblem, (PstRangeAction) rangeAction, rangeActionActivationResult)
-        );
+    public void updateBetweenSensiIteration(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        rangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
+            refineTapToAngleConversionCoefficientAndUpdateBounds(linearProblem, rangeAction, rangeActionActivationResult, state)
+        ));
     }
 
-    private void buildPstTapVariablesAndConstraints(LinearProblem linearProblem, PstRangeAction pstRangeAction) {
+    @Override
+    public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
+        rangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
+            refineTapToAngleConversionCoefficientAndUpdateBounds(linearProblem, rangeAction, rangeActionActivationResult, state)
+        ));
+    }
+
+    private void buildPstTapVariablesAndConstraints(LinearProblem linearProblem, PstRangeAction pstRangeAction, State state) {
 
         // compute a few values on PST taps and angle
         double prePerimeterAngle = prePerimeterRangeActionSetpoints.getSetpoint(pstRangeAction);
@@ -57,13 +79,13 @@ public class DiscretePstTapFiller {
         int maxUpwardTapVariation = Math.max(0, maxAdmissibleTap - currentTap);
 
         // create and get variables
-        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable pstTapDownwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable pstTapUpwardVariationVariable = linearProblem.addPstTapVariationVariable(0, (double) maxDownwardTapVariation + maxUpwardTapVariation, pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
 
-        MPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        MPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable pstTapDownwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable pstTapUpwardVariationBinary = linearProblem.addPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
 
-        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction);
+        MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
 
         if (setPointVariable == null) {
             throw new FaraoException(format("PST Range action variable for %s has not been defined yet.", pstRangeAction.getId()));
@@ -80,7 +102,7 @@ public class DiscretePstTapFiller {
         //
         // in the first MIP, we calibrate the 'constant tap to angle factor' with the extremities of the PST
         // when updating the MIP, the factors will be calibrated on a change of one tap (see update() method)
-        MPConstraint tapToAngleConversionConstraint = linearProblem.addTapToAngleConversionConstraint(currentAngle, currentAngle, pstRangeAction);
+        MPConstraint tapToAngleConversionConstraint = linearProblem.addTapToAngleConversionConstraint(currentAngle, currentAngle, pstRangeAction, state);
         tapToAngleConversionConstraint.setCoefficient(setPointVariable, 1);
 
         if (maxDownwardTapVariation > 0) {
@@ -93,22 +115,22 @@ public class DiscretePstTapFiller {
         }
 
         // variation can only be upward or downward
-        MPConstraint upOrDownConstraint = linearProblem.addUpOrDownPstVariationConstraint(pstRangeAction);
+        MPConstraint upOrDownConstraint = linearProblem.addUpOrDownPstVariationConstraint(pstRangeAction, state);
         upOrDownConstraint.setCoefficient(pstTapDownwardVariationBinary, 1);
         upOrDownConstraint.setCoefficient(pstTapUpwardVariationBinary, 1);
         upOrDownConstraint.setUb(1);
 
         // variation can be made in one direction, only if it is authorized by the binary variable
-        MPConstraint downAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPConstraint downAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationVariable, 1);
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationBinary, -maxDownwardTapVariation);
 
-        MPConstraint upAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPConstraint upAuthorizationConstraint = linearProblem.addIsVariationInDirectionConstraint(-LinearProblem.infinity(), 0, pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationVariable, 1);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
     }
 
-    private void refineTapToAngleConversionCoefficientAndUpdateBounds(LinearProblem linearProblem, PstRangeAction pstRangeAction, RangeActionActivationResult rangeActionActivationResult) {
+    private void refineTapToAngleConversionCoefficientAndUpdateBounds(LinearProblem linearProblem, PstRangeAction pstRangeAction, RangeActionActivationResult rangeActionActivationResult, State state) {
 
         // compute a few values on PST taps and angle
         double newAngle = rangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState);
@@ -124,13 +146,13 @@ public class DiscretePstTapFiller {
         Map<Integer, Double> tapToAngleConversionMap = pstRangeAction.getTapToAngleConversionMap();
 
         // get variables and constraints
-        MPConstraint tapToAngleConversionConstraint = linearProblem.getTapToAngleConversionConstraint(pstRangeAction);
-        MPVariable pstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
-        MPVariable pstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        MPConstraint downAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        MPConstraint upAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
-        MPVariable pstTapDownwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        MPVariable pstTapUpwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPConstraint tapToAngleConversionConstraint = linearProblem.getTapToAngleConversionConstraint(pstRangeAction, state);
+        MPVariable pstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable pstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPConstraint downAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPConstraint upAuthorizationConstraint = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable pstTapDownwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable pstTapUpwardVariationBinary = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
 
         if (tapToAngleConversionConstraint == null || pstTapUpwardVariationVariable == null || pstTapDownwardVariationVariable == null
                 || downAuthorizationConstraint == null || upAuthorizationConstraint == null || pstTapDownwardVariationBinary == null
@@ -158,6 +180,4 @@ public class DiscretePstTapFiller {
         downAuthorizationConstraint.setCoefficient(pstTapDownwardVariationBinary, -maxDownwardTapVariation);
         upAuthorizationConstraint.setCoefficient(pstTapUpwardVariationBinary, -maxUpwardTapVariation);
     }
-
-     */
 }
