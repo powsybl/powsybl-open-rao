@@ -5,8 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters;
+package com.farao_community.farao.search_tree_rao.commons.parameters;
 
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+
+/**
+ * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ */
 public class MnecParameters {
     private final double mnecAcceptableMarginDiminution;
     private final double mnecViolationCost;
@@ -28,5 +33,17 @@ public class MnecParameters {
 
     public double getMnecConstraintAdjustmentCoefficient() {
         return mnecConstraintAdjustmentCoefficient;
+    }
+
+    public static MnecParameters buildFromRaoParameters(RaoParameters raoParameters) {
+
+        /*
+        for now, values of MnecParameters are constant over all the SearchTreeRao
+        they can therefore be instantiated directly from a RaoParameters
+         */
+
+        return new MnecParameters(raoParameters.getMnecAcceptableMarginDiminution(),
+            raoParameters.getMnecViolationCost(),
+            raoParameters.getMnecConstraintAdjustmentCoefficient());
     }
 }

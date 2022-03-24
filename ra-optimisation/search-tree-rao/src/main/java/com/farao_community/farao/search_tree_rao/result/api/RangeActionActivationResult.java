@@ -21,7 +21,7 @@ public interface RangeActionActivationResult {
 
     Set<RangeAction<?>> getRangeActions();
 
-    Set<RangeAction<?>> getActivatedRangeActions();
+    Set<RangeAction<?>> getActivatedRangeActions(State state);
 
     double getOptimizedSetpoint(RangeAction<?> rangeAction, State state);
 

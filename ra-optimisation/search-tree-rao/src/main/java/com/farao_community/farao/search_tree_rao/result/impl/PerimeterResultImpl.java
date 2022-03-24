@@ -100,8 +100,8 @@ public class PerimeterResultImpl implements PerimeterResult {
     }
 
     @Override
-    public Set<RangeAction<?>> getActivatedRangeActions() {
-        return optimizationResult.getActivatedRangeActions();
+    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
+        return optimizationResult.getActivatedRangeActions(state);
     }
 
     @Override

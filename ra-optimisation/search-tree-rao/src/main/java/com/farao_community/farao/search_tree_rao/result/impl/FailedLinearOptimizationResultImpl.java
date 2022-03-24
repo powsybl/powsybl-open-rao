@@ -88,7 +88,7 @@ public class FailedLinearOptimizationResultImpl implements LinearOptimizationRes
     }
 
     @Override
-    public Set<RangeAction<?>> getActivatedRangeActions() {
+    public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         throw new FaraoException("Should not be used");
     }
 

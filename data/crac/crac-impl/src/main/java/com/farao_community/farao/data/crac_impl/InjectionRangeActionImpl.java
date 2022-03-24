@@ -51,7 +51,6 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         return ranges;
     }
 
-
     @Override
     public double getMinAdmissibleSetpoint(double previousInstantSetPoint) {
         double minAdmissibleSetpoint = Double.NEGATIVE_INFINITY;

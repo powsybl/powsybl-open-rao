@@ -10,151 +10,50 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.parameters
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class IteratingLinearOptimizerParameters {
 
-    private RaoParameters.ObjectiveFunction objectiveFunction;
+    private final RaoParameters.ObjectiveFunction objectiveFunction;
 
-    private RangeActionParameters rangeActionParameters;
-    private MnecParameters mnecParameters;
-    private MaxMinMarginParameters maxMinMarginParameters;
-    private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
-    private LoopFlowParameters loopFlowParameters;
-    private UnoptimizedCnecParameters unoptimizedCnecParameters;
-    private RangeActionLimitationParameters raLimitationParameters;
+    private final RangeActionParameters rangeActionParameters;
+    private final MnecParameters mnecParameters;
+    private final MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
+    private final LoopFlowParameters loopFlowParameters;
+    private final UnoptimizedCnecParameters unoptimizedCnecParameters;
+    private final RangeActionLimitationParameters raLimitationParameters;
+    private final SolverParameters solverParameters;
 
-    private RaoParameters.Solver solver;
-    private double relativeMipGap;
-    private String solverSpecificParameters;
+    private final int maxNumberOfIterations;
 
-    private IteratingLinearOptimizerParameters() {
-        // Can be instantiated only by builder
-    }
-
-    public static LinearOptimizerParametersBuilder create() {
-        return new LinearOptimizerParametersBuilder();
-    }
-
-    public static class LinearOptimizerParametersBuilder {
-        private RaoParameters.ObjectiveFunction objectiveFunction;
-        private RaoParameters.PstOptimizationApproximation pstOptimizationApproximation;
-        private MaxMinMarginParameters maxMinMarginParameters;
-        private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
-        private MnecParameters mnecParameters;
-        private LoopFlowParameters loopFlowParameters;
-        private UnoptimizedCnecParameters unoptimizedCnecParameters;
-        private RangeActionLimitationParameters raLimitationParameters;
-        private Double pstSensitivityThreshold;
-        private Double hvdcSensitivityThreshold;
-        private Double injectionSensitivityThreshold;
-        private RaoParameters.Solver solver;
-        private double relativeMipGap;
-        private String solverSpecificParameters;
-
-        public LinearOptimizerParametersBuilder withObjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
-            this.objectiveFunction = objectiveFunction;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withPstSensitivityThreshold(double pstSensitivityThreshold) {
-            this.pstSensitivityThreshold = pstSensitivityThreshold;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withHvdcSensitivityThreshold(double hvdcSensitivityThreshold) {
-            this.hvdcSensitivityThreshold = hvdcSensitivityThreshold;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withInjectionSensitivityThreshold(double injectionSensitivityThreshold) {
-            this.injectionSensitivityThreshold = injectionSensitivityThreshold;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withMaxMinMarginParameters(MaxMinMarginParameters maxMinMarginParameters) {
-            this.maxMinMarginParameters = maxMinMarginParameters;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
-            this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withMnecParameters(MnecParameters mnecParameters) {
-            this.mnecParameters = mnecParameters;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
-            this.loopFlowParameters = loopFlowParameters;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withUnoptimizedCnecParameters(UnoptimizedCnecParameters unoptimizedCnecParameters) {
-            this.unoptimizedCnecParameters = unoptimizedCnecParameters;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withRaLimitationParameters(RangeActionLimitationParameters raLimitationParameters) {
-            this.raLimitationParameters = raLimitationParameters;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withSolver(RaoParameters.Solver solver) {
-            this.solver = solver;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withRelativeMipGap(double relativeMipGap) {
-            this.relativeMipGap = relativeMipGap;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withSolverSpecificParameters(String solverSpecificParameters) {
-            this.solverSpecificParameters = solverSpecificParameters;
-            return this;
-        }
-
-        public LinearOptimizerParametersBuilder withPstOptimizationApproximation(RaoParameters.PstOptimizationApproximation pstOptimizationApproximation) {
-            this.pstOptimizationApproximation = pstOptimizationApproximation;
-            return this;
-        }
-
-        public IteratingLinearOptimizerParameters build() {
-            if (objectiveFunction == null || pstSensitivityThreshold == null || hvdcSensitivityThreshold == null) {
-                throw new FaraoException("Objective function, pst sensitivity threshold and hvdc sensitivity threshold are mandatory parameters.");
-            }
-            if (objectiveFunction.relativePositiveMargins() && maxMinRelativeMarginParameters == null) {
-                throw new FaraoException("An objective function with relative margins requires parameters on relative margins.");
-            }
-            if (!objectiveFunction.relativePositiveMargins() && maxMinMarginParameters == null) {
-                throw new FaraoException("An objective function without relative margins requires parameters on non-relative margins.");
-            }
-            IteratingLinearOptimizerParameters linearOptimizerParameters = new IteratingLinearOptimizerParameters();
-            linearOptimizerParameters.objectiveFunction = objectiveFunction;
-            linearOptimizerParameters.pstOptimizationApproximation = pstOptimizationApproximation;
-            linearOptimizerParameters.maxMinMarginParameters = maxMinMarginParameters;
-            linearOptimizerParameters.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
-            linearOptimizerParameters.mnecParameters = mnecParameters;
-            linearOptimizerParameters.loopFlowParameters = loopFlowParameters;
-            linearOptimizerParameters.unoptimizedCnecParameters = unoptimizedCnecParameters;
-            linearOptimizerParameters.raLimitationParameters = raLimitationParameters;
-            linearOptimizerParameters.solver = solver;
-            linearOptimizerParameters.relativeMipGap = relativeMipGap;
-            linearOptimizerParameters.solverSpecificParameters = solverSpecificParameters;
-            return linearOptimizerParameters;
-        }
+    private IteratingLinearOptimizerParameters(RaoParameters.ObjectiveFunction objectiveFunction,
+                                               RangeActionParameters rangeActionParameters,
+                                               MnecParameters mnecParameters,
+                                               MaxMinRelativeMarginParameters maxMinRelativeMarginParameters,
+                                               LoopFlowParameters loopFlowParameters,
+                                               UnoptimizedCnecParameters unoptimizedCnecParameters,
+                                               RangeActionLimitationParameters raLimitationParameters,
+                                               SolverParameters solverParameters,
+                                               int maxNumberOfIterations) {
+        this.objectiveFunction = objectiveFunction;
+        this.rangeActionParameters = rangeActionParameters;
+        this.mnecParameters = mnecParameters;
+        this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
+        this.loopFlowParameters = loopFlowParameters;
+        this.unoptimizedCnecParameters = unoptimizedCnecParameters;
+        this.raLimitationParameters = raLimitationParameters;
+        this.solverParameters = solverParameters;
+        this.maxNumberOfIterations = maxNumberOfIterations;
     }
 
     public RaoParameters.ObjectiveFunction getObjectiveFunction() {
         return objectiveFunction;
     }
 
-    public Unit getUnit() {
+    public Unit getObjectiveFunctionUnit() {
         return getObjectiveFunction().getUnit();
     }
 
@@ -164,7 +63,7 @@ public final class IteratingLinearOptimizerParameters {
 
     public boolean hasOperatorsNotToOptimize() {
         return unoptimizedCnecParameters != null
-                && !unoptimizedCnecParameters.getOperatorsNotToOptimize().isEmpty();
+            && !unoptimizedCnecParameters.getOperatorsNotToOptimize().isEmpty();
     }
 
     public boolean isRaoWithLoopFlowLimitation() {
@@ -183,10 +82,6 @@ public final class IteratingLinearOptimizerParameters {
         return mnecParameters;
     }
 
-    public MaxMinMarginParameters getMaxMinMarginParameters() {
-        return maxMinMarginParameters;
-    }
-
     public MaxMinRelativeMarginParameters getMaxMinRelativeMarginParameters() {
         return maxMinRelativeMarginParameters;
     }
@@ -203,16 +98,90 @@ public final class IteratingLinearOptimizerParameters {
         return raLimitationParameters;
     }
 
-    public RaoParameters.Solver getSolver() {
-        return solver;
+    public SolverParameters getSolverParameters() {
+        return solverParameters;
     }
 
-    public double getRelativeMipGap() {
-        return relativeMipGap;
+    public int getMaxNumberOfIterations() {
+        return maxNumberOfIterations;
     }
 
-    public String getSolverSpecificParameters() {
-        return solverSpecificParameters;
+    public static LinearOptimizerParametersBuilder create() {
+        return new LinearOptimizerParametersBuilder();
     }
 
+    public static class LinearOptimizerParametersBuilder {
+
+        private RaoParameters.ObjectiveFunction objectiveFunction;
+        private RangeActionParameters rangeActionParameters;
+        private MnecParameters mnecParameters;
+        private MaxMinRelativeMarginParameters maxMinRelativeMarginParameters;
+        private LoopFlowParameters loopFlowParameters;
+        private UnoptimizedCnecParameters unoptimizedCnecParameters;
+        private RangeActionLimitationParameters raLimitationParameters;
+        private SolverParameters solverParameters;
+        private int maxNumberOfIterations;
+
+        public LinearOptimizerParametersBuilder withObjectiveFunction(RaoParameters.ObjectiveFunction objectiveFunction) {
+            this.objectiveFunction = objectiveFunction;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withRangeActionParameters(RangeActionParameters rangeActionParameters) {
+            this.rangeActionParameters = rangeActionParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withMnecParameters(MnecParameters mnecParameters) {
+            this.mnecParameters = mnecParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withMaxMinRelativeMarginParameters(MaxMinRelativeMarginParameters maxMinRelativeMarginParameters) {
+            this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
+            this.loopFlowParameters = loopFlowParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withUnoptimizedCnecParameters(UnoptimizedCnecParameters unoptimizedCnecParameters) {
+            this.unoptimizedCnecParameters = unoptimizedCnecParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withRaLimitationParameters(RangeActionLimitationParameters raLimitationParameters) {
+            this.raLimitationParameters = raLimitationParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withSolverParameters(SolverParameters solverParameters) {
+            this.solverParameters = solverParameters;
+            return this;
+        }
+
+        public LinearOptimizerParametersBuilder withMaxNumberOfIterations(int maxNumberOfIterations) {
+            this.maxNumberOfIterations = maxNumberOfIterations;
+            return this;
+        }
+
+        public IteratingLinearOptimizerParameters build() {
+            if (objectiveFunction.relativePositiveMargins() && maxMinRelativeMarginParameters == null) {
+                throw new FaraoException("An objective function with relative margins requires parameters on relative margins.");
+            }
+
+            return new IteratingLinearOptimizerParameters(
+                objectiveFunction,
+                rangeActionParameters,
+                mnecParameters,
+                maxMinRelativeMarginParameters,
+                loopFlowParameters,
+                unoptimizedCnecParameters,
+                raLimitationParameters,
+                solverParameters,
+                maxNumberOfIterations);
+        }
+    }
 }

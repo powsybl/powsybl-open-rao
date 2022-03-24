@@ -399,14 +399,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.perimetersInParallel = perimetersInParallel;
     }
 
-    public LoopFlowParameters getLoopFlowParameters() {
-        return new LoopFlowParameters(loopFlowApproximationLevel, loopFlowAcceptableAugmentation, loopFlowViolationCost, loopFlowConstraintAdjustmentCoefficient);
-    }
-
-    public MnecParameters getMnecParameters() {
-        return new MnecParameters(mnecAcceptableMarginDiminution, mnecViolationCost, mnecConstraintAdjustmentCoefficient);
-    }
-
     public Solver getSolver() {
         return solver;
     }
