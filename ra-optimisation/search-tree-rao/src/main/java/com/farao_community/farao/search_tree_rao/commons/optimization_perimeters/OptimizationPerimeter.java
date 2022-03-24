@@ -29,7 +29,6 @@ public interface OptimizationPerimeter {
     /**
      Returns the set of states on which range actions are optimized.
 
-     getMainOptimizationState() is necessarily included in getRangeActionOptimizationStates()
      In most cases, getRangeActionOptimizationStates() will only contain getMainOptimizationState()
 
      Though, if RangeActions are optimized in preventive and in curative (for instance, in the

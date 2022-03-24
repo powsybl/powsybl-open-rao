@@ -42,8 +42,12 @@ public class MnecParameters {
         they can therefore be instantiated directly from a RaoParameters
          */
 
-        return new MnecParameters(raoParameters.getMnecAcceptableMarginDiminution(),
-            raoParameters.getMnecViolationCost(),
-            raoParameters.getMnecConstraintAdjustmentCoefficient());
+        if (raoParameters.isRaoWithMnecLimitation()) {
+            return new MnecParameters(raoParameters.getMnecAcceptableMarginDiminution(),
+                raoParameters.getMnecViolationCost(),
+                raoParameters.getMnecConstraintAdjustmentCoefficient());
+        } else {
+            return null;
+        }
     }
 }

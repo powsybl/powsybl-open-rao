@@ -59,8 +59,8 @@ public class AppliedRemedialActions {
         }
     }
 
-    public boolean isEmpty() {
-        return appliedRa.isEmpty();
+    public boolean isEmpty(Network network) {
+        return getStatesWithRa(network).isEmpty();
     }
 
     public Set<State> getStatesWithRa(Network network) {

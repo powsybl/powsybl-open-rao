@@ -7,6 +7,7 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
@@ -34,6 +35,7 @@ import static com.farao_community.farao.commons.Unit.*;
 public class AutomatonPerimeterResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
+    private State state1;
     private FlowCnec cnec1;
     private FlowCnec cnec2;
     private NetworkAction networkAction1;
@@ -43,6 +45,7 @@ public class AutomatonPerimeterResultImplTest {
 
     @Before
     public void setUp() {
+        state1 = mock(State.class);
         cnec1 = mock(FlowCnec.class);
         cnec2 = mock(FlowCnec.class);
         networkAction1 = mock(NetworkAction.class);
@@ -86,7 +89,7 @@ public class AutomatonPerimeterResultImplTest {
 
     @Test
     public void testGetActivatedRangeActions() {
-        assertEquals(Set.of(), result.getActivatedRangeActions());
+        assertEquals(Set.of(), result.getActivatedRangeActions(state1));
     }
 
     @Test
@@ -151,17 +154,13 @@ public class AutomatonPerimeterResultImplTest {
     public void testGetTapsAndSetpoints() {
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
         RangeAction<?> rangeAction = mock(RangeAction.class);
-        when(postAutoSensitivity.getOptimizedTap(pstRangeAction)).thenReturn(5);
-        when(postAutoSensitivity.getOptimizedTaps()).thenReturn(Map.of(pstRangeAction, 10));
-        when(postAutoSensitivity.getOptimizedSetPoint(pstRangeAction)).thenReturn(50.);
-        when(postAutoSensitivity.getOptimizedSetPoint(rangeAction)).thenReturn(100.);
-        when(postAutoSensitivity.getOptimizedSetPoints()).thenReturn(Map.of(pstRangeAction, 500., rangeAction, 1000.));
+        when(postAutoSensitivity.getTap(pstRangeAction)).thenReturn(5);
+        when(postAutoSensitivity.getSetpoint(pstRangeAction)).thenReturn(50.);
+        when(postAutoSensitivity.getSetpoint(rangeAction)).thenReturn(100.);
 
-        assertEquals(5, result.getOptimizedTap(pstRangeAction));
-        assertEquals(Map.of(pstRangeAction, 10), result.getOptimizedTaps());
-        assertEquals(50., result.getOptimizedSetPoint(pstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(100., result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
-        assertEquals(Map.of(pstRangeAction, 500., rangeAction, 1000.), result.getOptimizedSetPoints());
+        assertEquals(5, result.getOptimizedTap(pstRangeAction, state1));
+        assertEquals(50., result.getOptimizedSetpoint(pstRangeAction, state1), DOUBLE_TOLERANCE);
+        assertEquals(100., result.getOptimizedSetpoint(rangeAction, state1), DOUBLE_TOLERANCE);
     }
 
     @Test

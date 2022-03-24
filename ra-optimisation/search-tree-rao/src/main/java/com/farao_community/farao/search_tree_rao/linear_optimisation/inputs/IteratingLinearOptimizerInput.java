@@ -7,6 +7,7 @@
 package com.farao_community.farao.search_tree_rao.linear_optimisation.inputs;
 
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
+import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
@@ -35,6 +36,8 @@ public class IteratingLinearOptimizerInput {
     private final AppliedRemedialActions preOptimizationAppliedRemedialActions;
     private final RangeActionActivationResult raActivationFromParentLeaf;
 
+    private final ObjectiveFunction objectiveFunction;
+
     private final ToolProvider toolProvider;
 
     public IteratingLinearOptimizerInput(Network network,
@@ -46,6 +49,7 @@ public class IteratingLinearOptimizerInput {
                                          SensitivityResult preOptimizationSensitivityResult,
                                          AppliedRemedialActions preOptimizationAppliedRemedialActions,
                                          RangeActionActivationResult raActivationFromParentLeaf,
+                                         ObjectiveFunction objectiveFunction,
                                          ToolProvider toolProvider) {
         this.network = network;
         this.optimizationPerimeter = optimizationPerimeter;
@@ -56,6 +60,7 @@ public class IteratingLinearOptimizerInput {
         this.preOptimizationSensitivityResult = preOptimizationSensitivityResult;
         this.preOptimizationAppliedRemedialActions = preOptimizationAppliedRemedialActions;
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
+        this.objectiveFunction = objectiveFunction;
         this.toolProvider = toolProvider;
     }
 
@@ -95,6 +100,10 @@ public class IteratingLinearOptimizerInput {
         return raActivationFromParentLeaf;
     }
 
+    public ObjectiveFunction getObjectiveFunction() {
+        return objectiveFunction;
+    }
+
     public ToolProvider getToolProvider() {
         return toolProvider;
     }
@@ -113,6 +122,7 @@ public class IteratingLinearOptimizerInput {
         private SensitivityResult preOptimizationSensitivityResult;
         private AppliedRemedialActions preOptimizationAppliedRemedialActions;
         private RangeActionActivationResult raActivationFromParentLeaf;
+        private ObjectiveFunction objectiveFunction;
         private ToolProvider toolProvider;
 
         public IteratingLinearOptimizerInputBuilder withNetwork(Network network) {
@@ -160,6 +170,11 @@ public class IteratingLinearOptimizerInput {
             return this;
         }
 
+        public IteratingLinearOptimizerInputBuilder withObjectiveFunction(ObjectiveFunction objectiveFunction) {
+            this.objectiveFunction = objectiveFunction;
+            return this;
+        }
+
         public IteratingLinearOptimizerInputBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
             return this;
@@ -175,6 +190,7 @@ public class IteratingLinearOptimizerInput {
                 preOptimizationSensitivityResult,
                 preOptimizationAppliedRemedialActions,
                 raActivationFromParentLeaf,
+                objectiveFunction,
                 toolProvider);
         }
     }

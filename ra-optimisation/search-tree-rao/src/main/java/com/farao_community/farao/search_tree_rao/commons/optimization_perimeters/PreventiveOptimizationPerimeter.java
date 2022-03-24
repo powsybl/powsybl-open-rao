@@ -28,11 +28,11 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
 
     public PreventiveOptimizationPerimeter(State preventiveState,
                                            Set<FlowCnec> flowCnecs,
-                                           Set<FlowCnec> looopFlowCnecs,
+                                           Set<FlowCnec> loopFlowCnecs,
                                            Set<NetworkAction> availableNetworkActions,
                                            Set<RangeAction<?>> availableRangeActions) {
 
-        super(preventiveState, flowCnecs, looopFlowCnecs, availableNetworkActions, Map.of(preventiveState, availableRangeActions));
+        super(preventiveState, flowCnecs, loopFlowCnecs, availableNetworkActions, availableRangeActions.isEmpty() ? Collections.emptyMap() : Map.of(preventiveState, availableRangeActions));
 
         if (!preventiveState.isPreventive()) {
             throw new FaraoException("a PreventiveOptimizationContext must be based on the preventive state");
@@ -43,8 +43,8 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         return buildForStates(basecaseScenario.getBasecaseState(), basecaseScenario.getAllStates(), crac, network, raoParameters, prePerimeterResult);
     }
 
-    public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(State preventiveState, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(preventiveState, Collections.singleton(preventiveState), crac, network, raoParameters, prePerimeterResult);
+    public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+        return buildForStates(crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), crac, network, raoParameters, prePerimeterResult);
     }
 
     private static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {

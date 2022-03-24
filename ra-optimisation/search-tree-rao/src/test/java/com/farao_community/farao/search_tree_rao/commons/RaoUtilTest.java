@@ -10,7 +10,7 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.commons.ZonalData;
-import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.*;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;

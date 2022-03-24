@@ -6,7 +6,6 @@
  */
 package com.farao_community.farao.search_tree_rao.commons.optimization_perimeters;
 
-import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
@@ -42,11 +41,6 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
                                          Set<FlowCnec> loopFlowCnecs,
                                          Set<NetworkAction> availableNetworkActions,
                                          Map<State, Set<RangeAction<?>>> availableRangeActions) {
-
-        if (!availableRangeActions.containsKey(mainOptimizationState)) {
-            throw new FaraoException("some range actions should be available on the first optimized state of the context");
-        }
-
         this.mainOptimizationState = mainOptimizationState;
 
         this.monitoredStates = flowCnecs.stream().map(FlowCnec::getState).collect(Collectors.toSet());

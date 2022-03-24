@@ -205,6 +205,7 @@ public class Leaf implements OptimizationResult {
                 .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
                 .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
                 .withRaActivationFromParentLeaf(raActivationsFromParentLeaf)
+                .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
                 .withToolProvider(searchTreeInput.getToolProvider())
                 .build();
 
@@ -221,8 +222,7 @@ public class Leaf implements OptimizationResult {
                 .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
                 .build();
 
-            postOptimResult = new IteratingLinearOptimizer(searchTreeInput.getObjectiveFunction())
-                .optimize(linearOptimizerInput, linearOptimizerParameters);
+            postOptimResult = new IteratingLinearOptimizer(linearOptimizerInput, linearOptimizerParameters).optimize();
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {

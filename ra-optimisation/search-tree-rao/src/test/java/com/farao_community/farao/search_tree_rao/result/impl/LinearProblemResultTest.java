@@ -7,16 +7,23 @@
 
 package com.farao_community.farao.search_tree_rao.result.impl;
 
-import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.NetworkElement;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.GlobalOptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.PreventiveOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
-import com.farao_community.farao.search_tree_rao.result.api.LinearProblemStatus;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,143 +37,152 @@ public class LinearProblemResultTest {
 
     private LinearProblem linearProblem;
     private LinearProblemResult linearProblemResult;
-    private PstRangeAction activatedPstRangeAction;
-    private PstRangeAction notActivatedPstRangeAction;
-    private PstRangeAction unoptimizedPstRangeAction;
-    private RangeAction<?> activatedRangeAction;
-    private RangeAction<?> notActivatedRangeAction;
-    private RangeAction<?> unoptimizedRangeAction;
+    private State preventiveState;
+    private State aCurativeState;
+    private PstRangeAction pst1;
+    private PstRangeAction pst2;
+    private RangeAction<?> ra3;
+    private RangeAction<?> ra4;
+    private Map<State, Set<RangeAction<?>>> rangeActionsPerState;
+    private RangeActionSetpointResult prePerimeterRangeActionSetpoints;
 
     @Before
     public void setUp() {
-        activatedPstRangeAction = Mockito.mock(PstRangeAction.class);
-        notActivatedPstRangeAction = Mockito.mock(PstRangeAction.class);
-        unoptimizedPstRangeAction = Mockito.mock(PstRangeAction.class);
-        activatedRangeAction = Mockito.mock(RangeAction.class);
-        notActivatedRangeAction = Mockito.mock(RangeAction.class);
-        unoptimizedRangeAction = Mockito.mock(RangeAction.class);
+        preventiveState = Mockito.mock(State.class);
+        Mockito.when(preventiveState.getInstant()).thenReturn(Instant.PREVENTIVE);
+        Mockito.when(preventiveState.isPreventive()).thenReturn(true);
+        aCurativeState = Mockito.mock(State.class);
+        Mockito.when(aCurativeState.getInstant()).thenReturn(Instant.CURATIVE);
+
+        pst1 = Mockito.mock(PstRangeAction.class);
+        Mockito.when(pst1.getId()).thenReturn("pst1");
+        Mockito.when(pst1.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        pst2 = Mockito.mock(PstRangeAction.class);
+        Mockito.when(pst2.getId()).thenReturn("pst2");
+        Mockito.when(pst2.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        ra3 = Mockito.mock(RangeAction.class);
+        Mockito.when(ra3.getId()).thenReturn("ra3");
+        Mockito.when(ra3.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        ra4 = Mockito.mock(RangeAction.class);
+        Mockito.when(ra4.getId()).thenReturn("ra4");
+        Mockito.when(ra4.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
 
         linearProblem = Mockito.mock(LinearProblem.class);
-        Mockito.when(linearProblem.getStatus()).thenReturn(LinearProblemStatus.OPTIMAL);
-        Set<RangeAction<?>> rangeActions = Set.of(activatedPstRangeAction, notActivatedPstRangeAction, activatedRangeAction, notActivatedRangeAction);
-        Mockito.when(linearProblem.getRangeActions()).thenReturn(rangeActions);
+        rangeActionsPerState = Map.of(
+            preventiveState, Set.of(pst1, pst2, ra4),
+            aCurativeState, Set.of(pst1, ra3, ra4));
 
-        MPVariable activatedPstSetPointVariable = Mockito.mock(MPVariable.class);
-        MPVariable activatedPstVariationSetPointVariable = Mockito.mock(MPVariable.class);
-        MPVariable notActivatedPstSetPointVariable = Mockito.mock(MPVariable.class);
-        MPVariable notActivatedPstVariationSetPointVariable = Mockito.mock(MPVariable.class);
-        MPVariable activatedRangeActionSetPointVariable = Mockito.mock(MPVariable.class);
-        MPVariable activatedRangeActionVariationSetPointVariable = Mockito.mock(MPVariable.class);
-        MPVariable notActivatedRangeActionSetPointVariable = Mockito.mock(MPVariable.class);
-        MPVariable notActivatedRangeActionVariationSetPointVariable = Mockito.mock(MPVariable.class);
+        prePerimeterRangeActionSetpoints = new RangeActionSetpointResultImpl(Map.of(
+            pst1, 0.8,
+            pst2, 5.4,
+            ra3, 600.,
+            ra4, -200.
+        ));
 
-        Map<RangeAction<?>, MPVariable> setPointVariablePerRangeAction = Map.of(
-                activatedPstRangeAction, activatedPstSetPointVariable,
-                notActivatedPstRangeAction, notActivatedPstSetPointVariable,
-                activatedRangeAction, activatedRangeActionSetPointVariable,
-                notActivatedRangeAction, notActivatedRangeActionSetPointVariable
-        );
+        // pst1 activated in preventive
+        // pst2 not activated
+        // ra3 activated in curative
+        // ra4 activated in preventive and curative
 
-        Map<RangeAction<?>, MPVariable> setPointVariationVariablePerRangeAction = Map.of(
-                activatedPstRangeAction, activatedPstVariationSetPointVariable,
-                notActivatedPstRangeAction, notActivatedPstVariationSetPointVariable,
-                activatedRangeAction, activatedRangeActionVariationSetPointVariable,
-                notActivatedRangeAction, notActivatedRangeActionVariationSetPointVariable
-        );
+        Map<State, Map<RangeAction<?>, Double>> setPointPerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst1, 2.3,
+                pst2, 5.4,
+                ra4, -300.),
+            aCurativeState, Map.of(
+                pst1, 2.3,
+                ra3, 200.,
+                ra4, 700.));
 
-        Map<RangeAction<?>, Double> setPointPerRangeAction = Map.of(
-                activatedPstRangeAction, 1.5,
-                notActivatedPstRangeAction, 5.4,
-                activatedRangeAction, 600.,
-                notActivatedRangeAction, -200.
-        );
+        Map<State, Map<RangeAction<?>, Double>> setPointVariationPerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst1, 1.5,
+                pst2, 0.0,
+                ra4, 100.),
+            aCurativeState, Map.of(
+                pst1, 0.0,
+                ra3, 400.,
+                ra4, 1000.0));
 
-        Map<RangeAction<?>, Double> setPointVariationPerRangeAction = Map.of(
-                activatedPstRangeAction, 2.3,
-                notActivatedPstRangeAction, 0.,
-                activatedRangeAction, 200.,
-                notActivatedRangeAction, 0.
-        );
+        Map<State, Map<RangeAction<?>, MPVariable>> setPointVariablePerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst1, Mockito.mock(MPVariable.class),
+                pst2, Mockito.mock(MPVariable.class),
+                ra3, Mockito.mock(MPVariable.class),
+                ra4, Mockito.mock(MPVariable.class)),
+            aCurativeState, Map.of(
+                pst1, Mockito.mock(MPVariable.class),
+                pst2, Mockito.mock(MPVariable.class),
+                ra3, Mockito.mock(MPVariable.class),
+                ra4, Mockito.mock(MPVariable.class)));
 
-        rangeActions.forEach(rangeAction -> {
-            MPVariable setPointVariable = setPointVariablePerRangeAction.get(rangeAction);
-            Mockito.when(linearProblem.getRangeActionAbsoluteSetpointVariable(rangeAction)).thenReturn(setPointVariable);
-            Mockito.when(setPointVariable.solutionValue()).thenReturn(setPointPerRangeAction.get(rangeAction));
+        Map<State, Map<RangeAction<?>, MPVariable>> setPointVariationVariablePerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst1, Mockito.mock(MPVariable.class),
+                pst2, Mockito.mock(MPVariable.class),
+                ra3, Mockito.mock(MPVariable.class),
+                ra4, Mockito.mock(MPVariable.class)),
+            aCurativeState, Map.of(
+                pst1, Mockito.mock(MPVariable.class),
+                pst2, Mockito.mock(MPVariable.class),
+                ra3, Mockito.mock(MPVariable.class),
+                ra4, Mockito.mock(MPVariable.class)));
 
-            MPVariable setPointVariationVariable = setPointVariationVariablePerRangeAction.get(rangeAction);
-            Mockito.when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction)).thenReturn(setPointVariationVariable);
-            Mockito.when(setPointVariationVariable.solutionValue()).thenReturn(setPointVariationPerRangeAction.get(rangeAction));
-        });
+        rangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+            MPVariable setPointVariable = setPointVariablePerRangeAction.get(state).get(ra);
+            Mockito.when(linearProblem.getRangeActionSetpointVariable(ra, state)).thenReturn(setPointVariable);
+            Mockito.when(setPointVariable.solutionValue()).thenReturn(setPointPerRangeAction.get(state).get(ra));
 
-        Mockito.when(activatedPstRangeAction.convertAngleToTap(1.5)).thenReturn(3);
-        Mockito.when(notActivatedPstRangeAction.convertAngleToTap(5.4)).thenReturn(10);
-    }
+            MPVariable setPointVariationVariable = setPointVariationVariablePerRangeAction.get(state).get(ra);
+            Mockito.when(linearProblem.getAbsoluteRangeActionVariationVariable(ra, state)).thenReturn(setPointVariationVariable);
+            Mockito.when(setPointVariationVariable.solutionValue()).thenReturn(setPointVariationPerRangeAction.get(state).get(ra));
+        }));
 
-    @Test(expected = FaraoException.class)
-    public void testBuildingResultWithNonOptimalLinearProblem() {
-        Mockito.when(linearProblem.getStatus()).thenReturn(LinearProblemStatus.ABNORMAL);
-        linearProblemResult = new LinearProblemResult(linearProblem);
-    }
-
-    @Test
-    public void testGetOptimizedSetPoint() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        assertEquals(1.5, linearProblemResult.getOptimizedSetPoint(activatedPstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(5.4, linearProblemResult.getOptimizedSetPoint(notActivatedPstRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(600., linearProblemResult.getOptimizedSetPoint(activatedRangeAction), DOUBLE_TOLERANCE);
-        assertEquals(-200., linearProblemResult.getOptimizedSetPoint(notActivatedRangeAction), DOUBLE_TOLERANCE);
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testGetOptimizedSetPointFailsWithUnoptimizedRangeAction() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        linearProblemResult.getOptimizedSetPoint(unoptimizedRangeAction);
-    }
-
-    @Test
-    public void testGetOptimizedTap() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        assertEquals(3, linearProblemResult.getOptimizedTap(activatedPstRangeAction));
-        assertEquals(10, linearProblemResult.getOptimizedTap(notActivatedPstRangeAction));
-    }
-
-    @Test(expected = FaraoException.class)
-    public void testGetOptimizedTapFailsWithUnoptimizedPstRangeAction() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        linearProblemResult.getOptimizedTap(unoptimizedPstRangeAction);
+        Mockito.when(pst1.convertAngleToTap(1.5)).thenReturn(3);
+        Mockito.when(pst2.convertAngleToTap(5.4)).thenReturn(10);
     }
 
     @Test
-    public void testGetOptimizedTaps() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        Map<PstRangeAction, Integer> map = linearProblemResult.getOptimizedTaps();
-        assertEquals(2, map.size());
-        assertEquals(Integer.valueOf(3), map.get(activatedPstRangeAction));
-        assertEquals(Integer.valueOf(10), map.get(notActivatedPstRangeAction));
-    }
+    public void testGetOptimizedSetPointPreventivePerimeter() {
+        OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
+            preventiveState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(preventiveState));
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testGetOptimizedTapsReturnsUnmodifiableMap() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        Map<PstRangeAction, Integer> map = linearProblemResult.getOptimizedTaps();
-        map.put(unoptimizedPstRangeAction, 4);
+        linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
+        assertEquals(2.3, linearProblemResult.getOptimizedSetpoint(pst1, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(5.4, linearProblemResult.getOptimizedSetpoint(pst2, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(-300., linearProblemResult.getOptimizedSetpoint(ra4, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(Set.of(pst1, ra4), linearProblemResult.getActivatedRangeActions(preventiveState));
     }
 
     @Test
-    public void testGetOptimizedSetPoints() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        Map<RangeAction<?>, Double> map = linearProblemResult.getOptimizedSetPoints();
-        assertEquals(4, map.size());
-        assertEquals(Double.valueOf(1.5), map.get(activatedPstRangeAction));
-        assertEquals(Double.valueOf(5.4), map.get(notActivatedPstRangeAction));
-        assertEquals(Double.valueOf(600.), map.get(activatedRangeAction));
-        assertEquals(Double.valueOf(-200.), map.get(notActivatedRangeAction));
+    public void testGetOptimizedSetPointCurativePerimeter() {
+        OptimizationPerimeter optimizationPerimeter = new CurativeOptimizationPerimeter(
+            aCurativeState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(aCurativeState));
+
+        linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
+        assertEquals(0.8, linearProblemResult.getOptimizedSetpoint(pst1, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(200., linearProblemResult.getOptimizedSetpoint(ra3, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(700., linearProblemResult.getOptimizedSetpoint(ra4, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(Set.of(ra3, ra4), linearProblemResult.getActivatedRangeActions(aCurativeState));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testGetOptimizedSetPointsReturnsUnmodifiableMap() {
-        linearProblemResult = new LinearProblemResult(linearProblem);
-        Map<RangeAction<?>, Double> map = linearProblemResult.getOptimizedSetPoints();
-        map.put(unoptimizedRangeAction, 300.);
+    @Test
+    public void testGetOptimizedSetPointGlobalPerimeter() {
+        OptimizationPerimeter optimizationPerimeter = new GlobalOptimizationPerimeter(
+            aCurativeState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState);
+
+        linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
+        assertEquals(2.3, linearProblemResult.getOptimizedSetpoint(pst1, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(5.4, linearProblemResult.getOptimizedSetpoint(pst2, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(600., linearProblemResult.getOptimizedSetpoint(ra3, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(-300., linearProblemResult.getOptimizedSetpoint(ra4, preventiveState), DOUBLE_TOLERANCE);
+        assertEquals(Set.of(pst1, ra4), linearProblemResult.getActivatedRangeActions(preventiveState));
+
+        assertEquals(2.3, linearProblemResult.getOptimizedSetpoint(pst1, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(5.4, linearProblemResult.getOptimizedSetpoint(pst2, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(200., linearProblemResult.getOptimizedSetpoint(ra3, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(700., linearProblemResult.getOptimizedSetpoint(ra4, aCurativeState), DOUBLE_TOLERANCE);
+        assertEquals(Set.of(ra3, ra4), linearProblemResult.getActivatedRangeActions(aCurativeState));
     }
+
 }

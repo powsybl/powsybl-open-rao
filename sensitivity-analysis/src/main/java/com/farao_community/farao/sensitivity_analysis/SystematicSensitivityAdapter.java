@@ -49,7 +49,7 @@ final class SystematicSensitivityAdapter {
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider) {
 
-        if (appliedRemedialActions == null || appliedRemedialActions.isEmpty()) {
+        if (appliedRemedialActions == null || appliedRemedialActions.isEmpty(network)) {
             return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider);
         }
 

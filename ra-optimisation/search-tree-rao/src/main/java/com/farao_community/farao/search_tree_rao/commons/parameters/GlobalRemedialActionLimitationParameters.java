@@ -12,6 +12,9 @@ import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRao
 
 import java.util.Map;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class GlobalRemedialActionLimitationParameters {
 
     private final Integer maxCurativeRa;

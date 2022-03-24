@@ -16,7 +16,6 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
-import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.data.rao_result_api.OptimizationState;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
@@ -69,16 +68,6 @@ public class SecondPreventiveAndCurativesRaoResultImpl implements SearchTreeRaoR
         this.preCurativeResult = preCurativeResult;
         this.remedialActionsExcludedFromSecondPreventive = remedialActionsExcludedFromSecondPreventive;
         this.postCurativeResults = postCurativeResults;
-    }
-
-    private boolean isRangeActionActivatedInCurative(State state, RangeAction<?> rangeAction) {
-        if (!postCurativeResults.containsKey(state) || !postCurativeResults.get(state).getRangeActions().contains(rangeAction) || rangeAction.getUsageMethod(state).equals(UsageMethod.UNAVAILABLE)) {
-            return false;
-        } else if (postFirstPreventiveResult.getRangeActions().contains(rangeAction)) {
-            return Math.abs(postCurativeResults.get(state).getOptimizedSetpoint(rangeAction, state) - postFirstPreventiveResult.getOptimizedSetpoint(rangeAction, preventiveState)) > 1e-6;
-        } else {
-            return Math.abs(postCurativeResults.get(state).getOptimizedSetpoint(rangeAction, state) - initialResult.getSetpoint(rangeAction)) > 1e-6;
-        }
     }
 
     @Override
@@ -254,8 +243,10 @@ public class SecondPreventiveAndCurativesRaoResultImpl implements SearchTreeRaoR
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getTap(pstRangeAction);
-        } else {
+        } else if (!remedialActionsExcludedFromSecondPreventive.contains(pstRangeAction)) {
             return postSecondPreventiveResult.getOptimizedTap(pstRangeAction, preventiveState);
+        } else {
+            return postFirstPreventiveResult.getOptimizedTap(pstRangeAction, preventiveState);
         }
     }
 
@@ -272,8 +263,10 @@ public class SecondPreventiveAndCurativesRaoResultImpl implements SearchTreeRaoR
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.getInstant() == Instant.PREVENTIVE) {
             return initialResult.getSetpoint(rangeAction);
-        } else {
+        } else if (!remedialActionsExcludedFromSecondPreventive.contains(rangeAction)) {
             return postSecondPreventiveResult.getOptimizedSetpoint(rangeAction, preventiveState);
+        } else {
+            return postFirstPreventiveResult.getOptimizedSetpoint(rangeAction, preventiveState);
         }
     }
 
@@ -288,7 +281,7 @@ public class SecondPreventiveAndCurativesRaoResultImpl implements SearchTreeRaoR
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
-        Set<RangeAction<?>> activatedRangeActions = postSecondPreventiveResult.getActivatedRangeActions(state);
+        Set<RangeAction<?>> activatedRangeActions = new HashSet<>(postSecondPreventiveResult.getActivatedRangeActions(state));
         if (state.getInstant() == Instant.PREVENTIVE) {
             activatedRangeActions.addAll(postFirstPreventiveResult.getActivatedRangeActions(state).stream()
                 .filter(remedialActionsExcludedFromSecondPreventive::contains).collect(Collectors.toSet()));
@@ -302,34 +295,22 @@ public class SecondPreventiveAndCurativesRaoResultImpl implements SearchTreeRaoR
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
 
-        Map<PstRangeAction, Integer> optimizedTapsOnState = postSecondPreventiveResult.getOptimizedTapsOnState(state);
+        Map<PstRangeAction, Integer> optimizedTapsOnState = new HashMap<>(postSecondPreventiveResult.getOptimizedTapsOnState(state));
 
-        if (state.getInstant() == Instant.PREVENTIVE) {
-            postFirstPreventiveResult.getOptimizedTapsOnState(state).entrySet().stream()
-                .filter(e -> remedialActionsExcludedFromSecondPreventive.contains(e.getKey()))
-                .forEach(e -> optimizedTapsOnState.put(e.getKey(), e.getValue()));
-        } else if (postCurativeResults.containsKey(state)) {
-            postCurativeResults.get(state).getOptimizedTapsOnState(state).entrySet().stream()
-                .filter(e -> remedialActionsExcludedFromSecondPreventive.contains(e.getKey()))
-                .forEach(e -> optimizedTapsOnState.put(e.getKey(), e.getValue()));
-        }
+        postCurativeResults.getOrDefault(state, postFirstPreventiveResult).getOptimizedTapsOnState(state).entrySet().stream()
+            .filter(e -> remedialActionsExcludedFromSecondPreventive.contains(e.getKey()))
+            .forEach(e -> optimizedTapsOnState.put(e.getKey(), e.getValue()));
 
         return optimizedTapsOnState;
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        Map<RangeAction<?>, Double> optimizedSetpointsOnState = postSecondPreventiveResult.getOptimizedSetpointsOnState(state);
+        Map<RangeAction<?>, Double> optimizedSetpointsOnState = new HashMap<>(postSecondPreventiveResult.getOptimizedSetpointsOnState(state));
 
-        if (state.getInstant() == Instant.PREVENTIVE) {
-            postFirstPreventiveResult.getOptimizedSetpointsOnState(state).entrySet().stream()
-                .filter(e -> remedialActionsExcludedFromSecondPreventive.contains(e.getKey()))
-                .forEach(e -> optimizedSetpointsOnState.put(e.getKey(), e.getValue()));
-        } else if (postCurativeResults.containsKey(state)) {
-            postCurativeResults.get(state).getOptimizedSetpointsOnState(state).entrySet().stream()
-                .filter(e -> remedialActionsExcludedFromSecondPreventive.contains(e.getKey()))
-                .forEach(e -> optimizedSetpointsOnState.put(e.getKey(), e.getValue()));
-        }
+        postCurativeResults.getOrDefault(state, postFirstPreventiveResult).getOptimizedSetpointsOnState(state).entrySet().stream()
+            .filter(e -> remedialActionsExcludedFromSecondPreventive.contains(e.getKey()))
+            .forEach(e -> optimizedSetpointsOnState.put(e.getKey(), e.getValue()));
 
         return optimizedSetpointsOnState;
     }

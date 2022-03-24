@@ -76,7 +76,7 @@ public class CastorOneStateOnly {
         TreeParameters treeParameters;
 
         if (raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState())) {
-            optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getOptimizedState(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
+            optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
             treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
 
         } else {
