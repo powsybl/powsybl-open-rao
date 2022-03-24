@@ -114,8 +114,8 @@ public final class LinearProblemIdGenerator {
         return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + SEPARATOR + VARIABLE_SUFFIX + SEPARATOR + state.getId();
     }
 
-    public static String absoluteRangeActionVariationConstraintId(RangeAction<?> rangeAction, LinearProblem.AbsExtension positiveOrNegative) {
-        return rangeAction.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
+    public static String absoluteRangeActionVariationConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.AbsExtension positiveOrNegative) {
+        return rangeAction.getId() + SEPARATOR + state.getId() + SEPARATOR + ABSOLUTE_VARIATION + positiveOrNegative.toString().toLowerCase() + SEPARATOR + CONSTRAINT_SUFFIX;
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, LinearProblem.MarginExtension belowOrAboveThreshold) {

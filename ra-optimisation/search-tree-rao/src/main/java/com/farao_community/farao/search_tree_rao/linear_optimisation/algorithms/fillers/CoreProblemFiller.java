@@ -51,13 +51,12 @@ public class CoreProblemFiller implements ProblemFiller {
 
     public CoreProblemFiller(Network network,
                              OptimizationPerimeter optimizationContext,
-                             Set<FlowCnec> flowCnecs,
                              RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                              RangeActionParameters rangeActionParameters) {
         this.network = network;
         this.optimizationContext = optimizationContext;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
-        this.flowCnecs.addAll(flowCnecs);
+        this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionParameters = rangeActionParameters;
     }
@@ -251,12 +250,14 @@ public class CoreProblemFiller implements ProblemFiller {
                         -LinearProblem.infinity(),
                         LinearProblem.infinity(),
                         rangeAction,
+                        entry.getKey(),
                         LinearProblem.AbsExtension.NEGATIVE
                     );
                     MPConstraint varConstraintPositive = linearProblem.addAbsoluteRangeActionVariationConstraint(
                         -LinearProblem.infinity(),
                         LinearProblem.infinity(),
                         rangeAction,
+                        entry.getKey(),
                         LinearProblem.AbsExtension.POSITIVE);
 
                     Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameAction(optimizationContext, rangeAction, entry.getKey());

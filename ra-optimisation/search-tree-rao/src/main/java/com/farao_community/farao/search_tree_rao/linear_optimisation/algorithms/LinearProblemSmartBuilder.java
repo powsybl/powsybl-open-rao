@@ -118,7 +118,6 @@ public class LinearProblemSmartBuilder {
         return new CoreProblemFiller(
             inputs.getNetwork(),
             inputs.getOptimizationPerimeter(),
-            inputs.getOptimizationPerimeter().getFlowCnecs(),
             inputs.getPrePerimeterSetpoints(),
             parameters.getRangeActionParameters()
         );
