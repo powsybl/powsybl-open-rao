@@ -60,7 +60,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         this.availableNetworkActions = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.availableNetworkActions.addAll(availableNetworkActions);
 
-        this.availableRangeActions = new HashMap<>();
+        this.availableRangeActions = new TreeMap<>(Comparator.comparing(State::getId));
         availableRangeActions.forEach((state, rangeActions) -> {
             Set<RangeAction<?>> rangeActionSet = new TreeSet<>(Comparator.comparing(Identifiable::getId));
             rangeActionSet.addAll(availableRangeActions.get(state));

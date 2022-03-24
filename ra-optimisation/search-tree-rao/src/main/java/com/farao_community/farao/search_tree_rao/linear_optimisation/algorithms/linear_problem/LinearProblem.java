@@ -159,10 +159,6 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, rangeActionRelativeSetpointConstraintId(rangeAction, state));
     }
 
-    public MPConstraint getRangeActionRelativeSetpointConstraint(RangeAction<?> rangeAction, State state) {
-        return solver.getConstraint(rangeActionRelativeSetpointConstraintId(rangeAction, state));
-    }
-
     public MPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction, State state) {
         return solver.makeBoolVar(rangeActionBinaryVariableId(rangeAction, state));
     }
@@ -348,52 +344,52 @@ public final class LinearProblem {
         return solver.getConstraint(marginDecreaseConstraintId(cnec, belowOrAboveThreshold));
     }
 
-    public MPConstraint addMaxRaConstraint(double lb, double ub) {
-        return solver.makeConstraint(lb, ub, maxRaConstraintId());
+    public MPConstraint addMaxRaConstraint(double lb, double ub, State state) {
+        return solver.makeConstraint(lb, ub, maxRaConstraintId(state));
     }
 
-    public MPConstraint getMaxRaConstraint() {
-        return solver.getConstraint(maxRaConstraintId());
+    public MPConstraint getMaxRaConstraint(State state) {
+        return solver.getConstraint(maxRaConstraintId(state));
     }
 
-    public MPConstraint addMaxTsoConstraint(double lb, double ub) {
-        return solver.makeConstraint(lb, ub, maxTsoConstraintId());
+    public MPConstraint addMaxTsoConstraint(double lb, double ub, State state) {
+        return solver.makeConstraint(lb, ub, maxTsoConstraintId(state));
     }
 
-    public MPConstraint getMaxTsoConstraint() {
-        return solver.getConstraint(maxTsoConstraintId());
+    public MPConstraint getMaxTsoConstraint(State state) {
+        return solver.getConstraint(maxTsoConstraintId(state));
     }
 
-    public MPConstraint addMaxRaPerTsoConstraint(double lb, double ub, String operator) {
-        return solver.makeConstraint(lb, ub, maxRaPerTsoConstraintId(operator));
+    public MPConstraint addMaxRaPerTsoConstraint(double lb, double ub, String operator, State state) {
+        return solver.makeConstraint(lb, ub, maxRaPerTsoConstraintId(operator, state));
     }
 
-    public MPConstraint getMaxRaPerTsoConstraint(String operator) {
-        return solver.getConstraint(maxRaPerTsoConstraintId(operator));
+    public MPConstraint getMaxRaPerTsoConstraint(String operator, State state) {
+        return solver.getConstraint(maxRaPerTsoConstraintId(operator, state));
     }
 
-    public MPConstraint addMaxPstPerTsoConstraint(double lb, double ub, String operator) {
-        return solver.makeConstraint(lb, ub, maxPstPerTsoConstraintId(operator));
+    public MPConstraint addMaxPstPerTsoConstraint(double lb, double ub, String operator, State state) {
+        return solver.makeConstraint(lb, ub, maxPstPerTsoConstraintId(operator, state));
     }
 
-    public MPConstraint getMaxPstPerTsoConstraint(String operator) {
-        return solver.getConstraint(maxPstPerTsoConstraintId(operator));
+    public MPConstraint getMaxPstPerTsoConstraint(String operator, State state) {
+        return solver.getConstraint(maxPstPerTsoConstraintId(operator, state));
     }
 
-    public MPVariable addTsoRaUsedVariable(double lb, double ub, String operator) {
-        return solver.makeNumVar(lb, ub, tsoRaUsedVariableId(operator));
+    public MPVariable addTsoRaUsedVariable(double lb, double ub, String operator, State state) {
+        return solver.makeNumVar(lb, ub, tsoRaUsedVariableId(operator, state));
     }
 
-    public MPVariable getTsoRaUsedVariable(String operator) {
-        return solver.getVariable(tsoRaUsedVariableId(operator));
+    public MPVariable getTsoRaUsedVariable(String operator, State state) {
+        return solver.getVariable(tsoRaUsedVariableId(operator, state));
     }
 
-    public MPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction) {
-        return solver.makeConstraint(lb, ub, tsoRaUsedConstraintId(operator, rangeAction));
+    public MPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
-    public MPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction) {
-        return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction));
+    public MPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
     public static double infinity() {

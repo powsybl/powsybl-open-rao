@@ -10,19 +10,24 @@ package com.farao_community.farao.search_tree_rao.commons;
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.farao_community.farao.commons.Unit;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.RemedialAction;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.refprog.reference_program.ReferenceProgramBuilder;
 import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -137,6 +142,31 @@ public final class RaoUtil {
         } else {
             // We don't actually need to know the unit of the objective function, we just need to know if the margin is negative
             return flowResult.getMargin(onFlowConstraint.getFlowCnec(), Unit.MEGAWATT) <= 0;
+        }
+    }
+
+    public static Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameAction(OptimizationPerimeter optimizationContext, RangeAction<?> rangeAction, State state) {
+
+        if (state.isPreventive() || state.equals(optimizationContext.getMainOptimizationState())) {
+            // no previous instant
+            return null;
+        } else if (state.getInstant().equals(Instant.CURATIVE)) {
+
+            // look if a preventive range action acts on the same network elements
+            State preventiveState = optimizationContext.getRangeActionsPerState().keySet().stream().filter(State::isPreventive).findAny().orElse(null);
+
+            if (preventiveState != null) {
+                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(preventiveState).stream()
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || (ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
+                    .findAny();
+
+                if (correspondingRa.isPresent()) {
+                    return Pair.of(correspondingRa.get(), preventiveState);
+                }
+            }
+            return null;
+        } else {
+            throw new FaraoException("Linear optimization does no handle RA which are neither PREVENTIVE nor CURATIVE.");
         }
     }
 }

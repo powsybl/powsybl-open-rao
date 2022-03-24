@@ -10,6 +10,7 @@ import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
@@ -18,10 +19,7 @@ import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.Iter
 import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
 import com.google.ortools.linearsolver.MPSolver;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -79,26 +77,23 @@ public class LinearProblemSmartBuilder {
         }
 
         // MIP optimization vs. CONTINUOUS optimization
-        //if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
-        if (false) {
+        if (parameters.getRangeActionParameters().getPstOptimizationApproximation().equals(RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS)) {
             Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
             Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(inputs.getOptimizationPerimeter().getRangeActionsPerState());
-            //builder.withProblemFiller(buildIntegerPstTapFiller(pstRangeActions));
-            //builder.withProblemFiller(buildDiscretePstGroupFiller(pstRangeActions));
+            builder.withProblemFiller(buildIntegerPstTapFiller(pstRangeActions));
+            builder.withProblemFiller(buildDiscretePstGroupFiller(pstRangeActions));
             builder.withProblemFiller(buildContinuousRangeActionGroupFiller(otherRa));
         } else {
             builder.withProblemFiller(buildContinuousRangeActionGroupFiller(inputs.getOptimizationPerimeter().getRangeActionsPerState()));
         }
 
         // RA limitation
-        /*
-        if (inputs.getOptimizationPerimeter().getRangeActionOptimizationStates().stream().anyMatch(s -> s.getInstant().equals(Instant.CURATIVE))
-            && parameters.getRaLimitationParameters() != null) {
-            // todo: add some controls here or in filler to check whether it is necessary or not to take it into account
+
+        if (parameters.getRaLimitationParameters() != null
+            && inputs.getOptimizationPerimeter().getRangeActionOptimizationStates().stream()
+                .anyMatch(state -> parameters.getRaLimitationParameters().areRangeActionLimitedForState(state))) {
             builder.withProblemFiller(buildRaUageLimitsFiller());
         }
-
-         */
 
         return builder.build();
     }
@@ -123,7 +118,6 @@ public class LinearProblemSmartBuilder {
         return new CoreProblemFiller(
             inputs.getNetwork(),
             inputs.getOptimizationPerimeter(),
-            inputs.getOptimizationPerimeter().getFlowCnecs(),
             inputs.getPrePerimeterSetpoints(),
             inputs.getRaActivationFromParentLeaf(),
             parameters.getRangeActionParameters()
@@ -171,7 +165,6 @@ public class LinearProblemSmartBuilder {
         );
     }
 
-    /*
     private ProblemFiller buildIntegerPstTapFiller(Map<State, Set<PstRangeAction>> pstRangeActions) {
         return new DiscretePstTapFiller(
             inputs.getNetwork(),
@@ -188,25 +181,19 @@ public class LinearProblemSmartBuilder {
             pstRangeActions
         );
     }
-     */
 
     private ProblemFiller buildContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
         return new ContinuousRangeActionGroupFiller(rangeActionsPerState);
     }
 
-    /*
     private ProblemFiller buildRaUageLimitsFiller() {
         return new RaUsageLimitsFiller(
             inputs.getOptimizationPerimeter().getRangeActionsPerState(),
             inputs.getPrePerimeterSetpoints(),
-            parameters.getRaLimitationParameters().getMaxCurativeRangeAction(),
-            parameters.getRaLimitationParameters().getMaxCurativeTso(),
-            parameters.getRaLimitationParameters().getMaxCurativeTsoExclusion(),
-            parameters.getRaLimitationParameters().getMaxCurativePstPerTso(),
-            parameters.getRaLimitationParameters().getMaxCurativeRangeActionPerTso(),
-            parameters.getPstOptimizationApproximation() == RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
+            parameters.getRaLimitationParameters(),
+            parameters.getRangeActionParameters().getPstOptimizationApproximation() == RaoParameters.PstOptimizationApproximation.APPROXIMATED_INTEGERS);
     }
-     */
+
     private Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
         Map<State, Set<RangeAction<?>>> outRangeActions = new HashMap<>();
         inRangeActions.forEach((state, rangeActions) -> {
@@ -218,7 +205,7 @@ public class LinearProblemSmartBuilder {
     }
 
     private Map<State, Set<PstRangeAction>> copyOnlyPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
-        Map<State, Set<PstRangeAction>> outRangeActions = new HashMap<>();
+        Map<State, Set<PstRangeAction>> outRangeActions = new TreeMap<>(Comparator.comparing(State::getId));
         inRangeActions.forEach((state, rangeActions) -> {
             if (rangeActions.stream().anyMatch(PstRangeAction.class::isInstance)) {
                 outRangeActions.put(state, rangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toSet()));
