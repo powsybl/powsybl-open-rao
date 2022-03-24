@@ -179,6 +179,27 @@ public class LinearProblemTest {
     }
 
     @Test
+    public void minimumRelativeMarginSignBinaryVariableTest() {
+        assertNull(linearProblem.getMinimumRelativeMarginSignBinaryVariable());
+        linearProblem.addMinimumRelativeMarginSignBinaryVariable();
+        assertNotNull(linearProblem.getMinimumRelativeMarginSignBinaryVariable());
+    }
+
+    @Test
+    public void minimumRelMarginSignDefinitionConstraintTest() {
+        assertNull(linearProblem.getMinimumRelMarginSignDefinitionConstraint());
+        linearProblem.addMinimumRelMarginSignDefinitionConstraint(LB, UB);
+        assertNotNull(linearProblem.getMinimumRelMarginSignDefinitionConstraint());
+    }
+
+    @Test
+    public void minimumRelMarginSetToZeroConstraintTest() {
+        assertNull(linearProblem.getMinimumRelMarginSetToZeroConstraint());
+        linearProblem.addMinimumRelMarginSetToZeroConstraint(LB, UB);
+        assertNotNull(linearProblem.getMinimumRelMarginSetToZeroConstraint());
+    }
+
+    @Test
     public void maxLoopFlowConstraintTest() {
         assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.UPPER_BOUND));
         assertNull(linearProblem.getMaxLoopFlowConstraint(cnec, LinearProblem.BoundExtension.LOWER_BOUND));

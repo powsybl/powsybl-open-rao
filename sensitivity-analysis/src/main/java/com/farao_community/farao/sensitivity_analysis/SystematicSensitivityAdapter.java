@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityFactor;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +39,12 @@ final class SystematicSensitivityAdapter {
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
-        SensitivityAnalysisResult result = SensitivityAnalysis.find(sensitivityProvider).run(network, cnecSensitivityProvider, cnecSensitivityProvider.getContingencies(network), sensitivityComputationParameters);
+        SensitivityAnalysisResult result = SensitivityAnalysis.find(sensitivityProvider).run(network,
+            network.getVariantManager().getWorkingVariantId(),
+            cnecSensitivityProvider.getAllFactors(network),
+            cnecSensitivityProvider.getContingencies(network),
+            cnecSensitivityProvider.getVariableSets(),
+            sensitivityComputationParameters);
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
         return new SystematicSensitivityResult().completeData(result, false).postTreatIntensities();
     }
@@ -68,7 +74,14 @@ final class SystematicSensitivityAdapter {
             .collect(Collectors.toList());
 
         SystematicSensitivityResult result = new SystematicSensitivityResult();
-        result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network, cnecSensitivityProvider, contingenciesWithoutRa, sensitivityComputationParameters), false);
+        List<SensitivityFactor> allFactorsWithoutRa = cnecSensitivityProvider.getBasecaseFactors(network);
+        allFactorsWithoutRa.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
+        result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
+            network.getVariantManager().getWorkingVariantId(),
+            allFactorsWithoutRa,
+            contingenciesWithoutRa,
+            cnecSensitivityProvider.getVariableSets(),
+            sensitivityComputationParameters), false);
 
         // systematic analyses for states with RA
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
@@ -92,7 +105,12 @@ final class SystematicSensitivityAdapter {
 
             List<Contingency> contingencyList = Collections.singletonList(convertCracContingencyToPowsybl(optContingency.get(), network));
 
-            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network, variantForState, cnecSensitivityProvider, contingencyList, sensitivityComputationParameters), true);
+            result.completeData(SensitivityAnalysis.find(sensitivityProvider).run(network,
+                network.getVariantManager().getWorkingVariantId(),
+                cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
+                contingencyList,
+                cnecSensitivityProvider.getVariableSets(),
+                sensitivityComputationParameters), true);
             network.getVariantManager().removeVariant(variantForState);
             counterForLogs++;
         }

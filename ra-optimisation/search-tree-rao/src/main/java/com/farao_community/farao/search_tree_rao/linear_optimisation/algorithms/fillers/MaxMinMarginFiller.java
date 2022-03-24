@@ -63,7 +63,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     /**
      * Build the minimum margin variable MM.
-     * This variable represents the smallest margin of all Cnecs.
+     * MM represents the smallest margin of all Cnecs.
      * It is given in MEGAWATT.
      */
     private void buildMinimumMarginVariable(LinearProblem linearProblem) {
@@ -79,15 +79,15 @@ public class MaxMinMarginFiller implements ProblemFiller {
     /**
      * Build two minimum margin constraints for each Cnec c.
      * The minimum margin constraints ensure that the minimum margin variable is below
-     * the margin of each Cnec. They consist in a linear equivalent of the definition
+     * the margin of each Cnec. They consist in a linear equivalent of the definitilon
      * of the min margin : MM = min{c in CNEC} margin[c].
      * <p>
-     * For each Cnec c, the two constraints are (if the max margin is defined in MEGAWATT) :
+     * For each Cnec c, the constraints are (if the max margin is defined in MEGAWATT) :
      * <p>
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
      * <p>
-     * For each Cnec c, the two constraints are (if the max margin is defined in AMPERE) :
+     * For each Cnec c, the constraints are (if the max margin is defined in AMPERE) :
      * <p>
      * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
      * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
@@ -97,6 +97,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         if (minimumMarginVariable == null) {
             throw new FaraoException("Minimum margin variable has not yet been created");
         }
+
         optimizedCnecs.forEach(cnec -> {
             MPVariable flowVariable = linearProblem.getFlowVariable(cnec);
 

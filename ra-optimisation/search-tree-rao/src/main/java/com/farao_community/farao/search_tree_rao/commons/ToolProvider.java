@@ -9,6 +9,8 @@ package com.farao_community.farao.search_tree_rao.commons;
 
 import com.farao_community.farao.commons.*;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -22,7 +24,7 @@ import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,12 +36,61 @@ public final class ToolProvider {
     private Network network;
     private RaoParameters raoParameters;
     private ReferenceProgram referenceProgram;
-    private ZonalData<LinearGlsk> glskProvider;
+    private ZonalData<SensitivityVariableSet> glskProvider;
     private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
     private LoopFlowComputation loopFlowComputation;
 
     private ToolProvider() {
         // Should not be used
+    }
+
+    public static ToolProviderBuilder create() {
+        return new ToolProviderBuilder();
+    }
+
+    public static final class ToolProviderBuilder {
+        private Network network;
+        private RaoParameters raoParameters;
+        private ReferenceProgram referenceProgram;
+        private ZonalData<SensitivityVariableSet> glskProvider;
+        private LoopFlowComputation loopFlowComputation;
+        private AbsolutePtdfSumsComputation absolutePtdfSumsComputation;
+
+        public ToolProviderBuilder withNetwork(Network network) {
+            this.network = network;
+            return this;
+        }
+
+        public ToolProviderBuilder withRaoParameters(RaoParameters raoParameters) {
+            this.raoParameters = raoParameters;
+            return this;
+        }
+
+        public ToolProviderBuilder withLoopFlowComputation(ReferenceProgram referenceProgram, ZonalData<SensitivityVariableSet> glskProvider, LoopFlowComputation loopFlowComputation) {
+            this.referenceProgram = referenceProgram;
+            this.glskProvider = glskProvider;
+            this.loopFlowComputation = loopFlowComputation;
+            return this;
+        }
+
+        public ToolProviderBuilder withAbsolutePtdfSumsComputation(ZonalData<SensitivityVariableSet> glskProvider, AbsolutePtdfSumsComputation absolutePtdfSumsComputation) {
+            this.glskProvider = glskProvider;
+            this.absolutePtdfSumsComputation = absolutePtdfSumsComputation;
+            return this;
+        }
+
+        public ToolProvider build() {
+            Objects.requireNonNull(network);
+            Objects.requireNonNull(raoParameters);
+            ToolProvider toolProvider = new ToolProvider();
+            toolProvider.network = network;
+            toolProvider.raoParameters = raoParameters;
+            toolProvider.referenceProgram = referenceProgram;
+            toolProvider.glskProvider = glskProvider;
+            toolProvider.loopFlowComputation = loopFlowComputation;
+            toolProvider.absolutePtdfSumsComputation = absolutePtdfSumsComputation;
+            return toolProvider;
+        }
     }
 
     public AbsolutePtdfSumsComputation getAbsolutePtdfSumsComputation() {
@@ -121,11 +172,11 @@ public final class ToolProvider {
             collect(Collectors.toSet());
     }
 
-    ZonalData<LinearGlsk> getGlskForEic(Set<String> listEicCode) {
-        Map<String, LinearGlsk> glskBoundaries = new HashMap<>();
+    ZonalData<SensitivityVariableSet> getGlskForEic(Set<String> listEicCode) {
+        Map<String, SensitivityVariableSet> glskBoundaries = new HashMap<>();
 
         for (String eiCode : listEicCode) {
-            LinearGlsk linearGlsk = glskProvider.getData(eiCode);
+            SensitivityVariableSet linearGlsk = glskProvider.getData(eiCode);
             if (Objects.isNull(linearGlsk)) {
                 FaraoLoggerProvider.TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
             } else {

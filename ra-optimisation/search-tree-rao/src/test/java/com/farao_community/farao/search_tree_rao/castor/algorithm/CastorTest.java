@@ -172,16 +172,6 @@ public class CastorTest {
     }
 
     @Test
-    public void testGetLargestCnecThreshold() {
-        assertEquals(1000., Castor.getLargestCnecThreshold(Set.of(cnec1)), DOUBLE_TOLERANCE);
-        assertEquals(1500., Castor.getLargestCnecThreshold(Set.of(cnec2)), DOUBLE_TOLERANCE);
-        assertEquals(1500., Castor.getLargestCnecThreshold(Set.of(cnec1, cnec2)), DOUBLE_TOLERANCE);
-        assertEquals(1500., Castor.getLargestCnecThreshold(Set.of(cnec1, cnec2, cnec3)), DOUBLE_TOLERANCE);
-        assertEquals(1000., Castor.getLargestCnecThreshold(Set.of(cnec1, cnec3)), DOUBLE_TOLERANCE);
-        assertEquals(1500., Castor.getLargestCnecThreshold(Set.of(cnec1, cnec2, cnec4)), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     public void testBuildSearchTreeInput() {
         RaoParameters raoParameters = new RaoParameters();
         raoParameters.addExtension(SearchTreeRaoParameters.class, new SearchTreeRaoParameters());
@@ -292,7 +282,7 @@ public class CastorTest {
         StateTree stateTree = Mockito.mock(StateTree.class);
         Mockito.when(stateTree.getOperatorsNotSharingCras()).thenReturn(Set.of("DE", "NL"));
 
-        // absolute ampere, with mnec, no lf
+        // Absolute ampere, with mnec, no lf
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE);
         raoParameters.setRaoWithLoopFlowLimitation(false);
         raoParameters.setRaoWithMnecLimitation(true);
@@ -300,7 +290,7 @@ public class CastorTest {
         raoParameters.setPstSensitivityThreshold(0.45);
         raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(true);
 
-        LinearOptimizerParameters linearOptimizerParameters = Castor.createCurativeLinearOptimizerParameters(raoParameters, stateTree, Set.of(cnec1, cnec2, cnec3, cnec4));
+        LinearOptimizerParameters linearOptimizerParameters = Castor.createCurativeLinearOptimizerParameters(raoParameters, stateTree);
         assertNotNull(linearOptimizerParameters);
         assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_MARGIN_IN_AMPERE, linearOptimizerParameters.getObjectiveFunction());
         assertEquals(Unit.AMPERE, linearOptimizerParameters.getUnit());
@@ -326,7 +316,7 @@ public class CastorTest {
         raoParameters.setPstSensitivityThreshold(0.67);
         raoParameters.getExtension(SearchTreeRaoParameters.class).setCurativeRaoOptimizeOperatorsNotSharingCras(false);
 
-        linearOptimizerParameters = Castor.createCurativeLinearOptimizerParameters(raoParameters, stateTree, Set.of(cnec1, cnec3, cnec4));
+        linearOptimizerParameters = Castor.createCurativeLinearOptimizerParameters(raoParameters, stateTree);
         assertNotNull(linearOptimizerParameters);
         assertEquals(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT, linearOptimizerParameters.getObjectiveFunction());
         assertEquals(Unit.MEGAWATT, linearOptimizerParameters.getUnit());
@@ -344,7 +334,7 @@ public class CastorTest {
         assertFalse(linearOptimizerParameters.isRaoWithMnecLimitation());
         assertNotNull(linearOptimizerParameters.getUnoptimizedCnecParameters());
         assertEquals(Set.of("DE", "NL"), linearOptimizerParameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize());
-        assertEquals(1000., linearOptimizerParameters.getUnoptimizedCnecParameters().getHighestThresholdValue(), DOUBLE_TOLERANCE);
+        assertEquals(1000., linearOptimizerParameters.getUnoptimizedCnecParameters().getLargestCnecThreshold(Set.of(cnec1, cnec3, cnec4)), DOUBLE_TOLERANCE);
     }
 
     @Test

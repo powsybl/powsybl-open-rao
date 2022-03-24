@@ -19,7 +19,6 @@ import com.farao_community.farao.search_tree_rao.commons.adapter.SensitivityResu
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.result.api.*;
-import com.farao_community.farao.search_tree_rao.result.impl.FailedLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
@@ -37,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
@@ -146,8 +144,7 @@ public class IteratingLinearOptimizerTest {
 
         LinearOptimizationResult result = optimize();
 
-        assertEquals(LinearProblemStatus.ABNORMAL, result.getStatus());
-        assertTrue(result instanceof FailedLinearOptimizationResultImpl);
+        assertEquals(LinearProblemStatus.INFEASIBLE, result.getStatus());
     }
 
     @Test

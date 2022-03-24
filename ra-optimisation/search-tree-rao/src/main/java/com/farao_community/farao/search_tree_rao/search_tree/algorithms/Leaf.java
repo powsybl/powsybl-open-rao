@@ -33,7 +33,7 @@ import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeIn
 import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -469,8 +469,6 @@ public class Leaf implements OptimizationResult {
 
     @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
-        // todo: check behaviour of this method once refacto finished
-
         if (status == Status.EVALUATED) {
             return raActivationsFromParentLeaf.getOptimizedSetpoint(rangeAction, state);
         } else if (status == Status.OPTIMIZED) {
@@ -497,7 +495,6 @@ public class Leaf implements OptimizationResult {
 
     @Override
     public int getOptimizedTap(PstRangeAction pstRangeAction, State state) {
-        // todo: check behaviour of this method once refacto finished
         if (status == Status.EVALUATED) {
             return raActivationsFromParentLeaf.getOptimizedTap(pstRangeAction, state);
         } else if (status == Status.OPTIMIZED) {
@@ -546,7 +543,7 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec flowCnec, LinearGlsk linearGlsk, Unit unit) {
+    public double getSensitivityValue(FlowCnec flowCnec, SensitivityVariableSet linearGlsk, Unit unit) {
         if (status == Status.EVALUATED) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, linearGlsk, unit);
         } else if (status == Status.OPTIMIZED) {
