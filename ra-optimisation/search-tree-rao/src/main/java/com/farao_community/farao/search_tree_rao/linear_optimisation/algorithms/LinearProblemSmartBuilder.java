@@ -116,7 +116,6 @@ public class LinearProblemSmartBuilder {
 
     private ProblemFiller buildCoreProblemFiller() {
         return new CoreProblemFiller(
-            inputs.getNetwork(),
             inputs.getOptimizationPerimeter(),
             inputs.getPrePerimeterSetpoints(),
             inputs.getRaActivationFromParentLeaf(),
