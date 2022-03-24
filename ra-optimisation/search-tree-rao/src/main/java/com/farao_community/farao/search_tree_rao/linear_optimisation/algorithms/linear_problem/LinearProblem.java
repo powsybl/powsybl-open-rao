@@ -21,8 +21,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import java.util.List;
 
 import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemIdGenerator.*;
-import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblemIdGenerator.*;
-import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblemIdGenerator.minimumRelMarginSignDefinitionConstraintId;
 import static java.lang.String.format;
 
 /**

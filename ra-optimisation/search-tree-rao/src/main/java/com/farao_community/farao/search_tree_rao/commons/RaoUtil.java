@@ -28,7 +28,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
+import static com.farao_community.farao.commons.Unit.MEGAWATT;
 import static java.lang.String.format;
 
 /**
@@ -168,5 +170,22 @@ public final class RaoUtil {
         } else {
             throw new FaraoException("Linear optimization does no handle RA which are neither PREVENTIVE nor CURATIVE.");
         }
+    }
+
+    public static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
+        double max = 0;
+        for (FlowCnec flowCnec : flowCnecs) {
+            if (flowCnec.isOptimized()) {
+                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
+                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
+                    max = Math.abs(minFlow.get());
+                }
+                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
+                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
+                    max = Math.abs(maxFlow.get());
+                }
+            }
+        }
+        return max;
     }
 }

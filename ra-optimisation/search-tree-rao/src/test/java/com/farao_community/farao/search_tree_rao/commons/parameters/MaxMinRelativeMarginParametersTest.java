@@ -21,13 +21,11 @@ public class MaxMinRelativeMarginParametersTest {
         RaoParameters raoParameters = new RaoParameters();
 
         raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        raoParameters.setNegativeMarginObjectiveCoefficient(1000);
         raoParameters.setPtdfSumLowerBound(0.01);
 
         MaxMinRelativeMarginParameters mmrmp = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
 
         assertNotNull(mmrmp);
-        assertEquals(1000, mmrmp.getNegativeMarginObjectiveCoefficient(), 1e-6);
         assertEquals(0.01, mmrmp.getPtdfSumLowerBound(), 1e-6);
     }
 

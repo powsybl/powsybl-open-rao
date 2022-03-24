@@ -13,16 +13,10 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class MaxMinRelativeMarginParameters {
-    private final double negativeMarginObjectiveCoefficient;
     private final double ptdfSumLowerBound;
 
-    public MaxMinRelativeMarginParameters(double negativeMarginObjectiveCoefficient, double ptdfSumLowerBound) {
-        this.negativeMarginObjectiveCoefficient = negativeMarginObjectiveCoefficient;
+    public MaxMinRelativeMarginParameters(double ptdfSumLowerBound) {
         this.ptdfSumLowerBound = ptdfSumLowerBound;
-    }
-
-    public double getNegativeMarginObjectiveCoefficient() {
-        return negativeMarginObjectiveCoefficient;
     }
 
     public double getPtdfSumLowerBound() {
@@ -37,8 +31,7 @@ public class MaxMinRelativeMarginParameters {
          */
 
         if (raoParameters.getObjectiveFunction().relativePositiveMargins()) {
-            return new MaxMinRelativeMarginParameters(raoParameters.getNegativeMarginObjectiveCoefficient(),
-                raoParameters.getPtdfSumLowerBound());
+            return new MaxMinRelativeMarginParameters(raoParameters.getPtdfSumLowerBound());
         } else {
             return null;
         }

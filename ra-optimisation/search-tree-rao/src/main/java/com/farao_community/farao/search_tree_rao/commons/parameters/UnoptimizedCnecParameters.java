@@ -9,14 +9,11 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.commons.FaraoException;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
-import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 
-import java.util.Optional;
 import java.util.Set;
-
-import static com.farao_community.farao.commons.Unit.MEGAWATT;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -48,26 +45,9 @@ public class UnoptimizedCnecParameters {
         if (!searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
             return new UnoptimizedCnecParameters(
                 operatorsNotSharingCras,
-                getLargestCnecThreshold(flowCnecs));
+                RaoUtil.getLargestCnecThreshold(flowCnecs));
         } else {
             return null;
         }
-    }
-
-    private static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs) {
-        double max = 0;
-        for (FlowCnec flowCnec : flowCnecs) {
-            if (flowCnec.isOptimized()) {
-                Optional<Double> minFlow = flowCnec.getLowerBound(Side.LEFT, MEGAWATT);
-                if (minFlow.isPresent() && Math.abs(minFlow.get()) > max) {
-                    max = Math.abs(minFlow.get());
-                }
-                Optional<Double> maxFlow = flowCnec.getUpperBound(Side.LEFT, MEGAWATT);
-                if (maxFlow.isPresent() && Math.abs(maxFlow.get()) > max) {
-                    max = Math.abs(maxFlow.get());
-                }
-            }
-        }
-        return max;
     }
 }

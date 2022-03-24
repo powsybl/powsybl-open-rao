@@ -18,6 +18,7 @@ import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.PerimeterResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.List;
 import java.util.Map;

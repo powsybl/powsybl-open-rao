@@ -26,7 +26,6 @@ import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointR
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
-import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
