@@ -6,17 +6,26 @@
  */
 package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers;
 
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_contexts.OptimizationPerimeter;
+import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,41 +43,51 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         // prepare data
         init();
+        State state = crac.getPreventiveState();
         PstRangeAction pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
         Map<Integer, Double> tapToAngle = pstRangeAction.getTapToAngleConversionMap();
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
-        RangeActionActivationResult initialRangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(this.pstRangeAction, initialAlpha));
+        RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, initialAlpha));
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+
+        Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
+        rangeActions.put(state, Set.of(pstRangeAction));
+        Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
+
+        RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(new RaoParameters());
 
         CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
-                network,
-                Set.of(cnec1),
-                Set.of(pstRangeAction),
-            initialRangeActionActivationResult,
-                0.,
-                0.,
-                0.);
+            network,
+            optimizationPerimeter,
+            initialRangeActionSetpointResult,
+            rangeActionParameters);
 
+        Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
+        pstRangeActions.put(state, Set.of(pstRangeAction));
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
-                network,
-                Set.of(pstRangeAction),
-            initialRangeActionActivationResult);
+            network,
+            state,
+            pstRangeActions,
+            initialRangeActionSetpointResult);
 
-        LinearProblem linearProblem = new LinearProblem(List.of(coreProblemFiller, discretePstTapFiller), mpSolver);
+        LinearProblem linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(discretePstTapFiller)
+            .build();
 
         // fill linear problem
-        coreProblemFiller.fill(linearProblem, flowResult, sensitivityResult);
-        discretePstTapFiller.fill(linearProblem, flowResult, sensitivityResult);
+        linearProblem.fill(flowResult, sensitivityResult);
 
         // check that all constraints and variables exists
-        MPVariable setpointV = linearProblem.getRangeActionAbsoluteSetpointVariable(pstRangeAction);
-        MPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
-        MPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        MPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.UPWARD);
-        MPVariable binaryDownV = linearProblem.getPstTapVariationBinary(pstRangeAction, LinearProblem.VariationDirectionExtension.DOWNWARD);
-        MPConstraint tapToAngleConversionC = linearProblem.getTapToAngleConversionConstraint(pstRangeAction);
-        MPConstraint upOrDownC = linearProblem.getUpOrDownPstVariationConstraint(pstRangeAction);
-        MPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
-        MPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable setpointV = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
+        MPVariable variationUpV = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable variationDownV = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPVariable binaryUpV = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPVariable binaryDownV = linearProblem.getPstTapVariationBinary(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        MPConstraint tapToAngleConversionC = linearProblem.getTapToAngleConversionConstraint(pstRangeAction, state);
+        MPConstraint upOrDownC = linearProblem.getUpOrDownPstVariationConstraint(pstRangeAction, state);
+        MPConstraint upVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.UPWARD);
+        MPConstraint downVariationC = linearProblem.getIsVariationInDirectionConstraint(pstRangeAction, state, LinearProblem.VariationReferenceExtension.PREVIOUS_ITERATION, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
         assertNotNull(setpointV);
         assertNotNull(variationUpV);
@@ -110,8 +129,8 @@ public class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         // update linear problem, with a new PST tap equal to -4
         double alphaBeforeUpdate = tapToAngle.get(-4);
-        RangeActionActivationResult rangeActionActivationResultBeforeUpdate = new RangeActionActivationResultImpl(Map.of(this.pstRangeAction, alphaBeforeUpdate));
-        discretePstTapFiller.update(linearProblem, flowResult, sensitivityResult, rangeActionActivationResultBeforeUpdate);
+        RangeActionActivationResult rangeActionActivationResultBeforeUpdate = new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(this.pstRangeAction, alphaBeforeUpdate)));
+        discretePstTapFiller.updateBetweenSensiIteration(linearProblem, flowResult, sensitivityResult, rangeActionActivationResultBeforeUpdate);
 
         // check tap to angle conversion constraints
         assertEquals(alphaBeforeUpdate, tapToAngleConversionC.lb(), 1e-6);
