@@ -80,7 +80,7 @@ public final class BestTapFinder {
         }
 
         Map<RangeAction<?>, Double> roundedSetPoints = new HashMap<>(optimizedSetPoints);
-        for (var entry : bestTaps.entrySet()) {
+        for (Map.Entry<PstRangeAction, Integer> entry : bestTaps.entrySet()) {
             roundedSetPoints.put(entry.getKey(), entry.getKey().convertTapToAngle(entry.getValue()));
         }
         return new RangeActionResultImpl(roundedSetPoints);

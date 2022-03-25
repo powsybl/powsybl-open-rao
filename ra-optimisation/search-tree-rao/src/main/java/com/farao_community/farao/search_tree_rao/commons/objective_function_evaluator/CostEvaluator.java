@@ -26,7 +26,8 @@ public interface CostEvaluator {
      * the current RaoData variant.
      *
      * @return Double value of the RaoData cost.
-     * @param flowResult
+     * @param flowResult: the flow computation result
+     * @param sensitivityStatus: the sensitivity computation status
      */
     double computeCost(FlowResult flowResult, ComputationStatus sensitivityStatus);
 
