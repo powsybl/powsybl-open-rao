@@ -8,6 +8,7 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
+import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -41,19 +42,14 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             setPointPerState.put(state, setpoint);
         }
 
-        private boolean isActivatedAtLeastOneTime() {
-            return setPointPerState.values().stream()
-                .anyMatch(v -> Math.abs(v - refSetpoint) > 1e-6);
-        }
-
-        private boolean isActivatedDuringState(State state) {
+        private boolean isExplicitlyActivatedDuringState(State state) {
             if (!setPointPerState.containsKey(state)) {
                 return false;
+            } else if (state.isPreventive()) {
+                return Math.abs(setPointPerState.get(state) - refSetpoint) > 1e-6;
+            } else {
+                return true;
             }
-
-            Optional<State> prevActiv = getLastPreviousActivation(state);
-            return prevActiv.map(value -> Math.abs(setPointPerState.get(state) - setPointPerState.get(value)) > 1e-6).
-                orElseGet(() -> Math.abs(setPointPerState.get(state) - refSetpoint) > 1e-6);
         }
 
         private double getSetpoint(State state) {
@@ -103,6 +99,10 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
                 .filter(s -> s.getInstant().comesBefore(state.getInstant()))
                 .max(Comparator.comparingInt(s -> s.getInstant().getOrder()));
         }
+
+        private Set<State> getAllStatesWithActivation() {
+            return setPointPerState.keySet();
+        }
     }
 
     public RangeActionActivationResultImpl(RangeActionSetpointResult rangeActionSetpointResult) {
@@ -128,7 +128,14 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         return elementaryResultMap.entrySet().stream()
-            .filter(e -> e.getValue().isActivatedDuringState(state))
+            .filter(e -> e.getValue().isExplicitlyActivatedDuringState(state))
+            .filter(e -> {
+                Optional<State> pState = getPreviousState(state);
+                if (pState.isEmpty()) {
+                    return true;
+                } else {
+                    return Math.abs(getOptimizedSetpoint(e.getKey(), state) - getOptimizedSetpoint(e.getKey(), pState.get())) > 1e-6;
+                }})
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
@@ -173,5 +180,13 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             .filter(e -> e.getKey() instanceof PstRangeAction)
             .forEach(e -> optimizedTaps.put((PstRangeAction) e.getKey(), getOptimizedTap((PstRangeAction) e.getKey(), state)));
         return optimizedTaps;
+    }
+
+    private Optional<State> getPreviousState(State state) {
+        return elementaryResultMap.values().stream()
+            .flatMap(eR -> eR.getAllStatesWithActivation().stream())
+            .filter(s -> s.getContingency().equals(state.getContingency()) || s.getContingency().isEmpty())
+            .filter(s -> s.getInstant().comesBefore(state.getInstant()))
+            .max(Comparator.comparingInt(s -> s.getInstant().getOrder()));
     }
 }

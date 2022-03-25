@@ -114,7 +114,7 @@ public class PrePerimeterSensitivityAnalysis {
         return new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
-                new RangeActionSetpointResultImpl(network, rangeActions),
+                RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
                 objectiveFunctionResult
         );
     }

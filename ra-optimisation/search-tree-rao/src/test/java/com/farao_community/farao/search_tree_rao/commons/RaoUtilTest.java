@@ -26,6 +26,8 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_AMPERE;
 import static com.farao_community.farao.rao_api.parameters.RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT;
@@ -139,5 +141,32 @@ public class RaoUtilTest {
         for (int i = 20; i <= 30; i++) {
             assertEquals(RaoUtil.roundDouble(d1, i), RaoUtil.roundDouble(d2, i), 1e-20);
         }
+    }
+
+    @Test
+    public void testGetLargestCnecThreshold() {
+        FlowCnec cnecA = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecB = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecC = Mockito.mock(FlowCnec.class);
+        FlowCnec cnecD = Mockito.mock(FlowCnec.class);
+        Mockito.when(cnecA.isOptimized()).thenReturn(true);
+        Mockito.when(cnecB.isOptimized()).thenReturn(true);
+        Mockito.when(cnecC.isOptimized()).thenReturn(true);
+        Mockito.when(cnecD.isOptimized()).thenReturn(false);
+        Mockito.when(cnecA.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        Mockito.when(cnecA.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
+        Mockito.when(cnecC.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecC.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecD.getUpperBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        Mockito.when(cnecD.getLowerBound(Side.LEFT, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+
+        assertEquals(1000., RaoUtil.getLargestCnecThreshold(Set.of(cnecA)), DOUBLE_TOLERANCE);
+        assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecB)), DOUBLE_TOLERANCE);
+        assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecA, cnecB)), DOUBLE_TOLERANCE);
+        assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecA, cnecB, cnecC)), DOUBLE_TOLERANCE);
+        assertEquals(1000., RaoUtil.getLargestCnecThreshold(Set.of(cnecA, cnecC)), DOUBLE_TOLERANCE);
+        assertEquals(1500., RaoUtil.getLargestCnecThreshold(Set.of(cnecA, cnecB, cnecD)), DOUBLE_TOLERANCE);
     }
 }

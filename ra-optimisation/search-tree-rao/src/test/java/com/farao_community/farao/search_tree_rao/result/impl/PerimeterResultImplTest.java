@@ -17,6 +17,7 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Before;
 import org.junit.Test;
 

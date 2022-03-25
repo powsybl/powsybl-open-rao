@@ -16,6 +16,7 @@ import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.ObjectiveFunctionResult;
 import com.farao_community.farao.search_tree_rao.result.api.SensitivityResult;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
 import org.mockito.Mockito;
 

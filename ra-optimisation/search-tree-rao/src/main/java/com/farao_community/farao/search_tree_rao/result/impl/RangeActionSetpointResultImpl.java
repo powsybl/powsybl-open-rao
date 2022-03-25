@@ -34,17 +34,6 @@ public class RangeActionSetpointResultImpl implements RangeActionSetpointResult 
         this.setPoints = setPoints;
     }
 
-    public RangeActionSetpointResultImpl(Network network, Set<RangeAction<?>> rangeActions) {
-        this(rangeActions.stream()
-            .collect(Collectors.toMap(Function.identity(), rangeAction -> rangeAction.getCurrentSetpoint(network))));
-    }
-
-    public RangeActionSetpointResultImpl(RangeActionActivationResult raar, State state) {
-        //todo create more explicit static methods
-        setPoints = new HashMap<>();
-        raar.getRangeActions().forEach(ra -> setPoints.put(ra, raar.getOptimizedSetpoint(ra, state)));
-    }
-
     @Override
     public Set<RangeAction<?>> getRangeActions() {
         return setPoints.keySet();
@@ -61,5 +50,16 @@ public class RangeActionSetpointResultImpl implements RangeActionSetpointResult 
     @Override
     public int getTap(PstRangeAction pstRangeAction) {
         return pstRangeAction.convertAngleToTap(getSetpoint(pstRangeAction));
+    }
+
+    public static RangeActionSetpointResult buildWithSetpointsFromNetwork(Network network, Set<RangeAction<?>> rangeActions) {
+        return new RangeActionSetpointResultImpl(rangeActions.stream()
+            .collect(Collectors.toMap(Function.identity(), rangeAction -> rangeAction.getCurrentSetpoint(network))));
+    }
+
+    public static RangeActionSetpointResult buildFromActivationOfRangeActionAtState(RangeActionActivationResult raar, State state) {
+        Map<RangeAction<?>, Double> setPoints = new HashMap<>();
+        raar.getRangeActions().forEach(ra -> setPoints.put(ra, raar.getOptimizedSetpoint(ra, state)));
+        return new RangeActionSetpointResultImpl(setPoints);
     }
 }

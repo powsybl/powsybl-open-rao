@@ -74,7 +74,7 @@ public class PreventiveAndCurativesRaoResultImpl implements SearchTreeRaoResult 
             if (automatonState.isPresent()) {
                 OptimizationResult automatonResult = postContingencyResults.get(automatonState.get());
                 results.put(automatonState.get(), new PerimeterResultImpl(preContingencyResult, automatonResult));
-                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(new RangeActionSetpointResultImpl(automatonResult, automatonState.get()), postContingencyResults.get(contingencyScenario.getCurativeState())));
+                results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(automatonResult, automatonState.get()), postContingencyResults.get(contingencyScenario.getCurativeState())));
             } else {
                 results.put(contingencyScenario.getCurativeState(), new PerimeterResultImpl(preContingencyResult, postContingencyResults.get(contingencyScenario.getCurativeState())));
             }
