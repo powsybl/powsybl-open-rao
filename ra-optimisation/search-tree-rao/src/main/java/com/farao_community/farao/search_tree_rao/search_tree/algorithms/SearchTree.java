@@ -146,6 +146,7 @@ public class SearchTree {
         RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         if (stopCriterionReached(rootLeaf)) {
+            logOptimizationSummary(optimalLeaf);
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
