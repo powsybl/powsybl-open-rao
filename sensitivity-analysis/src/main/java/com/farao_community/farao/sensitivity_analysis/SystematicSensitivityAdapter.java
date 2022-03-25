@@ -71,6 +71,7 @@ final class SystematicSensitivityAdapter {
         List<Contingency> contingenciesWithoutRa = statesWithoutRa.stream()
             .filter(state -> state.getContingency().isPresent())
             .map(state -> convertCracContingencyToPowsybl(state.getContingency().get(), network))
+            .distinct()
             .collect(Collectors.toList());
 
         SystematicSensitivityResult result = new SystematicSensitivityResult();
