@@ -8,7 +8,6 @@
 package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.FaraoException;
-import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
@@ -135,7 +134,8 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
                     return true;
                 } else {
                     return Math.abs(getOptimizedSetpoint(e.getKey(), state) - getOptimizedSetpoint(e.getKey(), pState.get())) > 1e-6;
-                }})
+                }
+            })
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
     }
