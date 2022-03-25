@@ -54,9 +54,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
                 initialRangeActionResult,
                 0.,
                 0.,
-                0.,
-                false
-        );
+                0.);
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(100.).withUnit(Unit.MEGAWATT).add();
     }
 
@@ -101,8 +99,8 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         assertNotNull(loopFlowConstraintUb);
         assertNotNull(loopFlowConstraintLb);
 
-        assertEquals(-(100 - 5.) + 49.0, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
-        assertEquals((100 - 5.) + 49.0, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-(100 - 5.) + 49.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
+        assertEquals((100 - 5.) + 49.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
 
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
         assertEquals(1, loopFlowConstraintUb.getCoefficient(flowVariable), 0.1);
@@ -127,8 +125,8 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         assertNotNull(loopFlowConstraintUb);
         assertNotNull(loopFlowConstraintLb);
 
-        assertEquals(-(110 - 5.) + 49.0, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
-        assertEquals((110 - 5.) + 49.0, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-(110 - 5.) + 49.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
+        assertEquals((110 - 5.) + 49.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
 
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
         assertEquals(1, loopFlowConstraintUb.getCoefficient(flowVariable), DOUBLE_TOLERANCE);
@@ -154,8 +152,8 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         MPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, LinearProblem.BoundExtension.UPPER_BOUND);
         MPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, LinearProblem.BoundExtension.LOWER_BOUND);
 
-        assertEquals(-(100 - 5.) + 67.0, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
-        assertEquals((100 - 5.) + 67.0, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-(100 - 5.) + 67.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
+        assertEquals((100 - 5.) + 67.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
 
         MPVariable flowVariable = linearProblem.getFlowVariable(cnec1);
         assertEquals(1, loopFlowConstraintUb.getCoefficient(flowVariable), DOUBLE_TOLERANCE);
@@ -181,7 +179,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         MPConstraint loopFlowConstraintUb = linearProblem.getMaxLoopFlowConstraint(cnec1, LinearProblem.BoundExtension.UPPER_BOUND);
         MPConstraint loopFlowConstraintLb = linearProblem.getMaxLoopFlowConstraint(cnec1, LinearProblem.BoundExtension.LOWER_BOUND);
 
-        assertEquals(-(100 - 5.) + 49.0, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
-        assertEquals((100 - 5.) + 49.0, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-(100 - 5.) + 49.0 - 0.01, loopFlowConstraintLb.lb(), DOUBLE_TOLERANCE);
+        assertEquals((100 - 5.) + 49.0 + 0.01, loopFlowConstraintUb.ub(), DOUBLE_TOLERANCE);
     }
 }

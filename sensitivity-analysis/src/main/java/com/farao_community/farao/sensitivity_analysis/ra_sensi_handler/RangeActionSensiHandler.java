@@ -14,16 +14,11 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityVariable;
-
-import java.util.List;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface RangeActionSensiHandler {
-
-    List<SensitivityVariable> rangeActionToSensitivityVariable();
 
     double getSensitivityOnFlow(FlowCnec cnec, SystematicSensitivityResult sensitivityResult);
 

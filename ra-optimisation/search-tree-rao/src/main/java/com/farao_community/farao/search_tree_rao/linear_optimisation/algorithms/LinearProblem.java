@@ -26,6 +26,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import java.util.*;
 
 import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblemIdGenerator.*;
+import static com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.LinearProblemIdGenerator.minimumRelMarginSignDefinitionConstraintId;
 import static java.lang.String.format;
 
 /**
@@ -48,9 +49,14 @@ public final class LinearProblem {
         NEGATIVE
     }
 
-    public enum VariationExtension {
+    public enum VariationDirectionExtension {
         UPWARD,
         DOWNWARD
+    }
+
+    public enum VariationReferenceExtension {
+        PREPERIMETER,
+        PREVIOUS_ITERATION
     }
 
     public enum MarginExtension {
@@ -102,7 +108,7 @@ public final class LinearProblem {
         this.solverSpecificParameters = solverSpecificParameters;
     }
 
-    List<ProblemFiller> getFillers() {
+    public List<ProblemFiller> getFillers() {
         return Collections.unmodifiableList(fillers);
     }
 
@@ -175,22 +181,30 @@ public final class LinearProblem {
         return solver.getVariable(rangeActionSetpointVariableId(rangeAction));
     }
 
-    public MPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, VariationExtension variation) {
+    public MPVariable addRangeActionVariationBinary(RangeAction<?> rangeAction) {
+        return solver.makeBoolVar(rangeActionBinaryVariableId(rangeAction));
+    }
+
+    public MPVariable getRangeActionVariationBinary(RangeAction<?> rangeAction) {
+        return solver.getVariable(rangeActionBinaryVariableId(rangeAction));
+    }
+
+    public MPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, VariationDirectionExtension variation) {
         rangeActions.add(rangeAction);
         return solver.makeIntVar(lb, ub, pstTapVariableVariationId(rangeAction, variation));
     }
 
-    public MPVariable getPstTapVariationVariable(PstRangeAction rangeAction, VariationExtension variation) {
+    public MPVariable getPstTapVariationVariable(PstRangeAction rangeAction, VariationDirectionExtension variation) {
         return solver.getVariable(pstTapVariableVariationId(rangeAction, variation));
     }
 
-    public MPVariable addPstTapVariationBinary(PstRangeAction rangeAction, VariationExtension variation) {
+    public MPVariable addPstTapVariationBinary(PstRangeAction rangeAction, VariationDirectionExtension variation) {
         rangeActions.add(rangeAction);
-        return solver.makeBoolVar(pstTapBinaryVariationId(rangeAction, variation));
+        return solver.makeBoolVar(pstTapBinaryVariationInDirectionId(rangeAction, variation));
     }
 
-    public MPVariable getPstTapVariationBinary(PstRangeAction rangeAction, VariationExtension variation) {
-        return solver.getVariable(pstTapBinaryVariationId(rangeAction, variation));
+    public MPVariable getPstTapVariationBinary(PstRangeAction rangeAction, VariationDirectionExtension variation) {
+        return solver.getVariable(pstTapBinaryVariationInDirectionId(rangeAction, variation));
     }
 
     public MPConstraint addTapToAngleConversionConstraint(double lb, double ub, PstRangeAction rangeAction) {
@@ -211,13 +225,22 @@ public final class LinearProblem {
         return solver.getConstraint(upOrDownPstVariationConstraintId(rangeAction));
     }
 
-    public MPConstraint addIsVariationInDirectionConstraint(PstRangeAction rangeAction, VariationExtension variation) {
+    public MPConstraint addIsVariationConstraint(double lb, double ub, RangeAction<?> rangeAction) {
         rangeActions.add(rangeAction);
-        return solver.makeConstraint(isVariationInDirectionConstraintId(rangeAction, variation));
+        return solver.makeConstraint(lb, ub, isVariationConstraintId(rangeAction));
     }
 
-    public MPConstraint getIsVariationInDirectionConstraint(PstRangeAction rangeAction, VariationExtension variation) {
-        return solver.getConstraint(isVariationInDirectionConstraintId(rangeAction, variation));
+    public MPConstraint getIsVariationConstraint(RangeAction<?> rangeAction) {
+        return solver.getConstraint(isVariationConstraintId(rangeAction));
+    }
+
+    public MPConstraint addIsVariationInDirectionConstraint(double lb, double ub, RangeAction<?> rangeAction, VariationReferenceExtension reference, VariationDirectionExtension direction) {
+        rangeActions.add(rangeAction);
+        return solver.makeConstraint(lb, ub, isVariationInDirectionConstraintId(rangeAction, reference, direction));
+    }
+
+    public MPConstraint getIsVariationInDirectionConstraint(RangeAction<?> rangeAction, VariationReferenceExtension reference, VariationDirectionExtension direction) {
+        return solver.getConstraint(isVariationInDirectionConstraintId(rangeAction, reference, direction));
     }
 
     public MPVariable addRangeActionGroupSetpointVariable(double lb, double ub, String rangeActionGroupId) {
@@ -276,6 +299,22 @@ public final class LinearProblem {
         return solver.getConstraint(minimumMarginConstraintId(cnec, belowOrAboveThreshold));
     }
 
+    public MPConstraint addMinimumRelMarginSignDefinitionConstraint(double lb, double ub) {
+        return solver.makeConstraint(lb, ub, minimumRelMarginSignDefinitionConstraintId());
+    }
+
+    public MPConstraint getMinimumRelMarginSignDefinitionConstraint() {
+        return solver.getConstraint(minimumRelMarginSignDefinitionConstraintId());
+    }
+
+    public MPConstraint addMinimumRelMarginSetToZeroConstraint(double lb, double ub) {
+        return solver.makeConstraint(lb, ub, minimumRelativeMarginSetToZeroConstraintId());
+    }
+
+    public MPConstraint getMinimumRelMarginSetToZeroConstraint() {
+        return solver.getConstraint(minimumRelativeMarginSetToZeroConstraintId());
+    }
+
     public MPConstraint addMinimumRelativeMarginConstraint(double lb, double ub, FlowCnec cnec, MarginExtension belowOrAboveThreshold) {
         return solver.makeConstraint(lb, ub, minimumRelativeMarginConstraintId(cnec, belowOrAboveThreshold));
     }
@@ -298,6 +337,14 @@ public final class LinearProblem {
 
     public MPVariable getMinimumRelativeMarginVariable() {
         return solver.getVariable(minimumRelativeMarginVariableId());
+    }
+
+    public MPVariable addMinimumRelativeMarginSignBinaryVariable() {
+        return solver.makeBoolVar(minimumRelativeMarginSignBinaryVariableId());
+    }
+
+    public MPVariable getMinimumRelativeMarginSignBinaryVariable() {
+        return solver.getVariable(minimumRelativeMarginSignBinaryVariableId());
     }
 
     //Begin MaxLoopFlowFiller section
@@ -347,6 +394,54 @@ public final class LinearProblem {
 
     public MPConstraint getMarginDecreaseConstraint(FlowCnec cnec, MarginExtension belowOrAboveThreshold) {
         return solver.getConstraint(marginDecreaseConstraintId(cnec, belowOrAboveThreshold));
+    }
+
+    public MPConstraint addMaxRaConstraint(double lb, double ub) {
+        return solver.makeConstraint(lb, ub, maxRaConstraintId());
+    }
+
+    public MPConstraint getMaxRaConstraint() {
+        return solver.getConstraint(maxRaConstraintId());
+    }
+
+    public MPConstraint addMaxTsoConstraint(double lb, double ub) {
+        return solver.makeConstraint(lb, ub, maxTsoConstraintId());
+    }
+
+    public MPConstraint getMaxTsoConstraint() {
+        return solver.getConstraint(maxTsoConstraintId());
+    }
+
+    public MPConstraint addMaxRaPerTsoConstraint(double lb, double ub, String operator) {
+        return solver.makeConstraint(lb, ub, maxRaPerTsoConstraintId(operator));
+    }
+
+    public MPConstraint getMaxRaPerTsoConstraint(String operator) {
+        return solver.getConstraint(maxRaPerTsoConstraintId(operator));
+    }
+
+    public MPConstraint addMaxPstPerTsoConstraint(double lb, double ub, String operator) {
+        return solver.makeConstraint(lb, ub, maxPstPerTsoConstraintId(operator));
+    }
+
+    public MPConstraint getMaxPstPerTsoConstraint(String operator) {
+        return solver.getConstraint(maxPstPerTsoConstraintId(operator));
+    }
+
+    public MPVariable addTsoRaUsedVariable(double lb, double ub, String operator) {
+        return solver.makeNumVar(lb, ub, tsoRaUsedVariableId(operator));
+    }
+
+    public MPVariable getTsoRaUsedVariable(String operator) {
+        return solver.getVariable(tsoRaUsedVariableId(operator));
+    }
+
+    public MPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction) {
+        return solver.makeConstraint(lb, ub, tsoRaUsedConstraintId(operator, rangeAction));
+    }
+
+    public MPConstraint getTsoRaUsedConstraint(String operator, RangeAction<?> rangeAction) {
+        return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction));
     }
 
     public static double infinity() {

@@ -99,33 +99,10 @@ public class SearchTree {
         treeParameters = parameters;
     }
 
-    void setAvailableRangeActions(Set<RangeAction<?>> rangeActions) {
-        availableRangeActions = rangeActions;
-    }
-
-    void setPrePerimeterRangeActionSetPoints(Map<RangeAction<?>, Double> prePerimeterRangeActionSetPoints) {
-        // TODO : try to remove this method by finding another way in unit tests
-        this.prePerimeterRangeActionSetPoints = prePerimeterRangeActionSetPoints;
-    }
-
-    /**
-     * If the allowed number of range actions (or RAs) is limited (by tso or globally), this function filters out
-     * the range actions with the least impact
-     */
-    Set<RangeAction<?>> applyRangeActionsFilters(Leaf leaf, Set<RangeAction<?>> fromRangeActions, boolean deprioritizeIgnoredRangeActions) {
-        RangeActionFilter filter = new RangeActionFilter(leaf, fromRangeActions, optimizedState, treeParameters, prePerimeterRangeActionSetPoints, deprioritizeIgnoredRangeActions);
-        filter.filterUnavailableRangeActions();
-        filter.filterPstPerTso();
-        filter.filterTsos();
-        filter.filterMaxRas();
-        return filter.getRangeActionsToOptimize();
-    }
-
     public CompletableFuture<OptimizationResult> run(SearchTreeInput searchTreeInput, TreeParameters treeParameters, LinearOptimizerParameters linearOptimizerParameters, boolean verbose) {
         this.network = searchTreeInput.getNetwork();
         this.optimizedState = searchTreeInput.getOptimizedState();
         this.availableNetworkActions = searchTreeInput.getNetworkActions();
-        this.availableRangeActions = searchTreeInput.getRangeActions();
         this.prePerimeterOutput = searchTreeInput.getPrePerimeterOutput();
         this.searchTreeComputer = searchTreeInput.getSearchTreeComputer();
         this.searchTreeProblem = searchTreeInput.getSearchTreeProblem();
@@ -142,9 +119,10 @@ public class SearchTree {
         rootLeaf.getRangeActions().stream().forEach(rangeAction -> prePerimeterRangeActionSetPoints.put(rangeAction, prePerimeterOutput.getOptimizedSetPoint(rangeAction)));
 
         TECHNICAL_LOGS.info("Evaluating root leaf");
-        rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, availableRangeActions));
+        rootLeaf.evaluate(objectiveFunction, getSensitivityComputerForEvaluationBasedOn(prePerimeterOutput, searchTreeInput.getRangeActions()));
         this.preOptimFunctionalCost = rootLeaf.getFunctionalCost();
         this.preOptimVirtualCost = rootLeaf.getVirtualCost();
+        this.availableRangeActions = searchTreeInput.getRangeActions().stream().filter(ra -> isRemedialActionAvailable(ra, optimizedState, rootLeaf)).collect(Collectors.toSet());
 
         if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
             topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
@@ -168,6 +146,7 @@ public class SearchTree {
         RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
         if (stopCriterionReached(rootLeaf)) {
+            logOptimizationSummary(optimalLeaf);
             return CompletableFuture.completedFuture(rootLeaf);
         }
 
@@ -175,7 +154,7 @@ public class SearchTree {
 
         TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
         TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, availableRangeActions, "Best leaf: ");
+        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, optimalLeaf.getActivatedRangeActions(), "Best leaf: ");
         RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, linearOptimizerParameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_TREE);
 
         logOptimizationSummary(optimalLeaf);
@@ -256,15 +235,17 @@ public class SearchTree {
                             .forEach(ra -> ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetPoint(ra)));
                         optimizeNextLeafAndUpdate(naCombination, networkClone, networkPool);
                         networkPool.releaseUsedNetwork(networkClone);
-                        TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                     } else {
                         topLevelLogger.info("Skipping {} optimization because earlier combination fulfills stop criterion.", naCombination.getConcatenatedId());
                         networkPool.releaseUsedNetwork(networkClone);
                     }
-                } catch (Exception e) {
+                } catch (InterruptedException e) {
                     BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
                     Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    BUSINESS_WARNS.warn("Cannot apply remedial action combination {}: {}", naCombination.getConcatenatedId(), e.getMessage());
                 } finally {
+                    TECHNICAL_LOGS.info("Remaining leaves to evaluate: {}", remainingLeaves.decrementAndGet());
                     latch.countDown();
                 }
             })
@@ -328,47 +309,17 @@ public class SearchTree {
     }
 
     private void optimizeLeaf(Leaf leaf, FlowResult baseFlowResult) {
-        int iteration = 0;
-        double previousCost = Double.MAX_VALUE;
-        Set<RangeAction<?>> previousIterationRangeActions = null;
-        Set<RangeAction<?>> rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, false);
-        // Iterate on optimizer until the list of range actions stops changing
-        while (!rangeActions.equals(previousIterationRangeActions) && Math.abs(previousCost - leaf.getCost()) >= 1e-6 && iteration < 10) {
-            previousCost = leaf.getCost();
-            iteration++;
-            if (iteration > 1) {
-                TECHNICAL_LOGS.info("{}", leaf);
-                TECHNICAL_LOGS.debug("The list of available range actions has changed, the leaf will be optimized again (iteration {})", iteration);
+        if (!availableRangeActions.isEmpty()) {
+            leaf.optimize(
+                iteratingLinearOptimizer,
+                getSensitivityComputerForOptimizationBasedOn(baseFlowResult, availableRangeActions),
+                searchTreeProblem.getLeafProblem(availableRangeActions, leaf.getActivatedNetworkActions())
+            );
+            if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
+                topLevelLogger.info("Failed to optimize leaf: {}", leaf);
             }
-            if (!rangeActions.isEmpty()) {
-                leaf.optimize(
-                    iteratingLinearOptimizer,
-                    getSensitivityComputerForOptimizationBasedOn(baseFlowResult, rangeActions),
-                    searchTreeProblem.getLeafProblem(rangeActions)
-                );
-                if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
-                    topLevelLogger.info("Failed to optimize leaf: {}", leaf);
-                }
-                // Check if result is worse than before (even though it should not happen). If it is, go back to
-                // previous result. The only way to do this is to re-run a linear optimization
-                // TODO : check if this actually happens. If it never does, delete this extra LP
-                if (leaf.getCost() > previousCost) {
-                    BUSINESS_WARNS.warn("The new iteration found a worse result (abnormal). The leaf will be optimized again with the previous list of range actions.");
-                    leaf.optimize(
-                        iteratingLinearOptimizer,
-                        getSensitivityComputerForOptimizationBasedOn(baseFlowResult, previousIterationRangeActions),
-                        searchTreeProblem.getLeafProblem(rangeActions)
-                    );
-                    if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
-                        topLevelLogger.info("Failed to optimize leaf: {}", leaf);
-                    }
-                    break;
-                }
-            } else {
-                TECHNICAL_LOGS.info("No range actions to optimize");
-            }
-            previousIterationRangeActions = rangeActions;
-            rangeActions = applyRangeActionsFilters(leaf, availableRangeActions, true);
+        } else {
+            TECHNICAL_LOGS.info("No range actions to optimize");
         }
         leaf.finalizeOptimization();
     }

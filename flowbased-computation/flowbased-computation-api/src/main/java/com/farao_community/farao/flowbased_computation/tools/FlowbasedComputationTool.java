@@ -6,7 +6,7 @@
  */
 package com.farao_community.farao.flowbased_computation.tools;
 
-import com.farao_community.farao.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalData;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_io_api.CracImporters;
 import com.farao_community.farao.data.crac_util.CracAliasesCreator;
@@ -14,7 +14,7 @@ import com.farao_community.farao.data.crac_util.CracCleaner;
 import com.farao_community.farao.data.crac_util.CracCleaningFeature;
 import com.farao_community.farao.data.crac_util.UcteNodeMatchingRule;
 import com.farao_community.farao.data.flowbased_domain.json.JsonFlowbasedDomain;
-import com.farao_community.farao.data.glsk.api.io.GlskDocumentImporters;
+import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputation;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationParameters;
 import com.farao_community.farao.flowbased_computation.FlowbasedComputationResult;
@@ -24,7 +24,7 @@ import com.google.auto.service.AutoService;
 
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -168,7 +168,7 @@ public class FlowbasedComputationTool implements Tool {
             cracCleaner.enableFeature(CracCleaningFeature.REMOVE_UNHANDLED_CONTINGENCIES);
             cracCleaner.cleanCrac(crac, network);
         }
-        ZonalData<LinearGlsk> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);
+        ZonalData<SensitivityVariableSet> cimGlsk = GlskDocumentImporters.importGlsk(glskFile).getZonalGlsks(network, instant);
         FlowbasedComputationParameters parameters = FlowbasedComputationParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             JsonFlowbasedComputationParameters.update(parameters, context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE)));

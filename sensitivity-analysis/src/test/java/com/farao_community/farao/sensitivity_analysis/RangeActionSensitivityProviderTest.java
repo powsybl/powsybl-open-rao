@@ -23,14 +23,12 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.factors.*;
-import com.powsybl.sensitivity.factors.variables.HvdcSetpointIncrease;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -127,14 +125,14 @@ public class RangeActionSensitivityProviderTest {
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // factors with basecase and contingency
-        assertEquals(4, provider.getAdditionalFactors(network).size());
-        assertEquals(4, provider.getAdditionalFactors(network, "Contingency FR1 FR3").size());
+        assertEquals(4, provider.getBasecaseFactors(network).size());
+        assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
 
         provider.disableFactorsForBaseCaseSituation();
 
         // factors after disabling basecase
-        assertEquals(0, provider.getAdditionalFactors(network).size());
-        assertEquals(4, provider.getAdditionalFactors(network, "Contingency FR1 FR3").size());
+        assertEquals(0, provider.getBasecaseFactors(network).size());
+        assertEquals(4, provider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
     }
 
     @Test(expected = FaraoException.class)
@@ -173,10 +171,14 @@ public class RangeActionSensitivityProviderTest {
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC (2 network elements) and 1 range action
-        List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
+        List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
         assertEquals(4, factorList.size());
-        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
-        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
     }
 
     @Test
@@ -188,13 +190,17 @@ public class RangeActionSensitivityProviderTest {
             crac.getFlowCnecs(), Stream.of(Unit.MEGAWATT, Unit.AMPERE).collect(Collectors.toSet()));
 
         // Common Crac contains 6 CNEC and 1 range action
-        List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
+        List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
         assertEquals(4, factorList.size());
-        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerPSTAngle).count());
-        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerPSTAngle).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT
+                && factor.getVariableType() == SensitivityVariableType.TRANSFORMER_PHASE).count());
     }
 
-    @Test(expected = FaraoException.class)
+    @Test
     public void cracWithoutRangeActionNorPst() {
         Crac crac = CommonCracCreation.create();
         Network network = NetworkImportsUtil.import12NodesNoPstNetwork();
@@ -202,10 +208,11 @@ public class RangeActionSensitivityProviderTest {
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
         // Common Crac contains 6 CNEC and 1 range action
-        List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
+        List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
         assertEquals(4, factorList.size());
-        assertEquals(2, factorList.stream().filter(factor -> factor instanceof BranchFlowPerInjectionIncrease).count());
-        //assertEquals(6, factorList.stream().filter(factor -> factor instanceof BranchIntensityPerInjectionIncrease).count());
+        assertEquals(2, factorList.stream().filter(factor ->
+            factor.getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
+                && factor.getVariableType() == SensitivityVariableType.INJECTION_ACTIVE_POWER).count());
     }
 
     @Test
@@ -227,13 +234,19 @@ public class RangeActionSensitivityProviderTest {
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        List<SensitivityFactor> factorList = provider.getAdditionalFactors(network);
+        List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
 
         assertEquals(2, factorList.size());
-        assertTrue((factorList.get(0) instanceof BranchFlowPerHvdcSetpointIncrease && factorList.get(1) instanceof BranchIntensityPerHvdcSetpointIncrease)
-            || (factorList.get(1) instanceof BranchFlowPerHvdcSetpointIncrease && factorList.get(0) instanceof BranchIntensityPerHvdcSetpointIncrease));
-        assertEquals("BBE2AA11 FFR3AA11 1", ((HvdcSetpointIncrease) factorList.get(0).getVariable()).getHvdcId());
-        assertEquals("BBE2AA11 FFR3AA11 1", ((HvdcSetpointIncrease) factorList.get(1).getVariable()).getHvdcId());
+        assertTrue((factorList.get(0).getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
+            && factorList.get(0).getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
+            && factorList.get(1).getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT
+            && factorList.get(1).getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER)
+            || (factorList.get(1).getFunctionType() == SensitivityFunctionType.BRANCH_ACTIVE_POWER
+            && factorList.get(1).getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER
+            && factorList.get(0).getFunctionType() == SensitivityFunctionType.BRANCH_CURRENT
+            && factorList.get(0).getVariableType() == SensitivityVariableType.HVDC_LINE_ACTIVE_POWER));
+        assertEquals("BBE2AA11 FFR3AA11 1", factorList.get(0).getVariableId());
+        assertEquals("BBE2AA11 FFR3AA11 1", factorList.get(1).getVariableId());
     }
 
     @Test
@@ -255,6 +268,6 @@ public class RangeActionSensitivityProviderTest {
 
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(mockHvdcRangeAction), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        assertThrows(SensitivityAnalysisException.class, () -> provider.getAdditionalFactors(network));
+        assertThrows(SensitivityAnalysisException.class, () -> provider.getBasecaseFactors(network));
     }
 }

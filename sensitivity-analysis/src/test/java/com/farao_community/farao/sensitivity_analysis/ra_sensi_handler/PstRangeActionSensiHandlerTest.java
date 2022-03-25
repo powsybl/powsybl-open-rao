@@ -17,15 +17,10 @@ import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityVariable;
-import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -39,18 +34,6 @@ public class PstRangeActionSensiHandlerTest {
         PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(crac.getPstRangeAction("pst"));
 
         sensiHandler.checkConsistency(network); // should not throw
-    }
-
-    @Test
-    public void rangeActionToSensitivityVariableTest() {
-        Crac crac = CommonCracCreation.createWithPreventivePstRange();
-        PstRangeActionSensiHandler sensiHandler = new PstRangeActionSensiHandler(crac.getPstRangeAction("pst"));
-
-        List<SensitivityVariable> sensiVariables = sensiHandler.rangeActionToSensitivityVariable();
-        assertEquals(1, sensiVariables.size());
-        assertTrue(sensiVariables.get(0) instanceof PhaseTapChangerAngle);
-        assertEquals("BBE2AA1  BBE3AA1  1", sensiVariables.get(0).getId());
-        assertEquals("BBE2AA1  BBE3AA1  1", ((PhaseTapChangerAngle) sensiVariables.get(0)).getPhaseTapChangerHolderId());
     }
 
     @Test

@@ -82,9 +82,7 @@ public class MnecFillerTest extends AbstractFillerTest {
                 new RangeActionResultImpl(Collections.emptyMap()),
                 0.,
                 0.,
-                0.,
-                false
-        );
+                0.);
     }
 
     private void fillProblemWithFiller(Unit unit) {
@@ -170,7 +168,7 @@ public class MnecFillerTest extends AbstractFillerTest {
         fillProblemWithFiller(Unit.AMPERE);
         crac.getFlowCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> {
             MPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec);
-            assertEquals(10.0 / 0.658, linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
+            assertEquals(10.0 / 0.658179, linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         });
     }
 }
