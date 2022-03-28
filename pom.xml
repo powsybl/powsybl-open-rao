@@ -106,7 +106,7 @@
         <google.autoservice.version>1.0-rc7</google.autoservice.version>
         <google.guava.version>29.0-jre</google.guava.version>
         <google.ortools.version>7.8.7959</google.ortools.version>
-        <jackson.version>2.11.2</jackson.version>
+        <jackson.version>2.13.2.1</jackson.version>
         <java.version>11</java.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
