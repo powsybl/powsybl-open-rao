@@ -9,27 +9,20 @@ package com.farao_community.farao.search_tree_rao.result.impl;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Crac;
-import com.farao_community.farao.data.crac_api.CracFactory;
 import com.farao_community.farao.data.crac_api.Instant;
 import com.farao_community.farao.data.crac_api.State;
-import com.farao_community.farao.data.crac_api.range.RangeType;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
-import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
-import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -107,7 +100,6 @@ public class RangeActionActivationResultImplTest {
         raar.activate(pstRangeAction3, pState, -2.1); // should not be taken into account as activation with same setpoint as reference
         raar.activate(pstRangeAction3, cState2, -1.1);
 
-
         // pstRangeAction1
         assertEquals(1.1, raar.getOptimizedSetpoint(pstRangeAction1, pState), DOUBLE_TOLERANCE);
         assertEquals(1.1, raar.getOptimizedSetpoint(pstRangeAction1, oState1), DOUBLE_TOLERANCE);
@@ -129,7 +121,6 @@ public class RangeActionActivationResultImplTest {
         assertEquals(1, raar.getOptimizedTap(pstRangeAction2, oState1), DOUBLE_TOLERANCE);
         assertEquals(1, raar.getOptimizedTap(pstRangeAction2, cState1), DOUBLE_TOLERANCE);
         assertEquals(1, raar.getOptimizedTap(pstRangeAction2, cState2), DOUBLE_TOLERANCE);
-
 
         // pstRangeAction3, activated in cState2
         assertEquals(-2.1, raar.getOptimizedSetpoint(pstRangeAction3, pState), DOUBLE_TOLERANCE);
@@ -158,7 +149,6 @@ public class RangeActionActivationResultImplTest {
         assertEquals(Map.of(pstRangeAction1, 1, pstRangeAction2, 1, pstRangeAction3, -2), raar.getOptimizedTapsOnState(pState));
         assertEquals(Map.of(pstRangeAction1, 1, pstRangeAction2, 1, pstRangeAction3, -1), raar.getOptimizedTapsOnState(cState2));
     }
-
 
     @Test
     public void test2() {
@@ -199,7 +189,6 @@ public class RangeActionActivationResultImplTest {
         assertEquals(3, raar.getOptimizedTap(pstRangeAction2, oState1), DOUBLE_TOLERANCE);
         assertEquals(2, raar.getOptimizedTap(pstRangeAction2, cState1), DOUBLE_TOLERANCE);
         assertEquals(3, raar.getOptimizedTap(pstRangeAction2, cState2), DOUBLE_TOLERANCE);
-
 
         // pstRangeAction3, activated in cState2
         assertEquals(0.0, raar.getOptimizedSetpoint(pstRangeAction3, pState), DOUBLE_TOLERANCE);

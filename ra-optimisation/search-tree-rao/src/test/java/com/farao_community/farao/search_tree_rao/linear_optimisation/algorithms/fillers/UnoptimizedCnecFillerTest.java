@@ -13,9 +13,10 @@ import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MaxMinRelativeMarginParameters;
-import com.farao_community.farao.rao_api.parameters.UnoptimizedCnecParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.UnoptimizedCnecParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
@@ -123,7 +124,12 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
                 initialFlowResult,
                 unoptimizedCnecParameters
         );
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, maxMinRelativeMarginFiller, unoptimizedCnecFiller), mpSolver);
+        LinearProblem linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(maxMinRelativeMarginFiller)
+            .withProblemFiller(unoptimizedCnecFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
