@@ -39,15 +39,19 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         }
     }
 
-    public static PreventiveOptimizationPerimeter buildFullPreventivePerimeter(BasecaseScenario basecaseScenario, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(basecaseScenario.getBasecaseState(), basecaseScenario.getAllStates(), crac, network, raoParameters, prePerimeterResult);
+    public static PreventiveOptimizationPerimeter buildFromBasecaseScenario(BasecaseScenario basecaseScenario, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+        return buildForStates(basecaseScenario.getBasecaseState(), basecaseScenario.getAllStates(), crac, crac.getRangeActions(), network, raoParameters, prePerimeterResult);
     }
 
     public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), crac, network, raoParameters, prePerimeterResult);
+        return buildForStates(crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), crac, crac.getRangeActions(), network, raoParameters, prePerimeterResult);
     }
 
-    private static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static PreventiveOptimizationPerimeter buildWithAllCnecs(Crac crac, Set<RangeAction<?>> rangeActions, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+        return buildForStates(crac.getPreventiveState(), crac.getStates(), crac, rangeActions, network, raoParameters, prePerimeterResult);
+    }
+
+    private static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Set<RangeAction<?>> rangeActions, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
 
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream()
             .filter(flowCnec -> allMonitoredStates.contains(flowCnec.getState()))
@@ -59,10 +63,11 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
             .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, preventiveState, prePerimeterResult))
             .collect(Collectors.toSet());
 
-        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
+        Set<RangeAction<?>> availableRangeActions = rangeActions.stream()
             .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, preventiveState, prePerimeterResult))
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
+        removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult);
 
         return new PreventiveOptimizationPerimeter(preventiveState,
             flowCnecs,

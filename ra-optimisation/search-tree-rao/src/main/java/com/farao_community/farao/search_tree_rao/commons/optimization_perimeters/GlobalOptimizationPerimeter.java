@@ -66,6 +66,8 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
                 }
             });
 
+        availableRangeActions.values().forEach(rangeActions -> removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterResult));
+
         return new GlobalOptimizationPerimeter(crac.getPreventiveState(),
             flowCnecs,
             loopFlowCnecs,

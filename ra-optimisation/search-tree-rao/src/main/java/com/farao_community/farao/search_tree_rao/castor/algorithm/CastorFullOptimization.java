@@ -196,22 +196,9 @@ public class CastorFullOptimization {
         optResult.getActivatedRangeActions(state).forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction, state)));
     }
 
-    /**
-     * This method applies range action results on the network, for range actions that are curative
-     * It is used for second preventive optimization along with 1st preventive results in order to keep the result
-     * of 1st preventive for range actions that are both preventive and curative
-     */
-    static void applyPreventiveResultsForCurativeRangeActions(Network network, PerimeterResult preventiveResult, Crac crac) {
-        /*preventiveResult.getActivatedRangeActions(crac.getPreventiveState()).stream()
-            .filter(rangeAction -> isRangeActionCurative(rangeAction, crac))
-            .forEach(rangeAction -> rangeAction.apply(network, preventiveResult.getOptimizedSetpoint(rangeAction, crac.getPreventiveState())));
-
-         */
-    }
-
     private SearchTreeRaoResult optimizePreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialResult) {
 
-        PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFullPreventivePerimeter(stateTree.getBasecaseScenario(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResult);
+        PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(stateTree.getBasecaseScenario(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResult);
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
@@ -456,10 +443,16 @@ public class CastorFullOptimization {
         Network network = raoInput.getNetwork();
         // Go back to the initial state of the network, saved in the SECOND_PREVENTIVE_STATE variant
         network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO);
+
         // Apply 1st preventive results for range actions that are both preventive and curative. This way we are sure
         // that the optimal setpoints of the curative results stay coherent with their allowed range and close to
         // optimality in their perimeters. These range actions will be excluded from 2nd preventive RAO.
-        applyPreventiveResultsForCurativeRangeActions(network, firstPreventiveResult, raoInput.getCrac());
+        Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>();
+        if (!parameters.getExtension(SearchTreeRaoParameters.class).isGlobalOptimizationInSecondPreventive()) { // keep old behaviour
+            remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
+            applyPreventiveResultsForCurativeRangeActions(network, firstPreventiveResult, raoInput.getCrac());
+        }
+
         // Get the applied remedial actions for every curative perimeter
         AppliedRemedialActions appliedCras = getAppliedRemedialActionsInCurative(postContingencyResults, preCurativeSensitivityAnalysisOutput);
 
@@ -480,10 +473,6 @@ public class CastorFullOptimization {
         BUSINESS_LOGS.info("----- Second preventive perimeter optimization [end]");
 
         BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
-        Set<RemedialAction<?>> remedialActionsExcluded = new HashSet<>();
-        if (false) { // keep old behaviour
-            remedialActionsExcluded = new HashSet<>(getRangeActionsExcludedFromSecondPreventive(raoInput.getCrac()));
-        }
         // log results
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, secondPreventiveResult, parameters.getObjectiveFunction(), NUMBER_LOGGED_ELEMENTS_END_RAO);
 
@@ -503,11 +492,18 @@ public class CastorFullOptimization {
 
     private CompletableFuture<SearchTreeRaoResult> optimizeSecondPreventivePerimeter(RaoInput raoInput, RaoParameters raoParameters, StateTree stateTree, ToolProvider toolProvider, PrePerimeterResult initialOutput, PrePerimeterResult prePerimeterResult, AppliedRemedialActions appliedCras) {
 
-        OptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter;
+        if (raoParameters.getExtension(SearchTreeRaoParameters.class).isGlobalOptimizationInSecondPreventive()) {
+            optPerimeter = GlobalOptimizationPerimeter.build(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, prePerimeterResult);
+        } else {
+            Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(raoInput.getCrac().getRangeActions());
+            removeRangeActionsExcludedFromSecondPreventive(rangeActionsFor2p, raoInput.getCrac());
+            optPerimeter = PreventiveOptimizationPerimeter.buildWithAllCnecs(raoInput.getCrac(), rangeActionsFor2p, raoInput.getNetwork(), raoParameters, prePerimeterResult);
+        }
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
-            .withTreeParameters(TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)))
+            .withTreeParameters(TreeParameters.buildForSecondPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class)))
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters, stateTree.getOperatorsNotSharingCras(), optPerimeter.getFlowCnecs()))
             .build();
 
@@ -543,11 +539,21 @@ public class CastorFullOptimization {
     }
 
     /**
+     * This method applies range action results on the network, for range actions that are curative
+     * It is used for second preventive optimization along with 1st preventive results in order to keep the result
+     * of 1st preventive for range actions that are both preventive and curative
+     */
+    static void applyPreventiveResultsForCurativeRangeActions(Network network, PerimeterResult preventiveResult, Crac crac) {
+        preventiveResult.getActivatedRangeActions(crac.getPreventiveState()).stream()
+            .filter(rangeAction -> isRangeActionCurative(rangeAction, crac))
+            .forEach(rangeAction -> rangeAction.apply(network, preventiveResult.getOptimizedSetpoint(rangeAction, crac.getPreventiveState())));
+    }
+
+    /**
      * Returns the set of range actions that were excluded from the 2nd preventive RAO.
      * It consists of range actions that are both preventive and curative, since they mustn't be re-optimized during 2nd preventive.
      */
     static Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(Crac crac) {
-        // TODO :  we can avoid excluding (PRA+CRA) range actions that were not activated in any curative perimeter
         return crac.getRangeActions().stream().filter(rangeAction -> isRangeActionPreventive(rangeAction, crac) && isRangeActionCurative(rangeAction, crac)).collect(Collectors.toSet());
     }
 
