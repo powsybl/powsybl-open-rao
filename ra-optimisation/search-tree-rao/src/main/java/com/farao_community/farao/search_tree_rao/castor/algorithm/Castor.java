@@ -51,8 +51,6 @@ public class Castor implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         RaoUtil.initData(raoInput, parameters);
-        StateTree stateTree = new StateTree(raoInput.getCrac());
-        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, parameters);
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {

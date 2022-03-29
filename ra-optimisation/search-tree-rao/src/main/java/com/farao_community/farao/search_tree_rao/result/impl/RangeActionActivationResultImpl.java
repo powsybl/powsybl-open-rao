@@ -13,7 +13,6 @@ import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionActivationResult;
 import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
-import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -42,13 +41,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
         }
 
         private boolean isExplicitlyActivatedDuringState(State state) {
-            if (!setPointPerState.containsKey(state)) {
-                return false;
-            } else if (state.isPreventive()) {
-                return Math.abs(setPointPerState.get(state) - refSetpoint) > 1e-6;
-            } else {
-                return true;
-            }
+            return setPointPerState.containsKey(state);
         }
 
         private double getSetpoint(State state) {
@@ -108,13 +101,6 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
         rangeActionSetpointResult.getRangeActions().forEach(ra -> elementaryResultMap.put(ra, new ElementaryResult(rangeActionSetpointResult.getSetpoint(ra))));
     }
 
-    /**
-     * initiate rangeAction result with initial results read from network
-     */
-    public RangeActionActivationResultImpl(Network network, Set<RangeAction<?>> rangeActions) {
-        rangeActions.forEach(ra -> elementaryResultMap.put(ra, new ElementaryResult(ra.getCurrentSetpoint(network))));
-    }
-
     public void activate(RangeAction<?> rangeAction, State state, double setpoint) {
         elementaryResultMap.get(rangeAction).activate(state, setpoint);
     }
@@ -131,7 +117,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             .filter(e -> {
                 Optional<State> pState = getPreviousState(state);
                 if (pState.isEmpty()) {
-                    return true;
+                    return Math.abs(getOptimizedSetpoint(e.getKey(), state) - e.getValue().refSetpoint) > 1e-6;
                 } else {
                     return Math.abs(getOptimizedSetpoint(e.getKey(), state) - getOptimizedSetpoint(e.getKey(), pState.get())) > 1e-6;
                 }

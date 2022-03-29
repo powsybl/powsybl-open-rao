@@ -68,7 +68,8 @@ public final class ObjectiveFunctionSmartBuilder {
             marginEvaluator = FlowResult::getMargin;
         }
 
-        if (!searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()) {
+        if (!searchTreeRaoParameters.getCurativeRaoOptimizeOperatorsNotSharingCras()
+            && !operatorsNotToOptimizeInCurative.isEmpty()) {
 
             builder.withFunctionalCostEvaluator(new MinMarginEvaluator(flowCnecs, raoParameters.getObjectiveFunction().getUnit(),
                 new MarginEvaluatorWithUnoptimizedCnecs(marginEvaluator, operatorsNotToOptimizeInCurative, prePerimeterFlowResult)));

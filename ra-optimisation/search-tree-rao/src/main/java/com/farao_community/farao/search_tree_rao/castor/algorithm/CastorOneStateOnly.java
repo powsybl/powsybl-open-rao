@@ -29,6 +29,8 @@ import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTr
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.BUSINESS_LOGS;
@@ -74,14 +76,14 @@ public class CastorOneStateOnly {
         // run search-tree optimization, on the required preventive or curative state
         OptimizationPerimeter optPerimeter;
         TreeParameters treeParameters;
-
+        Set<String> operatorsNotToOptimize = new HashSet<>();
         if (raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState())) {
             optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
             treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class));
-
         } else {
             optPerimeter = CurativeOptimizationPerimeter.build(raoInput.getOptimizedState(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
             treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters.getExtension(SearchTreeRaoParameters.class), -Double.MAX_VALUE);
+            operatorsNotToOptimize.addAll(stateTree.getOperatorsNotSharingCras());
         }
 
         SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
@@ -96,7 +98,7 @@ public class CastorOneStateOnly {
             .withInitialFlowResult(initialResults)
             .withPrePerimeterResult(initialResults)
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunctionSmartBuilder.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), raoParameters))
+            .withObjectiveFunction(ObjectiveFunctionSmartBuilder.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResults, initialResults, operatorsNotToOptimize, raoParameters))
             .withToolProvider(toolProvider)
             .build();
 

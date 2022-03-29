@@ -212,7 +212,7 @@ public class CastorFullOptimization {
             .withInitialFlowResult(initialResult)
             .withPrePerimeterResult(initialResult)
             .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunctionSmartBuilder.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, stateTree.getOperatorsNotSharingCras(), raoParameters))
+            .withObjectiveFunction(ObjectiveFunctionSmartBuilder.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialResult, initialResult, Collections.emptySet(), raoParameters))
             .withToolProvider(toolProvider)
             .build();
 
@@ -513,7 +513,7 @@ public class CastorFullOptimization {
             .withInitialFlowResult(initialOutput)
             .withPrePerimeterResult(prePerimeterResult)
             .withPreOptimizationAppliedNetworkActions(appliedCras) //no remedial Action applied
-            .withObjectiveFunction(ObjectiveFunctionSmartBuilder.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, stateTree.getOperatorsNotSharingCras(), raoParameters))
+            .withObjectiveFunction(ObjectiveFunctionSmartBuilder.build(optPerimeter.getFlowCnecs(), optPerimeter.getLoopFlowCnecs(), initialOutput, prePerimeterResult, new HashSet<>(), raoParameters))
             .withToolProvider(toolProvider)
             .build();
 
@@ -554,7 +554,9 @@ public class CastorFullOptimization {
      * It consists of range actions that are both preventive and curative, since they mustn't be re-optimized during 2nd preventive.
      */
     static Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(Crac crac) {
-        return crac.getRangeActions().stream().filter(rangeAction -> isRangeActionPreventive(rangeAction, crac) && isRangeActionCurative(rangeAction, crac)).collect(Collectors.toSet());
+        return crac.getRangeActions().stream()
+            .filter(rangeAction -> isRangeActionCurative(rangeAction, crac))
+            .collect(Collectors.toSet());
     }
 
     static boolean isRangeActionPreventive(RangeAction<?> rangeAction, Crac crac) {
