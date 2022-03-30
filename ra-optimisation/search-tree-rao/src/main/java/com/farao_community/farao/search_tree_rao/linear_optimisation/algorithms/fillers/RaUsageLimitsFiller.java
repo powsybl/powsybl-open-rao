@@ -168,7 +168,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     private void addMaxRaPerTsoConstraint(LinearProblem linearProblem, State state) {
         Map<String, Integer> maxRaPerTso = rangeActionLimitationParameters.getMaxRangeActionPerTso(state);
-        if (!maxRaPerTso.isEmpty()) {
+        if (maxRaPerTso.isEmpty()) {
             return;
         }
         maxRaPerTso.forEach((tso, maxRaForTso) -> {

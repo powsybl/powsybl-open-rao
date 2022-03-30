@@ -53,6 +53,7 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
             .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, curativeState, prePerimeterResult))
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
+        removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult);
 
         return new CurativeOptimizationPerimeter(curativeState,
             flowCnecs,

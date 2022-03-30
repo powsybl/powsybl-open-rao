@@ -32,7 +32,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptmizationPeri
         raoParameters.setRaoWithLoopFlowLimitation(false);
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
         BasecaseScenario basecaseScenario = new BasecaseScenario(pState, Set.of(oState1, oState2, cState2));
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFullPreventivePerimeter(basecaseScenario, crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(basecaseScenario, crac, network, raoParameters, prePerimeterResult);
 
         assertEquals(pState, optPerimeter.getMainOptimizationState());
         assertEquals(Set.of(pState), optPerimeter.getRangeActionOptimizationStates());
@@ -56,7 +56,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptmizationPeri
         raoParameters.setRaoWithLoopFlowLimitation(true);
         Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(10000.);
         BasecaseScenario basecaseScenario = new BasecaseScenario(pState, Set.of(oState1, oState2, cState2));
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFullPreventivePerimeter(basecaseScenario, crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(basecaseScenario, crac, network, raoParameters, prePerimeterResult);
 
         assertEquals(Set.of(oCnec1, cCnec2), optPerimeter.getLoopFlowCnecs());
         assertTrue(optPerimeter.getRangeActions().isEmpty());
@@ -68,7 +68,7 @@ public class PreventiveOptimizationPerimeterTest extends AbstractOptmizationPeri
         raoParameters.setRaoWithLoopFlowLimitation(true);
         raoParameters.setLoopflowCountries(Set.of(Country.BE));
         BasecaseScenario basecaseScenario = new BasecaseScenario(pState, Set.of(oState1, oState2, cState2));
-        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFullPreventivePerimeter(basecaseScenario, crac, network, raoParameters, prePerimeterResult);
+        OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(basecaseScenario, crac, network, raoParameters, prePerimeterResult);
 
         assertEquals(Set.of(cCnec2), optPerimeter.getLoopFlowCnecs()); // the other loop-flow CNEC is not considered as outside of the loopFlow countries scope
     }

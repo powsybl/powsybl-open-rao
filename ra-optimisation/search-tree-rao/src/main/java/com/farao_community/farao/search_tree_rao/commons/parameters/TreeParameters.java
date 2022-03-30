@@ -110,4 +110,20 @@ public final class TreeParameters {
             parameters.getMaximumSearchDepth(),
             parameters.getCurativeLeavesInParallel());
     }
+
+    public static TreeParameters buildForSecondPreventivePerimeter(@Nullable SearchTreeRaoParameters searchTreeRaoParameters) {
+        SearchTreeRaoParameters parameters = Objects.isNull(searchTreeRaoParameters) ? new SearchTreeRaoParameters() : searchTreeRaoParameters;
+        if (parameters.getPreventiveRaoStopCriterion().equals(SearchTreeRaoParameters.PreventiveRaoStopCriterion.SECURE)
+            && !parameters.getCurativeRaoStopCriterion().equals(SearchTreeRaoParameters.CurativeRaoStopCriterion.MIN_OBJECTIVE)) {
+            return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
+                0.0, //secure
+                parameters.getMaximumSearchDepth(),
+                parameters.getPreventiveLeavesInParallel());
+        } else {
+            return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
+                0.0, //unused
+                parameters.getMaximumSearchDepth(),
+                parameters.getPreventiveLeavesInParallel());
+        }
+    }
 }

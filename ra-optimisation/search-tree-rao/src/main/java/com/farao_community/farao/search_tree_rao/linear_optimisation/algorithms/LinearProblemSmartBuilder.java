@@ -11,6 +11,7 @@ import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeAction;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.CurativeOptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.fillers.*;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.FaraoMPSolver;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
@@ -72,7 +73,7 @@ public class LinearProblemSmartBuilder {
         }
 
         // unoptimized CNECs for TSOs without curative RA
-        if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())) {
+        if (!Objects.isNull(parameters.getUnoptimizedCnecParameters()) && inputs.getOptimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
             builder.withProblemFiller(buildUnoptimizedCnecFiller());
         }
 
