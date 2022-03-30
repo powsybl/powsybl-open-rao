@@ -138,7 +138,7 @@ public final class RaoUtil {
      * Returns true if a OnFlowConstraint usage rule is verified, ie if the associated CNEC has a negative margin
      * It needs a FlowResult to get the margin of the flow cnec
      */
-    static boolean isOnFlowConstraintAvailable(OnFlowConstraint onFlowConstraint, State optimizedState, FlowResult flowResult) {
+    public static boolean isOnFlowConstraintAvailable(OnFlowConstraint onFlowConstraint, State optimizedState, FlowResult flowResult) {
         if (!onFlowConstraint.getUsageMethod(optimizedState).equals(UsageMethod.TO_BE_EVALUATED)) {
             return false;
         } else {

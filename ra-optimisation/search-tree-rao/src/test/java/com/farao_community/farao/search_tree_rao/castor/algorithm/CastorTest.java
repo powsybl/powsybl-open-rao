@@ -18,7 +18,6 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.LinearOptimizerParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
@@ -95,7 +94,7 @@ public class CastorTest {
         when(ra2.getMinAdmissibleSetpoint(anyDouble())).thenReturn(-3.);
         when(ra2.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(3.);
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        when(prePerimeterResult.getOptimizedSetPoint(any())).thenReturn(-4.);
+        when(prePerimeterResult.getSetpoint(any())).thenReturn(-4.);
 
         Mockito.when(cnec1.isOptimized()).thenReturn(true);
         Mockito.when(cnec2.isOptimized()).thenReturn(true);
@@ -117,7 +116,7 @@ public class CastorTest {
         Set<RangeAction<?>> rangeActions = new HashSet<>(Set.of(ra1, ra2));
         Castor.removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterResult);
         assertEquals(Set.of(ra1), rangeActions);
-        when(prePerimeterResult.getOptimizedSetPoint(any())).thenReturn(-3.);
+        when(prePerimeterResult.getSetpoint(any())).thenReturn(-3.);
         rangeActions = new HashSet<>(Set.of(ra1, ra2));
         Castor.removeRangeActionsWithWrongInitialSetpoint(rangeActions, prePerimeterResult);
         assertEquals(Set.of(ra1, ra2), rangeActions);
