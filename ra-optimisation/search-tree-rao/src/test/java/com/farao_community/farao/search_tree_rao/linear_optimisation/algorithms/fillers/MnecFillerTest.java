@@ -9,13 +9,21 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.cnec.Cnec;
 import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
+import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
+import com.farao_community.farao.rao_api.parameters.RaoParameters;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.MnecParameters;
+import com.farao_community.farao.search_tree_rao.commons.parameters.RangeActionParameters;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblemBuilder;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
+import com.farao_community.farao.search_tree_rao.result.api.RangeActionSetpointResult;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPVariable;
 import org.junit.Before;
@@ -24,9 +32,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -74,15 +80,26 @@ public class MnecFillerTest extends AbstractFillerTest {
             .withInstant(Instant.PREVENTIVE)
             .add();
 
-        // fill the problem : the core filler is required
+        RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Collections.emptyMap());
+
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec1, mnec2));
+
+        Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
+        rangeActions.put(cnec1.getState(), Collections.emptySet());
+        Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
+
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.setPstPenaltyCost(0.01);
+        raoParameters.setHvdcPenaltyCost(0.01);
+        raoParameters.setInjectionRaPenaltyCost(0.01);
+        RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
+
         coreProblemFiller = new CoreProblemFiller(
-                network,
-                Set.of(mnec1, mnec2),
-                Collections.emptySet(),
-                new RangeActionActivationResultImpl(Collections.emptyMap()),
-                0.,
-                0.,
-                0.);
+            optimizationPerimeter,
+            initialRangeActionSetpointResult,
+            new RangeActionActivationResultImpl(initialRangeActionSetpointResult),
+            rangeActionParameters);
     }
 
     private void fillProblemWithFiller(Unit unit) {
@@ -95,7 +112,11 @@ public class MnecFillerTest extends AbstractFillerTest {
                 Set.of(mnec1, mnec2),
                 unit,
                 parameters);
-        linearProblem = new LinearProblem(List.of(coreProblemFiller, mnecFiller), mpSolver);
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(mnecFiller)
+            .withSolver(mpSolver)
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 

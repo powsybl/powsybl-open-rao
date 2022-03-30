@@ -23,10 +23,14 @@ import com.farao_community.farao.search_tree_rao.castor.algorithm.PrePerimeterSe
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
+import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 import com.farao_community.farao.search_tree_rao.result.api.*;
+import com.farao_community.farao.search_tree_rao.search_tree.inputs.SearchTreeInput;
+import com.farao_community.farao.search_tree_rao.search_tree.parameters.SearchTreeParameters;
+import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.commons.logs.FaraoLoggerProvider;
 import com.powsybl.iidm.network.Network;
@@ -58,6 +62,9 @@ public class LeafTest {
     private IteratingLinearOptimizer iteratingLinearOptimizer;
     private ObjectiveFunction costEvaluatorMock;
     private SensitivityComputer sensitivityComputer;
+    private OptimizationPerimeter optimizationPerimeter;
+    private PrePerimeterResult prePerimeterResult;
+    private AppliedRemedialActions appliedRemedialActions;
 
     private String virtualCostName;
 
@@ -80,19 +87,20 @@ public class LeafTest {
         iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
         costEvaluatorMock = Mockito.mock(ObjectiveFunction.class);
+        optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        appliedRemedialActions = Mockito.mock(AppliedRemedialActions.class);
 
         virtualCostName = "VirtualCost";
     }
 
     private Leaf buildNotEvaluatedRootLeaf() {
-        RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        return new Leaf(network, new HashSet<>(), null, rangeActionActivationResult);
+        return new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
     }
 
     @Test
     public void testRootLeafDefinition() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Leaf rootLeaf = new Leaf(network, prePerimeterResult);
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         assertTrue(rootLeaf.getActivatedNetworkActions().isEmpty());
         assert rootLeaf.getActivatedNetworkActions().isEmpty();
         assertTrue(rootLeaf.isRoot());
@@ -107,11 +115,10 @@ public class LeafTest {
 
     @Test
     public void testMultipleLeafsDefinition() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Leaf rootLeaf = new Leaf(network, prePerimeterResult);
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        Leaf leaf1 = new Leaf(network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult);
-        Leaf leaf2 = new Leaf(network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na2), rangeActionActivationResult);
+        Leaf leaf1 = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        Leaf leaf2 = new Leaf(optimizationPerimeter, network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na2), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
         assertEquals(1, leaf1.getActivatedNetworkActions().size());
         assertEquals(2, leaf2.getActivatedNetworkActions().size());
         assertTrue(leaf1.getActivatedNetworkActions().contains(na1));
@@ -127,11 +134,10 @@ public class LeafTest {
 
     @Test
     public void testMultipleLeafDefinitionWithSameNetworkAction() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Leaf rootLeaf = new Leaf(network, prePerimeterResult);
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        Leaf leaf1 = new Leaf(network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult);
-        Leaf leaf2 = new Leaf(network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult);
+        Leaf leaf1 = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        Leaf leaf2 = new Leaf(optimizationPerimeter, network, leaf1.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
         assertEquals(1, leaf2.getActivatedNetworkActions().size());
         assertTrue(leaf2.getActivatedNetworkActions().contains(na1));
         assertFalse(leaf2.isRoot());
@@ -139,10 +145,9 @@ public class LeafTest {
 
     @Test
     public void evaluateAnAlreadyEvaluatedLeaf() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         Mockito.when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
-        Leaf rootLeaf = new Leaf(network, prePerimeterResult);
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         ObjectiveFunctionResult preOptimObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
         Mockito.when(costEvaluatorMock.evaluate(prePerimeterResult, sensitivityStatus)).thenReturn(preOptimObjectiveFunctionResult);
         rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer);
@@ -151,10 +156,9 @@ public class LeafTest {
 
     private Leaf prepareLeafForEvaluation(NetworkAction networkAction, ComputationStatus expectedSensitivityStatus, FlowResult expectedFlowResult, double expectedCost, List<FlowCnec> mostLimitingCnecs) {
         Mockito.when(networkAction.apply(any())).thenReturn(true);
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Leaf rootLeaf = new Leaf(network, prePerimeterResult);
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
-        Leaf leaf = new Leaf(network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(networkAction), rangeActionActivationResult);
+        Leaf leaf = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(networkAction), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
         SensitivityResult expectedSensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(expectedSensitivityResult);
         Mockito.when(expectedSensitivityResult.getSensitivityStatus()).thenReturn(expectedSensitivityStatus);
@@ -242,9 +246,10 @@ public class LeafTest {
     public void testOptimizeWithoutEvaluation() {
         Leaf rootLeaf = buildNotEvaluatedRootLeaf();
         assertEquals(Leaf.Status.CREATED, rootLeaf.getStatus());
-        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
-        rootLeaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
+        SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation has not been performed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
@@ -255,9 +260,10 @@ public class LeafTest {
         Leaf rootLeaf = buildNotEvaluatedRootLeaf();
         Mockito.doThrow(new FaraoException()).when(sensitivityComputer).compute(network);
         rootLeaf.evaluate(costEvaluatorMock, sensitivityComputer);
-        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
         ListAppender<ILoggingEvent> listAppender = getBusinessWarns();
-        rootLeaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
+        SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s\n because evaluation failed", rootLeaf);
         assertEquals(expectedLog, listAppender.list.get(0).toString());
@@ -265,12 +271,12 @@ public class LeafTest {
 
     @Test
     public void optimize() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         Mockito.when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
-        Leaf rootLeaf = new Leaf(network, prePerimeterResult);
-        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
-        rootLeaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(Leaf.Status.OPTIMIZED, rootLeaf.getStatus());
     }
 
@@ -307,14 +313,14 @@ public class LeafTest {
 
     @Test
     public void getFlowsAndPtdfsOnFlowCnecAfterOptimization() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         ComputationStatus sensitivityStatus = Mockito.mock(ComputationStatus.class);
         Mockito.when(prePerimeterResult.getSensitivityStatus()).thenReturn(sensitivityStatus);
-        Leaf leaf = new Leaf(network, prePerimeterResult);
-        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
+        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
-        Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), any(), any(), any(), any())).thenReturn(linearOptimizationResult);
-        leaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
+        Mockito.when(iteratingLinearOptimizer.optimize()).thenReturn(linearOptimizationResult);
+        SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
+        leaf.optimize(searchTreeInput, searchTreeParameters);
 
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
 
@@ -375,12 +381,12 @@ public class LeafTest {
 
     @Test
     public void getFunctionalCostAfterOptimization() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Leaf leaf = new Leaf(network, prePerimeterResult);
-        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
+        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
-        Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), any(), any(), any(), any())).thenReturn(linearOptimizationResult);
-        leaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
+        Mockito.when(iteratingLinearOptimizer.optimize()).thenReturn(linearOptimizationResult);
+        SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
+        leaf.optimize(searchTreeInput, searchTreeParameters);
         double expectedFunctionalCost = 3.;
         Mockito.when(linearOptimizationResult.getFunctionalCost()).thenReturn(expectedFunctionalCost);
         assertEquals(expectedFunctionalCost, leaf.getFunctionalCost(), DOUBLE_TOLERANCE);
@@ -407,12 +413,12 @@ public class LeafTest {
 
     @Test
     public void getVirtualCostAfterOptimization() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Leaf leaf = new Leaf(network, prePerimeterResult);
-        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
+        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
-        Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), any(), any(), any(), any())).thenReturn(linearOptimizationResult);
-        leaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
+        Mockito.when(iteratingLinearOptimizer.optimize()).thenReturn(linearOptimizationResult);
+        SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
+        leaf.optimize(searchTreeInput, searchTreeParameters);
         double expectedVirtualCost = 3.;
         Mockito.when(linearOptimizationResult.getVirtualCost()).thenReturn(expectedVirtualCost);
         assertEquals(expectedVirtualCost, leaf.getVirtualCost(), DOUBLE_TOLERANCE);
@@ -448,12 +454,12 @@ public class LeafTest {
 
     @Test
     public void getCostlyAndMostLimitingElementsAfterOptimization() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Leaf leaf = new Leaf(network, prePerimeterResult);
-        LeafProblem leafProblem = Mockito.mock(LeafProblem.class);
+        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         LinearOptimizationResult linearOptimizationResult = Mockito.mock(LinearOptimizationResult.class);
-        Mockito.when(iteratingLinearOptimizer.optimize(any(), any(), any(), any(), any(), any())).thenReturn(linearOptimizationResult);
-        leaf.optimize(iteratingLinearOptimizer, sensitivityComputer, leafProblem);
+        Mockito.when(iteratingLinearOptimizer.optimize()).thenReturn(linearOptimizationResult);
+        SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
+        leaf.optimize(searchTreeInput, searchTreeParameters);
         FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
         List<FlowCnec> flowCnecs = Collections.singletonList(flowCnec);
         Mockito.when(linearOptimizationResult.getMostLimitingElements(flowCnecs.size())).thenReturn(flowCnecs);
@@ -476,8 +482,7 @@ public class LeafTest {
 
     @Test
     public void getVirtualCostNames() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Leaf leaf = new Leaf(network, prePerimeterResult);
+        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         ObjectiveFunctionResult objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
         Mockito.when(costEvaluatorMock.evaluate(any(), any())).thenReturn(objectiveFunctionResult);
         Set<String> virtualCostNames = new HashSet<>();
@@ -489,8 +494,7 @@ public class LeafTest {
 
     @Test
     public void getRangeActionsAfterEvaluation() {
-        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
-        Leaf leaf = new Leaf(network, prePerimeterResult);
+        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         leaf.evaluate(costEvaluatorMock, sensitivityComputer);
 
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
@@ -508,11 +512,11 @@ public class LeafTest {
         Mockito.when(prePerimeterResult.getRangeActions()).thenReturn(rangeActions);
         assertEquals(rangeActions, leaf.getRangeActions());
 
-        Mockito.when(prePerimeterResult.getOptimizedTap(pstRangeAction)).thenReturn(optimalTap);
-        assertEquals(optimalTap, leaf.getOptimizedTap(pstRangeAction));
+        Mockito.when(prePerimeterResult.getTap(pstRangeAction)).thenReturn(optimalTap);
+        assertEquals(optimalTap, leaf.getOptimizedTap(pstRangeAction, optimizationPerimeter.getMainOptimizationState()));
 
         Mockito.when(prePerimeterResult.getOptimizedTaps()).thenReturn(optimizedTaps);
-        assertEquals(optimizedTaps, leaf.getOptimizedTaps());
+        assertEquals(optimizedTaps, leaf.getOptimizedTapsOnState(optimizationPerimeter.getMainOptimizationState()));
 
         Mockito.when(prePerimeterResult.getOptimizedSetPoint(rangeAction)).thenReturn(optimalSetpoint);
         assertEquals(optimalSetpoint, leaf.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
