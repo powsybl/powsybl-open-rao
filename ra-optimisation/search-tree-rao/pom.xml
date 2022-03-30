@@ -32,7 +32,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.farao-community.ortools</groupId>
+            <groupId>com.google.ortools</groupId>
             <artifactId>ortools-java</artifactId>
         </dependency>
 
