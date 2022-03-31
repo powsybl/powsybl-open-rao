@@ -9,18 +9,22 @@ package com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms
 
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_api.CracFactory;
+import com.farao_community.farao.data.crac_api.State;
 import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
 import com.farao_community.farao.data.rao_result_api.ComputationStatus;
-import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.commons.SensitivityComputer;
 import com.farao_community.farao.search_tree_rao.commons.adapter.BranchResultAdapter;
 import com.farao_community.farao.search_tree_rao.commons.adapter.SensitivityResultAdapter;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.linear_problem.LinearProblem;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.mocks.MPVariableMock;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.inputs.IteratingLinearOptimizerInput;
+import com.farao_community.farao.search_tree_rao.linear_optimisation.parameters.IteratingLinearOptimizerParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.search_tree_rao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.farao_community.farao.search_tree_rao.result.impl.RangeActionActivationResultImpl;
+import com.farao_community.farao.search_tree_rao.result.impl.RangeActionSetpointResultImpl;
 import com.farao_community.farao.sensitivity_analysis.SensitivityAnalysisException;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityInterface;
 import com.farao_community.farao.sensitivity_analysis.SystematicSensitivityResult;
@@ -59,6 +63,7 @@ public class IteratingLinearOptimizerTest {
     private BranchResultAdapter branchResultAdapter;
     private SensitivityComputer sensitivityComputer;
     private IteratingLinearOptimizer optimizer;
+    private State optimizedState;
 
     @Before
     public void setUp() {
@@ -67,17 +72,21 @@ public class IteratingLinearOptimizerTest {
         objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         systematicSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
         SensitivityResultAdapter sensitivityResultAdapter = Mockito.mock(SensitivityResultAdapter.class);
-        optimizer = new IteratingLinearOptimizer(
+        IteratingLinearOptimizerInput input = Mockito.mock(IteratingLinearOptimizerInput.class);
+        IteratingLinearOptimizerParameters parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
+        /*optimizer = new IteratingLinearOptimizer(
             objectiveFunction,
             5,
                 RaoParameters.PstOptimizationApproximation.CONTINUOUS
-        );
+        );*/
+        optimizer = new IteratingLinearOptimizer(input, parameters);
 
         linearProblem = Mockito.mock(LinearProblem.class);
         network = Mockito.mock(Network.class);
         this.flowResult = Mockito.mock(FlowResult.class);
         sensitivityResult = Mockito.mock(SensitivityResult.class);
-        rangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(rangeAction, 0.));
+        RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(rangeAction, 0.));
+        rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
         branchResultAdapter = Mockito.mock(BranchResultAdapter.class);
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
 
@@ -118,23 +127,20 @@ public class IteratingLinearOptimizerTest {
             public Object answer(InvocationOnMock invocation) {
                 count += 1;
                 if (statuses.get(count - 1) == LinearProblemStatus.OPTIMAL) {
-                    when(linearProblem.getResults()).thenReturn(new RangeActionActivationResultImpl(Map.of(rangeAction, setPoints.get(count - 1))));
+                    MPVariableMock absVariationMpVarMock = Mockito.mock(MPVariableMock.class);
+                    when(absVariationMpVarMock.solutionValue()).thenReturn(Math.abs(setPoints.get(count - 1)));
+                    when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, optimizedState)).thenReturn(absVariationMpVarMock);
+                    MPVariableMock setpointMpVarMock = Mockito.mock(MPVariableMock.class);
+                    when(setpointMpVarMock.solutionValue()).thenReturn(setPoints.get(count - 1));
+                    when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState)).thenReturn(setpointMpVarMock);
                 }
-                when(linearProblem.getStatus()).thenReturn(statuses.get(count - 1));
                 return statuses.get(count - 1);
             }
         }).when(linearProblem).solve();
     }
 
     private LinearOptimizationResult optimize() {
-        return optimizer.optimize(
-                linearProblem,
-                network,
-                flowResult,
-                sensitivityResult,
-            rangeActionActivationResult,
-                sensitivityComputer
-        );
+        return optimizer.optimize();
     }
 
     @Test
@@ -157,7 +163,7 @@ public class IteratingLinearOptimizerTest {
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(0, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
+        assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -170,7 +176,7 @@ public class IteratingLinearOptimizerTest {
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(1, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
+        assertEquals(1, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -183,7 +189,7 @@ public class IteratingLinearOptimizerTest {
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(0, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
+        assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -196,7 +202,7 @@ public class IteratingLinearOptimizerTest {
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(5, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
+        assertEquals(5, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -209,7 +215,7 @@ public class IteratingLinearOptimizerTest {
         assertEquals(LinearProblemStatus.FEASIBLE, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(1, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
+        assertEquals(1, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -226,7 +232,7 @@ public class IteratingLinearOptimizerTest {
         assertEquals(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED, result.getStatus());
         assertEquals(0, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(100, result.getFunctionalCost(), DOUBLE_TOLERANCE);
-        assertEquals(0, result.getOptimizedSetPoint(rangeAction), DOUBLE_TOLERANCE);
+        assertEquals(0, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -238,17 +244,14 @@ public class IteratingLinearOptimizerTest {
         rangeAction = crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(0, 0., 1, 1.)).add();
-        RangeActionActivationResult preoptimRangeActionActivationResult = new RangeActionActivationResultImpl(Map.of(rangeAction, 0.));
-        when(linearProblem.getResults()).thenReturn(new RangeActionActivationResultImpl(Map.of(rangeAction, 1.)));
+        MPVariableMock absVariationMpVarMock = Mockito.mock(MPVariableMock.class);
+        when(absVariationMpVarMock.solutionValue()).thenReturn(1.);
+        when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, optimizedState)).thenReturn(absVariationMpVarMock);
+        MPVariableMock setpointMpVarMock = Mockito.mock(MPVariableMock.class);
+        when(setpointMpVarMock.solutionValue()).thenReturn(1.);
+        when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState)).thenReturn(setpointMpVarMock);
         network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().setTapPosition(5);
-        LinearOptimizationResult result = optimizer.optimize(
-                linearProblem,
-                network,
-                flowResult,
-                sensitivityResult,
-            preoptimRangeActionActivationResult,
-                sensitivityComputer
-        );
+        LinearOptimizationResult result = optimizer.optimize();
         assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 }

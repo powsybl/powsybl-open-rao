@@ -105,6 +105,11 @@ public class MPSolverMock extends FaraoMPSolver {
     }
 
     @Override
+    public MPObjectiveMock objective() {
+        return objective;
+    }
+
+    @Override
     public MPObjectiveMock getObjective() {
         return objective;
     }
