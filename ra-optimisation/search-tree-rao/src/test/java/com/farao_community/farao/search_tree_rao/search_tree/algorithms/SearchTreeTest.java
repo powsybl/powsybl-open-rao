@@ -26,10 +26,11 @@ import com.farao_community.farao.data.crac_api.usage_rule.OnFlowConstraint;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.CommonCracCreation;
 import com.farao_community.farao.search_tree_rao.commons.RaoUtil;
+import com.farao_community.farao.search_tree_rao.commons.ToolProvider;
 import com.farao_community.farao.search_tree_rao.commons.optimization_perimeters.OptimizationPerimeter;
 import com.farao_community.farao.search_tree_rao.commons.parameters.GlobalRemedialActionLimitationParameters;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
-import com.farao_community.farao.search_tree_rao.linear_optimisation.algorithms.IteratingLinearOptimizer;
+import com.farao_community.farao.search_tree_rao.commons.parameters.NetworkActionParameters;
 import com.farao_community.farao.search_tree_rao.commons.objective_function_evaluator.ObjectiveFunction;
 import com.farao_community.farao.search_tree_rao.result.api.FlowResult;
 import com.farao_community.farao.search_tree_rao.result.api.OptimizationResult;
@@ -68,21 +69,21 @@ public class SearchTreeTest {
     private final State optimizedState = Mockito.mock(State.class);
     private OptimizationPerimeter optimizationPerimeter;
     private NetworkAction networkAction;
-    private List<NetworkActionCombination> availableNaCombinations;
+    private List<NetworkActionCombination> availableNaCombinations = new ArrayList<>();
     private Set<NetworkAction> availableNetworkActions;
     private RangeAction<?> rangeAction1;
     private RangeAction<?> rangeAction2;
     private Set<RangeAction<?>> availableRangeActions;
     private PrePerimeterResult prePerimeterResult;
-    private SearchTreeBloomer bloomer;
+    private AppliedRemedialActions appliedRemedialActions;
     private ObjectiveFunction objectiveFunction;
-    private IteratingLinearOptimizer iteratingLinearOptimizer;
 
     private Leaf rootLeaf;
 
     private SearchTreeParameters searchTreeParameters;
     private TreeParameters treeParameters;
     private GlobalRemedialActionLimitationParameters raLimitationParameters;
+    private NetworkActionParameters networkActionParameters;
 
     private int maximumSearchDepth;
     private int leavesInParallel;
@@ -109,10 +110,14 @@ public class SearchTreeTest {
         when(raLimitationParameters.getMaxCurativeTso()).thenReturn(Integer.MAX_VALUE);
         when(raLimitationParameters.getMaxCurativePstPerTso()).thenReturn(new HashMap<>());
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
+        networkActionParameters = Mockito.mock(NetworkActionParameters.class);
+        when(searchTreeParameters.getNetworkActionParameters()).thenReturn(networkActionParameters);
     }
 
     private void setSearchTreeInput() {
         searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        appliedRemedialActions = Mockito.mock(AppliedRemedialActions.class);
+        when(searchTreeInput.getPreOptimizationAppliedNetworkActions()).thenReturn(appliedRemedialActions);
         network = Mockito.mock(Network.class);
         when(searchTreeInput.getNetwork()).thenReturn(network);
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
@@ -129,11 +134,10 @@ public class SearchTreeTest {
         when(searchTreeInput.getPrePerimeterResult()).thenReturn(prePerimeterResult);
         objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
-        iteratingLinearOptimizer = Mockito.mock(IteratingLinearOptimizer.class);
         when(optimizedState.getContingency()).thenReturn(Optional.empty());
         when(optimizedState.getInstant()).thenReturn(Instant.PREVENTIVE);
         rootLeaf = Mockito.mock(Leaf.class);
-        when(bloomer.bloom(rootLeaf, availableNetworkActions)).thenReturn(availableNaCombinations);
+        when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));
     }
 
     @Test
@@ -141,7 +145,7 @@ public class SearchTreeTest {
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, new AppliedRemedialActions());
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
@@ -156,7 +160,7 @@ public class SearchTreeTest {
         double leafCost = 2.;
         when(rootLeaf.getCost()).thenReturn(leafCost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, new AppliedRemedialActions());
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
@@ -174,7 +178,7 @@ public class SearchTreeTest {
         setStopCriterionAtMinObjective();
         when(rootLeaf.getCost()).thenReturn(2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, new AppliedRemedialActions());
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
@@ -187,7 +191,7 @@ public class SearchTreeTest {
         searchTreeWithOneChildLeaf();
         when(rootLeaf.getCost()).thenReturn(4., 2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, new AppliedRemedialActions());
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
@@ -218,7 +222,7 @@ public class SearchTreeTest {
 
         when(rootLeaf.getCost()).thenReturn(4.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, new AppliedRemedialActions());
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
         Leaf childLeaf = Mockito.mock(Leaf.class);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
@@ -270,6 +274,10 @@ public class SearchTreeTest {
         NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
         when(networkAction1.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(networkAction2.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(networkAction1.getOperator()).thenReturn("operator1");
+        when(networkAction2.getOperator()).thenReturn("operator2");
+        when(networkAction1.getId()).thenReturn("na1");
+        when(networkAction1.getId()).thenReturn("na2");
         availableNetworkActions.add(networkAction1);
         availableNetworkActions.add(networkAction2);
         availableNaCombinations.add(new NetworkActionCombination(networkAction1));
@@ -286,11 +294,11 @@ public class SearchTreeTest {
 
         when(childLeaf1.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf1.getCost()).thenReturn(childLeaf1CostAfterOptim);
-        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(eq(network), eq(availableNaCombinations.get(0)));
+        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(0)));
 
         when(childLeaf2.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
-        Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(eq(network), eq(availableNaCombinations.get(1)));
+        Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(1)));
 
         OptimizationResult result = searchTree.run().get();
         assertEquals(childLeaf1, result);
@@ -339,8 +347,9 @@ public class SearchTreeTest {
 
     private void mockRootLeafCost(double cost) throws Exception {
         when(rootLeaf.getCost()).thenReturn(cost);
+        when(rootLeaf.getVirtualCost()).thenReturn(cost);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, new AppliedRemedialActions());
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
     }
 
     private void setMaxPstPerTso(String tsoName, int maxPstOfTso) {
@@ -357,6 +366,7 @@ public class SearchTreeTest {
         mockRootLeafCost(rootLeafCostAfterOptim);
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf.getCost()).thenReturn(childLeafCostAfterOptim);
+        when(childLeaf.getVirtualCost()).thenReturn(childLeafCostAfterOptim);
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(eq(network), any());
     }
 
@@ -372,6 +382,7 @@ public class SearchTreeTest {
     private void searchTreeWithOneChildLeaf() {
         networkAction = Mockito.mock(NetworkAction.class);
         when(networkAction.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(networkAction.getOperator()).thenReturn("operator");
         availableNetworkActions.add(networkAction);
         availableNaCombinations.add(new NetworkActionCombination(networkAction));
     }
@@ -443,7 +454,7 @@ public class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(leafCost);
         when(rootLeaf.getVirtualCost()).thenReturn(0.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, new AppliedRemedialActions());
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         // rootLeaf should not be optimized : its virtual cost is zero so stop criterion is already reached
         doThrow(FaraoException.class).when(rootLeaf).optimize(any(), any());
 
@@ -460,11 +471,11 @@ public class SearchTreeTest {
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, new AppliedRemedialActions());
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
         String expectedLog1 = "[INFO] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no preventive remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
@@ -477,16 +488,17 @@ public class SearchTreeTest {
     }
 
     @Test
-    public void testLogsDontVerbose() {
+    public void testLogsDontVerbose() throws Exception {
+        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false));
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         when(rootLeaf.toString()).thenReturn("root leaf description");
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, new AppliedRemedialActions());
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
         String expectedLog1 = "[INFO] Evaluating root leaf";
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
-        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no preventive remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
+        String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.00 (functional: 0.00, virtual: 0.00), no remedial actions activated, cost after PRA = 0.00 (functional: 0.00, virtual: 0.00)";
 
         ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);

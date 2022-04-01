@@ -10,6 +10,7 @@ import com.farao_community.farao.data.crac_api.Identifiable;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,5 +43,22 @@ public class NetworkActionCombination {
         return networkActionSet.stream()
             .map(Identifiable::getId)
             .collect(Collectors.joining(" + "));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        NetworkActionCombination oNetworkActionCombination = (NetworkActionCombination) o;
+        return this.networkActionSet.equals(oNetworkActionCombination.networkActionSet);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(networkActionSet);
     }
 }

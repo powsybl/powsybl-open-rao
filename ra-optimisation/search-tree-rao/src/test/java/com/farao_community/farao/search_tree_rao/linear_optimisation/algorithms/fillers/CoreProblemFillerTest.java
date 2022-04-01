@@ -86,7 +86,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
-        rangeActions.put(crac.getPreventiveState(), Set.of(pstRangeAction));
+        cnecs.forEach(cnec -> rangeActions.put(cnec.getState(), Set.of(pstRangeAction)));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
@@ -226,7 +226,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Test
     public void fillTestOnCurative() {
         initializeForCurative();
-        State state = crac.getPreventiveState();
+        State state = cnec2.getState();
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
@@ -356,20 +356,25 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         MPConstraint curAbsoluteVariationConstraint2 = linearProblem.getAbsoluteRangeActionVariationConstraint(pstRangeAction, curState, LinearProblem.AbsExtension.POSITIVE);
         assertNotNull(curAbsoluteVariationConstraint1);
         assertNotNull(curAbsoluteVariationConstraint2);
-        assertEquals(-initialAlpha, curAbsoluteVariationConstraint1.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, curAbsoluteVariationConstraint1.ub(), DOUBLE_TOLERANCE);
-        assertEquals(initialAlpha, curAbsoluteVariationConstraint2.lb(), DOUBLE_TOLERANCE);
-        assertEquals(Double.POSITIVE_INFINITY, curAbsoluteVariationConstraint2.ub(), DOUBLE_TOLERANCE);
+        assertEquals(0, curAbsoluteVariationConstraint1.lb(), DOUBLE_TOLERANCE);
+        assertEquals(1., curAbsoluteVariationConstraint1.getCoefficient(prevSetPointVariable), DOUBLE_TOLERANCE);
+        assertEquals(-1., curAbsoluteVariationConstraint1.getCoefficient(curSetPointVariable), DOUBLE_TOLERANCE);
+        assertEquals(1., curAbsoluteVariationConstraint1.getCoefficient(curAbsoluteVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(0, curAbsoluteVariationConstraint2.lb(), DOUBLE_TOLERANCE);
+        assertEquals(-1., curAbsoluteVariationConstraint2.getCoefficient(prevSetPointVariable), DOUBLE_TOLERANCE);
+        assertEquals(1., curAbsoluteVariationConstraint2.getCoefficient(curSetPointVariable), DOUBLE_TOLERANCE);
+        assertEquals(1., curAbsoluteVariationConstraint2.getCoefficient(curAbsoluteVariationVariable), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
         // total number of variables 6 :
         //      - 1 per CNEC (flow)
         //      - 2 per range action (set-point and variation)
-        // total number of constraints 6 :
+        // total number of constraints 7 :
         //      - 1 per CNEC (flow constraint)
         //      - 2 per range action (absolute variation constraints)
+        //      - 1 for curative range action (relative variation constraint)
         assertEquals(6, linearProblem.numVariables());
-        assertEquals(6, linearProblem.numConstraints());
+        assertEquals(7, linearProblem.numConstraints());
     }
 
     private void updateLinearProblem() {
@@ -435,7 +440,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Test
     public void updateTestOnCurative() {
         initializeForCurative();
-        State state = crac.getPreventiveState();
+        State state = cnec2.getState();
         // update the problem with new data
         updateLinearProblem();
 
