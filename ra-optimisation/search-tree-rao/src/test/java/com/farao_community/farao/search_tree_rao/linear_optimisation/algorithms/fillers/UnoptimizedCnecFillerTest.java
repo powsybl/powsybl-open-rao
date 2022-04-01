@@ -138,7 +138,7 @@ public class UnoptimizedCnecFillerTest extends AbstractFillerTest {
                 initialFlowResult,
                 unoptimizedCnecParameters
         );
-        LinearProblem linearProblem = new LinearProblemBuilder()
+        linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)

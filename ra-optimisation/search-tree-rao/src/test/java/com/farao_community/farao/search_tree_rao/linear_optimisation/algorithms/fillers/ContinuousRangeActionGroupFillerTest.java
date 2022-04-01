@@ -72,6 +72,7 @@ public class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(continuousRangeActionGroupFiller)
+            .withSolver(mpSolver)
             .build();
 
         // fill problem

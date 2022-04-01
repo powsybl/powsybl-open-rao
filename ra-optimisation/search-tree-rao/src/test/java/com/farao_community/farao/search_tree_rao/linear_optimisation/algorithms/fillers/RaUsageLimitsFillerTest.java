@@ -42,6 +42,7 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
+    private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
 
     private PstRangeAction pst1;
     private PstRangeAction pst2;
@@ -121,9 +122,6 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
     @Test
     public void testSkipFiller() {
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
-        raLimitationParameters.setMaxRangeAction(state, 5);
-        raLimitationParameters.setMaxTso(state, 2);
-        raLimitationParameters.setMaxTsoExclusion(state, Set.of("opA"));
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
             rangeActionsPerState,
             prePerimeterRangeActionSetpointResult,
@@ -157,25 +155,17 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         rangeActionsPerState.get(state).forEach(ra -> {
             MPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
-            MPConstraint constraintUp = linearProblem.getIsVariationInDirectionConstraint(ra, state, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.UPWARD);
-            MPConstraint constraintDown = linearProblem.getIsVariationInDirectionConstraint(ra, state, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.DOWNWARD);
+            MPConstraint constraint = linearProblem.getIsVariationConstraint(ra, state);
 
             assertNotNull(binary);
-            assertNotNull(constraintUp);
-            assertNotNull(constraintDown);
+            assertNotNull(constraint);
 
-            MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(ra, state);
+            MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
             double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
 
-            assertEquals(1, constraintUp.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) - initialSetpoint), constraintUp.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(-LinearProblem.infinity(), constraintUp.lb(), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint + 1e-5, constraintUp.ub(), DOUBLE_TOLERANCE);
-
-            assertEquals(1, constraintDown.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - ra.getMinAdmissibleSetpoint(initialSetpoint), constraintDown.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - 1e-5, constraintDown.lb(), DOUBLE_TOLERANCE);
-            assertEquals(LinearProblem.infinity(), constraintDown.ub(), DOUBLE_TOLERANCE);
+            assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
+            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(-LinearProblem.infinity(), constraint.lb(), DOUBLE_TOLERANCE);
         });
     }
 
@@ -197,14 +187,12 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         rangeActionsPerState.get(state).forEach(ra -> {
             MPVariable binary = linearProblem.getRangeActionVariationBinary(ra, state);
-            MPConstraint constraintUp = linearProblem.getIsVariationInDirectionConstraint(ra, state, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.UPWARD);
-            MPConstraint constraintDown = linearProblem.getIsVariationInDirectionConstraint(ra, state, LinearProblem.VariationReferenceExtension.PREPERIMETER, LinearProblem.VariationDirectionExtension.DOWNWARD);
+            MPConstraint constraint = linearProblem.getIsVariationConstraint(ra, state);
 
             assertNotNull(binary);
-            assertNotNull(constraintUp);
-            assertNotNull(constraintDown);
+            assertNotNull(constraint);
 
-            MPVariable setpointVariable = linearProblem.getRangeActionSetpointVariable(ra, state);
+            MPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
             double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
             double relaxation = 1e-5;
             if (ra.getId().equals("pst1")) {
@@ -215,15 +203,9 @@ public class RaUsageLimitsFillerTest extends AbstractFillerTest {
                 relaxation = 0.3 * 4.5 / 3;
             }
 
-            assertEquals(1, constraintUp.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + 1e-5 - initialSetpoint - relaxation), constraintUp.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(-LinearProblem.infinity(), constraintUp.lb(), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint + relaxation, constraintUp.ub(), DOUBLE_TOLERANCE);
-
-            assertEquals(1, constraintDown.getCoefficient(setpointVariable), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - relaxation - ra.getMinAdmissibleSetpoint(initialSetpoint) + 1e-5, constraintDown.getCoefficient(binary), DOUBLE_TOLERANCE);
-            assertEquals(initialSetpoint - relaxation, constraintDown.lb(), DOUBLE_TOLERANCE);
-            assertEquals(LinearProblem.infinity(), constraintDown.ub(), DOUBLE_TOLERANCE);
+            assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
+            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(-LinearProblem.infinity(), constraint.lb(), DOUBLE_TOLERANCE);
         });
     }
 

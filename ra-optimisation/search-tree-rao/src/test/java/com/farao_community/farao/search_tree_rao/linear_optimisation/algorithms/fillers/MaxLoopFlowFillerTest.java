@@ -55,6 +55,7 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
         double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, initialAlpha));
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec1));
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
         rangeActions.put(state, Set.of(pstRangeAction));
@@ -85,15 +86,16 @@ public class MaxLoopFlowFillerTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblem() {
-        LinearProblem linearProblem = new LinearProblemBuilder()
+        linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxLoopFlowFiller)
+            .withSolver(mpSolver)
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
     private void updateLinearProblem() {
-        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, null);
+        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, Mockito.mock(RangeActionActivationResultImpl.class));
     }
 
     @Test

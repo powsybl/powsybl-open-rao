@@ -86,7 +86,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
-        cnecs.forEach(cnec -> rangeActions.put(cnec.getState(), Set.of(pstRangeAction)));
+        rangeActions.put(crac.getPreventiveState(), Set.of(pstRangeAction));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
@@ -226,7 +226,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Test
     public void fillTestOnCurative() {
         initializeForCurative();
-        State state = cnec2.getState();
+        State state = crac.getPreventiveState();
 
         // check range action setpoint variable
         MPVariable setPointVariable = linearProblem.getRangeActionSetpointVariable(pstRangeAction, state);
@@ -383,7 +383,8 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
         when(sensitivityResult.getSensitivityValue(cnec2, pstRangeAction, Unit.MEGAWATT)).thenReturn(SENSI_CNEC2_IT2);
 
         // update the problem
-        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, null);
+        RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, initialAlpha));
+        linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, new RangeActionActivationResultImpl(rangeActionSetpointResult));
     }
 
     @Test
@@ -434,7 +435,7 @@ public class CoreProblemFillerTest extends AbstractFillerTest {
     @Test
     public void updateTestOnCurative() {
         initializeForCurative();
-        State state = cnec2.getState();
+        State state = crac.getPreventiveState();
         // update the problem with new data
         updateLinearProblem();
 

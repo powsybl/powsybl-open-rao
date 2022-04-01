@@ -70,6 +70,7 @@ public class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         raoParameters.setHvdcPenaltyCost(0.01);
         raoParameters.setInjectionRaPenaltyCost(0.01);
         raoParameters.setPtdfSumLowerBound(0.01);
+        raoParameters.setObjectiveFunction(RaoParameters.ObjectiveFunction.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
         RangeActionParameters rangeActionParameters = RangeActionParameters.buildFromRaoParameters(raoParameters);
         parameters = MaxMinRelativeMarginParameters.buildFromRaoParameters(raoParameters);
 

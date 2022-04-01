@@ -63,7 +63,7 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
     private void addRangeActionGroupConstraint(LinearProblem linearProblem, RangeAction<?> rangeAction, String groupId, State state) {
         MPConstraint groupSetPointConstraint = linearProblem.addRangeActionGroupSetpointConstraint(0, 0, rangeAction, state);
-        groupSetPointConstraint.setCoefficient(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state), 1);
+        groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(rangeAction, state), 1);
         groupSetPointConstraint.setCoefficient(linearProblem.getRangeActionGroupSetpointVariable(groupId, state), -1);
     }
 }
