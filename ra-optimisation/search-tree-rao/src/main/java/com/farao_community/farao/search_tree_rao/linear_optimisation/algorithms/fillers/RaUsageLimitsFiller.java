@@ -31,7 +31,7 @@ import static java.lang.String.format;
 /**
  * Handles constraints for maximum number od RAs to activate (ma-ra), maximum number of TSOs that can activate RAs (max-tso),
  * maximum number of RAs per TSO (max-ra-per-tso), and maximum number of PSTs per TSO (max-pst-per-tso).
- * <!> Introduces binary variables to define if an RA is used. </!>
+ * Beware: this introduces binary variables to define if an RA is used.
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
