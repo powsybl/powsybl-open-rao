@@ -79,6 +79,10 @@ public final class LinearProblem {
         this.solver.objective().setMinimization();
     }
 
+    public List<ProblemFiller> getFillers() {
+        return fillerList;
+    }
+
     public void fill(FlowResult flowResult, SensitivityResult sensitivityResult) {
         fillerList.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult));
     }

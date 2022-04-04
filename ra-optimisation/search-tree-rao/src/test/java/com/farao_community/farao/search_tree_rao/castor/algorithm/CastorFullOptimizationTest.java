@@ -9,7 +9,6 @@ package com.farao_community.farao.search_tree_rao.castor.algorithm;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
-import com.farao_community.farao.data.crac_api.cnec.FlowCnec;
 import com.farao_community.farao.data.crac_api.network_action.ActionType;
 import com.farao_community.farao.data.crac_api.network_action.NetworkAction;
 import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
@@ -17,14 +16,12 @@ import com.farao_community.farao.data.crac_api.range_action.RangeAction;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
 import com.farao_community.farao.data.crac_impl.utils.NetworkImportsUtil;
-import com.farao_community.farao.rao_api.RaoInput;
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 import com.farao_community.farao.search_tree_rao.result.api.*;
 import com.farao_community.farao.sensitivity_analysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -38,25 +35,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class CastorFullOptimizationTest {
-    private CastorFullOptimization castorFullOptimization;
-    private RaoInput raoInput;
-    private RaoParameters raoParameters;
-
-    private static final double DOUBLE_TOLERANCE = 1e-3;
     private Crac crac;
     private Network network;
-    private FlowResult initialFlowResult;
-    private FlowResult preperimFlowResult;
-    private FlowCnec cnec1;
-    private FlowCnec cnec2;
-    private FlowCnec cnec3;
-    private FlowCnec cnec4;
     private State state1;
     private State state2;
-    private State state3;
     private RangeAction<?> ra1;
     private RangeAction<?> ra2;
     private RangeAction<?> ra3;
@@ -64,7 +49,6 @@ public class CastorFullOptimizationTest {
     private RangeAction<?> ra5;
     private RangeAction<?> ra6;
     private NetworkAction na1;
-    private PrePerimeterResult prePerimeterResult;
 
     @Test
     public void testShouldRunSecondPreventiveRaoSimple() {
@@ -354,7 +338,6 @@ public class CastorFullOptimizationTest {
         assertTrue(CastorFullOptimization.isRangeActionCurative(ra6, crac));
     }
 
-
     @Test
     public void testGetRangeActionsExcludedFromSecondPreventive() {
         setUpCracWithRAs();
@@ -366,7 +349,6 @@ public class CastorFullOptimizationTest {
         assertTrue(rangeActionsExcludedFrom2P.contains(ra5));
         assertTrue(rangeActionsExcludedFrom2P.contains(ra6));
     }
-
 
     @Test
     public void testRemoveRangeActionsExcludedFromSecondPreventive() {

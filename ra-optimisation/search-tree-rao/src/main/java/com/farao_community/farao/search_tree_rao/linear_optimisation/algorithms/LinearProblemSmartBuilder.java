@@ -89,7 +89,6 @@ public class LinearProblemSmartBuilder {
         }
 
         // RA limitation
-
         if (parameters.getRaLimitationParameters() != null
             && inputs.getOptimizationPerimeter().getRangeActionOptimizationStates().stream()
                 .anyMatch(state -> parameters.getRaLimitationParameters().areRangeActionLimitedForState(state))) {
@@ -99,7 +98,7 @@ public class LinearProblemSmartBuilder {
         return builder.build();
     }
 
-    private FaraoMPSolver buildSolver() {
+    public FaraoMPSolver buildSolver() {
         switch (parameters.getSolverParameters().getSolver()) {
             case CBC:
                 return new FaraoMPSolver(OPT_PROBLEM_NAME, MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
