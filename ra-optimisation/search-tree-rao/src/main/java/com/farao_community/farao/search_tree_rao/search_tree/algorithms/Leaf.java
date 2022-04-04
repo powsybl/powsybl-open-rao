@@ -52,7 +52,7 @@ import static com.farao_community.farao.commons.logs.FaraoLoggerProvider.TECHNIC
 public class Leaf implements OptimizationResult {
     private static final String NO_RESULTS_AVAILABLE = "No results available.";
 
-    enum Status {
+    public enum Status {
         CREATED("Created"),
         ERROR("Error"),
         EVALUATED("Evaluated"),
