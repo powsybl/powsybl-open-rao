@@ -128,7 +128,7 @@ public class IteratingLinearOptimizer {
 
             logBetterResult(iteration, currentResult);
             bestResult = currentResult;
-            linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionResult());
+            linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), bestResult.getRangeActionActivationResult());
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
         return bestResult;

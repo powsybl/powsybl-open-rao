@@ -154,9 +154,9 @@ public class UnoptimizedRaoResultImpl implements RaoResult {
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         Map<RangeAction<?>, Double> setpointPerRa = new HashMap<>();
-        initialResult.getRangeActions().forEach(ra -> {
-            setpointPerRa.put(ra, initialResult.getSetpoint(ra));
-        });
+        initialResult.getRangeActions().forEach(ra ->
+            setpointPerRa.put(ra, initialResult.getSetpoint(ra))
+        );
         return setpointPerRa;
     }
 }

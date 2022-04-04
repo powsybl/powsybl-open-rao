@@ -51,7 +51,7 @@ public interface PstRangeAction extends RangeAction<PstRangeAction> {
     /**
      * Get the smallest absolute angle difference between two consecutive taps.
      */
-    double getSmallestAngleDiff();
+    double getSmallestAngleStep();
 
     /**
      * Get the value of the tap of the PST Range Action for a given Network

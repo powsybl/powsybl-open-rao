@@ -36,7 +36,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     private final Set<NetworkAction> availableNetworkActions;
     private final Map<State, Set<RangeAction<?>>> availableRangeActions;
 
-    public AbstractOptimizationPerimeter(State mainOptimizationState,
+    protected AbstractOptimizationPerimeter(State mainOptimizationState,
                                          Set<FlowCnec> flowCnecs,
                                          Set<FlowCnec> loopFlowCnecs,
                                          Set<NetworkAction> availableNetworkActions,
@@ -120,7 +120,6 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
 
     static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
 
-        Set<FlowCnec> loopFlowCnecs;
         if (raoParameters.isRaoWithLoopFlowLimitation() && !raoParameters.getLoopflowCountries().isEmpty()) {
 
             // loopFlow limited, and set of country for which loop-flow are monitored is defined

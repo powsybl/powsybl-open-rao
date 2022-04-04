@@ -255,6 +255,6 @@ public final class BestTapFinder {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.stream()
             .filter(ra -> !(ra instanceof PstRangeAction))
             .filter(ra -> linearProblemResult.getActivatedRangeActions(state).contains(ra))
-            .forEach(ra -> roundedResult.activate(ra, state, (double) Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
+            .forEach(ra -> roundedResult.activate(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 }

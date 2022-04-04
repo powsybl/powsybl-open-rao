@@ -316,8 +316,8 @@ public class CoreProblemFiller implements ProblemFiller {
                             maxAbsoluteSetpoint = Math.max(setPointMinAbsoluteTap, setPointMaxAbsoluteTap);
                             // Make sure we stay in the range by multiplying the relative tap by the smallest angle between taps.
                             // (As long as minRelativeTap is negative (or zero) and maxRelativeTap is positive (or zero).)
-                            minRelativeSetpoint = minRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleDiff();
-                            maxRelativeSetpoint = maxRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleDiff();
+                            minRelativeSetpoint = minRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleStep();
+                            maxRelativeSetpoint = maxRelativeTap * ((PstRangeAction) rangeAction).getSmallestAngleStep();
                         } else if (rangeAction instanceof HvdcRangeAction) {
                             List<StandardRange> ranges = ((HvdcRangeAction) rangeAction).getRanges();
                             for (StandardRange range : ranges) {

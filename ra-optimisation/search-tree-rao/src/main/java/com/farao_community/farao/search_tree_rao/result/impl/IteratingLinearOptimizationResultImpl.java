@@ -70,10 +70,6 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
         return objectiveFunctionResult;
     }
 
-    public RangeActionActivationResult getRangeActionResult() {
-        return rangeActionActivationResult;
-    }
-
     @Override
     public double getFunctionalCost() {
         return objectiveFunctionResult.getFunctionalCost();

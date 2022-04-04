@@ -106,8 +106,6 @@ public class RangeActionLimitationParameters {
     }
 
     private void createIfAbsent(State state) {
-        if (!rangeActionLimitationPerState.containsKey(state)) {
-            rangeActionLimitationPerState.put(state, new RangeActionLimitation());
-        }
+        rangeActionLimitationPerState.computeIfAbsent(state, s -> new RangeActionLimitation());
     }
 }

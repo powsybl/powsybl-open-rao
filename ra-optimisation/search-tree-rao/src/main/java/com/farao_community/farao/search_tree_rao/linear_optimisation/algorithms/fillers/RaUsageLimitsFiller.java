@@ -55,11 +55,11 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
-        for (State state : rangeActions.keySet()) {
+        rangeActions.forEach((state, rangeActionSet) -> {
             if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
-                continue;
+                return;
             }
-            rangeActions.get(state).forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
+            rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
             if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
                 addMaxRaConstraint(linearProblem, state);
             }
@@ -72,7 +72,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             if (!rangeActionLimitationParameters.getMaxPstPerTso(state).isEmpty()) {
                 addMaxPstPerTsoConstraint(linearProblem, state);
             }
-        }
+        });
     }
 
     @Override
