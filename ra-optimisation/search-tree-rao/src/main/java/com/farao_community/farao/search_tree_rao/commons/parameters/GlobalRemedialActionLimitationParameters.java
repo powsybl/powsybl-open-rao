@@ -11,6 +11,7 @@ import com.farao_community.farao.rao_api.parameters.RaoParameters;
 import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRaoParameters;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -71,5 +72,22 @@ public class GlobalRemedialActionLimitationParameters {
             searchTreeRaoParameters.getMaxCurativePstPerTso(),
             searchTreeRaoParameters.getMaxCurativeTopoPerTso(),
             searchTreeRaoParameters.getMaxCurativeRaPerTso());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GlobalRemedialActionLimitationParameters that = (GlobalRemedialActionLimitationParameters) o;
+        return Objects.equals(maxCurativeRa, that.maxCurativeRa) && Objects.equals(maxCurativeTso, that.maxCurativeTso) && Objects.equals(maxCurativePstPerTso, that.maxCurativePstPerTso) && Objects.equals(maxCurativeTopoPerTso, that.maxCurativeTopoPerTso) && Objects.equals(maxCurativeRaPerTso, that.maxCurativeRaPerTso);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(maxCurativeRa, maxCurativeTso, maxCurativePstPerTso, maxCurativeTopoPerTso, maxCurativeRaPerTso);
     }
 }

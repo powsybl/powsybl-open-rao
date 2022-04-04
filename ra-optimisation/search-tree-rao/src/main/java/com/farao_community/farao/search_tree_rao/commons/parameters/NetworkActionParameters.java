@@ -13,6 +13,7 @@ import com.farao_community.farao.search_tree_rao.castor.parameters.SearchTreeRao
 import com.farao_community.farao.search_tree_rao.commons.NetworkActionCombination;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -75,5 +76,22 @@ public class NetworkActionParameters {
             searchTreeRaoParameters.getRelativeNetworkActionMinimumImpactThreshold(),
             searchTreeRaoParameters.getSkipNetworkActionsFarFromMostLimitingElement(),
             searchTreeRaoParameters.getMaxNumberOfBoundariesForSkippingNetworkActions());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        NetworkActionParameters that = (NetworkActionParameters) o;
+        return Double.compare(that.absoluteNetworkActionMinimumImpactThreshold, absoluteNetworkActionMinimumImpactThreshold) == 0 && Double.compare(that.relativeNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold) == 0 && skipNetworkActionFarFromMostLimitingElements == that.skipNetworkActionFarFromMostLimitingElements && maxNumberOfBoundariesForSkippingNetworkActions == that.maxNumberOfBoundariesForSkippingNetworkActions && Objects.equals(networkActionCombinations, that.networkActionCombinations);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(networkActionCombinations, absoluteNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold, skipNetworkActionFarFromMostLimitingElements, maxNumberOfBoundariesForSkippingNetworkActions);
     }
 }

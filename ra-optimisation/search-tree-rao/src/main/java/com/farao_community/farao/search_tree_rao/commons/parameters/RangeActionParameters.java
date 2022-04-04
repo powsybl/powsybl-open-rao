@@ -8,6 +8,8 @@ package com.farao_community.farao.search_tree_rao.commons.parameters;
 
 import com.farao_community.farao.rao_api.parameters.RaoParameters;
 
+import java.util.Objects;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -79,5 +81,22 @@ public class RangeActionParameters {
             raoParameters.getPstPenaltyCost(),
             raoParameters.getHvdcPenaltyCost(),
             raoParameters.getInjectionRaPenaltyCost());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RangeActionParameters that = (RangeActionParameters) o;
+        return Double.compare(that.pstSensitivityThreshold, pstSensitivityThreshold) == 0 && Double.compare(that.hvdcSensitivityThreshold, hvdcSensitivityThreshold) == 0 && Double.compare(that.injectionSensitivityThreshold, injectionSensitivityThreshold) == 0 && Double.compare(that.pstPenaltyCost, pstPenaltyCost) == 0 && Double.compare(that.hvdcPenaltyCost, hvdcPenaltyCost) == 0 && Double.compare(that.injectionPenaltyCost, injectionPenaltyCost) == 0 && pstOptimizationApproximation == that.pstOptimizationApproximation;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pstOptimizationApproximation, pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold, pstPenaltyCost, hvdcPenaltyCost, injectionPenaltyCost);
     }
 }
