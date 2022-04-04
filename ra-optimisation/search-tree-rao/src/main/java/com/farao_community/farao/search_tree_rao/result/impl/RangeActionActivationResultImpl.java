@@ -138,13 +138,17 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             throw new FaraoException(format("range action %s is not present in the result", rangeAction.getName()));
         }
 
-        RangeAction<?> lastActivatedRa = correspondingRa.stream()
+        Optional<RangeAction<?>> lastActivatedRaOpt = correspondingRa.stream()
             .max(Comparator.comparingInt(ra -> {
                 Optional<State> lastActivation = elementaryResultMap.get(ra).getSetpointAndLastActivation(state).getRight();
                 return lastActivation.isPresent() ? lastActivation.get().getInstant().getOrder() : -1;
-            })).get();
+            }));
 
-        return elementaryResultMap.get(lastActivatedRa).getSetpoint(state);
+        if (lastActivatedRaOpt.isPresent()) {
+            return elementaryResultMap.get(lastActivatedRaOpt.get()).getSetpoint(state);
+        } else {
+            throw new FaraoException("Range action optimized setpoint not found.");
+        }
     }
 
     @Override
