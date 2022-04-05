@@ -555,7 +555,7 @@ public class CastorFullOptimization {
      */
     static Set<RangeAction<?>> getRangeActionsExcludedFromSecondPreventive(Crac crac) {
         return crac.getRangeActions().stream()
-            .filter(rangeAction -> isRangeActionCurative(rangeAction, crac) && isRangeActionPreventive(rangeAction, crac))
+            .filter(rangeAction -> isRangeActionCurative(rangeAction, crac))
             .collect(Collectors.toSet());
     }
 
