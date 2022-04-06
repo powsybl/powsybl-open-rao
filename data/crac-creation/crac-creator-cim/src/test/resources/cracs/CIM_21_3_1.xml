@@ -334,7 +334,7 @@
               <pSRType.psrType>A06</pSRType.psrType>
               <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
               <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
-              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <marketObjectStatus.status>WRONGSTATUS</marketObjectStatus.status>
               <resourceCapacity.defaultCapacity>1.0</resourceCapacity.defaultCapacity>
               <resourceCapacity.maximumCapacity>33.0</resourceCapacity.maximumCapacity>
               <resourceCapacity.minimumCapacity>1.0</resourceCapacity.minimumCapacity>

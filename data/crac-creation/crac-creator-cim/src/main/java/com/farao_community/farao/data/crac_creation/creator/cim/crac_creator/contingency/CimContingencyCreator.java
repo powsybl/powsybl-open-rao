@@ -5,11 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
+package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency;
 
 import com.farao_community.farao.data.crac_api.ContingencyAdder;
 import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
 import com.powsybl.iidm.network.Network;
 import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.CONTINGENCY_SERIES_BUSINESS_TYPE;
@@ -33,14 +34,14 @@ public class CimContingencyCreator {
         return new HashSet<>(cimContingencyCreationContexts);
     }
 
-    CimContingencyCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
+    public CimContingencyCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
         this.cimTimeSeries = cimTimeSeries;
         this.crac = crac;
         this.network = network;
         this.cracCreationContext = cracCreationContext;
     }
 
-    void createAndAddContingencies() {
+    public void createAndAddContingencies() {
         this.cimContingencyCreationContexts = new HashSet<>();
 
         for (TimeSeries cimTimeSerie : cimTimeSeries) {

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator;
+package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec;
 
 import com.farao_community.farao.commons.Unit;
 import com.farao_community.farao.data.crac_api.*;
@@ -14,6 +14,7 @@ import com.farao_community.farao.data.crac_api.cnec.Side;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdAdder;
 import com.farao_community.farao.data.crac_api.threshold.BranchThresholdRule;
 import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.util.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -39,14 +40,14 @@ public class MonitoredSeriesCreator {
         return monitoredSeriesCreationContexts;
     }
 
-    MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
+    public MonitoredSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
         this.cimTimeSeries = cimTimeSeries;
         this.crac = crac;
         this.network = network;
         this.cracCreationContext = cracCreationContext;
     }
 
-    void createAndAddMonitoredSeries() {
+    public void createAndAddMonitoredSeries() {
         this.monitoredSeriesCreationContexts = new HashMap<>();
 
         for (TimeSeries cimTimeSerie : cimTimeSeries) {
@@ -149,10 +150,10 @@ public class MonitoredSeriesCreator {
                 case CNECS_PATL_UNIT_SYMBOL:
                     unit = Unit.PERCENT_IMAX;
                     break;
-                case CNECS_MEGAWATT_UNIT_SYMBOL:
+                case MEGAWATT_UNIT_SYMBOL:
                     unit = Unit.MEGAWATT;
                     break;
-                case CNECS_AMPERES_UNIT_SYMBOL:
+                case AMPERES_UNIT_SYMBOL:
                     unit = Unit.AMPERE;
                     break;
                 default:

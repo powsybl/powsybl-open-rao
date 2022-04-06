@@ -15,6 +15,10 @@ import java.util.List;
 public final class CimConstants {
     private CimConstants() { }
 
+    // --- GENERAL
+    public static final String MEGAWATT_UNIT_SYMBOL = "MAW";
+    public static final String AMPERES_UNIT_SYMBOL = "AMP";
+
     // --- Contingencies
     public static final String CONTINGENCY_SERIES_BUSINESS_TYPE = "B55";
 
@@ -29,17 +33,13 @@ public final class CimConstants {
     public static final String CNECS_AUTO_STATE_MEASUREMENT_TYPE = "A12";
     public static final String CNECS_CURATIVE_STATE_MEASUREMENT_TYPE = "A13";
     public static final String CNECS_PATL_UNIT_SYMBOL = "P1";
-    public static final String CNECS_MEGAWATT_UNIT_SYMBOL = "MAW";
-    public static final String CNECS_AMPERES_UNIT_SYMBOL = "AMP";
 
     // --- Remedial Actions
     public static final String REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE = "B56";
-    public static final List<String> PST_AUTHORIZED_OPTIMIZATION_STATUS = List.of("Z01", "A01", "A52", "A49");
-    public static final String PST_PSR_TYPE = "A06";
-    public static final String PST_BUSINESS_TYPE = "B59";
-    public static final String PST_CAPACITY_UNIT_SYMBOL = "C62";
+    public static final List<String> REMEDIAL_ACTION_AUTHORIZED_OPTIMIZATION_STATUS = List.of("Z01", "A01", "A52", "A49");
+    public static final String NETWORK_ELEMENT_BUSINESS_TYPE = "B59";
 
-    public enum AuthorizedPstApplicationModeMarketObjectStatus {
+    public enum AuthorizedRemedialActionApplicationModeMarketObjectStatus {
         PRA("A18"),
         CRA("A19"),
         PRA_AND_CRA("A27"),
@@ -47,11 +47,11 @@ public final class CimConstants {
 
         private String status;
 
-        AuthorizedPstApplicationModeMarketObjectStatus(String status) {
+        AuthorizedRemedialActionApplicationModeMarketObjectStatus(String status) {
             this.status = status;
         }
 
-        String getStatus() {
+        public String getStatus() {
             return status; }
     }
 
@@ -65,23 +65,50 @@ public final class CimConstants {
             this.status = status;
         }
 
-        String getStatus() {
+        public String getStatus() {
             return status; }
     }
 
-    public enum PstRangeType {
+    public enum MarketObjectStatus {
         ABSOLUTE("A26"),
         RELATIVE_TO_INITIAL_NETWORK("A25"),
         RELATIVE_TO_PREVIOUS_INSTANT1("A51"),
-        RELATIVE_TO_PREVIOUS_INSTANT2("Z01");
+        RELATIVE_TO_PREVIOUS_INSTANT2("Z01"),
+        STOP("A23"),
+        OPEN("A21"),
+        CLOSE("A22");
 
         private String status;
 
-        PstRangeType(String status) {
+        MarketObjectStatus(String status) {
             this.status = status;
         }
 
-        String getStatus() {
+        public String getStatus() {
+            return status; }
+    }
+
+    // ------ PST
+    public static final String PST_CAPACITY_UNIT_SYMBOL = "C62";
+
+    // ------ Network Actions
+    public enum NetworkActionPsrType {
+        TIE_LINE("A01"),
+        LINE("A02"),
+        GENERATION("A04"),
+        LOAD("A05"),
+        PST("A06"),
+        CIRCUIT_BREAKER("A07"),
+        TRANSFORMER("B24"),
+        DEPRECATED_LINE("A12");
+
+        private String status;
+
+        NetworkActionPsrType(String status) {
+            this.status = status;
+        }
+
+        public String getStatus() {
             return status; }
     }
 }

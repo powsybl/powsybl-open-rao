@@ -1,0 +1,608 @@
+/*
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action;
+
+import com.farao_community.farao.data.crac_api.Contingency;
+import com.farao_community.farao.data.crac_api.Crac;
+import com.farao_community.farao.data.crac_api.Instant;
+import com.farao_community.farao.data.crac_api.RemedialActionAdder;
+import com.farao_community.farao.data.crac_api.network_action.ActionType;
+import com.farao_community.farao.data.crac_api.network_action.NetworkActionAdder;
+import com.farao_community.farao.data.crac_api.range.RangeType;
+import com.farao_community.farao.data.crac_api.range_action.PstRangeActionAdder;
+import com.farao_community.farao.data.crac_api.usage_rule.UsageMethod;
+import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
+import com.farao_community.farao.data.crac_creation.util.PstHelper;
+import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
+import com.powsybl.iidm.network.Network;
+import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimConstants.*;
+import static com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracUtils.*;
+
+/**
+ * @author Godelaine de Montmorillon <godelaine.demontmorillon at rte-france.com>
+ */
+public class RemedialActionSeriesCreator {
+    private final Crac crac;
+    private final Network network;
+    private final List<TimeSeries> cimTimeSeries;
+    private Set<RemedialActionSeriesCreationContext> remedialActionSeriesCreationContexts;
+    private CimCracCreationContext cracCreationContext;
+
+    public RemedialActionSeriesCreator(List<TimeSeries> cimTimeSeries, Crac crac, Network network, CimCracCreationContext cracCreationContext) {
+        this.cimTimeSeries = cimTimeSeries;
+        this.crac = crac;
+        this.network = network;
+        this.cracCreationContext = cracCreationContext;
+    }
+
+    public void createAndAddRemedialActionSeries() {
+        this.remedialActionSeriesCreationContexts = new HashSet<>();
+
+        for (TimeSeries cimTimeSerie : cimTimeSeries) {
+            for (SeriesPeriod cimPeriodInTimeSerie : cimTimeSerie.getPeriod()) {
+                for (Point cimPointInPeriodInTimeSerie : cimPeriodInTimeSerie.getPoint()) {
+                    for (Series cimSerie : cimPointInPeriodInTimeSerie.getSeries().stream().filter(this::describesRemedialActionsToImport).collect(Collectors.toList())) {
+                        if (checkRemedialActionSeries(cimSerie)) {
+                            // Read and store contingencies
+                            List<Contingency> contingencies = new ArrayList<>();
+                            List<String> invalidContingencies = new ArrayList<>();
+                            for (ContingencySeries cimContingency : cimSerie.getContingencySeries()) {
+                                Optional<Contingency> contingency = getContingencyFromCrac(cimContingency, crac);
+                                if (contingency.isPresent()) {
+                                    contingencies.add(contingency.get());
+                                } else {
+                                    invalidContingencies.add(cimContingency.getMRID());
+                                }
+                            }
+                            for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
+                                readAndAddRemedialAction(remedialActionSeries, contingencies, invalidContingencies);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        this.cracCreationContext.setRemedialActionSeriesCreationContexts(remedialActionSeriesCreationContexts);
+    }
+
+    // For now, only free-to-use remedial actions are handled.
+    private void readAndAddRemedialAction(RemedialActionSeries remedialActionSeries, List<Contingency> contingencies, List<String> invalidContingencies) {
+        String createdRemedialActionId = remedialActionSeries.getMRID();
+        String createdRemedialActionName = remedialActionSeries.getName();
+
+        // --- BusinessType
+        String businessType = remedialActionSeries.getBusinessType();
+        if (!checkBusinessType(createdRemedialActionId, businessType)) {
+            return;
+        }
+
+        // --- ApplicationModeMarketObjectStatus
+        String applicationModeMarketObjectStatus = remedialActionSeries.getApplicationModeMarketObjectStatusStatus();
+        if (!checkApplicationModeMarketObjectStatus(createdRemedialActionId, applicationModeMarketObjectStatus)) {
+            return;
+        }
+
+        // --- Availability_MarketObjectStatus
+        String availabilityMarketObjectStus = remedialActionSeries.getAvailabilityMarketObjectStatusStatus();
+        if (!checkAvailabilityMarketObjectStatus(createdRemedialActionId, availabilityMarketObjectStus)) {
+            return;
+        }
+
+        // --- Only import free-to-use remedial actions: there shouldn't be a shared domain tag
+        if (remedialActionSeries.getSharedDomain().size() > 0) {
+            if (remedialActionSeries.getSharedDomain().size() > 1) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("Only free to use remedial actions series are handled. There are %s shared domains", remedialActionSeries.getSharedDomain().size())));
+                return;
+            }
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("Only free to use remedial actions series are handled. Shared domain is: %s", remedialActionSeries.getSharedDomain().get(0).getMRID().getValue())));
+            return;
+        }
+
+        // --- Registered Resources
+        List<RemedialActionRegisteredResource> remedialActionRegisteredResources = remedialActionSeries.getRegisteredResource();
+        if (remedialActionRegisteredResources.isEmpty()) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing registered resource"));
+            return;
+        }
+
+        addRemedialAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus, contingencies, invalidContingencies);
+    }
+
+    private void addRemedialAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+        // 1) Remedial Action is a Pst Range Action :
+        if (!addRemedialActionPstRangeAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus, contingencies, invalidContingencies)) {
+            return;
+        }
+        // 2) Remedial Action is a Network Action :
+        addRemedialActionNetworkAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResources, applicationModeMarketObjectStatus, contingencies, invalidContingencies);
+    }
+
+    /*-------------- PST RANGE ACTION ------------------------------*/
+    private boolean addRemedialActionPstRangeAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+        for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
+            String psrType = remedialActionRegisteredResource.getPSRTypePsrType();
+            if (Objects.isNull(psrType)) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing psrType"));
+                return false;
+            }
+            // ------ PST
+            if (psrType.equals(NetworkActionPsrType.PST.getStatus())) {
+                // --------- PST Range Action
+                if (Objects.isNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
+                    if (remedialActionRegisteredResources.size() > 1) {
+                        remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("> 1 registered resources (%s) with at least one PST Range Action defined", remedialActionRegisteredResources.size())));
+                        return false;
+                    }
+                    if (!addPstRemedialAction(createdRemedialActionId, createdRemedialActionName, remedialActionRegisteredResource, applicationModeMarketObjectStatus, contingencies, invalidContingencies)) {
+                        return false;
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean addPstRemedialAction(String createdRemedialActionId, String createdRemedialActionName, RemedialActionRegisteredResource remedialActionRegisteredResource, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+        if (Objects.isNull(remedialActionRegisteredResource.getMarketObjectStatusStatus())) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing marketObjectStatus"));
+            return false;
+        }
+        // --- Market Object status: define RangeType
+        String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
+        RangeType rangeType;
+        if (marketObjectStatusStatus.equals(MarketObjectStatus.ABSOLUTE.getStatus())) {
+            rangeType = RangeType.ABSOLUTE;
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.RELATIVE_TO_INITIAL_NETWORK.getStatus())) {
+            rangeType = RangeType.RELATIVE_TO_INITIAL_NETWORK;
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT1.getStatus()) || marketObjectStatusStatus.equals(MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT2.getStatus())) {
+            rangeType = RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.OPEN.getStatus()) || marketObjectStatusStatus.equals(MarketObjectStatus.CLOSE.getStatus())) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated)", marketObjectStatusStatus)));
+            return false;
+        } else {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus)));
+            return false;
+        }
+
+        // Add remedial action
+        // --- For now, do not set operator.
+        // --- For now, do not set group id.
+        String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
+
+        IidmPstHelper pstHelper = new IidmPstHelper(networkElementId, network);
+        if (!pstHelper.isValid()) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s", pstHelper.getInvalidReason())));
+            return false;
+        }
+
+        PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
+                .withId(createdRemedialActionId)
+                .withName(createdRemedialActionName)
+                .withNetworkElement(pstHelper.getIdInNetwork())
+                .withInitialTap(pstHelper.getInitialTap())
+                .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap());
+
+        // --- Resource capacity
+        String unitSymbol = remedialActionRegisteredResource.getResourceCapacityUnitSymbol();
+        // Min and Max defined
+        if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity()) && Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity())) {
+            int minCapacity = remedialActionRegisteredResource.getResourceCapacityMinimumCapacity().intValue();
+            int maxCapacity = remedialActionRegisteredResource.getResourceCapacityMaximumCapacity().intValue();
+            if (!checkUnit(createdRemedialActionId, unitSymbol)) {
+                return false;
+            }
+            addTapRangeWithMinAndMaxTap(pstRangeActionAdder, pstHelper, minCapacity, maxCapacity, rangeType);
+        } else if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity())) {
+            int maxCapacity = remedialActionRegisteredResource.getResourceCapacityMaximumCapacity().intValue();
+            if (!checkUnit(createdRemedialActionId, unitSymbol)) {
+                return false;
+            }
+            addTapRangeWithMaxTap(pstRangeActionAdder, pstHelper, maxCapacity, rangeType);
+        } else if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity())) {
+            int minCapacity = remedialActionRegisteredResource.getResourceCapacityMinimumCapacity().intValue();
+            if (!checkUnit(createdRemedialActionId, unitSymbol)) {
+                return false;
+            }
+            addTapRangeWithMinTap(pstRangeActionAdder, pstHelper, minCapacity, rangeType);
+        }
+
+        if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, null)) {
+            return false;
+        }
+
+        if (invalidContingencies.isEmpty()) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.imported(createdRemedialActionId, false, ""));
+        } else {
+            String contingencyList = StringUtils.join(invalidContingencies, ", ");
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s not defined in B55s", contingencyList)));
+        }
+
+        pstRangeActionAdder.add();
+        return true;
+    }
+
+    private boolean checkUnit(String createdRemedialActionId, String unitSymbol) {
+        if (Objects.isNull(unitSymbol)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing unit symbol"));
+            return false;
+        }
+        if (!unitSymbol.equals(PST_CAPACITY_UNIT_SYMBOL)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol in its registered resource: %s", unitSymbol)));
+            return false;
+        }
+        return true;
+    }
+
+    private void addTapRangeWithMinTap(PstRangeActionAdder pstRangeActionAdder, IidmPstHelper pstHelper, int minCapacity, RangeType rangeType) {
+        int minTap = minCapacity;
+        if (rangeType.equals(RangeType.ABSOLUTE)) {
+            minTap = pstHelper.normalizeTap(minTap, PstHelper.TapConvention.STARTS_AT_ONE);
+        }
+        pstRangeActionAdder.newTapRange()
+                .withMinTap(minTap)
+                .withRangeType(rangeType)
+                .add();
+    }
+
+    private void addTapRangeWithMaxTap(PstRangeActionAdder pstRangeActionAdder, IidmPstHelper pstHelper, int maxCapacity, RangeType rangeType) {
+        int maxTap = maxCapacity;
+        if (rangeType.equals(RangeType.ABSOLUTE)) {
+            maxTap = pstHelper.normalizeTap(maxTap, PstHelper.TapConvention.STARTS_AT_ONE);
+        }
+        pstRangeActionAdder.newTapRange()
+                .withMaxTap(maxTap)
+                .withRangeType(rangeType)
+                .add();
+    }
+
+    private void addTapRangeWithMinAndMaxTap(PstRangeActionAdder pstRangeActionAdder, IidmPstHelper pstHelper, int minCapacity, int maxCapacity, RangeType rangeType) {
+        int minTap = minCapacity;
+        int maxTap = maxCapacity;
+        if (rangeType.equals(RangeType.ABSOLUTE)) {
+            minTap = pstHelper.normalizeTap(minTap, PstHelper.TapConvention.STARTS_AT_ONE);
+            maxTap = pstHelper.normalizeTap(maxTap, PstHelper.TapConvention.STARTS_AT_ONE);
+        }
+        pstRangeActionAdder.newTapRange()
+                .withMinTap(minTap)
+                .withMaxTap(maxTap)
+                .withRangeType(rangeType)
+                .add();
+    }
+
+    /*-------------- NETWORK ACTION ------------------------------*/
+    private void addRemedialActionNetworkAction(String createdRemedialActionId, String createdRemedialActionName, List<RemedialActionRegisteredResource> remedialActionRegisteredResources, String applicationModeMarketObjectStatus, List<Contingency> contingencies, List<String> invalidContingencies) {
+        NetworkActionAdder networkActionAdder = crac.newNetworkAction()
+                .withId(createdRemedialActionId)
+                .withName(createdRemedialActionName);
+
+        // Elementary actions
+        for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
+            String psrType = remedialActionRegisteredResource.getPSRTypePsrType();
+            String elementaryActionId = remedialActionRegisteredResource.getMRID().getValue();
+            if (Objects.isNull(psrType)) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, String.format("Missing psrType on elementary action %s", elementaryActionId)));
+                return;
+            }
+
+            if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, elementaryActionId)) {
+                return;
+            }
+
+            // ------ PST setpoint elementary action
+            if (psrType.equals(NetworkActionPsrType.PST.getStatus())) {
+                if (!addPstSetpointElementaryAction(createdRemedialActionId, elementaryActionId, remedialActionRegisteredResource, networkActionAdder)) {
+                    return;
+                }
+                // ------ Injection elementary action
+            } else if (psrType.equals(NetworkActionPsrType.GENERATION.getStatus()) || psrType.equals(NetworkActionPsrType.LOAD.getStatus())) {
+                if (!addInjectionSetpointElementaryAction(createdRemedialActionId, elementaryActionId, remedialActionRegisteredResource, networkActionAdder)) {
+                    return;
+                }
+                // ------ TODO : Missing check : default capacity in ohms
+            } else if (psrType.equals(NetworkActionPsrType.LINE.getStatus()) && remedialActionRegisteredResource.getMarketObjectStatusStatus().equals(MarketObjectStatus.ABSOLUTE.getStatus())) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("Modify line impedance as remedial action on elementary action %s", elementaryActionId)));
+                return;
+                // ------ Topological elementary action
+            } else if (psrType.equals(NetworkActionPsrType.TIE_LINE.getStatus()) || psrType.equals(NetworkActionPsrType.LINE.getStatus()) || psrType.equals(NetworkActionPsrType.CIRCUIT_BREAKER.getStatus()) || psrType.equals(NetworkActionPsrType.TRANSFORMER.getStatus())) {
+                if (!addTopologicalElementaryAction(createdRemedialActionId, elementaryActionId, remedialActionRegisteredResource, networkActionAdder)) {
+                    return;
+                }
+            } else if (psrType.equals(NetworkActionPsrType.DEPRECATED_LINE.getStatus())) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong psrType: %s, deprecated LINE psrType on elementary action %s", psrType, elementaryActionId)));
+                return;
+            } else {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong psrType: %s on elementary action %s", psrType, elementaryActionId)));
+                return;
+            }
+        }
+        if (invalidContingencies.isEmpty()) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.imported(createdRemedialActionId, false, ""));
+        } else {
+            String contingencyList = StringUtils.join(invalidContingencies, ", ");
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s not defined in B55s", contingencyList)));
+        }
+
+        networkActionAdder.add();
+    }
+
+    private boolean addPstSetpointElementaryAction(String createdRemedialActionId, String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+        if (!checkUnit(createdRemedialActionId, remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
+            return false;
+        }
+        // Pst helper
+        String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
+        IidmPstHelper pstHelper = new IidmPstHelper(networkElementId, network);
+        if (!pstHelper.isValid()) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s on elementary action %s", pstHelper.getInvalidReason(), elementaryActionId)));
+            return false;
+        }
+        // --- Market Object status: define RangeType
+        String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
+        int setpoint;
+        if (Objects.isNull(marketObjectStatusStatus)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on elementary action %s", elementaryActionId)));
+            return false;
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.ABSOLUTE.getStatus())) {
+            setpoint = pstHelper.normalizeTap(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity().intValue(), PstHelper.TapConvention.STARTS_AT_ONE);
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.RELATIVE_TO_INITIAL_NETWORK.getStatus())) {
+            setpoint = pstHelper.getInitialTap() + remedialActionRegisteredResource.getResourceCapacityDefaultCapacity().intValue();
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.OPEN.getStatus()) || marketObjectStatusStatus.equals(MarketObjectStatus.CLOSE.getStatus())) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated) on elementary action %s", marketObjectStatusStatus, elementaryActionId)));
+            return false;
+        } else {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on elementary action %s", marketObjectStatusStatus, elementaryActionId)));
+            return false;
+        }
+        networkActionAdder.newPstSetPoint()
+                .withNetworkElement(networkElementId)
+                .withSetpoint(setpoint)
+                .add();
+
+        return true;
+    }
+
+    private boolean addInjectionSetpointElementaryAction(String createdRemedialActionId, String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+        // Injection range actions aren't handled
+        if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity())) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s should not have a min or max capacity defined", elementaryActionId)));
+            return false;
+        }
+        // Market object status
+        String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
+        int setpoint;
+        if (Objects.isNull(marketObjectStatusStatus)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on elementary action %s", elementaryActionId)));
+            return false;
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.ABSOLUTE.getStatus())) {
+            if (Objects.isNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, String.format("Injection setpoint elementary action %s with ABSOLUTE marketObjectStatus should have a defaultCapacity", elementaryActionId)));
+                return false;
+            }
+            if (Objects.isNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, String.format("Injection setpoint elementary action %s with ABSOLUTE marketObjectStatus should have a unitSymbol", elementaryActionId)));
+                return false;
+            }
+            if (!remedialActionRegisteredResource.getResourceCapacityUnitSymbol().equals(MEGAWATT_UNIT_SYMBOL)) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol for injection setpoint elementary action %s with ABSOLUTE marketObjectStatus : %s", elementaryActionId, remedialActionRegisteredResource.getResourceCapacityUnitSymbol())));
+                return false;
+            }
+            setpoint = remedialActionRegisteredResource.getResourceCapacityDefaultCapacity().intValue();
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.STOP.getStatus())) {
+            if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s with STOP marketObjectStatus shouldn't have a defaultCapacity", elementaryActionId)));
+                return false;
+            }
+            if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityUnitSymbol())) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Injection setpoint elementary action %s with STOP marketObjectStatus shouldn't have a unitSymbol", elementaryActionId)));
+                return false;
+            }
+            setpoint = 0;
+        } else {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s on elementary action %s", marketObjectStatusStatus, elementaryActionId)));
+            return false;
+        }
+
+        String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
+        if (Objects.isNull(network.getGenerator(networkElementId))) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is not a generator on elementary action %s", networkElementId, elementaryActionId)));
+            return false;
+        }
+
+        networkActionAdder.newInjectionSetPoint()
+                .withNetworkElement(networkElementId)
+                .withSetpoint(setpoint)
+                .add();
+
+        return true;
+    }
+
+    private boolean addTopologicalElementaryAction(String createdRemedialActionId, String elementaryActionId, RemedialActionRegisteredResource remedialActionRegisteredResource, NetworkActionAdder networkActionAdder) {
+        if (Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMinimumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityMaximumCapacity()) || Objects.nonNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Topological elementary action %s should not have any resource capacity defined", elementaryActionId)));
+            return false;
+        }
+        // Market object status
+        String marketObjectStatusStatus = remedialActionRegisteredResource.getMarketObjectStatusStatus();
+        ActionType actionType;
+        if (Objects.isNull(marketObjectStatusStatus)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, String.format("Missing marketObjectStatus on elementary action %s", elementaryActionId)));
+            return false;
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.OPEN.getStatus())) {
+            actionType = ActionType.OPEN;
+        } else if (marketObjectStatusStatus.equals(MarketObjectStatus.CLOSE.getStatus())) {
+            actionType = ActionType.CLOSE;
+        } else {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA,  String.format("Wrong marketObjectStatusStatus: %s on elementary action %s", marketObjectStatusStatus, elementaryActionId)));
+            return false;
+        }
+
+        String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
+        //TODO : check getBranch
+        if (Objects.isNull(network.getIdentifiable(networkElementId))) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not in network on elementary action %s", networkElementId, elementaryActionId)));
+            return false;
+        }
+        if (Objects.isNull(network.getBranch(networkElementId)) || Objects.isNull(network.getSwitch(networkElementId))) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("%s is nor a branch or a switch on elementary action %s", networkElementId, elementaryActionId)));
+            return false;
+        }
+
+        networkActionAdder.newTopologicalAction()
+                .withNetworkElement(networkElementId)
+                .withActionType(actionType)
+                .add();
+
+        return true;
+    }
+
+    /*-------------- USAGE RULES ------------------------------*/
+    private boolean addUsageRules(String createdRemedialActionId, String applicationModeMarketObjectStatus, RemedialActionAdder remedialActionAdder, List<Contingency> contingencies, List<String> invalidContingencies, String elementaryActionId) {
+        String importStatusDetail = "";
+        if (Objects.nonNull(elementaryActionId)) {
+            importStatusDetail = String.format("on elementary action %s", elementaryActionId);
+        }
+        if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.PRA.getStatus())) {
+            if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
+                addFreeToUseUsageRules(remedialActionAdder, Instant.PREVENTIVE);
+            } else  {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a preventive remedial action associated to a contingency %s", importStatusDetail)));
+                return false;
+            }
+        }
+        if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.CRA.getStatus())) {
+            if (contingencies.isEmpty()) {
+                if (!invalidContingencies.isEmpty()) {
+                    remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA,  String.format("Contingencies are all invalid, and usage rule is on curative instant %s", importStatusDetail)));
+                    return false;
+                } else {
+                    addFreeToUseUsageRules(remedialActionAdder, Instant.CURATIVE);
+                }
+            } else {
+                addOnStateUsageRules(remedialActionAdder, Instant.CURATIVE, UsageMethod.AVAILABLE, contingencies);
+            }
+        }
+        if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.PRA_AND_CRA.getStatus())) {
+            addFreeToUseUsageRules(remedialActionAdder, Instant.PREVENTIVE);
+            if (invalidContingencies.isEmpty() && contingencies.isEmpty()) {
+                addFreeToUseUsageRules(remedialActionAdder, Instant.CURATIVE);
+            }
+            if (!contingencies.isEmpty()) {
+                addOnStateUsageRules(remedialActionAdder, Instant.CURATIVE, UsageMethod.AVAILABLE, contingencies);
+            }
+        }
+        if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.AUTO.getStatus())) {
+            if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a free-to-use remedial action at instant AUTO %s", importStatusDetail)));
+                return false;
+            } else if (contingencies.isEmpty()) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on AUTO instant %s", importStatusDetail)));
+                return false;
+            } else {
+                addOnStateUsageRules(remedialActionAdder, Instant.AUTO, UsageMethod.FORCED, contingencies);
+            }
+        }
+        return true;
+    }
+
+    private void addFreeToUseUsageRules(RemedialActionAdder adder, Instant raApplicationInstant) {
+        adder.newFreeToUseUsageRule()
+                .withInstant(raApplicationInstant)
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add();
+    }
+
+    private void addOnStateUsageRules(RemedialActionAdder adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
+        contingencies.forEach(contingency ->
+                adder.newOnStateUsageRule()
+                        .withInstant(raApplicationInstant)
+                        .withUsageMethod(usageMethod)
+                        .withContingency(contingency.getId())
+                        .add());
+    }
+
+    /*-------------- SERIES CHECKS ------------------------------*/
+    private boolean checkRemedialActionSeries(Series cimSerie) {
+        // --- Check optimizationStatus
+        String optimizationStatus = cimSerie.getOptimizationMarketObjectStatusStatus();
+        if (Objects.nonNull(optimizationStatus)) {
+            boolean statusOk = false;
+            for (String status : REMEDIAL_ACTION_AUTHORIZED_OPTIMIZATION_STATUS) {
+                if (optimizationStatus.equals(status)) {
+                    statusOk = true;
+                    break;
+                }
+            }
+            if (!statusOk) {
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerie.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong optimization status: %s", optimizationStatus)));
+                return false;
+            }
+        }
+        // --- Do not import remedial actions specific to angle monitoring yet
+        if (cimSerie.getAdditionalConstraintSeries().size() > 0) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerie.getMRID(), ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("Series %s: remedial actions specific to angle monitoring are not handled yet",  cimSerie.getMRID())));
+            return false;
+        }
+        // --- Do not import remedial actions available on a CNEC yet.
+        if (cimSerie.getMonitoredSeries().size() > 0) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerie.getMRID(), ImportStatus.NOT_YET_HANDLED_BY_FARAO, "Remedial actions available on a CNEC are not handled yet"));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkBusinessType(String createdRemedialActionId, String businessType) {
+        if (Objects.isNull(businessType) || !businessType.equals(NETWORK_ELEMENT_BUSINESS_TYPE)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong businessType: %s", businessType)));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkApplicationModeMarketObjectStatus(String createdRemedialActionId, String applicationModeMarketObjectStatus) {
+        if (Objects.isNull(applicationModeMarketObjectStatus)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing applicationMode MarketObjectStatus"));
+            return false;
+        }
+        for (AuthorizedRemedialActionApplicationModeMarketObjectStatus value : AuthorizedRemedialActionApplicationModeMarketObjectStatus.values()) {
+            if (applicationModeMarketObjectStatus.equals(value.getStatus())) {
+                return true;
+            }
+        }
+        remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong applicationMode_MarketObjectStatus: %s", applicationModeMarketObjectStatus)));
+        return false;
+    }
+
+    private boolean checkAvailabilityMarketObjectStatus(String createdRemedialActionId, String availabilityMarketObjectStatus) {
+        if (Objects.isNull(availabilityMarketObjectStatus)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing availabilityMarketObjectStatus."));
+            return false;
+        }
+        // Temporary: A38 not yet handled by FARAO.
+        if (availabilityMarketObjectStatus.equals(AvailabilityMarketObjectStatus.SHALL_BE_USED.getStatus())) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)));
+            return false;
+        }
+        if (!availabilityMarketObjectStatus.equals(AvailabilityMarketObjectStatus.MIGHT_BE_USED.getStatus())) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean describesRemedialActionsToImport(Series series) {
+        return series.getBusinessType().equals(REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE);
+    }
+}

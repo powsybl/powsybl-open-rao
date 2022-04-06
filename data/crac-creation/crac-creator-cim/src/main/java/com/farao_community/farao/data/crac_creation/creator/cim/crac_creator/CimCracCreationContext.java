@@ -11,6 +11,11 @@ import com.farao_community.farao.data.crac_api.Crac;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationContext;
 import com.farao_community.farao.data.crac_creation.creator.api.CracCreationReport;
 import com.farao_community.farao.data.crac_creation.creator.api.ElementaryCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.CnecCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MeasurementCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.cnec.MonitoredSeriesCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.contingency.CimContingencyCreationContext;
+import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.remedial_action.RemedialActionSeriesCreationContext;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -101,7 +106,7 @@ public class CimCracCreationContext implements CracCreationContext {
         return creationReport;
     }
 
-    void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
+    public void setContingencyCreationContexts(Set<CimContingencyCreationContext> contingencyCreationContexts) {
         this.contingencyCreationContexts = new HashSet<>(contingencyCreationContexts);
     }
 
@@ -121,13 +126,12 @@ public class CimCracCreationContext implements CracCreationContext {
         this.monitoredSeriesCreationContexts = monitoredSeriesCreationContexts;
     }
 
-    void setRemedialActionSeriesCreationContexts(Set<RemedialActionSeriesCreationContext> remedialActionCreationContexts) {
-        this.remedialActionSeriesCreationContexts = remedialActionCreationContexts;
+    public void setRemedialActionSeriesCreationContexts(Set<RemedialActionSeriesCreationContext> remedialActionCreationContexts) {
+        this.remedialActionSeriesCreationContexts = new HashSet<>(remedialActionCreationContexts);
     }
 
     public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContexts(String seriesId) {
-        return remedialActionSeriesCreationContexts.stream().filter(raCreationContext -> raCreationContext.getNativeId().equals(seriesId)).findAny().orElseThrow();
-
+        return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeId().equals(seriesId)).findAny().orElseThrow();
     }
 
     public CimContingencyCreationContext getContingencyCreationContext(String contingencyName) {
