@@ -20,8 +20,10 @@ import com.farao_community.farao.data.crac_creation.creator.api.ImportStatus;
 import com.farao_community.farao.data.crac_creation.creator.cim.crac_creator.CimCracCreationContext;
 import com.farao_community.farao.data.crac_creation.util.PstHelper;
 import com.farao_community.farao.data.crac_creation.util.iidm.IidmPstHelper;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.farao_community.farao.data.crac_creation.creator.cim.xsd.*;
+import com.powsybl.iidm.network.Switch;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -448,16 +450,15 @@ public class RemedialActionSeriesCreator {
         }
 
         String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
-        //TODO : check getBranch
         if (Objects.isNull(network.getIdentifiable(networkElementId))) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s not in network on topological elementary action %s", networkElementId, elementaryActionId)));
             return false;
         }
-        // TODO : comprendre pourquoi on ne fail pas si ce n'est ni une branche ni un switch. on ne passe pas pas le apply finalement?
-//        if (Objects.isNull(network.getBranch(networkElementId)) || Objects.isNull(network.getSwitch(networkElementId))) {
-//            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId)));
-//            return false;
-//        }
+        if ((network.getIdentifiable(networkElementId) instanceof Branch) || (network.getIdentifiable(networkElementId) instanceof
+        Switch)) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId)));
+            return false;
+        }
 
         networkActionAdder.newTopologicalAction()
                 .withNetworkElement(networkElementId)
