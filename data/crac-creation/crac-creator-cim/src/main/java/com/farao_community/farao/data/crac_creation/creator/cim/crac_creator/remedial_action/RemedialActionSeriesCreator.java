@@ -455,7 +455,7 @@ public class RemedialActionSeriesCreator {
             return false;
         }
         if ((network.getIdentifiable(networkElementId) instanceof Branch) || (network.getIdentifiable(networkElementId) instanceof
-        Switch)) {
+            Switch)) {
             remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_FARAO, String.format("%s is nor a branch nor a switch on elementary action %s", networkElementId, elementaryActionId)));
             return false;
         }
