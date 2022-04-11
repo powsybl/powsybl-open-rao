@@ -220,7 +220,7 @@ public class RemedialActionSeriesCreator {
             addTapRangeWithMinTap(pstRangeActionAdder, pstHelper, minCapacity, rangeType);
         }
 
-        if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, null)) {
+        if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies)) {
             return;
         }
 
@@ -288,16 +288,16 @@ public class RemedialActionSeriesCreator {
                 .withId(createdRemedialActionId)
                 .withName(createdRemedialActionName);
 
+        if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies)) {
+            return;
+        }
+
         // Elementary actions
         for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
             String psrType = remedialActionRegisteredResource.getPSRTypePsrType();
-            String elementaryActionId = remedialActionRegisteredResource.getMRID().getValue();
+            String elementaryActionId = remedialActionRegisteredResource.getName();
             if (Objects.isNull(psrType)) {
                 remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, String.format("Missing psrType on elementary action %s", elementaryActionId)));
-                return;
-            }
-
-            if (!addUsageRules(createdRemedialActionId, applicationModeMarketObjectStatus, networkActionAdder, contingencies, invalidContingencies, elementaryActionId)) {
                 return;
             }
 
@@ -416,8 +416,8 @@ public class RemedialActionSeriesCreator {
         }
 
         String networkElementId = remedialActionRegisteredResource.getMRID().getValue();
-        if (Objects.isNull(network.getGenerator(networkElementId))) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is not a generator on injection setpoint elementary action %s", networkElementId, elementaryActionId)));
+        if (Objects.isNull(network.getGenerator(networkElementId)) && Objects.isNull(network.getLoad(networkElementId))) {
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s is nor a generator nor a load on injection setpoint elementary action %s", networkElementId, elementaryActionId)));
             return false;
         }
 
@@ -470,23 +470,19 @@ public class RemedialActionSeriesCreator {
     }
 
     /*-------------- USAGE RULES ------------------------------*/
-    private boolean addUsageRules(String createdRemedialActionId, String applicationModeMarketObjectStatus, RemedialActionAdder remedialActionAdder, List<Contingency> contingencies, List<String> invalidContingencies, String elementaryActionId) {
-        String importStatusDetail = "";
-        if (Objects.nonNull(elementaryActionId)) {
-            importStatusDetail = String.format("on elementary action %s", elementaryActionId);
-        }
+    private boolean addUsageRules(String createdRemedialActionId, String applicationModeMarketObjectStatus, RemedialActionAdder remedialActionAdder, List<Contingency> contingencies, List<String> invalidContingencies) {
         if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.PRA.getStatus())) {
             if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
                 addFreeToUseUsageRules(remedialActionAdder, Instant.PREVENTIVE);
             } else  {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a preventive remedial action associated to a contingency %s", importStatusDetail)));
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency"));
                 return false;
             }
         }
         if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.CRA.getStatus())) {
             if (contingencies.isEmpty()) {
                 if (!invalidContingencies.isEmpty()) {
-                    remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA,  String.format("Contingencies are all invalid, and usage rule is on curative instant %s", importStatusDetail)));
+                    remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on curative instant"));
                     return false;
                 } else {
                     addFreeToUseUsageRules(remedialActionAdder, Instant.CURATIVE);
@@ -506,10 +502,10 @@ public class RemedialActionSeriesCreator {
         }
         if (applicationModeMarketObjectStatus.equals(AuthorizedRemedialActionApplicationModeMarketObjectStatus.AUTO.getStatus())) {
             if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a free-to-use remedial action at instant AUTO %s", importStatusDetail)));
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a free-to-use remedial action at instant AUTO"));
                 return false;
             } else if (contingencies.isEmpty()) {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on AUTO instant %s", importStatusDetail)));
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, "Contingencies are all invalid, and usage rule is on AUTO instant %s"));
                 return false;
             } else {
                 addOnStateUsageRules(remedialActionAdder, Instant.AUTO, UsageMethod.FORCED, contingencies);
